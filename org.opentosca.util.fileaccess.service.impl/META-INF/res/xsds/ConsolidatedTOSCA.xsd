@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.opentosca.org/ConsolidatedTOSCA" xmlns:tns="http://www.opentosca.org/ConsolidatedTOSCA"
+	elementFormDefault="qualified">
+
+	<xs:element name="PublicPlans">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tns:PublicPlan" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="PublicPlan">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="InputParameter" type="tns:Parameter"
+					minOccurs="1" maxOccurs="unbounded" />
+				<xs:element name="OutputParameter" type="tns:Parameter"
+					minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+
+			<xs:attribute name="CSARID" type="xs:string" use="required" />
+			<xs:attribute name="PlanType" type="xs:anyURI" use="required" />
+			<xs:attribute name="InternalPlanID" type="xs:int" use="required" />
+			<xs:attribute name="PlanID" type="xs:QName" use="required" />
+			<xs:attribute name="InternalInstanceInternalID" type="xs:int"
+				use="required" />
+			<xs:attribute name="InterfaceName" type="xs:string" use="required" />
+			<xs:attribute name="OperationName" type="xs:string" use="required" />
+			<xs:attribute name="InputMessageID" type="xs:QName" use="required" />
+			<xs:attribute name="OutputMessageID" type="xs:QName"
+				use="required" />
+			<xs:attribute name="PlanLanguage" type="xs:anyURI" use="required" />
+			<xs:attribute name="isActive" type="xs:boolean" use="required" />
+			<xs:attribute name="hasFailed" type="xs:boolean" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="Parameter">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" type="xs:string" use="required" />
+				<xs:attribute name="type" type="xs:string" use="required" />
+				<xs:attribute name="required" type="xs:boolean" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:element name="ConsolidatedPolicies">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="tns:ConsolidatedPolicy" minOccurs="1"
+					maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ConsolidatedPolicy">
+		<xs:complexType>
+
+			<xs:sequence>
+				<xs:element name="Properties" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:any namespace="##other" processContents="lax"
+								minOccurs="1" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="PolicyTemplateSpecificContent"
+					minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:any namespace="##other" processContents="lax"
+								minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+
+			<xs:attribute name="name" type="xs:string" />
+			<xs:attribute name="type" type="QName" use="required" />
+			<xs:attribute name="policyLanguage" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+
+<target name="OpenToscaTargetPlatform" sequenceNumber="112">
+<locations>
+<location path="${project_loc:org.opentosca.targetplatform.container}/EclipseJetty" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Jersey" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Logging" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Apache" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Equinox" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Springframework" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Springsource" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/EclipseLink" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Derby" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Misc" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Testing" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/Equinox/Equinox-Core-Runtime" type="Directory"/>
+<location path="${project_loc:org.opentosca.targetplatform.container}/JClouds" type="Directory"/>
+</locations>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+</target>

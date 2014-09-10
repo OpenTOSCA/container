@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Core Internal Credentials Service Interface
+Bundle-SymbolicName: org.opentosca.core.internal.credentials.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.opentosca.core.model.credentials,
+ org.opentosca.exceptions
+Export-Package: org.opentosca.core.internal.credentials.service

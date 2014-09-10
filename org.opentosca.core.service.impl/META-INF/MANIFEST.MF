@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Core
+Bundle-SymbolicName: org.opentosca.core.service.impl
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.xml.namespace,
+ org.opentosca.core.capability.service,
+ org.opentosca.core.credentials.service,
+ org.opentosca.core.deployment.tracker.service,
+ org.opentosca.core.endpoint.service,
+ org.opentosca.core.file.service,
+ org.opentosca.core.internal.capability.service,
+ org.opentosca.core.internal.credentials.service,
+ org.opentosca.core.internal.deployment.tracker.service,
+ org.opentosca.core.internal.endpoint.service,
+ org.opentosca.core.internal.file.service,
+ org.opentosca.core.internal.model.repository.service,
+ org.opentosca.core.model.capability.provider,
+ org.opentosca.core.model.credentials,
+ org.opentosca.core.model.csar,
+ org.opentosca.core.model.csar.id,
+ org.opentosca.core.model.deployment.ia,
+ org.opentosca.core.model.deployment.plan,
+ org.opentosca.core.model.deployment.process,
+ org.opentosca.core.model.endpoint.rest,
+ org.opentosca.core.model.endpoint.wsdl,
+ org.opentosca.core.model.repository.service,
+ org.opentosca.exceptions,
+ org.opentosca.model.tosca,
+ org.opentosca.settings,
+ org.slf4j;version="1.6.4"
+Service-Component: OSGI-INF/ICoreEndpointServiceImpl_component.xml, OSGI-INF/CoreFileServiceImpl_component.xml, OSGI-INF/ICoreModelRepositoryService_component.xml, OSGI-INF/CoreDeploymentTrackerServiceImpl_component.xml, OSGI-INF/CoreCapabilityServiceImpl_component.xml,
+ OSGI-INF/CoreCredentialsServiceImpl_component.xml
+Bundle-ActivationPolicy: lazy

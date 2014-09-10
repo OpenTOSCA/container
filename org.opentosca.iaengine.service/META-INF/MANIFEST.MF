@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Implementationartifactengine
+Bundle-SymbolicName: org.opentosca.iaengine.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.xml.namespace,
+ org.opentosca.core.model.csar.id,
+ org.slf4j;version="1.6.4"
+Export-Package: org.opentosca.iaengine.service

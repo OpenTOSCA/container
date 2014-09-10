@@ -1,0 +1,69 @@
+<!--
+
+Copyright 2012 IAAS University of Stuttgart 
+
+Rene Trefft - trefftre@studi.informatik.uni-stuttgart.de 
+
+This logback configuration is for productivity use of an application. All logging 
+levels from INFO to ERROR will be logged.
+The logged entries will be printed to console and saved in files 
+(complete log and error log with monthly rollover).
+
+-->
+
+<!-- scanning for file changes disabled -->
+<configuration>
+
+    <!-- uncomment to show logback status information -->
+    <!-- <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" /> -->
+
+	<!-- file appender for console log -->
+	<appender name="CONSOLE-INFO-AND-HIGHER" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%-13date{HH:mm:ss.SSS} %-6level %-41logger{40} %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<!-- file appender for complete log -->
+	<appender name="FILE-INFO-AND-HIGHER"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>%-24date %-6level %-41logger{40} %msg%n
+			</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- monthly rollover -->
+			<fileNamePattern>log/%d{yyyy-MM}_all.log</fileNamePattern>
+			<!-- keep logs for 2 months -->
+			<maxHistory>2</maxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<!-- file appender for error log -->
+	<appender name="FILE-ERROR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<encoder>
+			<pattern>%-24date %-6level %-41logger{40} %msg%n
+			</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- monthly rollover -->
+			<fileNamePattern>log/%d{yyyy-MM}_error.log</fileNamePattern>
+			<!-- keep logs for 6 months -->
+			<maxHistory>6</maxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE-INFO-AND-HIGHER" />
+		<appender-ref ref="FILE-INFO-AND-HIGHER" />
+		<appender-ref ref="FILE-ERROR" />
+	</root>
+
+</configuration>

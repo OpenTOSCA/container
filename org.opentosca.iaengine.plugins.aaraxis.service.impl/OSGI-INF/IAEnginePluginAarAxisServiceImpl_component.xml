@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.iaengine.plugins.aaraxis.service.impl.IAEnginePluginAarAxisServiceImpl">
+   <implementation class="org.opentosca.iaengine.plugins.aaraxis.service.impl.IAEnginePluginAarAxisServiceImpl"/>
+   <service>
+      <provide interface="org.opentosca.iaengine.plugins.service.IIAEnginePluginService"/>
+   </service>
+   <reference bind="bindHTTPService" cardinality="1..1" interface="org.opentosca.util.http.service.IHTTPService" name="IHTTPService" policy="static" unbind="unbindHTTPService"/>
+</scr:component>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://opentosca.org/DeploymentArtifactsResourceSchema"
+	xmlns:tns="http://opentosca.org/DeploymentArtifactsResourceSchema"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+	
+	<!--  <xs:element name="AllDeploymentArtifacts" type="tAllDeploymentArtifacts"/>-->
+	
+	<xs:complexType name="tAllDeploymentArtifacts">
+		<xs:sequence>
+			<xs:element name="DeploymentArtifact" type="tns:tDeploymentArtifact"/>
+		</xs:sequence>
+		<xs:attribute name="ServiceTemplateId" type="xs:string"/>
+		<xs:attribute name="ThorFileId" type="xs:string"/>
+	</xs:complexType>
+
+	<xs:complexType name="tDeploymentArtifact">
+		<xs:attribute name="Name" type="xs:string" />
+		<xs:attribute name="Type" type="xs:string" />
+		<xs:attribute name="AbsolutePath" type="xs:anyURI" />
+	</xs:complexType>
+
+	<element name="AllDeploymentArtifacts"
+		type="tns:tAllDeploymentArtifacts">
+	</element>
+</schema>

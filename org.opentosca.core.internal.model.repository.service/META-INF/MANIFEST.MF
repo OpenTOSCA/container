@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Service
+Bundle-SymbolicName: org.opentosca.core.internal.model.repository.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.opentosca.core.internal.model.repository.service
+Import-Package: org.opentosca.core.model.csar.id,
+ org.opentosca.model.tosca
+

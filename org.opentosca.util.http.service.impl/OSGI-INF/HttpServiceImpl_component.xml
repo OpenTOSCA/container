@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.util.http.service.impl.HttpServiceImpl">
+   <implementation class="org.opentosca.util.http.service.impl.HttpServiceImpl"/>
+   <service>
+      <provide interface="org.opentosca.util.http.service.IHTTPService"/>
+   </service>
+</scr:component>

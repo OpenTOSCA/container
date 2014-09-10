@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.instancedata.service.impl.InstancedataServiceImpl">
+   <implementation class="org.opentosca.instancedata.service.impl.InstanceDataServiceImpl"/>
+   <service>
+      <provide interface="org.opentosca.instancedata.service.IInstanceDataService"/>
+   </service>
+   <reference bind="bindToscaEngineService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaEngineService"/>
+</scr:component>

@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.opentosca.siengine.service
+Bundle-SymbolicName: org.opentosca.siengine.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.opentosca.siengine.service
+Import-Package: org.apache.camel;version="2.10.4"

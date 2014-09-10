@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Planbuilder is a bundle which builds plans from ba.context.AbstractDefinitions
+Bundle-SymbolicName: org.opentosca.planbuilder
+Bundle-Version: 0.0.1.qualifier
+Test-Suite: org.opentosca.planbuilder.test.PlanBuilderTestSuite
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.wsdl;version="1.6.0",
+ javax.wsdl.factory;version="1.6.2.wso2v3",
+ javax.wsdl.xml;version="1.6.0",
+ org.apache.ode.activityrecovery,
+ org.apache.ode.schemas.dd._2007._03,
+ org.opentosca.planbuilder.model.plan,
+ org.opentosca.planbuilder.model.tosca,
+ org.slf4j;version="1.7.5"
+Bundle-ClassPath: .
+Export-Package: org.opentosca.planbuilder,
+ org.opentosca.planbuilder.plugins,
+ org.opentosca.planbuilder.plugins.context,
+ org.opentosca.planbuilder.utils
+Service-Component: OSGI-INF/pluginregistrycomponent.xml

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.core.internal.storage.providers.aws_s3.service.impl.CoreInternalFileStorageProviderAWSS3ServiceImpl">
+   <implementation class="org.opentosca.core.internal.file.storage.providers.aws_s3.service.impl.CoreInternalFileStorageProviderAWSS3ServiceImpl"/>
+   <service>
+      <provide interface="org.opentosca.core.internal.file.storage.providers.service.ICoreInternalFileStorageProviderService"/>
+      <provide interface="org.eclipse.osgi.framework.console.CommandProvider"/>
+   </service>
+</scr:component>

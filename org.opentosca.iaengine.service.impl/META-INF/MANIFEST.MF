@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Impl
+Bundle-SymbolicName: org.opentosca.iaengine.service.impl
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.xml.namespace,
+ org.opentosca.core.capability.service,
+ org.opentosca.core.endpoint.service,
+ org.opentosca.core.model.artifact,
+ org.opentosca.core.model.artifact.file,
+ org.opentosca.core.model.capability.provider,
+ org.opentosca.core.model.csar.id,
+ org.opentosca.core.model.endpoint,
+ org.opentosca.core.model.endpoint.rest,
+ org.opentosca.core.model.endpoint.wsdl,
+ org.opentosca.iaengine.plugins.service,
+ org.opentosca.iaengine.service,
+ org.opentosca.model.tosca,
+ org.opentosca.toscaengine.service,
+ org.slf4j;version="1.6.4"
+Service-Component: OSGI-INF/IAEngineServiceImpl_component.xml, OSGI-INF/IAEngineServiceImplTest_component.xml
+Test-Suite: org.opentosca.iaengine.service.impl.test.IAEngineServiceImplTestSuite

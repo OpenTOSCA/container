@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://ec2vm.aws.ia.opentosca.org" xmlns:intf="http://ec2vm.aws.ia.opentosca.org" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ec2vm.aws.ia.opentosca.org">
+<!--WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)-->
+ <wsdl:types>
+  <schema xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://ec2vm.aws.ia.opentosca.org">
+   <element name="createEC2Instance">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="instanceType" type="xsd:string"/>
+      <element name="ami" type="xsd:string"/>
+      <element name="region" type="xsd:string"/>
+      <element name="accessKey" type="xsd:string"/>
+      <element name="secretKey" type="xsd:string"/>
+      <element name="securityGroup" type="xsd:string"/>
+      <element name="keyPairName" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="createEC2InstanceResponse">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="createEC2InstanceReturn" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getPublicDNS">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+     <element name="sshKey" type="xsd:string"/>
+      <element name="instanceId" type="xsd:string"/>
+      <element name="region" type="xsd:string"/>
+      <element name="accessKey" type="xsd:string"/>
+      <element name="secretKey" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getPublicDNSResponse">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="getPublicDNSReturn" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="terminateByPublicDNS">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="hostname" type="xsd:string"/>
+      <element name="region" type="xsd:string"/>
+      <element name="accessKey" type="xsd:string"/>
+      <element name="secretKey" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="terminateByPublicDNSResponse">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="terminateByPublicDNSReturn" type="xsd:boolean"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="terminateByID">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="instanceID" type="xsd:string"/>
+      <element name="region" type="xsd:string"/>
+      <element name="accessKey" type="xsd:string"/>
+      <element name="secretKey" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="terminateByIDResponse">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="terminateByIDReturn" type="xsd:boolean"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getStatus">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="instanceId" type="xsd:string"/>
+      <element name="region" type="xsd:string"/>
+      <element name="accessKey" type="xsd:string"/>
+      <element name="secretKey" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getStatusResponse">
+    <complexType>
+     <sequence>
+     <element name="CorrelationId" type="xsd:string"/>
+      <element name="getStatusReturn" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="createEC2InstanceResponse">
+
+      <wsdl:part element="impl:createEC2InstanceResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="terminateByIDResponse">
+
+      <wsdl:part element="impl:terminateByIDResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="terminateByPublicDNSResponse">
+
+      <wsdl:part element="impl:terminateByPublicDNSResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="terminateByIDRequest">
+
+      <wsdl:part element="impl:terminateByID" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="terminateByPublicDNSRequest">
+
+      <wsdl:part element="impl:terminateByPublicDNS" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPublicDNSRequest">
+
+      <wsdl:part element="impl:getPublicDNS" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPublicDNSResponse">
+
+      <wsdl:part element="impl:getPublicDNSResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="createEC2InstanceRequest">
+
+      <wsdl:part element="impl:createEC2Instance" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="getStatusResponse">
+
+      <wsdl:part element="impl:getStatusResponse" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:message name="getStatusRequest">
+
+      <wsdl:part element="impl:getStatus" name="parameters">
+
+      </wsdl:part>
+
+   </wsdl:message>
+
+   <wsdl:portType name="EC2VMIAAsyncService">
+
+      <wsdl:operation name="createEC2Instance">
+
+         <wsdl:input message="impl:createEC2InstanceRequest" name="createEC2InstanceRequest">
+
+       </wsdl:input>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPublicDNS">
+
+         <wsdl:input message="impl:getPublicDNSRequest" name="getPublicDNSRequest">
+
+       </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="terminateByPublicDNS">
+
+         <wsdl:input message="impl:terminateByPublicDNSRequest" name="terminateByPublicDNSRequest">
+
+       </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="terminateByID">
+
+         <wsdl:input message="impl:terminateByIDRequest" name="terminateByIDRequest">
+
+       </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getStatus">
+
+         <wsdl:input message="impl:getStatusRequest" name="getStatusRequest">
+
+       </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:portType name="EC2VMIAAsyncServiceCallback">
+   	<wsdl:operation name="createEC2InstanceCallback">
+
+   	<wsdl:input message="impl:createEC2InstanceResponse" name="createEC2InstanceResponse">
+
+       </wsdl:input>
+
+
+   	</wsdl:operation>
+
+   	<wsdl:operation name="getPublicDNSCallback">
+   	   <wsdl:input message="impl:getPublicDNSResponse" name="getPublicDNSResponse">
+
+       </wsdl:input>
+   	</wsdl:operation>
+
+   	<wsdl:operation name="terminateByPulicDNSCallback">
+
+   	<wsdl:input message="impl:terminateByPublicDNSResponse" name="terminateByPublicDNSResponse">
+
+       </wsdl:input>
+
+   	</wsdl:operation>
+
+   	<wsdl:operation name="terminateByIDCallback">
+
+   	<wsdl:input message="impl:terminateByIDResponse" name="terminateByIDResponse">
+
+       </wsdl:input>
+   	</wsdl:operation>
+
+   	<wsdl:operation name="getStatusCallback">
+   	<wsdl:input message="impl:getStatusResponse" name="getStatusResponse">
+
+       </wsdl:input>
+   	</wsdl:operation>
+   </wsdl:portType>
+
+
+
+   <wsdl:binding name="EC2VMIAAsyncServiceCallbackSoapBinding" type="impl:EC2VMIAAsyncServiceCallback">
+   	<wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+   	<wsdl:operation name="getPublicDNSCallback">
+   		<wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncServiceCallback/getPublicDNSResponse"/>
+   		<wsdl:input name="getPublicDNSResponse">
+   			<wsdlsoap:body use="literal"/>
+   		</wsdl:input>
+   	</wsdl:operation>
+   	<wsdl:operation name="getStatusCallback">
+   		<wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncServiceCallback/getStatusResponse"/>
+   		<wsdl:input name="getStatusResponse">
+   			<wsdlsoap:body use="literal"/>
+   		</wsdl:input>
+   	</wsdl:operation>
+
+   	<wsdl:operation name="terminateByIDCallback">
+   		<wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncServiceCallback/terminateByIDResponse"/>
+   		<wsdl:input name="terminateByIDResponse">
+   			<wsdlsoap:body use="literal"/>
+   		</wsdl:input>
+   	</wsdl:operation>
+
+   	<wsdl:operation name="terminateByPulicDNSCallback">
+   		<wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncServiceCallback/terminateByPublidDNSResponse"/>
+   		<wsdl:input name="terminateByPublicDNSResponse">
+   			<wsdlsoap:body use="literal"/>
+   		</wsdl:input>
+   	</wsdl:operation>
+
+   	<wsdl:operation name="createEC2InstanceCallback">
+   		<wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncServiceCallback/createEC2InstanceResponse"/>
+   		<wsdl:input name="createEC2InstanceResponse">
+   			<wsdlsoap:body use="literal"/>
+   		</wsdl:input>
+   	</wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:binding name="EC2VMIAAsyncServiceSoapBinding" type="impl:EC2VMIAAsyncService">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="createEC2Instance">
+
+         <wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncService/createEC2InstanceRequest"/>
+
+         <wsdl:input name="createEC2InstanceRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPublicDNS">
+
+         <wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncService/getPublicDNSRequest"/>
+
+         <wsdl:input name="getPublicDNSRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="terminateByPublicDNS">
+
+         <wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncService/terminateByPublicDNSRequest"/>
+
+         <wsdl:input name="terminateByPublicDNSRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="terminateByID">
+
+         <wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncService/terminateByIDRequest"/>
+
+         <wsdl:input name="terminateByIDRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getStatus">
+
+         <wsdlsoap:operation soapAction="http://ec2vm.aws.ia.opentosca.org/EC2VMIAAsyncService/getStatusRequest"/>
+
+         <wsdl:input name="getStatusRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="EC2VMIAAsyncServiceService">
+
+      <wsdl:port binding="impl:EC2VMIAAsyncServiceSoapBinding" name="EC2VMIAAsyncService">
+
+         <wsdlsoap:address location="http://localhost:8080/EC2-VM-Service-Async/services/EC2VMIAAsyncService"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+   <wsdl:service name="EC2VMIAAsyncServiceCallbackService">
+   	<wsdl:port binding="impl:EC2VMIAAsyncServiceCallbackSoapBinding" name="EC2VMIAAsyncServiceCallback">
+
+   		<wsdlsoap:address location="http://localhost:9763/services/EC2VMIAAsyncServiceCallbackService/"/>
+   	</wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.pde.ui.EquinoxLauncher">
+<booleanAttribute key="append.args" value="true"/>
+<booleanAttribute key="automaticAdd" value="false"/>
+<booleanAttribute key="automaticValidate" value="false"/>
+<stringAttribute key="bootstrap" value=""/>
+<stringAttribute key="checked" value="[NONE]"/>
+<booleanAttribute key="clearConfig" value="false"/>
+<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/Core Model Repository"/>
+<booleanAttribute key="default" value="true"/>
+<booleanAttribute key="default_auto_start" value="true"/>
+<intAttribute key="default_start_level" value="4"/>
+<booleanAttribute key="includeOptional" value="false"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.ignoreApp=true -Dosgi.noShutdown=true"/>
+<stringAttribute key="pde.version" value="3.3"/>
+<booleanAttribute key="show_selected_only" value="false"/>
+<stringAttribute key="target_bundles" value="ch.qos.logback.classic@default:default,ch.qos.logback.core@default:default,com.springsource.util.parser.manifest@default:default,derby@default:default,javax.persistence*2.0.3.v201010191057@default:default,org.eclipse.core.contenttype@default:default,org.eclipse.core.jobs@default:default,org.eclipse.core.runtime@default:true,org.eclipse.equinox.app@default:default,org.eclipse.equinox.common@2:true,org.eclipse.equinox.ds@1:true,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.equinox.util@default:default,org.eclipse.osgi.services@default:default,org.eclipse.osgi@-1:true,org.eclipse.persistence.antlr@default:default,org.eclipse.persistence.core@default:default,org.eclipse.persistence.jpa.equinox.weaving@default:false,org.eclipse.persistence.oracle@default:false,slf4j.api@default:default"/>
+<booleanAttribute key="tracing" value="false"/>
+<booleanAttribute key="useCustomFeatures" value="false"/>
+<booleanAttribute key="useDefaultConfigArea" value="true"/>
+<stringAttribute key="workspace_bundles" value="org.opentosca.core.internal.capability.service@default:default,org.opentosca.core.internal.deployment.tracker.service@default:default,org.opentosca.core.internal.endpoint.service@default:default,org.opentosca.core.internal.file.service@default:default,org.opentosca.core.internal.model.repository.service.impl@default:default,org.opentosca.core.internal.model.repository.service@default:default,org.opentosca.core.model.capability@default:default,org.opentosca.core.model.csar@default:default,org.opentosca.core.model.deployment@default:default,org.opentosca.core.model.endpoints@default:default,org.opentosca.core.service.impl@default:default,org.opentosca.core.service@default:default,org.opentosca.logging.config.test@default:false,org.opentosca.model.tosca.referencemapping@default:default,org.opentosca.model.tosca@default:default,org.opentosca.settings@default:default,org.opentosca.toscaengine@default:default,org.opentosca.util.fileaccess.service.impl@default:default,org.opentosca.util.fileaccess.service@default:default,org.opentosca.util.jpa.converters@default:default"/>
+</launchConfiguration>

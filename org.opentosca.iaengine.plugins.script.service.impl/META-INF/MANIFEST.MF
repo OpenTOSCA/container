@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.opentosca.iaengine.plugins.script.service.impl
+Bundle-SymbolicName: org.opentosca.iaengine.plugins.script.service.impl
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.eclipse.osgi.util;version="1.1.0",
+ org.opentosca.core.model.artifact,
+ org.opentosca.core.model.csar.id,
+ org.opentosca.iaengine.plugins.service,
+ org.opentosca.model.tosca,
+ org.slf4j;version="1.6.4"
+Service-Component: OSGI-INF/IAEnginePluginScriptServiceImpl_component.xml

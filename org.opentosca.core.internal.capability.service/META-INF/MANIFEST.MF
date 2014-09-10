@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core Internal Capabilitie Service Interface
+Bundle-SymbolicName: org.opentosca.core.internal.capability.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.opentosca.core.internal.capability.service
+Import-Package: org.opentosca.core.model.capability.provider

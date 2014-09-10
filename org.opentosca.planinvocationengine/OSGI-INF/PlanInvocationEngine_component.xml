@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.planinvocationengine.service.impl.PlanInvocationEngine">
+   <implementation class="org.opentosca.planinvocationengine.service.impl.PlanInvocationEngine"/>
+   <service>
+      <provide interface="org.opentosca.planinvocationengine.service.IPlanInvocationEngine"/>
+      <provide interface="org.osgi.service.event.EventHandler"/>
+   </service>
+   <property name="event.topics" type="String" value="org_opentosca_plans/responses"/>
+</scr:component>

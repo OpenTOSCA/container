@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bundles>
+<workspace_bundles>
+<bundle name="org.opentosca.bpsconnector">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.containerapi">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.capability.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.capability.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.credentials.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.credentials.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.data.instance.repository">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.data.instance.repository.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.deployment.tracker.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.deployment.tracker.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.endpoint.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.endpoint.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.file.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.file.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.file.storage.providers.aws_s3.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.file.storage.providers.filesystem.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.file.storage.providers.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.model.repository.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.internal.model.repository.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.artifact">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.capability">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.credentials">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.csar">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.csar.id">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.csar.toscametafile">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.deployment">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.model.endpoints">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.core.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.csarinstancemanagement">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.exceptions">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.iaengine.plugins.aaraxis.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.iaengine.plugins.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.iaengine.plugins.wartomcat.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.iaengine.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.iaengine.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.instancedata.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.instancedata.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.logging.config.test">
+<startLevel>default</startLevel>
+<autoStart>false</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.consolidatedtosca">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.csarinstancemanagement">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.instancedata">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.staticresources">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.tosca">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.tosca.referencemapping">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.model.tosca.xlink">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.opentoscacontrol.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.opentoscacontrol.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.opentoscacontrol.servicebindingtracking">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.planengine.plugin.bpelwso2.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.planengine.plugin.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.planengine.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.planengine.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.planinvocationengine">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.portability.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.portability.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.settings">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.api.osgievent">
+<startLevel>6</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.api.soaphttp">
+<startLevel>6</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.model">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.plugins.rest.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.plugins.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.plugins.soaphttp.service.impl">
+<startLevel>6</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.siengine.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.toscaengine">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.util.fileaccess.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.util.fileaccess.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.util.http.service">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.util.http.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.opentosca.util.jpa.converters">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+</workspace_bundles>
+<target_bundles>
+<bundle name="aws-s3">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="ch.qos.logback.classic">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="ch.qos.logback.core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.google.gson">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.google.guava">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.google.inject">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.google.inject.assistedinject">
+<startLevel>default</startLevel>
+<autoStart>false</autoStart>
+</bundle>
+<bundle name="com.springsource.com.jamesmurty.utils">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.springsource.javax.activation">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.springsource.javax.inject">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.springsource.javax.jws">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.springsource.org.aopalliance">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.springsource.org.apache.commons.httpclient">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.springsource.util.parser.manifest">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.sun.jersey.client">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.sun.jersey.contribs.jersey-multipart">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.sun.jersey.core">
+<startLevel>2</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.sun.jersey.jersey-server">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="com.sun.jersey.servlet">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="derby">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="filesystem">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="groovy-all">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.jms">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.mail">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.persistence">
+<startLevel>1</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.servlet">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.ws.rs.javax.ws.rs-api">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.ws.rs.jsr311-api">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="javax.xml.ws">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="jclouds-blobstore">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="jclouds-core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="jclouds-slf4j">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.aries.blueprint">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.aries.proxy.api">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.aries.util">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.axiom">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.axis2.osgi">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-core-osgi">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-cxf">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-cxf-transport">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-http">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-jaxb">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-jetty">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-spring">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.camel.camel-stream">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.commons.codec">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.commons.fileupload">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.commons.io">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.commons.logging">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-api">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-bindings-soap">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-bindings-xml">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-databinding-jaxb">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-frontend-jaxrs">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-frontend-jaxws">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-frontend-simple">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-transports-http">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.cxf.cxf-rt-transports-http-jetty">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.httpcomponents.httpclient">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.httpcomponents.httpcore">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.james.apache-mime4j-core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.neethi">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.woden.woden-api">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.woden.woden-impl-commons">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.apache.ws.xmlschema.core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.core.contenttype">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.core.jobs">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.core.runtime">
+<startLevel>default</startLevel>
+<autoStart>true</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.app">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.common">
+<startLevel>2</startLevel>
+<autoStart>true</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.ds">
+<startLevel>1</startLevel>
+<autoStart>true</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.event">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.http.jetty">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.http.servlet">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.preferences">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.registry">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.equinox.util">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.client">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.continuation">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.http">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.io">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.jmx">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.security">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.server">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.servlet">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.servlets">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.jetty.util">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.osgi">
+<startLevel>-1</startLevel>
+<autoStart>true</autoStart>
+</bundle>
+<bundle name="org.eclipse.osgi.services">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.antlr">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.asm">
+<startLevel>3</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.core">
+<startLevel>2</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.jpa">
+<startLevel>3</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.jpa.equinox">
+<startLevel>default</startLevel>
+<autoStart>false</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.jpa.equinox.weaving">
+<startLevel>default</startLevel>
+<autoStart>false</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.jpa.osgi">
+<startLevel>2</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.eclipse.persistence.oracle">
+<startLevel>default</startLevel>
+<autoStart>false</autoStart>
+</bundle>
+<bundle name="org.jvnet.mimepull">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.mortbay.jetty.server">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.mortbay.jetty.util">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.springframework.beans">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.springframework.context">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.springframework.core">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.springframework.expression">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="org.springframework.transaction">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="rocoto">
+<startLevel>default</startLevel>
+<autoStart>false</autoStart>
+</bundle>
+<bundle name="s3">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="slf4j.api">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="soa-model-core-1.2.2">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="sts">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+<bundle name="wsdl4j">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
+</target_bundles>
+</bundles>

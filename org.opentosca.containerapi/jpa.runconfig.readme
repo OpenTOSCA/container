@@ -1,0 +1,31 @@
+For using eclipselink jpa, the following bundles need to be in the run-config:
+
+com.springsource.javax.activation
+com.springsource.javax.jms
+com.springsource.javax.xml.stream
+javax.mail
+javax.persistence @Runlevel 1
+javax.servlet
+derby
+org.eclipse.persistence.antlr
+org.eclipse.persistence.asm @Runlevel 3
+org.eclipse.persistence.core @Runlevel 2
+org.eclipse.persistence.jpa @Runlevel 3
+org.eclipse.persistence.jpa.equinox
+org.eclipse.persistence.jpa.equinox.weaving
+org.eclipse.persistence.jpa.osgi @Runlevel 2
+org.eclipse.persistence.oracle
+
+About runlevels, see:
+http://wiki.eclipse.org/EclipseLink/Development/OSGi_Proof_of_Concept
+...unfortunately, it seems to be the only way.
+
+Add also to the run config, if its not automatically selected:
+org.eclipse.equinox.http.jetty
+org.eclipse.equinox.http.servlet
+org.mortbay.jetty.server
+org.mortbay.jetty.util
+
+to Set the port of the ContainerApi:
+following command has to be in the VM Arguments.
+-Dorg.osgi.service.http.port=1337

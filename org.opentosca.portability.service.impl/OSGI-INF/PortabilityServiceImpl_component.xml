@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.portability.service.impl.PortabilityServiceImpl">
+   <implementation class="org.opentosca.portability.service.impl.PortabilityServiceImpl"/>
+   <service>
+      <provide interface="org.opentosca.portability.service.IPortabilityService"/>
+   </service>
+      <reference bind="bindToscaEngineService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaEngineService"/>
+</scr:component>

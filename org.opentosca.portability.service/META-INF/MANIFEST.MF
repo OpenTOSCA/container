@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Portability Service
+Bundle-SymbolicName: org.opentosca.portability.service
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.opentosca.core.model.csar.id
+Export-Package: org.opentosca.portability.service,
+ org.opentosca.portability.service.model

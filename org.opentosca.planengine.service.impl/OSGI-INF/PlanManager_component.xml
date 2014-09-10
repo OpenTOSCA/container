@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.planengine.service.impl.PlanEngineImpl">
+   <implementation class="org.opentosca.planengine.service.impl.PlanEngineImpl"/>
+   <service>
+      <provide interface="org.opentosca.planengine.service.IPlanEngineService"/>
+   </service>
+   <reference bind="bindPlanReferencePlugin" cardinality="0..n" interface="org.opentosca.planengine.plugin.service.IPlanEnginePlanRefPluginService" name="IPlanEnginePlanRefPlugin" policy="dynamic" unbind="unbindPlanReferencePlugin"/>
+   <reference bind="bindPlanModelPlugin" cardinality="0..n" interface="org.opentosca.planengine.plugin.service.IPlanEnginePlanModelPluginService" name="IPlanEnginePlanModelPlugin" policy="dynamic" unbind="unbindPlanModelPlugin"/>
+   <reference bind="bindCoreCapabilityService" cardinality="1..1" interface="org.opentosca.core.capability.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="dynamic" unbind="unbindCoreCapabilityService"/>
+</scr:component>

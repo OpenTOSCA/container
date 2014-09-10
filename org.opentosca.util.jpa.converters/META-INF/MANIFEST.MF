@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Converters
+Bundle-SymbolicName: org.opentosca.util.jpa.converters
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.persistence;version="1.0.0",
+ javax.xml.namespace,
+ org.eclipse.persistence.annotations;version="2.3.2.v20111125-r10461",
+ org.eclipse.persistence.mappings;version="2.3.2.v20111125-r10461",
+ org.eclipse.persistence.mappings.converters;version="2.3.2.v20111125-r10461",
+ org.eclipse.persistence.sessions;version="2.3.2.v20111125-r10461",
+ org.opentosca.core.model.csar.id,
+ org.osgi.service.jpa;version="1.0.0"
+Export-Package: org.opentosca.util.jpa.converters

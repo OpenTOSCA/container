@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.iaengine.plugins.script.service.impl.IAEnginePluginScriptServiceImpl">
+   <implementation class="org.opentosca.iaengine.plugins.script.service.impl.IAEnginePluginScriptServiceImpl"/>
+   <service>
+      <provide interface="org.opentosca.iaengine.plugins.service.IIAEnginePluginService"/>
+   </service>
+</scr:component>

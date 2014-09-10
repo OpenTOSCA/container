@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.opentosca.csarinstancemanagement
+Bundle-SymbolicName: org.opentosca.csarinstancemanagement
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.opentosca.core.model.csar.id,
+ org.opentosca.model.consolidatedtosca,
+ org.opentosca.model.csarinstancemanagement,
+ org.slf4j;version="1.6.4"
+Export-Package: org.opentosca.csarinstancemanagement.service
+Service-Component: OSGI-INF/CSARInstanceManagementService_component.xml

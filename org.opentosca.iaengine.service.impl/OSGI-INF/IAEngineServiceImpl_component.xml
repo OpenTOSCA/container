@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.iaengine.service.impl.IAEngineServiceImpl">
+   <implementation class="org.opentosca.iaengine.service.impl.IAEngineServiceImpl"/>
+   <reference cardinality="1..1" interface="org.opentosca.core.endpoint.service.ICoreEndpointService" name="IEndpointService" policy="dynamic" bind="bindEndpointService" unbind="unbindEndpointService"/>
+   <reference bind="bindPluginService" cardinality="0..n" interface="org.opentosca.iaengine.plugins.service.IIAEnginePluginService" name="IIAEnginePluginService" policy="dynamic" unbind="unbindPluginService"/>
+   <service>
+      <provide interface="org.opentosca.iaengine.service.IIAEngineService"/>
+   </service>
+   <reference bind="bindCoreCapabilityService" cardinality="1..1" interface="org.opentosca.core.capability.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="dynamic" unbind="unbindCoreCapabilityService"/>
+   <reference bind="bindToscaService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaService"/>
+</scr:component>

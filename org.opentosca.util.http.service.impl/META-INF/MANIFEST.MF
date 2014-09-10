@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA HTTP Service
+Bundle-SymbolicName: org.opentosca.util.http.service.impl
+Bundle-Version: 1.0.0.qualifier
+Import-Package: org.apache.http;version="4.2.1",
+ org.apache.http.auth;version="4.2.0",
+ org.apache.http.client;version="4.2.0",
+ org.apache.http.client.methods;version="4.2.0",
+ org.apache.http.cookie;version="4.2.0",
+ org.apache.http.impl.client;version="4.2.0",
+ org.opentosca.util.http.service
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/HttpServiceImpl_component.xml

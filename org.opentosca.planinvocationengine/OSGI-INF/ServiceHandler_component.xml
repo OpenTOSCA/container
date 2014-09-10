@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.planinvocationengine.service.impl.ServiceHandler">
+   <implementation class="org.opentosca.planinvocationengine.service.impl.ServiceHandler"/>
+   <reference bind="bindtoscaEngineService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindtoscaEngineService"/>
+   <reference bind="bindEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unbindEventAdmin"/>
+   <reference bind="bindICSARInstanceManagementService" cardinality="1..1" interface="org.opentosca.csarinstancemanagement.service.ICSARInstanceManagementService" name="ICSARInstanceManagementService" policy="static"/>
+</scr:component>
