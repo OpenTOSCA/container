@@ -48,33 +48,33 @@ import org.slf4j.LoggerFactory;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Exporter extends AbstractExporter {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(Exporter.class);
-	
+
 	private SimpleFileExporter simpleExporter;
-	
+
 	private ObjectFactory toscaFactory;
 	private CSARHandler handler = new CSARHandler();
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
 	public Exporter() {
 		this.simpleExporter = new SimpleFileExporter();
-		
+
 		this.toscaFactory = new ObjectFactory();
-		
+
 	}
-	
+
 	/**
 	 * Exports the given BuildPlan to the given URI
-	 * 
+	 *
 	 * @param destination the absolute location to export to
 	 * @param buildPlan the BuildPlan to export
 	 * @throws IOException is thrown when reading/writing to the given URI fails
@@ -83,45 +83,45 @@ public class Exporter extends AbstractExporter {
 	public void export(URI destination, BuildPlan buildPlan) throws IOException, JAXBException {
 		this.simpleExporter.export(destination, buildPlan);
 	}
-	
+
 	/**
 	 * Exports the given BuildPlans repackaged with the CSAR denoted by the
 	 * given CSARID
-	 * 
+	 *
 	 * @param buildPlans the BuildPlans to export
 	 * @param csarId the CSARID of a CSAR
 	 * @return a File denoting the absolute Path to the exported CSAR
 	 */
 	public File export(List<BuildPlan> buildPlans, CSARID csarId) {
-		
+
 		CSARContent csarContent = null;
 		try {
 			csarContent = this.handler.getCSARContentForID(csarId);
 		} catch (UserException e1) {
 			Exporter.LOG.error("Error occured while trying to retrieve CSAR content", e1);
 		}
-		
+
 		if (csarContent == null) {
 			return null;
 		}
-		
+
 		String csarName = csarId.getFileName();
-		
+
 		IFileAccessService service = this.getFileAccessService();
-		
+
 		File tempDir = service.getTemp();
 		File pathToRepackagedCsar = service.getTemp();
 		File repackagedCsar = new File(pathToRepackagedCsar, csarName);
-		
+
 		try {
 			Set<AbstractFile> files = csarContent.getFilesRecursively();
 			AbstractFile mainDefFile = csarContent.getRootTOSCA();
 			File rootDefFile = mainDefFile.getFile().toFile();
 			Definitions defs = this.parseDefinitionsFile(rootDefFile);
 			List<TServiceTemplate> servTemps = this.getServiceTemplates(defs);
-			
+
 			List<BuildPlan> plansToExport = new ArrayList<BuildPlan>();
-			
+
 			// add plans element to servicetemplates
 			for (BuildPlan buildPlan : buildPlans) {
 				for (TServiceTemplate serviceTemplate : servTemps) {
@@ -137,24 +137,24 @@ public class Exporter extends AbstractExporter {
 					}
 				}
 			}
-			
+
 			for (AbstractFile file : files) {
 				if (file.getFile().toFile().toString().equals(rootDefFile.toString())) {
 					continue;
 				}
-				
+
 				File newLocation = new File(tempDir, file.getPath());
 				Exporter.LOG.debug(newLocation.getAbsolutePath());
 				Exporter.LOG.debug(file.getFile().toString());
 				if (newLocation.isDirectory()) {
-					
+
 					FileUtils.copyDirectory(file.getFile().toFile(), newLocation);
 				} else {
 					FileUtils.copyFile(file.getFile().toFile(), newLocation);
 				}
-				
+
 			}
-			
+
 			// write new defs file
 			File newDefsFile = new File(tempDir, mainDefFile.getPath());
 			newDefsFile.createNewFile();
@@ -163,7 +163,7 @@ public class Exporter extends AbstractExporter {
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			// output to the console: m.marshal(defs, System.out);
 			m.marshal(defs, newDefsFile);
-			
+
 			// write plans
 			for (BuildPlan plan : plansToExport) {
 				File planPath = new File(tempDir, this.generateRelativePlanPath(plan));
@@ -172,7 +172,13 @@ public class Exporter extends AbstractExporter {
 				planPath.createNewFile();
 				this.simpleExporter.export(planPath.toURI(), plan);
 			}
-			
+
+			// write SELFSERVICE-Metadata folder and files
+			// TODO
+			// fetch planinput and generate skeleton
+			// add placeholders
+			// write to default plan input message file
+
 		} catch (IOException e) {
 			Exporter.LOG.error("Some IO Exception occured", e);
 		} catch (JAXBException e) {
@@ -184,10 +190,10 @@ public class Exporter extends AbstractExporter {
 		Exporter.LOG.debug(repackagedCsar.toString());
 		return repackagedCsar;
 	}
-	
+
 	/**
 	 * Parses the given file to a JAXB Definitions class
-	 * 
+	 *
 	 * @param file a File denoting to a TOSCA Definitions file
 	 * @return a JAXB Definitions class object if parsing was without errors,
 	 *         else null
@@ -207,10 +213,10 @@ public class Exporter extends AbstractExporter {
 		}
 		return def;
 	}
-	
+
 	/**
 	 * Returns the FileAccessService of the OpenTOSCA Core
-	 * 
+	 *
 	 * @return the IFileAccessService of the OpenTOSCA Core
 	 */
 	private IFileAccessService getFileAccessService() {
@@ -219,11 +225,11 @@ public class Exporter extends AbstractExporter {
 		IFileAccessService service = (IFileAccessService) ctx.getService(serviceReference);
 		return service;
 	}
-	
+
 	/**
 	 * Builds a valid QName for the given ServiceTemplate based on the given
 	 * Definitions document
-	 * 
+	 *
 	 * @param defs a JAXB Definitions
 	 * @param serviceTemplate a JAXB TServiceTemplate
 	 * @return a QName denoting the given ServiceTemplate
@@ -236,17 +242,17 @@ public class Exporter extends AbstractExporter {
 		String id = serviceTemplate.getId();
 		return new QName(namespace, id);
 	}
-	
+
 	/**
 	 * Returns a List of TServiceTemplate of the given Definitions document
-	 * 
+	 *
 	 * @param defs a JAXB Definitions document
 	 * @return a List of TServiceTemplate which are the ServiceTemplates of the
 	 *         given Definitions Document
 	 */
 	private List<TServiceTemplate> getServiceTemplates(Definitions defs) {
 		List<TServiceTemplate> servTemps = new ArrayList<TServiceTemplate>();
-		
+
 		for (TExtensibleElements element : defs.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
 			if (element instanceof TServiceTemplate) {
 				servTemps.add((TServiceTemplate) element);
@@ -254,10 +260,10 @@ public class Exporter extends AbstractExporter {
 		}
 		return servTemps;
 	}
-	
+
 	/**
 	 * Generates a JAXB TPlan element for the given BuildPlan
-	 * 
+	 *
 	 * @param buildPlan a BuildPlan
 	 * @return a JAXB TPlan Object which represents the given BuildPlan
 	 */
@@ -268,10 +274,10 @@ public class Exporter extends AbstractExporter {
 		TPlan.OutputParameters outputParams = new TPlan.OutputParameters();
 		List<TParameter> inputParamsList = inputParams.getInputParameter();
 		List<TParameter> outputParamsList = outputParams.getOutputParameter();
-		
+
 		ref.setReference(this.generateRelativePlanPath(buildPlan));
 		plan.setPlanModelReference(ref);
-		
+
 		for (String paramName : buildPlan.getWsdl().getInputMessageLocalNames()) {
 			// the builder supports only string types
 			TParameter param = this.toscaFactory.createTParameter();
@@ -280,7 +286,7 @@ public class Exporter extends AbstractExporter {
 			param.setType("String");
 			inputParamsList.add(param);
 		}
-		
+
 		for (String paramName : buildPlan.getWsdl().getOuputMessageLocalNames()) {
 			TParameter param = this.toscaFactory.createTParameter();
 			param.setName(paramName);
@@ -288,20 +294,20 @@ public class Exporter extends AbstractExporter {
 			param.setType("String");
 			outputParamsList.add(param);
 		}
-		
+
 		plan.setInputParameters(inputParams);
 		plan.setOutputParameters(outputParams);
-		
+
 		plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
 		plan.setId(buildPlan.getBpelProcessElement().getAttribute("name"));
 		plan.setPlanLanguage(BuildPlan.bpelNamespace);
-		
+
 		return plan;
 	}
-	
+
 	/**
 	 * Generates a relative path for the BuildPlan to be used inside a CSAR file
-	 * 
+	 *
 	 * @param buildPlan the BuildPlan to get the path for
 	 * @return a relative Path to be used inside a CSAR
 	 */

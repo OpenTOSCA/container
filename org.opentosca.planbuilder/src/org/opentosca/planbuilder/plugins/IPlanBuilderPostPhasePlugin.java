@@ -44,4 +44,22 @@ public interface IPlanBuilderPostPhasePlugin extends IPlanBuilderPlugin {
 	 *         else false
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate);
+	
+	/**
+	 * Evaluates whether the given NodeTemplate can be handled by this post
+	 * phase plugin.
+	 * 
+	 * @param nodeTemplate An AbstractNodeTemplate
+	 * @return true iff this plugin can handle the given nodeTemplate
+	 */
+	public boolean canHandle(AbstractNodeTemplate nodeTemplate);
+	
+	/**
+	 * Evaluates whether the given RelationshipTemplate can be handled by this
+	 * post phase plugin.
+	 * 
+	 * @param relationshipTemplate An AbstractRelationshipTemplate
+	 * @return true iff this plugin can handle the given relationshipTemplate
+	 */
+	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate);
 }

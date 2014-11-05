@@ -20,21 +20,21 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class RelationshipTypeImpl extends AbstractRelationshipType {
-	
+
 	private TRelationshipType relationshipType;
 	private DefinitionsImpl definitions;
 	private List<AbstractInterface> sourceInterfaces;
 	private List<AbstractInterface> targetInterfaces;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param relationshipType a JAXB TRelationshipType
 	 * @param definitionsImpl a DefinitionsImpl
 	 */
@@ -45,7 +45,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 		this.targetInterfaces = new ArrayList<AbstractInterface>();
 		this.setUp();
 	}
-	
+
 	/**
 	 * Initializes the internal Interfaces of this RelationshipType
 	 */
@@ -61,19 +61,23 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public QName getTypeRef() {
 		if (this.relationshipType.getDerivedFrom() != null) {
-			return this.relationshipType.getDerivedFrom().getTypeRef();
-		} else {
-			return null;
+			for (AbstractRelationshipType relation : this.definitions.getAllRelationshipTypes()) {
+				if (relation.getId().toString().equals(this.relationshipType.getDerivedFrom().getTypeRef().toString())) {
+					return relation.getTypeRef();
+				}
+			}
 		}
+		return null;
+
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -81,7 +85,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 	public String getName() {
 		return this.relationshipType.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -96,7 +100,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 		QName id = new QName("{" + namespace + "}" + this.relationshipType.getName());
 		return id;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -104,42 +108,23 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 	public String getTargetNamespace() {
 		return this.relationshipType.getTargetNamespace();
 	}
-	
-	/**
-	 * Searches the entire definitions space for an AbstractRelationshipType
-	 * 
-	 * @param type a RelationshipType described as QName
-	 * @return an AbstractRelationshipType resembled by the same QName, else
-	 *         null
-	 */
-	private AbstractRelationshipType searchRelationshipType(QName type) {
-		Queue<AbstractDefinitions> definitionsToLookTrough = new LinkedList<AbstractDefinitions>();
-		definitionsToLookTrough.add(this.definitions);
-		while (!definitionsToLookTrough.isEmpty()) {
-			AbstractDefinitions definitions = definitionsToLookTrough.poll();
-			if (definitions.getRelationshipType(type) != null) {
-				return definitions.getRelationshipType(type);
-			} else {
-				definitionsToLookTrough.addAll(definitions.getImportedDefinitions());
-			}
-		}
-		// FIXME: this is cleary an error in definitions, but no mechanism to
-		// handle this right now
-		return null;
-	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public AbstractRelationshipType getReferencedType() {
 		if (this.getTypeRef() != null) {
-			return this.searchRelationshipType(this.getTypeRef());
-		} else {
-			return null;
+			for (AbstractRelationshipType relation : this.definitions.getAllRelationshipTypes()) {
+				if (relation.getId().toString().equals(this.getTypeRef().toString())) {
+					return relation;
+				}
+			}
 		}
+		return null;
+
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -147,7 +132,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 	public List<AbstractInterface> getSourceInterfaces() {
 		return this.sourceInterfaces;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -155,5 +140,5 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 	public List<AbstractInterface> getTargetInterfaces() {
 		return this.targetInterfaces;
 	}
-	
+
 }

@@ -8,10 +8,28 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderGenericPlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 
+/**
+ * <p>
+ * This class represents a generic plugin which installs a PhpModule on an
+ * Apache HTTP Server installed on an Ubuntu
+ * </p>
+ * Copyright 2014 IAAS University of Stuttgart <br>
+ * <br>
+ * 
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * 
+ */
 public class Plugin implements IPlanBuilderGenericPlugin {
 	
+	// these are type for various test CSAR's, leave em here until everything is
+	// organized
 	private final QName phpModule = new QName("http://www.example.com/tosca/ServiceTemplates/ApacheWebServer", "OpenTOSCAApacheWebServerPhpModule");
 	private final QName apacheNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/ApacheWebServer", "OpenTOSCAApacheWebServer");
+	
+	// these are the types from the TOSCA specific types
+	private final QName phpModuleTOSCASpecificType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes", "ApachePHPModule");
+	private final QName apacheNodeTypeTOSCASpecificType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes", "ApacheWebServer");
+	
 	private Handler handler = new Handler();
 	
 	
@@ -35,13 +53,13 @@ public class Plugin implements IPlanBuilderGenericPlugin {
 	
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate) {
-		if (!nodeTemplate.getType().getId().toString().equals(this.phpModule.toString())) {
+		if (!this.isPhpModuleNodeTypeCompatible(nodeTemplate.getType().getId())) {
 			// looking for a phpModule here
 			return false;
 		} else {
 			// found phpModule, check whether it's connected to apache
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-				if (relation.getTarget().getType().getId().toString().equals(this.apacheNodeType.toString())) {
+				if (this.isApacheWebServerNodeTypeCompatible(relation.getTarget().getType().getId())) {
 					// php module is connected with apache in the topology
 					return true;
 				}
@@ -53,6 +71,27 @@ public class Plugin implements IPlanBuilderGenericPlugin {
 	@Override
 	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate) {
 		// we can only handle nodeTemplates
+		return false;
+	}
+	
+	private boolean isPhpModuleNodeTypeCompatible(QName nodeTypeId) {
+		if (nodeTypeId.toString().equals(this.phpModule.toString())) {
+			return true;
+		}
+		if (nodeTypeId.toString().equals(this.phpModuleTOSCASpecificType.toString())) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean isApacheWebServerNodeTypeCompatible(QName nodeTypeId) {
+		if (nodeTypeId.toString().equals(this.apacheNodeType.toString())) {
+			return true;
+		}
+		if (nodeTypeId.toString().equals(this.apacheNodeTypeTOSCASpecificType.toString())) {
+			return true;
+		}
 		return false;
 	}
 	

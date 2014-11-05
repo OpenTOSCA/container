@@ -27,6 +27,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderGenericPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.utils.Utils;
@@ -42,17 +43,17 @@ import org.slf4j.LoggerFactory;
  * Plan Skeleton and assign plugins to handle the different templates inside a
  * TopologyTemplate.
  * </p>
- * 
+ *
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class PlanBuilder {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(PlanBuilder.class);
-	
+
 	// handler for abstract buildplan operations
 	private BuildPlanHandler planHandler;
 	// handler for abstract templatebuildplan operations
@@ -67,8 +68,8 @@ public class PlanBuilder {
 	private BPELFinalizer finalizer;
 	// accepted operations for provisioning
 	private List<String> opNames = new ArrayList<String>();
-	
-	
+
+
 	/**
 	 * <p>
 	 * Default Constructor
@@ -91,16 +92,16 @@ public class PlanBuilder {
 		this.opNames.add("connectTo");
 		this.opNames.add("hostOn");
 	}
-	
+
 	/**
 	 * Returns the number of the plugins registered with this planbuilder
-	 * 
+	 *
 	 * @return integer denoting the count of plugins
 	 */
 	public int registeredPlugins() {
 		return PluginRegistry.getGenericPlugins().size() + PluginRegistry.getDaPlugins().size() + PluginRegistry.getIaPlugins().size() + PluginRegistry.getPostPlugins().size() + PluginRegistry.getProvPlugins().size();
 	}
-	
+
 	/**
 	 * <p>
 	 * Creates a BuildPlan in WS-BPEL 2.0 for the specified values csarName,
@@ -109,7 +110,7 @@ public class PlanBuilder {
 	 * serviceTemplateId a QName denoting the ServiceTemplate inside the
 	 * Definitions document
 	 * </p>
-	 * 
+	 *
 	 * @param csarName the file name of the CSAR as String
 	 * @param definitions the Definitions document as AbstractDefinitions Object
 	 * @param serviceTemplateId a QName denoting a ServiceTemplate inside the
@@ -120,7 +121,7 @@ public class PlanBuilder {
 	 */
 	public BuildPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
 		// create empty plan from servicetemplate and add definitions
-		
+
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			String namespace;
 			if (serviceTemplate.getTargetNamespace() != null) {
@@ -128,12 +129,12 @@ public class PlanBuilder {
 			} else {
 				namespace = definitions.getTargetNamespace();
 			}
-			
+
 			if (namespace.equals(serviceTemplateId.getNamespaceURI()) && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				BuildPlan newBuildPlan = this.planHandler.createBuildPlan(serviceTemplate);
 				newBuildPlan.setDefinitions(definitions);
 				newBuildPlan.setCsarName(csarName);
-				
+
 				// create empty templateplans for each template and add them to
 				// buildplan
 				for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
@@ -141,26 +142,26 @@ public class PlanBuilder {
 					newTemplate.setNodeTemplate(nodeTemplate);
 					newBuildPlan.addTemplateBuildPlan(newTemplate);
 				}
-				
+
 				for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
 					TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newBuildPlan);
 					newTemplate.setRelationshipTemplate(relationshipTemplate);
 					newBuildPlan.addTemplateBuildPlan(newTemplate);
 				}
-				
+
 				// connect the templates
 				this.initializeDependenciesInBuildPlan(newBuildPlan);
-				
+
 				PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
-				
+
 				// init output
 				this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
-				
+
 				// TODO check the properties which can't be satisfied and add
 				// them
 				// to plan request
-				
-				this.runPlugins(newBuildPlan, serviceTemplate.getId() + "_buildPlan", propMap);
+
+				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				this.finalizer.finalize(newBuildPlan);
 				PlanBuilder.LOG.debug("Created BuildPlan:");
 				PlanBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
@@ -170,13 +171,13 @@ public class PlanBuilder {
 		PlanBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
 	}
-	
+
 	/**
 	 * <p>
 	 * Returns a List of BuildPlans for the ServiceTemplates contained in the
 	 * given Definitions document
 	 * </p>
-	 * 
+	 *
 	 * @param csarName the file name of CSAR
 	 * @param definitions a AbstractDefinitions Object denoting the Definitions
 	 *            document
@@ -193,11 +194,11 @@ public class PlanBuilder {
 			} else {
 				serviceTemplateId = new QName(definitions.getTargetNamespace(), serviceTemplate.getId());
 			}
-			
+
 			if (!serviceTemplate.hasBuildPlan()) {
 				PlanBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplateId.toString());
 				BuildPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
-				
+
 				if (newBuildPlan != null) {
 					PlanBuilder.LOG.debug("Created BuildPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
 					plans.add(newBuildPlan);
@@ -208,30 +209,34 @@ public class PlanBuilder {
 		}
 		return plans;
 	}
-	
+
 	/**
 	 * <p>
 	 * This method assigns plugins to the already initialized BuildPlan and its
 	 * TemplateBuildPlans. First there will be checked if any generic plugin can
 	 * handle a template of the TopologyTemplate
 	 * </p>
-	 * 
+	 *
 	 * @param buildPlan a BuildPlan which is alread initialized
 	 * @param serviceTemplateName the name of the ServiceTemplate the BuildPlan
 	 *            belongs to
 	 * @param map a PropertyMap which contains mappings from Template to
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(BuildPlan buildPlan, String serviceTemplateName, PropertyMap map) {
+	private void runPlugins(BuildPlan buildPlan, QName serviceTemplateId, PropertyMap map) {
+		String serviceTemplateName = serviceTemplateId.getLocalPart() + "_buildPlan";
+
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				// handling nodetemplate
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, serviceTemplateName, map);
+				PlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, serviceTemplateName, map, serviceTemplateId);
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
-				if (!this.canGenericPluginHandle(nodeTemplate)) {
+				IPlanBuilderGenericPlugin plugin = this.canGenericPluginHandle(nodeTemplate);
+				if (plugin == null) {
 					PlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
 					ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
 					if (chain == null) {
@@ -243,14 +248,20 @@ public class PlanBuilder {
 					chain.executeOperationProvisioning(context, this.opNames);
 				} else {
 					PlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
-					this.handleWithGenericPlugin(context, nodeTemplate);
+					plugin.handle(context);
 				}
-				
+
+				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+					if (postPhasePlugin.canHandle(nodeTemplate)) {
+						postPhasePlugin.handle(context, nodeTemplate);
+					}
+				}
+
 			} else {
 				// handling relationshiptemplate
 				AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, serviceTemplateName, map);
-				
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, serviceTemplateName, map, serviceTemplateId);
+
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken here!
@@ -259,14 +270,14 @@ public class PlanBuilder {
 					PlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
 					ProvisioningChain sourceChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, true);
 					ProvisioningChain targetChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, false);
-					
+
 					// first execute provisioning on target, then on source
 					if (targetChain != null) {
 						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						targetChain.executeIAProvisioning(context);
 						targetChain.executeOperationProvisioning(context, this.opNames);
 					}
-					
+
 					if (sourceChain != null) {
 						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						sourceChain.executeIAProvisioning(context);
@@ -276,36 +287,43 @@ public class PlanBuilder {
 					PlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
 					this.handleWithGenericPlugin(context, relationshipTemplate);
 				}
+
+				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+					if (postPhasePlugin.canHandle(relationshipTemplate)) {
+						postPhasePlugin.handle(context, relationshipTemplate);
+					}
+				}
 			}
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Checks whether there is any generic plugin, that can handle the given
 	 * NodeTemplate
 	 * </p>
-	 * 
+	 *
 	 * @param nodeTemplate an AbstractNodeTemplate denoting a NodeTemplate
 	 * @return true if there is any generic plugin which can handle the given
 	 *         NodeTemplate, else false
 	 */
-	private boolean canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
+	private IPlanBuilderGenericPlugin canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
 		for (IPlanBuilderGenericPlugin plugin : PluginRegistry.getGenericPlugins()) {
+			PlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
 			if (plugin.canHandle(nodeTemplate)) {
-				PlanBuilder.LOG.info("Found GenericPlugin {} thath can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
-				return true;
+				PlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
+				return plugin;
 			}
 		}
-		return false;
+		return null;
 	}
-	
+
 	/**
 	 * <p>
 	 * Checks whether there is any generic plugin, that can handle the given
 	 * RelationshipTemplate
 	 * </p>
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate denoting a
 	 *            RelationshipTemplate
 	 * @return true if there is any generic plugin which can handle the given
@@ -320,35 +338,15 @@ public class PlanBuilder {
 		}
 		return false;
 	}
-	
-	/**
-	 * <p>
-	 * Takes the first occurence of a generic plugin which can handle the given
-	 * NodeTemplate
-	 * </p>
-	 * 
-	 * @param context a TemplatePlanContext which was initialized for the given
-	 *            NodeTemplate
-	 * @param nodeTemplate a NodeTemplate as an AbstractNodeTemplate
-	 * @return returns true if there was a generic plugin which could handle the
-	 *         given NodeTemplate and execution was successful, else false
-	 */
-	private boolean handleWithGenericPlugin(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
-		for (IPlanBuilderGenericPlugin plugin : PluginRegistry.getGenericPlugins()) {
-			if (plugin.canHandle(nodeTemplate)) {
-				PlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin {}", nodeTemplate.getId(), plugin.getID());
-				return plugin.handle(context);
-			}
-		}
-		return false;
-	}
-	
+
+
+
 	/**
 	 * <p>
 	 * Takes the first occurence of a generic plugin which can handle the given
 	 * RelationshipTemplate
 	 * </p>
-	 * 
+	 *
 	 * @param context a TemplatePlanContext which was initialized for the given
 	 *            RelationshipTemplate
 	 * @param nodeTemplate a RelationshipTemplate as an
@@ -366,14 +364,14 @@ public class PlanBuilder {
 		}
 		return false;
 	}
-	
+
 	// TODO delete this method, or add to utils. is pretty much copied from the
 	// net
 	/**
 	 * <p>
 	 * Converts the given DOM Document to a String
 	 * </p>
-	 * 
+	 *
 	 * @param doc a DOM Document
 	 * @return a String representation of the complete Document given
 	 */
@@ -397,7 +395,7 @@ public class PlanBuilder {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Initilizes the TemplateBuildPlans inside a BuildPlan according to the
@@ -406,7 +404,7 @@ public class PlanBuilder {
 	 * >Konzept und Implementierung eine Java-Komponente zur Generierung von
 	 * WS-BPEL 2.0 BuildPlans für OpenTOSCA</a>
 	 * </p>
-	 * 
+	 *
 	 * @param buildPlan a BuildPlan where all TemplateBuildPlans are set for
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
@@ -415,61 +413,61 @@ public class PlanBuilder {
 		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
-			
+
 			// determine source and target of relationshiptemplate AND REVERSE
 			// the edge !
 			TemplateBuildPlan target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), buildPlan);
 			TemplateBuildPlan source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), buildPlan);
-			
+
 			// set dependencies inside buildplan (the links in the flow)
 			// according to the basetype
 			if (baseType.toString().equals(Utils.TOSCABASETYPE_CONNECTSTO.toString())) {
 				// with a connectsto relation we have first build the
 				// nodetemplates and then the relationshiptemplate
-				
+
 				// first: generate global link for the source to relation
 				// dependency
 				String sourceToRelationlinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
 				this.planHandler.addLink(sourceToRelationlinkName, buildPlan);
-				
+
 				// second: connect source with relationship as target
 				PlanBuilder.LOG.info("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
-				
+
 				// third: generate global link for the target to relation
 				// dependency
 				String targetToRelationlinkName = target.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
 				this.planHandler.addLink(targetToRelationlinkName, buildPlan);
-				
+
 				// fourth: connect target with relationship as target
 				PlanBuilder.LOG.info("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
-				
+
 			} else if (baseType.toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
-				
+
 				// with the other relations we have to build first the source,
 				// then the relation and at last the target
-				
+
 				// first: generate global link for the source to relation
 				// dependeny
 				String sourceToRelationLinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
 				this.planHandler.addLink(sourceToRelationLinkName, buildPlan);
-				
+
 				// second: connect source to relation
 				PlanBuilder.LOG.info("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
-				
+
 				// third: generate global link for the relation to target
 				// dependency
 				String relationToTargetLinkName = relationshipPlan.getRelationshipTemplate().getId() + "_BEFORE_" + target.getNodeTemplate().getId();
 				this.planHandler.addLink(relationToTargetLinkName, buildPlan);
-				
+
 				// fourth: connect relation to target
 				PlanBuilder.LOG.info("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(relationshipPlan, target, relationToTargetLinkName);
 			}
-			
+
 		}
 	}
-	
+
 }

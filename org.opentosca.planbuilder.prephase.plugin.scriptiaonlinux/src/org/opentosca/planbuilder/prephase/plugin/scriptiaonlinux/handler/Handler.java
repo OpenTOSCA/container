@@ -11,6 +11,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.plugins.constants.PluginConstants;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +25,17 @@ import org.xml.sax.SAXException;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Handler {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-	
+
 	private ResourceHandler res;
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
@@ -45,11 +46,11 @@ public class Handler {
 			Handler.LOG.error("Couldn't initialize internal ResourceHandler", e);
 		}
 	}
-	
+
 	/**
 	 * Adds necessary BPEL logic trough the given context that can upload the
 	 * given DA unto the given InfrastructureNode
-	 * 
+	 *
 	 * @param context a TemplateContext
 	 * @param da the DeploymentArtifact to deploy
 	 * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
@@ -59,11 +60,11 @@ public class Handler {
 		List<AbstractArtifactReference> refs = da.getArtifactRef().getArtifactReferences();
 		return this.handle(context, refs, da.getName(), nodeTemplate);
 	}
-	
+
 	/**
 	 * Adds necessary BPEL logic through the given context that can upload the
 	 * given IA unto the given InfrastructureNode
-	 * 
+	 *
 	 * @param context a TemplateContext
 	 * @param ia the ImplementationArtifact to deploy
 	 * @param nodeTemplate the NodeTemplate which is used as InfrastructureNode
@@ -73,13 +74,13 @@ public class Handler {
 		// fetch references
 		List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
 		return this.handle(context, refs, ia.getArtifactType().getLocalPart() + "_" + ia.getOperationName() + "_IA", nodeTemplate);
-		
+
 	}
-	
+
 	/**
 	 * Adds necessary BPEL logic through the given Context, to deploy the given
 	 * ArtifactReferences unto the specified InfrastructureNode
-	 * 
+	 *
 	 * @param context a TemplateContext
 	 * @param refs the ArtifactReferences to deploy
 	 * @param artifactName the name of the artifact, where the references
@@ -97,13 +98,13 @@ public class Handler {
 			Handler.LOG.error("Couldn't fetch internal WSDL file", e);
 			return false;
 		}
-		
+
 		// register partnerlink
 		String partnerLinkTypeName = "ec2linuxPLT" + context.getIdForNames();
 		context.addPartnerLinkType(partnerLinkTypeName, "server", portType);
 		String partnerLinkName = "ec2linuxPL" + context.getIdForNames();
 		context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, null, "server", true);
-		
+
 		// register request- and response-message variables
 		// {http://ec2linux.aws.ia.opentosca.org}transferLocalFileRequest
 		// {http://ec2linux.aws.ia.opentosca.org}transferLocalFileResponse
@@ -111,27 +112,27 @@ public class Handler {
 		context.addVariable(fileTransferRequestVarName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "transferRemoteFileRequest", "ec2linuxIA"));
 		String fileTransferResponseVarName = "local_linuxEc2FileTransferResponse" + context.getIdForNames();
 		context.addVariable(fileTransferResponseVarName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "transferRemoteFileResponse", "ec2linuxIA"));
-		
+
 		context.addStringValueToPlanRequest("sshKey");
 		context.addStringValueToPlanRequest("csarEntrypoint");
 		// fetch serverip property variable name, planrequestmsgname and
 		// assemble remotefilepath
-		String varNameServerIp = context.getVariableNameOfProperty(nodeTemplate.getId(), "ServerIp");
+		String varNameServerIp = context.getVariableNameOfProperty(nodeTemplate.getId(), PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		String varNamePlanRequestMsg = context.getPlanRequestMessageName();
-		
-		// TODO /home/ec2-user/ is a huge assumption
-		String remoteFilePath = "/home/ec2-user/" + context.getCSARFileName() + "/" + refs.get(0).getReference();
-		
+
+		// TODO /home/ec2-user/ or ~ is a huge assumption
+		String remoteFilePath = "~/" + context.getCSARFileName() + "/" + refs.get(0).getReference();
+
 		/* begin create folder request */
-		
+
 		// register linux file upload webservice in plan
-		
+
 		String runScriptRequestVarName = "runScriptRequest" + context.getIdForNames();
 		context.addVariable(runScriptRequestVarName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "runScriptRequest"));
 		String runScriptResponseVarName = "runScriptResponse" + context.getIdForNames();
 		context.addVariable(runScriptResponseVarName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "runScriptResponse"));
 		String script = "string('mkdir -p " + this.fileReferenceToFolder(remoteFilePath) + "')";
-		
+
 		// assign request
 		Node assignNode = null;
 		try {
@@ -143,10 +144,10 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate BPEL Assign element", e);
 			return false;
 		}
-		
+
 		assignNode = context.importNode(assignNode);
 		context.getPrePhaseElement().appendChild(assignNode);
-		
+
 		Node invokeNode = null;
 		try {
 			invokeNode = this.res.generateInvokeAsNode("invoke_" + runScriptRequestVarName, partnerLinkName, "runScript", this.res.getPortTypeFromLinuxUploadWSDL(), runScriptRequestVarName, runScriptResponseVarName);
@@ -157,12 +158,12 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate BPEL Invoke element", e);
 			return false;
 		}
-		
+
 		invokeNode = context.importNode(invokeNode);
 		context.getPrePhaseElement().appendChild(invokeNode);
-		
+
 		/* end create folder request */
-		
+
 		// context.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight",true);
 		// register opentosca file reference type as variable
 		// try {
@@ -175,12 +176,12 @@ public class Handler {
 		// e.printStackTrace();
 		// return false;
 		// }
-		
+
 		// context.addVariable("local_refOfAbsPath",
 		// BuildPlan.VariableType.TYPE,
 		// new QName("http://opentosca.org/openTOSCAReferencesSchema",
 		// "tReferences", "opentoscaref"));
-		
+
 		// add rest extension get to fetch absolute path on local machine
 		// Node restExtensionNode;
 		// try {
@@ -201,19 +202,19 @@ public class Handler {
 		// restExtensionNode = context.importNode(restExtensionNode);
 		// // append to prov sequence
 		// context.getPrePhaseElement().appendChild(restExtensionNode);
-		
+
 		/* append assign to template */
 		// adding sshKey to PlanInputMessage as this Plugin knows there is no
 		// SSHKey Property inside the AmazonVM NodeType
-		
+
 		Handler.LOG.debug("Building container File Path");
 		Handler.LOG.debug("Reference: " + refs.get(0).getReference());
 		if ((refs.get(0).getIncludePatterns() != null) && !refs.get(0).getIncludePatterns().isEmpty()) {
 			Handler.LOG.debug("IncludePattern: " + refs.get(0).getIncludePatterns().get(0));
 		}
-		
+
 		String containerFilePath = this.res.getRemoteFilePathString(refs.get(0).getReference());
-		
+
 		Node assignRemoteFileNode;
 		try {
 			assignRemoteFileNode = this.res.getRemoteTransferFileAssignAsNode("assign_" + fileTransferRequestVarName, fileTransferRequestVarName, portType.getPrefix(), varNameServerIp, varNamePlanRequestMsg, containerFilePath, remoteFilePath);
@@ -224,7 +225,7 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate BPEL Assign element", e);
 			return false;
 		}
-		
+
 		// generate and add fragment
 		// Node assignTransferFileNode;
 		// try {
@@ -242,13 +243,13 @@ public class Handler {
 		// e.printStackTrace();
 		// return false;
 		// }
-		
+
 		// assignTransferFileNode = context.importNode(assignTransferFileNode);
 		// context.getPrePhaseElement().appendChild(assignTransferFileNode);
-		
+
 		assignRemoteFileNode = context.importNode(assignRemoteFileNode);
 		context.getPrePhaseElement().appendChild(assignRemoteFileNode);
-		
+
 		/* generate invoke */
 		Node invokeNode2;
 		try {
@@ -260,22 +261,22 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate BPEL invoke element", e);
 			return false;
 		}
-		
+
 		invokeNode2 = context.importNode(invokeNode2);
 		context.getPrePhaseElement().appendChild(invokeNode2);
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Removes trailing slashes
-	 * 
+	 *
 	 * @param ref a path
 	 * @return a String without trailing slashes
 	 */
 	private String fileReferenceToFolder(String ref) {
 		Handler.LOG.debug("Getting ref to change to folder ref: " + ref);
-		
+
 		int lastIndexSlash = ref.lastIndexOf("/");
 		int lastIndexDot = ref.lastIndexOf(".");
 		if (lastIndexSlash < lastIndexDot) {
@@ -284,5 +285,5 @@ public class Handler {
 		Handler.LOG.debug("Returning ref: " + ref);
 		return ref;
 	}
-	
+
 }

@@ -69,7 +69,7 @@ public class Importer extends AbstractImporter {
 	public AbstractDefinitions createContext(CSARContent csarContent) throws SystemException {
 		AbstractFile rootTosca = csarContent.getRootTOSCA();
 		Set<AbstractFile> referencedFilesInCsar = csarContent.getFilesRecursively();
-		return new DefinitionsImpl(rootTosca, referencedFilesInCsar);
+		return new DefinitionsImpl(rootTosca, referencedFilesInCsar, true);
 	}
 
 }

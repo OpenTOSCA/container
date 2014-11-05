@@ -21,21 +21,21 @@ import org.opentosca.planbuilder.model.tosca.AbstractTag;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class RelationshipTypeImplementationImpl extends AbstractRelationshipTypeImplementation {
-	
+
 	private DefinitionsImpl defs;
 	private TRelationshipTypeImplementation relationshipTypeImpl;
 	private List<AbstractImplementationArtifact> ias;
 	private List<AbstractTag> tags;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param relationshipTypeImplementation a JAXB
 	 *            TRelationshipTypeImplementation
 	 * @param definitionsImpl a DefinitionsImpl
@@ -48,7 +48,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 		this.initIas();
 		this.initTags();
 	}
-	
+
 	/**
 	 * Initializes the IAs of this RelationshipTypeImplementation
 	 */
@@ -57,7 +57,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 			this.ias.add(new ImplementationArtifactImpl(artifact, this.defs));
 		}
 	}
-	
+
 	/**
 	 * Initializes the Tags of this RelationshipTypeImplementatiokn
 	 */
@@ -68,7 +68,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -76,7 +76,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public String getName() {
 		return this.relationshipTypeImpl.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -84,15 +84,20 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public String getTargetNamespace() {
 		return this.getTargetNamespace();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public AbstractRelationshipType getRelationshipType() {
-		return this.defs.getRelationshipType(this.relationshipTypeImpl.getRelationshipType());
+		for(AbstractRelationshipType relation : this.defs.getAllRelationshipTypes()){
+			if(relation.getId().toString().equals(this.relationshipTypeImpl.getRelationshipType().toString())){
+				return relation;
+			}
+		}
+		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -100,7 +105,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public boolean isAbstract() {
 		return (this.relationshipTypeImpl.getAbstract().value().equals("yes")) ? true : false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -108,7 +113,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public boolean isFinal() {
 		return (this.relationshipTypeImpl.getFinal().value().equals("yes")) ? true : false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -121,7 +126,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 		}
 		return features;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -129,7 +134,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public List<AbstractImplementationArtifact> getImplementationArtifacts() {
 		return this.ias;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -137,7 +142,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public QName getDerivedFrom() {
 		return this.relationshipTypeImpl.getDerivedFrom().getRelationshipTypeImplementationRef();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -145,5 +150,5 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	public List<AbstractTag> getTags() {
 		return this.tags;
 	}
-	
+
 }

@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.TemplatePropWrapper;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.osgi.framework.FrameworkUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -26,19 +26,19 @@ import org.xml.sax.SAXException;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class BPELFragments {
-	
+
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @throws ParserConfigurationException is thrown when initializing the
 	 *             internal parsers fails
 	 */
@@ -46,14 +46,14 @@ public class BPELFragments {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		
+
 	}
-	
+
 	/**
 	 * Generates a BPEL Assign as String. The Assign initializes a WSDL Request
 	 * Message from appropriate sources, like from plan input message in case of
 	 * external parameters or from internal property variables
-	 * 
+	 *
 	 * @param MessageDeclId A QName of the XML Schema Definition Element, which
 	 *            is used as Request Message
 	 * @param variableName the name of the variable for the request message
@@ -68,18 +68,18 @@ public class BPELFragments {
 	 *            variable
 	 * @return a BPEL Assign as DOM Node
 	 */
-	public Node getGenericAssignAsNode(QName MessageDeclId, String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, TemplatePropWrapper> paramPropertyMappings, String assignName, String planInputMessageName, String planInputMessagePartName) throws SAXException, IOException {
+	public Node getGenericAssignAsNode(QName MessageDeclId, String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, Variable> paramPropertyMappings, String assignName, String planInputMessageName, String planInputMessagePartName) throws SAXException, IOException {
 		String templateString = this.getGenericAssignAsString(MessageDeclId, variableName, part, toscaWsdlMappings, paramPropertyMappings, assignName, planInputMessageName, planInputMessagePartName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL copy element which assigns a message element with a
 	 * literal consisting of some digits
-	 * 
+	 *
 	 * @param MessageDeclId the XML Schema Definition
 	 * @param variableName the name of the message variable
 	 * @param partName the part name
@@ -98,12 +98,12 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Assign as String. The Assign initializes a WSDL Request
 	 * Message from appropriate sources, like from plan input message in case of
 	 * external parameters or from internal property variables
-	 * 
+	 *
 	 * @param MessageDeclId A QName of the XML Schema Definition Element, which
 	 *            is used as Request Message
 	 * @param variableName the name of the variable for the request message
@@ -118,7 +118,7 @@ public class BPELFragments {
 	 *            variable
 	 * @return a BPEL Assign as String
 	 */
-	public String getGenericAssignAsString(QName MessageDeclId, String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, TemplatePropWrapper> paramPropertyMappings, String assignName, String planInputMessageName, String planInputMessagePartName) {
+	public String getGenericAssignAsString(QName MessageDeclId, String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, Variable> paramPropertyMappings, String assignName, String planInputMessageName, String planInputMessagePartName) {
 		String genericAssignAsString = "";
 		String bpelAssignBeginString = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" validate=\"no\" name=\"" + assignName + "\"><bpel:copy><bpel:from><bpel:literal>";
 		String bpelAssignLiteralInitBeginString = "";
@@ -127,7 +127,7 @@ public class BPELFragments {
 		// xmlns:tns="http:///www.opentosca.org/examples/Moodle/BuildPlan"
 		// xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		bpelAssignLiteralInitBeginString += "<" + MessageDeclId.getPrefix() + ":" + MessageDeclId.getLocalPart() + " xmlns:" + MessageDeclId.getPrefix() + "=\"" + MessageDeclId.getNamespaceURI() + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-		
+
 		// setup child elements of message variable
 		String bpelAssignLiteralInitChildElementsString = "";
 		for (String toscaParam : toscaWsdlMappings.keySet()) {
@@ -135,17 +135,17 @@ public class BPELFragments {
 			String elementDecl = MessageDeclId.getPrefix() + ":" + messageChildLocalName;
 			bpelAssignLiteralInitChildElementsString += "<" + elementDecl + ">" + elementDecl + "</" + elementDecl + ">";
 		}
-		
+
 		// end strings
 		String bpelAssignLiteralInitEndString = "</" + MessageDeclId.getPrefix() + ":" + MessageDeclId.getLocalPart() + ">";
 		String bpelAssignEndInitializeString = "</bpel:literal></bpel:from><bpel:to variable=\"" + variableName + "\"" + ((part != null) ? " part=\"" + part + "\"" : "") + "></bpel:to></bpel:copy>";
-		
+
 		genericAssignAsString += bpelAssignBeginString;
 		genericAssignAsString += bpelAssignLiteralInitBeginString;
 		genericAssignAsString += bpelAssignLiteralInitChildElementsString;
 		genericAssignAsString += bpelAssignLiteralInitEndString;
 		genericAssignAsString += bpelAssignEndInitializeString;
-		
+
 		// generate copies for property variable to request and input data to
 		// request
 		// Example:
@@ -157,16 +157,16 @@ public class BPELFragments {
 		// queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns:instanceType]]></bpel:query>
 		// </bpel:to>
 		// </bpel:copy>
-		
+
 		for (String toscaParam : toscaWsdlMappings.keySet()) {
-			
+
 			// check whether toscaParam is a _DUMMY_KEY_, if yes there is no
 			// assign to be done here
 			if (toscaParam.contains("_DUMMY_KEY_")) {
 				continue;
 			}
-			
-			TemplatePropWrapper propWrapper = paramPropertyMappings.get(toscaParam);
+
+			Variable propWrapper = paramPropertyMappings.get(toscaParam);
 			if (propWrapper == null) {
 				// toscaParam is external, data comes from main plan input
 				// message
@@ -178,26 +178,26 @@ public class BPELFragments {
 				genericAssignAsString += fromQueryString;
 				genericAssignAsString += externalCopyToString;
 				genericAssignAsString += ToQueryString;
-				
+
 			} else {
 				// toscaParam is internal, data comes from property variable
-				String internalCopyFromString = "<bpel:copy><bpel:from variable=\"" + propWrapper.getPropertyLocalName() + "\"></bpel:from>";
+				String internalCopyFromString = "<bpel:copy><bpel:from variable=\"" + propWrapper.getName() + "\"></bpel:from>";
 				String internalCopyToString = "<bpel:to part=\"" + part + "\" variable=\"" + variableName + "\">";
 				String ToQueryString = "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[" + MessageDeclId.getPrefix() + ":" + toscaWsdlMappings.get(toscaParam) + "]]></bpel:query></bpel:to></bpel:copy>";
 				genericAssignAsString += internalCopyFromString;
 				genericAssignAsString += internalCopyToString;
 				genericAssignAsString += ToQueryString;
 			}
-			
+
 		}
 		genericAssignAsString += "</bpel:assign>";
-		
+
 		return genericAssignAsString;
 	}
-	
+
 	/**
 	 * Generates an BPEL Invoke Element as String.
-	 * 
+	 *
 	 * @param invokeName the name attribute of the Invoke Element
 	 * @param partnerLinkName the partnerLink attribute of the invoke
 	 * @param operationName the name of the operation used on the given porttype
@@ -215,10 +215,10 @@ public class BPELFragments {
 		String invokeAsString = "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + invokeName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\"" + " portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\"" + inputVarName + "\"" + " outputVariable=\"" + outputVarName + "\"></bpel:invoke>";
 		return invokeAsString;
 	}
-	
+
 	/**
 	 * Generates a String containing a BPEL invoke element
-	 * 
+	 *
 	 * @param invokeName the name of the invoke as String
 	 * @param partnerLinkName the name of the partnerLink used as String
 	 * @param operationName the name of the WSDL operation as String
@@ -230,10 +230,10 @@ public class BPELFragments {
 	public String generateInvokeAsString(String invokeName, String partnerLinkName, String operationName, QName portType, String inputVarName) {
 		return "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + invokeName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\"" + " portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\"" + inputVarName + "\"></bpel:invoke>";
 	}
-	
+
 	/**
 	 * Generates a DOM Node containing a BPEL invoke element
-	 * 
+	 *
 	 * @param invokeName the name of the invoke as String
 	 * @param partnerLinkName the name of the partnerLink used as String
 	 * @param operationName the name of the WSDL operation as String
@@ -249,10 +249,10 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Receive Element
-	 * 
+	 *
 	 * @param receiveName a name for the receive as String
 	 * @param partnerLinkName the name of a BPEL partnerLink as String
 	 * @param operationName the name of a WSDL operation as String
@@ -277,10 +277,10 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates an BPEL Invoke Element as String.
-	 * 
+	 *
 	 * @param invokeName the name attribute of the Invoke Element
 	 * @param partnerLinkName the partnerLink attribute of the invoke
 	 * @param operationName the name of the operation used on the given porttype
@@ -296,11 +296,11 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Correlations element to us with BPEL Invoke and Receive
 	 * elements
-	 * 
+	 *
 	 * @param correlationSetName the name of the correlationSet to use
 	 * @param initiate whether the correlationSet must be initialized or not
 	 * @return a DOM Node containing a complete BPEL Correlations element
@@ -314,10 +314,10 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Wait element
-	 * 
+	 *
 	 * @param name the name for the wait element as String
 	 * @param minutes int denoting the minutes to wait
 	 * @param seconds int denoting the seconds to wait
@@ -328,11 +328,11 @@ public class BPELFragments {
 	public String generateWaitAsString(String name, int minutes, int seconds) {
 		return "<bpel:wait xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + name + "\"> <bpel:for>'P0Y0M0DT0H" + minutes + "M" + seconds + "S'</bpel:for></bpel:wait>";
 	}
-	
+
 	/**
 	 * Generates a BPEL Copy element to use in BPEL Assigns, which sets the
 	 * WS-Addressing ReplyTo Header for the specified request variable
-	 * 
+	 *
 	 * @param partnerLinkName the name of the BPEL partnerLink that will be used
 	 *            as String
 	 * @param requestVariableName the name of the BPEL Variable used for an
@@ -349,15 +349,15 @@ public class BPELFragments {
 		 */
 		addressingFileString = addressingFileString.replace("{requestVarName}", requestVariableName);
 		addressingFileString = addressingFileString.replace("{partnerLinkName}", partnerLinkName);
-		
+
 		return addressingFileString;
-		
+
 	}
-	
+
 	/**
 	 * Generates a BPEL Copy element to use in BPEL Assigns, which sets the
 	 * WS-Addressing ReplyTo Header for the specified request variable
-	 * 
+	 *
 	 * @param partnerLinkName the name of the BPEL partnerLink that will be used
 	 *            as String
 	 * @param requestVariableName the name of the BPEL Variable used for an
@@ -373,11 +373,11 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Copy which sets a dummy WS-Addressing ReplyTo Header on
 	 * the given request variable
-	 * 
+	 *
 	 * @param requestVariableName the name of a BPEL Variable as String
 	 * @return a String containing a complete BPEL Copy element
 	 * @throws IOException is thrown when reading internal files fails
@@ -391,13 +391,13 @@ public class BPELFragments {
 		 */
 		addressingFileString = addressingFileString.replace("{requestVarName}", requestVariableName);
 		return addressingFileString;
-		
+
 	}
-	
+
 	/**
 	 * Generates a BPEL Copy which sets a dummy WS-Addressing ReplyTo Header on
 	 * the given request variable
-	 * 
+	 *
 	 * @param requestVariableName the name of a BPEL Variable as String
 	 * @return a DOM Node containing a complete BPEL Copy element
 	 * @throws IOException is thrown when reading internal files fails
@@ -410,19 +410,19 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Empty element
-	 * 
+	 *
 	 * @return a String containing a BPEL Empty element
 	 */
 	public String generateEmptyAsString() {
 		return "<bpel:empty xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"/>";
 	}
-	
+
 	/**
 	 * Generates a BPEL Empty element
-	 * 
+	 *
 	 * @return a DOM Node containing a BPEL Empty element
 	 */
 	public Node generateEmptyAsNode() throws SAXException, IOException {
@@ -432,10 +432,10 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Extension for wait activities
-	 * 
+	 *
 	 * @param minutes int denoting the time in minutes to wait
 	 * @param seconds int denoting the time in seconds to wait
 	 * @return a String containing a complete BPEL Extension element
@@ -446,10 +446,10 @@ public class BPELFragments {
 		// </bpel:extensionActivity>
 		return "<bpel:extensionActivity xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><wait:WAIT xmlns:wait=\"http://www.opentosca.org/bpel/extension/wait\" minutes=\"" + minutes + "\" seconds=\"" + seconds + "\" /></bpel:extensionActivity>";
 	}
-	
+
 	/**
 	 * Generates a BPEL Extension for wait activities
-	 * 
+	 *
 	 * @param minutes int denoting the time in minutes to wait
 	 * @param seconds int denoting the time in seconds to wait
 	 * @return a DOM Node containing a complete BPEL Extension element
@@ -463,10 +463,10 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates a BPEL Wait element
-	 * 
+	 *
 	 * @param name the name for the wait element as String
 	 * @param minutes int denoting the minutes to wait
 	 * @param seconds int denoting the seconds to wait
@@ -481,11 +481,11 @@ public class BPELFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 	/**
 	 * Generates an BPEL Assign Element as String, which reads Response Message
 	 * Data into internal PropertyVariables
-	 * 
+	 *
 	 * @param variableName the Response Message variable name
 	 * @param part the part name of response message
 	 * @param toscaWsdlMappings Mappings from TOSCA Output Parameters to WSDL
@@ -497,14 +497,14 @@ public class BPELFragments {
 	 *            as QName
 	 * @return BPEL Assign Element as String
 	 */
-	public String generateResponseAssignAsString(String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, TemplatePropWrapper> paramPropertyMappings, String assignName, QName MessageDeclId) {
+	public String generateResponseAssignAsString(String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, Variable> paramPropertyMappings, String assignName, QName MessageDeclId) {
 		String assignAsString = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + assignName + "\">";
-		
+
 		for (String toscaParam : paramPropertyMappings.keySet()) {
 			if (toscaParam.contains("_DUMMY_KEY_")) {
 				continue;
 			}
-			TemplatePropWrapper propWrapper = paramPropertyMappings.get(toscaParam);
+			Variable propWrapper = paramPropertyMappings.get(toscaParam);
 			if (propWrapper == null) {
 				// TODO external parameter, add to plan output message
 			} else {
@@ -512,7 +512,7 @@ public class BPELFragments {
 				// internal property variable
 				String internalCopyString = "<bpel:copy><bpel:from variable=\"" + variableName + "\" part=\"" + part + "\">";
 				String internalQueryString = "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[" + MessageDeclId.getPrefix() + ":" + toscaWsdlMappings.get(toscaParam) + "]]></bpel:query></bpel:from>";
-				String internalToString = "<bpel:to variable=\"" + propWrapper.getPropertyLocalName() + "\"/></bpel:copy>";
+				String internalToString = "<bpel:to variable=\"" + propWrapper.getName() + "\"/></bpel:copy>";
 				assignAsString += internalCopyString;
 				assignAsString += internalQueryString;
 				assignAsString += internalToString;
@@ -521,11 +521,11 @@ public class BPELFragments {
 		assignAsString += "</bpel:assign>";
 		return assignAsString;
 	}
-	
+
 	/**
 	 * Generates an BPEL Assign Element as String, which reads Response Message
 	 * Data into internal PropertyVariables
-	 * 
+	 *
 	 * @param variableName the Response Message variable name
 	 * @param part the part name of response message
 	 * @param toscaWsdlMappings Mappings from TOSCA Output Parameters to WSDL
@@ -537,12 +537,12 @@ public class BPELFragments {
 	 *            as QName
 	 * @return BPEL Assign Element as DOM Node
 	 */
-	public Node generateResponseAssignAsNode(String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, TemplatePropWrapper> paramPropertyMappings, String assignName, QName MessageDeclId) throws SAXException, IOException {
+	public Node generateResponseAssignAsNode(String variableName, String part, Map<String, String> toscaWsdlMappings, Map<String, Variable> paramPropertyMappings, String assignName, QName MessageDeclId) throws SAXException, IOException {
 		String templateString = this.generateResponseAssignAsString(variableName, part, toscaWsdlMappings, paramPropertyMappings, assignName, MessageDeclId);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 }

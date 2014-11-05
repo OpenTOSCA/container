@@ -7,8 +7,23 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderGenericPlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * <p>
+ * This class represents a generic plugin containing logic to start EC2 Virtual
+ * machine with the EC2VM Service
+ * </p>
+ * Copyright 2014 IAAS University of Stuttgart <br>
+ * <br>
+ * 
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * 
+ */
 public class Plugin implements IPlanBuilderGenericPlugin {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
 	
 	private final QName ec2NodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "EC2");
 	private final QName vmNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "VM");
@@ -50,6 +65,15 @@ public class Plugin implements IPlanBuilderGenericPlugin {
 	 */
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate) {
+		if (nodeTemplate == null) {
+			Plugin.LOG.debug("NodeTemplate is null");
+		}
+		if (nodeTemplate.getType() == null) {
+			Plugin.LOG.debug("NodeTemplate NodeType is null. NodeTemplate Id:" + nodeTemplate.getId());
+		}
+		if (nodeTemplate.getType().getId() == null) {
+			Plugin.LOG.debug("NodeTemplate NodeType id is null");
+		}
 		// this plugin can handle all referenced nodeType
 		if (nodeTemplate.getType().getId().toString().equals(this.ec2NodeType.toString())) {
 			return true;

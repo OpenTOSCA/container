@@ -16,20 +16,20 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class NodeTypeImpl extends AbstractNodeType {
-	
+
 	private TNodeType nodeType;
 	private DefinitionsImpl definitions;
 	private List<AbstractInterface> interfaces;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param nodeType a JAXB TNodeType
 	 * @param definitionsImpl a DefinitionsImpl
 	 */
@@ -39,7 +39,7 @@ public class NodeTypeImpl extends AbstractNodeType {
 		this.interfaces = new ArrayList<AbstractInterface>();
 		this.setUp();
 	}
-	
+
 	/**
 	 * Sets up the internal interfaces
 	 */
@@ -51,20 +51,23 @@ public class NodeTypeImpl extends AbstractNodeType {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public AbstractNodeType getTypeRef() {
 		if (this.nodeType.getDerivedFrom() != null) {
-			return this.definitions.getNodeType(this.nodeType.getDerivedFrom().getTypeRef());
-		} else {
-			return null;
+			for (AbstractNodeType nodeType : this.definitions.getAllNodeTypes()) {
+				if (nodeType.getId().toString().equals(this.nodeType.getDerivedFrom().getTypeRef().toString())) {
+					return nodeType;
+				}
+			}
+
 		}
-		
+		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -72,7 +75,7 @@ public class NodeTypeImpl extends AbstractNodeType {
 	public String getName() {
 		return this.nodeType.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -86,7 +89,7 @@ public class NodeTypeImpl extends AbstractNodeType {
 		}
 		return new QName("{" + namespace + "}" + this.getName());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -94,7 +97,7 @@ public class NodeTypeImpl extends AbstractNodeType {
 	public String getTargetNamespace() {
 		return this.nodeType.getTargetNamespace();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,5 +105,5 @@ public class NodeTypeImpl extends AbstractNodeType {
 	public List<AbstractInterface> getInterfaces() {
 		return this.interfaces;
 	}
-	
+
 }

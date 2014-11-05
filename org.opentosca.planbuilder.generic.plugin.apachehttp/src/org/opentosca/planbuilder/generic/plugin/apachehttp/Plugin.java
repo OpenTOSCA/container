@@ -10,12 +10,28 @@ import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>
+ * This class represents the generic plugin for Apache HTTP Servers hosted on a
+ * Ubuntu Operating System
+ * </p>
+ * Copyright 2014 IAAS University of Stuttgart <br>
+ * <br>
+ * 
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * 
+ */
 public class Plugin implements IPlanBuilderGenericPlugin {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
 	
+	// these are the nodeTypes used in some test CSAR's
 	private final QName ubuntuNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "Ubuntu");
 	private final QName apacheNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/ApacheWebServer", "OpenTOSCAApacheWebServer");
+	
+	// these are the official nodeTypes
+	private final QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
+	private final QName apacheNodeTypeTOSCASpecificType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes", "ApacheWebServer");
 	private Handler handler = new Handler();
 	
 	
@@ -43,7 +59,7 @@ public class Plugin implements IPlanBuilderGenericPlugin {
 		// check whether the nodeTemplate has the openTosca apacheWebServer
 		// nodeType
 		Plugin.LOG.debug("Checking whether nodeTemplate " + nodeTemplate.getId() + " can be handled");
-		if (!nodeTemplate.getType().getId().toString().equals(this.apacheNodeType.toString())) {
+		if (!this.isApacheNodeTypeCompatible(nodeTemplate.getType().getId())) {
 			Plugin.LOG.debug("NodeTemplate is no " + this.apacheNodeType + " nodeType. Can't handle NodeTemplate");
 			return false;
 		}
@@ -53,7 +69,7 @@ public class Plugin implements IPlanBuilderGenericPlugin {
 		for (AbstractRelationshipTemplate relations : nodeTemplate.getOutgoingRelations()) {
 			Plugin.LOG.debug("Traversing relationshipType " + relations.getId());
 			Plugin.LOG.debug("Checking NodeTemplate " + relations.getTarget().getId());
-			if (relations.getTarget().getType().getId().toString().equals(this.ubuntuNodeType.toString())) {
+			if (this.isUbuntuNodeTypeCompatible(relations.getTarget().getType().getId())) {
 				// the opentosca apacheWebServer template is connected to a
 				// template with Ubuntu nodeType, so we can handle it
 				return true;
@@ -67,6 +83,40 @@ public class Plugin implements IPlanBuilderGenericPlugin {
 	@Override
 	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate) {
 		// we only handle NodeTemplates
+		return false;
+	}
+	
+	/**
+	 * Checks whether the given QName represents a Apache Web Server NodeType
+	 * compatible with this plugin
+	 * 
+	 * @param nodeTypeId a QName denoting a TOSCA NodeType
+	 * @return true iff the given QName is a NodeType this plugin can handle
+	 */
+	private boolean isApacheNodeTypeCompatible(QName nodeTypeId) {
+		if (nodeTypeId.toString().equals(this.apacheNodeType.toString())) {
+			return true;
+		}
+		if (nodeTypeId.toString().equals(this.apacheNodeTypeTOSCASpecificType.toString())) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Checks whether the given QName represents a Ubuntu OS NodeType compatible
+	 * with this plugin
+	 * 
+	 * @param nodeTypeId a QName denoting a TOSCA NodeType
+	 * @return true iff the given QName is a NodeType this plugin can handle
+	 */
+	private boolean isUbuntuNodeTypeCompatible(QName nodeTypeId) {
+		if (nodeTypeId.toString().equals(this.ubuntuNodeType.toString())) {
+			return true;
+		}
+		if (nodeTypeId.toString().equals(this.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
+			return true;
+		}
 		return false;
 	}
 	

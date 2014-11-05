@@ -1,12 +1,16 @@
 package org.opentosca.planbuilder.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.slf4j.Logger;
@@ -20,14 +24,14 @@ import org.w3c.dom.Node;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Utils {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(Utils.class);
-	
+
 	// these are the baseTypes of the PlanBuilder -> TODO refactor into some
 	// kind of baseType-Configuration
 	public static final QName TOSCABASETYPE_CONNECTSTO = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
@@ -35,11 +39,22 @@ public class Utils {
 	public static final QName TOSCABASETYPE_DEPENDSON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
 	public static final QName TOSCABASETYPE_SERVER = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
 	public static final QName TOSCABASETYPE_OS = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
-	
-	
+
+	public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(AbstractNodeTemplate nodeTemplate, AbstractNodeTypeImplementation nodeImpl){
+		Set<AbstractDeploymentArtifact> effectiveDAs = new HashSet<AbstractDeploymentArtifact>();
+		effectiveDAs.addAll(nodeTemplate.getDeploymentArtifacts());
+		for(AbstractDeploymentArtifact da : nodeImpl.getDeploymentArtifacts()){
+			if(!effectiveDAs.contains(da)){
+				effectiveDAs.add(da);
+			}
+		}
+
+		return effectiveDAs;
+	}
+
 	/**
 	 * Looks for a childelement with an attribute with the given name and value
-	 * 
+	 *
 	 * @param element the element to look in
 	 * @param attributeName the name of the attribute
 	 * @param attributeValue the value of the attribute
@@ -59,14 +74,14 @@ public class Utils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns a ordered list of QNames. The order represents the inheritance of
 	 * NodeTypes defining the given NodeType. E.g. NodeType "someNodeType"
 	 * inherits properties from "someOtherNodeType". The returns list would have
 	 * {someNs}someNodeType,{someNs}someOtherNodeType inside, in the exact same
 	 * order.
-	 * 
+	 *
 	 * @param nodeType the nodeType to get the hierarchy for
 	 * @return a List containing an order of inheritance of NodeTypes for this
 	 *         NodeType with itself at the first spot in the list.
@@ -75,15 +90,15 @@ public class Utils {
 		Utils.LOG.debug("Beginning calculating NodeType Hierarchy for: " + nodeType.getId().toString());
 		List<QName> typeHierarchy = new ArrayList<QName>();
 		typeHierarchy.add(nodeType.getId());
-		
+
 		boolean wasNotNull = true;
 		// changed from search with qname to search with abstract classes and
 		// typeref
 		AbstractNodeType lastFoundNodeType = nodeType;
 		while (wasNotNull) {
-			
+
 			AbstractNodeType referencedNodeType = lastFoundNodeType.getTypeRef();
-			
+
 			if (referencedNodeType == null) {
 				wasNotNull = false;
 			} else {
@@ -92,10 +107,10 @@ public class Utils {
 				lastFoundNodeType = referencedNodeType;
 			}
 		}
-		
+
 		return typeHierarchy;
 	}
-	
+
 	/**
 	 * Returns a ordered list of QNames. The order represents the inheritance of
 	 * RelationshipTypes defining the given RelationshipType. E.g. Relationship
@@ -103,7 +118,7 @@ public class Utils {
 	 * "someOtherRelationType". The returns list would have
 	 * {someNs}someRelationType,{someNs}someOtherRelationType inside, in the
 	 * exact same order.
-	 * 
+	 *
 	 * @param definitions the Definitions to look in
 	 * @param relationshipType the RelationshipType to get the hierarchy for
 	 * @return a List containing an order of inheritance of RelationshipTypes of
@@ -112,7 +127,7 @@ public class Utils {
 	public static List<QName> getRelationshipTypeHierarchy(AbstractRelationshipType relationshipType) {
 		List<QName> typeHierarchy = new ArrayList<QName>();
 		typeHierarchy.add(relationshipType.getId());
-		
+
 		boolean wasNotNull = true;
 		AbstractRelationshipType lastFoundRelationshipType = relationshipType;
 		while (wasNotNull) {
@@ -126,10 +141,10 @@ public class Utils {
 		}
 		return typeHierarchy;
 	}
-	
+
 	/**
 	 * Returns the baseType of the given NodeTemplate
-	 * 
+	 *
 	 * @param nodeTemplate an AbstractNodeTemplate
 	 * @return a QName which represents the baseType of the given NodeTemplate
 	 */
@@ -147,10 +162,10 @@ public class Utils {
 		// FIXME: when there are no basetypes we're screwed
 		return typeHierarchy.get(typeHierarchy.size() - 1);
 	}
-	
+
 	/**
 	 * Returns the baseType of the given RelationshipTemplate
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate
 	 * @return a QName representing the baseType of the given
 	 *         RelationshipTemplate
@@ -171,11 +186,11 @@ public class Utils {
 		// FIXME: when there are no basetypes we're screwed
 		return typeHierarchy.get(typeHierarchy.size() - 1);
 	}
-	
+
 	/**
 	 * Calculates all Infrastructure Nodes of all Infrastructure Paths
 	 * originating from the given NodeTemplate
-	 * 
+	 *
 	 * @param nodeTemplate AbstractNodeTemplate from where the search for
 	 *            Infrstructure Nodes begin
 	 * @param infrastructureNodes a List of AbstractNodeTemplates which
@@ -197,11 +212,11 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(infrastructureNodes);
 	}
-	
+
 	/**
 	 * Adds InfrastructureNodes of the given RelaitonshipTemplate to the given
 	 * List of NodeTemplates
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate to search its
 	 *            InfrastructureNodes
 	 * @param infrastructureNodes a List of AbstractNodeTemplate where the
@@ -215,12 +230,12 @@ public class Utils {
 		} else {
 			Utils.getInfrastructureNodes(relationshipTemplate.getTarget(), infrastructureNodes);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Removes duplicates from the given List
-	 * 
+	 *
 	 * @param nodeTemplates a List of AbstractNodeTemplate
 	 */
 	private static void cleanDuplciates(List<AbstractNodeTemplate> nodeTemplates) {
@@ -238,12 +253,12 @@ public class Utils {
 		}
 		nodeTemplates.clear();
 		nodeTemplates.addAll(list);
-		
+
 	}
-	
+
 	/**
 	 * Removes duplicates from the given List
-	 * 
+	 *
 	 * @param relationshipTemplates a List of AbstractRelationshipTemplate
 	 */
 	private static void cleanDuplicates(List<AbstractRelationshipTemplate> relationshipTemplates) {
@@ -262,20 +277,20 @@ public class Utils {
 		relationshipTemplates.clear();
 		relationshipTemplates.addAll(list);
 	}
-	
+
 	/**
 	 * Adds the InfrastructureEdges of the given NodeTemplate to the given List
-	 * 
+	 *
 	 * @param nodeTemplate an AbstractNodeTemplate
 	 * @param infrastructureEdges a List of AbstractRelationshipTemplate to add
 	 *            the InfrastructureEdges to
 	 */
 	public static void getInfrastructureEdges(AbstractNodeTemplate nodeTemplate, List<AbstractRelationshipTemplate> infrastructureEdges) {
-		
+
 		// fetch all infrastructureNodes
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 		Utils.getInfrastructureNodes(nodeTemplate, infraNodes);
-		
+
 		// check all outgoing edges on those nodes, if they are infrastructure
 		// edges
 		for (AbstractNodeTemplate infraNode : infraNodes) {
@@ -287,11 +302,11 @@ public class Utils {
 		}
 		Utils.cleanDuplicates(infrastructureEdges);
 	}
-	
+
 	/**
 	 * Returns all NodeTemplates from the given RelationshipTemplate going along
 	 * all occuring Relationships using the Target
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate
 	 * @param nodes a List of AbstractNodeTemplate to add the result to
 	 */
@@ -303,11 +318,11 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-	
+
 	/**
 	 * Returns all NodeTemplates from the given NodeTemplate going along the
 	 * path of relation following the target interfaces
-	 * 
+	 *
 	 * @param nodeTemplate an AbstractNodeTemplate
 	 * @param nodes a List of AbstractNodeTemplate to add the result to
 	 */
@@ -318,11 +333,11 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-	
+
 	/**
 	 * Adds the InfrastructureEdges of the given RelationshipTemplate to the
 	 * given List
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate
 	 * @param infraEdges a List of AbstractRelationshipTemplate to add the
 	 *            InfrastructureEdges to
@@ -335,5 +350,45 @@ public class Utils {
 		} else {
 			Utils.getInfrastructureEdges(relationshipTemplate.getTarget(), infraEdges);
 		}
+	}
+
+	/**
+	 * Returns true if the given QName type denotes to a RelationshipType in the
+	 * type hierarchy of the given RelationshipTemplate
+	 *
+	 * @param relationshipTemplate an AbstractRelationshipTemplate
+	 * @param type the Type as a QName to check against
+	 * @return true iff the given RelationshipTemplate contains the given type
+	 *         in its type hierarchy
+	 */
+	public static boolean checkForTypeInHierarchy(AbstractRelationshipTemplate relationshipTemplate, QName type) {
+		List<QName> typeHierarchy = Utils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
+		// as somehow contains won't work here, we must cycle trough
+		for (QName qname : typeHierarchy) {
+			if (qname.toString().equals(type.toString())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if the given QName type denotes to a NodeType in the type
+	 * hierarchy of the given NodeTemplate
+	 *
+	 * @param nodeTemplate an AbstractNodeTemplate
+	 * @param type the Type as a QName to check against
+	 * @return true iff the given NodeTemplate contains the given type in its
+	 *         type hierarchy
+	 */
+	public static boolean checkForTypeInHierarchy(AbstractNodeTemplate nodeTemplate, QName type) {
+		List<QName> typeHierarchy = Utils.getNodeTypeHierarchy(nodeTemplate.getType());
+		// as somehow contains won't work here, we must cycle trough
+		for (QName qname : typeHierarchy) {
+			if (qname.toString().equals(type.toString())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

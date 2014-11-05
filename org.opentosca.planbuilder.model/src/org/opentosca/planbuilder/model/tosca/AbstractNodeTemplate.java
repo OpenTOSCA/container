@@ -82,6 +82,20 @@ public abstract class AbstractNodeTemplate {
 	public abstract AbstractProperties getProperties();
 	
 	/**
+	 * Returns the DeploymentArtifacts of this NodeTemplate
+	 * 
+	 * @return a List of AbstractDeploymentArtifact
+	 */
+	public abstract List<AbstractDeploymentArtifact> getDeploymentArtifacts();
+	
+	/**
+	 * Returns the minInstances attribute of this NodeTemplate
+	 * 
+	 * @return an Integer
+	 */
+	public abstract int getMinInstances();
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

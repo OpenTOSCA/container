@@ -25,24 +25,24 @@ import org.slf4j.LoggerFactory;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(NodeTypeImplementationImpl.class);
-	
+
 	private DefinitionsImpl definitions;
 	private TNodeTypeImplementation nodeTypeImpl;
 	private List<AbstractTag> tags;
 	private List<AbstractImplementationArtifact> ias;
 	private List<AbstractDeploymentArtifact> das;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param nodeTypeImpl a JAXB TNodeTypeImplementation
 	 * @param definitionsImpl a DefinitionsImpl
 	 */
@@ -56,7 +56,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 		this.initIas();
 		this.initDas();
 	}
-	
+
 	/**
 	 * Initializes the internal IAs
 	 */
@@ -65,7 +65,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 			this.ias.add(new ImplementationArtifactImpl(artifact, this.definitions));
 		}
 	}
-	
+
 	/**
 	 * Initializes the internal DAs
 	 */
@@ -76,7 +76,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 			}
 		}
 	}
-	
+
 	/**
 	 * Initializes the internal Tags
 	 */
@@ -87,7 +87,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -95,7 +95,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public String getName() {
 		return this.nodeTypeImpl.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -103,7 +103,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public String getTargetNamespace() {
 		return this.nodeTypeImpl.getTargetNamespace();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -111,7 +111,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public boolean isAbstract() {
 		return this.nodeTypeImpl.getAbstract().value().equals("yes") ? true : false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -119,7 +119,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public boolean isFinal() {
 		return this.nodeTypeImpl.getFinal().value().equals("yes") ? true : false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -127,7 +127,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public List<AbstractTag> getTags() {
 		return this.tags;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -140,7 +140,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 		}
 		return features;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -149,7 +149,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 		// TODO return the nodetypeimplementation instead of qname
 		return this.nodeTypeImpl.getDerivedFrom().getNodeTypeImplementationRef();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -157,7 +157,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public List<AbstractImplementationArtifact> getImplementationArtifacts() {
 		return this.ias;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -165,7 +165,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
 		return this.das;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -174,7 +174,12 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 		if (this.nodeTypeImpl.getNodeType() == null) {
 			NodeTypeImplementationImpl.LOG.error("NodeTypeImplementation {} has no defined nodeType", "{" + this.getTargetNamespace() + "}" + this.getName());
 		}
-		return this.definitions.getNodeType(this.nodeTypeImpl.getNodeType());
+		for(AbstractNodeType nodeType :this.definitions.getAllNodeTypes()){
+			if(nodeType.getId().toString().equals(this.nodeTypeImpl.getNodeType().toString())){
+				return nodeType;
+			}
+		}
+		return null;
 	}
-	
+
 }

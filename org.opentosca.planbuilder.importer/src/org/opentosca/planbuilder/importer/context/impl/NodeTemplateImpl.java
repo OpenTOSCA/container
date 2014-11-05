@@ -2,12 +2,16 @@ package org.opentosca.planbuilder.importer.context.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+import java.util.Vector;
 
 import org.oasis_open.docs.tosca.ns._2011._12.TCapability;
+import org.oasis_open.docs.tosca.ns._2011._12.TDeploymentArtifact;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeTemplate;
 import org.oasis_open.docs.tosca.ns._2011._12.TRequirement;
 import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
@@ -24,26 +28,27 @@ import org.slf4j.LoggerFactory;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class NodeTemplateImpl extends AbstractNodeTemplate {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(NodeTemplateImpl.class);
-	
+
 	private TNodeTemplate nodeTemplate;
 	private DefinitionsImpl definitions;
 	private List<AbstractRelationshipTemplate> ingoingRelations;
 	private List<AbstractRelationshipTemplate> outgoingRelations;
 	private List<AbstractRequirement> requirements;
 	private List<AbstractCapability> capabilities;
+	private List<AbstractDeploymentArtifact> das;
 	private AbstractProperties properties;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param nodeTemplate a JAXB TNodeTemplate
 	 * @param definitions a DefinitionsImpl
 	 */
@@ -54,14 +59,27 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 		this.outgoingRelations = new ArrayList<AbstractRelationshipTemplate>();
 		this.requirements = new ArrayList<AbstractRequirement>();
 		this.capabilities = new ArrayList<AbstractCapability>();
+		this.das = new ArrayList<AbstractDeploymentArtifact>();
 		if (this.nodeTemplate.getProperties() != null) {
 			this.properties = new PropertiesImpl(this.nodeTemplate.getProperties().getAny());
 		}
-		
+
 		this.setUpCapabilities();
 		this.setUpRequirements();
+		this.setUpDeploymentArtifacts();
 	}
-	
+
+	/**
+	 * Initializes the deployment artifacts of the internal model
+	 */
+	private void setUpDeploymentArtifacts() {
+		if (this.nodeTemplate.getDeploymentArtifacts() != null) {
+			for (TDeploymentArtifact artifact : this.nodeTemplate.getDeploymentArtifacts().getDeploymentArtifact()) {
+				this.das.add(new DeploymentArtifactImpl(artifact, this.definitions));
+			}
+		}
+	}
+
 	/**
 	 * Initializes the internal Capabilities
 	 */
@@ -72,7 +90,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets up the internal Requirements
 	 */
@@ -83,7 +101,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -91,7 +109,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public List<AbstractRelationshipTemplate> getOutgoingRelations() {
 		return this.outgoingRelations;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -99,25 +117,25 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public List<AbstractRelationshipTemplate> getIngoingRelations() {
 		return this.ingoingRelations;
 	}
-	
+
 	/**
 	 * Adds a Relationship as an ingoing relation
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate
 	 */
 	protected void addIngoingRelation(AbstractRelationshipTemplate relationshipTemplate) {
 		this.ingoingRelations.add(relationshipTemplate);
 	}
-	
+
 	/**
 	 * Adds RelationshipTemplate as an outgoing relation
-	 * 
+	 *
 	 * @param relationshipTemplate an AbstractRelationshipTemplate
 	 */
 	protected void addOutgoingRelation(AbstractRelationshipTemplate relationshipTemplate) {
 		this.outgoingRelations.add(relationshipTemplate);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -125,7 +143,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public String getId() {
 		return this.nodeTemplate.getId();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -133,15 +151,28 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public String getName() {
 		return this.nodeTemplate.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public AbstractNodeType getType() {
-		return this.definitions.getNodeType(this.nodeTemplate.getType());
+		if (this.nodeTemplate == null) {
+			NodeTemplateImpl.LOG.debug("Internal nodeTemplate is null");
+		}
+
+		if (this.nodeTemplate.getType() == null) {
+			NodeTemplateImpl.LOG.debug("Internal nodeTemplate nodeType is null");
+		}
+		for(AbstractNodeType nodeType : this.definitions.getAllNodeTypes()){
+			if(nodeType.getId().toString().equals(this.nodeTemplate.getType().toString())){
+				return nodeType;
+			}
+		}
+
+		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -149,7 +180,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public List<AbstractCapability> getCapabilities() {
 		return this.capabilities;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -157,15 +188,35 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public List<AbstractRequirement> getRequirements() {
 		return this.requirements;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public List<AbstractNodeTypeImplementation> getImplementations() {
 		List<AbstractNodeTypeImplementation> impls = new ArrayList<AbstractNodeTypeImplementation>();
-		
-		for (AbstractNodeTypeImplementation impl : this.definitions.getNodeTypeImplementations()) {
+
+		List<AbstractNodeTypeImplementation> foundImpls = this.findNodeTypeImpls(this.definitions);
+
+		for (AbstractNodeTypeImplementation impl : foundImpls) {
+
+			if(impl == null){
+				NodeTemplateImpl.LOG.debug("impl is null");
+			}
+
+			if(impl.getNodeType() == null){
+				NodeTemplateImpl.LOG.debug("impl.getNodeType() is null");
+			}
+
+			if(this.nodeTemplate == null){
+				NodeTemplateImpl.LOG.debug("this.nodeTemplate is null");
+			}
+
+			if(this.nodeTemplate.getType() == null){
+				NodeTemplateImpl.LOG.debug("this.nodeTemplate.getType() is null");
+			}
+
+
 			// TODO this is wrong, really
 			NodeTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + " for nodetemplate " + this.nodeTemplate.getId());
 			if (impl.getNodeType().getId().toString().equals(this.nodeTemplate.getType().toString())) {
@@ -173,34 +224,56 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 				impls.add(impl);
 			}
 		}
-		
-		// TODO move this to definitionsimpl
-		for (AbstractDefinitions defs : this.definitions.getImportedDefinitions()) {
-			for (AbstractNodeTypeImplementation impl : defs.getNodeTypeImplementations()) {
-				
-				NodeTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + "for nodetemplate" + this.nodeTemplate.getId());
-				if (impl.getNodeType() == null) {
-					NodeTemplateImpl.LOG.debug("TYPE IS NULL");
-				}
-				if (impl.getNodeType() == null) {
-					NodeTemplateImpl.LOG.debug("NodeType is null, NodeTypeImpl name: " + impl.getName());
-					
-				} else {
-					if (impl.getNodeType().getId() == null) {
-						NodeTemplateImpl.LOG.debug("NodeType ID is null");
-					}
-				}
-				
-				if (impl.getNodeType().getId().toString().equals(this.nodeTemplate.getType().toString())) {
-					NodeTemplateImpl.LOG.debug("Adding implementation for " + this.nodeTemplate.getId() + " with id: " + impl.getName());
-					impls.add(impl);
-				}
-			}
-		}
-		
+
+//		// TODO move this to definitionsimpl
+//		for (AbstractDefinitions defs : this.definitions.getImportedDefinitions()) {
+//			for (AbstractNodeTypeImplementation impl : defs.getNodeTypeImplementations()) {
+//
+//				NodeTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + "for nodetemplate" + this.nodeTemplate.getId());
+//				if (impl.getNodeType() == null) {
+//					NodeTemplateImpl.LOG.debug("TYPE IS NULL");
+//				}
+//				if (impl.getNodeType() == null) {
+//					NodeTemplateImpl.LOG.debug("NodeType is null, NodeTypeImpl name: " + impl.getName());
+//
+//				} else {
+//					if (impl.getNodeType().getId() == null) {
+//						NodeTemplateImpl.LOG.debug("NodeType ID is null");
+//					}
+//				}
+//
+//				if (impl.getNodeType().getId().toString().equals(this.nodeTemplate.getType().toString())) {
+//					NodeTemplateImpl.LOG.debug("Adding implementation for " + this.nodeTemplate.getId() + " with id: " + impl.getName());
+//					impls.add(impl);
+//				}
+//			}
+//		}
+
 		return impls;
 	}
-	
+
+	private List<AbstractNodeTypeImplementation> findNodeTypeImpls(AbstractDefinitions def) {
+		List<AbstractNodeTypeImplementation> impls = new ArrayList<AbstractNodeTypeImplementation>();
+
+		AbstractDefinitions currentDef = def;
+		Stack<AbstractDefinitions> defsToSearchIn = new Stack<AbstractDefinitions>();
+
+		while (currentDef != null) {
+			impls.addAll(currentDef.getNodeTypeImplementations());
+			for (AbstractDefinitions importedDef : currentDef.getImportedDefinitions()) {
+				defsToSearchIn.push(importedDef);
+			}
+
+			if (!defsToSearchIn.isEmpty()) {
+				currentDef = defsToSearchIn.pop();
+			} else {
+				currentDef = null;
+			}
+
+		}
+		return impls;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -208,5 +281,15 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 	public AbstractProperties getProperties() {
 		return this.properties;
 	}
-	
+
+	@Override
+	public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+		return this.das;
+	}
+
+	@Override
+	public int getMinInstances() {
+		return this.nodeTemplate.getMinInstances();
+	}
+
 }

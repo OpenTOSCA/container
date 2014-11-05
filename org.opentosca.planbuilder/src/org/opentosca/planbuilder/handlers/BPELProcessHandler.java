@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -615,6 +616,19 @@ public class BPELProcessHandler {
 			buildPlan.getBpelMainFlowLinksElement().removeChild(toRemove);
 		}
 		
+	}
+	
+	public List<String> getMainVariableNames(BuildPlan buildPlan) {
+		List<String> names = new ArrayList<String>();
+		NodeList childNodes = buildPlan.getBpelProcessVariablesElement().getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node child = childNodes.item(i);
+			if (child.getNodeType() == Node.ELEMENT_NODE) {
+				String varName = child.getAttributes().getNamedItem("name").getNodeValue();
+				names.add(varName);
+			}
+		}
+		return names;
 	}
 	
 }

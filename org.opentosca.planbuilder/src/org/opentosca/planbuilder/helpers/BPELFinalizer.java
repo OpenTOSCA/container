@@ -3,8 +3,11 @@ package org.opentosca.planbuilder.helpers;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,6 +49,23 @@ public class BPELFinalizer {
 	private TemplateBuildPlanHandler templateHandler = new TemplateBuildPlanHandler();
 	private BuildPlanHandler buildPlanHandler;
 	private BPELTemplateScopeHandler scopeHandler;
+	
+	
+	/**
+	 * <p>
+	 * Used to enable markings for topological sort
+	 * </p>
+	 * Copyright 2014 IAAS University of Stuttgart <br>
+	 * <br>
+	 * 
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+	 * 
+	 */
+	private class TopologicalSortMarking {
+		
+		boolean tempMark = false;
+		boolean permMark = false;
+	}
 	
 	
 	public BPELFinalizer() {
@@ -226,16 +246,12 @@ public class BPELFinalizer {
 	 * @param buildPlan the BuildPlan to transform to sequential provisioning
 	 */
 	public void makeSequential(BuildPlan buildPlan) {
-		BPELFinalizer.LOG.info("Starting to transform BuildPlan {} to sequential provsioning", buildPlan.getBpelProcessElement().getAttribute("name"));
+		BPELFinalizer.LOG.debug("Starting to transform BuildPlan {} to sequential provsioning", buildPlan.getBpelProcessElement().getAttribute("name"));
 		List<TemplateBuildPlan> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 		
-		List<TemplateBuildPlan> sinks = this.getSinks(templateBuildPlans);
-		// we assume a single sink
+		List<TemplateBuildPlan> sequentialOrder = this.calcTopologicalOrdering(templateBuildPlans);
 		
-		TemplateBuildPlan sink = sinks.get(0);
-		BPELFinalizer.LOG.info("Found sink with name " + sink.getBpelScopeElement().getAttribute("name"));
-		
-		List<TemplateBuildPlan> sequentialOrder = this.calcSequentialOrder(sink);
+		Collections.reverse(sequentialOrder);
 		
 		for (TemplateBuildPlan template : sequentialOrder) {
 			BPELFinalizer.LOG.info("Seq order: " + template.getBpelScopeElement().getAttribute("name"));
@@ -254,11 +270,11 @@ public class BPELFinalizer {
 		Iterator<TemplateBuildPlan> iter = sequentialOrder.iterator();
 		if (iter.hasNext()) {
 			TemplateBuildPlan target = iter.next();
-			BPELFinalizer.LOG.info("Beginning connecting with " + target.getBpelScopeElement().getAttribute("name"));
+			BPELFinalizer.LOG.debug("Beginning connecting with " + target.getBpelScopeElement().getAttribute("name"));
 			int counter = 0;
 			while (iter.hasNext()) {
 				TemplateBuildPlan source = iter.next();
-				BPELFinalizer.LOG.info("Connecting source " + source.getBpelScopeElement().getAttribute("name") + " with target " + target.getBpelScopeElement().getAttribute("name"));
+				BPELFinalizer.LOG.debug("Connecting source " + source.getBpelScopeElement().getAttribute("name") + " with target " + target.getBpelScopeElement().getAttribute("name"));
 				this.buildPlanHandler.addLink("seqEdge" + counter, buildPlan);
 				this.templateHandler.connect(source, target, "seqEdge" + counter);
 				counter++;
@@ -268,82 +284,58 @@ public class BPELFinalizer {
 		
 	}
 	
-	/**
-	 * Calculates a sequential order of TemplateBuildPlans beginning from the
-	 * given TemplateBuildPlan
-	 * 
-	 * @param sink a TemplateBuildPlan which should be a sink of a BuildPlan
-	 *            Flow Element
-	 * @return a List of TemplateBuildPlan which contains a sequential order for
-	 *         provisioning
-	 */
-	private List<TemplateBuildPlan> calcSequentialOrder(TemplateBuildPlan sink) {
-		List<TemplateBuildPlan> sequence = new ArrayList<TemplateBuildPlan>();
+	private List<TemplateBuildPlan> calcTopologicalOrdering(List<TemplateBuildPlan> templateBuildPlans) {
+		// will contain the order at the end
+		List<TemplateBuildPlan> topologicalOrder = new ArrayList<TemplateBuildPlan>();
 		
-		List<TemplateBuildPlan> preds = this.templateHandler.getPredecessors(sink);
-		BPELFinalizer.LOG.info("Sink " + sink.getBpelScopeElement().getAttribute("name") + " has following preds");
+		// init marks
+		Map<TemplateBuildPlan, TopologicalSortMarking> markings = new HashMap<TemplateBuildPlan, TopologicalSortMarking>();
 		
-		for (TemplateBuildPlan pred : preds) {
-			BPELFinalizer.LOG.info("Pred " + pred.getBpelScopeElement().getAttribute("name"));
+		for (TemplateBuildPlan template : templateBuildPlans) {
+			markings.put(template, new TopologicalSortMarking());
 		}
 		
-		if (preds.isEmpty()) {
-			// if no predecessors are available this path is ending
-			sequence.add(sink);
-		} else {
-			// add this node in the path
-			sequence.add(sink);
-			
-			// calculate the paths for the predecessors
-			List<List<TemplateBuildPlan>> predSeqList = new ArrayList<List<TemplateBuildPlan>>();
-			for (TemplateBuildPlan pred : preds) {
-				List<TemplateBuildPlan> seqOrder = this.calcSequentialOrder(pred);
-				predSeqList.add(seqOrder);
-			}
-			
-			// make an order for the predecessor path according to their length
-			List<List<TemplateBuildPlan>> predOrderSeqList = new ArrayList<List<TemplateBuildPlan>>();
-			while (!predSeqList.isEmpty()) {
-				int longest = 0;
-				int index = 0;
-				for (List<TemplateBuildPlan> predSeq : predSeqList) {
-					if (longest < predSeq.size()) {
-						longest = predSeq.size();
-						index = predSeqList.indexOf(predSeq);
-					}
-				}
-				predOrderSeqList.add(predSeqList.remove(index));
-			}
-			
-			// begin adding the elements of each path beginning with the longest
-			for (List<TemplateBuildPlan> seqOrder : predOrderSeqList) {
-				for (TemplateBuildPlan seq : seqOrder) {
-					// avoid duplicates
-					if (!sequence.contains(seq)) {
-						sequence.add(seq);
-					}
-				}
-			}
-			
+		while (this.hasUnmarkedNode(markings)) {
+			TemplateBuildPlan templateBuildPlan = this.getUnmarkedNode(markings);
+			this.visitTopologicalOrdering(templateBuildPlan, markings, topologicalOrder);
 		}
-		return sequence;
+		
+		return topologicalOrder;
 	}
 	
-	/**
-	 * Returns all sinks inside the given List of TemplateBuildPlans
-	 * 
-	 * @param templateBuildPlans a List of connected TemplateBuildPlans (Graph)
-	 * @return a List of TemplateBuildPlan which are possible sinks of the given
-	 *         Graph
-	 */
-	private List<TemplateBuildPlan> getSinks(List<TemplateBuildPlan> templateBuildPlans) {
-		List<TemplateBuildPlan> sinks = new ArrayList<TemplateBuildPlan>();
-		for (TemplateBuildPlan templateBuildPlan : templateBuildPlans) {
-			if (this.templateHandler.getSuccessors(templateBuildPlan).isEmpty()) {
-				sinks.add(templateBuildPlan);
+	private void visitTopologicalOrdering(TemplateBuildPlan templateBuildPlan, Map<TemplateBuildPlan, TopologicalSortMarking> markings, List<TemplateBuildPlan> topologicalOrder) {
+		
+		if (markings.get(templateBuildPlan).tempMark == true) {
+			BPELFinalizer.LOG.error("Topological order detected cycle!");
+			return;
+		}
+		if ((markings.get(templateBuildPlan).permMark == false) && (markings.get(templateBuildPlan).tempMark == false)) {
+			markings.get(templateBuildPlan).tempMark = true;
+			for (TemplateBuildPlan successor : this.templateHandler.getSuccessors(templateBuildPlan)) {
+				this.visitTopologicalOrdering(successor, markings, topologicalOrder);
+			}
+			markings.get(templateBuildPlan).permMark = true;
+			markings.get(templateBuildPlan).tempMark = false;
+			topologicalOrder.add(0, templateBuildPlan);
+		}
+	}
+	
+	private boolean hasUnmarkedNode(Map<TemplateBuildPlan, TopologicalSortMarking> markings) {
+		for (TopologicalSortMarking marking : markings.values()) {
+			if ((marking.permMark == false) & (marking.tempMark == false)) {
+				return true;
 			}
 		}
-		return sinks;
+		return false;
+	}
+	
+	private TemplateBuildPlan getUnmarkedNode(Map<TemplateBuildPlan, TopologicalSortMarking> markings) {
+		for (TemplateBuildPlan plan : markings.keySet()) {
+			if ((markings.get(plan).permMark == false) & (markings.get(plan).tempMark == false)) {
+				return plan;
+			}
+		}
+		return null;
 	}
 	
 	/**

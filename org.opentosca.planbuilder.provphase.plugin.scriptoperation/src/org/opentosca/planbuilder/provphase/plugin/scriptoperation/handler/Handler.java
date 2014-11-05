@@ -15,8 +15,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.constants.PluginConstants;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
-import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.TemplatePropWrapper;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -33,17 +34,17 @@ import org.xml.sax.SAXException;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Handler {
-	
+
 	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
-	
+
 	private BPELFragments fragments;
-	
-	
+
+
 	/**
 	 * Contructor
 	 */
@@ -54,10 +55,10 @@ public class Handler {
 			Handler.LOG.error("Couldn't initialize internal BPEL Fragment handler", e);
 		}
 	}
-	
+
 	/**
 	 * Adds logic to the BuildPlan to call a Script on a remote machine
-	 * 
+	 *
 	 * @param context the TemplatePlanContext where the logical provisioning
 	 *            operation is called
 	 * @param operation the operation to call
@@ -73,19 +74,19 @@ public class Handler {
 		}
 		Map<String, ParamWrapper> inputMappings = this.fetchInputMappingsFromIA(ia);
 		Map<String, ParamWrapper> outputMappings = this.fetchOutputMappingsFromIA(ia);
-		
-		// Map<String, TemplatePropWrapper> inputParamPropMappings =
+
+		// Map<String, Variable> inputParamPropMappings =
 		// context.getInternalExternalParameters(inputMappings.keySet());
-		Map<String, TemplatePropWrapper> inputParamPropMappings = this.getPropertyMappings(context, inputMappings);
-		Map<String, TemplatePropWrapper> outputParamPropMappings = context.getInternalExternalParameters(outputMappings.keySet());
-		
+		Map<String, Variable> inputParamPropMappings = this.getPropertyMappings(context, inputMappings);
+		Map<String, Variable> outputParamPropMappings = context.getInternalExternalParameters(outputMappings.keySet());
+
 		// assign external parameters to plan input message
 		for (String inputToscaParam : inputParamPropMappings.keySet()) {
 			if (inputParamPropMappings.get(inputToscaParam) == null) {
 				context.addStringValueToPlanRequest(inputToscaParam);
 			}
 		}
-		
+
 		// register linux file upload webservice in plan
 		QName portType = null;
 		try {
@@ -94,40 +95,40 @@ public class Handler {
 			Handler.LOG.error("Couldn't read internal WSDL file", e);
 			return false;
 		}
-		
+
 		// register partnerlink
 		String partnerLinkTypeName = "ec2linuxPLT" + context.getIdForNames();
 		context.addPartnerLinkType(partnerLinkTypeName, "server", this.fragments.getPortTypeFromLinuxUploadWSDL());
 		String partnerLinkName = "ec2linuxPL" + context.getIdForNames();
 		context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, null, "server", true);
-		
+
 		String requestVariableName = "runScriptRequest" + context.getIdForNames();
 		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "runScriptRequest"));
 		String responseVariableName = "runScriptResponse" + context.getIdForNames();
 		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "runScriptResponse"));
-		
+
 		// we search here for the correct address inside the given
 		// infrastructure
 		String varNameServerIp = "";
 		if (context.getNodeTemplate() != null) {
-			varNameServerIp = context.getVariableNameOfInfraNodeProperty("ServerIp");
+			varNameServerIp = context.getVariableNameOfInfraNodeProperty(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		} else {
 			// hard case: relationshipTemplate which is a connectsto
 			AbstractRelationshipTemplate template = context.getRelationshipTemplate();
 			if (context.getBaseType(template).toString().equals(new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo").toString())) {
 				for (AbstractNodeTemplate nodeTemplate : context.getInfrastructureNodes(true)) {
-					if (context.getVariableNameOfProperty(nodeTemplate.getId(), "ServerIp") != null) {
-						varNameServerIp = context.getVariableNameOfProperty(nodeTemplate.getId(), "ServerIp");
+					if (context.getVariableNameOfProperty(nodeTemplate.getId(), PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP) != null) {
+						varNameServerIp = context.getVariableNameOfProperty(nodeTemplate.getId(), PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 					}
 				}
 			} else {
 				// any other relationshipTemplate we handle accordingly
-				varNameServerIp = context.getVariableNameOfInfraNodeProperty("ServerIp");
+				varNameServerIp = context.getVariableNameOfInfraNodeProperty(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 			}
 		}
-		
+
 		String script = this.fragments.generateScriptCall(scriptRef, inputMappings, inputParamPropMappings);
-		
+
 		// assign request
 		Node assignNode = null;
 		try {
@@ -139,10 +140,10 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate BPEL Assign element", e);
 			return false;
 		}
-		
+
 		assignNode = context.importNode(assignNode);
 		context.getProvisioningPhaseElement().appendChild(assignNode);
-		
+
 		Node invokeNode = null;
 		try {
 			invokeNode = this.fragments.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName, "runScript", this.fragments.getPortTypeFromLinuxUploadWSDL(), requestVariableName, responseVariableName);
@@ -153,17 +154,17 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate BPEL Invoke element", e);
 			return false;
 		}
-		
+
 		invokeNode = context.importNode(invokeNode);
 		context.getProvisioningPhaseElement().appendChild(invokeNode);
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Returns the first occurence of *.sh file, inside the given
 	 * ImplementationArtifact
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a String containing a relative file path to a *.sh file, if no
 	 *         *.sh file inside the given IA is found null
@@ -177,10 +178,10 @@ public class Handler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns input mappings from TOSCA Parameters to Script Parameters
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact containing a scriptMapping
 	 * @return a Map from String to String, where the key is a TOSCA Parameter
 	 *         and the value a Script variable
@@ -192,12 +193,12 @@ public class Handler {
 			Element domElement = prop.getDOMElement();
 			if ((domElement.getLocalName() != null) && domElement.getLocalName().equals("scriptMapping")) {
 				NodeList childe = domElement.getChildNodes();
-				
+
 				for (int index = 0; index < childe.getLength(); index++) {
 					Node child = childe.item(index);
 					if ((child.getLocalName() != null) && child.getLocalName().equals("inputMappings")) {
 						NodeList childe2 = child.getChildNodes();
-						
+
 						for (int index2 = 0; index2 < childe2.getLength(); index2++) {
 							Node child2 = childe2.item(index2);
 							if ((child2.getLocalName() != null) && child2.getLocalName().equals("inputMapping")) {
@@ -217,10 +218,10 @@ public class Handler {
 		}
 		return inputMappings;
 	}
-	
+
 	/**
 	 * Returns output mappings from TOSCA Parameters to Script Parameters
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact containing a scriptMapping
 	 * @return a Map from String to String, where the key is a TOSCA Parameter
 	 *         and the value a Script variable
@@ -232,12 +233,12 @@ public class Handler {
 			Element domElement = prop.getDOMElement();
 			if ((domElement.getLocalName() != null) && domElement.getLocalName().equals("scriptMapping")) {
 				NodeList childe = domElement.getChildNodes();
-				
+
 				for (int index = 0; index < childe.getLength(); index++) {
 					Node child = childe.item(index);
 					if ((child.getLocalName() != null) && child.getLocalName().equals("outputMappings")) {
 						NodeList childe2 = child.getChildNodes();
-						
+
 						for (int index2 = 0; index2 < childe2.getLength(); index2++) {
 							Node child2 = childe2.item(index2);
 							if ((child2.getLocalName() != null) && child2.getLocalName().equals("outputMapping")) {
@@ -254,40 +255,40 @@ public class Handler {
 		}
 		return outputMappings;
 	}
-	
-	private Map<String, TemplatePropWrapper> getPropertyMappings(TemplatePlanContext context, Map<String, ParamWrapper> toscaParams) {
-		Map<String, TemplatePropWrapper> mappings = new HashMap<String, TemplatePropWrapper>();
+
+	private Map<String, Variable> getPropertyMappings(TemplatePlanContext context, Map<String, ParamWrapper> toscaParams) {
+		Map<String, Variable> mappings = new HashMap<String, Variable>();
 		for (String toscaParam : toscaParams.keySet()) {
 			if (toscaParams.get(toscaParam).isInfraPathSet()) {
 				if (toscaParams.get(toscaParam).lookOnSourcePath()) {
-					mappings.put(toscaParam, context.getInternalExternalParameter(toscaParam, true));
+					mappings.put(toscaParam, context.getInternalPropertyVariable(toscaParam, true));
 				} else {
-					mappings.put(toscaParam, context.getInternalExternalParameter(toscaParam, false));
+					mappings.put(toscaParam, context.getInternalPropertyVariable(toscaParam, false));
 				}
 			} else {
 				// no infrapath set look trough whole Topology
-				mappings.put(toscaParam, context.getInternalExternalParameter(toscaParam));
+				mappings.put(toscaParam, context.getInternalPropertyVariable(toscaParam));
 			}
 		}
 		return mappings;
 	}
-	
-	
+
+
 	public class ParamWrapper {
-		
+
 		private String scriptParam = null;
 		private String infraPath = null;
-		
-		
+
+
 		public ParamWrapper(String scriptParam, String infraPath) {
 			this.infraPath = infraPath;
 			this.scriptParam = scriptParam;
 		}
-		
+
 		public String getScriptParamName() {
 			return this.scriptParam;
 		}
-		
+
 		public boolean isInfraPathSet() {
 			if (this.infraPath != null) {
 				return true;
@@ -295,7 +296,7 @@ public class Handler {
 				return false;
 			}
 		}
-		
+
 		public boolean lookOnSourcePath() {
 			if (this.infraPath.equals("Target")) {
 				return false;

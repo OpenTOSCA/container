@@ -17,7 +17,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
-import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.TemplatePropWrapper;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -32,17 +32,17 @@ import org.xml.sax.SAXException;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class AsyncHandler {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(AsyncHandler.class);
-	
+
 	private BPELFragments fragments;
-	
-	
+
+
 	/**
 	 * Contructor
 	 */
@@ -53,11 +53,11 @@ public class AsyncHandler {
 			AsyncHandler.LOG.error("Coulnd't initialize internal BPEL Fragment handler", e);
 		}
 	}
-	
+
 	/**
 	 * Adds needed logic to call an asynchronous WebService to the BuildPlan, in
 	 * the ProvPhase of the given TemplatePlanContext
-	 * 
+	 *
 	 * @param context a TemplatePlanContext where the logical provisioning
 	 *            operation should be called
 	 * @param operation the operation to call
@@ -65,29 +65,29 @@ public class AsyncHandler {
 	 * @return true iff adding the BPEL logic was successful
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
-		
+
 		// fetch mappings
 		File wsdlRef = context.getFileFromArtifactReference(this.fetchWsdlRefFromIA(ia));
 		Element wsdlMappingElement = this.fetchWsdlMappingElement(ia);
-		
+
 		// fetch portType and callbackPortType
 		QName portType = this.fetchFirstPortTypeFromWsdlMapping(wsdlMappingElement);
 		QName callbackPortType = this.fetchSecondPortTypeFromWsdlMapping(wsdlMappingElement);
-		
+
 		String wsdlOperationName = this.fetchFirstOperationNameFromWsdlMapping(wsdlMappingElement);
 		String wsdlCallbackOperationName = this.fetchSecondOperationNameFromWsdlMapping(wsdlMappingElement);
-		
+
 		QName InputMessageId = this.fetchInputMessageIdFromWsdlMapping(ia);
 		String inputPartName = this.fetchInputMessagePartNameFromWsdlMapping(ia);
-		
+
 		QName OutputMessageId = this.fetchOutputMessageIdFromWsdlMapping(ia);
 		String outputPartName = this.fetchOutputMessagePartNameFromWsdlMapping(ia);
-		
+
 		Map<String, String> inputMappingsToscaWsdl = this.fetchInputParamMappingsFromWsdlMapping(ia);
 		Map<String, String> outputMappingsToscaWsdl = this.fetchOutputParamMappingsFromWsdlMapping(ia);
-		
+
 		RandomCorrelatorWrapper correlation = this.fetchCorrelation(wsdlMappingElement);
-		
+
 		// we filter out the mappings which didn't have a toscaParam attribute
 		Set<String> filteredInputMappingsKeys = new HashSet<String>();
 		for (String key : inputMappingsToscaWsdl.keySet()) {
@@ -95,20 +95,20 @@ public class AsyncHandler {
 				filteredInputMappingsKeys.add(key);
 			}
 		}
-		
+
 		Set<String> filteredOutputMappingsKeys = new HashSet<String>();
 		for (String key : outputMappingsToscaWsdl.keySet()) {
 			if (!key.contains("_DUMMY_KEY_")) {
 				filteredOutputMappingsKeys.add(key);
 			}
 		}
-		
+
 		/* check for external parameters */
 		// we check here if there are any properties on the infrastructure path,
 		// that match the toscaParameters of the operation
-		Map<String, TemplatePropWrapper> inputParamPropMappings = context.getInternalExternalParameters(filteredInputMappingsKeys);
-		Map<String, TemplatePropWrapper> outputParamPropMappings = context.getInternalExternalParameters(filteredOutputMappingsKeys);
-		
+		Map<String, Variable> inputParamPropMappings = context.getInternalExternalParameters(filteredInputMappingsKeys);
+		Map<String, Variable> outputParamPropMappings = context.getInternalExternalParameters(filteredOutputMappingsKeys);
+
 		// assign external parameters to plan input message
 		for (String inputToscaParam : inputParamPropMappings.keySet()) {
 			if (inputParamPropMappings.get(inputToscaParam) == null) {
@@ -117,27 +117,27 @@ public class AsyncHandler {
 				context.addStringValueToPlanRequest(inputToscaParam);
 			}
 		}
-		
+
 		// TODO assing external parameters to outputmessage
-		
+
 		// register wsdl, porttype, partnerlinktype, partnerlink
 		portType = context.registerPortType(portType, wsdlRef);
 		callbackPortType = context.registerPortType(callbackPortType, wsdlRef);
 		InputMessageId = context.importQName(InputMessageId);
 		OutputMessageId = context.importQName(OutputMessageId);
-		
+
 		String partnerLinkTypeName = portType.getLocalPart() + "PLT" + context.getIdForNames();
 		context.addPartnerLinkType(partnerLinkTypeName, "Requester", callbackPortType, "Requestee", portType);
 		String partnerLinkName = portType.getLocalPart() + "PL" + context.getIdForNames();
-		
+
 		context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
-		
+
 		// register request and response message
 		String requestVariableName = portType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
 		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
 		String responseVariableName = portType.getLocalPart() + InputMessageId.getLocalPart() + "Response" + context.getIdForNames();
 		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
-		
+
 		// create correlation set
 		/*
 		 * String createEc2Property = "createEC2Property" +
@@ -166,11 +166,11 @@ public class AsyncHandler {
 			correlationSetName = portType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
 			context.addCorrelationSet(correlationSetName, correlationPropertyName);
 		}
-		
+
 		// add assign for request
 		try {
 			Node requestAssignNode = this.fragments.getGenericAssignAsNode(InputMessageId, requestVariableName, inputPartName, inputMappingsToscaWsdl, inputParamPropMappings, "assign_" + requestVariableName, context.getPlanRequestMessageName(), "payload");
-			
+
 			requestAssignNode = context.importNode(requestAssignNode);
 			// check whether some correlation must be done
 			if (correlation != null) {
@@ -180,17 +180,17 @@ public class AsyncHandler {
 				correlationCopy = context.importNode(correlationCopy);
 				requestAssignNode.appendChild(correlationCopy);
 			}
-			
+
 			Node addressingCopyInit = this.fragments.generateAddressingInitAsNode(requestVariableName);
 			addressingCopyInit = context.importNode(addressingCopyInit);
 			requestAssignNode.appendChild(addressingCopyInit);
-			
+
 			Node addressingCopyNode = this.fragments.generateAddressingCopyAsNode(partnerLinkName, requestVariableName);
 			addressingCopyNode = context.importNode(addressingCopyNode);
 			requestAssignNode.appendChild(addressingCopyNode);
-			
+
 			AsyncHandler.LOG.debug("Trying to append Node: " + requestAssignNode.toString());
-			
+
 			context.getProvisioningPhaseElement().appendChild(requestAssignNode);
 		} catch (SAXException e) {
 			AsyncHandler.LOG.error("Error reading/writing XML File", e);
@@ -199,19 +199,19 @@ public class AsyncHandler {
 			AsyncHandler.LOG.error("Error reading/writing File", e);
 			return false;
 		}
-		
+
 		// add invoke
 		try {
 			Node invokeNode = this.fragments.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName, wsdlOperationName, portType, requestVariableName);
 			AsyncHandler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
 			invokeNode = context.importNode(invokeNode);
-			
+
 			if ((correlation != null) & (correlationSetName != null)) {
 				Node correlationSetsNode = this.fragments.generateCorrelationSetsAsNode(correlationSetName, true);
 				correlationSetsNode = context.importNode(correlationSetsNode);
 				invokeNode.appendChild(correlationSetsNode);
 			}
-			
+
 			context.getProvisioningPhaseElement().appendChild(invokeNode);
 		} catch (SAXException e) {
 			AsyncHandler.LOG.error("Error reading/writing XML File", e);
@@ -220,13 +220,13 @@ public class AsyncHandler {
 			AsyncHandler.LOG.error("Error reading/writing File", e);
 			return false;
 		}
-		
+
 		// add receive
-		
+
 		try {
 			Node receiveNode = this.fragments.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName, wsdlCallbackOperationName, callbackPortType, responseVariableName);
 			receiveNode = context.importNode(receiveNode);
-			
+
 			if ((correlation != null) & (correlationSetName != null)) {
 				Node correlationSetsNode = this.fragments.generateCorrelationSetsAsNode(correlationSetName, false);
 				correlationSetsNode = context.importNode(correlationSetsNode);
@@ -240,7 +240,7 @@ public class AsyncHandler {
 			AsyncHandler.LOG.error("Error reading/writing File", e1);
 			return false;
 		}
-		
+
 		// add assign for response
 		try {
 			Node responseAssignNode = this.fragments.generateResponseAssignAsNode(responseVariableName, outputPartName, outputMappingsToscaWsdl, outputParamPropMappings, "assign_" + responseVariableName, OutputMessageId);
@@ -254,7 +254,7 @@ public class AsyncHandler {
 			AsyncHandler.LOG.error("Error reading/writing File", e);
 			return false;
 		}
-		
+
 		try {
 			Node waitNode = this.fragments.generateWaitAsNode(String.valueOf(System.currentTimeMillis()), 0, (int) (System.currentTimeMillis() % 60));
 			waitNode = context.importNode(waitNode);
@@ -264,13 +264,13 @@ public class AsyncHandler {
 		} catch (IOException e) {
 			AsyncHandler.LOG.warn("Couldn't generate BPEL wait element", e);
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Returns an ArtifactReference which contains a WebService description
-	 * 
+	 *
 	 * @param ia an AbstractImplementaionArtifact
 	 * @return an AbstractArtifactReference if the given IA contains a reference
 	 *         to a WSDL file, else null
@@ -283,11 +283,11 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns mappings from TOSCA input parameters to WSDL input message
 	 * localNames
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a Map from String to String, where the key is a TOSCA Parameters
 	 *         and the value a localName of a WSDL message
@@ -309,7 +309,7 @@ public class AsyncHandler {
 					// error
 					return paramMappings;
 				}
-				
+
 				for (int index = 0; index < childNodesList.getLength(); index++) {
 					Node inputMappingNode = childNodesList.item(index);
 					if (!inputMappingNode.hasAttributes() || !inputMappingNode.getLocalName().equals("inputMapping")) {
@@ -334,11 +334,11 @@ public class AsyncHandler {
 		}
 		return paramMappings;
 	}
-	
+
 	/**
 	 * Returns mappings from TOSCA output parameters to WSDL output message
 	 * localNames
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a Map from String to String, where the key is a TOSCA Parameters
 	 *         and the value a localName of a WSDL message
@@ -360,7 +360,7 @@ public class AsyncHandler {
 					// error
 					return paramMappings;
 				}
-				
+
 				for (int index = 0; index < childNodesList.getLength(); index++) {
 					Node outputMappingNode = childNodesList.item(index);
 					if (!outputMappingNode.hasAttributes() || !outputMappingNode.getLocalName().equals("outputMapping")) {
@@ -385,10 +385,10 @@ public class AsyncHandler {
 		}
 		return paramMappings;
 	}
-	
+
 	/**
 	 * Returns the XSD Type of the used WSDL input message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a QName representing the XSD type of a WSDL input message
 	 */
@@ -397,12 +397,12 @@ public class AsyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node inputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlInputMessage");
 				if (inputNode == null) {
 					return null;
 				}
-				
+
 				String inputNodeValue = inputNode.getTextContent();
 				String[] inputNodeValueParts = inputNodeValue.split("}");
 				if (inputNodeValueParts.length != 2) {
@@ -415,10 +415,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the partName of the response message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a String containing a partName, if not specified null
 	 */
@@ -427,7 +427,7 @@ public class AsyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node inputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlOutputMessage");
 				if (inputNode == null) {
 					return null;
@@ -442,8 +442,8 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * <p>
 	 * This is a wrapper class, for defined random correlations inside a
@@ -452,19 +452,19 @@ public class AsyncHandler {
 	 * </p>
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
-	 * 
+	 *
 	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-	 * 
+	 *
 	 */
 	private class RandomCorrelatorWrapper {
-		
+
 		protected String inCorrelationElement;
 		protected String outCorrelationElement;
-		
-		
+
+
 		/**
 		 * Contructor
-		 * 
+		 *
 		 * @param inCorrelationElementName a xml element localName of an
 		 *            response message
 		 * @param outCorrelationElementName a xml element localName of an
@@ -475,12 +475,12 @@ public class AsyncHandler {
 			this.outCorrelationElement = outCorrelationElementName;
 		}
 	}
-	
-	
+
+
 	/**
 	 * Generates a RandomCorrelationWrapper which can be used to correlate a
 	 * request and response message
-	 * 
+	 *
 	 * @param wsdlMappingElement a DOM Element which contains a wsdlMapping
 	 * @return a RandomCorrelatorWrapper which contains two localNames of
 	 *         elements inside the request and response message, if no
@@ -500,10 +500,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the partName of the request message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a String containing a partName, if not specified null
 	 */
@@ -512,7 +512,7 @@ public class AsyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node inputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlInputMessage");
 				if (inputNode == null) {
 					return null;
@@ -527,10 +527,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the XSD Type of the used WSDL output message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a QName representing the XSD type of a WSDL output message
 	 */
@@ -539,7 +539,7 @@ public class AsyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node outputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlOutputMessage");
 				if (outputNode == null) {
 					return null;
@@ -556,10 +556,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the operationName for the async request
-	 * 
+	 *
 	 * @param wsdlMappingElement a DOM element containing a wsdlMapping
 	 * @return a String containing an WSDL operation name, if not specified null
 	 */
@@ -575,10 +575,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the callback operation of a wsdlMapping
-	 * 
+	 *
 	 * @param wsdlMappingElement a DOM Element containing a wsdlMapping
 	 * @return a String containing a WSDL Operation name, if no
 	 *         wsdlCallbackOperation element is found null
@@ -595,10 +595,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the wsdlMapping of an ImplementationArtifact
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a DOM Element containing a wsdlMapping, if no such element was
 	 *         found null
@@ -612,10 +612,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the portType of the WSDL Service
-	 * 
+	 *
 	 * @param wsdlMappingElement a DOM Element containing a wsdlMapping
 	 * @return a QName denoting a WSDL PortType, if no portType is found inside
 	 *         wsdlMapping null
@@ -640,10 +640,10 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the callback portType inside the wsdlMapping
-	 * 
+	 *
 	 * @param wsdlMappingElement a DOM Element that should be a wsdlMapping
 	 * @return a QName denoting a WSDL portType, if no callbackPortTpe is
 	 *         specified in the wsdlMapping null
@@ -665,14 +665,14 @@ public class AsyncHandler {
 			} else {
 				child = child.getNextSibling();
 			}
-			
+
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns a Node with the specified localName
-	 * 
+	 *
 	 * @param list a List of DOM Nodes
 	 * @param localName a localName
 	 * @return a Node with the specified localName, else null
@@ -689,5 +689,5 @@ public class AsyncHandler {
 		}
 		return null;
 	}
-	
+
 }

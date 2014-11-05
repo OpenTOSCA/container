@@ -15,7 +15,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
-import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.TemplatePropWrapper;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -29,17 +29,17 @@ import org.xml.sax.SAXException;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class SyncHandler {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(SyncHandler.class);
-	
+
 	private BPELFragments fragments;
-	
-	
+
+
 	/**
 	 * Contructor
 	 */
@@ -50,11 +50,11 @@ public class SyncHandler {
 			SyncHandler.LOG.error("Couldn't initialize internal BPEL Fragments Handler", e);
 		}
 	}
-	
+
 	/**
 	 * Adds needed logic to call an synchronous WebService to the BuildPlan, in
 	 * the ProvPhase of the given TemplatePlanContext
-	 * 
+	 *
 	 * @param context a TemplatePlanContext where the logical provisioning
 	 *            operation should be called
 	 * @param operation the operation to call
@@ -62,7 +62,7 @@ public class SyncHandler {
 	 * @return true iff adding the BPEL logic was successful
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
-		
+
 		// fetch mappings
 		File wsdlRef = context.getFileFromArtifactReference(this.fetchWsdlRefFromIA(ia));
 		QName portType = this.fetchPortTypeFromWsdlMapping(ia);
@@ -73,39 +73,39 @@ public class SyncHandler {
 		String outputPartName = this.fetchOutputMessagePartNameFromWsdlMapping(ia);
 		Map<String, String> inputMappingsToscaWsdl = this.fetchInputParamMappingsFromWsdlMapping(ia);
 		Map<String, String> outputMappingsToscaWsdl = this.fetchOutputParamMappingsFromWsdlMapping(ia);
-		
+
 		/* check for external parameters */
 		// we check here if there are any properties on the infrastructure path,
 		// that match the toscaParameters of the operation
-		Map<String, TemplatePropWrapper> inputParamPropMappings = context.getInternalExternalParameters(inputMappingsToscaWsdl.keySet());
-		Map<String, TemplatePropWrapper> outputParamPropMappings = context.getInternalExternalParameters(outputMappingsToscaWsdl.keySet());
-		
+		Map<String, Variable> inputParamPropMappings = context.getInternalExternalParameters(inputMappingsToscaWsdl.keySet());
+		Map<String, Variable> outputParamPropMappings = context.getInternalExternalParameters(outputMappingsToscaWsdl.keySet());
+
 		// assign external parameters to plan input message
 		for (String inputToscaParam : inputParamPropMappings.keySet()) {
 			if (inputParamPropMappings.get(inputToscaParam) == null) {
 				context.addStringValueToPlanRequest(inputToscaParam);
 			}
 		}
-		
+
 		// TODO assing external parameters to outputmessage
-		
+
 		// register wsdl, porttype, partnerlinktype, partnerlink
 		portType = context.registerPortType(portType, wsdlRef);
 		InputMessageId = context.importQName(InputMessageId);
 		OutputMessageId = context.importQName(OutputMessageId);
-		
+
 		String partnerLinkTypeName = portType.getLocalPart() + "PLT" + context.getIdForNames();
 		context.addPartnerLinkType(partnerLinkTypeName, "Server", portType);
 		String partnerLinkName = portType.getLocalPart() + "PL" + context.getIdForNames();
 		context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, null, "Server", true);
-		
+
 		// register request and response message
-		
+
 		String requestVariableName = portType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
 		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
 		String responseVariableName = portType.getLocalPart() + InputMessageId.getLocalPart() + "Response" + context.getIdForNames();
 		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
-		
+
 		// add assign for request
 		try {
 			Node requestAssignNode = this.fragments.getGenericAssignAsNode(InputMessageId, requestVariableName, inputPartName, inputMappingsToscaWsdl, inputParamPropMappings, "assign_" + requestVariableName, context.getPlanRequestMessageName(), "payload");
@@ -119,7 +119,7 @@ public class SyncHandler {
 			SyncHandler.LOG.error("Couldn't generate BPEL Assign element", e);
 			return false;
 		}
-		
+
 		// add invoke
 		try {
 			Node invokeNode = this.fragments.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName, wsdlOperationName, portType, requestVariableName, responseVariableName);
@@ -133,7 +133,7 @@ public class SyncHandler {
 			SyncHandler.LOG.error("Couldn't generate BPEL Invoke element", e);
 			return false;
 		}
-		
+
 		// add assign for response
 		try {
 			Node responseAssignNode = this.fragments.generateResponseAssignAsNode(responseVariableName, outputPartName, outputMappingsToscaWsdl, outputParamPropMappings, "assign_" + responseVariableName, OutputMessageId);
@@ -147,13 +147,13 @@ public class SyncHandler {
 			SyncHandler.LOG.error("Couldn't generate BPEL Assign element", e);
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Returns an ArtifactReference which contains a WebService description
-	 * 
+	 *
 	 * @param ia an AbstractImplementaionArtifact
 	 * @return an AbstractArtifactReference if the given IA contains a reference
 	 *         to a WSDL file, else null
@@ -166,11 +166,11 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns mappings from TOSCA input parameters to WSDL input message
 	 * localNames
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a Map from String to String, where the key is a TOSCA Parameters
 	 *         and the value a localName of a WSDL message
@@ -192,7 +192,7 @@ public class SyncHandler {
 					// error
 					return paramMappings;
 				}
-				
+
 				for (int index = 0; index < childNodesList.getLength(); index++) {
 					Node inputMappingNode = childNodesList.item(index);
 					if (!inputMappingNode.hasAttributes() || !inputMappingNode.getLocalName().equals("inputMapping")) {
@@ -211,11 +211,11 @@ public class SyncHandler {
 		}
 		return paramMappings;
 	}
-	
+
 	/**
 	 * Returns mappings from TOSCA output parameters to WSDL output message
 	 * localNames
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a Map from String to String, where the key is a TOSCA Parameters
 	 *         and the value a localName of a WSDL message
@@ -237,7 +237,7 @@ public class SyncHandler {
 					// error
 					return paramMappings;
 				}
-				
+
 				for (int index = 0; index < childNodesList.getLength(); index++) {
 					Node outputMappingNode = childNodesList.item(index);
 					if (!outputMappingNode.hasAttributes() || !outputMappingNode.getLocalName().equals("outputMapping")) {
@@ -256,10 +256,10 @@ public class SyncHandler {
 		}
 		return paramMappings;
 	}
-	
+
 	/**
 	 * Returns the XSD Type of the used WSDL input message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a QName representing the XSD type of a WSDL input message
 	 */
@@ -268,12 +268,12 @@ public class SyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node inputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlInputMessage");
 				if (inputNode == null) {
 					return null;
 				}
-				
+
 				String inputNodeValue = inputNode.getTextContent();
 				String[] inputNodeValueParts = inputNodeValue.split("}");
 				if (inputNodeValueParts.length != 2) {
@@ -286,10 +286,10 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the partName of the response message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a String containing a partName, if not specified null
 	 */
@@ -298,7 +298,7 @@ public class SyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node inputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlOutputMessage");
 				if (inputNode == null) {
 					return null;
@@ -313,10 +313,10 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the partName of the request message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a String containing a partName, if not specified null
 	 */
@@ -325,7 +325,7 @@ public class SyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node inputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlInputMessage");
 				if (inputNode == null) {
 					return null;
@@ -340,10 +340,10 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the XSD Type of the used WSDL output message
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact
 	 * @return a QName representing the XSD type of a WSDL input message
 	 */
@@ -352,7 +352,7 @@ public class SyncHandler {
 		for (AbstractProperties prop : props) {
 			Element domElement = prop.getDOMElement();
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
-				
+
 				Node outputNode = this.getNodeFromNodeList(domElement.getChildNodes(), "wsdlOutputMessage");
 				if (outputNode == null) {
 					return null;
@@ -369,10 +369,10 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the sychronous WSDL operation name of the given IA
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact containing a wsdlMapping
 	 * @return a String containing a WSDL operation name, if not specified null
 	 */
@@ -391,10 +391,10 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the WSDL PortType from the given IA
-	 * 
+	 *
 	 * @param ia an AbstractImplementationArtifact containing a wsdlMapping
 	 * @return a QName containing a WSDL portType, if not specified null
 	 */
@@ -405,7 +405,7 @@ public class SyncHandler {
 			if (domElement.getLocalName().equals("wsdlMapping") && domElement.getNamespaceURI().equals("http://example.com/ba")) {
 				// found wsdlMapping
 				NodeList nodeList = domElement.getChildNodes();
-				
+
 				Node portTypeNode = this.getNodeFromNodeList(nodeList, "portType");
 				if (portTypeNode == null) {
 					return null;
@@ -423,11 +423,11 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the first DOM Node with the given localName inside the given
 	 * NodeList
-	 * 
+	 *
 	 * @param list a DOM NodeList
 	 * @param localName a String representing a localName
 	 * @return a DOM Node if the list contained a Node with the given localName,
@@ -445,5 +445,5 @@ public class SyncHandler {
 		}
 		return null;
 	}
-	
+
 }

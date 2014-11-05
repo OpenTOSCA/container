@@ -117,6 +117,9 @@ public class ResourceHandler {
 		// {serverIpProp} <=> serverIpVarName
 		template = template.replace("{serverIpProp}", serverIpVarName);
 		
+		template = template.replace("{createEC2InstanceCorrel}", String.valueOf(System.currentTimeMillis()));
+		template = template.replace("{getPublicDNSCorrel}", String.valueOf(System.currentTimeMillis()));
+		
 		// template = template.replace("{CSAR_filename}", csarFileName);
 		// template = template.replace("{response_var_name}", responseName);
 		// template = template.replace("{relative_path_to_file}",

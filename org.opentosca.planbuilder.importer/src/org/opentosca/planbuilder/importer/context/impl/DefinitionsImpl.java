@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.importer.context.impl;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +30,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementat
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opentosca.core.model.artifact.file.AbstractFile;
 import org.opentosca.exceptions.SystemException;
 
@@ -48,7 +48,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	private final static Logger LOG = LoggerFactory.getLogger(DefinitionsImpl.class);
 
 	private Definitions definitions;
-	private List<AbstractDefinitions> referencedDefinitions = null;
+	private List<DefinitionsImpl> referencedDefinitions = null;
+	private Set<DefinitionsImpl> allFoundDefinitions = null;
 	private Set<AbstractFile> filesInCsar = null;
 	private List<AbstractServiceTemplate> serviceTemplates = null;
 	private List<AbstractNodeType> nodeTypes = null;
@@ -65,12 +66,14 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	 * @param mainDefFile the File of the TOSCA Definitions to load as
 	 *            DefinitionsImpl
 	 * @param filesInCsar a list of Files referenced by the given Definitions
+	 * @param isEntryDefinitions gives information whether the given definitions
+	 *            document is an entry definition
 	 */
-	public DefinitionsImpl(AbstractFile mainDefFile, Set<AbstractFile> filesInCsar) {
+	public DefinitionsImpl(AbstractFile mainDefFile, Set<AbstractFile> filesInCsar, boolean isEntryDefinitions) {
 		DefinitionsImpl.LOG.debug("Initializing DefinitionsImpl");
 		this.definitions = this.parseDefinitionsFile(mainDefFile);
 		this.filesInCsar = filesInCsar;
-		this.referencedDefinitions = new ArrayList<AbstractDefinitions>();
+		this.referencedDefinitions = new ArrayList<DefinitionsImpl>();
 
 		// resolve imported definitions
 		// TODO XSD,WSDL they are just checked with the file ending
@@ -80,9 +83,10 @@ public class DefinitionsImpl extends AbstractDefinitions {
 				continue;
 			}
 			DefinitionsImpl.LOG.debug("Adding DefintionsImpl with file location {}", def.getPath());
-			this.referencedDefinitions.add(new DefinitionsImpl(def, this.filesInCsar));
+			this.referencedDefinitions.add(new DefinitionsImpl(def, this.filesInCsar, false));
 		}
 
+		this.allFoundDefinitions = this.findAllDefinitions();
 		this.serviceTemplates = new ArrayList<AbstractServiceTemplate>();
 		this.nodeTypes = new ArrayList<AbstractNodeType>();
 		this.nodeTypeImpls = new ArrayList<AbstractNodeTypeImplementation>();
@@ -90,6 +94,11 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		this.relationshipTypeImpls = new ArrayList<AbstractRelationshipTypeImplementation>();
 		this.artifactTemplates = new ArrayList<AbstractArtifactTemplate>();
 		this.initTypesAndTemplates();
+
+		if (isEntryDefinitions) {
+			this.updateDefinitionsReferences(this.allFoundDefinitions);
+		}
+
 	}
 
 	/**
@@ -130,9 +139,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	 *
 	 * @param location the location to look for as String
 	 * @param files a List of Files to look trough
-	 * @return if files.contains(file), where
-	 *         file.getPath().contains(location) is true, file is
-	 *         returned, else null
+	 * @return if files.contains(file), where file.getPath().contains(location)
+	 *         is true, file is returned, else null
 	 */
 	private AbstractFile getFileByLocation(String location, Set<AbstractFile> files) {
 		DefinitionsImpl.LOG.debug("Looking trough files to for given location: {}", location);
@@ -298,7 +306,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	 */
 	@Override
 	public List<AbstractDefinitions> getImportedDefinitions() {
-		return this.referencedDefinitions;
+		return (List<AbstractDefinitions>) (List<?>) this.referencedDefinitions;
 	}
 
 	/**
@@ -320,7 +328,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 			return null;
 		} catch (SystemException e) {
 			// TODO Auto-generated catch block
-			LOG.error("Exception within Core",e);
+			LOG.error("Exception within Core", e);
 			return null;
 		}
 		return def;
@@ -378,11 +386,69 @@ public class DefinitionsImpl extends AbstractDefinitions {
 				try {
 					return file.getFile().toFile();
 				} catch (SystemException e) {
-					LOG.error("Exception within core",e);
+					LOG.error("Exception within core", e);
 				}
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Tries to find all definitions recursively trough imported definitions by
+	 * this definitions document
+	 *
+	 * @return a Set of DefinitionsImpl
+	 */
+	private Set<DefinitionsImpl> findAllDefinitions() {
+		Set<DefinitionsImpl> foundDefs = new HashSet<DefinitionsImpl>();
+
+		for (DefinitionsImpl def : this.referencedDefinitions) {
+			foundDefs.add(def);
+			foundDefs.addAll(def.findAllDefinitions());
+		}
+
+		foundDefs.add(this);
+		return foundDefs;
+	}
+
+	/**
+	 * Updates all allFoundDefinitions set recursively trough out the topology
+	 * of the imports
+	 *
+	 * @param updateSet a Set of DefinitionsImpl
+	 */
+	private void updateDefinitionsReferences(Set<DefinitionsImpl> defs) {
+
+		for (DefinitionsImpl def : this.referencedDefinitions) {
+			def.updateDefinitionsReferences(defs);
+		}
+		this.allFoundDefinitions = defs;
+	}
+
+	/**
+	 * Returns a List of all nodeTypes in the current csar context of this definitions document
+	 * @return a List of AbstractNodeType
+	 */
+	protected List<AbstractNodeType> getAllNodeTypes() {
+		List<AbstractNodeType> nodeTypes = new ArrayList<AbstractNodeType>();
+
+		for (DefinitionsImpl def : this.allFoundDefinitions) {
+			nodeTypes.addAll(def.getNodeTypes());
+		}
+		return nodeTypes;
+	}
+
+	/**
+	 * Returns a List of all nodeTypes in the current csar context of this definitions document
+	 * @return a List of AbstractNodeType
+	 */
+	protected List<AbstractRelationshipType> getAllRelationshipTypes() {
+		List<AbstractRelationshipType> relationshipTypes = new ArrayList<AbstractRelationshipType>();
+
+		for (DefinitionsImpl def : this.allFoundDefinitions) {
+			relationshipTypes.addAll(def.getRelationshipTypes());
+		}
+		return relationshipTypes;
 	}
 
 }
