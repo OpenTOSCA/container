@@ -352,6 +352,15 @@ public class GenericWsdlWrapper {
 	}
 	
 	/**
+	 * Returns the localName of the Request message this WSDL
+	 * 
+	 * @return a String containing the localName of the Request message
+	 */
+	public String getRequestMessageLocalName() {
+		return this.processName + "Request";
+	}
+	
+	/**
 	 * Adds a partnerLinkType to this WSDL
 	 * 
 	 * @param partnerLinkTypeName the name of partnerLinkType
