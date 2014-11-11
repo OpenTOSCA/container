@@ -3,7 +3,7 @@ package org.opentosca.planbuilder.plugins.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderGenericPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
@@ -25,15 +25,15 @@ public class PluginRegistry {
 	private static List<IPlanBuilderPrePhaseDAPlugin> prePhaseDaPlugins = new ArrayList<IPlanBuilderPrePhaseDAPlugin>();
 	private static List<IPlanBuilderPrePhaseIAPlugin> prePhaseIAPlugins = new ArrayList<IPlanBuilderPrePhaseIAPlugin>();
 	private static List<IPlanBuilderProvPhaseOperationPlugin> provPhaseOperationPlugins = new ArrayList<IPlanBuilderProvPhaseOperationPlugin>();
-	private static List<IPlanBuilderGenericPlugin> genericPlugins = new ArrayList<IPlanBuilderGenericPlugin>();
+	private static List<IPlanBuilderTypePlugin> genericPlugins = new ArrayList<IPlanBuilderTypePlugin>();
 	
 	
 	/**
 	 * Returns all registered GenericPlugins
 	 * 
-	 * @return a List of IPlanBuilderGenericPlugin
+	 * @return a List of IPlanBuilderTypePlugin
 	 */
-	public static List<IPlanBuilderGenericPlugin> getGenericPlugins() {
+	public static List<IPlanBuilderTypePlugin> getGenericPlugins() {
 		return PluginRegistry.genericPlugins;
 	}
 	
@@ -181,20 +181,20 @@ public class PluginRegistry {
 	/**
 	 * Registers a GenericPlugin in this registry
 	 * 
-	 * @param genericPlugin a IPlanBuilderGenericPlugin to register
+	 * @param genericPlugin a IPlanBuilderTypePlugin to register
 	 */
-	protected static void bindGenericPlugin(IPlanBuilderGenericPlugin genericPlugin) {
+	protected static void bindGenericPlugin(IPlanBuilderTypePlugin genericPlugin) {
 		PluginRegistry.genericPlugins.add(genericPlugin);
 	}
 	
 	/**
 	 * De-registers a GenericPlugin in this registry
 	 * 
-	 * @param genericPlugin a IPlanBuilderGenericPlugin to de-register
+	 * @param genericPlugin a IPlanBuilderTypePlugin to de-register
 	 */
-	protected static void unbindGenericPlugin(IPlanBuilderGenericPlugin genericPlugin) {
-		IPlanBuilderGenericPlugin toRemove = null;
-		for (IPlanBuilderGenericPlugin plugin : PluginRegistry.genericPlugins) {
+	protected static void unbindGenericPlugin(IPlanBuilderTypePlugin genericPlugin) {
+		IPlanBuilderTypePlugin toRemove = null;
+		for (IPlanBuilderTypePlugin plugin : PluginRegistry.genericPlugins) {
 			if (plugin.getID().equals(genericPlugin.getID())) {
 				toRemove = plugin;
 			}

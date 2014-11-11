@@ -15,7 +15,7 @@ import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
  * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public interface IPlanBuilderGenericPlugin extends IPlanBuilderPlugin {
+public interface IPlanBuilderTypePlugin extends IPlanBuilderPlugin {
 	
 	/**
 	 * This method should generate and add a fragment which handle the Template

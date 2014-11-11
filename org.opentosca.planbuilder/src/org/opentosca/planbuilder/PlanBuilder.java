@@ -17,6 +17,7 @@ import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
+import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
@@ -26,7 +27,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderGenericPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
@@ -68,6 +69,8 @@ public class PlanBuilder {
 	private BPELFinalizer finalizer;
 	// accepted operations for provisioning
 	private List<String> opNames = new ArrayList<String>();
+	
+	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 
 
 	/**
@@ -162,6 +165,9 @@ public class PlanBuilder {
 				// to plan request
 
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
+				
+				this.idInit.addCorrellationID(newBuildPlan);
+				
 				this.finalizer.finalize(newBuildPlan);
 				PlanBuilder.LOG.debug("Created BuildPlan:");
 				PlanBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
@@ -235,7 +241,7 @@ public class PlanBuilder {
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
-				IPlanBuilderGenericPlugin plugin = this.canGenericPluginHandle(nodeTemplate);
+				IPlanBuilderTypePlugin plugin = this.canGenericPluginHandle(nodeTemplate);
 				if (plugin == null) {
 					PlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
 					ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
@@ -307,8 +313,8 @@ public class PlanBuilder {
 	 * @return true if there is any generic plugin which can handle the given
 	 *         NodeTemplate, else false
 	 */
-	private IPlanBuilderGenericPlugin canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
-		for (IPlanBuilderGenericPlugin plugin : PluginRegistry.getGenericPlugins()) {
+	private IPlanBuilderTypePlugin canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
+		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			PlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
 			if (plugin.canHandle(nodeTemplate)) {
 				PlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
@@ -330,7 +336,7 @@ public class PlanBuilder {
 	 *         RelationshipTemplate, else false
 	 */
 	private boolean canGenericPluginHandle(AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderGenericPlugin plugin : PluginRegistry.getGenericPlugins()) {
+		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
 				PlanBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}", plugin.getID(), relationshipTemplate.getId());
 				return true;
@@ -356,7 +362,7 @@ public class PlanBuilder {
 	 *         false
 	 */
 	private boolean handleWithGenericPlugin(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderGenericPlugin plugin : PluginRegistry.getGenericPlugins()) {
+		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
 				PlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
 				return plugin.handle(context);
