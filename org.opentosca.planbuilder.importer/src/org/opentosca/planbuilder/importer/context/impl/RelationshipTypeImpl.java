@@ -68,11 +68,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 	@Override
 	public QName getTypeRef() {
 		if (this.relationshipType.getDerivedFrom() != null) {
-			for (AbstractRelationshipType relation : this.definitions.getAllRelationshipTypes()) {
-				if (relation.getId().toString().equals(this.relationshipType.getDerivedFrom().getTypeRef().toString())) {
-					return relation.getTypeRef();
-				}
-			}
+			return this.relationshipType.getDerivedFrom().getTypeRef();
 		}
 		return null;
 
