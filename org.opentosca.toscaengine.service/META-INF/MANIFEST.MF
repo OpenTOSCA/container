@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Service of the tosca engine
-Bundle-SymbolicName: org.opentosca.toscaengine
+Bundle-SymbolicName: org.opentosca.toscaengine.service
 Bundle-Version: 1.0.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
