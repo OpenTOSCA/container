@@ -147,7 +147,7 @@ public class Handler {
 
 		// add external props to plan output message
 		for (String paraName : internalExternalPropsOutput.keySet()) {
-			if (internalExternalPropsInput.get(paraName) == null) {
+			if (internalExternalPropsOutput.get(paraName) == null) {
 				context.addStringValueToPlanResponse(paraName);
 			}
 		}
@@ -283,7 +283,7 @@ public class Handler {
 
 		// add external props to plan output message
 		for (String paraName : internalExternalPropsOutput.keySet()) {
-			if (internalExternalPropsInput.get(paraName) == null) {
+			if (internalExternalPropsOutput.get(paraName) == null) {
 				context.addStringValueToPlanResponse(paraName);
 			}
 		}
