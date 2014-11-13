@@ -101,6 +101,8 @@ public class BPELFinalizer {
 		String tns = buildPlan.getWsdl().getTargetNamespace();
 		String responseMessageLocalName = buildPlan.getWsdl().getResponseMessageLocalName();
 		Element literalElement = doc.createElementNS(tns, responseMessageLocalName);
+		literalElement.setPrefix("tns");
+		literalElement.setAttribute("xmlns:tns", tns);
 		
 		// set to element
 		to.setAttribute("variable", "output");
@@ -114,8 +116,10 @@ public class BPELFinalizer {
 		
 		if (localNames.size() != 0) {
 			for (String localName : localNames) {
+				LOG.debug("Adding localName \"" + localName + "\" to literal assign for buildplan output");
 				Element childElement = doc.createElementNS(tns, localName);
 				childElement.setTextContent("tns:" + localName);
+				childElement.setPrefix("tns");
 				literalElement.appendChild(childElement);
 			}
 			
