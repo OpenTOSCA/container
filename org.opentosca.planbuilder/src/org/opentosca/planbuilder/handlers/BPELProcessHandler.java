@@ -558,7 +558,7 @@ public class BPELProcessHandler {
 		queryElement.appendChild(cdataSection);
 		
 		// set everything together
-		toElement.appendChild(cdataSection);
+		toElement.appendChild(queryElement);
 		copyElement.appendChild(fromElement);
 		copyElement.appendChild(toElement);
 		outputAssignElement.appendChild(copyElement);
