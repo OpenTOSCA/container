@@ -41,7 +41,7 @@ public class CorrelationIDInitializer {
 		
 		// add an assign
 		try {
-			Node assignNode = this.createAssignFromInputToOutputAsNode();
+			Node assignNode = this.createAssignFromInputToOutputAsNode(buildPlan.getWsdl().getTargetNamespace());
 			assignNode = buildPlan.getBpelDocument().importNode(assignNode, true);
 			Element flowElement = buildPlan.getBpelMainFlowElement();
 			
@@ -57,14 +57,14 @@ public class CorrelationIDInitializer {
 		}
 	}
 	
-	public String createAssignFromInputToOutput() {
-		String bpelAssign = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"assignCorrelationID\"><bpel:from variable=\"input\" part=\"payload\"><![CDATA[tns:CorrelationID]]></bpel:from><bpel:to variable=\"output\" part=\"payload\"><![CDATA[tns:CorrelationID]]></bpel:to></bpel:assign>";
+	public String createAssignFromInputToOutput(String targetNamespace) {		
+		String bpelAssign = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"assignCorrelationID\"><bpel:copy><bpel:from variable=\"input\" part=\"payload\"><bpel:query xmlns:tns=\"" + targetNamespace + "\" queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[tns:CorrelationID]]></bpel:query></bpel:from><bpel:to variable=\"output\" part=\"payload\"><bpel:query xmlns:tns=\"" + targetNamespace + "\" queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[tns:CorrelationID]]></bpel:query></bpel:to></bpel:copy></bpel:assign>";
 		return bpelAssign;
 	}
 	
-	public Node createAssignFromInputToOutputAsNode() throws SAXException, IOException {
+	public Node createAssignFromInputToOutputAsNode(String targetNamespace) throws SAXException, IOException {
 		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(this.createAssignFromInputToOutput()));
+		is.setCharacterStream(new StringReader(this.createAssignFromInputToOutput(targetNamespace)));
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
