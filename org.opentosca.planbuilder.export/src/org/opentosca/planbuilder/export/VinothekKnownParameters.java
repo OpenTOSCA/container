@@ -16,7 +16,10 @@ public class VinothekKnownParameters {
 		// e.g. <ba:csarEntrypoint>http://localhost:1337/containerapi/CSARs/PhpMoodleAppTemplate.csar</ba:csarEntrypoint>
 		this.knownParameterToXmlMapping.put("csarEntrypoint", "<org:csarEntrypoint>%CSARENTRYPOINT-URL%</org:csarEntrypoint>");
 		// e.g. <ba:planCallbackAddress_invoker>http://169.254.178.214:9763/services/InvokerService/</ba:planCallbackAddress_invoker>
-		this.knownParameterToXmlMapping.put("planCallbackAddress_invoker", "<org:planCallbackAddress_invoker>%PLANCALLBACKINVOKER-URL%</org:planCallbackAddress_invoker>");
+		this.knownParameterToXmlMapping.put("planCallbackAddress_invoker", "<org:planCallbackAddress_invoker>%PLANCALLBACKINVOKER-URL%</org:planCallbackAddress_invoker>");		
+		// e.g. <org:instanceDataAPIUrl>http://localhost:1337/containerapi/instancedata</org:instanceDataAPIUrl>
+		this.knownParameterToXmlMapping.put("instanceDataAPIUrl", "<org:instanceDataAPIUrl>%INSTANCEDATA-URL%</org:instanceDataAPIUrl>");
+		
 	}
 	
 	protected String createXmlElement(String parameterLocalName) {
