@@ -61,7 +61,11 @@ public class ServiceTemplatePropertiesImpl extends AbstractServiceTemplateProper
 	 */
 	@Override
 	public AbstractProperties getProperties() {
-		return new PropertiesImpl(this.properties.getAny());
+		if (this.properties.getAny() != null) {
+			return new PropertiesImpl(this.properties.getAny());
+		} else {
+			return null;
+		}
 	}
 	
 }
