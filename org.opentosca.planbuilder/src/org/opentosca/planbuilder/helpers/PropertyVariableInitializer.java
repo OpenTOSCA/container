@@ -228,11 +228,8 @@ public class PropertyVariableInitializer {
 				// tempID_PropLocalName as property variable name
 				this.planHandler.addPropertyVariable(propVarName, templatePlan.getBuildPlan());
 				
-				if (!value.trim().isEmpty() && !value.trim().equals("")) {
-					
-					// init the variable with the node value
-					this.planHandler.initializePropertyVariable(propVarName, value, templatePlan.getBuildPlan());
-				}
+				// init the variable with the node value
+				this.planHandler.initializePropertyVariable(propVarName, value, templatePlan.getBuildPlan());				
 			}
 		}
 	}
