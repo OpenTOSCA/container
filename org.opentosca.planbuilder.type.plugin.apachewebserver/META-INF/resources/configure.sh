@@ -1,40 +1,40 @@
 #/bin/sh
 
 iptables='/etc/sysconfig/iptables'
-httpdconfig='/etc/httpd/conf/httpd.conf'
+httpdconfig='/etc/apche2/ports.conf'
 
 ## set listening port for apache
 sed -i "s/Listen 80/Listen $httpdport/" $httpdconfig
 
 # make changes active through restart apache
-ps -A | grep -q httpd
+ps -A | grep -q apache2
 if [ $? -eq 1 ]; then
-    echo "httpd is currently stopped, is getting started"
-    service httpd start
+    echo "apache2 is currently stopped, is getting started"
+    service apache2 start
     
     if [ $? -ne 0 ]; then
-    	echo "killing httpd processes"
-    	ps -ef | grep httpd | grep -v grep | awk '{print $2}' | xargs kill -9
-    	service httpd start
+    	echo "killing apache2 processes"
+    	ps -ef | grep apache2 | grep -v grep | awk '{print $2}' | xargs kill -9
+    	service apache2 start
     fi	
         
-    ps -A | grep -q httpd 
+    ps -A | grep -q apache2 
 	if [ $? -eq 0 ]; then
-        service httpd stop
+        service apache2 stop
     fi    
 else
-    echo "httpd is beeing restarted, and stopped again"
-    service httpd restart
+    echo "apache2 is beeing restarted, and stopped again"
+    service apache2 restart
     
     if [ $? -ne 0 ]; then
-    	echo "killing httpd processes"
-    	ps -ef | grep httpd | grep -v grep | awk '{print $2}' | xargs kill -9
-    	service httpd start
+    	echo "killing apache2 processes"
+    	ps -ef | grep apache2 | grep -v grep | awk '{print $2}' | xargs kill -9
+    	service apache2 start
     fi	
     
-	ps -A | grep -q httpd
+	ps -A | grep -q apache2
 	if [ $? -eq 0 ]; then
-        service httpd stop
+        service apache2 stop
     fi 
 fi
 
