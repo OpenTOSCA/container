@@ -26,29 +26,21 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Plugin implements IPlanBuilderTypePlugin {
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
-
+	
 	private final QName ec2NodeType = new QName("http://opentosca.org/types/declarative", "EC2");
 	private final QName openStackNodeType = new QName("http://opentosca.org/types/declarative", "OpenStack");
 	private final QName vmNodeType = new QName("http://opentosca.org/types/declarative", "VM");
 	private final QName ubuntuNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu");
-	private Handler handler;
-
-
-	public Plugin() {
-		try {			
-			this.handler = new Handler();
-		} catch (ParserConfigurationException e) {
-			Plugin.LOG.error("Couldn't initialize internal XML Parser", e);
-		}
-	}
-
+	private Handler handler = new Handler();
+	
+	
 	@Override
 	public String getID() {
 		return "OpenTOSCA PlanBuilder Type Plugin Ubuntu VM";
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -58,17 +50,17 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		if (nodeTemplate == null) {
 			return false;
 		}
-
+		
 		// requirement: nodeTemplates with these two nodeTypes are handled,
 		// by doing nothing
 		if (nodeTemplate.getType().getId().toString().equals(this.vmNodeType.toString())) {
 			return true;
 		}
-
+		
 		if (nodeTemplate.getType().getId().toString().equals(this.ubuntuNodeType.toString())) {
 			return true;
 		}
-
+		
 		// when the cloudprovider node arrives start handling
 		if (this.checkIfValidCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return this.handler.handle(templateContext, nodeTemplate);
@@ -76,7 +68,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -107,7 +99,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			// checking whether this ubuntu NodeTemplate is connected to a VM
 			// Node, after this checking whether the VM Node is connected to a
 			// EC2 Node
-
+			
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
 				if (relationshipTemplate.getTarget().getType().getId().toString().equals(this.vmNodeType.toString())) {
 					for (AbstractRelationshipTemplate relationshipTemplate2 : relationshipTemplate.getTarget().getOutgoingRelations()) {
@@ -115,16 +107,16 @@ public class Plugin implements IPlanBuilderTypePlugin {
 							return true;
 						}
 					}
-
+					
 				}
 			}
-
+			
 			return false;
 		} else {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -133,15 +125,15 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		// this plugin doesn't handle relations
 		return false;
 	}
-
-	private boolean checkIfValidCloudProviderNodeType(QName nodeType){
-		if(nodeType.toString().equals(this.ec2NodeType.toString())){
+	
+	private boolean checkIfValidCloudProviderNodeType(QName nodeType) {
+		if (nodeType.toString().equals(this.ec2NodeType.toString())) {
 			return true;
 		}
-		if(nodeType.toString().equals(this.openStackNodeType.toString())){
+		if (nodeType.toString().equals(this.openStackNodeType.toString())) {
 			return true;
 		}
 		return false;
 	}
-
+	
 }
