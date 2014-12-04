@@ -49,24 +49,23 @@ import org.w3c.dom.NodeList;
  *
  */
 public class TemplatePlanContext {
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(TemplatePlanContext.class);
-
+	
 	private TemplateBuildPlan templateBuildPlan;
 	private String serviceTemplateName;
 	private QName serviceTemplateId;
-
+	
 	private BuildPlanHandler buildPlanHandler;
 	private BPELProcessHandler bpelProcessHandler;
 	private TemplateBuildPlanHandler templateHandler;
 	private BPELTemplateScopeHandler bpelTemplateHandler;
 	private Map<String, String> namespaceMap;
 	private PropertyMap propertyMap;
-
+	
 	private String planNamespace = "ba.example";
-
-
-
+	
+	
 	/**
 	 * Constructor
 	 *
@@ -80,7 +79,7 @@ public class TemplatePlanContext {
 		this.templateBuildPlan = templateBuildPlan;
 		this.serviceTemplateName = serviceTemplateName;
 		this.serviceTemplateId = serviceTemplateId;
-
+		
 		try {
 			this.buildPlanHandler = new BuildPlanHandler();
 			this.bpelProcessHandler = new BPELProcessHandler();
@@ -92,7 +91,7 @@ public class TemplatePlanContext {
 		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
 	}
-
+	
 	/**
 	 * Returns the file name of the CSAR in which this Template resides
 	 *
@@ -101,7 +100,7 @@ public class TemplatePlanContext {
 	public String getCSARFileName() {
 		return this.templateBuildPlan.getBuildPlan().getCsarName();
 	}
-
+	
 	/**
 	 * Returns whether this context is for a nodeTemplate
 	 *
@@ -110,7 +109,7 @@ public class TemplatePlanContext {
 	public boolean isNodeTemplate() {
 		return this.templateBuildPlan.getNodeTemplate() != null ? true : false;
 	}
-
+	
 	/**
 	 * Returns the name of variable which is the input message of the buildPlan
 	 *
@@ -120,7 +119,7 @@ public class TemplatePlanContext {
 	public String getPlanRequestMessageName() {
 		return "input";
 	}
-
+	
 	/**
 	 * Returns the name of variable which is the output message of the buildPlan
 	 *
@@ -130,7 +129,7 @@ public class TemplatePlanContext {
 	public String getPlanResponseMessageName() {
 		return "output";
 	}
-
+	
 	/**
 	 * Returns the NodeTemplate of this TemplatePlanContext
 	 *
@@ -140,7 +139,7 @@ public class TemplatePlanContext {
 	public AbstractNodeTemplate getNodeTemplate() {
 		return this.templateBuildPlan.getNodeTemplate();
 	}
-
+	
 	/**
 	 * <p>
 	 * Returns all NodeTemplates that are part of the ServiceTemplate this
@@ -151,7 +150,6 @@ public class TemplatePlanContext {
 	 */
 	public List<AbstractNodeTemplate> getNodeTemplates() {
 		// find the serviceTemplate
-
 		for (AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions().getServiceTemplates()) {
 			if (serviceTemplate.getQName().toString().equals(this.serviceTemplateId.toString())) {
 				return serviceTemplate.getTopologyTemplate().getNodeTemplates();
@@ -159,7 +157,24 @@ public class TemplatePlanContext {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * <p>
+	 * Returns all RelationshipTemplates that are part of the ServiceTemplate
+	 * this context belongs to.
+	 * </p>
+	 * 
+	 * @return a List of AbstractRelationshipTemplate
+	 */
+	public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
+		for (AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions().getServiceTemplates()) {
+			if (serviceTemplate.getQName().toString().equals(this.serviceTemplateId.toString())) {
+				return serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns whether this context is for a relationshipTemplate
 	 *
@@ -168,7 +183,7 @@ public class TemplatePlanContext {
 	public boolean isRelationshipTemplate() {
 		return this.templateBuildPlan.getRelationshipTemplate() != null ? true : false;
 	}
-
+	
 	/**
 	 * Returns the RelationshipTemplate this context handles
 	 *
@@ -178,7 +193,7 @@ public class TemplatePlanContext {
 	public AbstractRelationshipTemplate getRelationshipTemplate() {
 		return this.templateBuildPlan.getRelationshipTemplate();
 	}
-
+	
 	/**
 	 * Returns an absolute File for the given AbstractArtifactReference
 	 *
@@ -188,7 +203,7 @@ public class TemplatePlanContext {
 	public File getFileFromArtifactReference(AbstractArtifactReference ref) {
 		return this.templateBuildPlan.getBuildPlan().getDefinitions().getAbsolutePathOfArtifactReference(ref);
 	}
-
+	
 	/**
 	 * Adds a variable to the TemplateBuildPlan of the template this context
 	 * belongs to
@@ -203,12 +218,12 @@ public class TemplatePlanContext {
 		declarationId = this.importNamespace(declarationId);
 		return this.bpelTemplateHandler.addVariable(name, variableType, declarationId, this.templateBuildPlan);
 	}
-
+	
 	public boolean addGlobalVariable(String name, BuildPlan.VariableType variableType, QName declarationId) {
 		declarationId = this.importNamespace(declarationId);
 		return this.bpelProcessHandler.addVariable(name, variableType, declarationId, this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Adds a partnerlinkType to the BuildPlan, which can be used for
 	 * partnerLinks in the TemplateBuildPlan
@@ -222,7 +237,7 @@ public class TemplatePlanContext {
 		portType = this.importNamespace(portType);
 		return this.bpelProcessHandler.addPartnerLinkType(partnerLinkTypeName, roleName, portType, this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Returns an Integer which can be used as variable names etc. So that there
 	 * are no collisions with other declarations
@@ -234,7 +249,7 @@ public class TemplatePlanContext {
 		this.templateBuildPlan.getBuildPlan().setId(idToReturn + 1);
 		return idToReturn;
 	}
-
+	
 	/**
 	 * Adds a partnerLinkType to the BuildPlan which can be used for
 	 * partnerLinks in TemplateBuildPlans
@@ -251,7 +266,7 @@ public class TemplatePlanContext {
 		portType2 = this.importNamespace(portType2);
 		return this.bpelProcessHandler.addPartnerLinkType(partnerLinkTypeName, role1Name, portType1, role2Name, portType2, this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Adds a partnerLink to the TemplateBuildPlan of the Template this context
 	 * handles
@@ -274,7 +289,7 @@ public class TemplatePlanContext {
 		check &= this.templateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole, initializePartnerRole, this.templateBuildPlan);
 		return check;
 	}
-
+	
 	/**
 	 * Adds a partnerLink to the deployment deskriptor of the BuildPlan
 	 *
@@ -286,7 +301,7 @@ public class TemplatePlanContext {
 	private boolean addPLtoDeploy(String partnerLinkName, String partnerLinkType) {
 		BuildPlan buildPlan = this.templateBuildPlan.getBuildPlan();
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
-
+		
 		// get porttypes inside partnerlinktype
 		QName portType1 = wsdl.getPortType1FromPartnerLinkType(partnerLinkType);
 		QName portType2 = wsdl.getPortType2FromPartnerLinkType(partnerLinkType);
@@ -297,7 +312,7 @@ public class TemplatePlanContext {
 		// } else {
 		// portTypeToAdd = portType1;
 		// }
-
+		
 		// check for port in used wsdl
 		// List<File> wsdlFiles = this.getWSDLFiles();
 		// for (File wsdlFile : wsdlFiles) {
@@ -324,7 +339,7 @@ public class TemplatePlanContext {
 				// TODO: in both if blocks we make huge assumptions with the
 				// get(0)'s, as a wsdl file can have multiple services with
 				// given portTypes
-
+				
 				// if we only have one portType in the partnerLink, we just add
 				// a invoke
 				if (((portType1 != null) & (portType2 == null)) && this.containsPortType(portType1, wsdlFile)) {
@@ -335,7 +350,7 @@ public class TemplatePlanContext {
 					List<Port> ports = this.getPortsFromService(services.get(0), portType1);
 					this.buildPlanHandler.addInvokeToDeploy(partnerLinkName, services.get(0).getQName(), ports.get(0).getName(), buildPlan);
 				}
-
+				
 				// if two porttypes are used in this partnerlink, the first
 				// portType is used as provided interface, while the second is
 				// invoked
@@ -344,7 +359,7 @@ public class TemplatePlanContext {
 					List<Service> services = this.getServicesInWSDLFile(wsdlFile, portType1);
 					List<Port> ports = this.getPortsFromService(services.get(0), portType1);
 					this.buildPlanHandler.addProvideToDeploy(partnerLinkName, services.get(0).getQName(), ports.get(0).getName(), buildPlan);
-
+					
 					// portType2 resembles a service to invoke
 					List<Service> outboundServices = this.getServicesInWSDLFile(wsdlFile, portType2);
 					List<Port> outboundPorts = this.getPortsFromService(outboundServices.get(0), portType2);
@@ -354,11 +369,11 @@ public class TemplatePlanContext {
 				TemplatePlanContext.LOG.error("Error while reading WSDL data", e);
 				return false;
 			}
-
+			
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Returns the WSDL Ports of the given WSDL Service, that have binding with
 	 * the given WSDL PortType
@@ -376,10 +391,10 @@ public class TemplatePlanContext {
 				portsWithPortType.add(port);
 			}
 		}
-
+		
 		return portsWithPortType;
 	}
-
+	
 	/**
 	 * Returns the WSDL Ports of the given WSDL Service
 	 *
@@ -394,7 +409,7 @@ public class TemplatePlanContext {
 		}
 		return portOfService;
 	}
-
+	
 	/**
 	 * Returns the Services inside the given WSDL file which implement the given
 	 * portType
@@ -407,7 +422,7 @@ public class TemplatePlanContext {
 	 */
 	private List<Service> getServicesInWSDLFile(File wsdlFile, QName portType) throws WSDLException {
 		List<Service> servicesInWsdl = new ArrayList<Service>();
-
+		
 		WSDLFactory factory = WSDLFactory.newInstance();
 		WSDLReader reader = factory.newWSDLReader();
 		reader.setFeature("javax.wsdl.verbose", false);
@@ -423,10 +438,10 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		return servicesInWsdl;
 	}
-
+	
 	/**
 	 * Returns all files of the BuildPlan which have the ending ".wsdl"
 	 *
@@ -442,7 +457,7 @@ public class TemplatePlanContext {
 		}
 		return wsdlFiles;
 	}
-
+	
 	/**
 	 * Registers a portType with the associated WSDL File in the BuildPlan
 	 *
@@ -456,7 +471,7 @@ public class TemplatePlanContext {
 		boolean check = true;
 		// import wsdl into plan wsdl
 		check &= this.templateBuildPlan.getBuildPlan().getWsdl().addImportElement("http://schemas.xmlsoap.org/wsdl/", portType.getNamespaceURI(), portType.getPrefix(),
-
+		
 		wsdlDefinitionsFile.getAbsolutePath());
 		if (!check && this.templateBuildPlan.getBuildPlan().getWsdl().isImported(portType, wsdlDefinitionsFile.getAbsolutePath())) {
 			// check if already imported
@@ -464,16 +479,16 @@ public class TemplatePlanContext {
 		}
 		// import wsdl into bpel plan
 		check &= this.buildPlanHandler.addImportToBpel(portType.getNamespaceURI(), wsdlDefinitionsFile.getAbsolutePath(), "http://schemas.xmlsoap.org/wsdl/", this.templateBuildPlan.getBuildPlan());
-
+		
 		if (!check && this.buildPlanHandler.hasImport(portType.getNamespaceURI(), wsdlDefinitionsFile.getAbsolutePath(), "http://schemas.xmlsoap.org/wsdl/", this.templateBuildPlan.getBuildPlan())) {
 			check = true;
 		}
-
+		
 		// add file to imported files of buildplan
 		this.buildPlanHandler.addImportedFile(wsdlDefinitionsFile, this.templateBuildPlan.getBuildPlan());
 		return (check) ? portType : null;
 	}
-
+	
 	/**
 	 * Returns all InfrastructureNodes of the Template this context belongs to
 	 *
@@ -492,11 +507,11 @@ public class TemplatePlanContext {
 			} else {
 				Utils.getInfrastructureNodes(template, infrastructureNodes, false);
 			}
-
+			
 		}
 		return infrastructureNodes;
 	}
-
+	
 	/**
 	 * Returns all InfrastructureNodes of the Template this context belongs to
 	 *
@@ -515,7 +530,7 @@ public class TemplatePlanContext {
 		}
 		return infrastructureNodes;
 	}
-
+	
 	/**
 	 * Returns alls InfrastructureEdges of the Template this context belongs to
 	 *
@@ -537,7 +552,7 @@ public class TemplatePlanContext {
 		}
 		return infraEdges;
 	}
-
+	
 	/**
 	 * Registers a portType which is declared inside the given
 	 * AbstractArtifactReference
@@ -549,7 +564,7 @@ public class TemplatePlanContext {
 	public QName registerPortType(QName portType, AbstractArtifactReference ref) {
 		return this.registerPortType(portType, this.templateBuildPlan.getBuildPlan().getDefinitions().getAbsolutePathOfArtifactReference(ref));
 	}
-
+	
 	/**
 	 * Checks whether the given portType is declared in the given WSDL File
 	 *
@@ -573,7 +588,7 @@ public class TemplatePlanContext {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns a List of Port which implement the given portType inside the
 	 * given WSDL File
@@ -604,7 +619,7 @@ public class TemplatePlanContext {
 		}
 		return wsdlPorts;
 	}
-
+	
 	/**
 	 * Returns the name of variable which the given property name belongs to
 	 *
@@ -621,7 +636,7 @@ public class TemplatePlanContext {
 		}
 		return propertyMapping.get(propertyName);
 	}
-
+	
 	/**
 	 * Returns the variable name of the given template and property localName
 	 *
@@ -636,7 +651,7 @@ public class TemplatePlanContext {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Returns the variable name of the first occurence of a property with the
 	 * given Property name of InfrastructureNodes
@@ -652,7 +667,7 @@ public class TemplatePlanContext {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Adds the namespace inside the given QName to the buildPlan
 	 *
@@ -662,7 +677,7 @@ public class TemplatePlanContext {
 	private boolean addNamespaceToBPELDoc(QName qname) {
 		return this.bpelProcessHandler.addNamespaceToBPELDoc(qname.getPrefix(), qname.getNamespaceURI(), this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Returns a prefix for the given namespace if it is declared in the
 	 * buildPlan
@@ -680,7 +695,7 @@ public class TemplatePlanContext {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Imports the given QName into the BuildPlan
 	 *
@@ -690,7 +705,7 @@ public class TemplatePlanContext {
 	public QName importQName(QName qname) {
 		return this.importNamespace(qname);
 	}
-
+	
 	/**
 	 * Imports the given QName Namespace into the BuildPlan
 	 *
@@ -702,17 +717,17 @@ public class TemplatePlanContext {
 		String namespace = qname.getNamespaceURI();
 		boolean prefixInUse = false;
 		boolean namespaceInUse = false;
-
+		
 		// check if prefix is in use
 		if ((prefix != null) && !prefix.isEmpty()) {
 			prefixInUse = this.namespaceMap.containsKey(prefix);
 		}
-
+		
 		// check if namespace is in use
 		if ((namespace != null) && !namespace.isEmpty()) {
 			namespaceInUse = this.namespaceMap.containsValue(namespace);
 		}
-
+		
 		// TODO refactor this whole thing
 		if (prefixInUse & namespaceInUse) {
 			// both is already registered, this means we set the prefix of the
@@ -737,7 +752,7 @@ public class TemplatePlanContext {
 			}
 			this.namespaceMap.put(prefix, namespace);
 			this.addNamespaceToBPELDoc(new QName(namespace, qname.getLocalPart(), prefix));
-
+			
 		} else {
 			if ((prefix == null) || prefix.isEmpty()) {
 				// generate new prefix
@@ -748,7 +763,7 @@ public class TemplatePlanContext {
 		}
 		return new QName(namespace, qname.getLocalPart(), prefix);
 	}
-
+	
 	/**
 	 * Registers XML Schema Type in the BPEL Plan
 	 *
@@ -764,7 +779,7 @@ public class TemplatePlanContext {
 		check &= this.buildPlanHandler.addImportToBpel(type.getNamespaceURI(), xmlSchemaFile.getAbsolutePath(), "http://www.w3.org/2001/XMLSchema", this.templateBuildPlan.getBuildPlan());
 		return true;
 	}
-
+	
 	/**
 	 * Registers the given namespace as extension inside the BuildPlan
 	 *
@@ -775,7 +790,7 @@ public class TemplatePlanContext {
 	public boolean registerExtension(String namespace, boolean mustUnderstand) {
 		return this.buildPlanHandler.registerExtension(namespace, mustUnderstand, this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Creates an element with given namespace and localName for the BuildPlan
 	 * Document
@@ -787,7 +802,7 @@ public class TemplatePlanContext {
 	public Element createElement(String namespace, String localName) {
 		return this.templateBuildPlan.getBpelDocument().createElementNS(namespace, localName);
 	}
-
+	
 	/**
 	 * Returns the PrePhas Element of the TemplateBuildPlan this context belongs
 	 * to
@@ -797,7 +812,7 @@ public class TemplatePlanContext {
 	public Element getPrePhaseElement() {
 		return this.templateBuildPlan.getBpelSequencePrePhaseElement();
 	}
-
+	
 	/**
 	 * Returns the ProvPhase Element of the TemplateBuildPlan this context
 	 * belongs to
@@ -807,7 +822,7 @@ public class TemplatePlanContext {
 	public Element getProvisioningPhaseElement() {
 		return this.templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
 	}
-
+	
 	/**
 	 * Returns the PostPhase Element of the TemplateBuildPlan this context
 	 * belongs to
@@ -817,7 +832,7 @@ public class TemplatePlanContext {
 	public Element getPostPhaseElement() {
 		return this.templateBuildPlan.getBpelSequencePostPhaseElement();
 	}
-
+	
 	/**
 	 * Adds a Element which is a String parameter to the BuildPlan request
 	 * message
@@ -828,7 +843,7 @@ public class TemplatePlanContext {
 	public boolean addStringValueToPlanRequest(String localName) {
 		return this.buildPlanHandler.addStringElementToPlanRequest(localName, this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Adds a Element which is a String parameter to the BuildPlan response
 	 * message
@@ -839,7 +854,7 @@ public class TemplatePlanContext {
 	public boolean addStringValueToPlanResponse(String localName) {
 		return this.buildPlanHandler.addStringElementToPlanResponse(localName, this.templateBuildPlan.getBuildPlan());
 	}
-
+	
 	/**
 	 * Imports the given Node into the BuildPlan Document, to be able to append
 	 * it to the Phases
@@ -850,7 +865,7 @@ public class TemplatePlanContext {
 	public Node importNode(Node node) {
 		return this.templateBuildPlan.getBuildPlan().getBpelDocument().importNode(node, true);
 	}
-
+	
 	/**
 	 * Returns a NCName String of the given String
 	 *
@@ -861,8 +876,8 @@ public class TemplatePlanContext {
 		// TODO check if this enough
 		return string.replace(" ", "_");
 	}
-
-
+	
+	
 	/**
 	 * <p>
 	 * This is a Wrapper class for Template Id to Property variable name
@@ -873,12 +888,12 @@ public class TemplatePlanContext {
 	 * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
 	 *
 	 */
-	public class Variable{
-
+	public class Variable {
+		
 		private String templateId;
 		private String variableName;
-
-
+		
+		
 		/**
 		 * Contructor
 		 *
@@ -889,7 +904,7 @@ public class TemplatePlanContext {
 			this.templateId = templateId;
 			this.variableName = variableName;
 		}
-
+		
 		/**
 		 * Returns the template id of this wrapper
 		 *
@@ -898,7 +913,7 @@ public class TemplatePlanContext {
 		public String getTemplateId() {
 			return this.templateId;
 		}
-
+		
 		/**
 		 * Returns the property variable name of this wrapper
 		 *
@@ -908,17 +923,16 @@ public class TemplatePlanContext {
 			return this.variableName;
 		}
 	}
-
-
+	
+	
 	/**
 	 * Looks for a Property with the same localName as the given toscaParameter.
 	 * The search is on the whole TopologyTemplate this TemplateContext belongs
 	 * to.
 	 *
 	 * @param localName a String
-	 * @return a Variable Object with TemplateId and Name, if
-	 *         null the whole Topology has no Property with the specified
-	 *         localName
+	 * @return a Variable Object with TemplateId and Name, if null the whole
+	 *         Topology has no Property with the specified localName
 	 */
 	public Variable getInternalPropertyVariable(String localName) {
 		// then on everything else
@@ -934,7 +948,7 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		for (AbstractRelationshipTemplate infraEdge : this.getAllRelationshipTemplates()) {
 			if ((infraEdge.getProperties() == null) || (infraEdge.getProperties().getDOMElement() == null)) {
 				continue;
@@ -947,10 +961,10 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 *
 	 * Looks for a Property with the same localName as the given String. The
@@ -961,13 +975,12 @@ public class TemplatePlanContext {
 	 * @param forSource whether to look in direction of the sinks or sources (If
 	 *            Template is NodeTemplate) or to search on the
 	 *            Source-/Target-Interface (if template is RelationshipTemplate)
-	 * @return a Variable Object with TemplateId and Name, if
-	 *         null the whole Infrastructure has no Property with the specified
-	 *         localName
+	 * @return a Variable Object with TemplateId and Name, if null the whole
+	 *         Infrastructure has no Property with the specified localName
 	 */
 	public Variable getInternalPropertyVariable(String localName, boolean forSource) {
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
-
+		
 		if (this.isNodeTemplate()) {
 			// get all NodeTemplates that are reachable from this nodeTemplate
 			Utils.getNodesFromNodeToSink(this.getNodeTemplate(), infraNodes);
@@ -978,7 +991,7 @@ public class TemplatePlanContext {
 				Utils.getNodesFromRelationToSink(this.getRelationshipTemplate(), infraNodes);
 			}
 		}
-
+		
 		for (AbstractNodeTemplate infraNode : infraNodes) {
 			if ((infraNode.getProperties() == null) || (infraNode.getProperties().getDOMElement() == null)) {
 				continue;
@@ -993,7 +1006,7 @@ public class TemplatePlanContext {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns a Map with ToscaParameter Names as Key and a Wrapper for
 	 * (TemplateId,PropertyVariableName) as Value.
@@ -1017,7 +1030,7 @@ public class TemplatePlanContext {
 		for (String param : toscaParameters) {
 			matchMap.put(param, null);
 		}
-
+		
 		// check for properties inside context template
 		String id;
 		NodeList TemplateChilde = null;
@@ -1036,7 +1049,7 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		// check for matches first on the infrastructure
 		for (AbstractNodeTemplate infraNode : this.getInfrastructureNodes()) {
 			if ((infraNode.getProperties() == null) || (infraNode.getProperties().getDOMElement() == null)) {
@@ -1050,7 +1063,7 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		for (AbstractRelationshipTemplate infraEdge : this.getInfrastructureEdges()) {
 			if ((infraEdge.getProperties() == null) || (infraEdge.getProperties().getDOMElement() == null)) {
 				continue;
@@ -1063,7 +1076,7 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		// then on everything else
 		for (AbstractNodeTemplate infraNode : this.getAllNodeTemplates()) {
 			if ((infraNode.getProperties() == null) || (infraNode.getProperties().getDOMElement() == null)) {
@@ -1077,7 +1090,7 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		// check on all infrastructure edges
 		// for (AbstractRelationshipTemplate infraEdge :
 		// this.getInfrastructureEdges()) {
@@ -1093,10 +1106,10 @@ public class TemplatePlanContext {
 				}
 			}
 		}
-
+		
 		return matchMap;
 	}
-
+	
 	/**
 	 * Returns all NodeTemplates of the BuildPlan
 	 *
@@ -1104,7 +1117,7 @@ public class TemplatePlanContext {
 	 */
 	private List<AbstractNodeTemplate> getAllNodeTemplates() {
 		List<AbstractNodeTemplate> list = new ArrayList<AbstractNodeTemplate>();
-
+		
 		for (TemplateBuildPlan template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (template.getNodeTemplate() != null) {
 				list.add(template.getNodeTemplate());
@@ -1112,7 +1125,7 @@ public class TemplatePlanContext {
 		}
 		return list;
 	}
-
+	
 	/**
 	 * Returns all RelationshipTemplate of the BuildPlan
 	 *
@@ -1120,7 +1133,7 @@ public class TemplatePlanContext {
 	 */
 	private List<AbstractRelationshipTemplate> getAllRelationshipTemplates() {
 		List<AbstractRelationshipTemplate> list = new ArrayList<AbstractRelationshipTemplate>();
-
+		
 		for (TemplateBuildPlan template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (template.getNodeTemplate() == null) {
 				list.add(template.getRelationshipTemplate());
@@ -1128,7 +1141,7 @@ public class TemplatePlanContext {
 		}
 		return list;
 	}
-
+	
 	/**
 	 * Adds Property with its Type to the BuildPlan WSDL
 	 *
@@ -1141,7 +1154,7 @@ public class TemplatePlanContext {
 		this.templateBuildPlan.getBuildPlan().getWsdl().addProperty(propertyName, importedQName);
 		return importedQName;
 	}
-
+	
 	/**
 	 * Adds a Property Alias for the given Property into the BuildPlan WSDL
 	 *
@@ -1155,7 +1168,7 @@ public class TemplatePlanContext {
 		QName importedQName = this.importNamespace(messageType);
 		return this.templateBuildPlan.getBuildPlan().getWsdl().addPropertyAlias(propertyName, partName, importedQName, query);
 	}
-
+	
 	/**
 	 * Adds a correlationSet with the specified property
 	 *
@@ -1166,7 +1179,7 @@ public class TemplatePlanContext {
 	public boolean addCorrelationSet(String correlationSetName, String propertyName) {
 		return this.bpelTemplateHandler.addCorrelationSet(correlationSetName, propertyName, this.templateBuildPlan);
 	}
-
+	
 	/**
 	 * Returns the TOSCA BaseType of the given RelationshipTemplate
 	 *
@@ -1176,20 +1189,20 @@ public class TemplatePlanContext {
 	public QName getBaseType(AbstractRelationshipTemplate template) {
 		return Utils.getRelationshipBaseType(template);
 	}
-
+	
 	public QName getServiceTemplateId() {
 		return this.serviceTemplateId;
 	}
-
+	
 	public String getTemplateId() {
 		if (this.getNodeTemplate() != null) {
 			return this.getNodeTemplate().getId();
 		} else {
 			return this.getRelationshipTemplate().getId();
 		}
-
+		
 	}
-
+	
 	public Variable generateVariableWithRandomValue() {
 		String varName = "randomVar" + this.getIdForNames();
 		boolean check = this.buildPlanHandler.addPropertyVariable(varName, this.templateBuildPlan.getBuildPlan());
@@ -1198,11 +1211,11 @@ public class TemplatePlanContext {
 			return new Variable(this.getTemplateId(), "prop_" + varName);
 		} else {
 			return null;
-
+			
 		}
-
+		
 	}
-
+	
 	/**
 	 * Generates a bpel string variable with the given name + "_" +
 	 * randomPositiveInt.
@@ -1223,19 +1236,19 @@ public class TemplatePlanContext {
 			return null;
 		}
 	}
-
+	
 	public boolean appendToInitSequence(Node node) {
 		Node importedNode = this.importNode(node);
-
+		
 		Element flowElement = this.templateBuildPlan.getBuildPlan().getBpelMainFlowElement();
-
+		
 		Node mainSequenceNode = flowElement.getParentNode();
-
+		
 		mainSequenceNode.insertBefore(importedNode, flowElement);
-
+		
 		return true;
 	}
-
+	
 	public List<String> getMainVariableNames() {
 		return this.bpelProcessHandler.getMainVariableNames(this.templateBuildPlan.getBuildPlan());
 	}
