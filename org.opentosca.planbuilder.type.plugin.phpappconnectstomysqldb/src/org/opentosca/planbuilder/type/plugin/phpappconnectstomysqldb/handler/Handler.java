@@ -41,14 +41,14 @@ import org.xml.sax.SAXException;
  *
  */
 public class Handler {
-
+	
 	private Plugin invokerPlugin = new Plugin();
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-
+	
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
-
-
+	
+	
 	/**
 	 * Constructor
 	 *
@@ -59,15 +59,15 @@ public class Handler {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
+		
 	}
-
+	
 	public boolean handle(TemplatePlanContext templateContext) {
 		// fetch server ip of the app
 		Variable appServerIp = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 		// fetch server ip of the db
 		Variable dbServerIp = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
-
+		
 		if (appServerIp == null) {
 			LOG.error("Couldn't find appropiate property for application ip");
 			return false;
@@ -76,42 +76,88 @@ public class Handler {
 			LOG.error("Couldn't find appropiate property for db ip");
 			return false;
 		}
-
+		
 		// find the ubuntu node and its nodeTemplateId
 		String templateId = "";
-
+		
 		// we need the target ubuntu as we execute the script on that machine
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 		Utils.getInfrastructureNodes(templateContext.getRelationshipTemplate().getSource(), infraNodes);
-
+		
 		for (AbstractNodeTemplate nodeTemplate : infraNodes) {
 			if (Utils.checkForTypeInHierarchy(nodeTemplate, Constants.ubuntuNodeTypeOpenTOSCAPlanBuilder)) {
 				templateId = nodeTemplate.getId();
 			}
 		}
-
+		
 		if (templateId.equals("")) {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
-
-		// add sshUser and sshKey to the input message of the build plan
-		LOG.debug("Adding sshUser and sshKey fields to plan input");
-		templateContext.addStringValueToPlanRequest("sshUser");
-		templateContext.addStringValueToPlanRequest("sshKey");
-
+		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
 		// 2.x can't give that at runtime (bug)
 		LOG.debug("Adding plan callback address field to plan input");
 		templateContext.addStringValueToPlanRequest("planCallbackAddress_invoker");
-
+		
 		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
-
+		
 		inputMappings.put("hostname", appServerIp);
-		inputMappings.put("sshKey", null);
-		inputMappings.put("sshUser", null);
-
+		
+		// find sshUser and sshKey
+		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		if (sshUserVariable == null) {
+			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			if (sshUserVariable == null) {
+				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+			}
+		}
+		
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				sshUserVariable = null;
+			}
+		}
+		
+		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		if (sshKeyVariable == null) {
+			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+			}
+		}
+		
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+				// see sshUserVariable..
+				sshKeyVariable = null;
+			}
+		}
+		// add sshUser and sshKey to the input message of the build plan, if
+		// needed
+		if (sshUserVariable == null) {
+			LOG.debug("Adding sshUser field to plan input");
+			templateContext.addStringValueToPlanRequest("sshUser");
+			
+		}
+		
+		if (sshKeyVariable == null) {
+			LOG.debug("Adding sshKey field to plan input");
+			templateContext.addStringValueToPlanRequest("sshKey");
+		}
+		
+		inputMappings.put("sshKey", sshKeyVariable);
+		inputMappings.put("sshUser", sshUserVariable);
+		
 		// load script:
 		// we will generate a script on the app vm
 		// for that we load the placeholders from the relationshiptemplate
@@ -125,14 +171,14 @@ public class Handler {
 		String bashCommand = "mkdir ~/" + tempFolderName + ";";
 		bashCommand += "touch ~/" + tempFolderName + "/connectToDb.sh;";
 		bashCommand += "echo \"" + this.createSedScript(placeholderNameToValueMap.values(), configPath).replace("\"", "\\\"").replace("$", "\\$").replace("`", "\\`") + "\" > ~/" + tempFolderName + "/connectToDb.sh;";
-
+		
 		// create env var string
 		String envVarString = "";
 		String xpathQueryPrefix = "";
 		String xpathQuerySuffix = "";
-
+		
 		for (String placeholder : placeholderNameToValueMap.keySet()) {
-
+			
 			Variable var = null;
 			switch (placeholder) {
 			case "DBAddressPlaceHolder":
@@ -148,7 +194,7 @@ public class Handler {
 				var = templateContext.getInternalPropertyVariable("DBName");
 				break;
 			}
-
+			
 			envVarString += placeholderNameToValueMap.get(placeholder) + "=$" + placeholder + "$ ";
 			xpathQueryPrefix += "replace(";
 			xpathQuerySuffix += ",'\\$" + placeholder + "\\$',";
@@ -166,17 +212,17 @@ public class Handler {
 				} else {
 					xpathQuerySuffix += "$" + var.getName() + ")";
 				}
-
+				
 			}
 		}
-
+		
 		bashCommand += "sudo " + envVarString + " sh ~/" + tempFolderName + "/connectToDb.sh";
-
+		
 		// generate string var with the bashcommand
 		String connectToDbShVarName = "connectToDbShScript" + templateContext.getIdForNames();
 		Variable connectToDBShStringVar = templateContext.createGlobalStringVariable(connectToDbShVarName, bashCommand);
 		String xpathQuery = xpathQueryPrefix + "$" + connectToDBShStringVar.getName() + xpathQuerySuffix;
-
+		
 		try {
 			// create assign and append
 			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignShCallScriptVar", xpathQuery, connectToDBShStringVar.getName());
@@ -189,14 +235,14 @@ public class Handler {
 			LOG.error("Couldn't parse fragment to DOM", e);
 			return false;
 		}
-
+		
 		inputMappings.put("script", connectToDBShStringVar);
-
+		
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
-
+		
 		return true;
 	}
-
+	
 	private boolean checkIfRelationConnectsAppAndDBOnSameVM(TemplatePlanContext templateContext) {
 		LOG.debug("Checking if both App and Db is deployed on the same VM");
 		AbstractRelationshipTemplate relationshipTemplate = templateContext.getRelationshipTemplate();
@@ -205,11 +251,11 @@ public class Handler {
 		String sourceNodeVmId = "";
 		String targetNodeVmId = "";
 		LOG.debug("Checking with source node " + sourceNodeTemplate.getId() + " and target node " + targetNodeTemplate.getId());
-
+		
 		List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<AbstractNodeTemplate>();
-
+		
 		Utils.getInfrastructureNodes(sourceNodeTemplate, infrastructureNodes);
-
+		
 		// find the vm node of the source
 		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
 			LOG.debug("Found infrastructure node of source node: " + infraNode.getId());
@@ -218,11 +264,11 @@ public class Handler {
 				LOG.debug("Found source node VM with id: " + sourceNodeVmId);
 			}
 		}
-
+		
 		infrastructureNodes.clear();
-
+		
 		Utils.getInfrastructureNodes(targetNodeTemplate, infrastructureNodes);
-
+		
 		// find the vm node of the target
 		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
 			LOG.debug("Found infrastructure node of target node: " + infraNode.getId());
@@ -231,25 +277,25 @@ public class Handler {
 				LOG.debug("Found target node VM with id: " + targetNodeVmId);
 			}
 		}
-
+		
 		if (sourceNodeVmId.trim().isEmpty()) {
 			LOG.warn("source node vm id is empty");
 			return false;
 		}
-
+		
 		if (targetNodeVmId.trim().isEmpty()) {
 			LOG.warn("targetnode vm id is empty");
 			return false;
 		}
-
+		
 		if (sourceNodeVmId.trim().equals(targetNodeVmId.trim())) {
 			LOG.debug("App and DB are deployed on the same VM");
 			return true;
 		}
-
+		
 		return false;
 	}
-
+	
 	private Map<String, String> fetchPlaceholderMappings(TemplatePlanContext templateContext) {
 		Map<String, String> placeholders = new HashMap<String, String>();
 		NodeList children = templateContext.getRelationshipTemplate().getProperties().getDOMElement().getChildNodes();
@@ -260,11 +306,11 @@ public class Handler {
 				String value = this.getValueOfElement(child);
 				placeholders.put(localName, value);
 			}
-
+			
 		}
 		return placeholders;
 	}
-
+	
 	private String fetchConfigPath(TemplatePlanContext templateContext) {
 		NodeList children = templateContext.getRelationshipTemplate().getProperties().getDOMElement().getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -274,11 +320,11 @@ public class Handler {
 				String value = this.getValueOfElement(child);
 				return value;
 			}
-
+			
 		}
 		return null;
 	}
-
+	
 	private String createSedScript(Collection<String> stringsToReplace, String configPath) {
 		String script = "";
 		for (String stringToReplace : stringsToReplace) {
@@ -286,12 +332,12 @@ public class Handler {
 		}
 		return script;
 	}
-
+	
 	private String createSedCommand(String stringToReplace, String configPath) {
 		// sed -i -e 's#YOURDBHOST#'${Target_PublicIP}'#' $Target_ConfigPath
 		return "sed -i -e 's#" + stringToReplace + "#'${" + stringToReplace + "}'#' " + configPath;
 	}
-
+	
 	/**
 	 * Simple helper method to assemble DOM Node Values
 	 *
@@ -307,7 +353,7 @@ public class Handler {
 		}
 		return value;
 	}
-
+	
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
@@ -329,7 +375,7 @@ public class Handler {
 		template = template.replace("{stringVarName}", stringVarName);
 		return template;
 	}
-
+	
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
@@ -349,5 +395,5 @@ public class Handler {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-
+	
 }

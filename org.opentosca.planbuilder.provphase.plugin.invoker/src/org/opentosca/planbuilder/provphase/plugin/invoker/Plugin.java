@@ -37,22 +37,22 @@ import org.xml.sax.SAXException;
  *
  */
 public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
 	private Handler handler = new Handler();
-
-
+	
+	
 	@Override
 	public String getID() {
 		return "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 	}
-
+	
 	@Override
 	public boolean canHandle(QName operationArtifactType) {
 		// we can handle every type, but i'm not sure if this is true ;)
 		return true;
 	}
-
+	
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
 		try {
@@ -62,7 +62,7 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Method for adding a single call to the invoker with the given context
 	 *
@@ -87,7 +87,7 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Method for adding a single call to the invoker with the given context and
 	 * specified nodeTemplate
@@ -115,9 +115,9 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
 			return false;
 		}
-
+		
 	}
-
+	
 	/**
 	 * Adds bpel code to the given templateContext, which uploads the given
 	 * ArtifactReference ref to the given server ip. The destination of the
@@ -127,17 +127,21 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 *
 	 * @param ref the reference to upload
 	 * @param templateContext the templateContext to use
-	 * @param serverIp the ip to upload the file
+	 * @param serverIp the ip to upload the file to
+	 * @param sshUser a variable containing the sshUser value, if null the user
+	 *            will be requested from the planInput
+	 * @param sshKey a variable containing the sshKey value, if null the key
+	 *            will be requested from the planInput
 	 * @param templateId the templateId the serverIp belongs to
 	 * @return true iff appending all bpel code was successful
 	 */
-	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, String templateId) {
+	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, Variable sshUser, Variable sshKey, String templateId) {
 		try {
-			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, templateId);
+			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey, templateId);
 		} catch (IOException e) {
 			LOG.error("Couldn't load internal files", e);
 			return false;
 		}
 	}
-
+	
 }

@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.plugins.constants.PluginConstants;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
+import org.opentosca.planbuilder.utils.Utils;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +86,57 @@ public class Handler {
 			return false;
 		}
 		
-		// add sshUser and sshKey to the input message of the build plan
-		templateContext.addStringValueToPlanRequest("sshUser");
-		templateContext.addStringValueToPlanRequest("sshKey");
+		// find sshUser and sshKey
+				Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+				if (sshUserVariable == null) {
+					sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+					if (sshUserVariable == null) {
+						sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+					}
+				}
+				
+				// if the variable is null now -> the property isn't set properly
+				if (sshUserVariable == null) {
+					return false;
+				} else {
+					if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+						// the property isn't set in the topology template -> we set it
+						// null here so it will be handled as an external parameter
+						sshUserVariable = null;
+					}
+				}
+				
+				Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+				if (sshKeyVariable == null) {
+					sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+					if (sshKeyVariable == null) {
+						sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+					}
+				}
+				
+				// if variable null now -> the property isn't set according to schema
+				if (sshKeyVariable == null) {
+					return false;
+				} else {
+					if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+						// see sshUserVariable..
+						sshKeyVariable = null;
+					}
+				}
+				// add sshUser and sshKey to the input message of the build plan, if
+				// needed
+				if (sshUserVariable == null) {
+					LOG.debug("Adding sshUser field to plan input");
+					templateContext.addStringValueToPlanRequest("sshUser");
+					
+				}
+				
+				if (sshKeyVariable == null) {
+					LOG.debug("Adding sshKey field to plan input");
+					templateContext.addStringValueToPlanRequest("sshKey");
+				}
+		
+	
 		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
@@ -97,7 +146,9 @@ public class Handler {
 		// generate string variable for "httpd" package. This way it's easier to
 		// program (no assigns by hand, etc.)
 		String phpPackagesVarName = "phpPackagesVar" + templateContext.getIdForNames();
-		Variable phpPackagesVar = templateContext.createGlobalStringVariable(phpPackagesVarName, "php5 php5-cli php5-common php5-mysql");
+		
+		  
+		Variable phpPackagesVar = templateContext.createGlobalStringVariable(phpPackagesVarName, "php5 php5-cli php5-common php5-mysql php5-json php5-curl php5-gd libapache2-mod-php5");
 		
 		/*
 		 * Check whether the SSH port is open on the VM
@@ -105,8 +156,8 @@ public class Handler {
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
 		
 		startRequestInputParams.put("hostname", serverIpPropWrapper);
-		startRequestInputParams.put("sshUser", null);
-		startRequestInputParams.put("sshKey", null);
+		startRequestInputParams.put("sshUser", sshUserVariable);
+		startRequestInputParams.put("sshKey", sshKeyVariable);
 		
 		this.invokerPlugin.handle(templateContext, templateId, true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>());
 		
@@ -116,8 +167,8 @@ public class Handler {
 		Map<String, Variable> installPackageRequestInputParams = new HashMap<String, Variable>();
 		
 		installPackageRequestInputParams.put("hostname", serverIpPropWrapper);
-		installPackageRequestInputParams.put("sshUser", null);
-		installPackageRequestInputParams.put("sshKey", null);
+		installPackageRequestInputParams.put("sshUser", sshUserVariable);
+		installPackageRequestInputParams.put("sshKey", sshKeyVariable);
 		installPackageRequestInputParams.put("packageNames", phpPackagesVar);
 		
 		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
@@ -134,8 +185,8 @@ public class Handler {
 		Variable startShVar = templateContext.createGlobalStringVariable(startShScriptVarName, startShScript);
 		
 		runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
-		runScriptRequestInputParams.put("sshKey", null);
-		runScriptRequestInputParams.put("sshUser", null);
+		runScriptRequestInputParams.put("sshKey", sshKeyVariable);
+		runScriptRequestInputParams.put("sshUser", sshUserVariable);
 		runScriptRequestInputParams.put("script", startShVar);
 		
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());

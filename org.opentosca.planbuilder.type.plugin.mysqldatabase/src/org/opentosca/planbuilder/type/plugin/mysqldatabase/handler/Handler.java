@@ -86,6 +86,45 @@ public class Handler {
 			return false;
 		}
 		
+		// fetch sshUser and sshKey
+		// find sshUser and sshKey
+		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		if (sshUserVariable == null) {
+			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			if (sshUserVariable == null) {
+				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+			}
+		}
+		
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				sshUserVariable = null;
+			}
+		}
+		
+		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		if (sshKeyVariable == null) {
+			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+			}
+		}
+		
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+				// see sshUserVariable..
+				sshKeyVariable = null;
+			}
+		}
+		
 		// find the ubuntu node and its nodeTemplateId
 		String templateId = "";
 		
@@ -100,10 +139,18 @@ public class Handler {
 			return false;
 		}
 		
-		// add sshUser and sshKey to the input message of the build plan
-		LOG.debug("Adding sshUser and sshKey fields to plan input");
-		templateContext.addStringValueToPlanRequest("sshUser");
-		templateContext.addStringValueToPlanRequest("sshKey");
+		// add sshUser and sshKey to the input message of the build plan, if
+		// needed
+		if (sshUserVariable == null) {
+			LOG.debug("Adding sshUser field to plan input");
+			templateContext.addStringValueToPlanRequest("sshUser");
+			
+		}
+		
+		if (sshKeyVariable == null) {
+			LOG.debug("Adding sshKey field to plan input");
+			templateContext.addStringValueToPlanRequest("sshKey");
+		}
 		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
@@ -119,8 +166,8 @@ public class Handler {
 		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
 		
 		inputMappings.put("hostname", serverIpPropWrapper);
-		inputMappings.put("sshKey", null);
-		inputMappings.put("sshUser", null);
+		inputMappings.put("sshKey", sshKeyVariable);
+		inputMappings.put("sshUser", sshUserVariable);
 		
 		// load script
 		String configureDBScript;
@@ -224,7 +271,7 @@ public class Handler {
 		}
 		
 		for (AbstractArtifactReference ref : refs) {
-			this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, templateId);
+			this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable, sshKeyVariable, templateId);
 		}
 		
 		if (impl != null) {
@@ -237,13 +284,13 @@ public class Handler {
 				// execute script on vm
 				LOG.debug("Handling operation: " + op.getName());
 				for (AbstractArtifactReference ref : opIaMap.get(op).getArtifactRef().getArtifactReferences()) {
-					this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, templateId);
+					this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable, sshKeyVariable, templateId);
 					
 					Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
 					
 					runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
-					runScriptRequestInputParams.put("sshKey", null);
-					runScriptRequestInputParams.put("sshUser", null);
+					runScriptRequestInputParams.put("sshKey", sshKeyVariable);
+					runScriptRequestInputParams.put("sshUser", sshUserVariable);
 					
 					Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, op, ref);
 					
@@ -383,7 +430,6 @@ public class Handler {
 		runShScriptString += "~/" + templateContext.getCSARFileName() + "/" + reference.getReference();
 		
 		String chmod = "chmod +x " + "~/" + templateContext.getCSARFileName() + "/" + reference.getReference() + ";";
-		
 		
 		// generate string var with script
 		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName, chmod + runShScriptString);

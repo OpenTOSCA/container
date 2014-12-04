@@ -51,18 +51,18 @@ import org.xml.sax.SAXException;
  *
  */
 public class Handler {
-
+	
 	private Plugin invokerPlugin = new Plugin();
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-
+	
 	private final static QName ubuntuNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "Ubuntu");
 	private final static QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
 	private QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
-
+	
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
-
-
+	
+	
 	/**
 	 * Constructor
 	 *
@@ -73,9 +73,9 @@ public class Handler {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-
+		
 	}
-
+	
 	/**
 	 * Adds BPEL code to the given context which installs/unzips a
 	 * PhpApplication unto an Ubuntu OS
@@ -92,10 +92,10 @@ public class Handler {
 			Handler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
 			return false;
 		}
-
+		
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
-
+		
 		Variable serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
 			serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
@@ -103,63 +103,111 @@ public class Handler {
 				serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
-
+		
 		if (serverIpPropWrapper == null) {
 			Handler.LOG.warn("No Infrastructure Node available with ServerIp property");
 			return false;
 		}
-
+		
+		// find sshUser and sshKey
+		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		if (sshUserVariable == null) {
+			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			if (sshUserVariable == null) {
+				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+			}
+		}
+		
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				sshUserVariable = null;
+			}
+		}
+		
+		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		if (sshKeyVariable == null) {
+			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+			}
+		}
+		
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+				// see sshUserVariable..
+				sshKeyVariable = null;
+			}
+		}
+		// add sshUser and sshKey to the input message of the build plan, if
+		// needed
+		if (sshUserVariable == null) {
+			LOG.debug("Adding sshUser field to plan input");
+			templateContext.addStringValueToPlanRequest("sshUser");
+			
+		}
+		
+		if (sshKeyVariable == null) {
+			LOG.debug("Adding sshKey field to plan input");
+			templateContext.addStringValueToPlanRequest("sshKey");
+		}
+		
 		// find the ubuntu node and its nodeTemplateId
 		String templateId = "";
-
+		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
 			if (Handler.isUbuntuNodeTypeCompatible(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}
-
+		
 		if (templateId.equals("")) {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
-
-		// add sshUser and sshKey to the input message of the build plan
-		LOG.debug("Adding sshUser and sshKey fields to plan input");
-		templateContext.addStringValueToPlanRequest("sshUser");
-		templateContext.addStringValueToPlanRequest("sshKey");
-
+		
+		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
 		// 2.x can't give that at runtime (bug)
 		LOG.debug("Adding plan callback address field to plan input");
 		templateContext.addStringValueToPlanRequest("planCallbackAddress_invoker");
-
+		
 		// add csarEntryPoint to plan input message
 		LOG.debug("Adding csarEntryPoint field to plan input");
 		templateContext.addStringValueToPlanRequest("csarEntrypoint");
-
+		
 		// install unzip
 		// used for the invokerPlugin. This map contains mappings from internal
 		// variables or data which must be fetched form the input message (value
 		// of map == null)
 		Map<String, Variable> installPackageRequestInputParams = new HashMap<String, Variable>();
-
+		
 		// generate string variable for "unzip" package. This way it's easier to
 		// program (no assigns by hand, etc.)
 		String unzipPackageVarName = "unzipPackageVar" + templateContext.getIdForNames();
 		Variable unzipPackageVar = templateContext.createGlobalStringVariable(unzipPackageVarName, "unzip");
-
+		
 		/*
 		 * methodName: installPackage params: "hostname", "sshKey", "sshUser",
 		 * "packageNames"
 		 */
 		installPackageRequestInputParams.put("hostname", serverIpPropWrapper);
-		installPackageRequestInputParams.put("sshKey", null);
-		installPackageRequestInputParams.put("sshUser", null);
+		// sshKey and user maybe null here, if yes the input will be fetched
+		// from the planinput
+		installPackageRequestInputParams.put("sshKey", sshKeyVariable);
+		installPackageRequestInputParams.put("sshUser", sshUserVariable);
 		installPackageRequestInputParams.put("packageNames", unzipPackageVar);
-
+		
 		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
-
+		
 		List<AbstractArtifactReference> refs = null;
 		if (impl == null) {
 			refs = this.getDeploymentArtifactRefs(templateContext.getNodeTemplate().getDeploymentArtifacts());
@@ -167,34 +215,33 @@ public class Handler {
 			Set<AbstractDeploymentArtifact> das = Utils.computeEffectiveDeploymentArtifacts(templateContext.getNodeTemplate(), impl);
 			refs = this.getDeploymentArtifactRefs(das);
 		}
-
+		
 		// add file upload of DA
 		if (refs.isEmpty()) {
 			Handler.LOG.warn("No usable DA provided for NodeTemplate");
 			return false;
 		}
-
-
+		
 		LOG.debug("Handling DA references:");
 		for (AbstractArtifactReference ref : refs) {
 			// upload da ref and unzip it
-			this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, templateId);
-
+			this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable, sshKeyVariable, templateId);
+			
 			Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
-
+			
 			runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
-			runScriptRequestInputParams.put("sshKey", null);
-			runScriptRequestInputParams.put("sshUser", null);
-
+			runScriptRequestInputParams.put("sshKey", sshKeyVariable);
+			runScriptRequestInputParams.put("sshUser", sshUserVariable);
+			
 			String unzipScriptString = "cd /var/www/ && sudo unzip -q -o ~/" + templateContext.getCSARFileName() + "/" + ref.getReference();
 			String unzipScriptStringVarName = "unzipZipFile" + templateContext.getIdForNames();
 			Variable unzipScriptStringVar = templateContext.createGlobalStringVariable(unzipScriptStringVarName, unzipScriptString);
-
+			
 			runScriptRequestInputParams.put("script", unzipScriptStringVar);
-
+			
 			this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
 		}
-
+		
 		if (impl != null) {
 			// call the operations of the lifecycleinterface
 			LOG.debug("Handling Lifecycle operations:");
@@ -205,37 +252,37 @@ public class Handler {
 				// execute script on vm
 				LOG.debug("Handling operation: " + op.getName());
 				for (AbstractArtifactReference ref : opIaMap.get(op).getArtifactRef().getArtifactReferences()) {
-					this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, templateId);
-
+					this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable, sshKeyVariable, templateId);
+					
 					Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
-
+					
 					runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
-					runScriptRequestInputParams.put("sshKey", null);
-					runScriptRequestInputParams.put("sshUser", null);
-
+					runScriptRequestInputParams.put("sshKey", sshKeyVariable);
+					runScriptRequestInputParams.put("sshUser", sshUserVariable);
+					
 					Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, op, ref);
-
+					
 					runScriptRequestInputParams.put("script", runShScriptStringVar);
-
+					
 					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
-
+					
 				}
 			}
 		}
-
+		
 		return true;
 	}
-
+	
 	private Variable appendBPELAssignOperationShScript(TemplatePlanContext templateContext, AbstractOperation operation, AbstractArtifactReference reference) {
 		/*
 		 * First we initialize a bash script of this form: sudo sh
 		 * $InputParamName=ValPlaceHolder* referenceShFileName.sh
-		 *
+		 * 
 		 * After that we try to generate a xpath 2.0 query of this form:
 		 * ..replace
 		 * (replace($runShScriptStringVar,"ValPlaceHolder",$PropertyVariableName
 		 * ),"ValPlaceHolder",$planInputVar.partName/inputFieldLocalName)..
-		 *
+		 * 
 		 * With both we have a string with runtime property values or input
 		 * params
 		 */
@@ -244,7 +291,7 @@ public class Handler {
 		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 		String xpathQueryPrefix = "";
 		String xpathQuerySuffix = "";
-
+		
 		for (AbstractParameter parameter : operation.getInputParameters()) {
 			// First compute mappings from operation parameters to
 			// property/inputfield
@@ -256,10 +303,10 @@ public class Handler {
 				}
 			}
 			inputMappings.put(parameter.getName(), var);
-
+			
 			// Initialize bash script string variable with placeholders
 			runShScriptString += parameter.getName() + "=$" + parameter.getName() + "$ ";
-
+			
 			// put together the xpath query
 			xpathQueryPrefix += "replace(";
 			// set the placeholder to replace
@@ -267,7 +314,7 @@ public class Handler {
 			if (var == null) {
 				// param is external, query value form input message e.g.
 				// $input.payload//*[local-name()='csarEntrypoint']/text()
-
+				
 				xpathQuerySuffix += "$" + templateContext.getPlanRequestMessageName() + ".payload//*[local-name()='" + parameter.getName() + "']/text())";
 			} else {
 				// param is internal, so just query the bpelvar e.g. $Varname
@@ -276,10 +323,10 @@ public class Handler {
 		}
 		// add path to script
 		runShScriptString += "sh ~/" + templateContext.getCSARFileName() + "/" + reference.getReference();
-
+		
 		// generate string var with script
 		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName, runShScriptString);
-
+		
 		// Reassign string var with runtime values and replace their
 		// placeholders
 		try {
@@ -298,7 +345,7 @@ public class Handler {
 		}
 		return runShScriptStringVar;
 	}
-
+	
 	private Map<AbstractOperation, AbstractImplementationArtifact> getLifecycleOperations(AbstractNodeTypeImplementation impl) {
 		Map<AbstractOperation, AbstractImplementationArtifact> opIaMap = new HashMap<AbstractOperation, AbstractImplementationArtifact>();
 		for (AbstractInterface iface : impl.getNodeType().getInterfaces()) {
@@ -314,7 +361,7 @@ public class Handler {
 		}
 		return opIaMap;
 	}
-
+	
 	/**
 	 * Checks whether the given QName represents a Ubuntu OS NodeType compatible
 	 * with this plugin
@@ -331,7 +378,7 @@ public class Handler {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns a List of ArtifactReferences which point to a ZIP file inside the
 	 * the collection of deployment artifacts
@@ -349,12 +396,12 @@ public class Handler {
 						result.add(ref);
 					}
 				}
-
+				
 			}
 		}
 		return result;
 	}
-
+	
 	private boolean isZipArtifact(AbstractDeploymentArtifact artifact) {
 		if (artifact.getArtifactType().toString().equals(this.zipArtifactType.toString())) {
 			return true;
@@ -362,7 +409,7 @@ public class Handler {
 			return false;
 		}
 	}
-
+	
 	/**
 	 * Returns an XPath Query which contructs a valid String, to GET a File from
 	 * the openTOSCA API
@@ -375,7 +422,7 @@ public class Handler {
 		String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
 		return filePath;
 	}
-
+	
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
@@ -397,7 +444,7 @@ public class Handler {
 		template = template.replace("{stringVarName}", stringVarName);
 		return template;
 	}
-
+	
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
@@ -417,5 +464,5 @@ public class Handler {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-
+	
 }
