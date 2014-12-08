@@ -5,11 +5,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.wsdl.xml.WSDLWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -18,6 +27,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.ode.schemas.dd._2007._03.TInvoke;
+import org.apache.ode.schemas.dd._2007._03.TProvide;
+import org.apache.ode.schemas.dd._2007._03.TService;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
@@ -28,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.ibm.wsdl.ServiceImpl;
 
 /**
  * <p>
@@ -84,6 +98,8 @@ public class SimpleFileExporter {
 		tempFolder.mkdir();
 		SimpleFileExporter.LOG.debug("Trying to write files to temp folder: " + tempFolder.getAbsolutePath());
 		
+		List<File> exportedFiles = new ArrayList<File>();
+		
 		// match importedFiles with importElements, to change temporary paths
 		// inside import elements to relative paths inside the generated zip
 		for (File importedFile : importedFiles) {
@@ -104,6 +120,8 @@ public class SimpleFileExporter {
 					// copy file to tempdir
 					File fileLocationInDir = new File(tempFolder, fileName);
 					FileUtils.copyFile(importedFile, fileLocationInDir);
+					
+					exportedFiles.add(fileLocationInDir);
 				}
 			}
 		}
@@ -111,6 +129,16 @@ public class SimpleFileExporter {
 		// write deploy.xml
 		SimpleFileExporter.LOG.debug("Starting marshalling");
 		Deploy deployment = buildPlan.getDeploymentDeskriptor();
+		
+		// rewrite service names in deploy.xml and potential wsdl files
+		try {
+			this.rewriteServiceNames(deployment, exportedFiles, buildPlan.getCsarName());
+		} catch (WSDLException e) {
+			LOG.warn("Rewriting of Service names failed",e);
+		} catch (FileNotFoundException  e){
+			LOG.warn("Something went wrong with locating wsdl files that needed to be changed",e);
+		}
+		
 		File deployXmlFile = new File(tempFolder, "deploy.xml");
 		deployXmlFile.createNewFile();
 		JAXBContext jaxbContext = JAXBContext.newInstance(Deploy.class);
@@ -137,6 +165,96 @@ public class SimpleFileExporter {
 		IFileAccessService service = (IFileAccessService) FrameworkUtil.getBundle(this.getClass()).getBundleContext().getService(servRef);
 		service.zip(tempFolder, new File(destination));
 		return true;
+	}
+	
+	private void rewriteServiceNames(Deploy deploy, List<File> referencedFiles, String csarName) throws WSDLException, FileNotFoundException {
+		WSDLFactory factory = WSDLFactory.newInstance();		
+		WSDLReader reader = factory.newWSDLReader();
+		WSDLWriter writer = factory.newWSDLWriter();
+		
+		// first fetch all provide and invoke element which aren't using the
+		// 'client' partnerLink
+		// single process only
+		List<TInvoke> invokes = deploy.getProcess().get(0).getInvoke();
+		List<TProvide> provides = deploy.getProcess().get(0).getProvide();
+		
+		// the services the dd uses, excluding the client services, will be here
+		List<QName> servicesToRewrite = new ArrayList<QName>();
+		
+		for (TInvoke invoke : invokes) {
+			if (invoke.getPartnerLink().equals("client")) {
+				continue;
+			}
+			
+			TService service = invoke.getService();
+			QName serviceName = service.getName();
+			
+			servicesToRewrite.add(serviceName);
+			
+			QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart());
+			
+			service.setName(renamedServiceName);
+			
+			invoke.setService(service);
+		}
+		
+		for (TProvide provide : provides) {
+			if (provide.getPartnerLink().equals("client")) {
+				continue;
+			}
+			
+			TService service = provide.getService();
+			QName serviceName = service.getName();
+			
+			servicesToRewrite.add(serviceName);
+			
+			QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart());
+			
+			service.setName(renamedServiceName);
+			
+			provide.setService(service);
+		}
+		
+		// and now for the killer part..
+		for (QName serviceName : servicesToRewrite) {
+			for (File file : referencedFiles) {
+				if (!file.getAbsolutePath().endsWith(".wsdl")) {
+					continue;
+				}
+				
+				Definition def = reader.readWSDL(file.getAbsolutePath());
+				
+				List<QName> servicesToRemove = new ArrayList<QName>();
+				// fetch defined services
+				for(Object obj : def.getAllServices().values()){
+					Service service = (Service) obj;
+					
+					if(serviceName.toString().equals(service.getQName().toString())){
+						// found wsdl with service we have to rewrite
+						servicesToRemove.add(service.getQName());
+						
+						Service newService = new ServiceImpl();
+						
+						for(Object o : service.getPorts().values()){
+							Port port = (Port) o;
+							newService.addPort(port);
+						}
+						
+						newService.setQName(new QName(serviceName.getNamespaceURI(),csarName + serviceName.getLocalPart()));
+						
+						def.addService(newService);
+						
+					}
+				}
+				
+				for(QName serviceToRemove: servicesToRemove){
+					def.removeService(serviceToRemove);
+				}
+									
+				writer.writeWSDL(def, new FileOutputStream(file));
+			}
+		}
+				
 	}
 	
 	/**
