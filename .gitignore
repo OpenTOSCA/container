@@ -1,6 +1,4 @@
 .sonar/
-.classpath
-.project
 .settings
 bin
 target
