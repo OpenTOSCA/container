@@ -187,18 +187,41 @@ public class Exporter extends AbstractExporter {
 				Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
 				Application appDesc = (Application) u.unmarshal(selfServiceDataXml);
 				
-				// check if planInput etc. is set properly
-				for (ApplicationOption option : appDesc.getOptions().getOption()) {
-					for (BuildPlan plan : plansToExport) {
-						if (option.getPlanServiceName().equals(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
-							if (!new File(selfServiceDir, option.getPlanInputMessageUrl()).exists()) {
-								// the planinput file is defined in the xml, but
-								// no file exists in the csar -> write one
-								File planInputFile = new File(selfServiceDir, option.getPlanInputMessageUrl());
-								this.writePlanInputMessageInstance(plan, planInputFile);
+				if (appDesc.getOptions() != null) {
+					// check if planInput etc. is set properly
+					for (ApplicationOption option : appDesc.getOptions().getOption()) {
+						for (BuildPlan plan : plansToExport) {
+							if (option.getPlanServiceName().equals(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
+								if (!new File(selfServiceDir, option.getPlanInputMessageUrl()).exists()) {
+									// the planinput file is defined in the xml,
+									// but
+									// no file exists in the csar -> write one
+									File planInputFile = new File(selfServiceDir, option.getPlanInputMessageUrl());
+									this.writePlanInputMessageInstance(plan, planInputFile);
+								}
 							}
 						}
 					}
+				} else {
+					int optionCounter = 1;
+					Application.Options options = new Application.Options();
+					
+					for (BuildPlan plan : plansToExport) {
+						ApplicationOption option = new ApplicationOption();
+						option.setName("Default" + optionCounter);
+						option.setId(String.valueOf(optionCounter));
+						option.setIconUrl("");
+						option.setDescription("N/A");
+						option.setPlanServiceName(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
+						option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
+						this.writePlanInputMessageInstance(plan, new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
+						optionCounter++;
+						options.getOption().add(option);
+					}
+					appDesc.setOptions(options);
+					
+					Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
+					wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
 				}
 				
 			} else {
