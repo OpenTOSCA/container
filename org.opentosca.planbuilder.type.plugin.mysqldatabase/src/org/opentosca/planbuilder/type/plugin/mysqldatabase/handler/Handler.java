@@ -132,6 +132,9 @@ public class Handler {
 			if (Constants.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString().equals(node.getType().getId().toString())) {
 				templateId = node.getId();
 			}
+			if(Constants.ubuntu1310ServerNodeType.toString().equals(node.getType().getId().toString())){
+				templateId = node.getId();
+			}
 		}
 		
 		if (templateId.equals("")) {

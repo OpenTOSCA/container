@@ -33,6 +33,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	private final QName openStackNodeType = new QName("http://opentosca.org/types/declarative", "OpenStack");
 	private final QName vmNodeType = new QName("http://opentosca.org/types/declarative", "VM");
 	private final QName ubuntuNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu");
+	public final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private Handler handler = new Handler();
 	
 	
@@ -57,7 +58,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return true;
 		}
 		
-		if (nodeTemplate.getType().getId().toString().equals(this.ubuntuNodeType.toString())) {
+		if (this.checkIfValidUbuntuNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
 		
@@ -95,23 +96,22 @@ public class Plugin implements IPlanBuilderTypePlugin {
 				}
 			}
 			return false;
-		} else if (nodeTemplate.getType().getId().toString().equals(this.ubuntuNodeType.toString())) {
+		} else if (this.checkIfValidUbuntuNodeType(nodeTemplate.getType().getId())) {
 			// checking whether this ubuntu NodeTemplate is connected to a VM
 			// Node, after this checking whether the VM Node is connected to a
 			// EC2 Node
-			
-			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-				if (relationshipTemplate.getTarget().getType().getId().toString().equals(this.vmNodeType.toString())) {
-					for (AbstractRelationshipTemplate relationshipTemplate2 : relationshipTemplate.getTarget().getOutgoingRelations()) {
-						if (this.checkIfValidCloudProviderNodeType(relationshipTemplate2.getTarget().getType().getId())) {
-							return true;
-						}
-					}
-					
-				}
+			if (nodeTemplate.getType().getId().toString().equals(this.ubuntuNodeType)) {
+				// here we check for a 3 node stack ubuntu -> vm -> cloud
+				// provider(ec2,openstack)
+				return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
+			} else {
+				
+				// here we assume that a specific ubuntu image is selected as
+				// the nodeType e.g. ubuntu13.10server NodeType
+				// so we check only for a cloud provider
+				return this.checkIfConnectedToCloudProvider(nodeTemplate);
 			}
 			
-			return false;
 		} else {
 			return false;
 		}
@@ -123,6 +123,60 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	@Override
 	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate) {
 		// this plugin doesn't handle relations
+		return false;
+	}
+	
+	/**
+	 * <p>
+	 * Checks whether there is a path from the given NodeTemplate of length 3
+	 * with the following nodes:<br>
+	 * The NodeTemplate itself<br>
+	 * A NodeTemplate of type {http://opentosca.org/types/declarative}VM <br>
+	 * A NodeTemplate of type {http://opentosca.org/types/declarative}EC2 or
+	 * OpenStack
+	 * </p>
+	 * 
+	 * @param nodeTemplate any AbstractNodeTemplate
+	 * @return true if the there exists a path from the given NodeTemplate to a
+	 *         Cloud Provider node, else false
+	 */
+	private boolean checkIfConnectedToVMandCloudProvider(AbstractNodeTemplate nodeTemplate) {
+		for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
+			if (relationshipTemplate.getTarget().getType().getId().toString().equals(this.vmNodeType.toString())) {
+				if (this.checkIfConnectedToCloudProvider(relationshipTemplate.getTarget())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * <p>
+	 * Checks whether the given NodeTemplate is connected to another node of
+	 * some Cloud Provider NodeType
+	 * </p>
+	 * 
+	 * @param nodeTemplate any AbstractNodeTemplate
+	 * @return true iff connected to Cloud Provider Node
+	 */
+	private boolean checkIfConnectedToCloudProvider(AbstractNodeTemplate nodeTemplate) {
+		for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
+			if (this.checkIfValidCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkIfValidUbuntuNodeType(QName nodeType) {
+		if (nodeType.toString().equals(this.ubuntuNodeType.toString())) {
+			return true;
+		}
+		// ubuntu-13.10-server-cloudimg-amd64
+		if (nodeType.toString().equals(this.ubuntu1310ServerNodeType.toString())) {
+			return true;
+		}
 		return false;
 	}
 	

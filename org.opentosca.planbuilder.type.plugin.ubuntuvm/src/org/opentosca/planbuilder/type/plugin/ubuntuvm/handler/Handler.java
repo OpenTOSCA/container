@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.constants.PluginConstants;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
@@ -53,8 +54,32 @@ public class Handler {
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
 		Plugin invokerOpPlugin = new Plugin();
 		
-		// find InstanceId Property inside ubuntu nodeTemplate
+		// we check if the ubuntu which must be connected to this node (if not
+		// directly then trough some vm nodetemplate) is a nodetype with a
+		// ubuntu version e.g. Ubuntu_13.10 and stuff
+		AbstractNodeTemplate ubuntuNodeTemplate = null;
+		Variable ubuntuAMIIdVar = null;
+		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
+			if (relationTemplate.getSource().getType().getId().toString().equals(org.opentosca.planbuilder.type.plugin.ubuntuvm.Plugin.ubuntu1310ServerNodeType.toString())) {
+				ubuntuNodeTemplate = relationTemplate.getSource();
+			}
+			
+			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
+				if (relationTemplate2.getSource().getType().getId().toString().equals(org.opentosca.planbuilder.type.plugin.ubuntuvm.Plugin.ubuntu1310ServerNodeType.toString())) {
+					ubuntuNodeTemplate = relationTemplate.getSource();
+				}
+			}
+		}
 		
+		// here either the ubuntu connected to the provider this handler is
+		// working on hasn't a version in the ID (ubuntu version must be written
+		// in AMIId property then) or something went really wrong
+		if (ubuntuNodeTemplate != null) {
+			// we'll set a global variable with the necessary ubuntu image
+			ubuntuAMIIdVar = context.createGlobalStringVariable("ubuntu_AMIId", "ubuntu-13.10-server-cloudimg-amd64");
+		}
+		
+		// find InstanceId Property inside ubuntu nodeTemplate
 		Variable instanceIdPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
 		if (instanceIdPropWrapper == null) {
 			instanceIdPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
@@ -97,9 +122,17 @@ public class Handler {
 				}
 			}
 			
+			// if we use ubuntu image version etc. from the nodeType not some
+			// property/parameter
+			if (externalParameter.equals("AMIid") && ubuntuAMIIdVar != null) {
+				createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
+				continue;
+			}
+			
 			// if the variable is still null, something was not specified
 			// properly
 			if (variable == null) {
+				Handler.LOG.warn("Didn't find  property variable for parameter " + externalParameter);
 				return false;
 			}
 			

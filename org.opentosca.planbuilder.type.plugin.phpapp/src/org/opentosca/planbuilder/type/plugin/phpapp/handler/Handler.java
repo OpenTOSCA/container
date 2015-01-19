@@ -57,6 +57,7 @@ public class Handler {
 	
 	private final static QName ubuntuNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "Ubuntu");
 	private final static QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
+	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 	
 	private DocumentBuilderFactory docFactory;
@@ -172,7 +173,6 @@ public class Handler {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
-		
 		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
@@ -374,6 +374,9 @@ public class Handler {
 			return true;
 		}
 		if (nodeTypeId.toString().equals(Handler.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
+			return true;
+		}
+		if (nodeTypeId.toString().equals(Handler.ubuntu1310ServerNodeType.toString())) {
 			return true;
 		}
 		return false;

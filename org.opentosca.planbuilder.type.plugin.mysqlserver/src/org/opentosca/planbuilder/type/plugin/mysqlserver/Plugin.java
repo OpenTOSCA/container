@@ -23,6 +23,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	
 	private static final QName mySqlServerNodeType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes", "MySQL");
 	private static final QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
+	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private Handler handler;
 	
 	
@@ -83,7 +84,14 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * @return true iff the QName represents a Ubuntu NodeType
 	 */
 	public static boolean isCompatibleUbuntuNodeType(QName nodeTypeId) {
-		return Plugin.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString().equals(nodeTypeId.toString());
+		if (nodeTypeId.toString().equals(Plugin.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
+			return true;
+		}
+		
+		if (nodeTypeId.toString().equals(Plugin.ubuntu1310ServerNodeType.toString())) {
+			return true;
+		}
+		return false;
 	}
 	
 }

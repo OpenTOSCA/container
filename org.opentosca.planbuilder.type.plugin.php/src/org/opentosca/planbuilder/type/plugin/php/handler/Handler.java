@@ -37,6 +37,7 @@ public class Handler {
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
 	
 	private final static QName ubuntuNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "Ubuntu");
+	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private final static QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
 	
 	
@@ -87,56 +88,54 @@ public class Handler {
 		}
 		
 		// find sshUser and sshKey
-				Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
-				if (sshUserVariable == null) {
-					sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
-					if (sshUserVariable == null) {
-						sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
-					}
-				}
-				
-				// if the variable is null now -> the property isn't set properly
-				if (sshUserVariable == null) {
-					return false;
-				} else {
-					if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
-						// the property isn't set in the topology template -> we set it
-						// null here so it will be handled as an external parameter
-						sshUserVariable = null;
-					}
-				}
-				
-				Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
-				if (sshKeyVariable == null) {
-					sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
-					if (sshKeyVariable == null) {
-						sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
-					}
-				}
-				
-				// if variable null now -> the property isn't set according to schema
-				if (sshKeyVariable == null) {
-					return false;
-				} else {
-					if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
-						// see sshUserVariable..
-						sshKeyVariable = null;
-					}
-				}
-				// add sshUser and sshKey to the input message of the build plan, if
-				// needed
-				if (sshUserVariable == null) {
-					LOG.debug("Adding sshUser field to plan input");
-					templateContext.addStringValueToPlanRequest("sshUser");
-					
-				}
-				
-				if (sshKeyVariable == null) {
-					LOG.debug("Adding sshKey field to plan input");
-					templateContext.addStringValueToPlanRequest("sshKey");
-				}
+		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		if (sshUserVariable == null) {
+			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			if (sshUserVariable == null) {
+				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+			}
+		}
 		
-	
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				sshUserVariable = null;
+			}
+		}
+		
+		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		if (sshKeyVariable == null) {
+			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+			}
+		}
+		
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+				// see sshUserVariable..
+				sshKeyVariable = null;
+			}
+		}
+		// add sshUser and sshKey to the input message of the build plan, if
+		// needed
+		if (sshUserVariable == null) {
+			LOG.debug("Adding sshUser field to plan input");
+			templateContext.addStringValueToPlanRequest("sshUser");
+			
+		}
+		
+		if (sshKeyVariable == null) {
+			LOG.debug("Adding sshKey field to plan input");
+			templateContext.addStringValueToPlanRequest("sshKey");
+		}
 		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
@@ -147,7 +146,6 @@ public class Handler {
 		// program (no assigns by hand, etc.)
 		String phpPackagesVarName = "phpPackagesVar" + templateContext.getIdForNames();
 		
-		  
 		Variable phpPackagesVar = templateContext.createGlobalStringVariable(phpPackagesVarName, "php5 php5-cli php5-common php5-mysql php5-json php5-curl php5-gd libapache2-mod-php5");
 		
 		/*
@@ -206,6 +204,9 @@ public class Handler {
 			return true;
 		}
 		if (nodeTypeId.toString().equals(Handler.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
+			return true;
+		}
+		if (nodeTypeId.toString().equals(Handler.ubuntu1310ServerNodeType.toString())) {
 			return true;
 		}
 		return false;

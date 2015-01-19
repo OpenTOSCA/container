@@ -31,6 +31,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	
 	// these are the official nodeTypes
 	private final static QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
+	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private final static QName apacheNodeTypeTOSCASpecificType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes", "ApacheWebServer");
 	private Handler handler = new Handler();
 	
@@ -115,6 +116,10 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return true;
 		}
 		if (nodeTypeId.toString().equals(Plugin.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
+			return true;
+		}
+		
+		if (nodeTypeId.toString().equals(Plugin.ubuntu1310ServerNodeType.toString())) {
 			return true;
 		}
 		return false;
