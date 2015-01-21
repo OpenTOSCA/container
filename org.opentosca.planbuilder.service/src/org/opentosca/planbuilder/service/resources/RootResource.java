@@ -6,7 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -14,8 +17,11 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 
@@ -31,7 +37,11 @@ import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.service.Activator;
+import org.opentosca.planbuilder.service.RunningTasks;
+import org.opentosca.planbuilder.service.ServiceRegistry;
+import org.opentosca.planbuilder.service.TaskWorkerRunnable;
 import org.opentosca.planbuilder.service.model.GeneratePlanForTopology;
+import org.opentosca.planbuilder.service.model.PlanGenerationState;
 import org.opentosca.util.http.service.IHTTPService;
 
 /**
@@ -48,10 +58,57 @@ import org.opentosca.util.http.service.IHTTPService;
 @Path("")
 public class RootResource {
 	
+	@Context
+	UriInfo uriInfo;
+	
+	
 	@GET
 	@Produces("text/html")
 	public Response getRootPage() {
 		return Response.ok("<html><body><h1>Hello to the PlanBuilder Service.</h1> <h2>To use the PlanBuilder Service send a POST Request with the following example body:</h2><textarea style=\"width:auto;height:auto;min-width:300px;min-height:200px\"> <generatePlanForTopology><CSARURL>http://<url-to-csar-file></CSARURL><PLANPOSTURL>http://<url-for-sending-plan-back-with-POST></PLANPOSTURL></generatePlanForTopology></textarea></body></html>").build();
+	}
+	
+	@Path("async/{taskId}")
+	public TaskResource getTask(@PathParam("taskId") String taskId) {
+		System.out.println("Tasks in the system");
+		for (String id : RunningTasks.tasks.keySet()) {
+			System.out.println("Task Id: " + id);
+		}
+		
+		if (RunningTasks.tasks.containsKey(taskId)) {
+			System.out.println("Found task");
+			return new TaskResource(RunningTasks.tasks.get(taskId));
+		} else {
+			System.out.println("No task with given id found");
+			return null;
+		}
+		
+	}
+	
+	@POST
+	@Consumes("application/xml")
+	@Produces("application/xml")
+	@Path("async")
+	public Response generateBuildPlanAsync(GeneratePlanForTopology generatePlanForTopology) {
+		
+		URL csarURL = null;
+		URL planPostURL = null;
+		
+		try {
+			csarURL = new URL(generatePlanForTopology.CSARURL);
+			planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
+		} catch (MalformedURLException e) {
+			return Response.status(Status.BAD_REQUEST).entity(this.getStacktrace(e)).build();
+		}
+		
+		PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
+		
+		String newId = RunningTasks.generateId();
+		RunningTasks.tasks.put(newId, newTaskState);
+		
+		new Thread(new TaskWorkerRunnable(newTaskState)).start();
+		
+		return Response.created(URI.create(this.uriInfo.getAbsolutePath() + "/" + newId)).build();
 	}
 	
 	/**
@@ -74,6 +131,7 @@ public class RootResource {
 	@POST
 	@Consumes("application/xml")
 	@Produces("application/xml")
+	@Path("sync")
 	public Response generateBuildPlan(GeneratePlanForTopology generatePlanForTopology) {
 		URL csarURL = null;
 		URL planPostURL = null;
@@ -82,11 +140,11 @@ public class RootResource {
 			csarURL = new URL(generatePlanForTopology.CSARURL);
 			planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
 		} catch (MalformedURLException e) {
-			return Response.status(Status.BAD_REQUEST).entity(e).build();
+			return Response.status(Status.BAD_REQUEST).entity(this.getStacktrace(e)).build();
 		}
 		
 		// download csar
-		IHTTPService openToscaHttpService = Activator.getHTTPService();
+		IHTTPService openToscaHttpService = ServiceRegistry.getHTTPService();
 		
 		if (openToscaHttpService == null) {
 			return Response.status(Status.SERVICE_UNAVAILABLE).entity("Internal Service not available (HttpService)").build();
@@ -97,9 +155,9 @@ public class RootResource {
 			HttpResponse csarResponse = openToscaHttpService.Get(csarURL.toString());
 			csarInputStream = csarResponse.getEntity().getContent();
 		} catch (ClientProtocolException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
 		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
 		}
 		
 		if (csarInputStream == null) {
@@ -129,9 +187,17 @@ public class RootResource {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Couldn't upload plan to given URL: " + planPostURL.toString()).build();
 			}
 		} catch (ClientProtocolException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
 		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
+		}
+		
+		try {
+			ServiceRegistry.getCoreFileService().deleteCSAR(csarId);
+		} catch (SystemException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
+		} catch (UserException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
 		}
 		
 		return Response.ok("<finished/>").build();
@@ -166,7 +232,7 @@ public class RootResource {
 			out.flush();
 			out.close();
 			
-			return Activator.getCoreFileService().storeCSAR(uploadFile.toPath());
+			return ServiceRegistry.getCoreFileService().storeCSAR(uploadFile.toPath());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
@@ -221,5 +287,12 @@ public class RootResource {
 		}
 		
 		return uploadFile;
+	}
+	
+	private String getStacktrace(Exception e) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
 	}
 }
