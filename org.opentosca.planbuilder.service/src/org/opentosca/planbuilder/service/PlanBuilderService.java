@@ -1,0 +1,37 @@
+/**
+ * 
+ */
+package org.opentosca.planbuilder.service;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.ws.rs.core.Application;
+
+import org.opentosca.planbuilder.service.resources.RootResource;
+
+/**
+ * Copyright 2015 IAAS University of Stuttgart <br>
+ * <br>
+ * 
+ * <p>
+ * Main entry class for the PlanBuilder Service
+ * </p>
+ * 
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ *
+ */
+public class PlanBuilderService extends Application {
+	
+	@Override
+	public Set<Class<?>> getClasses() {
+		
+		Set<Class<?>> s = new HashSet<Class<?>>();
+		
+		// add root resource
+		s.add(RootResource.class);
+		
+		return s;
+	}
+	
+}
