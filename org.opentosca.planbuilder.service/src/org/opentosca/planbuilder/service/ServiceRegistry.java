@@ -30,8 +30,7 @@ public class ServiceRegistry {
 		return ServiceRegistry.openToscaCoreFileService;
 	}
 	
-	protected void bindOpenToscaHttpService(IHTTPService httpService) {
-		System.out.println("BINDING HTTPSERVICE");
+	protected void bindOpenToscaHttpService(IHTTPService httpService) {		
 		this.openToscaHttpService = httpService;
 	}
 	
@@ -39,8 +38,7 @@ public class ServiceRegistry {
 		this.openToscaHttpService = null;
 	}
 	
-	protected void bindOpenToscaCoreFileService(ICoreFileService coreFileService) {
-		System.out.println("BINDING COREFILESERVICE");
+	protected void bindOpenToscaCoreFileService(ICoreFileService coreFileService) {		
 		this.openToscaCoreFileService = coreFileService;
 	}
 	
