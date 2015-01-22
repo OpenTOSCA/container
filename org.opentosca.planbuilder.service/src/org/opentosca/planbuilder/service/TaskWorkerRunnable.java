@@ -6,17 +6,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.exceptions.SystemException;
 import org.opentosca.exceptions.UserException;
@@ -37,7 +40,6 @@ import org.opentosca.util.http.service.IHTTPService;
 public class TaskWorkerRunnable implements Runnable {
 	
 	private PlanGenerationState state;
-	
 	
 	public TaskWorkerRunnable(PlanGenerationState state) {
 		this.state = state;
@@ -108,8 +110,20 @@ public class TaskWorkerRunnable implements Runnable {
 		this.state.currentMessage = "Stored and generated Plan";
 		
 		// send plan back
-		FileBody bin = new FileBody(planTmpFile);
 		MultipartEntity mpEntity = new MultipartEntity();
+		
+		try {
+			mpEntity.addPart("planName", new StringBody(planTmpFile.getName()));
+			mpEntity.addPart("planType", new StringBody("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"));
+			mpEntity.addPart("planLanguage", new StringBody("http://docs.oasis-open.org/wsbpel/2.0/process/executable"));
+		} catch (UnsupportedEncodingException e1) {
+			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
+			this.state.currentMessage = "Couldn't generate Upload request to PLANPOSTURL";
+			this.deleteCSAR(csarId);
+			return;
+		}
+		
+		FileBody bin = new FileBody(planTmpFile);
 		ContentBody cb = (ContentBody) bin;
 		mpEntity.addPart("planfile", cb);
 		
@@ -120,8 +134,8 @@ public class TaskWorkerRunnable implements Runnable {
 			
 			HttpResponse uploadResponse = openToscaHttpService.Post(this.state.getPostUrl().toString(), mpEntity);
 			if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
-				// we assume ,if the status code ranges from 300 to 5xx , an
-				// error happend
+				// we assume ,if the status code ranges from 300 to 5xx , that
+				// an error occured
 				this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 				this.state.currentMessage = "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
 				this.deleteCSAR(csarId);
@@ -224,7 +238,7 @@ public class TaskWorkerRunnable implements Runnable {
 		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
 		tmpDir.mkdir();
 		
-		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + System.currentTimeMillis() + ".zip");
+		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip");
 		
 		try {
 			planBuilderExporter.export(uploadFile.toURI(), buildPlan);
