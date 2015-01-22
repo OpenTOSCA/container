@@ -69,17 +69,10 @@ public class RootResource {
 	}
 	
 	@Path("async/{taskId}")
-	public TaskResource getTask(@PathParam("taskId") String taskId) {
-		System.out.println("Tasks in the system");
-		for (String id : RunningTasks.tasks.keySet()) {
-			System.out.println("Task Id: " + id);
-		}
-		
+	public TaskResource getTask(@PathParam("taskId") String taskId) {		
 		if (RunningTasks.tasks.containsKey(taskId)) {
-			System.out.println("Found task");
 			return new TaskResource(RunningTasks.tasks.get(taskId));
 		} else {
-			System.out.println("No task with given id found");
 			return null;
 		}
 		
