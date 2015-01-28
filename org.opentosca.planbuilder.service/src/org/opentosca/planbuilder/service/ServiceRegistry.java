@@ -4,6 +4,7 @@
 package org.opentosca.planbuilder.service;
 
 import org.opentosca.core.file.service.ICoreFileService;
+import org.opentosca.exceptions.UserException;
 import org.opentosca.util.http.service.IHTTPService;
 import org.osgi.service.http.HttpService;
 
@@ -38,8 +39,8 @@ public class ServiceRegistry {
 		this.openToscaHttpService = null;
 	}
 	
-	protected void bindOpenToscaCoreFileService(ICoreFileService coreFileService) {		
-		this.openToscaCoreFileService = coreFileService;
+	protected void bindOpenToscaCoreFileService(ICoreFileService coreFileService) {			
+		this.openToscaCoreFileService = coreFileService;		
 	}
 	
 	protected void unbindOpenToscaCoreFileService(ICoreFileService coreFileService) {

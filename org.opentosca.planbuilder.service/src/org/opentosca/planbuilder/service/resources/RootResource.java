@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -40,6 +38,7 @@ import org.opentosca.planbuilder.service.Activator;
 import org.opentosca.planbuilder.service.RunningTasks;
 import org.opentosca.planbuilder.service.ServiceRegistry;
 import org.opentosca.planbuilder.service.TaskWorkerRunnable;
+import org.opentosca.planbuilder.service.Util;
 import org.opentosca.planbuilder.service.model.GeneratePlanForTopology;
 import org.opentosca.planbuilder.service.model.PlanGenerationState;
 import org.opentosca.util.http.service.IHTTPService;
@@ -69,7 +68,7 @@ public class RootResource {
 	}
 	
 	@Path("async/{taskId}")
-	public TaskResource getTask(@PathParam("taskId") String taskId) {		
+	public TaskResource getTask(@PathParam("taskId") String taskId) {
 		if (RunningTasks.tasks.containsKey(taskId)) {
 			return new TaskResource(RunningTasks.tasks.get(taskId));
 		} else {
@@ -91,7 +90,7 @@ public class RootResource {
 			csarURL = new URL(generatePlanForTopology.CSARURL);
 			planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
 		} catch (MalformedURLException e) {
-			return Response.status(Status.BAD_REQUEST).entity(this.getStacktrace(e)).build();
+			return Response.status(Status.BAD_REQUEST).entity(Util.getStacktrace(e)).build();
 		}
 		
 		PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
@@ -125,7 +124,8 @@ public class RootResource {
 	@Consumes("application/xml")
 	@Produces("application/xml")
 	@Path("sync")
-	public Response generateBuildPlan(GeneratePlanForTopology generatePlanForTopology) {
+	public Response generateBuildPlanSync(GeneratePlanForTopology generatePlanForTopology) {
+		
 		URL csarURL = null;
 		URL planPostURL = null;
 		
@@ -133,159 +133,29 @@ public class RootResource {
 			csarURL = new URL(generatePlanForTopology.CSARURL);
 			planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
 		} catch (MalformedURLException e) {
-			return Response.status(Status.BAD_REQUEST).entity(this.getStacktrace(e)).build();
+			return Response.status(Status.BAD_REQUEST).entity(Util.getStacktrace(e)).build();
 		}
 		
-		// download csar
-		IHTTPService openToscaHttpService = ServiceRegistry.getHTTPService();
+		PlanGenerationState newTaskState = new PlanGenerationState(csarURL, planPostURL);
 		
-		if (openToscaHttpService == null) {
-			return Response.status(Status.SERVICE_UNAVAILABLE).entity("Internal Service not available (HttpService)").build();
+		String newId = RunningTasks.generateId();
+		RunningTasks.tasks.put(newId, newTaskState);
+		
+		TaskWorkerRunnable worker = new TaskWorkerRunnable(newTaskState);
+		
+		worker.run();
+		
+		// if the worker run is finished, we're either in a failed state or
+		// everything worked
+		switch (worker.getState().currentState) {
+		case CSARDOWNLOADFAILED:
+			return Response.status(Status.CONFLICT).entity(worker.getState()).build();
+		case PLANGENERATIONFAILED:
+			return Response.status(Status.CONFLICT).entity(worker.getState()).build();
+		case PLANSENDINGFAILED:
+			return Response.status(Status.CONFLICT).entity(worker.getState()).build();
+		default:
+			return Response.ok().entity(worker.getState()).build();
 		}
-		
-		InputStream csarInputStream = null;
-		try {
-			HttpResponse csarResponse = openToscaHttpService.Get(csarURL.toString());
-			csarInputStream = csarResponse.getEntity().getContent();
-		} catch (ClientProtocolException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
-		}
-		
-		if (csarInputStream == null) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Couldn't fetch CSAR from given URL: " + csarURL.toString()).build();
-		}
-		
-		// generate plan (assumption: the send csar contains only one
-		// topologytemplate => only one buildPlan will be generated
-		CSARID csarId = this.storeCSAR(System.currentTimeMillis() + ".csar", csarInputStream);
-		List<BuildPlan> buildPlans = this.startPlanBuilder(csarId);
-		
-		// write to tmp dir
-		
-		File planTmpFile = this.writePlan2TmpFolder(buildPlans.get(0));
-		
-		// send plan back
-		FileBody bin = new FileBody(planTmpFile);
-		MultipartEntity mpEntity = new MultipartEntity();
-		ContentBody cb = (ContentBody) bin;
-		mpEntity.addPart("planfile", cb);
-		
-		try {
-			HttpResponse uploadResponse = openToscaHttpService.Post(planPostURL.toString(), mpEntity);
-			if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
-				// we assume ,if the status code ranges from 300 to 5xx , an
-				// error happend
-				return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Couldn't upload plan to given URL: " + planPostURL.toString()).build();
-			}
-		} catch (ClientProtocolException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
-		}
-		
-		try {
-			ServiceRegistry.getCoreFileService().deleteCSAR(csarId);
-		} catch (SystemException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
-		} catch (UserException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(this.getStacktrace(e)).build();
-		}
-		
-		return Response.ok("<finished/>").build();
-	}
-	
-	/**
-	 * Stores the given InputStream under the given file name
-	 * 
-	 * @param fileName the file name to store the csar under
-	 * @param uploadedInputStream an InputStream to the csar file to store
-	 * @return the CSARID of the stored CSAR
-	 */
-	private CSARID storeCSAR(String fileName, InputStream uploadedInputStream) {
-		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
-		tmpDir.mkdir();
-		
-		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + fileName);
-		
-		OutputStream out;
-		
-		try {
-			out = new FileOutputStream(uploadFile);
-			int read = 0;
-			byte[] bytes = new byte[1024];
-			
-			while ((read = uploadedInputStream.read(bytes)) != -1) {
-				out.write(bytes, 0, read);
-			}
-			
-			uploadedInputStream.close();
-			
-			out.flush();
-			out.close();
-			
-			return ServiceRegistry.getCoreFileService().storeCSAR(uploadFile.toPath());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (UserException e) {
-			e.printStackTrace();
-			return null;
-		} catch (SystemException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-	}
-	
-	/**
-	 * Generates for the given CSAR (denoted by it's id) BuildPlans
-	 * 
-	 * @param csarId the Id of the CSAR to generate plans for
-	 * @return a List of BuildPlans containing the generated BuildPlans
-	 */
-	private List<BuildPlan> startPlanBuilder(CSARID csarId) {
-		Importer planBuilderImporter = new Importer();
-		
-		List<BuildPlan> buildPlans = planBuilderImporter.importDefs(csarId);
-		
-		return buildPlans;
-	}
-	
-	/**
-	 * Writes given BuildPlan to temporary folder.
-	 * 
-	 * @param buildPlan a BuildPlan
-	 * @return a File denoting the export location
-	 */
-	private File writePlan2TmpFolder(BuildPlan buildPlan) {
-		Exporter planBuilderExporter = new Exporter();
-		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
-		tmpDir.mkdir();
-		
-		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + System.currentTimeMillis() + ".zip");
-		
-		try {
-			planBuilderExporter.export(uploadFile.toURI(), buildPlan);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (JAXBException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-		return uploadFile;
-	}
-	
-	private String getStacktrace(Exception e) {
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
-		return sw.toString();
 	}
 }

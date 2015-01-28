@@ -1,34 +1,32 @@
 package org.opentosca.planbuilder.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.JAXBException;
-
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.Header;
+import org.apache.http.entity.mime.MinimalField;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.opentosca.core.model.csar.CSARContent;
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.exceptions.SystemException;
-import org.opentosca.exceptions.UserException;
-import org.opentosca.planbuilder.export.Exporter;
-import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.service.model.PlanGenerationState;
 import org.opentosca.planbuilder.service.model.PlanGenerationState.PlanGenerationStates;
 import org.opentosca.util.http.service.IHTTPService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -41,8 +39,15 @@ public class TaskWorkerRunnable implements Runnable {
 	
 	private PlanGenerationState state;
 	
+	final private static Logger LOG = LoggerFactory.getLogger(TaskWorkerRunnable.class);
+	
+	
 	public TaskWorkerRunnable(PlanGenerationState state) {
 		this.state = state;
+	}
+	
+	public PlanGenerationState getState() {
+		return this.state;
 	}
 	
 	@Override
@@ -82,7 +87,7 @@ public class TaskWorkerRunnable implements Runnable {
 		
 		// generate plan (assumption: the send csar contains only one
 		// topologytemplate => only one buildPlan will be generated
-		CSARID csarId = this.storeCSAR(System.currentTimeMillis() + ".csar", csarInputStream);
+		CSARID csarId = Util.storeCSAR(System.currentTimeMillis() + ".csar", csarInputStream);
 		
 		if (csarId != null) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATING;
@@ -90,21 +95,21 @@ public class TaskWorkerRunnable implements Runnable {
 		} else {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
 			this.state.currentMessage = "Couldn't download CSAR";
-			this.deleteCSAR(csarId);
+			Util.deleteCSAR(csarId);
 			return;
 		}
 		
-		List<BuildPlan> buildPlans = this.startPlanBuilder(csarId);
+		List<BuildPlan> buildPlans = Util.startPlanBuilder(csarId);
 		
 		if (buildPlans.size() <= 0) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
 			this.state.currentMessage = "No plans could be generated";
-			this.deleteCSAR(csarId);
+			Util.deleteCSAR(csarId);
 			return;
 		}
 		
-		// write to tmp dir
-		File planTmpFile = this.writePlan2TmpFolder(buildPlans.get(0));
+		// write to tmp dir, only generating one plan
+		File planTmpFile = Util.writePlan2TmpFolder(buildPlans.get(0));
 		
 		this.state.currentState = PlanGenerationStates.PLANGENERATED;
 		this.state.currentMessage = "Stored and generated Plan";
@@ -119,7 +124,7 @@ public class TaskWorkerRunnable implements Runnable {
 		} catch (UnsupportedEncodingException e1) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
 			this.state.currentMessage = "Couldn't generate Upload request to PLANPOSTURL";
-			this.deleteCSAR(csarId);
+			Util.deleteCSAR(csarId);
 			return;
 		}
 		
@@ -138,118 +143,84 @@ public class TaskWorkerRunnable implements Runnable {
 				// an error occured
 				this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 				this.state.currentMessage = "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
-				this.deleteCSAR(csarId);
+				Util.deleteCSAR(csarId);
 				return;
 			} else {
+				// still need to send the parameters
+				
+				// fetch location header from plan upload response
+				org.apache.http.Header locationHeader = uploadResponse.getHeaders("Location")[0];
+				String planLocation = "";
+				
+				if (locationHeader == null) {
+					// no location header sent back, construct inputParam url
+					planLocation = this.state.getPostUrl() + planTmpFile.getName();
+				} else {
+					planLocation = locationHeader.getValue();
+				}
+				
+				BuildPlan buildPlan = buildPlans.get(0);
+				/*
+				 * http://localhost:8080/winery/servicetemplates/http%253A%252F%252F
+				 * example
+				 * .com%252Fhello/HelloAppTest/plans/HelloAppTest_buildPlan
+				 * .zip/inputparameters/?name=test&required=on&type=String *
+				 */
+				
+				// post the parameters
+				for (String inputParam : buildPlan.getWsdl().getInputMessageLocalNames()) {
+					String inputParamPostUrl = planLocation + "/inputparameters/";
+					
+					List<NameValuePair> params = new ArrayList<NameValuePair>();
+					params.add(Util.createNameValuePair("name", inputParam));
+					params.add(Util.createNameValuePair("type", "String"));
+					params.add(Util.createNameValuePair("required", "on"));
+					
+					UrlEncodedFormEntity encodedForm = new UrlEncodedFormEntity(params);
+					
+					HttpResponse inputParamPostResponse = openToscaHttpService.Post(inputParamPostUrl, encodedForm);
+					if (inputParamPostResponse.getStatusLine().getStatusCode() >= 300) {
+						this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+						this.state.currentMessage = "Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl + ") " + inputParam + " failed, Service for Plan Upload sent statusCode " + inputParamPostResponse.getStatusLine().getStatusCode();
+						Util.deleteCSAR(csarId);
+						return;
+					}
+				}
+				
+				for (String outputParam : buildPlan.getWsdl().getOuputMessageLocalNames()) {
+					String outputParamPostUrl = planLocation + "/outputparameters/";
+					
+					List<NameValuePair> params = new ArrayList<NameValuePair>();
+					params.add(Util.createNameValuePair("name", outputParam));
+					params.add(Util.createNameValuePair("type", "String"));
+					params.add(Util.createNameValuePair("required", "on"));
+					
+					UrlEncodedFormEntity encodedForm = new UrlEncodedFormEntity(params);
+					
+					HttpResponse outputParamPostResponse = openToscaHttpService.Post(outputParamPostUrl, encodedForm);
+					if (outputParamPostResponse.getStatusLine().getStatusCode() >= 300) {
+						this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+						this.state.currentMessage = "Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl + ") " + outputParam + " failed, Service for Plan Upload sent statusCode " + outputParamPostResponse.getStatusLine().getStatusCode();
+						Util.deleteCSAR(csarId);
+						return;
+					}
+				}
+				
 				this.state.currentState = PlanGenerationStates.PLANSENT;
 				this.state.currentMessage = "Sent plan. Everythings okay";
+				Util.deleteCSAR(csarId);
+				return;
 			}
 		} catch (ClientProtocolException e) {
 			this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 			this.state.currentMessage = "Couldn't send plan.";
-			this.deleteCSAR(csarId);
+			Util.deleteCSAR(csarId);
 			return;
 		} catch (IOException e) {
 			this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 			this.state.currentMessage = "Couldn't send plan.";
-			this.deleteCSAR(csarId);
+			Util.deleteCSAR(csarId);
 			return;
 		}
-	}
-	
-	private void deleteCSAR(CSARID csarId) {
-		try {
-			ServiceRegistry.getCoreFileService().deleteCSAR(csarId);
-		} catch (SystemException e) {
-			e.printStackTrace();
-		} catch (UserException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Stores the given InputStream under the given file name
-	 * 
-	 * @param fileName the file name to store the csar under
-	 * @param uploadedInputStream an InputStream to the csar file to store
-	 * @return the CSARID of the stored CSAR
-	 */
-	private CSARID storeCSAR(String fileName, InputStream uploadedInputStream) {
-		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
-		tmpDir.mkdir();
-		
-		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + fileName);
-		
-		OutputStream out;
-		
-		try {
-			out = new FileOutputStream(uploadFile);
-			int read = 0;
-			byte[] bytes = new byte[1024];
-			
-			while ((read = uploadedInputStream.read(bytes)) != -1) {
-				out.write(bytes, 0, read);
-			}
-			
-			uploadedInputStream.close();
-			
-			out.flush();
-			out.close();
-			
-			return ServiceRegistry.getCoreFileService().storeCSAR(uploadFile.toPath());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (UserException e) {
-			e.printStackTrace();
-			return null;
-		} catch (SystemException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-	}
-	
-	/**
-	 * Generates for the given CSAR (denoted by it's id) BuildPlans
-	 * 
-	 * @param csarId the Id of the CSAR to generate plans for
-	 * @return a List of BuildPlans containing the generated BuildPlans
-	 */
-	private List<BuildPlan> startPlanBuilder(CSARID csarId) {
-		Importer planBuilderImporter = new Importer();
-		
-		List<BuildPlan> buildPlans = planBuilderImporter.importDefs(csarId);
-		
-		return buildPlans;
-	}
-	
-	/**
-	 * Writes given BuildPlan to temporary folder.
-	 * 
-	 * @param buildPlan a BuildPlan
-	 * @return a File denoting the export location
-	 */
-	private File writePlan2TmpFolder(BuildPlan buildPlan) {
-		Exporter planBuilderExporter = new Exporter();
-		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
-		tmpDir.mkdir();
-		
-		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip");
-		
-		try {
-			planBuilderExporter.export(uploadFile.toURI(), buildPlan);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (JAXBException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-		return uploadFile;
 	}
 }
