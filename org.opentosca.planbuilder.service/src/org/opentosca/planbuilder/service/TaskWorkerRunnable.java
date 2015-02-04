@@ -52,6 +52,8 @@ public class TaskWorkerRunnable implements Runnable {
 	
 	@Override
 	public void run() {
+		
+		LOG.debug("Starting to download CSAR");
 		this.state.currentState = PlanGenerationState.PlanGenerationStates.CSARDOWNLOADING;
 		// download csar
 		IHTTPService openToscaHttpService = ServiceRegistry.getHTTPService();
@@ -59,42 +61,51 @@ public class TaskWorkerRunnable implements Runnable {
 		if (openToscaHttpService == null) {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
 			this.state.currentMessage = "Couldn't aquire internal HTTP Service to download CSAR";
+			LOG.error("Couldn't aquire internal HTTP Service to download CSAR");
 			return;
 		}
 		
 		InputStream csarInputStream = null;
 		try {
+			LOG.debug("Downloading CSAR " + this.state.getCsarUrl());
 			HttpResponse csarResponse = openToscaHttpService.Get(this.state.getCsarUrl().toString());
 			csarInputStream = csarResponse.getEntity().getContent();
 		} catch (ClientProtocolException e) {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
 			this.state.currentMessage = "Couldn't download CSAR";
+			LOG.error("Couldn't download CSAR");
 			return;
 		} catch (IOException e) {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
 			this.state.currentMessage = "Couldn't download CSAR";
+			LOG.error("Couldn't download CSAR");
 			return;
 		}
 		
 		if (csarInputStream == null) {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
 			this.state.currentMessage = "Couldn't download CSAR";
+			LOG.error("Couldn't download CSAR");
 			return;
 		}
 		
 		this.state.currentState = PlanGenerationStates.CSARDOWNLOADED;
 		this.state.currentMessage = "Downloaded CSAR";
+		LOG.debug("CSAR download finished");
 		
 		// generate plan (assumption: the send csar contains only one
 		// topologytemplate => only one buildPlan will be generated
+		LOG.debug("Storing CSAR");
 		CSARID csarId = Util.storeCSAR(System.currentTimeMillis() + ".csar", csarInputStream);
 		
 		if (csarId != null) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATING;
 			this.state.currentMessage = "Generating Plan";
+			LOG.debug("Starting to generate Plan");
 		} else {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
-			this.state.currentMessage = "Couldn't download CSAR";
+			this.state.currentMessage = "Couldn't store CSAR";
+			LOG.error("Couldn't store CSAR");
 			Util.deleteCSAR(csarId);
 			return;
 		}
@@ -105,6 +116,7 @@ public class TaskWorkerRunnable implements Runnable {
 			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
 			this.state.currentMessage = "No plans could be generated";
 			Util.deleteCSAR(csarId);
+			LOG.error("No plans could be generated");
 			return;
 		}
 		
@@ -113,6 +125,7 @@ public class TaskWorkerRunnable implements Runnable {
 		
 		this.state.currentState = PlanGenerationStates.PLANGENERATED;
 		this.state.currentMessage = "Stored and generated Plan";
+		LOG.debug("Stored and generated Plan");
 		
 		// send plan back
 		MultipartEntity mpEntity = new MultipartEntity();
@@ -125,6 +138,7 @@ public class TaskWorkerRunnable implements Runnable {
 			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
 			this.state.currentMessage = "Couldn't generate Upload request to PLANPOSTURL";
 			Util.deleteCSAR(csarId);
+			LOG.error("Couldn't generate Upload request to PLANPOSTURL");
 			return;
 		}
 		
@@ -136,6 +150,7 @@ public class TaskWorkerRunnable implements Runnable {
 			
 			this.state.currentState = PlanGenerationStates.PLANSENDING;
 			this.state.currentMessage = "Sending Plan";
+			LOG.debug("Sending Plan");
 			
 			HttpResponse uploadResponse = openToscaHttpService.Post(this.state.getPostUrl().toString(), mpEntity);
 			if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
@@ -144,6 +159,7 @@ public class TaskWorkerRunnable implements Runnable {
 				this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 				this.state.currentMessage = "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
 				Util.deleteCSAR(csarId);
+				LOG.error("Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode());
 				return;
 			} else {
 				// still need to send the parameters
@@ -183,8 +199,10 @@ public class TaskWorkerRunnable implements Runnable {
 						this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 						this.state.currentMessage = "Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl + ") " + inputParam + " failed, Service for Plan Upload sent statusCode " + inputParamPostResponse.getStatusLine().getStatusCode();
 						Util.deleteCSAR(csarId);
+						LOG.error("Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl + ") " + inputParam + " failed, Service for Plan Upload sent statusCode " + inputParamPostResponse.getStatusLine().getStatusCode());
 						return;
 					}
+					LOG.debug("Sent inputParameter " + inputParam);
 				}
 				
 				for (String outputParam : buildPlan.getWsdl().getOuputMessageLocalNames()) {
@@ -202,24 +220,29 @@ public class TaskWorkerRunnable implements Runnable {
 						this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 						this.state.currentMessage = "Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl + ") " + outputParam + " failed, Service for Plan Upload sent statusCode " + outputParamPostResponse.getStatusLine().getStatusCode();
 						Util.deleteCSAR(csarId);
+						LOG.error("Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl + ") " + outputParam + " failed, Service for Plan Upload sent statusCode " + outputParamPostResponse.getStatusLine().getStatusCode());
 						return;
 					}
+					LOG.debug("Sent outputParameter " + outputParam);
 				}
 				
 				this.state.currentState = PlanGenerationStates.PLANSENT;
 				this.state.currentMessage = "Sent plan. Everythings okay";
 				Util.deleteCSAR(csarId);
+				LOG.debug("Sent plan. Everythings okay");
 				return;
 			}
 		} catch (ClientProtocolException e) {
 			this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 			this.state.currentMessage = "Couldn't send plan.";
 			Util.deleteCSAR(csarId);
+			LOG.error("Couldn't send plan.");
 			return;
 		} catch (IOException e) {
 			this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
 			this.state.currentMessage = "Couldn't send plan.";
 			Util.deleteCSAR(csarId);
+			LOG.error("Couldn't send plan.");
 			return;
 		}
 	}
