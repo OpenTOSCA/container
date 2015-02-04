@@ -64,9 +64,9 @@ public class Handler {
 	
 	public boolean handle(TemplatePlanContext templateContext) {
 		// fetch server ip of the app
-		Variable appServerIp = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+		Variable appServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 		// fetch server ip of the db
-		Variable dbServerIp = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+		Variable dbServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 		
 		if (appServerIp == null) {
 			LOG.error("Couldn't find appropiate property for application ip");
@@ -106,11 +106,11 @@ public class Handler {
 		inputMappings.put("hostname", appServerIp);
 		
 		// find sshUser and sshKey
-		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		Variable sshUserVariable = templateContext.getPropertyVariable("SSHUser");
 		if (sshUserVariable == null) {
-			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			sshUserVariable = templateContext.getPropertyVariable("SSHUser", true);
 			if (sshUserVariable == null) {
-				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+				sshUserVariable = templateContext.getPropertyVariable("SSHUser", false);
 			}
 		}
 		
@@ -118,18 +118,18 @@ public class Handler {
 		if (sshUserVariable == null) {
 			return false;
 		} else {
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+			if (Utils.isVariableValueEmpty(sshUserVariable, templateContext)) {
 				// the property isn't set in the topology template -> we set it
 				// null here so it will be handled as an external parameter
 				sshUserVariable = null;
 			}
 		}
 		
-		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		Variable sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey");
 		if (sshKeyVariable == null) {
-			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", true);
 			if (sshKeyVariable == null) {
-				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+				sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", false);
 			}
 		}
 		
@@ -137,7 +137,7 @@ public class Handler {
 		if (sshKeyVariable == null) {
 			return false;
 		} else {
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+			if (Utils.isVariableValueEmpty(sshKeyVariable, templateContext)) {
 				// see sshUserVariable..
 				sshKeyVariable = null;
 			}
@@ -182,16 +182,16 @@ public class Handler {
 			Variable var = null;
 			switch (placeholder) {
 			case "DBAddressPlaceHolder":
-				var = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				var = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 				break;
 			case "DBUserPlaceHolder":
-				var = templateContext.getInternalPropertyVariable("DBUser");
+				var = templateContext.getPropertyVariable("DBUser");
 				break;
 			case "DBPasswordPlaceHolder":
-				var = templateContext.getInternalPropertyVariable("DBPassword");
+				var = templateContext.getPropertyVariable("DBPassword");
 				break;
 			case "DBNamePlaceHolder":
-				var = templateContext.getInternalPropertyVariable("DBName");
+				var = templateContext.getPropertyVariable("DBName");
 				break;
 			}
 			

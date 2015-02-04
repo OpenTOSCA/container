@@ -80,11 +80,11 @@ public class Handler {
 		}
 		
 		// find InstanceId Property inside ubuntu nodeTemplate
-		Variable instanceIdPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
+		Variable instanceIdPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
 		if (instanceIdPropWrapper == null) {
-			instanceIdPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
+			instanceIdPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
 			if (instanceIdPropWrapper == null) {
-				instanceIdPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, false);
+				instanceIdPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, false);
 			}
 		}
 		
@@ -95,11 +95,11 @@ public class Handler {
 		
 		// find ServerIp Property inside ubuntu nodeTemplate
 		
-		Variable serverIpPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = context.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -114,11 +114,11 @@ public class Handler {
 		for (String externalParameter : Handler.createEC2InstanceExternalInputParams) {
 			// find the variable for the inputparam
 			
-			Variable variable = context.getInternalPropertyVariable(externalParameter);
+			Variable variable = context.getPropertyVariable(externalParameter);
 			if (variable == null) {
-				variable = context.getInternalPropertyVariable(externalParameter, true);
+				variable = context.getPropertyVariable(externalParameter, true);
 				if (variable == null) {
-					variable = context.getInternalPropertyVariable(externalParameter, false);
+					variable = context.getPropertyVariable(externalParameter, false);
 				}
 			}
 			
@@ -136,7 +136,7 @@ public class Handler {
 				return false;
 			}
 			
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(variable, context)) {
+			if (Utils.isVariableValueEmpty(variable, context)) {
 				createEC2InternalExternalPropsInput.put(externalParameter, null);
 			} else {
 				createEC2InternalExternalPropsInput.put(externalParameter, variable);

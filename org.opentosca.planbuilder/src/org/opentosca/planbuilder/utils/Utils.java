@@ -406,7 +406,7 @@ public class Utils {
 	 * @return true iff the content of the given variable is empty in the
 	 *         topology template property
 	 */
-	public static boolean isTopoologyTemplatePropertyVariableEmpty(Variable variable, TemplatePlanContext context) {
+	public static boolean isVariableValueEmpty(Variable variable, TemplatePlanContext context) {
 		// check whether the property is empty --> external parameter
 		for (AbstractNodeTemplate node : context.getNodeTemplates()) {
 			if (node.getId().equals(variable.getTemplateId())) {

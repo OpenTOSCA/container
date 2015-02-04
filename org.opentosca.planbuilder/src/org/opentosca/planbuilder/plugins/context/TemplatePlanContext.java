@@ -934,7 +934,7 @@ public class TemplatePlanContext {
 	 * @return a Variable Object with TemplateId and Name, if null the whole
 	 *         Topology has no Property with the specified localName
 	 */
-	public Variable getInternalPropertyVariable(String localName) {
+	public Variable getPropertyVariable(String localName) {
 		// then on everything else
 		for (AbstractNodeTemplate infraNode : this.getAllNodeTemplates()) {
 			if ((infraNode.getProperties() == null) || (infraNode.getProperties().getDOMElement() == null)) {
@@ -964,7 +964,7 @@ public class TemplatePlanContext {
 		
 		return null;
 	}
-	
+		
 	/**
 	 *
 	 * Looks for a Property with the same localName as the given String. The
@@ -978,7 +978,7 @@ public class TemplatePlanContext {
 	 * @return a Variable Object with TemplateId and Name, if null the whole
 	 *         Infrastructure has no Property with the specified localName
 	 */
-	public Variable getInternalPropertyVariable(String localName, boolean forSource) {
+	public Variable getPropertyVariable(String localName, boolean forSource) {
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 		
 		if (this.isNodeTemplate()) {
@@ -1091,9 +1091,6 @@ public class TemplatePlanContext {
 			}
 		}
 		
-		// check on all infrastructure edges
-		// for (AbstractRelationshipTemplate infraEdge :
-		// this.getInfrastructureEdges()) {
 		for (AbstractRelationshipTemplate infraEdge : this.getAllRelationshipTemplates()) {
 			if ((infraEdge.getProperties() == null) || (infraEdge.getProperties().getDOMElement() == null)) {
 				continue;

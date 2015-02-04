@@ -261,13 +261,13 @@ public class Handler {
 		for (String toscaParam : toscaParams.keySet()) {
 			if (toscaParams.get(toscaParam).isInfraPathSet()) {
 				if (toscaParams.get(toscaParam).lookOnSourcePath()) {
-					mappings.put(toscaParam, context.getInternalPropertyVariable(toscaParam, true));
+					mappings.put(toscaParam, context.getPropertyVariable(toscaParam, true));
 				} else {
-					mappings.put(toscaParam, context.getInternalPropertyVariable(toscaParam, false));
+					mappings.put(toscaParam, context.getPropertyVariable(toscaParam, false));
 				}
 			} else {
 				// no infrapath set look trough whole Topology
-				mappings.put(toscaParam, context.getInternalPropertyVariable(toscaParam));
+				mappings.put(toscaParam, context.getPropertyVariable(toscaParam));
 			}
 		}
 		return mappings;

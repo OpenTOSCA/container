@@ -116,11 +116,11 @@ public class Handler {
 		Map<String, Variable> internalExternalPropsOutput = new HashMap<String, Variable>();
 		
 		for (AbstractParameter para : operation.getInputParameters()) {
-			Variable propWrapper = context.getInternalPropertyVariable(para.getName());
+			Variable propWrapper = context.getPropertyVariable(para.getName());
 			if (propWrapper == null) {
-				propWrapper = context.getInternalPropertyVariable(para.getName(), true);
+				propWrapper = context.getPropertyVariable(para.getName(), true);
 				if (propWrapper == null) {
-					propWrapper = context.getInternalPropertyVariable(para.getName(), false);
+					propWrapper = context.getPropertyVariable(para.getName(), false);
 				}
 			}
 			
@@ -128,11 +128,11 @@ public class Handler {
 		}
 		
 		for (AbstractParameter para : operation.getOutputParameters()) {
-			Variable propWrapper = context.getInternalPropertyVariable(para.getName());
+			Variable propWrapper = context.getPropertyVariable(para.getName());
 			if (propWrapper == null) {
-				propWrapper = context.getInternalPropertyVariable(para.getName(), true);
+				propWrapper = context.getPropertyVariable(para.getName(), true);
 				if (propWrapper == null) {
-					propWrapper = context.getInternalPropertyVariable(para.getName(), false);
+					propWrapper = context.getPropertyVariable(para.getName(), false);
 				}
 			}
 			internalExternalPropsOutput.put(para.getName(), propWrapper);

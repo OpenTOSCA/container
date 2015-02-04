@@ -60,11 +60,11 @@ public class Handler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		
-		Variable serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -88,11 +88,11 @@ public class Handler {
 		}
 		
 		// find sshUser and sshKey
-		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		Variable sshUserVariable = templateContext.getPropertyVariable("SSHUser");
 		if (sshUserVariable == null) {
-			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			sshUserVariable = templateContext.getPropertyVariable("SSHUser", true);
 			if (sshUserVariable == null) {
-				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+				sshUserVariable = templateContext.getPropertyVariable("SSHUser", false);
 			}
 		}
 		
@@ -100,18 +100,18 @@ public class Handler {
 		if (sshUserVariable == null) {
 			return false;
 		} else {
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+			if (Utils.isVariableValueEmpty(sshUserVariable, templateContext)) {
 				// the property isn't set in the topology template -> we set it
 				// null here so it will be handled as an external parameter
 				sshUserVariable = null;
 			}
 		}
 		
-		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		Variable sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey");
 		if (sshKeyVariable == null) {
-			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", true);
 			if (sshKeyVariable == null) {
-				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+				sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", false);
 			}
 		}
 		
@@ -119,7 +119,7 @@ public class Handler {
 		if (sshKeyVariable == null) {
 			return false;
 		} else {
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+			if (Utils.isVariableValueEmpty(sshKeyVariable, templateContext)) {
 				// see sshUserVariable..
 				sshKeyVariable = null;
 			}
