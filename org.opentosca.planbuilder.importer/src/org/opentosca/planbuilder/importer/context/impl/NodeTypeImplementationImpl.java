@@ -52,6 +52,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 		this.tags = new ArrayList<AbstractTag>();
 		this.ias = new ArrayList<AbstractImplementationArtifact>();
 		this.das = new ArrayList<AbstractDeploymentArtifact>();
+		LOG.debug("Initializing NodeTypeImplementation {" + this.nodeTypeImpl.getTargetNamespace() + "}" + this.nodeTypeImpl.getName());
 		this.initTags();
 		this.initIas();
 		this.initDas();
@@ -60,7 +61,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	/**
 	 * Initializes the internal IAs
 	 */
-	private void initIas() {
+	private void initIas() {		
 		if (this.nodeTypeImpl.getImplementationArtifacts() != null) {
 			for (TImplementationArtifact artifact : this.nodeTypeImpl.getImplementationArtifacts().getImplementationArtifact()) {
 				this.ias.add(new ImplementationArtifactImpl(artifact, this.definitions));
