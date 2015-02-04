@@ -56,16 +56,18 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 		this.initIas();
 		this.initDas();
 	}
-
+	
 	/**
 	 * Initializes the internal IAs
 	 */
 	private void initIas() {
-		for (TImplementationArtifact artifact : this.nodeTypeImpl.getImplementationArtifacts().getImplementationArtifact()) {
-			this.ias.add(new ImplementationArtifactImpl(artifact, this.definitions));
+		if (this.nodeTypeImpl.getImplementationArtifacts() != null) {
+			for (TImplementationArtifact artifact : this.nodeTypeImpl.getImplementationArtifacts().getImplementationArtifact()) {
+				this.ias.add(new ImplementationArtifactImpl(artifact, this.definitions));
+			}
 		}
 	}
-
+	
 	/**
 	 * Initializes the internal DAs
 	 */
@@ -76,7 +78,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 			}
 		}
 	}
-
+	
 	/**
 	 * Initializes the internal Tags
 	 */
@@ -87,7 +89,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 			}
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -95,7 +97,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public String getName() {
 		return this.nodeTypeImpl.getName();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -103,7 +105,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public String getTargetNamespace() {
 		return this.nodeTypeImpl.getTargetNamespace();
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -111,7 +113,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public boolean isAbstract() {
 		return this.nodeTypeImpl.getAbstract().value().equals("yes") ? true : false;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -119,7 +121,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public boolean isFinal() {
 		return this.nodeTypeImpl.getFinal().value().equals("yes") ? true : false;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -127,7 +129,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
 	public List<AbstractTag> getTags() {
 		return this.tags;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
