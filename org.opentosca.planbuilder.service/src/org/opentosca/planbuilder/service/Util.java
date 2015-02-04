@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -19,6 +20,8 @@ import org.opentosca.exceptions.UserException;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -64,10 +67,23 @@ public class Util {
 	 */
 	public static List<BuildPlan> startPlanBuilder(CSARID csarId) {
 		Importer planBuilderImporter = new Importer();
+		List<BuildPlan> plans = new ArrayList<BuildPlan>();
+		try {
+			AbstractDefinitions defs = planBuilderImporter.createContext(ServiceRegistry.getCoreFileService().getCSAR(csarId));
+			
+			for (AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
+				plans.add(planBuilderImporter.buildPlan(defs, csarId.getFileName(), serviceTemplate.getQName()));
+			}
+						
+		} catch (SystemException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		List<BuildPlan> buildPlans = planBuilderImporter.importDefs(csarId);
-		
-		return buildPlans;
+		return plans;
 	}
 	
 	public static void deleteCSAR(CSARID csarId) {

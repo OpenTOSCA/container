@@ -144,7 +144,7 @@ public class TaskWorkerRunnable implements Runnable {
 		
 		FileBody bin = new FileBody(planTmpFile);
 		ContentBody cb = (ContentBody) bin;
-		mpEntity.addPart("planfile", cb);
+		mpEntity.addPart("file", cb);
 		
 		try {
 			
