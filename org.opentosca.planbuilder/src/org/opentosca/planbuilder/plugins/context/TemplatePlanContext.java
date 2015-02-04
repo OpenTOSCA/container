@@ -627,7 +627,7 @@ public class TemplatePlanContext {
 	 *            context belongs to
 	 * @return a String containing the variable name of the property, else null
 	 */
-	public String getVariableNameOfPropertyOfTemplateInContext(String propertyName) {
+	public String getVarNameOfTemplateProperty(String propertyName) {
 		Map<String, String> propertyMapping = null;
 		if (this.templateBuildPlan.getNodeTemplate() != null) {
 			propertyMapping = this.propertyMap.getPropertyMappingMap(this.templateBuildPlan.getNodeTemplate().getId());
@@ -1045,7 +1045,7 @@ public class TemplatePlanContext {
 			for (int index = 0; index < TemplateChilde.getLength(); index++) {
 				Node nodeTemplateProp = TemplateChilde.item(index);
 				if (matchMap.containsKey(nodeTemplateProp.getLocalName()) && (matchMap.get(nodeTemplateProp.getLocalName()) == null)) {
-					matchMap.put(nodeTemplateProp.getLocalName(), new Variable(this.getNodeTemplate().getId(), this.getVariableNameOfPropertyOfTemplateInContext(nodeTemplateProp.getLocalName())));
+					matchMap.put(nodeTemplateProp.getLocalName(), new Variable(this.getNodeTemplate().getId(), this.getVarNameOfTemplateProperty(nodeTemplateProp.getLocalName())));
 				}
 			}
 		}

@@ -412,7 +412,7 @@ public class Handler {
 			Node child = childList.item(i);
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
 				String propertyName = child.getLocalName();
-				String propVarName = context.getVariableNameOfPropertyOfTemplateInContext(propertyName);
+				String propVarName = context.getVarNameOfTemplateProperty(propertyName);
 				mapping.put(propVarName, child);
 			}
 			
