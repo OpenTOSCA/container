@@ -124,7 +124,7 @@ public class BuildPlan {
 	
 	
 	/**
-	 * Returns a id for the plugins to make there declarations unique
+	 * Returns a id for the plugins to make their declarations unique
 	 * 
 	 * @return an Integer
 	 */

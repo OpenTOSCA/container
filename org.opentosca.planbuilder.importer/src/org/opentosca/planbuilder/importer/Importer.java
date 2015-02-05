@@ -36,9 +36,9 @@ public class Importer extends AbstractImporter {
 
 
 	/**
-	 * Generates a List of BuildPlan for the given CSARID. The BuildPlans are
-	 * generate for the ServiceTemplates inside the Entry-Definitions Document
-	 * which don't have a BuildPlan defined
+	 * Generates a List of BuildPlans for the given CSARID. The BuildPlans are
+	 * generated for the ServiceTemplates inside the Entry-Definitions Document,
+	 * that haven't got a BuildPlan yet.
 	 *
 	 * @param csarId the CSARID for the CSAR the BuildPlans should be generated
 	 * @return a List of BuildPlan
