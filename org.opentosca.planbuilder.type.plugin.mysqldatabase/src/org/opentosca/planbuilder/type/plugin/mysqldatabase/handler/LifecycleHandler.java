@@ -1,9 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.mysqldatabase.handler;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,12 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
@@ -28,15 +22,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.constants.PluginConstants;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
-import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
 import org.opentosca.planbuilder.type.plugin.mysqldatabase.Constants;
 import org.opentosca.planbuilder.utils.Utils;
-import org.osgi.framework.FrameworkUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -46,14 +34,7 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class Handler {
-	
-	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-	private Plugin invokerPlugin = new Plugin();
-	
-	private DocumentBuilderFactory docFactory;
-	private DocumentBuilder docBuilder;
-	
+public class LifecycleHandler extends AbstractHandler {
 	
 	/**
 	 * Constructor
@@ -61,38 +42,47 @@ public class Handler {
 	 * @throws ParserConfigurationException is thrown when initializing the DOM
 	 *             Parsers fails
 	 */
-	public Handler() throws ParserConfigurationException {
+	public LifecycleHandler() throws ParserConfigurationException {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		
 	}
 	
+	/**
+	 * Uploads configureDB.sh (see META-INF/) and executes it on found VM.
+	 * Uploads all provided DeploymentArtifacts and ImplementationArtifacts
+	 * (plus executing the scripts).
+	 * 
+	 * @param templateContext the templateContext of the nodeTemplate to
+	 *            provision
+	 * @param impl the selected noteTypeImplementation
+	 * @return true iff adding appropiate bpel constructs was successful
+	 */
 	public boolean handle(TemplatePlanContext templateContext, AbstractNodeTypeImplementation impl) {
 		
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		
-		Variable serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getInternalPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
 		if (serverIpPropWrapper == null) {
-			Handler.LOG.warn("No Infrastructure Node available with ServerIp property");
+			AbstractHandler.LOG.warn("No Infrastructure Node available with ServerIp property");
 			return false;
 		}
 		
-		// fetch sshUser and sshKey
 		// find sshUser and sshKey
-		Variable sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser");
+		Variable sshUserVariable = templateContext.getPropertyVariable("SSHUser");
 		if (sshUserVariable == null) {
-			sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", true);
+			sshUserVariable = templateContext.getPropertyVariable("SSHUser", true);
 			if (sshUserVariable == null) {
-				sshUserVariable = templateContext.getInternalPropertyVariable("SSHUser", false);
+				sshUserVariable = templateContext.getPropertyVariable("SSHUser", false);
 			}
 		}
 		
@@ -100,18 +90,18 @@ public class Handler {
 		if (sshUserVariable == null) {
 			return false;
 		} else {
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshUserVariable, templateContext)) {
+			if (Utils.isVariableValueEmpty(sshUserVariable, templateContext)) {
 				// the property isn't set in the topology template -> we set it
 				// null here so it will be handled as an external parameter
 				sshUserVariable = null;
 			}
 		}
 		
-		Variable sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey");
+		Variable sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey");
 		if (sshKeyVariable == null) {
-			sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", true);
+			sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", true);
 			if (sshKeyVariable == null) {
-				sshKeyVariable = templateContext.getInternalPropertyVariable("SSHPrivateKey", false);
+				sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", false);
 			}
 		}
 		
@@ -119,7 +109,7 @@ public class Handler {
 		if (sshKeyVariable == null) {
 			return false;
 		} else {
-			if (Utils.isTopoologyTemplatePropertyVariableEmpty(sshKeyVariable, templateContext)) {
+			if (Utils.isVariableValueEmpty(sshKeyVariable, templateContext)) {
 				// see sshUserVariable..
 				sshKeyVariable = null;
 			}
@@ -132,13 +122,13 @@ public class Handler {
 			if (Constants.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString().equals(node.getType().getId().toString())) {
 				templateId = node.getId();
 			}
-			if(Constants.ubuntu1310ServerNodeType.toString().equals(node.getType().getId().toString())){
+			if (Constants.ubuntu1310ServerNodeType.toString().equals(node.getType().getId().toString())) {
 				templateId = node.getId();
 			}
 		}
 		
 		if (templateId.equals("")) {
-			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
+			AbstractHandler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
 		
@@ -161,115 +151,37 @@ public class Handler {
 		LOG.debug("Adding plan callback address field to plan input");
 		templateContext.addStringValueToPlanRequest("planCallbackAddress_invoker");
 		
-		// configure db script needs following parameters:
-		// Target_RootPassword Source_DBPassword Source_DBUser Source_DBName
-		// Source_mySqlPort
-		
-		// setup inputmappings
-		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
-		
-		inputMappings.put("hostname", serverIpPropWrapper);
-		inputMappings.put("sshKey", sshKeyVariable);
-		inputMappings.put("sshUser", sshUserVariable);
-		
-		// load script
-		String configureDBScript;
-		try {
-			configureDBScript = this.loadConfigDBSh();
-		} catch (IOException e) {
-			LOG.error("Couldn't read script file from resources", e);
+		if (!this.executeConfigureDBSh(serverIpPropWrapper, sshKeyVariable, sshUserVariable, templateContext, templateId)) {
 			return false;
 		}
-		long tempFolderName = System.currentTimeMillis();
-		
-		// construct first parts of bash command
-		String bashCommand = "mkdir ~/" + tempFolderName + "; touch ~/" + tempFolderName + "/configureDB.sh;touch ~/" + tempFolderName + "/dump.txt; echo \"" + configureDBScript.replace("\"", "\\\"").replace("$", "\\$").replace("`", "\\`") + "\" > ~/" + tempFolderName + "/configureDB.sh;";
-		
-		// now we append env vars to the sh call of the full bash command and
-		// while we do this, also construct an xpath query which replaces the
-		// generated placeholders with runtime values
-		String envVarString = "";
-		String xpathQueryPrefix = "";
-		String xpathQuerySuffix = "";
-		
-		for (String param : Constants.configureDBScriptParameters) {
-			
-			String[] split = param.split("_");
-			String paramName = split[1];
-			
-			Variable var = templateContext.getInternalPropertyVariable(paramName);
-			if (var == null) {
-				var = templateContext.getInternalPropertyVariable(paramName, true);
-				if (var == null) {
-					var = templateContext.getInternalPropertyVariable(paramName, false);
-				}
-			}
-			
-			envVarString += param + "=$" + param + "$ ";
-			xpathQueryPrefix += "replace(";
-			xpathQuerySuffix += ",'\\$" + param + "\\$',";
-			if (var == null) {
-				// param is external
-				xpathQuerySuffix += "$" + templateContext.getPlanRequestMessageName() + ".payload//*[local-name()='" + param + "']/text())";
-				templateContext.addStringValueToPlanRequest(paramName);
-			} else {
-				// param is internal
-				xpathQuerySuffix += "$" + var.getName() + ")";
-				
-			}
-		}
-		
-		String shCall = "sudo " + envVarString + " sh ~/" + tempFolderName + "/configureDB.sh";
-		bashCommand += shCall + " > ~/" + tempFolderName + "/dump.txt";
-		
-		// generate string var with the bashcommand
-		String configureDBShVarName = "configureDBShScript" + templateContext.getIdForNames();
-		Variable configureDBShStringVar = templateContext.createGlobalStringVariable(configureDBShVarName, bashCommand);
-		String xpathQuery = xpathQueryPrefix + "$" + configureDBShStringVar.getName() + xpathQuerySuffix;
-		
-		try {
-			// create assign and append
-			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignShCallScriptVar", xpathQuery, configureDBShStringVar.getName());
-			assignNode = templateContext.importNode(assignNode);
-			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
-		} catch (IOException e) {
-			LOG.error("Couldn't load fragment from file", e);
-			return false;
-		} catch (SAXException e) {
-			LOG.error("Couldn't parse fragment to DOM", e);
-			return false;
-		}
-		
-		// add script to input
-		inputMappings.put("script", configureDBShStringVar);
-		
-		// use invoker now to execute the script
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
 		
 		/*
 		 * here we upload da's and ia's, afterwards we try to execute the ia's
 		 * as operations
 		 */
 		
+		/*
+		 * upload DA's
+		 */
 		List<AbstractArtifactReference> refs = null;
 		if (impl == null) {
 			refs = this.getDeploymentArtifactRefs(templateContext.getNodeTemplate().getDeploymentArtifacts());
 		} else {
 			Set<AbstractDeploymentArtifact> das = Utils.computeEffectiveDeploymentArtifacts(templateContext.getNodeTemplate(), impl);
-			Handler.LOG.debug("Found following DA's while computing effective set of DA's");
+			AbstractHandler.LOG.debug("Found following DA's while computing effective set of DA's");
 			for (AbstractDeploymentArtifact da : das) {
-				Handler.LOG.debug(da.getName());
+				AbstractHandler.LOG.debug(da.getName());
 			}
 			refs = this.getDeploymentArtifactRefs(das);
 		}
 		
 		// add file upload of DA
 		if (refs.isEmpty()) {
-			Handler.LOG.warn("No usable DA provided for NodeTemplate");
+			AbstractHandler.LOG.warn("No usable DA provided for NodeTemplate");
 		} else {
-			Handler.LOG.debug("Found following ArtifactReferences:");
+			AbstractHandler.LOG.debug("Found following ArtifactReferences:");
 			for (AbstractArtifactReference ref : refs) {
-				Handler.LOG.debug(ref.getReference());
+				AbstractHandler.LOG.debug(ref.getReference());
 			}
 		}
 		
@@ -277,7 +189,18 @@ public class Handler {
 			this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable, sshKeyVariable, templateId);
 		}
 		
+		/*
+		 * upload IA and execute sh script with parameters/property values as
+		 * env variables to the script
+		 */
 		if (impl != null) {
+			
+			Map<String, Variable> inputMappings = new HashMap<String, Variable>();
+			
+			inputMappings.put("hostname", serverIpPropWrapper);
+			inputMappings.put("sshKey", sshKeyVariable);
+			inputMappings.put("sshUser", sshUserVariable);
+			
 			// call the operations of the lifecycleinterface
 			LOG.debug("Handling Lifecycle operations:");
 			Map<AbstractOperation, AbstractImplementationArtifact> opIaMap = this.getLifecycleOperations(impl);
@@ -289,79 +212,18 @@ public class Handler {
 				for (AbstractArtifactReference ref : opIaMap.get(op).getArtifactRef().getArtifactReferences()) {
 					this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable, sshKeyVariable, templateId);
 					
-					Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
-					
-					runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
-					runScriptRequestInputParams.put("sshKey", sshKeyVariable);
-					runScriptRequestInputParams.put("sshUser", sshUserVariable);
-					
 					Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, op, ref);
 					
-					runScriptRequestInputParams.put("script", runShScriptStringVar);
+					// reusing already set mappings
+					inputMappings.put("script", runShScriptStringVar);
 					
-					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
 					
 				}
 			}
 		}
 		
 		return true;
-	}
-	
-	/**
-	 * Loads configureDB.sh from resources. Script generates empty database on a
-	 * mysql server
-	 *
-	 * @return a String containing a bash script
-	 * @throws IOException is thrown when reading file from resources fails
-	 */
-	private String loadConfigDBSh() throws IOException {
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("configureDB.sh");
-		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-		String template = FileUtils.readFileToString(bpelfragmentfile);
-		return template;
-	}
-	
-	/**
-	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
-	 * input message into String variable.
-	 *
-	 * @param assignName the name of the BPEL assign
-	 * @param xpath2Query the csarEntryPoint XPath query
-	 * @param stringVarName the variable to load the queries results into
-	 * @return a String containing a BPEL Assign element
-	 * @throws IOException is thrown when reading the BPEL fragment form the
-	 *             resources fails
-	 */
-	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query, String stringVarName) throws IOException {
-		// <!-- {AssignName},{xpath2query}, {stringVarName} -->
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
-		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
-		String template = FileUtils.readFileToString(bpelFragmentFile);
-		template = template.replace("{AssignName}", assignName);
-		template = template.replace("{xpath2query}", xpath2Query);
-		template = template.replace("{stringVarName}", stringVarName);
-		return template;
-	}
-	
-	/**
-	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
-	 * input message into String variable.
-	 *
-	 * @param assignName the name of the BPEL assign
-	 * @param csarEntryXpathQuery the csarEntryPoint XPath query
-	 * @param stringVarName the variable to load the queries results into
-	 * @return a DOM Node representing a BPEL assign element
-	 * @throws IOException is thrown when loading internal bpel fragments fails
-	 * @throws SAXException is thrown when parsing internal format into DOM
-	 *             fails
-	 */
-	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query, String stringVarName) throws IOException, SAXException {
-		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(templateString));
-		Document doc = this.docBuilder.parse(is);
-		return doc.getFirstChild();
 	}
 	
 	/**
@@ -403,11 +265,11 @@ public class Handler {
 		for (AbstractParameter parameter : operation.getInputParameters()) {
 			// First compute mappings from operation parameters to
 			// property/inputfield
-			Variable var = templateContext.getInternalPropertyVariable(parameter.getName());
+			Variable var = templateContext.getPropertyVariable(parameter.getName());
 			if (var == null) {
-				var = templateContext.getInternalPropertyVariable(parameter.getName(), true);
+				var = templateContext.getPropertyVariable(parameter.getName(), true);
 				if (var == null) {
-					var = templateContext.getInternalPropertyVariable(parameter.getName(), false);
+					var = templateContext.getPropertyVariable(parameter.getName(), false);
 				}
 			}
 			inputMappings.put(parameter.getName(), var);
@@ -447,10 +309,8 @@ public class Handler {
 			assignNode = templateContext.importNode(assignNode);
 			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			LOG.error("Couldn't load fragment from file", e);
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			LOG.error("Couldn't parse fragment to DOM", e);
 		}
 		return runShScriptStringVar;
