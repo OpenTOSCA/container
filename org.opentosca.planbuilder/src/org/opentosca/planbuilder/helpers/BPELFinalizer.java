@@ -258,7 +258,7 @@ public class BPELFinalizer {
 		Collections.reverse(sequentialOrder);
 		
 		for (TemplateBuildPlan template : sequentialOrder) {
-			BPELFinalizer.LOG.info("Seq order: " + template.getBpelScopeElement().getAttribute("name"));
+			BPELFinalizer.LOG.debug("Seq order: " + template.getBpelScopeElement().getAttribute("name"));
 		}
 		
 		List<String> links = this.buildPlanHandler.getAllLinks(buildPlan);

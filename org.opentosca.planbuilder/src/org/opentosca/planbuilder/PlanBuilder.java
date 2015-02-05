@@ -437,7 +437,7 @@ public class PlanBuilder {
 				this.planHandler.addLink(sourceToRelationlinkName, buildPlan);
 
 				// second: connect source with relationship as target
-				PlanBuilder.LOG.info("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
 
 				// third: generate global link for the target to relation
@@ -446,7 +446,7 @@ public class PlanBuilder {
 				this.planHandler.addLink(targetToRelationlinkName, buildPlan);
 
 				// fourth: connect target with relationship as target
-				PlanBuilder.LOG.info("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
 
 			} else if (baseType.toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
@@ -460,7 +460,7 @@ public class PlanBuilder {
 				this.planHandler.addLink(sourceToRelationLinkName, buildPlan);
 
 				// second: connect source to relation
-				PlanBuilder.LOG.info("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
 
 				// third: generate global link for the relation to target
@@ -469,7 +469,7 @@ public class PlanBuilder {
 				this.planHandler.addLink(relationToTargetLinkName, buildPlan);
 
 				// fourth: connect relation to target
-				PlanBuilder.LOG.info("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				PlanBuilder.LOG.debug("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(relationshipPlan, target, relationToTargetLinkName);
 			}
 
