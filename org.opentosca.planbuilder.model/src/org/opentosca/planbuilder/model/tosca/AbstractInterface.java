@@ -9,7 +9,7 @@ import java.util.List;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * @author Kálmán Képes - kepsekn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kepsekn@studi.informatik.uni-stuttgart.de
  * 
  */
 public abstract class AbstractInterface {

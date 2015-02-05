@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
 public class BuildPlan {
@@ -35,7 +35,7 @@ public class BuildPlan {
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
 	 * 
-	 * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
 	 * 
 	 */
 	public enum VariableType {
@@ -49,7 +49,7 @@ public class BuildPlan {
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
 	 * 
-	 * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
 	 * 
 	 */
 	public enum ImportType {

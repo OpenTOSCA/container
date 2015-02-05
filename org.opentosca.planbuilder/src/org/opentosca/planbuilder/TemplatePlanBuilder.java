@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
 public class TemplatePlanBuilder {
@@ -58,7 +58,7 @@ public class TemplatePlanBuilder {
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
 	 * 
-	 * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
 	 * 
 	 */
 	public static class ProvisioningChain {
@@ -251,7 +251,7 @@ public class TemplatePlanBuilder {
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
 	 * 
-	 * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
 	 * 
 	 */
 	private static class ProvCandidateWrapper {
@@ -377,7 +377,7 @@ public class TemplatePlanBuilder {
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
 	 * 
-	 * @author Kálmán Képes kepeskn@studi.informatik.uni-stuttgart.de
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
 	 * 
 	 */
 	private static class DACandidateWrapper {
@@ -431,7 +431,7 @@ public class TemplatePlanBuilder {
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
 	 * 
-	 * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
 	 * 
 	 */
 	private static class IACandidateWrapper {

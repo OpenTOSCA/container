@@ -20,32 +20,28 @@ import org.slf4j.LoggerFactory;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
 public class CSARHandler {
-	
-	final private static Logger LOG = LoggerFactory.getLogger(CSARHandler.class);
-	
-	
+
+	final private static Logger LOG = LoggerFactory
+			.getLogger(CSARHandler.class);
+
 	/**
 	 * Stores a CSAR given as file object
 	 * 
-	 * @param file File referencing a CSAR
+	 * @param file
+	 *            File referencing a CSAR
 	 * @return an Object representing an ID of the stored CSAR, if something
 	 *         went wrong null is returned instead
 	 * @throws SystemException
 	 * @throws UserException
 	 */
 	public Object storeCSAR(File file) throws UserException, SystemException {
-		CSARHandler.LOG.debug("Retrieving bundle context");
-		BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		CSARHandler.LOG.debug("Retrieving ServiceReference for ICoreFileService");
-		ServiceReference<?> fileServiceRef = bundleContext.getServiceReference(ICoreFileService.class.getName());
-		CSARHandler.LOG.debug("Retrieving Service for ICoreFileService");
-		ICoreFileService fileService = (ICoreFileService) bundleContext.getService(fileServiceRef);
-		
 		CSARHandler.LOG.debug("Trying to store csar");
+		ICoreFileService fileService = this.fetchCoreFileService();
+
 		CSARID csarId = fileService.storeCSAR(file.toPath());
 		if (csarId == null) {
 			CSARHandler.LOG.warn("Storing CSAR file failed");
@@ -54,44 +50,59 @@ public class CSARHandler {
 		CSARHandler.LOG.info("Storing CSAR file was successful");
 		return csarId;
 	}
-	
+
 	/**
 	 * Deletes all CSARs in the OpenTOSCA Core
 	 */
 	public void deleteAllCsars() {
-		CSARHandler.LOG.debug("Retrieving bundle context");
-		BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		CSARHandler.LOG.debug("Retrieving ServiceReference for ICoreFileService");
-		ServiceReference<?> fileServiceRef = bundleContext.getServiceReference(ICoreFileService.class.getName());
-		CSARHandler.LOG.debug("Retrieving Service for ICoreFileService");
-		ICoreFileService fileService = (ICoreFileService) bundleContext.getService(fileServiceRef);
-		
-		CSARHandler.LOG.info("Deleted all CSAR files");
+		CSARHandler.LOG.info("Deleting all CSAR files");
+		ICoreFileService fileService = this.fetchCoreFileService();
+
 		try {
 			fileService.deleteCSARs();
 		} catch (SystemException e) {
-			
+
 		}
 	}
-	
+
 	/**
 	 * Returns a CSARContent Object for the given CSARID
 	 * 
-	 * @param id a CSARID
+	 * @param id
+	 *            a CSARID
 	 * @return the CSARContent for the given CSARID
-	 * @throws UserException is thrown when something inside the OpenTOSCA Core
-	 *             fails
+	 * @throws UserException
+	 *             is thrown when something inside the OpenTOSCA Core fails
 	 */
 	public CSARContent getCSARContentForID(CSARID id) throws UserException {
-		CSARHandler.LOG.debug("Retrieving bundle context");
-		BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		CSARHandler.LOG.debug("Retrieving ServiceReference for ICoreFileService");
-		ServiceReference<?> fileServiceRef = bundleContext.getServiceReference(ICoreFileService.class.getName());
-		CSARHandler.LOG.debug("Retrieving Service for ICoreFileService");
-		ICoreFileService fileService = (ICoreFileService) bundleContext.getService(fileServiceRef);
-		
-		return fileService.getCSAR(id);
-		
+		LOG.debug("Fetching CSARContent for given ID");
+		return this.fetchCoreFileService().getCSAR(id);
 	}
-	
+
+	private ICoreFileService fetchCoreFileService() {
+		CSARHandler.LOG.debug("Retrieving bundle context");
+		BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass())
+				.getBundleContext();
+
+		if (bundleContext == null) {
+			CSARHandler.LOG
+					.debug("BundleContext from FrameworkUtil is null. Fallback to Activator.");
+			bundleContext = Activator.bundleContext;
+		}
+
+		if (bundleContext != null) {
+			CSARHandler.LOG
+					.debug("Retrieving ServiceReference for ICoreFileService");
+			ServiceReference<?> fileServiceRef = bundleContext
+					.getServiceReference(ICoreFileService.class.getName());
+			CSARHandler.LOG.debug("Retrieving Service for ICoreFileService");
+			ICoreFileService fileService = (ICoreFileService) bundleContext
+					.getService(fileServiceRef);
+			return fileService;
+		} else {
+			LOG.debug("BundleContext still null. Fallback to ServiceRegistry");
+			return ServiceRegistry.getCoreFileService();
+		}
+	}
+
 }

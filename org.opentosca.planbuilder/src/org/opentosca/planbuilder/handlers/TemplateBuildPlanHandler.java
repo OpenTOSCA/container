@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
 public class TemplateBuildPlanHandler {

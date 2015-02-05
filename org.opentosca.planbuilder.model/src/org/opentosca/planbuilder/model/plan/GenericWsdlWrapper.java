@@ -21,13 +21,13 @@ import org.osgi.framework.FrameworkUtil;
  * declarations at defined points. The WSDL declares a single PortType for
  * invoking the BuildPlan and second for callback. Both have a single one-way
  * operation defined. With the given operations of this class, the messages can
- * have additional element defined, which can be used by the plugins to fetch
+ * have additional elements defined, which can be used by the plugins to fetch
  * data outside of the TopoloyTemplate scope.
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * @author Kálmán Képes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
 public class GenericWsdlWrapper {
