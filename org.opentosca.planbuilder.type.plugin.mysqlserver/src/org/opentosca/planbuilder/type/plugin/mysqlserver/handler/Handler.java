@@ -18,6 +18,7 @@ import org.opentosca.planbuilder.plugins.constants.PluginConstants;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
+import org.opentosca.planbuilder.type.plugin.mysqlserver.Constants;
 import org.opentosca.planbuilder.utils.Utils;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -81,15 +82,15 @@ public class Handler {
 		
 		// fetch server ip of the vm this apache http will be installed on
 		
-		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
-		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
-			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+		Variable mySqlServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		if (mySqlServerIp == null) {
+			mySqlServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			if (mySqlServerIp == null) {
+				mySqlServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
-		if (serverIpPropWrapper == null) {
+		if (mySqlServerIp == null) {
 			Handler.LOG.warn("No Infrastructure Node available with ServerIp property");
 			return false;
 		}
@@ -173,15 +174,12 @@ public class Handler {
 		 */
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
 		
-		startRequestInputParams.put("hostname", serverIpPropWrapper);
+		startRequestInputParams.put("hostname", mySqlServerIp);
 		startRequestInputParams.put("sshUser", sshUserVariable);
 		startRequestInputParams.put("sshKey", sshKeyVariable);
 		
 		this.invokerPlugin.handle(templateContext, templateId, true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>());
 		
-		/*
-		 * Install httpd package
-		 */
 		// used for the invokerPlugin. This map contains mappings from internal
 		// variables or data which must be fetched form the input message (value
 		// of map == null)
@@ -191,7 +189,7 @@ public class Handler {
 		 * methodName: installPackage params: "hostname", "sshKey", "sshUser",
 		 * "packageNames"
 		 */
-		installPackageRequestInputParams.put("hostname", serverIpPropWrapper);
+		installPackageRequestInputParams.put("hostname", mySqlServerIp);
 		installPackageRequestInputParams.put("sshKey", sshKeyVariable);
 		installPackageRequestInputParams.put("sshUser", sshUserVariable);
 		installPackageRequestInputParams.put("packageNames", mySqlServerPackageVar);
@@ -207,7 +205,7 @@ public class Handler {
 		 */
 		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
 		
-		runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
+		runScriptRequestInputParams.put("hostname", mySqlServerIp);
 		runScriptRequestInputParams.put("sshKey", sshKeyVariable);
 		runScriptRequestInputParams.put("sshUser", sshUserVariable);
 		
@@ -239,6 +237,10 @@ public class Handler {
 		
 		// execute install script (formerly it was the install.sh script)
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		
+		if (!this.executeConfigureDBSh(mySqlServerIp, sshKeyVariable, sshUserVariable, templateContext, templateId)) {
+			return false;
+		}
 		
 		return true;
 	}
@@ -273,6 +275,151 @@ public class Handler {
 	
 	private Node loadAssignStringFromXpathQueryFragmentAsNode(String assignName, String xpathQuery, String stringVarName) throws IOException, SAXException {
 		String templateString = this.loadAssignStringFromXpathQueryFragmentAsString(assignName, xpathQuery, stringVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+	
+	protected boolean executeConfigureDBSh(Variable serverIpPropWrapper, Variable sshKeyVariable, Variable sshUserVariable, TemplatePlanContext templateContext, String templateId) {
+		// setup inputmappings
+		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
+		
+		inputMappings.put("hostname", serverIpPropWrapper);
+		inputMappings.put("sshKey", sshKeyVariable);
+		inputMappings.put("sshUser", sshUserVariable);
+		
+		// load script
+		String configureDBScript;
+		try {
+			configureDBScript = this.loadConfigDBSh();
+		} catch (IOException e) {
+			LOG.error("Couldn't read script file from resources", e);
+			return false;
+		}
+		long tempFolderName = System.currentTimeMillis();
+		
+		// construct first parts of bash command
+		String bashCommand = "mkdir ~/" + tempFolderName + "; touch ~/" + tempFolderName + "/configureDB.sh;touch ~/" + tempFolderName + "/dump.txt; echo \"" + configureDBScript.replace("\"", "\\\"").replace("$", "\\$").replace("`", "\\`") + "\" > ~/" + tempFolderName + "/configureDB.sh;";
+		
+		// now we append env vars to the sh call of the full bash command and
+		// while we do this, also construct an xpath query which replaces the
+		// generated placeholders with runtime values
+		String envVarString = "";
+		String xpathQueryPrefix = "";
+		String xpathQuerySuffix = "";
+		
+		LOG.debug("Trying to fetch parameters for configureDB.sh");
+		for (String param : Constants.configureDBScriptParameters) {
+			LOG.debug("Begin fetching parameter " + param);
+			String[] split = param.split("_");
+			String paramName = split[1];
+			
+			Variable var = templateContext.getPropertyVariable(paramName);
+			if (var == null) {
+				LOG.debug("Didn't find variable, looking for source");
+				var = templateContext.getPropertyVariable(paramName, true);
+				if (var == null) {
+					LOG.debug("Didn't find variable, looking for target");
+					var = templateContext.getPropertyVariable(paramName, false);
+				}
+			}
+			
+			envVarString += param + "=$" + param + "$ ";
+			xpathQueryPrefix += "replace(";
+			xpathQuerySuffix += ",'\\$" + param + "\\$',";
+			if (var == null) {
+				LOG.debug("Param " + param + " is external");
+				// param is external
+				xpathQuerySuffix += "$" + templateContext.getPlanRequestMessageName() + ".payload//*[local-name()='" + param + "']/text())";
+				templateContext.addStringValueToPlanRequest(paramName);
+			} else {
+				// param is internal
+				LOG.debug("Param " + param + " is internal");
+				xpathQuerySuffix += "$" + var.getName() + ")";				
+			}
+		}
+		
+		String shCall = "sudo " + envVarString + " sh ~/" + tempFolderName + "/configureDB.sh";
+		bashCommand += shCall + " > ~/" + tempFolderName + "/dump.txt";
+		
+		// generate string var with the bashcommand
+		String configureDBShVarName = "configureDBShScript" + templateContext.getIdForNames();
+		Variable configureDBShStringVar = templateContext.createGlobalStringVariable(configureDBShVarName, bashCommand);
+		String xpathQuery = xpathQueryPrefix + "$" + configureDBShStringVar.getName() + xpathQuerySuffix;
+		
+		try {
+			// create assign and append
+			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignShCallScriptVar", xpathQuery, configureDBShStringVar.getName());
+			assignNode = templateContext.importNode(assignNode);
+			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
+		} catch (IOException e) {
+			LOG.error("Couldn't load fragment from file", e);
+			return false;
+		} catch (SAXException e) {
+			LOG.error("Couldn't parse fragment to DOM", e);
+			return false;
+		}
+		
+		// add script to input
+		inputMappings.put("script", configureDBShStringVar);
+		
+		// use invoker now to execute the script
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
+		
+		return true;
+	}
+	
+	/**
+	 * Loads configureDB.sh from resources. Script generates empty database on a
+	 * mysql server
+	 *
+	 * @return a String containing a bash script
+	 * @throws IOException is thrown when reading file from resources fails
+	 */
+	protected String loadConfigDBSh() throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("configureDB.sh");
+		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelfragmentfile);
+		return template;
+	}
+	
+	/**
+	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
+	 * input message into String variable.
+	 *
+	 * @param assignName the name of the BPEL assign
+	 * @param xpath2Query the csarEntryPoint XPath query
+	 * @param stringVarName the variable to load the queries results into
+	 * @return a String containing a BPEL Assign element
+	 * @throws IOException is thrown when reading the BPEL fragment form the
+	 *             resources fails
+	 */
+	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query, String stringVarName) throws IOException {
+		// <!-- {AssignName},{xpath2query}, {stringVarName} -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("{AssignName}", assignName);
+		template = template.replace("{xpath2query}", xpath2Query);
+		template = template.replace("{stringVarName}", stringVarName);
+		return template;
+	}
+	
+	/**
+	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
+	 * input message into String variable.
+	 *
+	 * @param assignName the name of the BPEL assign
+	 * @param csarEntryXpathQuery the csarEntryPoint XPath query
+	 * @param stringVarName the variable to load the queries results into
+	 * @return a DOM Node representing a BPEL assign element
+	 * @throws IOException is thrown when loading internal bpel fragments fails
+	 * @throws SAXException is thrown when parsing internal format into DOM
+	 *             fails
+	 */
+	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query, String stringVarName) throws IOException, SAXException {
+		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
