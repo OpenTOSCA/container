@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -64,12 +65,44 @@ public class TaskWorkerRunnable implements Runnable {
 			LOG.error("Couldn't aquire internal HTTP Service to download CSAR");
 			return;
 		}
-		
+		CSARID csarId = null;
 		InputStream csarInputStream = null;
 		try {
 			LOG.debug("Downloading CSAR " + this.state.getCsarUrl());
 			HttpResponse csarResponse = openToscaHttpService.Get(this.state.getCsarUrl().toString());
 			csarInputStream = csarResponse.getEntity().getContent();
+			
+			String fileName = null;
+			for (org.apache.http.Header header : csarResponse.getAllHeaders()) {
+				if (header.getName().contains("Content-Disposition")) {
+					for (HeaderElement elem : header.getElements()) {
+						if (elem.getName().equals("attachment")) {
+							for (NameValuePair nameValuePair : elem.getParameters()) {
+								if (nameValuePair.getName().equals("filename")) {
+									fileName = nameValuePair.getValue();
+								}
+							}
+						}
+					}
+					
+				}
+			}
+			
+			this.state.currentState = PlanGenerationStates.CSARDOWNLOADED;
+			this.state.currentMessage = "Downloaded CSAR";
+			LOG.debug("CSAR download finished");
+			
+			if (fileName == null) {
+				LOG.debug("CSAR Filename couldn't be determined");
+				this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
+				this.state.currentMessage = "CSAR Filename couldn't be determined";
+				return;
+			}
+			
+			// generate plan (assumption: the send csar contains only one
+			// topologytemplate => only one buildPlan will be generated
+			LOG.debug("Storing CSAR");
+			csarId = Util.storeCSAR(fileName, csarInputStream);
 		} catch (ClientProtocolException e) {
 			this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
 			this.state.currentMessage = "Couldn't download CSAR";
@@ -88,15 +121,6 @@ public class TaskWorkerRunnable implements Runnable {
 			LOG.error("Couldn't download CSAR");
 			return;
 		}
-		
-		this.state.currentState = PlanGenerationStates.CSARDOWNLOADED;
-		this.state.currentMessage = "Downloaded CSAR";
-		LOG.debug("CSAR download finished");
-		
-		// generate plan (assumption: the send csar contains only one
-		// topologytemplate => only one buildPlan will be generated
-		LOG.debug("Storing CSAR");
-		CSARID csarId = Util.storeCSAR(System.currentTimeMillis() + ".csar", csarInputStream);
 		
 		if (csarId != null) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATING;
