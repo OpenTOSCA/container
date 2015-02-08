@@ -117,7 +117,7 @@ public class RootResource {
 	 * 
 	 * @param generatePlanForTopology a wrapper class for the parameters CSARURL
 	 *            and PLANPOSTURL
-	 * @return a HTTP Response appropiate to the situation (e.g. error,
+	 * @return a HTTP Response appropriate to the situation (e.g. error,
 	 *         success,..)
 	 */
 	@POST
@@ -149,11 +149,11 @@ public class RootResource {
 		// everything worked
 		switch (worker.getState().currentState) {
 		case CSARDOWNLOADFAILED:
-			return Response.status(Status.CONFLICT).entity(worker.getState()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();
 		case PLANGENERATIONFAILED:
-			return Response.status(Status.CONFLICT).entity(worker.getState()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();
 		case PLANSENDINGFAILED:
-			return Response.status(Status.CONFLICT).entity(worker.getState()).build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(worker.getState()).build();
 		default:
 			return Response.ok().entity(worker.getState()).build();
 		}
