@@ -22,7 +22,7 @@ public class VinothekKnownParameters {
 		
 	}
 	
-	protected String createXmlElement(String parameterLocalName) {
+	public String createXmlElement(String parameterLocalName) {
 		if (this.knownParameterToXmlMapping.containsKey(parameterLocalName)) {
 			return this.knownParameterToXmlMapping.get(parameterLocalName);
 		} else {

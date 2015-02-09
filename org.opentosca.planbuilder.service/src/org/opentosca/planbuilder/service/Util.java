@@ -12,14 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.NameValuePair;
+import org.apache.ode.schemas.dd._2007._03.TProvide;
+import org.eclipse.winery.model.selfservice.ApplicationOption;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.exceptions.SystemException;
 import org.opentosca.exceptions.UserException;
 import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.planbuilder.export.VinothekKnownParameters;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.Deploy;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
@@ -31,6 +37,18 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  *
  */
 public class Util {
+	
+	public static class SelfServiceOptionWrapper {
+		
+		public ApplicationOption option;
+		public File planInputMessageFile;
+		
+		
+		public SelfServiceOptionWrapper(ApplicationOption option, File planInputMessageFile) {
+			this.option = option;
+			this.planInputMessageFile = planInputMessageFile;
+		}
+	}
 	
 	private static class NameValuePairUtils implements NameValuePair {
 		
@@ -74,7 +92,7 @@ public class Util {
 			for (AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
 				plans.add(planBuilderImporter.buildPlan(defs, csarId.getFileName(), serviceTemplate.getQName()));
 			}
-						
+			
 		} catch (SystemException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -142,6 +160,26 @@ public class Util {
 		
 	}
 	
+	public static SelfServiceOptionWrapper generateSelfServiceOption(BuildPlan buildPlan) throws IOException {
+		String id = String.valueOf(System.currentTimeMillis());
+		ApplicationOption option = new ApplicationOption();
+		
+		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
+		tmpDir.mkdir();
+		
+		File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
+		
+		option.setName("Default_PlanBuilderGenerated");
+		option.setId(id);
+		option.setIconUrl("");
+		option.setDescription("N/A");
+		option.setPlanServiceName(Util.getBuildPlanServiceName(buildPlan.getDeploymentDeskriptor()).getLocalPart());
+		option.setPlanInputMessageUrl("plan.input.default." + id + ".xml");
+		Util.writePlanInputMessageInstance(buildPlan, planInputMessageFile);
+		
+		return new SelfServiceOptionWrapper(option, planInputMessageFile);
+	}
+	
 	/**
 	 * Writes given BuildPlan to temporary folder.
 	 * 
@@ -173,6 +211,45 @@ public class Util {
 		PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);
 		return sw.toString();
+	}
+	
+	private static QName getBuildPlanServiceName(Deploy deploy) {
+		// generated buildplans have only one process!
+		for (TProvide provide : deploy.getProcess().get(0).getProvide()) {
+			// "client" is a convention
+			if (provide.getPartnerLink().equals("client")) {
+				return provide.getService().getName();
+			}
+		}
+		return null;
+	}
+	
+	private static void writePlanInputMessageInstance(BuildPlan buildPlan, File xmlFile) throws IOException {
+		String messageNs = buildPlan.getWsdl().getTargetNamespace();
+		String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
+		List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
+		
+		VinothekKnownParameters paramMappings = new VinothekKnownParameters();
+		String soapMessagePrefix = Util.createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);
+		String soapMessageSuffix = Util.createSuffixPartOfSoapMessage(requestMessageLocalName);
+		
+		String soapMessage = soapMessagePrefix;
+		for (String inputParamName : inputParamNames) {
+			soapMessage += paramMappings.createXmlElement(inputParamName);
+		}
+		soapMessage += soapMessageSuffix;
+		
+		FileUtils.write(xmlFile, soapMessage);
+	}
+	
+	private static String createPrefixPartOfSoapMessage(String namespace, String messageBodyRootLocalName) {
+		String soapEnvelopePrefix = "<soapenv:Envelope xmlns:wsa=\"http://www.w3.org/2005/08/addressing\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:org=\"" + namespace + "\"><soapenv:Header><wsa:ReplyTo><wsa:Address>%CALLBACK-URL%</wsa:Address></wsa:ReplyTo><wsa:Action>" + namespace + "/initiate</wsa:Action><wsa:MessageID>%CORRELATION-ID%</wsa:MessageID></soapenv:Header><soapenv:Body><org:" + messageBodyRootLocalName + ">";
+		return soapEnvelopePrefix;
+	}
+	
+	private static String createSuffixPartOfSoapMessage(String messageBodyRootLocalName) {
+		String soapEnvelopeSuffix = "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
+		return soapEnvelopeSuffix;
 	}
 	
 }

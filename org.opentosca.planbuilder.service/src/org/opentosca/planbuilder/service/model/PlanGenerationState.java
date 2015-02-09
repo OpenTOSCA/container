@@ -19,7 +19,7 @@ import org.opentosca.core.model.csar.id.CSARID;
 public class PlanGenerationState {
 	
 	public enum PlanGenerationStates {
-		INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSENT
+		INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT
 	}
 	
 	
@@ -39,7 +39,8 @@ public class PlanGenerationState {
 	@XmlElement
 	public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
 	
-	public PlanGenerationState(){
+	
+	public PlanGenerationState() {
 		this.csarUrl = null;
 		this.planPostUrl = null;
 	}
