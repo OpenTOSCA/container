@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Csarhandler
-Bundle-SymbolicName: org.opentosca.planbuilder.csarhandler
+Bundle-SymbolicName: org.opentosca.planbuilder.csarhandler;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.opentosca.core.file.service,
@@ -11,3 +11,6 @@ Import-Package: org.opentosca.core.file.service,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
 Export-Package: org.opentosca.planbuilder.csarhandler
+Bundle-Activator: org.opentosca.planbuilder.csarhandler.Activator
+Bundle-ClassPath: .
+Service-Component: OSGI-INF/CSARHandlerServiceRegistry.xml
