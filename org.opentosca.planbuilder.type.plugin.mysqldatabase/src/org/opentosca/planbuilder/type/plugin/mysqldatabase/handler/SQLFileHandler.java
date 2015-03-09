@@ -1,36 +1,25 @@
 package org.opentosca.planbuilder.type.plugin.mysqldatabase.handler;
 
-import java.io.File;
+
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
-import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
-import org.opentosca.planbuilder.type.plugin.mysqldatabase.Constants;
 import org.opentosca.planbuilder.type.plugin.mysqldatabase.Util;
 import org.opentosca.planbuilder.utils.Utils;
-import org.osgi.framework.FrameworkUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -68,11 +57,11 @@ public class SQLFileHandler extends AbstractHandler {
 		}
 		
 		// fetch proper ip of "our own" infrastructure
-		Variable mySqlServerIpVar = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable mySqlServerIpVar = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (mySqlServerIpVar == null) {
-			mySqlServerIpVar = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			mySqlServerIpVar = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (mySqlServerIpVar == null) {
-				mySqlServerIpVar = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				mySqlServerIpVar = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -133,10 +122,7 @@ public class SQLFileHandler extends AbstractHandler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate node : templateContext.getNodeTemplates()) {
-			if (Constants.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString().equals(node.getType().getId().toString())) {
-				templateId = node.getId();
-			}
-			if (Constants.ubuntu1310ServerNodeType.toString().equals(node.getType().getId().toString())) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(node.getType().getId())) {
 				templateId = node.getId();
 			}
 		}

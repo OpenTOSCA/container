@@ -1,27 +1,19 @@
 package org.opentosca.planbuilder.type.plugin.ubuntuvm.handler;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.Properties;
+import org.opentosca.planbuilder.plugins.commons.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -60,12 +52,12 @@ public class Handler {
 		AbstractNodeTemplate ubuntuNodeTemplate = null;
 		Variable ubuntuAMIIdVar = null;
 		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
-			if (relationTemplate.getSource().getType().getId().toString().equals(org.opentosca.planbuilder.type.plugin.ubuntuvm.Plugin.ubuntu1310ServerNodeType.toString())) {
+			if (this.isUbuntuNodeTypeWithImplicitImage(relationTemplate.getSource().getType().getId())) {
 				ubuntuNodeTemplate = relationTemplate.getSource();
 			}
 			
 			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
-				if (relationTemplate2.getSource().getType().getId().toString().equals(org.opentosca.planbuilder.type.plugin.ubuntuvm.Plugin.ubuntu1310ServerNodeType.toString())) {
+				if (this.isUbuntuNodeTypeWithImplicitImage(relationTemplate2.getSource().getType().getId())) {
 					ubuntuNodeTemplate = relationTemplate.getSource();
 				}
 			}
@@ -80,11 +72,11 @@ public class Handler {
 		}
 		
 		// find InstanceId Property inside ubuntu nodeTemplate
-		Variable instanceIdPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
+		Variable instanceIdPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
 		if (instanceIdPropWrapper == null) {
-			instanceIdPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
+			instanceIdPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
 			if (instanceIdPropWrapper == null) {
-				instanceIdPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, false);
+				instanceIdPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, false);
 			}
 		}
 		
@@ -95,11 +87,11 @@ public class Handler {
 		
 		// find ServerIp Property inside ubuntu nodeTemplate
 		
-		Variable serverIpPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = context.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -134,9 +126,12 @@ public class Handler {
 			if (variable == null) {
 				Handler.LOG.warn("Didn't find  property variable for parameter " + externalParameter);
 				return false;
+			} else {
+				Handler.LOG.debug("Found property variable " + externalParameter);
 			}
 			
 			if (Utils.isVariableValueEmpty(variable, context)) {
+				Handler.LOG.debug("Variable value is empty, adding to plan input");
 				createEC2InternalExternalPropsInput.put(externalParameter, null);
 			} else {
 				createEC2InternalExternalPropsInput.put(externalParameter, variable);
@@ -172,6 +167,27 @@ public class Handler {
 		invokerOpPlugin.handle(context, "create", "InterfaceAmazonEC2VM", "planCallbackAddress_invoker", createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
 		
 		return true;
+	}
+	
+	/**
+	 * This method checks whether the given QName represents a Ubuntu NodeType
+	 * which has an implicit Ubuntu Image (e.g. Ubuntu 13.10 Server)
+	 * 
+	 * @param nodeType a QName
+	 * @return true if the given QName represents an Ubuntu NodeType with
+	 *         implicit image information
+	 */
+	private boolean isUbuntuNodeTypeWithImplicitImage(QName nodeType) {
+		
+		if (nodeType.toString().equals(Types.ubuntu1310ServerNodeType.toString())) {
+			return true;
+		}
+		
+		if (nodeType.toString().equals(Types.ubuntu1310ServerVmNodeType.toString())) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 }

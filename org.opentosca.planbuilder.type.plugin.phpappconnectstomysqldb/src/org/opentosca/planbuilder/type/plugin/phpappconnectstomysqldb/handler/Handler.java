@@ -18,7 +18,8 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.Properties;
+import org.opentosca.planbuilder.plugins.commons.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -64,9 +65,9 @@ public class Handler {
 	
 	public boolean handle(TemplatePlanContext templateContext) {
 		// fetch server ip of the app
-		Variable appServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+		Variable appServerIp = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 		// fetch server ip of the db
-		Variable dbServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+		Variable dbServerIp = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 		
 		if (appServerIp == null) {
 			LOG.error("Couldn't find appropiate property for application ip");
@@ -85,7 +86,7 @@ public class Handler {
 		Utils.getInfrastructureNodes(templateContext.getRelationshipTemplate().getSource(), infraNodes);
 		
 		for (AbstractNodeTemplate nodeTemplate : infraNodes) {
-			if (Utils.checkForTypeInHierarchy(nodeTemplate, Constants.ubuntuNodeTypeOpenTOSCAPlanBuilder)) {
+			if (Utils.checkForTypeInHierarchy(nodeTemplate, Types.ubuntuNodeType)) {
 				templateId = nodeTemplate.getId();
 			}
 		}
@@ -182,7 +183,7 @@ public class Handler {
 			Variable var = null;
 			switch (placeholder) {
 			case "DBAddressPlaceHolder":
-				var = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				var = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 				break;
 			case "DBUserPlaceHolder":
 				var = templateContext.getPropertyVariable("DBUser");
@@ -259,7 +260,7 @@ public class Handler {
 		// find the vm node of the source
 		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
 			LOG.debug("Found infrastructure node of source node: " + infraNode.getId());
-			if (Utils.checkForTypeInHierarchy(infraNode, Constants.vmType)) {
+			if (Utils.checkForTypeInHierarchy(infraNode, Types.vmNodeType)) {
 				sourceNodeVmId = infraNode.getId();
 				LOG.debug("Found source node VM with id: " + sourceNodeVmId);
 			}
@@ -272,7 +273,7 @@ public class Handler {
 		// find the vm node of the target
 		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
 			LOG.debug("Found infrastructure node of target node: " + infraNode.getId());
-			if (Utils.checkForTypeInHierarchy(infraNode, Constants.vmType)) {
+			if (Utils.checkForTypeInHierarchy(infraNode, Types.vmNodeType)) {
 				targetNodeVmId = infraNode.getId();
 				LOG.debug("Found target node VM with id: " + targetNodeVmId);
 			}

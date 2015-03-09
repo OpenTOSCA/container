@@ -16,7 +16,6 @@ Import-Package: javax.wsdl;version="1.6.0",
 Bundle-ClassPath: .
 Export-Package: org.opentosca.planbuilder,
  org.opentosca.planbuilder.plugins,
- org.opentosca.planbuilder.plugins.constants,
  org.opentosca.planbuilder.plugins.context,
  org.opentosca.planbuilder.utils
 Service-Component: OSGI-INF/pluginregistrycomponent.xml

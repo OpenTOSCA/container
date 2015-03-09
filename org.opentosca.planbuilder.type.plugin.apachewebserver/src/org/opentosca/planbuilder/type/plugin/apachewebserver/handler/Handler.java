@@ -9,7 +9,8 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -78,11 +79,11 @@ public class Handler {
 
 		// fetch server ip of the vm this apache http will be installed on
 
-		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 
@@ -145,7 +146,7 @@ public class Handler {
 		String templateId = "";
 
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (org.opentosca.planbuilder.type.plugin.apachewebserver.Plugin.isUbuntuNodeTypeCompatible(nodeTemplate.getType().getId())) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}

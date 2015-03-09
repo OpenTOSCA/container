@@ -19,10 +19,10 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
-import org.opentosca.planbuilder.type.plugin.mysqldatabase.Constants;
 import org.opentosca.planbuilder.utils.Utils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -64,11 +64,11 @@ public class LifecycleHandler extends AbstractHandler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		
-		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -119,10 +119,7 @@ public class LifecycleHandler extends AbstractHandler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate node : templateContext.getNodeTemplates()) {
-			if (Constants.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString().equals(node.getType().getId().toString())) {
-				templateId = node.getId();
-			}
-			if (Constants.ubuntu1310ServerNodeType.toString().equals(node.getType().getId().toString())) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(node.getType().getId())) {
 				templateId = node.getId();
 			}
 		}

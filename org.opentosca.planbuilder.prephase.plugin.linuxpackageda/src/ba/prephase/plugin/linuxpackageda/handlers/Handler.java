@@ -10,7 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class Handler {
 		context.addStringValueToPlanRequest("sshKey");
 		// fetch serverip property variable name, planrequestmsgname and
 		// assemble remotefilepath
-		String varNameServerIp = context.getVariableNameOfProperty(infraNodeTemplate.getId(), PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		String varNameServerIp = context.getVariableNameOfProperty(infraNodeTemplate.getId(), Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 
 		String packages = "";
 		for (String packageName : packageNames) {

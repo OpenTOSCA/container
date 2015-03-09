@@ -9,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.mysqlserver.handler.Handler;
 
@@ -22,8 +23,6 @@ import org.opentosca.planbuilder.type.plugin.mysqlserver.handler.Handler;
 public class Plugin implements IPlanBuilderTypePlugin {
 	
 	private static final QName mySqlServerNodeType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes", "MySQL");
-	private static final QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
-	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private Handler handler;
 	
 	
@@ -48,11 +47,11 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate) {
 		// check first the nodeTemplate
-		if (this.isCompatibleMySQLServerNodeType(nodeTemplate.getType().getId())) {
+		if (Plugin.isCompatibleMySQLServerNodeType(nodeTemplate.getType().getId())) {
 			// check whether the mysql server is connected to a Ubuntu
 			// NodeTemplate
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-				if (this.isCompatibleUbuntuNodeType(relation.getTarget().getType().getId())) {
+				if (PluginUtils.isSupportedUbuntuVMNodeType(relation.getTarget().getType().getId())) {
 					return true;
 				}
 			}
@@ -77,21 +76,5 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		return Plugin.mySqlServerNodeType.toString().equals(nodeTypeId.toString());
 	}
 	
-	/**
-	 * Checks whether the given QName represents a Ubuntu OS NodeType
-	 * 
-	 * @param nodeTypeId a QName
-	 * @return true iff the QName represents a Ubuntu NodeType
-	 */
-	public static boolean isCompatibleUbuntuNodeType(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(Plugin.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
-			return true;
-		}
-		
-		if (nodeTypeId.toString().equals(Plugin.ubuntu1310ServerNodeType.toString())) {
-			return true;
-		}
-		return false;
-	}
 	
 }

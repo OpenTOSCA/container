@@ -14,6 +14,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.plugins.commons.Types;
 import org.opentosca.planbuilder.utils.Utils;
 
 /**
@@ -83,7 +84,7 @@ public class Util {
 		List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
 		Utils.getNodesFromNodeToSink(nodeTemplate, nodes);
 		for (AbstractNodeTemplate node : nodes) {
-			if (Utils.checkForTypeInHierarchy(node, Constants.vmType) | Utils.checkForTypeInHierarchy(node, Constants.ubuntu1310ServerNodeType)) {
+			if (Utils.checkForTypeInHierarchy(node, Types.vmNodeType) | Utils.checkForTypeInHierarchy(node, Types.ubuntu1310ServerNodeType)) {
 				return true;
 			}
 		}

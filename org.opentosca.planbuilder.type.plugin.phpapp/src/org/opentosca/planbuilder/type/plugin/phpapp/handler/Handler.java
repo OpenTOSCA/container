@@ -26,7 +26,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -55,9 +56,6 @@ public class Handler {
 	private Plugin invokerPlugin = new Plugin();
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
 	
-	private final static QName ubuntuNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "Ubuntu");
-	private final static QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
-	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
 	private QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 	
 	private DocumentBuilderFactory docFactory;
@@ -97,11 +95,11 @@ public class Handler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		
-		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -164,7 +162,7 @@ public class Handler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (Handler.isUbuntuNodeTypeCompatible(nodeTemplate.getType().getId())) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}
@@ -360,26 +358,6 @@ public class Handler {
 			}
 		}
 		return opIaMap;
-	}
-	
-	/**
-	 * Checks whether the given QName represents a Ubuntu OS NodeType compatible
-	 * with this plugin
-	 *
-	 * @param nodeTypeId a QName denoting a TOSCA NodeType
-	 * @return true iff the given QName is a NodeType this plugin can handle
-	 */
-	private static boolean isUbuntuNodeTypeCompatible(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(Handler.ubuntuNodeType.toString())) {
-			return true;
-		}
-		if (nodeTypeId.toString().equals(Handler.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
-			return true;
-		}
-		if (nodeTypeId.toString().equals(Handler.ubuntu1310ServerNodeType.toString())) {
-			return true;
-		}
-		return false;
 	}
 	
 	/**

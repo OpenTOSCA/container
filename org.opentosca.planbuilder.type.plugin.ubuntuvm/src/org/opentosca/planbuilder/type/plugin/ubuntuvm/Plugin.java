@@ -1,14 +1,10 @@
-/**
- *
- */
 package org.opentosca.planbuilder.type.plugin.ubuntuvm;
-
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.ubuntuvm.handler.Handler;
 import org.slf4j.Logger;
@@ -28,14 +24,8 @@ import org.slf4j.LoggerFactory;
 public class Plugin implements IPlanBuilderTypePlugin {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
-	
-	private final QName ec2NodeType = new QName("http://opentosca.org/types/declarative", "EC2");
-	private final QName openStackNodeType = new QName("http://opentosca.org/types/declarative", "OpenStack");
-	private final QName vmNodeType = new QName("http://opentosca.org/types/declarative", "VM");
-	private final QName ubuntuNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu");
-	public final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
-	private Handler handler = new Handler();
-	
+				
+	private Handler handler = new Handler();	
 	
 	@Override
 	public String getID() {
@@ -54,16 +44,16 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		
 		// requirement: nodeTemplates with these two nodeTypes are handled,
 		// by doing nothing
-		if (nodeTemplate.getType().getId().toString().equals(this.vmNodeType.toString())) {
+		if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
 		
-		if (this.checkIfValidUbuntuNodeType(nodeTemplate.getType().getId())) {
+		if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
 		
 		// when the cloudprovider node arrives start handling
-		if (this.checkIfValidCloudProviderNodeType(nodeTemplate.getType().getId())) {
+		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return this.handler.handle(templateContext, nodeTemplate);
 		} else {
 			return false;
@@ -85,22 +75,24 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			Plugin.LOG.debug("NodeTemplate NodeType id is null");
 		}
 		// this plugin can handle all referenced nodeType
-		if (this.checkIfValidCloudProviderNodeType(nodeTemplate.getType().getId())) {
+		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
-		} else if (nodeTemplate.getType().getId().toString().equals(this.vmNodeType.toString())) {
+		} else if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			// checking if this vmNode is connected to a nodeTemplate of Type
 			// EC2, if not this plugin can't handle this node
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-				if (this.checkIfValidCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
+				if (PluginUtils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
 					return true;
 				}
 			}
 			return false;
-		} else if (this.checkIfValidUbuntuNodeType(nodeTemplate.getType().getId())) {
-			// checking whether this ubuntu NodeTemplate is connected to a VM
+		} else if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+			// checking whether this GENERIC ubuntu NodeTemplate is connected to a VM
 			// Node, after this checking whether the VM Node is connected to a
 			// EC2 Node
-			if (nodeTemplate.getType().getId().toString().equals(this.ubuntuNodeType)) {
+			
+			// check for generic UbuntuNodeType
+			if (nodeTemplate.getType().getId().toString().equals(Types.ubuntuNodeType)) {
 				// here we check for a 3 node stack ubuntu -> vm -> cloud
 				// provider(ec2,openstack)
 				return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
@@ -142,7 +134,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 */
 	private boolean checkIfConnectedToVMandCloudProvider(AbstractNodeTemplate nodeTemplate) {
 		for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (relationshipTemplate.getTarget().getType().getId().toString().equals(this.vmNodeType.toString())) {
+			if (relationshipTemplate.getTarget().getType().getId().toString().equals(Types.vmNodeType.toString())) {
 				if (this.checkIfConnectedToCloudProvider(relationshipTemplate.getTarget())) {
 					return true;
 				}
@@ -162,30 +154,9 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 */
 	private boolean checkIfConnectedToCloudProvider(AbstractNodeTemplate nodeTemplate) {
 		for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (this.checkIfValidCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
+			if (PluginUtils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
 				return true;
 			}
-		}
-		return false;
-	}
-	
-	private boolean checkIfValidUbuntuNodeType(QName nodeType) {
-		if (nodeType.toString().equals(this.ubuntuNodeType.toString())) {
-			return true;
-		}
-		// ubuntu-13.10-server-cloudimg-amd64
-		if (nodeType.toString().equals(this.ubuntu1310ServerNodeType.toString())) {
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean checkIfValidCloudProviderNodeType(QName nodeType) {
-		if (nodeType.toString().equals(this.ec2NodeType.toString())) {
-			return true;
-		}
-		if (nodeType.toString().equals(this.openStackNodeType.toString())) {
-			return true;
 		}
 		return false;
 	}

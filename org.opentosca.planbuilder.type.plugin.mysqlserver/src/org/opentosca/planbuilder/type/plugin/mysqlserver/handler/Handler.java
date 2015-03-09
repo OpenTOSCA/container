@@ -14,7 +14,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -82,11 +83,11 @@ public class Handler {
 		
 		// fetch server ip of the vm this apache http will be installed on
 		
-		Variable mySqlServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable mySqlServerIp = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (mySqlServerIp == null) {
-			mySqlServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			mySqlServerIp = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (mySqlServerIp == null) {
-				mySqlServerIp = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				mySqlServerIp = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -149,7 +150,7 @@ public class Handler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (org.opentosca.planbuilder.type.plugin.mysqlserver.Plugin.isCompatibleUbuntuNodeType(nodeTemplate.getType().getId())) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}

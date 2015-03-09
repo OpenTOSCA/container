@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plugins
+Bundle-SymbolicName: org.opentosca.planbuilder.plugins.commons
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: OpenTOSCA Ecosystem
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.opentosca.planbuilder.plugins.commons

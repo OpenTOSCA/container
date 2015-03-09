@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.handler.Handler;
 import org.slf4j.Logger;
@@ -31,11 +32,9 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	
 	private final static Logger LOG = LoggerFactory.getLogger(PrePhasePlugin.class);
 	
-	private QName artifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
-	private QName daArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+	private QName scriptArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
+	private QName archiveArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 	private QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
-	private QName nodeType = new QName("http://tempuri.org", "OpenToscaAmazonVM");
-	private QName nodeType2 = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "VM");
 	
 	private Handler handler = new Handler();
 	
@@ -56,29 +55,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		QName type = deploymentArtifact.getArtifactType();
 		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: " + infrastructureNodeType.getId().toString() + " can be handled");
 		
-		if (this.artifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType.toString())) {
-			return true;
-		}
-		
-		if (this.daArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType.toString())) {
-			return true;
-		}
-		
-		if (this.warArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType.toString())) {
-			return true;
-		}
-		if (this.artifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType2.toString())) {
-			return true;
-		}
-		
-		if (this.daArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType2.toString())) {
-			return true;
-		}
-		
-		if (this.warArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType2.toString())) {
-			return true;
-		}
-		return false;
+		return this.isSupportedDeploymentPair(type, infrastructureNodeType.getId());
 	}
 	
 	@Override
@@ -86,29 +63,42 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		QName type = ia.getArtifactType();
 		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: " + infrastructureNodeType.getId().toString() + " can be handled");
 		
-		if (this.artifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType.toString())) {
-			return true;
+		return this.isSupportedDeploymentPair(type, infrastructureNodeType.getId());
+	}
+	
+	/**
+	 * Checks whether this Plugin can handle deploying artifacts of the given
+	 * artfiactType to a given InfrastructureNode of the given
+	 * infrastructureNodeType
+	 * 
+	 * @param scriptArtifactType a QName denoting an scriptArtifactType
+	 * @param infrastructureNodeType a QName denoting an infrastructureNodeType
+	 * @return a Boolean. True if given pair of QName's denotes a pair which
+	 *         this plugin can handle
+	 */
+	private boolean isSupportedDeploymentPair(QName artifactType, QName infrastructureNodeType) {
+		
+		// we can deploy only on ubuntu nodes
+		if(!PluginUtils.isSupportedUbuntuVMNodeType(infrastructureNodeType)){
+			return false;
 		}
 		
-		if (this.daArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType.toString())) {
-			return true;
+		boolean isSupportedArtifactType = false;
+		
+		if(this.archiveArtifactType.toString().equals(artifactType.toString())){
+			isSupportedArtifactType |= true;
 		}
 		
-		if (this.warArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType.toString())) {
-			return true;
-		}
-		if (this.artifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType2.toString())) {
-			return true;
+		if(this.scriptArtifactType.toString().equals(artifactType.toString())){
+			isSupportedArtifactType |= true;
 		}
 		
-		if (this.daArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType2.toString())) {
-			return true;
+		if(this.warArtifactType.toString().equals(artifactType.toString())){
+			isSupportedArtifactType |= true;
 		}
 		
-		if (this.warArtifactType.toString().equals(type.toString()) && infrastructureNodeType.getId().toString().equals(this.nodeType2.toString())) {
-			return true;
-		}
-		return false;
+		
+		return isSupportedArtifactType;
 	}
 	
 	/**

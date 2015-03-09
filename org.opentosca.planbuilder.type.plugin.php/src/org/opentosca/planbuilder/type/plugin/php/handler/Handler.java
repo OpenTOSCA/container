@@ -11,7 +11,8 @@ import javax.xml.namespace.QName;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -60,11 +61,11 @@ public class Handler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		
-		Variable serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+		Variable serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
 		
@@ -77,7 +78,7 @@ public class Handler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (Handler.isUbuntuNodeTypeCompatible(nodeTemplate.getType().getId())) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}
@@ -190,26 +191,6 @@ public class Handler {
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
 		
 		return true;
-	}
-	
-	/**
-	 * Checks whether the given QName represents a Ubuntu OS NodeType compatible
-	 * with this plugin
-	 *
-	 * @param nodeTypeId a QName denoting a TOSCA NodeType
-	 * @return true iff the given QName is a NodeType this plugin can handle
-	 */
-	private static boolean isUbuntuNodeTypeCompatible(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(Handler.ubuntuNodeType.toString())) {
-			return true;
-		}
-		if (nodeTypeId.toString().equals(Handler.ubuntuNodeTypeOpenTOSCAPlanBuilder.toString())) {
-			return true;
-		}
-		if (nodeTypeId.toString().equals(Handler.ubuntu1310ServerNodeType.toString())) {
-			return true;
-		}
-		return false;
 	}
 	
 	/**
