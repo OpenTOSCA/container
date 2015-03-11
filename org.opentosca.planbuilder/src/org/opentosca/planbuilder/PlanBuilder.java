@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * This Class represents the high-level algorithm of the concept in <a href=
  * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
  * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL
- * 2.0 BuildPlans für OpenTOSCA</a>. It is responsible for generating the Build
+ * 2.0 BuildPlans fuer OpenTOSCA</a>. It is responsible for generating the Build
  * Plan Skeleton and assign plugins to handle the different templates inside a
  * TopologyTemplate.
  * </p>
@@ -159,10 +159,6 @@ public class PlanBuilder {
 
 				// init output
 				this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
-
-				// TODO check the properties which can't be satisfied and add
-				// them
-				// to plan request
 
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				
@@ -408,7 +404,7 @@ public class PlanBuilder {
 	 * GenerateBuildPlanSkeleton algorithm in <a href=
 	 * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
 	 * >Konzept und Implementierung eine Java-Komponente zur Generierung von
-	 * WS-BPEL 2.0 BuildPlans für OpenTOSCA</a>
+	 * WS-BPEL 2.0 BuildPlans fuer OpenTOSCA</a>
 	 * </p>
 	 *
 	 * @param buildPlan a BuildPlan where all TemplateBuildPlans are set for
