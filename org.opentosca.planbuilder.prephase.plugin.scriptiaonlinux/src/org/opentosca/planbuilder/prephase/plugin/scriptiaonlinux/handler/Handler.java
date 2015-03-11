@@ -178,17 +178,7 @@ public class Handler {
 		templateContext.addStringValueToPlanRequest("csarEntrypoint");
 		
 		
-		/*
-		 * Check whether the SSH port is open on the VM
-		 */
-		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
-
-		startRequestInputParams.put("hostname", serverIpPropWrapper);
-		startRequestInputParams.put("sshUser", sshUserVariable);
-		startRequestInputParams.put("sshKey", sshKeyVariable);
-
-		this.invokerPlugin.handle(templateContext, templateId, true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>());
-		
+			
 		LOG.debug("Handling DA references:");
 		for (AbstractArtifactReference ref : refs) {
 			// upload da ref and unzip it

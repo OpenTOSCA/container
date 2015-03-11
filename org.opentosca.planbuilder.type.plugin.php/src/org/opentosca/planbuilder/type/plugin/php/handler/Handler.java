@@ -150,17 +150,6 @@ public class Handler {
 		Variable phpPackagesVar = templateContext.createGlobalStringVariable(phpPackagesVarName, "php5 php5-cli php5-common php5-mysql php5-json php5-curl php5-gd libapache2-mod-php5");
 		
 		/*
-		 * Check whether the SSH port is open on the VM
-		 */
-		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
-		
-		startRequestInputParams.put("hostname", serverIpPropWrapper);
-		startRequestInputParams.put("sshUser", sshUserVariable);
-		startRequestInputParams.put("sshKey", sshKeyVariable);
-		
-		this.invokerPlugin.handle(templateContext, templateId, true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>());
-		
-		/*
 		 * Install php packages
 		 */
 		Map<String, Variable> installPackageRequestInputParams = new HashMap<String, Variable>();

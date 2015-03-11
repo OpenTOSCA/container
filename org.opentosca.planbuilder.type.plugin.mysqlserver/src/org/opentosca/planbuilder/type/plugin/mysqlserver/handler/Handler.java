@@ -170,17 +170,6 @@ public class Handler {
 		String mySqlServerPackageVarName = "mySqlServerPackageVar" + templateContext.getIdForNames();
 		Variable mySqlServerPackageVar = templateContext.createGlobalStringVariable(mySqlServerPackageVarName, "mysql-server");
 		
-		/*
-		 * Check whether the SSH port is open on the VM
-		 */
-		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
-		
-		startRequestInputParams.put("hostname", mySqlServerIp);
-		startRequestInputParams.put("sshUser", sshUserVariable);
-		startRequestInputParams.put("sshKey", sshKeyVariable);
-		
-		this.invokerPlugin.handle(templateContext, templateId, true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>());
-		
 		// used for the invokerPlugin. This map contains mappings from internal
 		// variables or data which must be fetched form the input message (value
 		// of map == null)

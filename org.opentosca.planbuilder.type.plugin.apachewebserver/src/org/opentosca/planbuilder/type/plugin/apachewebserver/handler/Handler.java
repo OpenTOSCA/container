@@ -58,10 +58,10 @@ public class Handler {
 			Handler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
 			return false;
 		}
-
+		
 		Handler.LOG.debug("Fetching properties of NodeTemplate " + templateContext.getNodeTemplate());
 		NodeList properties = templateContext.getNodeTemplate().getProperties().getDOMElement().getChildNodes();
-
+		
 		Handler.LOG.debug("Searching for httpdport property");
 		String httpdport = "";
 		for (int i = 0; i < properties.getLength(); i++) {
@@ -71,14 +71,14 @@ public class Handler {
 				Handler.LOG.debug("Found httpdport property with value " + httpdport);
 			}
 		}
-
+		
 		if (httpdport.equals("")) {
 			Handler.LOG.warn("No httpdport is set in nodeTemplate " + templateContext.getNodeTemplate().getId());
 			return false;
 		}
-
+		
 		// fetch server ip of the vm this apache http will be installed on
-
+		
 		Variable serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
 			serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
@@ -86,99 +86,87 @@ public class Handler {
 				serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
 			}
 		}
-
+		
 		if (serverIpPropWrapper == null) {
 			Handler.LOG.warn("No Infrastructure Node available with ServerIp property");
 			return false;
 		}
 		
 		// find sshUser and sshKey
-				Variable sshUserVariable = templateContext.getPropertyVariable("SSHUser");
-				if (sshUserVariable == null) {
-					sshUserVariable = templateContext.getPropertyVariable("SSHUser", true);
-					if (sshUserVariable == null) {
-						sshUserVariable = templateContext.getPropertyVariable("SSHUser", false);
-					}
-				}
-				
-				// if the variable is null now -> the property isn't set properly
-				if (sshUserVariable == null) {
-					return false;
-				} else {
-					if (Utils.isVariableValueEmpty(sshUserVariable, templateContext)) {
-						// the property isn't set in the topology template -> we set it
-						// null here so it will be handled as an external parameter
-						sshUserVariable = null;
-					}
-				}
-				
-				Variable sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey");
-				if (sshKeyVariable == null) {
-					sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", true);
-					if (sshKeyVariable == null) {
-						sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", false);
-					}
-				}
-				
-				// if variable null now -> the property isn't set according to schema
-				if (sshKeyVariable == null) {
-					return false;
-				} else {
-					if (Utils.isVariableValueEmpty(sshKeyVariable, templateContext)) {
-						// see sshUserVariable..
-						sshKeyVariable = null;
-					}
-				}
-				// add sshUser and sshKey to the input message of the build plan, if
-				// needed
-				if (sshUserVariable == null) {
-					LOG.debug("Adding sshUser field to plan input");
-					templateContext.addStringValueToPlanRequest("sshUser");
-					
-				}
-				
-				if (sshKeyVariable == null) {
-					LOG.debug("Adding sshKey field to plan input");
-					templateContext.addStringValueToPlanRequest("sshKey");
-				}
-
+		Variable sshUserVariable = templateContext.getPropertyVariable("SSHUser");
+		if (sshUserVariable == null) {
+			sshUserVariable = templateContext.getPropertyVariable("SSHUser", true);
+			if (sshUserVariable == null) {
+				sshUserVariable = templateContext.getPropertyVariable("SSHUser", false);
+			}
+		}
+		
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isVariableValueEmpty(sshUserVariable, templateContext)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				sshUserVariable = null;
+			}
+		}
+		
+		Variable sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey");
+		if (sshKeyVariable == null) {
+			sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", true);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", false);
+			}
+		}
+		
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isVariableValueEmpty(sshKeyVariable, templateContext)) {
+				// see sshUserVariable..
+				sshKeyVariable = null;
+			}
+		}
+		// add sshUser and sshKey to the input message of the build plan, if
+		// needed
+		if (sshUserVariable == null) {
+			LOG.debug("Adding sshUser field to plan input");
+			templateContext.addStringValueToPlanRequest("sshUser");
+			
+		}
+		
+		if (sshKeyVariable == null) {
+			LOG.debug("Adding sshKey field to plan input");
+			templateContext.addStringValueToPlanRequest("sshKey");
+		}
+		
 		// find the ubuntu node and its nodeTemplateId
 		String templateId = "";
-
+		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
 			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}
-
+		
 		if (templateId.equals("")) {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
-
-
+		
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
 		// 2.x can't give that at runtime (bug)
 		templateContext.addStringValueToPlanRequest("planCallbackAddress_invoker");
-
+		
 		// generate string variable for "httpd" package. This way it's easier to
 		// program (no assigns by hand, etc.)
 		String httpdPackageVarName = "httpdPackageVar" + templateContext.getIdForNames();
 		// use the legacy engine
 		Variable httpdPackageVar = templateContext.createGlobalStringVariable(httpdPackageVarName, "apache2 apache2-mpm-prefork");
-
-		/*
-		 * Check whether the SSH port is open on the VM
-		 */
-		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
-
-		startRequestInputParams.put("hostname", serverIpPropWrapper);
-		startRequestInputParams.put("sshUser", sshUserVariable);
-		startRequestInputParams.put("sshKey", sshKeyVariable);
-
-		this.invokerPlugin.handle(templateContext, templateId, true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>());
-
+		
 		/*
 		 * Install httpd package
 		 */
@@ -186,7 +174,7 @@ public class Handler {
 		// variables or data which must be fetched form the input message (value
 		// of map == null)
 		Map<String, Variable> installPackageRequestInputParams = new HashMap<String, Variable>();
-
+		
 		/*
 		 * methodName: installPackage params: "hostname", "sshKey", "sshUser",
 		 * "packageNames"
@@ -195,32 +183,32 @@ public class Handler {
 		installPackageRequestInputParams.put("sshKey", sshKeyVariable);
 		installPackageRequestInputParams.put("sshUser", sshUserVariable);
 		installPackageRequestInputParams.put("packageNames", httpdPackageVar);
-
 		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
-
+		
+		
 		/*
 		 * Execute install, configure and start scripts
 		 */
-
+		
 		/*
 		 * methodname: runScript params: "hostname","script","sshKey","sshUser"
 		 */
 		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
-
+		
 		runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
 		runScriptRequestInputParams.put("sshKey", sshKeyVariable);
 		runScriptRequestInputParams.put("sshUser", sshUserVariable);
-
+		
 		// create install bash script and put into string var
 		String installSh = "echo \"sudo chkconfig httpd\"; sudo chkconfig httpd on";
 		String installShVarName = "installShScript" + templateContext.getIdForNames();
 		Variable installShVar = templateContext.createGlobalStringVariable(installShVarName, installSh);
-
+		
 		runScriptRequestInputParams.put("script", installShVar);
-
+		
 		// execute install script (formerly it was the install.sh script)
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
-
+		
 		/* execute configure.sh */
 		String configureShScriptVarName = "configureShScript" + templateContext.getIdForNames();
 		String configureShScript = this.getConfigureShAsString();
@@ -229,20 +217,20 @@ public class Handler {
 		configureShScript = "touch ~/configure.sh; echo \"" + configureShScript.replace("\"", "\\\"").replace("$", "\\$") + "\" > ~/configure.sh; sudo httpdport=" + httpdport + " sh ~/configure.sh";
 		Variable configureShVar = templateContext.createGlobalStringVariable(configureShScriptVarName, configureShScript);
 		runScriptRequestInputParams.put("script", configureShVar);
-
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
-
+		
+		
 		/* execute start.sh */
 		String startShScriptVarName = "startShScript" + templateContext.getIdForNames();
 		String startShScript = this.getStartShAsString();
 		startShScript = "touch ~/start.sh; echo \"" + startShScript.replace("\"", "\\\"").replace("$", "\\$") + "\" > ~/start.sh; sudo sh ~/start.sh";
 		Variable startShVar = templateContext.createGlobalStringVariable(startShScriptVarName, startShScript);
 		runScriptRequestInputParams.put("script", startShVar);
-
 		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		
 		return true;
 	}
-
+	
 	/**
 	 * Small helper method to retrieve all DOM Node contents
 	 *
