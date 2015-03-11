@@ -204,7 +204,7 @@ public class Handler {
 		installPackageRequestInputParams.put("sshUser", sshUserVariable);
 		installPackageRequestInputParams.put("packageNames", unzipPackageVar);
 		
-		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>(), true);
 		
 		List<AbstractArtifactReference> refs = null;
 		if (impl == null) {
@@ -237,7 +237,7 @@ public class Handler {
 			
 			runScriptRequestInputParams.put("script", unzipScriptStringVar);
 			
-			this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+			this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		}
 		
 		if (impl != null) {
@@ -262,7 +262,7 @@ public class Handler {
 					
 					runScriptRequestInputParams.put("script", runShScriptStringVar);
 					
-					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 					
 				}
 			}

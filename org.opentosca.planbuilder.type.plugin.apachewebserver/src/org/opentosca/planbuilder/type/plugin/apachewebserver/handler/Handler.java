@@ -34,11 +34,11 @@ import org.w3c.dom.NodeList;
  *
  */
 public class Handler {
-
+	
 	private Plugin invokerPlugin = new Plugin();
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
-
-
+	
+	
 	/**
 	 * Adds the needed BPEL Code with the given TemplateContext to install an
 	 * Apache HTTP Server on an Ubuntu OS which is along the Infrastructure Path
@@ -183,8 +183,8 @@ public class Handler {
 		installPackageRequestInputParams.put("sshKey", sshKeyVariable);
 		installPackageRequestInputParams.put("sshUser", sshUserVariable);
 		installPackageRequestInputParams.put("packageNames", httpdPackageVar);
-		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
 		
+		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>(), true);
 		
 		/*
 		 * Execute install, configure and start scripts
@@ -207,7 +207,7 @@ public class Handler {
 		runScriptRequestInputParams.put("script", installShVar);
 		
 		// execute install script (formerly it was the install.sh script)
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		
 		/* execute configure.sh */
 		String configureShScriptVarName = "configureShScript" + templateContext.getIdForNames();
@@ -217,8 +217,8 @@ public class Handler {
 		configureShScript = "touch ~/configure.sh; echo \"" + configureShScript.replace("\"", "\\\"").replace("$", "\\$") + "\" > ~/configure.sh; sudo httpdport=" + httpdport + " sh ~/configure.sh";
 		Variable configureShVar = templateContext.createGlobalStringVariable(configureShScriptVarName, configureShScript);
 		runScriptRequestInputParams.put("script", configureShVar);
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
 		
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		
 		/* execute start.sh */
 		String startShScriptVarName = "startShScript" + templateContext.getIdForNames();
@@ -226,8 +226,8 @@ public class Handler {
 		startShScript = "touch ~/start.sh; echo \"" + startShScript.replace("\"", "\\\"").replace("$", "\\$") + "\" > ~/start.sh; sudo sh ~/start.sh";
 		Variable startShVar = templateContext.createGlobalStringVariable(startShScriptVarName, startShScript);
 		runScriptRequestInputParams.put("script", startShVar);
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
 		
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		return true;
 	}
 	
@@ -246,7 +246,7 @@ public class Handler {
 		}
 		return value;
 	}
-
+	
 	/**
 	 * Loads a bash file into a string and returns it. The bash file contains
 	 * logic to configure an apache http server on ubuntu
@@ -262,7 +262,7 @@ public class Handler {
 			Handler.LOG.error("Couldn't load configure.sh file", e);
 			return null;
 		}
-
+		
 		try {
 			return FileUtils.readFileToString(configureShFile);
 		} catch (IOException e) {
@@ -270,7 +270,7 @@ public class Handler {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Loads a bash file into a string and returns it. The bash file contains
 	 * logic to configure an apache http server on ubuntu
@@ -286,7 +286,7 @@ public class Handler {
 			Handler.LOG.error("Couldn't load start.sh file", e);
 			return null;
 		}
-
+		
 		try {
 			return FileUtils.readFileToString(startShFile);
 		} catch (IOException e) {

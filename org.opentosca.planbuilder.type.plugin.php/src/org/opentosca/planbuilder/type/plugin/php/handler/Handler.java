@@ -159,7 +159,7 @@ public class Handler {
 		installPackageRequestInputParams.put("sshKey", sshKeyVariable);
 		installPackageRequestInputParams.put("packageNames", phpPackagesVar);
 		
-		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>(), true);
 		
 		/*
 		 * Execute start script (restart httpd)
@@ -177,7 +177,7 @@ public class Handler {
 		runScriptRequestInputParams.put("sshUser", sshUserVariable);
 		runScriptRequestInputParams.put("script", startShVar);
 		
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		
 		return true;
 	}

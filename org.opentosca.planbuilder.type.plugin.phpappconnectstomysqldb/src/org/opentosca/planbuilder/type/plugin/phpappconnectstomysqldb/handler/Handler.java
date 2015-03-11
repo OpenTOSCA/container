@@ -239,7 +239,7 @@ public class Handler {
 		
 		inputMappings.put("script", connectToDBShStringVar);
 		
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>(),false);
 		
 		return true;
 	}

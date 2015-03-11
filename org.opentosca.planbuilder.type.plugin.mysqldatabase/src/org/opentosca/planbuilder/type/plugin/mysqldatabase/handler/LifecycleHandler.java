@@ -214,7 +214,7 @@ public class LifecycleHandler extends AbstractHandler {
 					// reusing already set mappings
 					inputMappings.put("script", runShScriptStringVar);
 					
-					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
+					this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>(), false);
 					
 				}
 			}

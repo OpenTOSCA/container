@@ -81,7 +81,7 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 */
 	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput) {
 		try {
-			return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput);
+			return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, false);
 		} catch (IOException e) {
 			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
 			return false;
@@ -108,9 +108,9 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 *
 	 * @return true iff adding logic for Invoker call was successful
 	 */
-	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput) {
+	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) {
 		try {
-			return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput);
+			return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
 		} catch (IOException e) {
 			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
 			return false;
@@ -137,7 +137,7 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 */
 	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, Variable sshUser, Variable sshKey, String templateId) {
 		try {
-			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey, templateId);
+			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey, templateId, true);
 		} catch (IOException e) {
 			LOG.error("Couldn't load internal files", e);
 			return false;

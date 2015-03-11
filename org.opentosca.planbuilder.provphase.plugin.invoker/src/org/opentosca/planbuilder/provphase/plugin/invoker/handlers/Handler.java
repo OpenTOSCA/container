@@ -232,7 +232,7 @@ public class Handler {
 		return true;
 	}
 	
-	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput) throws IOException {
+	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) throws IOException {
 		// register wsdls and xsd
 		QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), this.resHandler.getServiceInvokerWSDLFile());
 		QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), this.resHandler.getServiceInvokerWSDLFile());
@@ -315,7 +315,11 @@ public class Handler {
 				assignNode.appendChild(replyToCopy);
 			}
 			
-			context.getProvisioningPhaseElement().appendChild(assignNode);
+			if (appendToPrePhase) {
+				context.getPrePhaseElement().appendChild(assignNode);
+			} else {
+				context.getProvisioningPhaseElement().appendChild(assignNode);
+			}
 			
 		} catch (SAXException e) {
 			Handler.LOG.error("Couldn't generate DOM node for the request message assign element", e);
@@ -333,7 +337,11 @@ public class Handler {
 			correlationSetsNode = context.importNode(correlationSetsNode);
 			invokeNode.appendChild(correlationSetsNode);
 			
-			context.getProvisioningPhaseElement().appendChild(invokeNode);
+			if (appendToPrePhase) {
+				context.getPrePhaseElement().appendChild(invokeNode);
+			} else {
+				context.getProvisioningPhaseElement().appendChild(invokeNode);
+			}
 			
 		} catch (SAXException e) {
 			Handler.LOG.error("Error reading/writing XML File", e);
@@ -352,7 +360,11 @@ public class Handler {
 			correlationSetsNode = context.importNode(correlationSetsNode);
 			receiveNode.appendChild(correlationSetsNode);
 			
-			context.getProvisioningPhaseElement().appendChild(receiveNode);
+			if (appendToPrePhase) {
+				context.getPrePhaseElement().appendChild(receiveNode);
+			} else {
+				context.getProvisioningPhaseElement().appendChild(receiveNode);
+			}
 			
 		} catch (SAXException e1) {
 			Handler.LOG.error("Error reading/writing XML File", e1);
@@ -370,7 +382,11 @@ public class Handler {
 			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
 			responseAssignNode = context.importNode(responseAssignNode);
 			
-			context.getProvisioningPhaseElement().appendChild(responseAssignNode);
+			if (appendToPrePhase) {
+				context.getPrePhaseElement().appendChild(responseAssignNode);
+			} else {
+				context.getProvisioningPhaseElement().appendChild(responseAssignNode);
+			}
 			
 		} catch (SAXException e) {
 			Handler.LOG.error("Error reading/writing XML File", e);
@@ -383,7 +399,7 @@ public class Handler {
 		return true;
 	}
 	
-	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput) throws IOException {
+	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) throws IOException {
 		
 		// fetch "meta"-data for invoker message (e.g. csarid, nodetemplate
 		// id..)
@@ -395,10 +411,10 @@ public class Handler {
 			templateId = context.getRelationshipTemplate().getId();
 			isNodeTemplate = false;
 		}
-		return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput);
+		return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
 	}
 	
-	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, Variable sshUser, Variable sshKey, String templateId) throws IOException {
+	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, Variable sshUser, Variable sshKey, String templateId, boolean appendToPrePhase) throws IOException {
 		LOG.debug("Handling DA " + ref.getReference());
 		/*
 		 * Contruct all needed data (paths, url, scripts)
@@ -422,7 +438,12 @@ public class Handler {
 		try {
 			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(), containerAPIAbsoluteURIXPathQuery, containerAPIAbsoluteURIVar.getName());
 			assignNode = templateContext.importNode(assignNode);
-			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
+			
+			if (appendToPrePhase) {
+				templateContext.getPrePhaseElement().appendChild(assignNode);
+			} else {
+				templateContext.getProvisioningPhaseElement().appendChild(assignNode);
+			}
 		} catch (IOException e) {
 			LOG.error("Couldn't read internal file", e);
 			return false;
@@ -445,7 +466,7 @@ public class Handler {
 		runScriptRequestInputParams.put("sshUser", sshUser);
 		runScriptRequestInputParams.put("script", mkdirScriptVar);
 		
-		this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 		
 		/*
 		 * append transferFile logic with method: methodname: transferFile
@@ -460,7 +481,7 @@ public class Handler {
 		transferFileRequestInputParams.put("targetAbsolutePath", ubuntuFilePathVar);
 		transferFileRequestInputParams.put("sourceURLorLocalAbsolutePath", containerAPIAbsoluteURIVar);
 		
-		this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu", "planCallbackAddress_invoker", transferFileRequestInputParams, new HashMap<String, Variable>());
+		this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu", "planCallbackAddress_invoker", transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 		
 		return true;
 	}

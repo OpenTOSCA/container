@@ -184,7 +184,7 @@ public class Handler {
 		installPackageRequestInputParams.put("sshUser", sshUserVariable);
 		installPackageRequestInputParams.put("packageNames", mySqlServerPackageVar);
 		
-		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "installPackage", "InterfaceUbuntu", "planCallbackAddress_invoker", installPackageRequestInputParams, new HashMap<String, Variable>(), true);
 		
 		/*
 		 * Execute install, configure and start scripts
@@ -205,7 +205,7 @@ public class Handler {
 		runScriptRequestInputParams.put("script", startMysqlServerShVar);
 		
 		// execute script to start mysql server
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		
 		// create script to set the mysql rootpw
 		String setRootPwShVarName = "setRootPwShScript" + templateContext.getIdForNames();
@@ -226,7 +226,7 @@ public class Handler {
 		}
 		
 		// execute install script (formerly it was the install.sh script)
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 		
 		if (!this.executeConfigureDBSh(mySqlServerIp, sshKeyVariable, sshUserVariable, templateContext, templateId)) {
 			return false;
@@ -355,7 +355,7 @@ public class Handler {
 		inputMappings.put("script", configureDBShStringVar);
 		
 		// use invoker now to execute the script
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>(),false);
 		
 		return true;
 	}

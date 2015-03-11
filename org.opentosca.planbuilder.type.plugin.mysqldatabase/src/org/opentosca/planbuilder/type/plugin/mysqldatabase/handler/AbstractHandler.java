@@ -175,7 +175,7 @@ public abstract class AbstractHandler {
 		inputMappings.put("script", configureDBShStringVar);
 		
 		// use invoker now to execute the script
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", inputMappings, new HashMap<String, Variable>(), false);
 		
 		return true;
 	}

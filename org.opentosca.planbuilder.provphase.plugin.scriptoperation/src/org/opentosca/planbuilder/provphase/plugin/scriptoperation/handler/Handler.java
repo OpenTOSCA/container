@@ -198,7 +198,7 @@ public class Handler {
 		
 		runScriptRequestInputParams.put("script", runShScriptStringVar);
 		
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>());
+		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),false);
 		
 		return true;
 	}

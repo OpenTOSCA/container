@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.commons.PluginUtils;
 import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.commons.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
@@ -31,45 +32,41 @@ import org.slf4j.LoggerFactory;
 public class Handler {
 	
 	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
+	private Plugin invokerOpPlugin = new Plugin();
 	
 	// create method external input parameters without CorrelationId
 	private final static String[] createEC2InstanceExternalInputParams = {"securityGroup", "keyPairName", "secretKey", "accessKey", "regionEndpoint", "AMIid", "instanceType"};
 	
 	
 	/**
-	 * Adds fragments to provision a EC2 VM
+	 * Adds fragments to provision a VM
 	 *
 	 * @param context a TemplatePlanContext for a EC2, VM or Ubuntu Node
 	 * @param nodeTemplate the NodeTemplate on which the fragments are used
 	 * @return true iff adding the fragments was successful
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
-		Plugin invokerOpPlugin = new Plugin();
 		
 		// we check if the ubuntu which must be connected to this node (if not
 		// directly then trough some vm nodetemplate) is a nodetype with a
 		// ubuntu version e.g. Ubuntu_13.10 and stuff
-		AbstractNodeTemplate ubuntuNodeTemplate = null;
+		AbstractNodeTemplate ubuntuNodeTemplate = this.findUbuntuNode(nodeTemplate);
 		Variable ubuntuAMIIdVar = null;
-		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
-			if (this.isUbuntuNodeTypeWithImplicitImage(relationTemplate.getSource().getType().getId())) {
-				ubuntuNodeTemplate = relationTemplate.getSource();
-			}
-			
-			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
-				if (this.isUbuntuNodeTypeWithImplicitImage(relationTemplate2.getSource().getType().getId())) {
-					ubuntuNodeTemplate = relationTemplate.getSource();
-				}
-			}
+		
+		if (ubuntuNodeTemplate == null) {
+			LOG.error("Couldn't find Ubuntu Node");
+			return false;
 		}
 		
 		// here either the ubuntu connected to the provider this handler is
 		// working on hasn't a version in the ID (ubuntu version must be written
 		// in AMIId property then) or something went really wrong
-		if (ubuntuNodeTemplate != null) {
+		if (this.isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType().getId())) {
 			// we'll set a global variable with the necessary ubuntu image
 			ubuntuAMIIdVar = context.createGlobalStringVariable("ubuntu_AMIId", "ubuntu-13.10-server-cloudimg-amd64");
 		}
+		
+		LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type " + ubuntuNodeTemplate.getType().getId().toString());
 		
 		// find InstanceId Property inside ubuntu nodeTemplate
 		Variable instanceIdPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
@@ -99,6 +96,66 @@ public class Handler {
 			Handler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
 			return false;
 		}
+		
+		// find sshUser and sshKey
+		Variable sshUserVariable = context.getPropertyVariable("SSHUser");
+		if (sshUserVariable == null) {
+			sshUserVariable = context.getPropertyVariable("SSHUser", true);
+			if (sshUserVariable == null) {
+				sshUserVariable = context.getPropertyVariable("SSHUser", false);
+			}
+		}
+		
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isVariableValueEmpty(sshUserVariable, context)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				sshUserVariable = null;
+			}
+		}
+		
+		Variable sshKeyVariable = context.getPropertyVariable("SSHPrivateKey");
+		if (sshKeyVariable == null) {
+			sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", true);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", false);
+			}
+		}
+		
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isVariableValueEmpty(sshKeyVariable, context)) {
+				// see sshUserVariable..
+				sshKeyVariable = null;
+			}
+		}
+		// add sshUser and sshKey to the input message of the build plan, if
+		// needed
+		if (sshUserVariable == null) {
+			LOG.debug("Adding sshUser field to plan input");
+			context.addStringValueToPlanRequest("sshUser");
+			
+		}
+		
+		if (sshKeyVariable == null) {
+			LOG.debug("Adding sshKey field to plan input");
+			context.addStringValueToPlanRequest("sshKey");
+		}
+		
+		// adds field into plan input message to give the plan it's own address
+		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
+		// 2.x can't give that at runtime (bug)
+		LOG.debug("Adding plan callback address field to plan input");
+		context.addStringValueToPlanRequest("planCallbackAddress_invoker");
+		
+		// add csarEntryPoint to plan input message
+		LOG.debug("Adding csarEntryPoint field to plan input");
+		context.addStringValueToPlanRequest("csarEntrypoint");
 		
 		Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<String, Variable>();
 		
@@ -164,7 +221,18 @@ public class Handler {
 		// we'll add the logic to VM Nodes Prov phase, as we need proper updates
 		// of properties at the InstanceDataAPI
 		
-		invokerOpPlugin.handle(context, "create", "InterfaceAmazonEC2VM", "planCallbackAddress_invoker", createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
+		this.invokerOpPlugin.handle(context, "create", "InterfaceAmazonEC2VM", "planCallbackAddress_invoker", createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
+		
+		/*
+		 * Check whether the SSH port is open on the VM
+		 */
+		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
+		
+		startRequestInputParams.put("hostname", serverIpPropWrapper);
+		startRequestInputParams.put("sshUser", sshUserVariable);
+		startRequestInputParams.put("sshKey", sshKeyVariable);
+		
+		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu", "planCallbackAddress_invoker", startRequestInputParams, new HashMap<String, Variable>(), false);
 		
 		return true;
 	}
@@ -188,6 +256,29 @@ public class Handler {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Search from the given NodeTemplate for an Ubuntu NodeTemplate
+	 * 
+	 * @param nodeTemplate an AbstractNodeTemplate
+	 * @return an Ubuntu NodeTemplate, may be null
+	 */
+	private AbstractNodeTemplate findUbuntuNode(AbstractNodeTemplate nodeTemplate) {
+		
+		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(relationTemplate.getSource().getType().getId())) {
+				return relationTemplate.getSource();
+			}
+			
+			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
+				if (PluginUtils.isSupportedUbuntuVMNodeType(relationTemplate2.getSource().getType().getId())) {
+					return relationTemplate2.getSource();
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 }
