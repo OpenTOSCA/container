@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * This Class represents the low-level algorithm for the concept in <a href=
  * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
  * >Konzept und Implementierung eine Java-Komponente zur Generierung von WS-BPEL
- * 2.0 BuildPlans für OpenTOSCA</a>. This includes selecting a implementation
+ * 2.0 BuildPlans fuer OpenTOSCA</a>. This includes selecting a implementation
  * (NodeTypeImplementation,Relationship..) where all artifacts (IA, DA) and the
  * operations of the template (Node and Relation) can be used for provisioning.
  * All complete possibilities of provisioning are hold inside a
