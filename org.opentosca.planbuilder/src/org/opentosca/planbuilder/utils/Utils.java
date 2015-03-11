@@ -39,6 +39,7 @@ public class Utils {
 	// kind of baseType-Configuration
 	public static final QName TOSCABASETYPE_CONNECTSTO = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
 	public static final QName TOSCABASETYPE_HOSTEDON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
+	public static final QName TOSCABASETYPE_DEPLOYEDON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
 	public static final QName TOSCABASETYPE_DEPENDSON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
 	public static final QName TOSCABASETYPE_SERVER = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
 	public static final QName TOSCABASETYPE_OS = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
@@ -185,6 +186,8 @@ public class Utils {
 				return type;
 			} else if (type.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
 				return type;
+			} else if(type.toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON.toString())){
+				return type;
 			}
 		}
 		// FIXME: when there are no basetypes we're screwed
@@ -209,7 +212,7 @@ public class Utils {
 		}
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 			Utils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
-			if (Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) || Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
+			if (Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) || Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString()) || Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON.toString())) {
 				Utils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 				Utils.getInfrastructureNodes(relation.getTarget(), infrastructureNodes);
 			}
@@ -299,7 +302,7 @@ public class Utils {
 		// edges
 		for (AbstractNodeTemplate infraNode : infraNodes) {
 			for (AbstractRelationshipTemplate outgoingEdge : infraNode.getOutgoingRelations()) {
-				if (Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) || Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
+				if (Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) || Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString()) || Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 					infrastructureEdges.add(outgoingEdge);
 				}
 			}

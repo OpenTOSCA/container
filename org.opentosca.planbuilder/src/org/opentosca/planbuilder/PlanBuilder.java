@@ -445,7 +445,7 @@ public class PlanBuilder {
 				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
 
-			} else if (baseType.toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
+			} else if (baseType.toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON.toString())){
 
 				// with the other relations we have to build first the source,
 				// then the relation and at last the target
