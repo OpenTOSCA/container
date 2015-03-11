@@ -37,10 +37,6 @@ public class Handler {
 	private Plugin invokerPlugin = new Plugin();
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
 	
-	private final static QName ubuntuNodeType = new QName("http://www.example.com/tosca/ServiceTemplates/EC2VM", "Ubuntu");
-	private final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
-	private final static QName ubuntuNodeTypeOpenTOSCAPlanBuilder = new QName("http://opentosca.org/types/declarative", "Ubuntu");
-	
 	
 	/**
 	 * Adds BPEL code to the given TemplateContext which installs an PhpModule
