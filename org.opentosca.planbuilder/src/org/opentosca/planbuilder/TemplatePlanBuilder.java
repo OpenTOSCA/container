@@ -383,6 +383,7 @@ public class TemplatePlanBuilder {
 	private static class DACandidateWrapper {
 		
 		private AbstractNodeTypeImplementation impl;
+		private AbstractNodeTemplate nodeTemplate;
 		private List<AbstractDeploymentArtifact> das = new ArrayList<AbstractDeploymentArtifact>();
 		private List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 		private List<IPlanBuilderPrePhaseDAPlugin> plugins = new ArrayList<IPlanBuilderPrePhaseDAPlugin>();
@@ -393,8 +394,9 @@ public class TemplatePlanBuilder {
 		 * 
 		 * @param impl an AbstractNodeTypeImplementation with a DA
 		 */
-		private DACandidateWrapper(AbstractNodeTypeImplementation impl) {
+		private DACandidateWrapper(AbstractNodeTemplate nodeTemplate, AbstractNodeTypeImplementation impl) {
 			this.impl = impl;
+			this.nodeTemplate = nodeTemplate;
 		}
 		
 		/**
@@ -418,8 +420,8 @@ public class TemplatePlanBuilder {
 		 * @return true if all DA's of the NodeTypeImplementation can be
 		 *         deployed, else false
 		 */
-		private boolean isValid() {
-			return this.impl.getDeploymentArtifacts().size() == this.das.size();
+		private boolean isValid() {			
+			return TemplatePlanBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
 		}
 	}
 	
@@ -605,7 +607,7 @@ public class TemplatePlanBuilder {
 		
 		// calculate nodeImpl candidates where all DAs of each can be
 		// provisioned
-		TemplatePlanBuilder.calculateBestImplementationDACandidates(nodeTypeImpls, daPlugins, infraNodes, chain);
+		TemplatePlanBuilder.calculateBestImplementationDACandidates(nodeTemplate, nodeTypeImpls, daPlugins, infraNodes, chain);
 		for (DACandidateWrapper wrapper : chain.daCandidates) {
 			int length = wrapper.das.size();
 			for (int i = 0; i < length; i++) {
@@ -885,16 +887,19 @@ public class TemplatePlanBuilder {
 	 *            NodeTypeImplementations belong to
 	 * @param chain a ProvisioningChain where the candidates are added to
 	 */
-	private static void calculateBestImplementationDACandidates(List<AbstractNodeTypeImplementation> impls, List<IPlanBuilderPrePhaseDAPlugin> plugins, List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain) {
+	private static void calculateBestImplementationDACandidates(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTypeImplementation> impls, List<IPlanBuilderPrePhaseDAPlugin> plugins, List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain) {
 		List<DACandidateWrapper> candidates = new ArrayList<DACandidateWrapper>();
 		
 		for (AbstractNodeTypeImplementation impl : impls) {
-			TemplatePlanBuilder.LOG.debug("Checking DAs of NodeTypeImpl {}", impl.getName());
-			DACandidateWrapper candidate = new DACandidateWrapper(impl);
-			for (AbstractDeploymentArtifact da : impl.getDeploymentArtifacts()) {
+			TemplatePlanBuilder.LOG.debug("Checking DAs of NodeTypeImpl {} and NodeTemplate {}", impl.getName(), nodeTemplate.getId());
+			DACandidateWrapper candidate = new DACandidateWrapper(nodeTemplate,impl);
+			
+			List<AbstractDeploymentArtifact> effectiveDAs = TemplatePlanBuilder.calculateEffectiveDAs(nodeTemplate, impl);
+			
+			for (AbstractDeploymentArtifact da : effectiveDAs) {
 				TemplatePlanBuilder.LOG.debug("Checking whether DA {} can be deployed", da.getName());
 				for (AbstractNodeTemplate infraNode : infraNodes) {
-					TemplatePlanBuilder.LOG.debug("Checking if DA {} can be deployed on InfraNode {}", da.getName(), infraNode.getId());
+					TemplatePlanBuilder.LOG.debug("Checking if DA {} can be deployed on InfraNode {}", da.getName(), infraNode.getId());
 					for (IPlanBuilderPrePhaseDAPlugin plugin : plugins) {
 						TemplatePlanBuilder.LOG.debug("Checking with Plugin {}", plugin.getID());
 						if (plugin.canHandle(da, infraNode.getType())) {
@@ -948,6 +953,9 @@ public class TemplatePlanBuilder {
 			// check if all ias of the implementation can be provisioned
 			if (candidate.isValid()) {
 				candidates.add(candidate);
+				TemplatePlanBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
+			} else {
+				TemplatePlanBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
 			}
 		}
 		chain.iaCandidates = candidates;
@@ -1017,5 +1025,44 @@ public class TemplatePlanBuilder {
 		}
 		chain.iaCandidates = candidates;
 		
+	}
+	
+	/**
+	 * Calculates a list of DA's containing an effective set of DA combining the
+	 * DA's from the given NodeImplementation and NodeTemplates according to the
+	 * TOSCA specification.
+	 * 
+	 * @param nodeTemplate the NodeTemplate the NodeImplementations belongs to
+	 * @param nodeImpl a NodeTypeImplementation for the given NodeTemplate
+	 * @return a possibly empty list of AbstractDeploymentArtifacts
+	 */
+	private static List<AbstractDeploymentArtifact> calculateEffectiveDAs(AbstractNodeTemplate nodeTemplate, AbstractNodeTypeImplementation nodeImpl) {
+		List<AbstractDeploymentArtifact> effectiveDAs = new ArrayList<AbstractDeploymentArtifact>();
+		
+		List<AbstractDeploymentArtifact> nodeImplDAs = nodeImpl.getDeploymentArtifacts();
+		List<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
+				
+		
+		for (AbstractDeploymentArtifact templateDa : nodeTemplateDAs) {
+			boolean overridesDA = false;
+			int daIndex = -1;
+			for (int i = 0; i < nodeImplDAs.size(); i++) {
+				AbstractDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
+				
+				if (nodeImplDa.getName().equals(templateDa.getName()) & nodeImplDa.getArtifactType().toString().equals(nodeImplDa.getArtifactType().toString())) {
+					overridesDA = true;
+					daIndex = i;
+				}
+			}
+			
+			if (overridesDA) {
+				nodeImplDAs.remove(daIndex);				
+			}
+		}
+		
+		effectiveDAs.addAll(nodeTemplateDAs);
+		effectiveDAs.addAll(nodeImplDAs);
+		
+		return effectiveDAs;
 	}
 }
