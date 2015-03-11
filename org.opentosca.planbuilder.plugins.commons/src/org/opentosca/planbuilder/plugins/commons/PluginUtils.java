@@ -57,7 +57,7 @@ public class PluginUtils {
 	 * @return a boolean. True if given nodeType is a virtual machine nodeType
 	 */
 	public static boolean isSupportedVMNodeType(QName nodeType) {
-		if (nodeType.toString().equals(Types.vmNodeType)) {
+		if (nodeType.toString().equals(Types.vmNodeType.toString())) {
 			return true;
 		}
 		return false;
