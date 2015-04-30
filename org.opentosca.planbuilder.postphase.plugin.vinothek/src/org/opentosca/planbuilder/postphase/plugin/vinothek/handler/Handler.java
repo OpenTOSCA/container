@@ -30,7 +30,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.plugins.constants.PluginConstants;
+import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.osgi.framework.FrameworkUtil;
 import org.w3c.dom.Document;
@@ -133,7 +133,7 @@ public class Handler {
 			zipFile.close();
 			
 			// find serverip var name of the VM hosting the application
-			String serverIpVarName = context.getVariableNameOfInfraNodeProperty(PluginConstants.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+			String serverIpVarName = context.getVariableNameOfInfraNodeProperty(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 			
 			// add selfserviceApplicationUrl to output
 			context.addStringValueToPlanResponse("selfserviceApplicationUrl");
