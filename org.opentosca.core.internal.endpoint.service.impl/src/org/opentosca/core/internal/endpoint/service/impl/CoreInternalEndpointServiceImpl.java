@@ -359,7 +359,9 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 		List<WSDLEndpoint> queryResults = query.getResultList();
 		for (WSDLEndpoint e : queryResults) {
 			commandInterpreter.println("CSARId: " + e.getCSARId());
-			commandInterpreter.println("PortType: " + e.getPortType().toString());
+			
+			if(e.getPortType() != null){
+			commandInterpreter.println("PortType: " + e.getPortType().toString());}
 			commandInterpreter.println("PlanId: " + (e.getPlanId() == null ? "" : e.getPlanId().toString()));
 			commandInterpreter.println("NodeTypeImpl: " + (e.getNodeTypeImplementation() == null ? "" : e.getNodeTypeImplementation().toString()));
 			commandInterpreter.println("IaName: " + (e.getIaName() == null ? "" : e.getIaName()));
