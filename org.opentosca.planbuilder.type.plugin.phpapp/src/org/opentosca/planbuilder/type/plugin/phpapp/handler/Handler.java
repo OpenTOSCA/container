@@ -231,7 +231,7 @@ public class Handler {
 			runScriptRequestInputParams.put("sshKey", sshKeyVariable);
 			runScriptRequestInputParams.put("sshUser", sshUserVariable);
 			
-			String unzipScriptString = "cd /var/www/ && sudo unzip -q -o ~/" + templateContext.getCSARFileName() + "/" + ref.getReference();
+			String unzipScriptString = "cd /var/www/html && sudo unzip -q -o ~/" + templateContext.getCSARFileName() + "/" + ref.getReference();
 			String unzipScriptStringVarName = "unzipZipFile" + templateContext.getIdForNames();
 			Variable unzipScriptStringVar = templateContext.createGlobalStringVariable(unzipScriptStringVarName, unzipScriptString);
 			
