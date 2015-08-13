@@ -31,3 +31,4 @@ Service-Component: OSGI-INF/ToscaEngineServiceImpl_component.xml,
  OSGI-INF/XMLSerializerTest_StaticServiceHandler_component.xml,
  OSGI-INF/ReferenceMapperTest_StaticServiceHandler_component.xml
 Test-Suite: org.opentosca.toscaengine.xmlserializer.service.impl.test.XMLSerializerTestSuite, org.opentosca.toscaengine.service.impl.toscareferencemapping.test.ReferenceMapperTestSuite
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

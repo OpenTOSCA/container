@@ -19,3 +19,4 @@ Export-Package: org.opentosca.planbuilder,
  org.opentosca.planbuilder.plugins.context,
  org.opentosca.planbuilder.utils
 Service-Component: OSGI-INF/pluginregistrycomponent.xml
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

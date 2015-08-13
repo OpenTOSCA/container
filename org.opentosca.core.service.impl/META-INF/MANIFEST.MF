@@ -33,3 +33,4 @@ Import-Package: javax.xml.namespace,
 Service-Component: OSGI-INF/ICoreEndpointServiceImpl_component.xml, OSGI-INF/CoreFileServiceImpl_component.xml, OSGI-INF/ICoreModelRepositoryService_component.xml, OSGI-INF/CoreDeploymentTrackerServiceImpl_component.xml, OSGI-INF/CoreCapabilityServiceImpl_component.xml,
  OSGI-INF/CoreCredentialsServiceImpl_component.xml
 Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

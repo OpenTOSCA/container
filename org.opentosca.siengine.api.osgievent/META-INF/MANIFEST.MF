@@ -19,3 +19,4 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.osgi.service.event;version="1.3.0",
  org.slf4j;version="1.7.5"
 Bundle-Activator: org.opentosca.siengine.api.osgievent.Activator
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

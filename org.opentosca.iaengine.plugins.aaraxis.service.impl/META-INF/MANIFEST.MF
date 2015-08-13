@@ -24,3 +24,4 @@ Import-Package: javax.xml.namespace,
  org.slf4j;version="1.6.4",
  org.w3c.dom
 Test-Suite: org.opentosca.iaengine.plugins.aaraxis.service.impl.test.IAEnginePluginAarAxisServiceImplTestSuite
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

@@ -47,3 +47,4 @@ Import-Package: com.ibm.wsdl.extensions.http,
 Test-Suite: org.opentosca.planengine.plugin.bpelwso2.test.BpsPlanEnginePluginTestSuite
 Service-Component: OSGI-INF/BpsPlanEnginePlugin_component.xml,OSGI-INF/ODEEndpointUpdater_component.xml,
  OSGI-INF/BPELRESTLightUpdater_component.xml
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

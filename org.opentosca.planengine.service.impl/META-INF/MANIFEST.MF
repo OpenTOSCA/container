@@ -14,3 +14,4 @@ Import-Package: javax.xml.namespace,
  org.slf4j;version="1.6.4"
 Test-Suite: org.opentosca.planengine.service.impl.test.PlanEnginePluginTestSuite
 Service-Component: OSGI-INF/PlanManager_component.xml
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

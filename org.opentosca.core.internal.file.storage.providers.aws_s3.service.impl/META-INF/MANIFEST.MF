@@ -13,3 +13,4 @@ Import-Package: com.google.inject;version="1.3.0",
  org.opentosca.core.model.credentials,
  org.opentosca.exceptions
 Service-Component: OSGI-INF/CoreInternalFileStorageProviderAWSS3ServiceImpl_component.xml
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

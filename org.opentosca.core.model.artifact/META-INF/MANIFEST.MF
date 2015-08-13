@@ -18,3 +18,4 @@ Import-Package: org.opentosca.core.internal.file.storage.providers.service,
  org.slf4j;version="1.7.2"
 Service-Component: OSGI-INF/CSARFile_component.xml
 Test-Suite: org.opentosca.core.model.artifact.impl.test.CSARArtifactTestSuite
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

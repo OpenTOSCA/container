@@ -19,3 +19,4 @@ Import-Package: javax.persistence;version="2.0.3",
 Service-Component: OSGI-INF/CoreInternalFileServiceImpl_component.xml, OSGI-INF/CSARUnpacker_component.xml, OSGI-INF/CoreInternalFileServiceImplTest_component.xml, OSGI-INF/StorageProviderManager_component.xml, OSGI-INF/CSARUnpackerTest_component.xml, OSGI-INF/TOSCAMetaFileParserTest_component.xml,
  OSGI-INF/OSGiCommands_component.xml
 Test-Suite: org.opentosca.core.internal.file.service.impl.test.CoreInternalFileServiceImplTestSuite, org.opentosca.core.internal.file.service.impl.csar.test.CSARUnpackerTestSuite, org.opentosca.core.internal.file.service.impl.csar.test.TOSCAMetaFileParserTestSuite
+Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"
