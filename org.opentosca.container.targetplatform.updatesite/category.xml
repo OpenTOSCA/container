@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="org.opentosca.container.targetplatform.feature">
+      <category name="OpenTOSCAThirdPartyDeps"/>
+   </feature>
+   <category-def name="OpenTOSCAThirdPartyDeps" label="OpenTOSCA ThirdParty TargetPlatform"/>
+</site>
