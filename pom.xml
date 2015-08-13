@@ -1,25 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opentosca</groupId>
-  <artifactId>container</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.opentosca</groupId>
+    <artifactId>container</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-<properties>
-		<tycho-version>0.23.1</tycho-version>
-	</properties>
-<repositories>
-		<repository>
-			<id>openTOSCAContainerTargetPlatform</id>
-			<layout>p2</layout>
-			<url>http://nyuuyn.github.io/openTOSCAContainerDependencies/</url>
-		</repository>
-	</repositories>
-  <modules>
+    <properties>
+      <tycho-version>0.23.1</tycho-version>
+  </properties>
+  <!--<repositories>
+      <repository>
+         <id>openTOSCAContainerTargetPlatform</id>
+         <layout>p2</layout>
+         <url>http://nyuuyn.github.io/openTOSCAContainerDependencies/</url>
+     </repository>
+ </repositories>
+
+ <profiles>
+    <profile>
+        <id>build-individual-bundles</id>
+        <repositories>
+          <repository>
+             <id>openTOSCAContainerTargetPlatform</id>
+             <layout>p2</layout>
+             <url>http://nyuuyn.github.io/openTOSCAContainerDependencies/</url>
+         </repository>
+     </repositories>        
+ </profile>
+</profiles> -->
+<modules>
     <module>org.opentosca.bpsconnector</module>
     <module>org.opentosca.containerapi</module>
+    <module>org.opentosca.container.targetplatform</module>
+    <module>org.opentosca.container.targetplatform.feature</module>
+<module>org.opentosca.container.targetplatform.updatesite</module>
     <module>org.opentosca.core.internal.capability.service</module>
     <module>org.opentosca.core.internal.capability.service.impl</module>
     <module>org.opentosca.core.internal.credentials.service</module>
@@ -111,49 +127,78 @@
     <module>org.opentosca.util.http.service</module>
     <module>org.opentosca.util.http.service.impl</module>
     <module>org.opentosca.util.jpa.converters</module>
-  </modules>
-  <build>
+</modules>
+<build>
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
         <version>${tycho-version}</version>
         <extensions>true</extensions>
+    </plugin>
+    <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <deployableFeature>true</deployableFeature>
+        </configuration>
       </plugin>
-<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<environments>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-				</configuration>
-			</plugin>
+    <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+            <pomDependencies>consider</pomDependencies>
+            <target>
+                <artifact>
+                    <groupId>org.opentosca</groupId>
+                    <artifactId>org.opentosca.container.targetplatform</artifactId>
+                    <version>1.0.0-SNAPSHOT</version>
+                </artifact>
+                <resolver>p2</resolver>
+            </target>
+            <environments>
+              <environment>
+                 <os>linux</os>
+                 <ws>gtk</ws>
+                 <arch>x86</arch>
+             </environment>
+             <environment>
+                 <os>linux</os>
+                 <ws>gtk</ws>
+                 <arch>x86_64</arch>
+             </environment>
+             <environment>
+                 <os>win32</os>
+                 <ws>win32</ws>
+                 <arch>x86</arch>
+             </environment>
+             <environment>
+                 <os>win32</os>
+                 <ws>win32</ws>
+                 <arch>x86_64</arch>
+             </environment>
+             <environment>
+                 <os>macosx</os>
+                 <ws>cocoa</ws>
+                 <arch>x86_64</arch>
+             </environment>
+         </environments>
+         <ignoreTychoRepositories>false</ignoreTychoRepositories>
+     </configuration>
+ </plugin>
+</plugins>
+<pluginManagement>
+      <plugins>
+        <!-- Important for M2E self-hosting -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
     </plugins>
-  </build>
+</pluginManagement>
+
+</build>
 </project>
