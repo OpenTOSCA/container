@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="org.opentosca.container.targetplatform" sequenceNumber="3">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="false" type="InstallableUnit">
+<unit id="org.opentosca.container.targetplatform.feature.feature.group" version="1.0.0.201508131910"/>
+<repository location="http://nyuuyn.github.io/openTOSCAContainerDependencies/"/>
+</location>
+</locations>
+</target>

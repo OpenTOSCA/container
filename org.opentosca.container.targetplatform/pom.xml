@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+<parent>
+	<groupId>org.opentosca</groupId>
+  <artifactId>container</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+<relativePath>../</relativePath>
+</parent>
+
+  <groupId>org.opentosca</groupId>
+  <artifactId>org.opentosca.container.targetplatform</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>eclipse-target-definition</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.3</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>org.opentosca.container.targetplatform.target</file>
+                  <type>target</type>                  
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
