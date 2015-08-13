@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <groupId>org.opentosca</groupId>
-  <artifactId>org.opentosca.core.model.csar.toscametafile</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <artifactId>org.opentosca.planbuilder.type.plugin.phpappconnectstomysqldb</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>

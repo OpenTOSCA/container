@@ -4,7 +4,6 @@ Bundle-SymbolicName: org.opentosca.core.internal.model.repository.service.impl
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.derby.jdbc,
- org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.osgi.framework.console;version="1.1.0",
  org.opentosca.core.internal.model.repository.service,
  org.opentosca.core.model.csar.id,
@@ -15,3 +14,4 @@ Import-Package: org.apache.derby.jdbc,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
 Service-Component: OSGI-INF/ICoreInternalModelRepositoryServiceImpl_component.xml
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0"

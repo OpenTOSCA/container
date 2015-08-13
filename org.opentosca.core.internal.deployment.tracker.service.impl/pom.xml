@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <groupId>org.opentosca</groupId>
-  <artifactId>org.opentosca.core.model.csar.toscametafile</artifactId>
+  <artifactId>org.opentosca.core.internal.deployment.tracker.service.impl</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
