@@ -34,6 +34,7 @@
     <module>org.opentosca.bpsconnector</module>
     <module>org.opentosca.containerapi</module>
 <module>org.opentosca.container.application</module>
+	<module>org.opentosca.container.feature</module>
 	<module>org.opentosca.container.product</module>
     <module>org.opentosca.container.targetplatform</module>
     <module>org.opentosca.container.targetplatform.feature</module>
