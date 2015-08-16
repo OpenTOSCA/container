@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Application2
+Bundle-SymbolicName: org.opentosca.container.application;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.opentosca.container.application2.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
