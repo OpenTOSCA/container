@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="OpenTOSCA Container Product Definition" uid="org.opentosca.container.product" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="false">
+<product name="OpenTOSCA Container Product Definition" uid="org.opentosca.container.product" id="org.opentosca.container.application.openTOSCAContainer" application="org.opentosca.container.application.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -17,7 +17,7 @@
 
    <windowImages/>
 
-   <launcher>
+   <launcher name="OpenTOSCA">
       <solaris/>
       <win useIco="false">
          <bmp/>
@@ -25,7 +25,10 @@
    </launcher>
 
    <vm>
+      <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</linux>
       <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</macos>
+      <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</solaris>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</windows>
    </vm>
 
    <plugins>
@@ -235,6 +238,10 @@
       <plugin id="sts"/>
    </plugins>
 
+   <features>
+      <feature id="org.opentosca.container.feature" version="1.0.0.qualifier"/>
+   </features>
+
    <configurations>
       <plugin id="aws-s3" autoStart="true" startLevel="4" />
       <plugin id="ch.qos.logback.classic" autoStart="true" startLevel="4" />
@@ -340,6 +347,7 @@
       <plugin id="org.mortbay.jetty.server" autoStart="true" startLevel="4" />
       <plugin id="org.mortbay.jetty.util" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bpsconnector" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.container.application" autoStart="false" startLevel="0" />
       <plugin id="org.opentosca.containerapi" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.core.internal.capability.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.core.internal.capability.service.impl" autoStart="true" startLevel="4" />
