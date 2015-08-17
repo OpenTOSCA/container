@@ -9,7 +9,7 @@
    <launcherArgs>
       <programArgs>-consoleLog -console --launcher.secondThread
       </programArgs>
-      <vmArgs>-Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dorg.osgi.service.http.port=1337 -XX:MaxPermSize=128M -Dosgi.locking=none
+      <vmArgs>-Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dorg.osgi.service.http.port=1337 -XX:MaxPermSize=128M -Dosgi.locking=none -Dosgi.compatibility.bootdelegation=true
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
