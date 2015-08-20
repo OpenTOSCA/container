@@ -311,14 +311,14 @@ public class Handler {
 
 		String localName = nodeType.getLocalPart();
 
-		String[] dotSplit = localName.split(".");
+		String[] dotSplit = localName.split("\\.");
 
 		if (dotSplit.length != 2) {
 			return null;
 		}
 
-		String[] leftDashSplit = dotSplit[0].split("-");
-		String[] rightDashSplit = dotSplit[1].split("-");
+		String[] leftDashSplit = dotSplit[0].split("\\-");
+		String[] rightDashSplit = dotSplit[1].split("\\-");
 
 		if (leftDashSplit.length != 2 && rightDashSplit.length != 2) {
 			return null;
