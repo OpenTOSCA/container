@@ -19,12 +19,6 @@ Import-Package: javax.activation;version="1.1.1",
  javax.xml.transform,
  javax.xml.transform.stream,
  javax.xml.xpath,
- org.apache.axiom.om,
- org.apache.axiom.om.impl.dom,
- org.apache.axiom.om.impl.llom,
- org.apache.axiom.soap,
- org.apache.axiom.soap.impl.llom.soap11,
- org.apache.axiom.util.stax,
  org.apache.commons.httpclient;version="3.1.0",
  org.apache.commons.httpclient.methods;version="3.1.0",
  org.apache.commons.httpclient.params;version="3.1.0",
@@ -45,5 +39,7 @@ Import-Package: javax.activation;version="1.1.1",
  org.xml.sax,
  org.xml.sax.helpers
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0"
-Bundle-ClassPath: META-INF/libs/org.apache.axis2.osgi-1.6.3.jar,
- .
+Bundle-ClassPath: .,
+ META-INF/libs/axiom-1.2.14-osgi.jar,
+ META-INF/libs/org.apache.servicemix.bundles.wsdl4j-1.6.3_1.jar,
+ META-INF/libs/org.apache.axis2.osgi-1.6.2.jar
