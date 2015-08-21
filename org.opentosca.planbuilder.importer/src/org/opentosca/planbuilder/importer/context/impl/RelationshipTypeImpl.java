@@ -93,7 +93,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 		} else {
 			namespace = this.definitions.getTargetNamespace();
 		}
-		QName id = new QName("{" + namespace + "}" + this.relationshipType.getName());
+		QName id = new QName(namespace,this.relationshipType.getName());
 		return id;
 	}
 
