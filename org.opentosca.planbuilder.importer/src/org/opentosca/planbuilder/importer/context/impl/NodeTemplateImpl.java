@@ -225,30 +225,6 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 			}
 		}
 
-//		// TODO move this to definitionsimpl
-//		for (AbstractDefinitions defs : this.definitions.getImportedDefinitions()) {
-//			for (AbstractNodeTypeImplementation impl : defs.getNodeTypeImplementations()) {
-//
-//				NodeTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + "for nodetemplate" + this.nodeTemplate.getId());
-//				if (impl.getNodeType() == null) {
-//					NodeTemplateImpl.LOG.debug("TYPE IS NULL");
-//				}
-//				if (impl.getNodeType() == null) {
-//					NodeTemplateImpl.LOG.debug("NodeType is null, NodeTypeImpl name: " + impl.getName());
-//
-//				} else {
-//					if (impl.getNodeType().getId() == null) {
-//						NodeTemplateImpl.LOG.debug("NodeType ID is null");
-//					}
-//				}
-//
-//				if (impl.getNodeType().getId().toString().equals(this.nodeTemplate.getType().toString())) {
-//					NodeTemplateImpl.LOG.debug("Adding implementation for " + this.nodeTemplate.getId() + " with id: " + impl.getName());
-//					impls.add(impl);
-//				}
-//			}
-//		}
-
 		return impls;
 	}
 

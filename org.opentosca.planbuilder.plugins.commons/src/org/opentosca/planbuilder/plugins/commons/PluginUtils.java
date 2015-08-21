@@ -53,17 +53,7 @@ public class PluginUtils {
 				&& PluginUtils.isProperUbuntuLocalName(nodeTypeLN)) {
 			return true;
 		}
-
-		// FIXME TODO although equals() should do a proper check, im pretty sure
-		// that OpenJDK 7 (which i must use right now) has a bug
-//		if (nodeType.toString().equals(
-//				Types.ubuntu1310ServerNodeType.toString())
-//				| nodeType.toString().equals(Types.ubuntuNodeType.toString())
-//				| nodeType.toString().equals(
-//						Types.ubuntu1310ServerVmNodeType.toString())) {
-//			return true;
-//		}
-
+		
 		return false;
 	}
 

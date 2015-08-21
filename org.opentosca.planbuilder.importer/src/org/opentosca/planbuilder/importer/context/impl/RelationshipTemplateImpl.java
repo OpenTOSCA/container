@@ -184,35 +184,6 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
 			}
 		}
 
-//		// TODO move this to definitionsimpl
-//		for (AbstractDefinitions defs : this.definitions.getImportedDefinitions()) {
-//			for (AbstractRelationshipTypeImplementation impl : defs.getRelationshipTypeImplementations()) {
-//
-//				RelationshipTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + "for relationshiptemplate" + this.relationshipTemplate.getId());
-//
-//				if (impl.getRelationshipType() == null) {
-//					RelationshipTemplateImpl.LOG.debug("RelationshipType is null, NodeTypeImpl name: " + impl.getName());
-//					continue;
-//
-//				} else {
-//					if (impl.getRelationshipType().getId() == null) {
-//						RelationshipTemplateImpl.LOG.debug("NodeType ID is null");
-//						continue;
-//					}
-//					if (impl.getRelationshipType().getTypeRef() == null) {
-//						RelationshipTemplateImpl.LOG.debug("TYPE IS NULL");
-//					}
-//				}
-//
-//				QName implQname = impl.getRelationshipType().getId();
-//				QName nodeTemplateTypeQname = this.relationshipTemplate.getType();
-//				if (impl.getRelationshipType().getId().toString().equals(this.relationshipTemplate.getType().toString())) {
-//					RelationshipTemplateImpl.LOG.debug("Adding implementation for " + this.relationshipTemplate.getId() + " with id: " + impl.getName());
-//					impls.add(impl);
-//				}
-//			}
-//		}
-
 		return impls;
 	}
 
