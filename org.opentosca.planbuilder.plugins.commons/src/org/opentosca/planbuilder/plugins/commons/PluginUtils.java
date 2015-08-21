@@ -75,14 +75,14 @@ public class PluginUtils {
 		// new QName("http://opentosca.org/types/declarative",
 		// "Ubuntu-13.10-Server");
 
-		String[] dotSplit = localName.split(".");
+		String[] dotSplit = localName.split("\\.");
 
 		if (dotSplit.length != 2) {
 			return false;
 		}
 
-		String[] leftDashSplit = dotSplit[0].split("-");
-		String[] rightDashSplit = dotSplit[1].split("-");
+		String[] leftDashSplit = dotSplit[0].split("\\-");
+		String[] rightDashSplit = dotSplit[1].split("\\-");
 
 		if (leftDashSplit.length != 2 && rightDashSplit.length != 2) {
 			return false;
