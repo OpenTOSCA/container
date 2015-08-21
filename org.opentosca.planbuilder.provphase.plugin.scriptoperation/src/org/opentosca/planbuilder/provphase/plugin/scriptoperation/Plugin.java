@@ -38,7 +38,7 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 */
 	@Override
 	public boolean canHandle(QName artifactType) {
-		return artifactType.toString().equals(this.baseTypeScriptArtifact.toString());
+		return artifactType.equals(this.baseTypeScriptArtifact);
 	}
 	
 	/**

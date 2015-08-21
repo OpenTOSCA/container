@@ -39,10 +39,10 @@ public class Plugin implements IPlanBuilderPrePhaseDAPlugin {
 	}
 	
 	private boolean canHandle(QName type, AbstractNodeType nodeType) {
-		if (this.packageDAType.toString().equals(type.toString()) && this.nodeType.toString().equals(nodeType.getId().toString())) {
+		if (this.packageDAType.equals(type) && this.nodeType.equals(nodeType.getId())) {
 			return true;
 		}
-		if (this.packageDAType.toString().equals(type.toString()) && this.nodeType2.toString().equals(nodeType.getId().toString())) {
+		if (this.packageDAType.equals(type) && this.nodeType2.equals(nodeType.getId())) {
 			return true;
 		}
 		return false;

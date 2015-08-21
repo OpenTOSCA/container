@@ -74,12 +74,12 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		if (nodeTemplate.getType().getId() == null) {
 			Plugin.LOG.debug("NodeTemplate NodeType id is null");
 		}
-		// this plugin can handle all referenced nodeType
+		// this plugin can handle all referenced nodeTypes
 		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		} else if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			// checking if this vmNode is connected to a nodeTemplate of Type
-			// EC2, if not this plugin can't handle this node
+			// cloud provider (ec2, openstack), if not this plugin can't handle this node
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
 				if (PluginUtils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
 					return true;
@@ -92,7 +92,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			// EC2 Node
 			
 			// check for generic UbuntuNodeType
-			if (nodeTemplate.getType().getId().toString().equals(Types.ubuntuNodeType)) {
+			if (nodeTemplate.getType().getId().equals(Types.ubuntuNodeType)) {
 				// here we check for a 3 node stack ubuntu -> vm -> cloud
 				// provider(ec2,openstack)
 				return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
@@ -134,7 +134,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 */
 	private boolean checkIfConnectedToVMandCloudProvider(AbstractNodeTemplate nodeTemplate) {
 		for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (relationshipTemplate.getTarget().getType().getId().toString().equals(Types.vmNodeType.toString())) {
+			if (relationshipTemplate.getTarget().getType().getId().equals(Types.vmNodeType)) {
 				if (this.checkIfConnectedToCloudProvider(relationshipTemplate.getTarget())) {
 					return true;
 				}

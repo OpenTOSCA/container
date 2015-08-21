@@ -56,7 +56,7 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 */
 	@Override
 	public boolean canHandle(QName artifactType) {
-		return artifactType.toString().equals(this.openTOSCAWar.toString());
+		return artifactType.equals(this.openTOSCAWar);
 	}
 	
 	/**

@@ -204,7 +204,7 @@ public class PropertyMappingsToOutputInitializer {
 		// fetch serviceTemplate and boundaryDefinitions
 		AbstractServiceTemplate buildPlanServiceTemplate = null;
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-			if (serviceTemplate.getQName().toString().equals(serviceTemplateId.toString())) {
+			if (serviceTemplate.getQName().equals(serviceTemplateId)) {
 				PropertyMappingsToOutputInitializer.LOG.debug("Found ServiceTemplate {}", serviceTemplate.getQName());
 				buildPlanServiceTemplate = serviceTemplate;
 			}

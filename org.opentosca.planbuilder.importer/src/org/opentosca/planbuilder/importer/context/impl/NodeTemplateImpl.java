@@ -165,7 +165,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 			NodeTemplateImpl.LOG.debug("Internal nodeTemplate nodeType is null");
 		}
 		for(AbstractNodeType nodeType : this.definitions.getAllNodeTypes()){
-			if(nodeType.getId().toString().equals(this.nodeTemplate.getType().toString())){
+			if(nodeType.getId().equals(this.nodeTemplate.getType())){
 				return nodeType;
 			}
 		}
@@ -219,7 +219,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
 
 			// TODO this is wrong, really
 			NodeTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + " for nodetemplate " + this.nodeTemplate.getId());
-			if (impl.getNodeType().getId().toString().equals(this.nodeTemplate.getType().toString())) {
+			if (impl.getNodeType().getId().equals(this.nodeTemplate.getType())) {
 				NodeTemplateImpl.LOG.debug("Adding implementation for " + this.nodeTemplate.getId() + " with id: " + impl.getName());
 				impls.add(impl);
 			}

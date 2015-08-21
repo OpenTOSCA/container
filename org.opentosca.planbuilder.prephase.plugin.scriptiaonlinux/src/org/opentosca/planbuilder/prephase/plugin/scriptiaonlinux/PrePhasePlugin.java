@@ -85,15 +85,15 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		
 		boolean isSupportedArtifactType = false;
 		
-		if(this.archiveArtifactType.toString().equals(artifactType.toString())){
+		if(this.archiveArtifactType.equals(artifactType)){
 			isSupportedArtifactType |= true;
 		}
 		
-		if(this.scriptArtifactType.toString().equals(artifactType.toString())){
+		if(this.scriptArtifactType.equals(artifactType)){
 			isSupportedArtifactType |= true;
 		}
 		
-		if(this.warArtifactType.toString().equals(artifactType.toString())){
+		if(this.warArtifactType.equals(artifactType)){
 			isSupportedArtifactType |= true;
 		}
 		
@@ -106,7 +106,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 */
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractImplementationArtifact ia, AbstractNodeTemplate nodeTemplate) {
-		if (ia.getArtifactType().toString().equals(this.warArtifactType.toString())) {
+		if (ia.getArtifactType().equals(this.warArtifactType)) {
 			// provisioning of webservice war files, is in the responsibility of
 			// the opentosca IA Engine. We just let the planbuilder know that
 			// some ias where provisioned

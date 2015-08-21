@@ -384,7 +384,7 @@ public class Handler {
 	}
 	
 	private boolean isZipArtifact(AbstractDeploymentArtifact artifact) {
-		if (artifact.getArtifactType().toString().equals(this.zipArtifactType.toString())) {
+		if (artifact.getArtifactType().equals(this.zipArtifactType)) {
 			return true;
 		} else {
 			return false;

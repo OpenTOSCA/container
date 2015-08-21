@@ -158,9 +158,9 @@ public class Utils {
 		List<QName> typeHierarchy = Utils.getNodeTypeHierarchy(nodeTemplate.getType());
 		for (QName type : typeHierarchy) {
 			Utils.LOG.debug("Checking Type in Hierarchy, type: " + type.toString());
-			if (type.toString().equals(Utils.TOSCABASETYPE_SERVER.toString())) {
+			if (type.equals(Utils.TOSCABASETYPE_SERVER)) {
 				return type;
-			} else if (type.toString().equals(Utils.TOSCABASETYPE_OS.toString())) {
+			} else if (type.equals(Utils.TOSCABASETYPE_OS)) {
 				return type;
 			}
 		}
@@ -180,13 +180,13 @@ public class Utils {
 		List<QName> typeHierarchy = Utils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
 		for (QName type : typeHierarchy) {
 			Utils.LOG.debug("Checking Type QName: " + type.toString());
-			if (type.toString().equals(Utils.TOSCABASETYPE_CONNECTSTO.toString())) {
+			if (type.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 				return type;
-			} else if (type.toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString())) {
+			} else if (type.equals(Utils.TOSCABASETYPE_DEPENDSON)) {
 				return type;
-			} else if (type.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString())) {
+			} else if (type.equals(Utils.TOSCABASETYPE_HOSTEDON)) {
 				return type;
-			} else if(type.toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON.toString())){
+			} else if(type.equals(Utils.TOSCABASETYPE_DEPLOYEDON)){
 				return type;
 			}
 		}
@@ -206,13 +206,13 @@ public class Utils {
 	 */
 	public static void getInfrastructureNodes(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> infrastructureNodes) {
 		Utils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + Utils.getNodeBaseType(nodeTemplate));
-		if (Utils.getNodeBaseType(nodeTemplate).toString().equals(Utils.TOSCABASETYPE_OS.toString()) || Utils.getNodeBaseType(nodeTemplate).toString().equals(Utils.TOSCABASETYPE_SERVER.toString())) {
+		if (Utils.getNodeBaseType(nodeTemplate).equals(Utils.TOSCABASETYPE_OS) || Utils.getNodeBaseType(nodeTemplate).equals(Utils.TOSCABASETYPE_SERVER)) {
 			Utils.LOG.debug("Found infrastructure node: " + nodeTemplate.getId());
 			infrastructureNodes.add(nodeTemplate);
 		}
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 			Utils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
-			if (Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) || Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString()) || Utils.getRelationshipBaseType(relation).toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON.toString())) {
+			if (Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPENDSON) || Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_HOSTEDON) || Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 				Utils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 				Utils.getInfrastructureNodes(relation.getTarget(), infrastructureNodes);
 			}
@@ -302,7 +302,7 @@ public class Utils {
 		// edges
 		for (AbstractNodeTemplate infraNode : infraNodes) {
 			for (AbstractRelationshipTemplate outgoingEdge : infraNode.getOutgoingRelations()) {
-				if (Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) || Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString()) || Utils.getRelationshipBaseType(outgoingEdge).toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+				if (Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPENDSON) || Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_HOSTEDON) || Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 					infrastructureEdges.add(outgoingEdge);
 				}
 			}
@@ -372,7 +372,7 @@ public class Utils {
 		List<QName> typeHierarchy = Utils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
 		// as somehow contains won't work here, we must cycle trough
 		for (QName qname : typeHierarchy) {
-			if (qname.toString().equals(type.toString())) {
+			if (qname.equals(type)) {
 				return true;
 			}
 		}
@@ -392,7 +392,7 @@ public class Utils {
 		List<QName> typeHierarchy = Utils.getNodeTypeHierarchy(nodeTemplate.getType());
 		// as somehow contains won't work here, we must cycle trough
 		for (QName qname : typeHierarchy) {
-			if (qname.toString().equals(type.toString())) {
+			if (qname.equals(type)) {
 				return true;
 			}
 		}

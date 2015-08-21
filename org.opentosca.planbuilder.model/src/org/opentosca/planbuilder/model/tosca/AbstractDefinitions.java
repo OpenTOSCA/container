@@ -106,7 +106,7 @@ public abstract class AbstractDefinitions {
 		for (AbstractRelationshipType relationshipType : this.getRelationshipTypes()) {
 			// info: at this moment i have no idea why it doesn't work using the
 			// QName.equals() method..
-			if (relationshipType.getId().toString().equals(relationshipTypeId.toString())) {
+			if (relationshipType.getId().equals(relationshipTypeId)) {
 				return relationshipType;
 			}
 		}
@@ -123,7 +123,7 @@ public abstract class AbstractDefinitions {
 	 */
 	public AbstractNodeType getNodeType(QName nodeTypeId) {
 		for (AbstractNodeType nodeType : this.getNodeTypes()) {
-			if (nodeType.getId().toString().equals(nodeTypeId.toString())) {
+			if (nodeType.getId().equals(nodeTypeId)) {
 				return nodeType;
 			}
 		}

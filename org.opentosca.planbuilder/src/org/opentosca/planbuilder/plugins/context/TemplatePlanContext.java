@@ -151,7 +151,7 @@ public class TemplatePlanContext {
 	public List<AbstractNodeTemplate> getNodeTemplates() {
 		// find the serviceTemplate
 		for (AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions().getServiceTemplates()) {
-			if (serviceTemplate.getQName().toString().equals(this.serviceTemplateId.toString())) {
+			if (serviceTemplate.getQName().equals(this.serviceTemplateId)) {
 				return serviceTemplate.getTopologyTemplate().getNodeTemplates();
 			}
 		}
@@ -168,7 +168,7 @@ public class TemplatePlanContext {
 	 */
 	public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
 		for (AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions().getServiceTemplates()) {
-			if (serviceTemplate.getQName().toString().equals(this.serviceTemplateId.toString())) {
+			if (serviceTemplate.getQName().equals(this.serviceTemplateId)) {
 				return serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
 			}
 		}
@@ -387,7 +387,7 @@ public class TemplatePlanContext {
 		List<Port> ports = this.getPortsFromService(service);
 		List<Port> portsWithPortType = new ArrayList<Port>();
 		for (Port port : ports) {
-			if (port.getBinding().getPortType().getQName().toString().equals(portType.toString())) {
+			if (port.getBinding().getPortType().getQName().equals(portType)) {
 				portsWithPortType.add(port);
 			}
 		}
@@ -501,7 +501,7 @@ public class TemplatePlanContext {
 			Utils.getInfrastructureNodes(this.getNodeTemplate(), infrastructureNodes);
 		} else {
 			AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-			if (Utils.getRelationshipBaseType(template).toString().equals(Utils.TOSCABASETYPE_CONNECTSTO.toString())) {
+			if (Utils.getRelationshipBaseType(template).equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 				Utils.getInfrastructureNodes(template, infrastructureNodes, true);
 				Utils.getInfrastructureNodes(template, infrastructureNodes, false);
 			} else {
@@ -543,7 +543,7 @@ public class TemplatePlanContext {
 			Utils.getInfrastructureEdges(this.getNodeTemplate(), infraEdges);
 		} else {
 			AbstractRelationshipTemplate template = this.templateBuildPlan.getRelationshipTemplate();
-			if (Utils.getRelationshipBaseType(template).toString().equals(Utils.TOSCABASETYPE_CONNECTSTO.toString())) {
+			if (Utils.getRelationshipBaseType(template).equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 				Utils.getInfrastructureEdges(template, infraEdges, true);
 				Utils.getInfrastructureEdges(template, infraEdges, false);
 			} else {

@@ -47,7 +47,7 @@ public class DeploymentArtifactImpl extends AbstractDeploymentArtifact {
 		} else if (!def.equals(other.def))
 			return false;
 
-		if(!other.getArtifactType().toString().equals(this.getArtifactType().toString())){
+		if(!other.getArtifactType().equals(this.getArtifactType())){
 			return false;
 		}
 

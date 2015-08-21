@@ -73,7 +73,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * @return true iff the QName represents a MySQL NodeType
 	 */
 	public static boolean isCompatibleMySQLServerNodeType(QName nodeTypeId) {
-		return Plugin.mySqlServerNodeType.toString().equals(nodeTypeId.toString());
+		return Plugin.mySqlServerNodeType.equals(nodeTypeId);
 	}
 	
 	

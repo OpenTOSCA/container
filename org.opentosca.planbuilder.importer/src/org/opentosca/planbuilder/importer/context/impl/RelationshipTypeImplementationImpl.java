@@ -91,7 +91,7 @@ public class RelationshipTypeImplementationImpl extends AbstractRelationshipType
 	@Override
 	public AbstractRelationshipType getRelationshipType() {
 		for(AbstractRelationshipType relation : this.defs.getAllRelationshipTypes()){
-			if(relation.getId().toString().equals(this.relationshipTypeImpl.getRelationshipType().toString())){
+			if(relation.getId().equals(this.relationshipTypeImpl.getRelationshipType())){
 				return relation;
 			}
 		}

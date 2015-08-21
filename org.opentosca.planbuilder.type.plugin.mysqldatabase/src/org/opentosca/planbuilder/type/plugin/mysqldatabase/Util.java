@@ -36,7 +36,7 @@ public class Util {
 	}
 	
 	public static boolean isSqlScriptArtifact(AbstractDeploymentArtifact da) {
-		if (da.getArtifactType().toString().equals(Constants.sqlScriptArtifactType.toString())) {
+		if (da.getArtifactType().equals(Constants.sqlScriptArtifactType)) {
 			return true;
 		}
 		return false;

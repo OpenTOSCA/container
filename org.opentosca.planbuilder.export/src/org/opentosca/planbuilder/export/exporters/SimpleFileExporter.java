@@ -229,7 +229,7 @@ public class SimpleFileExporter {
 				for(Object obj : def.getAllServices().values()){
 					Service service = (Service) obj;
 					
-					if(serviceName.toString().equals(service.getQName().toString())){
+					if(serviceName.equals(service.getQName())){
 						// found wsdl with service we have to rewrite
 						servicesToRemove.add(service.getQName());
 						

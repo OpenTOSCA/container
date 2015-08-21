@@ -59,7 +59,8 @@ public class NodeTypeImpl extends AbstractNodeType {
 	public AbstractNodeType getTypeRef() {
 		if (this.nodeType.getDerivedFrom() != null) {
 			for (AbstractNodeType nodeType : this.definitions.getAllNodeTypes()) {
-				if (nodeType.getId().toString().equals(this.nodeType.getDerivedFrom().getTypeRef().toString())) {
+				if (nodeType.getId().equals(
+						this.nodeType.getDerivedFrom().getTypeRef())) {
 					return nodeType;
 				}
 			}
@@ -87,7 +88,7 @@ public class NodeTypeImpl extends AbstractNodeType {
 		} else {
 			namespace = this.definitions.getTargetNamespace();
 		}
-		return new QName("{" + namespace + "}" + this.getName());
+		return new QName(namespace, this.getName());
 	}
 
 	/**

@@ -179,8 +179,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
 		List<AbstractRelationshipTypeImplementation> impls = new ArrayList<AbstractRelationshipTypeImplementation>();
 
 		for (AbstractRelationshipTypeImplementation impl : this.findRelationshipTypeImpls(this.definitions)) {
-			// TODO this is wrong, really
-			if (impl.getRelationshipType().getId().equals(this.relationshipTemplate.getType().getLocalPart())) {
+			if (impl.getRelationshipType().getId().equals(this.relationshipTemplate.getType())) {
 				impls.add(impl);
 			}
 		}

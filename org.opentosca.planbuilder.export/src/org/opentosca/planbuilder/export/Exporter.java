@@ -130,7 +130,7 @@ public class Exporter extends AbstractExporter {
 			// add plans element to servicetemplates
 			for (BuildPlan buildPlan : buildPlans) {
 				for (TServiceTemplate serviceTemplate : servTemps) {
-					if (buildPlan.getServiceTemplate().toString().equals(this.buildQName(defs, serviceTemplate).toString())) {
+					if (buildPlan.getServiceTemplate().equals(this.buildQName(defs, serviceTemplate))) {
 						TPlans plans = serviceTemplate.getPlans();
 						if (plans == null) {
 							plans = this.toscaFactory.createTPlans();

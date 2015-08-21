@@ -112,7 +112,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 	public AbstractRelationshipType getReferencedType() {
 		if (this.getTypeRef() != null) {
 			for (AbstractRelationshipType relation : this.definitions.getAllRelationshipTypes()) {
-				if (relation.getId().toString().equals(this.getTypeRef().toString())) {
+				if (relation.getId().equals(this.getTypeRef())) {
 					return relation;
 				}
 			}

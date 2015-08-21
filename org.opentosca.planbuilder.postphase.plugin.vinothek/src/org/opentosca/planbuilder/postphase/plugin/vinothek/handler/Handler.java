@@ -168,7 +168,7 @@ public class Handler {
 	
 	private AbstractArtifactReference fetchPhpAppDA(List<AbstractDeploymentArtifact> das) {
 		for (AbstractDeploymentArtifact da : das) {
-			if (da.getArtifactType().toString().equals(this.zipArtifactType.toString())) {
+			if (da.getArtifactType().equals(this.zipArtifactType)) {
 				for (AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
 					if (ref.getReference().endsWith(".zip")) {
 						return ref;

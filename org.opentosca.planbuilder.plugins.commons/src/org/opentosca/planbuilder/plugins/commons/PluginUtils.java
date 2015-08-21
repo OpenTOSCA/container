@@ -24,11 +24,8 @@ public class PluginUtils {
 	 *         nodeType
 	 */
 	public static boolean isSupportedCloudProviderNodeType(QName nodeType) {
-		// FIXME TODO although equals() should do a proper check, im pretty sure
-		// that OpenJDK 7 (which i must use right now) has a bug
-		if (nodeType.toString().equals(Types.ec2NodeType.toString())
-				| nodeType.toString()
-						.equals(Types.openStackNodeType.toString())) {
+		if (nodeType.equals(Types.ec2NodeType)
+				| nodeType.equals(Types.openStackNodeType)) {
 			return true;
 		}
 
@@ -45,16 +42,15 @@ public class PluginUtils {
 	 */
 	public static boolean isSupportedUbuntuVMNodeType(QName nodeType) {
 
-		if (nodeType.toString().equals(Types.ubuntuNodeType.toString())) {
+		if (nodeType.equals(Types.ubuntuNodeType)) {
 			return true;
 		}
 
-		// new QName("http://opentosca.org/types/declarative",
-		// "Ubuntu-13.10-Server");
 		String nodeTypeNS = nodeType.getNamespaceURI();
 		String nodeTypeLN = nodeType.getLocalPart();
-		
-		if(nodeTypeNS.equals("http://opentosca.org/types/declarative") && PluginUtils.isProperUbuntuLocalName(nodeTypeLN)){
+
+		if (nodeTypeNS.equals("http://opentosca.org/types/declarative")
+				&& PluginUtils.isProperUbuntuLocalName(nodeTypeLN)) {
 			return true;
 		}
 
@@ -120,7 +116,7 @@ public class PluginUtils {
 	 * @return a boolean. True if given nodeType is a virtual machine nodeType
 	 */
 	public static boolean isSupportedVMNodeType(QName nodeType) {
-		if (nodeType.toString().equals(Types.vmNodeType.toString())) {
+		if (nodeType.equals(Types.vmNodeType)) {
 			return true;
 		}
 		return false;

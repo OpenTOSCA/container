@@ -115,7 +115,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	}
 
 	private boolean hasZipArtfiactReference(AbstractDeploymentArtifact da) {
-		if (da.getArtifactType().toString().equals(this.zipArtifactType.toString())) {
+		if (da.getArtifactType().equals(this.zipArtifactType)) {
 			// check reference
 			for (AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
 				if (ref.getReference().endsWith(".zip")) {
@@ -135,31 +135,31 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	}
 
 	private boolean isCompatibleApacheWebServerNodeType(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(this.apacheWebServer.toString())) {
+		if (nodeTypeId.equals(this.apacheWebServer)) {
 			return true;
 		}
-		if (nodeTypeId.toString().equals(this.apacheWebServerNodeTypeTOSCASpecificType.toString())) {
+		if (nodeTypeId.equals(this.apacheWebServerNodeTypeTOSCASpecificType)) {
 			return true;
 		}
 		return false;
 	}
 
 	private boolean isCompatiblePhpModuleNodeType(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(this.phpModule.toString())) {
+		if (nodeTypeId.equals(this.phpModule)) {
 			return true;
 		}
 
-		if (nodeTypeId.toString().equals(this.phpModuleNodeTypeTOSCASpecificType.toString())) {
+		if (nodeTypeId.equals(this.phpModuleNodeTypeTOSCASpecificType)) {
 			return true;
 		}
 		return false;
 	}
 
 	private boolean isCompatiblePhpAppNodeType(AbstractNodeType nodeType) {
-		if (nodeType.getId().toString().equals(this.phpApp.toString())) {
+		if (nodeType.getId().equals(this.phpApp)) {
 			return true;
 		}
-		if (nodeType.getId().toString().equals(this.phpAppNodeTypePlanBuilder.toString())) {
+		if (nodeType.getId().equals(this.phpAppNodeTypePlanBuilder)) {
 			return true;
 		}
 
@@ -170,7 +170,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		// FIXME list.contains doesn't work somehow, altough equals of QName
 		// should suffice
 		for (QName hierarchyType : typesInHierarchy) {
-			if (hierarchyType.toString().equals(this.phpApp.toString()) | hierarchyType.toString().equals(this.phpAppNodeTypePlanBuilder.toString())) {
+			if (hierarchyType.equals(this.phpApp) | hierarchyType.equals(this.phpAppNodeTypePlanBuilder)) {
 				return true;
 			}
 		}
@@ -259,7 +259,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	}
 
 	private boolean isZipArtifact(AbstractDeploymentArtifact artifact) {
-		if (artifact.getArtifactType().toString().equals(this.zipArtifactType.toString())) {
+		if (artifact.getArtifactType().equals(this.zipArtifactType)) {
 			return true;
 		} else {
 			return false;

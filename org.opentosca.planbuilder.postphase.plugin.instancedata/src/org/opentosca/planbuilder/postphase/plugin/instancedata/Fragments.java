@@ -58,13 +58,7 @@ public class Fragments {
 		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 		
 		bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
-		bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
-		
-		// TODO just a marker if something does not work, as this is just a
-		// guess
-		// String encodedServiceTemplateId =
-		// this.URLencode(serviceTemplateId.toString());
-		
+		bpel4RestString = bpel4RestString.replace("$CSARName", csarId);		
 		bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
 		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
 		

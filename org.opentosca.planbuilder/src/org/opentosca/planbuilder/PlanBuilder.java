@@ -423,7 +423,7 @@ public class PlanBuilder {
 
 			// set dependencies inside buildplan (the links in the flow)
 			// according to the basetype
-			if (baseType.toString().equals(Utils.TOSCABASETYPE_CONNECTSTO.toString())) {
+			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 				// with a connectsto relation we have first build the
 				// nodetemplates and then the relationshiptemplate
 
@@ -445,7 +445,7 @@ public class PlanBuilder {
 				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
 
-			} else if (baseType.toString().equals(Utils.TOSCABASETYPE_DEPENDSON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_HOSTEDON.toString()) | baseType.toString().equals(Utils.TOSCABASETYPE_DEPLOYEDON.toString())){
+			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)){
 
 				// with the other relations we have to build first the source,
 				// then the relation and at last the target

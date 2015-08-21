@@ -1049,7 +1049,7 @@ public class TemplatePlanBuilder {
 			for (int i = 0; i < nodeImplDAs.size(); i++) {
 				AbstractDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
 				
-				if (nodeImplDa.getName().equals(templateDa.getName()) & nodeImplDa.getArtifactType().toString().equals(nodeImplDa.getArtifactType().toString())) {
+				if (nodeImplDa.getName().equals(templateDa.getName()) & nodeImplDa.getArtifactType().equals(nodeImplDa.getArtifactType())) {
 					overridesDA = true;
 					daIndex = i;
 				}

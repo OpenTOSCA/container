@@ -94,10 +94,10 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * @return true iff the given QName is a NodeType this plugin can handle
 	 */
 	public static boolean isApacheNodeTypeCompatible(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(Plugin.apacheNodeType.toString())) {
+		if (nodeTypeId.equals(Plugin.apacheNodeType)) {
 			return true;
 		}
-		if (nodeTypeId.toString().equals(Plugin.apacheNodeTypeTOSCASpecificType.toString())) {
+		if (nodeTypeId.equals(Plugin.apacheNodeTypeTOSCASpecificType)) {
 			return true;
 		}
 		return false;

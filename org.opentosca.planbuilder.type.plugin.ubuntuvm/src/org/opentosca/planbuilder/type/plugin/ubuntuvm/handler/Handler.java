@@ -307,7 +307,9 @@ public class Handler {
 	 *         presenting an Ubuntu image then null
 	 */
 	private String createUbuntuImageStringFromNodeType(QName nodeType) {
-		PluginUtils.isSupportedUbuntuVMNodeType(nodeType);
+		if(!PluginUtils.isSupportedUbuntuVMNodeType(nodeType)){
+			return null;
+		}
 
 		String localName = nodeType.getLocalPart();
 

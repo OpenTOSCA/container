@@ -81,10 +81,10 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * @return true iff the QName represents an PhpModule
 	 */
 	private boolean isPhpModuleNodeTypeCompatible(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(this.phpModule.toString())) {
+		if (nodeTypeId.equals(this.phpModule)) {
 			return true;
 		}
-		if (nodeTypeId.toString().equals(this.phpModuleTOSCASpecificType.toString())) {
+		if (nodeTypeId.equals(this.phpModuleTOSCASpecificType)) {
 			return true;
 		}
 		
@@ -98,10 +98,10 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * @return true iff the QName represents an ApacheWebServer
 	 */
 	private boolean isApacheWebServerNodeTypeCompatible(QName nodeTypeId) {
-		if (nodeTypeId.toString().equals(this.apacheNodeType.toString())) {
+		if (nodeTypeId.equals(this.apacheNodeType)) {
 			return true;
 		}
-		if (nodeTypeId.toString().equals(this.apacheNodeTypeTOSCASpecificType.toString())) {
+		if (nodeTypeId.equals(this.apacheNodeTypeTOSCASpecificType)) {
 			return true;
 		}
 		return false;
