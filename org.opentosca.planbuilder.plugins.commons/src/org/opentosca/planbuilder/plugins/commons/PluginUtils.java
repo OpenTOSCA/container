@@ -79,7 +79,7 @@ public class PluginUtils {
 		}
 
 		try {
-			int majorVers = Integer.parseInt(leftDashSplit[1]);
+			Integer.parseInt(leftDashSplit[1]);
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -89,7 +89,7 @@ public class PluginUtils {
 		}
 
 		try {
-			int minorVers = Integer.parseInt(rightDashSplit[0]);
+			Integer.parseInt(rightDashSplit[0]);
 		} catch (NumberFormatException e) {
 			return false;
 		}
