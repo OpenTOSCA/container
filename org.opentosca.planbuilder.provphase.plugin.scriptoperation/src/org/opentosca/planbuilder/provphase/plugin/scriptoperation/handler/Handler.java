@@ -15,8 +15,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.planbuilder.TemplatePlanBuilder;
+import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
+import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -53,76 +56,91 @@ import org.xml.sax.SAXException;
  *
  */
 public class Handler {
-	
+
 	private Plugin invokerPlugin = new Plugin();
-	
-	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
-	
+
+	private final static org.slf4j.Logger LOG = LoggerFactory
+			.getLogger(Handler.class);
+
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
-	
-	
+
 	/**
 	 * Contructor
 	 */
-	public Handler() {		
+	public Handler() {
 		try {
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
-			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			this.docBuilder = DocumentBuilderFactory.newInstance()
+					.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
-	
+
 	/**
 	 * Adds logic to the BuildPlan to call a Script on a remote machine
 	 *
-	 * @param context the TemplatePlanContext where the logical provisioning
+	 * @param context
+	 *            the TemplatePlanContext where the logical provisioning
 	 *            operation is called
-	 * @param operation the operation to call
-	 * @param ia the ia that implements the operation
+	 * @param operation
+	 *            the operation to call
+	 * @param ia
+	 *            the ia that implements the operation
 	 * @return true iff adding BPEL Fragment was successful
 	 */
-	public boolean handle(TemplatePlanContext templateContext, AbstractOperation operation, AbstractImplementationArtifact ia) {
+	public boolean handle(TemplatePlanContext templateContext,
+			AbstractOperation operation, AbstractImplementationArtifact ia) {
 		AbstractArtifactReference scriptRef = this.fetchScriptRefFromIA(ia);
 		if (scriptRef == null) {
 			return false;
 		}
-		
+
 		/*
 		 * fetch relevant variables/properties
 		 */
 		if (templateContext.getNodeTemplate() == null) {
-			Handler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
+			Handler.LOG
+					.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
 			return false;
 		}
-		
+
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
-		
-		Variable serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+
+		Variable serverIpPropWrapper = templateContext
+				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
+			serverIpPropWrapper = templateContext.getPropertyVariable(
+					Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP,
+					true);
 			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
+				serverIpPropWrapper = templateContext.getPropertyVariable(
+						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP,
+						false);
 			}
 		}
-		
+
 		if (serverIpPropWrapper == null) {
-			Handler.LOG.warn("No Infrastructure Node available with ServerIp property");
+			Handler.LOG
+					.warn("No Infrastructure Node available with ServerIp property");
 			return false;
 		}
-		
+
 		// find sshUser and sshKey
-		Variable sshUserVariable = templateContext.getPropertyVariable("SSHUser");
+		Variable sshUserVariable = templateContext
+				.getPropertyVariable("SSHUser");
 		if (sshUserVariable == null) {
-			sshUserVariable = templateContext.getPropertyVariable("SSHUser", true);
+			sshUserVariable = templateContext.getPropertyVariable("SSHUser",
+					true);
 			if (sshUserVariable == null) {
-				sshUserVariable = templateContext.getPropertyVariable("SSHUser", false);
+				sshUserVariable = templateContext.getPropertyVariable(
+						"SSHUser", false);
 			}
 		}
-		
+
 		// if the variable is null now -> the property isn't set properly
 		if (sshUserVariable == null) {
 			return false;
@@ -133,15 +151,18 @@ public class Handler {
 				sshUserVariable = null;
 			}
 		}
-		
-		Variable sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey");
+
+		Variable sshKeyVariable = templateContext
+				.getPropertyVariable("SSHPrivateKey");
 		if (sshKeyVariable == null) {
-			sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", true);
+			sshKeyVariable = templateContext.getPropertyVariable(
+					"SSHPrivateKey", true);
 			if (sshKeyVariable == null) {
-				sshKeyVariable = templateContext.getPropertyVariable("SSHPrivateKey", false);
+				sshKeyVariable = templateContext.getPropertyVariable(
+						"SSHPrivateKey", false);
 			}
 		}
-		
+
 		// if variable null now -> the property isn't set according to schema
 		if (sshKeyVariable == null) {
 			return false;
@@ -156,54 +177,97 @@ public class Handler {
 		if (sshUserVariable == null) {
 			LOG.debug("Adding sshUser field to plan input");
 			templateContext.addStringValueToPlanRequest("sshUser");
-			
+
 		}
-		
+
 		if (sshKeyVariable == null) {
 			LOG.debug("Adding sshKey field to plan input");
 			templateContext.addStringValueToPlanRequest("sshKey");
 		}
-		
+
 		// find the ubuntu node and its nodeTemplateId
 		String templateId = "";
-		
-		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+
+		for (AbstractNodeTemplate nodeTemplate : templateContext
+				.getNodeTemplates()) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType()
+					.getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}
-		
+
 		if (templateId.equals("")) {
-			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
+			Handler.LOG
+					.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
-		
+
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
 		// 2.x can't give that at runtime (bug)
 		LOG.debug("Adding plan callback address field to plan input");
-		templateContext.addStringValueToPlanRequest("planCallbackAddress_invoker");
-		
+		templateContext
+				.addStringValueToPlanRequest("planCallbackAddress_invoker");
+
 		// add csarEntryPoint to plan input message
 		LOG.debug("Adding csarEntryPoint field to plan input");
 		templateContext.addStringValueToPlanRequest("csarEntrypoint");
-		
+
 		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
-		
+
 		runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
 		runScriptRequestInputParams.put("sshKey", sshKeyVariable);
 		runScriptRequestInputParams.put("sshUser", sshUserVariable);
-		
-		Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef);
-		
+
+		Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(
+				templateContext, operation, scriptRef, ia);
+
 		runScriptRequestInputParams.put("script", runShScriptStringVar);
-		
-		this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),false);
-		
+
+		this.invokerPlugin.handle(templateContext, templateId, true,
+				"runScript", "InterfaceUbuntu", "planCallbackAddress_invoker",
+				runScriptRequestInputParams, new HashMap<String, Variable>(),
+				false);
+
 		return true;
 	}
-	
-	private Variable appendBPELAssignOperationShScript(TemplatePlanContext templateContext, AbstractOperation operation, AbstractArtifactReference reference) {
+
+	private String createDANamePathMapEnvVar(
+			TemplatePlanContext templateContext,
+			AbstractImplementationArtifact ia) {
+		AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
+
+		// find selected implementation
+		ProvisioningChain chain = TemplatePlanBuilder
+				.createProvisioningChain(nodeTemplate);
+
+		List<AbstractDeploymentArtifact> das = chain.getDAsOfCandidate(0);
+
+		String daEnvMap = "";
+		if (nodeTemplate != null && !das.isEmpty()) {
+			daEnvMap += "DAs=\"";
+			for (AbstractDeploymentArtifact da : das) {
+				String daName = da.getName();
+				// FIXME we assume single artifact references at this point
+				String daRef = da.getArtifactRef().getArtifactReferences()
+						.get(0).getReference();
+
+				// FIXME / is a brutal assumption
+				if (!daRef.startsWith("/")) {
+					daRef = "/" + daRef;
+				}
+
+				daEnvMap += daName + "," + daRef + ";";
+			}
+			daEnvMap += "\" ";
+		}
+		return daEnvMap;
+	}
+
+	private Variable appendBPELAssignOperationShScript(
+			TemplatePlanContext templateContext, AbstractOperation operation,
+			AbstractArtifactReference reference,
+			AbstractImplementationArtifact ia) {
 		/*
 		 * First we initialize a bash script of this form: sudo sh
 		 * $InputParamName=ValPlaceHolder* referenceShFileName.sh
@@ -217,26 +281,32 @@ public class Handler {
 		 * params
 		 */
 		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
-		String runShScriptString = "sudo ";
-		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
+		String runShScriptString = "sudo "
+				+ this.createDANamePathMapEnvVar(templateContext, ia);
+		String runShScriptStringVarName = "runShFile"
+				+ templateContext.getIdForNames();
 		String xpathQueryPrefix = "";
 		String xpathQuerySuffix = "";
-		
+
 		for (AbstractParameter parameter : operation.getInputParameters()) {
 			// First compute mappings from operation parameters to
 			// property/inputfield
-			Variable var = templateContext.getPropertyVariable(parameter.getName());
+			Variable var = templateContext.getPropertyVariable(parameter
+					.getName());
 			if (var == null) {
-				var = templateContext.getPropertyVariable(parameter.getName(), true);
+				var = templateContext.getPropertyVariable(parameter.getName(),
+						true);
 				if (var == null) {
-					var = templateContext.getPropertyVariable(parameter.getName(), false);
+					var = templateContext.getPropertyVariable(
+							parameter.getName(), false);
 				}
 			}
 			inputMappings.put(parameter.getName(), var);
-			
+
 			// Initialize bash script string variable with placeholders
-			runShScriptString += parameter.getName() + "=$" + parameter.getName() + "$ ";
-			
+			runShScriptString += parameter.getName() + "=$"
+					+ parameter.getName() + "$ ";
+
 			// put together the xpath query
 			xpathQueryPrefix += "replace(";
 			// set the placeholder to replace
@@ -244,28 +314,39 @@ public class Handler {
 			if (var == null) {
 				// param is external, query value form input message e.g.
 				// $input.payload//*[local-name()='csarEntrypoint']/text()
-				
-				xpathQuerySuffix += "$" + templateContext.getPlanRequestMessageName() + ".payload//*[local-name()='" + parameter.getName() + "']/text())";
+
+				xpathQuerySuffix += "$"
+						+ templateContext.getPlanRequestMessageName()
+						+ ".payload//*[local-name()='" + parameter.getName()
+						+ "']/text())";
 			} else {
 				// param is internal, so just query the bpelvar e.g. $Varname
 				xpathQuerySuffix += "$" + var.getName() + ")";
 			}
 		}
 		// add path to script
-		runShScriptString += "sh ~/" + templateContext.getCSARFileName() + "/" + reference.getReference();
-		
+		runShScriptString += "sh ~/" + templateContext.getCSARFileName() + "/"
+				+ reference.getReference();
+
 		// generate string var with script
-		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName, runShScriptString);
-		
+		Variable runShScriptStringVar = templateContext
+				.createGlobalStringVariable(runShScriptStringVarName,
+						runShScriptString);
+
 		// Reassign string var with runtime values and replace their
 		// placeholders
 		try {
 			// create xpath query
-			String xpathQuery = xpathQueryPrefix + "$" + runShScriptStringVar.getName() + xpathQuerySuffix;
+			String xpathQuery = xpathQueryPrefix + "$"
+					+ runShScriptStringVar.getName() + xpathQuerySuffix;
 			// create assign and append
-			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignShCallScriptVar", xpathQuery, runShScriptStringVar.getName());
+			Node assignNode = this
+					.loadAssignXpathQueryToStringVarFragmentAsNode(
+							"assignShCallScriptVar", xpathQuery,
+							runShScriptStringVar.getName());
 			assignNode = templateContext.importNode(assignNode);
-			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
+			templateContext.getProvisioningPhaseElement().appendChild(
+					assignNode);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			LOG.error("Couldn't load fragment from file", e);
@@ -275,17 +356,20 @@ public class Handler {
 		}
 		return runShScriptStringVar;
 	}
-	
+
 	/**
 	 * Returns the first occurence of *.sh file, inside the given
 	 * ImplementationArtifact
 	 *
-	 * @param ia an AbstractImplementationArtifact
+	 * @param ia
+	 *            an AbstractImplementationArtifact
 	 * @return a String containing a relative file path to a *.sh file, if no
 	 *         *.sh file inside the given IA is found null
 	 */
-	private AbstractArtifactReference fetchScriptRefFromIA(AbstractImplementationArtifact ia) {
-		List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
+	private AbstractArtifactReference fetchScriptRefFromIA(
+			AbstractImplementationArtifact ia) {
+		List<AbstractArtifactReference> refs = ia.getArtifactRef()
+				.getArtifactReferences();
 		for (AbstractArtifactReference ref : refs) {
 			if (ref.getReference().endsWith(".sh")) {
 				return ref;
@@ -293,21 +377,28 @@ public class Handler {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName the name of the BPEL assign
-	 * @param xpath2Query the csarEntryPoint XPath query
-	 * @param stringVarName the variable to load the queries results into
+	 * @param assignName
+	 *            the name of the BPEL assign
+	 * @param xpath2Query
+	 *            the csarEntryPoint XPath query
+	 * @param stringVarName
+	 *            the variable to load the queries results into
 	 * @return a String containing a BPEL Assign element
-	 * @throws IOException is thrown when reading the BPEL fragment form the
-	 *             resources fails
+	 * @throws IOException
+	 *             is thrown when reading the BPEL fragment form the resources
+	 *             fails
 	 */
-	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query, String stringVarName) throws IOException {
+	public String loadAssignXpathQueryToStringVarFragmentAsString(
+			String assignName, String xpath2Query, String stringVarName)
+			throws IOException {
 		// <!-- {AssignName},{xpath2query}, {stringVarName} -->
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext()
+				.getBundle().getResource("assignStringVarWithXpath2Query.xml");
 		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelFragmentFile);
 		template = template.replace("{AssignName}", assignName);
@@ -315,25 +406,33 @@ public class Handler {
 		template = template.replace("{stringVarName}", stringVarName);
 		return template;
 	}
-	
+
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName the name of the BPEL assign
-	 * @param csarEntryXpathQuery the csarEntryPoint XPath query
-	 * @param stringVarName the variable to load the queries results into
+	 * @param assignName
+	 *            the name of the BPEL assign
+	 * @param csarEntryXpathQuery
+	 *            the csarEntryPoint XPath query
+	 * @param stringVarName
+	 *            the variable to load the queries results into
 	 * @return a DOM Node representing a BPEL assign element
-	 * @throws IOException is thrown when loading internal bpel fragments fails
-	 * @throws SAXException is thrown when parsing internal format into DOM
-	 *             fails
+	 * @throws IOException
+	 *             is thrown when loading internal bpel fragments fails
+	 * @throws SAXException
+	 *             is thrown when parsing internal format into DOM fails
 	 */
-	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query, String stringVarName) throws IOException, SAXException {
-		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+	public Node loadAssignXpathQueryToStringVarFragmentAsNode(
+			String assignName, String xpath2Query, String stringVarName)
+			throws IOException, SAXException {
+		String templateString = this
+				.loadAssignXpathQueryToStringVarFragmentAsString(assignName,
+						xpath2Query, stringVarName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
 }
