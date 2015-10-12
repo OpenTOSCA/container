@@ -425,7 +425,7 @@ public class Handler {
 		String ubuntuFilePathVarName = "ubuntuFilePathVar" + templateContext.getIdForNames();
 		Variable ubuntuFilePathVar = templateContext.createGlobalStringVariable(ubuntuFilePathVarName, ubuntuFilePath);
 		// the folder which has to be created on the ubuntu vm
-		String ubuntuFolderPathScript = "mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
+		String ubuntuFolderPathScript = "sleep 5 && mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
 		String containerAPIAbsoluteURIXPathQuery = this.createXPathQueryForURLRemoteFilePath(ref.getReference());
 		String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
 		/*
