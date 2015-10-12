@@ -307,7 +307,7 @@ public class Handler {
 	 *         presenting an Ubuntu image then null
 	 */
 	private String createUbuntuImageStringFromNodeType(QName nodeType) {
-		if(!PluginUtils.isSupportedUbuntuVMNodeType(nodeType)){
+		if (!PluginUtils.isSupportedUbuntuVMNodeType(nodeType)) {
 			return null;
 		}
 
@@ -342,8 +342,18 @@ public class Handler {
 		}
 
 		int minorVers;
+		String minorVersString;
 		try {
 			minorVers = Integer.parseInt(rightDashSplit[0]);
+			minorVersString = String.valueOf(minorVers).trim();
+
+			// TODO: this quick fix handles issues when minorVersion becomes a
+			// single digit and the amiID string will be e.g. 14.4 instead of
+			// 14.04
+			// Maybe fix this by using some external resource for correct image versions
+			if (minorVersString.length() != 2) {
+				minorVersString = "0" + minorVersString;
+			}
 		} catch (NumberFormatException e) {
 			return null;
 		}
@@ -352,7 +362,7 @@ public class Handler {
 		// context.createGlobalStringVariable("ubuntu_AMIId","ubuntu-13.10-server-cloudimg-amd64");
 		// new QName("http://opentosca.org/types/declarative",
 		// "Ubuntu-13.10-Server");
-		String ubuntuAMIId = "ubuntu-" + majorVers + "." + minorVers
+		String ubuntuAMIId = "ubuntu-" + majorVers + "." + minorVersString
 				+ "-server-cloudimg-amd64";
 		return ubuntuAMIId;
 	}
