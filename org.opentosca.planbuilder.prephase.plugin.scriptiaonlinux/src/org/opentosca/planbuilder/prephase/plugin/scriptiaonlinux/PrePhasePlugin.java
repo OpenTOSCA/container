@@ -11,6 +11,7 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.plugins.commons.PluginUtils;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.handler.Handler;
+import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	
 	private final static Logger LOG = LoggerFactory.getLogger(PrePhasePlugin.class);
 	
-	private QName scriptArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
-	private QName archiveArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
-	private QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
+	private final QName scriptArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
+	private final QName archiveArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+	private final QName bpelArchiveArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable","BPEL");
+	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
 	
 	private Handler handler = new Handler();
 	
@@ -54,6 +56,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	public boolean canHandle(AbstractDeploymentArtifact deploymentArtifact, AbstractNodeType infrastructureNodeType) {
 		QName type = deploymentArtifact.getArtifactType();
 		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: " + infrastructureNodeType.getId().toString() + " can be handled");
+		
+		
 		
 		return this.isSupportedDeploymentPair(type, infrastructureNodeType.getId());
 	}
@@ -97,6 +101,9 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			isSupportedArtifactType |= true;
 		}
 		
+		if(this.bpelArchiveArtifactType.equals(artifactType)){
+			isSupportedArtifactType |= true;
+		}
 		
 		return isSupportedArtifactType;
 	}
