@@ -32,7 +32,8 @@ import org.opentosca.planbuilder.utils.Utils;
 public class Plugin implements IPlanBuilderPostPhasePlugin {
 	
 	private static final String pluginId = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
-	private static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
+	public static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
+	public static final QName bpelProcess = new QName("http://opentosca.org/declarative/","BPEL");
 	private final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 
 	private Handler handler;
@@ -71,7 +72,7 @@ public class Plugin implements IPlanBuilderPostPhasePlugin {
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate) {
 		// if the nodeTemplate is some kind of PhpApp we're happy
-		return Utils.checkForTypeInHierarchy(nodeTemplate, phpApp);
+		return Utils.checkForTypeInHierarchy(nodeTemplate, phpApp) || Utils.checkForTypeInHierarchy(nodeTemplate, bpelProcess);
 	}
 	
 	@Override
