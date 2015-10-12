@@ -281,7 +281,8 @@ public class Handler {
 		 * params
 		 */
 		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
-		String runShScriptString = "sudo "
+		String runShScriptString = "chmod +x ~/" + templateContext.getCSARFileName() + "/"
+				+ reference.getReference() + " && sudo "
 				+ this.createDANamePathMapEnvVar(templateContext, ia);
 		String runShScriptStringVarName = "runShFile"
 				+ templateContext.getIdForNames();
@@ -325,7 +326,7 @@ public class Handler {
 			}
 		}
 		// add path to script
-		runShScriptString += "sh ~/" + templateContext.getCSARFileName() + "/"
+		runShScriptString += "~/" + templateContext.getCSARFileName() + "/"
 				+ reference.getReference();
 
 		// generate string var with script
