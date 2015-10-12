@@ -12,7 +12,7 @@ public class OpenTOSCAApplication implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		System.out.println("OpenTOSCA Container is starting..");
+		System.out.println("OpenTOSCA Container has started");
 		return IApplication.EXIT_OK;
 	}
 
