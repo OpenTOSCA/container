@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="OpenTOSCA PlanBuilder Product Definition" uid="org.opentosca.planbuilder.service.product" id="org.opentosca.planbuilder.service.application.openTOSCAPlanBuilder" application="org.opentosca.planbuilder.service.application.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+      <configIni use="default">
+      </configIni>
+
+      <launcherArgs>
+            <programArgs>-consoleLog -console --launcher.secondThread
+            </programArgs>
+            <vmArgs>-Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dorg.osgi.service.http.port=1339 -XX:MaxPermSize=128M -Dosgi.locking=none -Dosgi.compatibility.bootdelegation=true
+            </vmArgs>
+            <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+            </vmArgsMac>
+      </launcherArgs>
+
+      <launcher>
+            <solaris/>
+            <win useIco="false">
+                  <bmp/>
+            </win>
+      </launcher>
+
+      <vm>
+            <macos include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7</macos>
+      </vm>
+
+      <plugins>
+            <plugin id="aws-s3"/>
+            <plugin id="ch.qos.logback.classic"/>
+            <plugin id="ch.qos.logback.core"/>
+            <plugin id="com.google.gson"/>
+            <plugin id="com.google.guava"/>
+            <plugin id="com.google.inject"/>
+            <plugin id="com.google.inject.assistedinject" fragment="true"/>
+            <plugin id="com.springsource.com.jamesmurty.utils"/>
+            <plugin id="com.springsource.javax.activation"/>
+            <plugin id="com.springsource.javax.inject"/>
+            <plugin id="com.springsource.javax.jws"/>
+            <plugin id="com.springsource.org.aopalliance"/>
+            <plugin id="com.springsource.org.apache.commons.httpclient"/>
+            <plugin id="com.springsource.util.parser.manifest"/>
+            <plugin id="com.sun.jersey.client"/>
+            <plugin id="com.sun.jersey.contribs.jersey-multipart"/>
+            <plugin id="com.sun.jersey.core"/>
+            <plugin id="com.sun.jersey.jersey-server"/>
+            <plugin id="com.sun.jersey.servlet"/>
+            <plugin id="derby"/>
+            <plugin id="filesystem"/>
+            <plugin id="groovy-all"/>
+            <plugin id="javax.jms"/>
+            <plugin id="javax.mail"/>
+            <plugin id="javax.persistence"/>
+            <plugin id="javax.servlet"/>
+            <plugin id="javax.ws.rs.javax.ws.rs-api"/>
+            <plugin id="javax.ws.rs.jsr311-api"/>
+            <plugin id="javax.xml.ws"/>
+            <plugin id="jclouds-blobstore"/>
+            <plugin id="jclouds-core"/>
+            <plugin id="jclouds-slf4j"/>
+            <plugin id="org.apache.aries.blueprint"/>
+            <plugin id="org.apache.aries.proxy.api"/>
+            <plugin id="org.apache.aries.util"/>
+            <plugin id="org.apache.axiom"/>
+            <plugin id="org.apache.axis2.osgi"/>
+            <plugin id="org.apache.camel.camel-core"/>
+            <plugin id="org.apache.camel.camel-core-osgi"/>
+            <plugin id="org.apache.camel.camel-cxf"/>
+            <plugin id="org.apache.camel.camel-cxf-transport"/>
+            <plugin id="org.apache.camel.camel-http"/>
+            <plugin id="org.apache.camel.camel-jaxb"/>
+            <plugin id="org.apache.camel.camel-jetty"/>
+            <plugin id="org.apache.camel.camel-spring"/>
+            <plugin id="org.apache.camel.camel-stream"/>
+            <plugin id="org.apache.commons.codec"/>
+            <plugin id="org.apache.commons.fileupload"/>
+            <plugin id="org.apache.commons.io"/>
+            <plugin id="org.apache.commons.logging"/>
+            <plugin id="org.apache.cxf.cxf-api"/>
+            <plugin id="org.apache.cxf.cxf-rt-bindings-soap"/>
+            <plugin id="org.apache.cxf.cxf-rt-bindings-xml"/>
+            <plugin id="org.apache.cxf.cxf-rt-core"/>
+            <plugin id="org.apache.cxf.cxf-rt-databinding-jaxb"/>
+            <plugin id="org.apache.cxf.cxf-rt-frontend-jaxrs"/>
+            <plugin id="org.apache.cxf.cxf-rt-frontend-jaxws"/>
+            <plugin id="org.apache.cxf.cxf-rt-frontend-simple"/>
+            <plugin id="org.apache.cxf.cxf-rt-transports-http"/>
+            <plugin id="org.apache.cxf.cxf-rt-transports-http-jetty"/>
+            <plugin id="org.apache.httpcomponents.httpclient"/>
+            <plugin id="org.apache.httpcomponents.httpcore"/>
+            <plugin id="org.apache.james.apache-mime4j-core"/>
+            <plugin id="org.apache.neethi"/>
+            <plugin id="org.apache.servicemix.bundles.wsdl4j"/>
+            <plugin id="org.apache.woden.woden-api"/>
+            <plugin id="org.apache.woden.woden-impl-commons"/>
+            <plugin id="org.apache.ws.xmlschema.core"/>
+            <plugin id="org.eclipse.core.contenttype"/>
+            <plugin id="org.eclipse.core.jobs"/>
+            <plugin id="org.eclipse.core.runtime"/>
+            <plugin id="org.eclipse.equinox.app"/>
+            <plugin id="org.eclipse.equinox.common"/>
+            <plugin id="org.eclipse.equinox.ds"/>
+            <plugin id="org.eclipse.equinox.event"/>
+            <plugin id="org.eclipse.equinox.http.jetty"/>
+            <plugin id="org.eclipse.equinox.http.servlet"/>
+            <plugin id="org.eclipse.equinox.preferences"/>
+            <plugin id="org.eclipse.equinox.registry"/>
+            <plugin id="org.eclipse.equinox.util"/>
+            <plugin id="org.eclipse.jetty.client"/>
+            <plugin id="org.eclipse.jetty.continuation"/>
+            <plugin id="org.eclipse.jetty.http"/>
+            <plugin id="org.eclipse.jetty.io"/>
+            <plugin id="org.eclipse.jetty.jmx"/>
+            <plugin id="org.eclipse.jetty.security"/>
+            <plugin id="org.eclipse.jetty.server"/>
+            <plugin id="org.eclipse.jetty.servlet"/>
+            <plugin id="org.eclipse.jetty.servlets"/>
+            <plugin id="org.eclipse.jetty.util"/>
+            <plugin id="org.eclipse.osgi"/>
+            <plugin id="org.eclipse.osgi.services"/>
+            <plugin id="org.eclipse.persistence.antlr"/>
+            <plugin id="org.eclipse.persistence.asm"/>
+            <plugin id="org.eclipse.persistence.core"/>
+            <plugin id="org.eclipse.persistence.jpa"/>
+            <plugin id="org.eclipse.persistence.jpa.equinox" fragment="true"/>
+            <plugin id="org.eclipse.persistence.jpa.equinox.weaving" fragment="true"/>
+            <plugin id="org.eclipse.persistence.jpa.osgi"/>
+            <plugin id="org.eclipse.persistence.oracle" fragment="true"/>
+            <plugin id="org.jvnet.mimepull"/>
+            <plugin id="org.mortbay.jetty.server"/>
+            <plugin id="org.mortbay.jetty.util"/>
+            <plugin id="org.opentosca.core.internal.capability.service"/>
+            <plugin id="org.opentosca.core.internal.capability.service.impl"/>
+            <plugin id="org.opentosca.core.internal.credentials.service"/>
+            <plugin id="org.opentosca.core.internal.credentials.service.impl"/>
+            <plugin id="org.opentosca.core.internal.deployment.tracker.service"/>
+            <plugin id="org.opentosca.core.internal.deployment.tracker.service.impl"/>
+            <plugin id="org.opentosca.core.internal.endpoint.service"/>
+            <plugin id="org.opentosca.core.internal.endpoint.service.impl"/>
+            <plugin id="org.opentosca.core.internal.file.service"/>
+            <plugin id="org.opentosca.core.internal.file.service.impl"/>
+            <plugin id="org.opentosca.core.internal.file.storage.providers.aws_s3.service.impl"/>
+            <plugin id="org.opentosca.core.internal.file.storage.providers.filesystem.service.impl"/>
+            <plugin id="org.opentosca.core.internal.file.storage.providers.service"/>
+            <plugin id="org.opentosca.core.internal.model.repository.service"/>
+            <plugin id="org.opentosca.core.internal.model.repository.service.impl"/>
+            <plugin id="org.opentosca.core.model.artifact"/>
+            <plugin id="org.opentosca.core.model.capability"/>
+            <plugin id="org.opentosca.core.model.credentials"/>
+            <plugin id="org.opentosca.core.model.csar"/>
+            <plugin id="org.opentosca.core.model.csar.id"/>
+            <plugin id="org.opentosca.core.model.csar.toscametafile"/>
+            <plugin id="org.opentosca.core.model.deployment"/>
+            <plugin id="org.opentosca.core.model.endpoints"/>
+            <plugin id="org.opentosca.core.service"/>
+            <plugin id="org.opentosca.core.service.impl"/>
+            <plugin id="org.opentosca.exceptions"/>
+            <plugin id="org.opentosca.logging.config.test" fragment="true"/>
+            <plugin id="org.opentosca.model.consolidatedtosca"/>
+            <plugin id="org.opentosca.model.csarinstancemanagement"/>
+            <plugin id="org.opentosca.model.instancedata"/>
+            <plugin id="org.opentosca.model.staticresources"/>
+            <plugin id="org.opentosca.model.tosca"/>
+            <plugin id="org.opentosca.model.tosca.referencemapping"/>
+            <plugin id="org.opentosca.planbuilder"/>
+            <plugin id="org.opentosca.planbuilder.csarhandler"/>
+            <plugin id="org.opentosca.planbuilder.export"/>
+            <plugin id="org.opentosca.planbuilder.importer"/>
+            <plugin id="org.opentosca.planbuilder.integration"/>
+            <plugin id="org.opentosca.planbuilder.model"/>
+            <plugin id="org.opentosca.planbuilder.plugins.commons"/>
+            <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata"/>
+            <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek"/>
+            <plugin id="org.opentosca.planbuilder.prephase.plugin.linuxpackageda"/>
+            <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux"/>
+            <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker"/>
+            <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation"/>
+            <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation"/>
+            <plugin id="org.opentosca.planbuilder.service"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.apachewebserver"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.mysqldatabase"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.mysqlserver"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.php"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.phpapp"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.phpappconnectstomysqldb"/>
+            <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm"/>
+            <plugin id="org.opentosca.settings"/>
+            <plugin id="org.opentosca.toscaengine.service"/>
+            <plugin id="org.opentosca.util.fileaccess.service"/>
+            <plugin id="org.opentosca.util.fileaccess.service.impl"/>
+            <plugin id="org.opentosca.util.http.service"/>
+            <plugin id="org.opentosca.util.http.service.impl"/>
+            <plugin id="org.opentosca.util.jpa.converters"/>
+            <plugin id="org.springframework.beans"/>
+            <plugin id="org.springframework.context"/>
+            <plugin id="org.springframework.core"/>
+            <plugin id="org.springframework.expression"/>
+            <plugin id="org.springframework.transaction"/>
+            <plugin id="rocoto" fragment="true"/>
+            <plugin id="s3"/>
+            <plugin id="slf4j.api"/>
+            <plugin id="soa-model-core-1.2.2"/>
+            <plugin id="sts"/>
+      </plugins>
+
+      <features>
+            <feature id="org.opentosca.planbuilder.service.feature" version="1.0.0.qualifier"/>
+      </features>
+
+      <configurations>
+            <plugin id="org.opentosca.core.internal.capability.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.capability.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.credentials.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.credentials.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.deployment.tracker.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.deployment.tracker.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.endpoint.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.endpoint.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.file.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.file.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.file.storage.providers.aws_s3.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.file.storage.providers.filesystem.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.file.storage.providers.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.model.repository.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.internal.model.repository.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.artifact" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.capability" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.credentials" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.csar.id" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.csar.toscametafile" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.csar" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.deployment" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.model.endpoints" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.core.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.exceptions" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.logging.config.test" autoStart="false" startLevel="4" />
+            <plugin id="org.opentosca.model.consolidatedtosca" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.model.csarinstancemanagement" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.model.instancedata" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.model.staticresources" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.model.tosca.referencemapping" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.model.tosca" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.plugins.commons" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.prephase.plugin.linuxpackageda" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.apachewebserver" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.mysqldatabase" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.mysqlserver" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.php" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.phpapp" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.phpappconnectstomysqldb" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.settings" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.toscaengine.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.util.fileaccess.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.util.fileaccess.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.util.http.service.impl" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.util.http.service" autoStart="true" startLevel="4" />
+            <plugin id="org.opentosca.util.jpa.converters" autoStart="true" startLevel="4" />
+            <plugin id="aws-s3" autoStart="true" startLevel="4" />
+            <plugin id="ch.qos.logback.classic" autoStart="true" startLevel="4" />
+            <plugin id="ch.qos.logback.core" autoStart="true" startLevel="4" />
+            <plugin id="com.google.gson" autoStart="true" startLevel="4" />
+            <plugin id="com.google.guava" autoStart="true" startLevel="4" />
+            <plugin id="com.google.inject.assistedinject" autoStart="false" startLevel="4" />
+            <plugin id="com.google.inject" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.com.jamesmurty.utils" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.javax.activation" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.javax.inject" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.javax.jws" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.org.aopalliance" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.org.apache.commons.httpclient" autoStart="true" startLevel="4" />
+            <plugin id="com.springsource.util.parser.manifest" autoStart="true" startLevel="4" />
+            <plugin id="com.sun.jersey.client" autoStart="true" startLevel="4" />
+            <plugin id="com.sun.jersey.contribs.jersey-multipart" autoStart="true" startLevel="4" />
+            <plugin id="com.sun.jersey.core" autoStart="true" startLevel="2" />
+            <plugin id="com.sun.jersey.jersey-server" autoStart="true" startLevel="4" />
+            <plugin id="com.sun.jersey.servlet" autoStart="true" startLevel="4" />
+            <plugin id="derby" autoStart="true" startLevel="4" />
+            <plugin id="filesystem" autoStart="true" startLevel="4" />
+            <plugin id="groovy-all" autoStart="true" startLevel="4" />
+            <plugin id="javax.jms" autoStart="true" startLevel="4" />
+            <plugin id="javax.mail" autoStart="true" startLevel="4" />
+            <plugin id="javax.persistence" autoStart="true" startLevel="1" />
+            <plugin id="javax.servlet" autoStart="true" startLevel="4" />
+            <plugin id="javax.ws.rs.javax.ws.rs-api" autoStart="true" startLevel="4" />
+            <plugin id="javax.ws.rs.jsr311-api" autoStart="true" startLevel="4" />
+            <plugin id="javax.xml.ws" autoStart="true" startLevel="4" />
+            <plugin id="jclouds-blobstore" autoStart="true" startLevel="4" />
+            <plugin id="jclouds-core" autoStart="true" startLevel="4" />
+            <plugin id="jclouds-slf4j" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.aries.blueprint" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.aries.proxy.api" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.aries.util" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.axiom" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.axis2.osgi" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-core-osgi" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-core" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-cxf-transport" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-cxf" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-http" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-jaxb" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-jetty" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-spring" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.camel.camel-stream" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.commons.codec*1.3.0.v201101211617" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.commons.codec*1.8.0" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.commons.fileupload" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.commons.io" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.commons.logging*1.0.4.v201101211617" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.commons.logging*1.1.1" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-api" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-bindings-soap" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-bindings-xml" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-core" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-databinding-jaxb" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-frontend-jaxrs" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-frontend-jaxws" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-frontend-simple" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-transports-http-jetty" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.cxf.cxf-rt-transports-http" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.httpcomponents.httpclient" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.httpcomponents.httpcore" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.james.apache-mime4j-core" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.neethi" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.servicemix.bundles.wsdl4j" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.woden.woden-api" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.woden.woden-impl-commons" autoStart="true" startLevel="4" />
+            <plugin id="org.apache.ws.xmlschema.core" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.core.contenttype" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.core.jobs" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+            <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="1" />
+            <plugin id="org.eclipse.equinox.event*1.2.200.v20120522-2049" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.http.servlet" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.preferences" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.registry" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.equinox.util" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.client" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.continuation" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.http" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.io" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.jmx" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.security" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.server" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.servlet" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.servlets" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.jetty.util" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.osgi.services" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.osgi" autoStart="true" startLevel="-1" />
+            <plugin id="org.eclipse.persistence.antlr" autoStart="true" startLevel="4" />
+            <plugin id="org.eclipse.persistence.asm" autoStart="true" startLevel="3" />
+            <plugin id="org.eclipse.persistence.core" autoStart="true" startLevel="2" />
+            <plugin id="org.eclipse.persistence.jpa.equinox.weaving" autoStart="false" startLevel="4" />
+            <plugin id="org.eclipse.persistence.jpa.equinox" autoStart="false" startLevel="4" />
+            <plugin id="org.eclipse.persistence.jpa.osgi" autoStart="true" startLevel="2" />
+            <plugin id="org.eclipse.persistence.jpa" autoStart="true" startLevel="3" />
+            <plugin id="org.eclipse.persistence.oracle" autoStart="false" startLevel="4" />
+            <plugin id="org.jvnet.mimepull" autoStart="true" startLevel="4" />
+            <plugin id="org.mortbay.jetty.server" autoStart="true" startLevel="4" />
+            <plugin id="org.mortbay.jetty.util" autoStart="true" startLevel="4" />
+            <plugin id="org.springframework.beans" autoStart="true" startLevel="4" />
+            <plugin id="org.springframework.context" autoStart="true" startLevel="4" />
+            <plugin id="org.springframework.core" autoStart="true" startLevel="4" />
+            <plugin id="org.springframework.expression" autoStart="true" startLevel="4" />
+            <plugin id="org.springframework.transaction" autoStart="true" startLevel="4" />
+            <plugin id="rocoto" autoStart="false" startLevel="4" />
+            <plugin id="s3" autoStart="true" startLevel="4" />
+            <plugin id="slf4j.api" autoStart="true" startLevel="4" />
+            <plugin id="soa-model-core-1.2.2" autoStart="true" startLevel="4" />
+            <plugin id="sts" autoStart="true" startLevel="4" />
+      </configurations>
+
+</product>
