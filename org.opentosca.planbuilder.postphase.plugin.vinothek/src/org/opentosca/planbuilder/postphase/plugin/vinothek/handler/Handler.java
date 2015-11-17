@@ -306,7 +306,9 @@ public class Handler {
 							inputSource, XPathConstants.STRING);
 
 			String serviceName = value.split(":")[1];
-			String applicationFolderName = "/services/" + serviceName;
+			
+			// this is really a crude assumption of axis2 AND that the bps port is still set to 9763
+			String applicationFolderName = ":9763/services/" + serviceName;
 
 			zipFile.close();
 
