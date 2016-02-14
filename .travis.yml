@@ -1,0 +1,16 @@
+language: java
+
+#We build against the latest JDK
+jdk:
+  - oraclejdk8
+
+#We build at Ubuntu 14.04 (Trusty Tahr) as we want to use a more recent Ubuntu version
+sudo: required
+dist: trusty
+
+#If we were bulding using Ubuntu 12.04 LTS, we would not need `sudo: false` as TravisCI build has been introduced after 2015-01-01
+#For more information see https://docs.travis-ci.com/user/workers/container-based-infrastructure/
+ 
+#We do not need special build commands, as we use the default maven configuration
+#For more information see https://docs.travis-ci.com/user/languages/java
+ 
