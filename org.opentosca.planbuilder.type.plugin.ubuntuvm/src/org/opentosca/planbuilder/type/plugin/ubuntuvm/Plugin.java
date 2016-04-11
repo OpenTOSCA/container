@@ -29,7 +29,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	
 	@Override
 	public String getID() {
-		return "OpenTOSCA PlanBuilder Type Plugin Ubuntu VM";
+		return "OpenTOSCA PlanBuilder VM and Cloud Provider Declarative Type Plugin";
 	}
 	
 	/**
