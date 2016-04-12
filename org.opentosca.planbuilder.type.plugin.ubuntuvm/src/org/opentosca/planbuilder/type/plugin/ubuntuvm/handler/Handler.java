@@ -24,15 +24,17 @@ import org.slf4j.LoggerFactory;
  * {http://www.example.com/tosca/ServiceTemplates/EC2VM}VM,
  * {http://www.example.com/tosca/ServiceTemplates/EC2VM}Ubuntu.
  * </p>
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  *
- * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+ * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
 public class Handler {
 
 	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
+
+	
 	private Plugin invokerOpPlugin = new Plugin();
 
 	// create method external input parameters without CorrelationId (old)
@@ -41,7 +43,7 @@ public class Handler {
 
 	// new possible external params
 	private final static String[] createVMInstanceExternalInputParams = { "VMSecurityGroup", "VMKeyPairName",
-			"VMLoginPassword", "VMLoginName", "APIEndpoint", "VMImageName", "VMType" };
+			"APILoginPassword", "APILoginName", "APIEndpoint", "VMImageName", "VMType" };
 
 	public boolean handleOpenStackLiberty12WithUbuntu1404(TemplatePlanContext context,
 			AbstractNodeTemplate nodeTemplate) {
@@ -258,9 +260,9 @@ public class Handler {
 		 */
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
 
-		startRequestInputParams.put("IP", serverIpPropWrapper);
-		startRequestInputParams.put("LoginName", sshUserVariable);
-		startRequestInputParams.put("LoginPassword", sshKeyVariable);
+		startRequestInputParams.put("VMIP", serverIpPropWrapper);
+		startRequestInputParams.put("VMLoginName", sshUserVariable);
+		startRequestInputParams.put("VMLoginPassword", sshKeyVariable);
 
 		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
@@ -540,7 +542,7 @@ public class Handler {
 			return null;
 		}
 
-		if (!rightDashSplit[1].equals("Server")) {
+		if (!rightDashSplit[1].equals("Server") & !rightDashSplit[1].equals("VM")) {
 			return null;
 		}
 
