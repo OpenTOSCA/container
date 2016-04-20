@@ -37,6 +37,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	private final QName archiveArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 	private final QName bpelArchiveArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable","BPEL");
 	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
+	private final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
 	
 	private Handler handler = new Handler();
 	
@@ -46,7 +47,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 */
 	@Override
 	public String getID() {
-		return "openTOSCA ScriptZIPDAIAOnLinux Plugin v0.1";
+		return "openTOSCA DA/IA On Linux Plugin v0.1";
 	}
 	
 	/**
@@ -102,6 +103,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 		
 		if(this.bpelArchiveArtifactType.equals(artifactType)){
+			isSupportedArtifactType |= true;
+		}
+		
+		if(this.sqlArtifactType.equals(artifactType)){
 			isSupportedArtifactType |= true;
 		}
 		
