@@ -23,8 +23,8 @@ public class Types {
 	public final static QName ubuntu1310ServerVmNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server-VM");
 	
 	// cloud provider nodeTypes
-	public final static QName openStackLiberty12NodeType = new QName("http://opentosca.org/NodeTypes","OpenStack-Liberty-12");
+	public final static QName openStackLiberty12NodeType = new QName("http://opentosca.org/nodetypes","OpenStack-Liberty-12");
 	
 	// virtual machine nodeTypes
-	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/NodeTypes","Ubuntu-14.04-VM");
+	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes","Ubuntu-14.04-VM");
 }

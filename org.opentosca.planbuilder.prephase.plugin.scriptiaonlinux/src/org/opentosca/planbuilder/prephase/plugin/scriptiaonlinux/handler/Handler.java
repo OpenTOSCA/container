@@ -170,7 +170,8 @@ public class Handler {
 		// add sshUser and sshKey to the input message of the build plan, if
 		// needed
 		if (sshUserVariable == null) {
-			switch (serverIpPropWrapper.getName()) {
+			String cleanName = serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_")+1);
+			switch (cleanName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext.addStringValueToPlanRequest("sshUser");
@@ -188,7 +189,8 @@ public class Handler {
 
 		if (sshKeyVariable == null) {
 			LOG.debug("Adding sshKey field to plan input");
-			switch (serverIpPropWrapper.getName()) {
+			String cleanName = serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_")+1);
+			switch (cleanName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext.addStringValueToPlanRequest("sshKey");

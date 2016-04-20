@@ -65,7 +65,6 @@ public class Handler {
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
 
-	
 	public Handler() {
 		try {
 			this.docFactory = DocumentBuilderFactory.newInstance();
@@ -167,7 +166,9 @@ public class Handler {
 		// needed
 		if (sshUserVariable == null) {
 			// dirty check if we use old style properties
-			switch (serverIpPropWrapper.getName()) {
+			String cleanPropName = serverIpPropWrapper.getName()
+					.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+			switch (cleanPropName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext.addStringValueToPlanRequest("sshUser");
@@ -184,7 +185,9 @@ public class Handler {
 
 		if (sshKeyVariable == null) {
 			// dirty check if we use old style properties
-			switch (serverIpPropWrapper.getName()) {
+			String cleanPropName = serverIpPropWrapper.getName()
+					.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+			switch (cleanPropName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext.addStringValueToPlanRequest("sshKey");
@@ -230,7 +233,9 @@ public class Handler {
 				ia);
 
 		// dirty check if we use old style properties
-		switch (serverIpPropWrapper.getName()) {
+		String cleanPropName = serverIpPropWrapper.getName()
+				.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+		switch (cleanPropName) {
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 			runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
 			runScriptRequestInputParams.put("sshKey", sshKeyVariable);
@@ -241,9 +246,9 @@ public class Handler {
 
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-			runScriptRequestInputParams.put("VMIP", serverIpPropWrapper);
-			runScriptRequestInputParams.put("VMLoginPassword", sshKeyVariable);
-			runScriptRequestInputParams.put("VMLoginName", sshUserVariable);
+			runScriptRequestInputParams.put("IP", serverIpPropWrapper);
+			runScriptRequestInputParams.put("Password", sshKeyVariable);
+			runScriptRequestInputParams.put("User", sshUserVariable);
 			runScriptRequestInputParams.put("Script", runShScriptStringVar);
 			this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
 					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",

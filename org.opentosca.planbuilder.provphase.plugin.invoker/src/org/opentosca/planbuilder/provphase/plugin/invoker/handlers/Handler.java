@@ -509,30 +509,33 @@ public class Handler {
 				ubuntuFolderPathScript);
 
 		// quick and dirty hack to check if we're using old or new properties
-		switch (serverIp.getName()) {
+		String cleanName = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
+
+		switch (cleanName) {
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 			// old nodetype properties
 			runScriptRequestInputParams.put("hostname", serverIp);
 			runScriptRequestInputParams.put("sshKey", sshKey);
 			runScriptRequestInputParams.put("sshUser", sshUser);
 			runScriptRequestInputParams.put("script", mkdirScriptVar);
-			this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker",
-					runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
+			this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
+					"planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
+					appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 			// new nodetype properties
-			runScriptRequestInputParams.put("VMIP", serverIp);
-			runScriptRequestInputParams.put("VMLoginName", sshUser);
-			runScriptRequestInputParams.put("VMLoginPassword", sshKey);
+			runScriptRequestInputParams.put("IP", serverIp);
+			runScriptRequestInputParams.put("User", sshUser);
+			runScriptRequestInputParams.put("Password", sshKey);
 			runScriptRequestInputParams.put("Script", mkdirScriptVar);
-			this.handle(templateContext, templateId, true, "runScript", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
+			this.handle(templateContext, templateId, true, "runScript",
+					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
 					runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
 			break;
 		default:
 			return false;
 		}
-
 
 		/*
 		 * append transferFile logic with method: methodname: transferFile
@@ -541,30 +544,33 @@ public class Handler {
 		 */
 		Map<String, Variable> transferFileRequestInputParams = new HashMap<String, Variable>();
 
-		switch (serverIp.getName()) {
+		String cleanName2 = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
+
+		switch (cleanName2) {
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 			transferFileRequestInputParams.put("hostname", serverIp);
 			transferFileRequestInputParams.put("sshUser", sshUser);
 			transferFileRequestInputParams.put("sshKey", sshKey);
 			transferFileRequestInputParams.put("targetAbsolutePath", ubuntuFilePathVar);
 			transferFileRequestInputParams.put("sourceURLorLocalAbsolutePath", containerAPIAbsoluteURIVar);
-			this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu", "planCallbackAddress_invoker",
-					transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
+			this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu",
+					"planCallbackAddress_invoker", transferFileRequestInputParams, new HashMap<String, Variable>(),
+					appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-			transferFileRequestInputParams.put("VMIP", serverIp);
-			transferFileRequestInputParams.put("VMLoginName", sshUser);
-			transferFileRequestInputParams.put("VMLoginPasword", sshKey);
+			transferFileRequestInputParams.put("IP", serverIp);
+			transferFileRequestInputParams.put("User", sshUser);
+			transferFileRequestInputParams.put("Password", sshKey);
 			transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
 			transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
-			this.handle(templateContext, templateId, true, "transferFile", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
+			this.handle(templateContext, templateId, true, "transferFile",
+					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
 					transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
 			break;
 		default:
 			return false;
 		}
-
 
 		return true;
 	}

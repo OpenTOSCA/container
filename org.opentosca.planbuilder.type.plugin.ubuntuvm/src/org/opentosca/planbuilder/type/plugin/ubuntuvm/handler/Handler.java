@@ -42,8 +42,8 @@ public class Handler {
 			"accessKey", "regionEndpoint", "AMIid", "instanceType" };
 
 	// new possible external params
-	private final static String[] createVMInstanceExternalInputParams = { "VMSecurityGroup", "VMKeyPairName",
-			"APILoginPassword", "APILoginName", "APIEndpoint", "VMImageName", "VMType" };
+	private final static String[] createVMInstanceExternalInputParams = { "SecurityGroup", "KeyPairName",
+			"APIPassword", "APIUser", "APIEndpoint", "ImageName", "Type" };
 
 	public boolean handleOpenStackLiberty12WithUbuntu1404(TemplatePlanContext context,
 			AbstractNodeTemplate nodeTemplate) {
@@ -200,7 +200,7 @@ public class Handler {
 
 			// if we use ubuntu image version etc. from the nodeType not some
 			// property/parameter
-			if (externalParameter.equals("VMImageName") && ubuntuAMIIdVar != null) {
+			if (externalParameter.equals("ImageName") && ubuntuAMIIdVar != null) {
 				createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
 				continue;
 			}
@@ -260,9 +260,9 @@ public class Handler {
 		 */
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
 
-		startRequestInputParams.put("VMIP", serverIpPropWrapper);
-		startRequestInputParams.put("VMLoginName", sshUserVariable);
-		startRequestInputParams.put("VMLoginPassword", sshKeyVariable);
+		startRequestInputParams.put("IP", serverIpPropWrapper);
+		startRequestInputParams.put("User", sshUserVariable);
+		startRequestInputParams.put("Password", sshKeyVariable);
 
 		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
