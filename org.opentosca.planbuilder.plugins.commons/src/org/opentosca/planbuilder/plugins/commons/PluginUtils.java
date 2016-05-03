@@ -133,6 +133,11 @@ public class PluginUtils {
 		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType)) {
 			return true;
 		}
+		
+		// code for raspbian and stuff
+		if(nodeType.equals(Types.raspbianJessieOSNodeType)){
+			return true;
+		}
 
 		return false;
 	}
