@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,27 @@ public class Handler {
 		if (scriptRef == null) {
 			return false;
 		}
+		
+		// calculate relevant nodeTemplates for this operation call (the node itself and infraNodes)
+		List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
+		Utils.getNodesFromNodeToSink(templateContext.getNodeTemplate(), nodes);
+		nodes.add(templateContext.getNodeTemplate());
+		
+		// find the ubuntu node and its nodeTemplateId
+		AbstractNodeTemplate ubuntuNodeTemplate = null;
+		String templateId = "";
+		
+		for (AbstractNodeTemplate nodeTemplate : nodes) {
+			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+				ubuntuNodeTemplate  = nodeTemplate;
+				templateId = nodeTemplate.getId();
+			}
+		}
+		
+		if (templateId.equals("")) {
+			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
+			return false;
+		}
 
 		/*
 		 * fetch relevant variables/properties
@@ -106,7 +128,7 @@ public class Handler {
 		// installed on
 		Variable serverIpPropWrapper = null;
 		for (String serverIp : PluginUtils.getSupportedVirtualMachineIPPropertyNames()) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(serverIp);
+			serverIpPropWrapper = templateContext.getPropertyVariable(ubuntuNodeTemplate,serverIp);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, true);
 				if (serverIpPropWrapper == null) {
@@ -123,7 +145,7 @@ public class Handler {
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
 		for (String vmUserName : PluginUtils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			sshUserVariable = templateContext.getPropertyVariable(vmUserName);
+			sshUserVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate,vmUserName);
 			if (sshUserVariable == null) {
 				sshUserVariable = templateContext.getPropertyVariable(vmUserName, true);
 				if (sshUserVariable == null) {
@@ -144,7 +166,7 @@ public class Handler {
 		}
 		Variable sshKeyVariable = null;
 		for (String vmUserPassword : PluginUtils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword);
+			sshKeyVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate,vmUserPassword);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, true);
 				if (sshKeyVariable == null) {
@@ -203,19 +225,6 @@ public class Handler {
 			}
 		}
 
-		// find the ubuntu node and its nodeTemplateId
-		String templateId = "";
-
-		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
-				templateId = nodeTemplate.getId();
-			}
-		}
-
-		if (templateId.equals("")) {
-			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
-			return false;
-		}
 
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS

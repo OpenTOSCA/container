@@ -110,7 +110,7 @@ public class Handler {
 
 		Variable serverIpPropWrapper = null;
 		for (String serverIpName : PluginUtils.getSupportedVirtualMachineIPPropertyNames()) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName);
+			serverIpPropWrapper = templateContext.getPropertyVariable(nodeTemplate,serverIpName);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, true);
 				if (serverIpPropWrapper == null) {
@@ -127,7 +127,7 @@ public class Handler {
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
 		for (String vmLoginName : PluginUtils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			sshUserVariable = templateContext.getPropertyVariable(vmLoginName);
+			sshUserVariable = templateContext.getPropertyVariable(nodeTemplate,vmLoginName);
 			if (sshUserVariable == null) {
 				sshUserVariable = templateContext.getPropertyVariable(vmLoginName, true);
 				if (sshUserVariable == null) {
@@ -149,7 +149,7 @@ public class Handler {
 
 		Variable sshKeyVariable = null;
 		for (String vmLoginPassword : PluginUtils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword);
+			sshKeyVariable = templateContext.getPropertyVariable(nodeTemplate, vmLoginPassword);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, true);
 				if (sshKeyVariable == null) {

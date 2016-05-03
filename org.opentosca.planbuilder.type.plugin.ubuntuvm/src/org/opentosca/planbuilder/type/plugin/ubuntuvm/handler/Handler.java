@@ -77,12 +77,10 @@ public class Handler {
 
 		for (String instanceIdName : PluginUtils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
 			// find InstanceId Property inside ubuntu nodeTemplate
-			instanceIdPropWrapper = context.getPropertyVariable(instanceIdName);
+			
+			instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
 			if (instanceIdPropWrapper == null) {
-				instanceIdPropWrapper = context.getPropertyVariable(instanceIdName, true);
-				if (instanceIdPropWrapper == null) {
-					instanceIdPropWrapper = context.getPropertyVariable(instanceIdName, false);
-				}
+				instanceIdPropWrapper = context.getPropertyVariable(instanceIdName,true);
 			}
 		}
 
@@ -94,12 +92,9 @@ public class Handler {
 		// find ServerIp Property inside ubuntu nodeTemplate
 		Variable serverIpPropWrapper = null;
 		for (String vmIpName : PluginUtils.getSupportedVirtualMachineIPPropertyNames()) {
-			serverIpPropWrapper = context.getPropertyVariable(vmIpName);
+			serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
-				if (serverIpPropWrapper == null) {
-					serverIpPropWrapper = context.getPropertyVariable(vmIpName, false);
-				}
 			}
 		}
 
@@ -111,12 +106,9 @@ public class Handler {
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
 		for (String userName : PluginUtils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			sshUserVariable = context.getPropertyVariable(userName);
+			sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate,userName);
 			if (sshUserVariable == null) {
 				sshUserVariable = context.getPropertyVariable(userName, true);
-				if (sshUserVariable == null) {
-					sshUserVariable = context.getPropertyVariable(userName, false);
-				}
 			}
 		}
 
@@ -134,12 +126,9 @@ public class Handler {
 		Variable sshKeyVariable = null;
 
 		for (String passwordName : PluginUtils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			sshKeyVariable = context.getPropertyVariable(passwordName);
+			sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate,passwordName);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = context.getPropertyVariable(passwordName, true);
-				if (sshKeyVariable == null) {
-					sshKeyVariable = context.getPropertyVariable(passwordName, false);
-				}
 			}
 		}
 
@@ -190,12 +179,9 @@ public class Handler {
 		for (String externalParameter : Handler.createVMInstanceExternalInputParams) {
 			// find the variable for the inputparam
 
-			Variable variable = context.getPropertyVariable(externalParameter);
+			Variable variable = context.getPropertyVariable(ubuntuNodeTemplate,externalParameter);
 			if (variable == null) {
-				variable = context.getPropertyVariable(externalParameter, true);
-				if (variable == null) {
-					variable = context.getPropertyVariable(externalParameter, false);
-				}
+				variable = context.getPropertyVariable(externalParameter,true);
 			}
 
 			// if we use ubuntu image version etc. from the nodeType not some
@@ -311,14 +297,10 @@ public class Handler {
 
 		// find InstanceId Property inside ubuntu nodeTemplate
 		Variable instanceIdPropWrapper = context
-				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
+				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID,true);
 		if (instanceIdPropWrapper == null) {
 			instanceIdPropWrapper = context
-					.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
-			if (instanceIdPropWrapper == null) {
-				instanceIdPropWrapper = context
-						.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, false);
-			}
+					.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
 		}
 
 		if (instanceIdPropWrapper == null) {
@@ -329,14 +311,9 @@ public class Handler {
 		// find ServerIp Property inside ubuntu nodeTemplate
 
 		Variable serverIpPropWrapper = context
-				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP,
-					true);
-			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = context
-						.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, false);
-			}
+			serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);			
 		}
 
 		if (serverIpPropWrapper == null) {
@@ -345,12 +322,9 @@ public class Handler {
 		}
 
 		// find sshUser and sshKey
-		Variable sshUserVariable = context.getPropertyVariable("SSHUser");
+		Variable sshUserVariable = context.getPropertyVariable("SSHUser", true);
 		if (sshUserVariable == null) {
-			sshUserVariable = context.getPropertyVariable("SSHUser", true);
-			if (sshUserVariable == null) {
-				sshUserVariable = context.getPropertyVariable("SSHUser", false);
-			}
+			sshUserVariable = context.getPropertyVariable("SSHUser");
 		}
 
 		// if the variable is null now -> the property isn't set properly
@@ -364,12 +338,9 @@ public class Handler {
 			}
 		}
 
-		Variable sshKeyVariable = context.getPropertyVariable("SSHPrivateKey");
+		Variable sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", true);
 		if (sshKeyVariable == null) {
-			sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", true);
-			if (sshKeyVariable == null) {
-				sshKeyVariable = context.getPropertyVariable("SSHPrivateKey", false);
-			}
+			sshKeyVariable = context.getPropertyVariable("SSHPrivateKey");
 		}
 
 		// if variable null now -> the property isn't set according to schema
@@ -410,12 +381,9 @@ public class Handler {
 		for (String externalParameter : Handler.createEC2InstanceExternalInputParams) {
 			// find the variable for the inputparam
 
-			Variable variable = context.getPropertyVariable(externalParameter);
+			Variable variable = context.getPropertyVariable(externalParameter, true);
 			if (variable == null) {
-				variable = context.getPropertyVariable(externalParameter, true);
-				if (variable == null) {
-					variable = context.getPropertyVariable(externalParameter, false);
-				}
+				variable = context.getPropertyVariable(externalParameter);
 			}
 
 			// if we use ubuntu image version etc. from the nodeType not some
