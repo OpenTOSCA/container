@@ -104,6 +104,7 @@
   <module>org.opentosca.planbuilder.service.application</module>
   <module>org.opentosca.planbuilder.service.product</module>
   <module>org.opentosca.planbuilder.type.plugin.apachewebserver</module>
+  <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
   <module>org.opentosca.planbuilder.type.plugin.mysqldatabase</module>
   <module>org.opentosca.planbuilder.type.plugin.mysqlserver</module>
   <module>org.opentosca.planbuilder.type.plugin.php</module>
