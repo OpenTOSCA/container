@@ -97,7 +97,7 @@ public class Handler {
 		
 		// calculate relevant nodeTemplates for this operation call (the node itself and infraNodes)
 		List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
-		Utils.getNodesFromNodeToSink(templateContext.getNodeTemplate(), nodes);
+		Utils.getInfrastructureNodes(templateContext.getNodeTemplate(), nodes);
 		nodes.add(templateContext.getNodeTemplate());
 		
 		// find the ubuntu node and its nodeTemplateId
