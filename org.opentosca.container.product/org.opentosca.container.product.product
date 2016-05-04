@@ -347,6 +347,15 @@
       <plugin id="org.mortbay.jetty.server" autoStart="true" startLevel="4" />
       <plugin id="org.mortbay.jetty.util" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bpsconnector" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.api.jsonhttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.api.resthttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.api.soaphttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.dependencies" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.model" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.plugin.jsonhttp.service.impl" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.plugin.service" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.service" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.container.application" autoStart="false" startLevel="0" />
       <plugin id="org.opentosca.containerapi" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.core.internal.capability.service" autoStart="true" startLevel="4" />

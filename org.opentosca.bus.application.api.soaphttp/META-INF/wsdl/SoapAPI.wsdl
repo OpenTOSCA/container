@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsp1_2="http://schemas.xmlsoap.org/ws/2004/09/policy"
+	xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://opentosca.org/appinvoker/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://opentosca.org/appinvoker/"
+	name="AppInvokerSoapWebServiceService">
+	<types>
+		<xsd:schema>
+			<xsd:import namespace="http://opentosca.org/appinvoker/"
+				schemaLocation="SoapAPI.xsd" />
+		</xsd:schema>
+	</types>
+	<message name="getResult">
+		<part name="parameters" element="tns:getResult"></part>
+	</message>
+	<message name="getResultResponse">
+		<part name="parameters" element="tns:getResultResponse"></part>
+	</message>
+	<message name="ApplicationBusException">
+		<part name="fault" element="tns:ApplicationBusException"></part>
+	</message>
+	<message name="isFinished">
+		<part name="parameters" element="tns:isFinished"></part>
+	</message>
+	<message name="isFinishedResponse">
+		<part name="parameters" element="tns:isFinishedResponse"></part>
+	</message>
+	<message name="invokeMethodWithServiceInstanceID">
+		<part name="parameters" element="tns:invokeMethodWithServiceInstanceID"></part>
+	</message>
+	<message name="invokeMethodWithServiceInstanceIDResponse">
+		<part name="parameters" element="tns:invokeMethodWithServiceInstanceIDResponse"></part>
+	</message>
+	<message name="invokeMethodWithNodeInstanceID">
+		<part name="parameters" element="tns:invokeMethodWithNodeInstanceID"></part>
+	</message>
+	<message name="invokeMethodWithNodeInstanceIDResponse">
+		<part name="parameters" element="tns:invokeMethodWithNodeInstanceIDResponse"></part>
+	</message>
+	<portType name="AppInvokerSoapWebServicePortType">
+		<operation name="getResult">
+			<input message="tns:getResult"></input>
+			<output message="tns:getResultResponse"></output>
+			<fault message="tns:ApplicationBusException" name="ApplicationBusException"></fault>
+		</operation>
+		<operation name="isFinished">
+			<input message="tns:isFinished"></input>
+			<output message="tns:isFinishedResponse"></output>
+			<fault message="tns:ApplicationBusException" name="ApplicationBusException"></fault>
+		</operation>
+		<operation name="invokeMethodWithServiceInstanceID">
+			<input message="tns:invokeMethodWithServiceInstanceID"></input>
+			<output message="tns:invokeMethodWithServiceInstanceIDResponse"></output>
+			<fault message="tns:ApplicationBusException" name="ApplicationBusException"></fault>
+		</operation>
+		<operation name="invokeMethodWithNodeInstanceID">
+			<input message="tns:invokeMethodWithNodeInstanceID"></input>
+			<output message="tns:invokeMethodWithNodeInstanceIDResponse"></output>
+			<fault message="tns:ApplicationBusException" name="ApplicationBusException"></fault>
+		</operation>
+	</portType>
+	<binding name="AppInvokerSoapWebServicePortBinding" type="tns:AppInvokerSoapWebServicePortType">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document"></soap:binding>
+		<operation name="getResult">
+			<soap:operation soapAction=""></soap:operation>
+			<input>
+				<soap:body use="literal"></soap:body>
+			</input>
+			<output>
+				<soap:body use="literal"></soap:body>
+			</output>
+			<fault name="ApplicationBusException">
+				<soap:fault name="ApplicationBusException" use="literal"></soap:fault>
+			</fault>
+		</operation>
+		<operation name="isFinished">
+			<soap:operation soapAction=""></soap:operation>
+			<input>
+				<soap:body use="literal"></soap:body>
+			</input>
+			<output>
+				<soap:body use="literal"></soap:body>
+			</output>
+			<fault name="ApplicationBusException">
+				<soap:fault name="ApplicationBusException" use="literal"></soap:fault>
+			</fault>
+		</operation>
+		<operation name="invokeMethodWithServiceInstanceID">
+			<soap:operation soapAction=""></soap:operation>
+			<input>
+				<soap:body use="literal"></soap:body>
+			</input>
+			<output>
+				<soap:body use="literal"></soap:body>
+			</output>
+			<fault name="ApplicationBusException">
+				<soap:fault name="ApplicationBusException" use="literal"></soap:fault>
+			</fault>
+		</operation>
+		<operation name="invokeMethodWithNodeInstanceID">
+			<soap:operation soapAction=""></soap:operation>
+			<input>
+				<soap:body use="literal"></soap:body>
+			</input>
+			<output>
+				<soap:body use="literal"></soap:body>
+			</output>
+			<fault name="ApplicationBusException">
+				<soap:fault name="ApplicationBusException" use="literal"></soap:fault>
+			</fault>
+		</operation>
+	</binding>
+	<service name="AppInvokerSoapWebServiceService">
+		<port name="AppInvokerSoapWebServicePort" binding="tns:AppInvokerSoapWebServicePortBinding">
+			<soap:address location="http://localhost:8084/appinvoker"></soap:address>
+		</port>
+	</service>
+</definitions>

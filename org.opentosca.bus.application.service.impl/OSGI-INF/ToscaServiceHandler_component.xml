@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.application.service.impl.servicehandler.ToscaServiceHandler">
+   <implementation class="org.opentosca.bus.application.service.impl.servicehandler.ToscaServiceHandler"/>
+   <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.toscaengine.xmlserializer.service.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
+   <reference bind="bindToscaEngineService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaEngineService"/>
+</scr:component>

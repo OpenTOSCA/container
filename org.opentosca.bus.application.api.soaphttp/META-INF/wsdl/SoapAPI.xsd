@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:tns="http://opentosca.org/appinvoker/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"
+	targetNamespace="http://opentosca.org/appinvoker/">
+
+	<xs:complexType name="ParamsMapItemType">
+		<xs:sequence>
+			<xs:element name="key" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ParamsMap">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="Param"
+				type="tns:ParamsMapItemType" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="ApplicationBusException" type="tns:ApplicationBusException"></xs:element>
+
+	<xs:element name="getResult" type="tns:getResult"></xs:element>
+
+	<xs:element name="getResultResponse" type="tns:getResultResponse"></xs:element>
+
+	<xs:element name="invokeMethodWithNodeInstanceID" type="tns:invokeMethodWithNodeInstanceID"></xs:element>
+
+	<xs:element name="invokeMethodWithNodeInstanceIDResponse"
+		type="tns:invokeMethodWithNodeInstanceIDResponse"></xs:element>
+
+	<xs:element name="invokeMethodWithServiceInstanceID" type="tns:invokeMethodWithServiceInstanceID"></xs:element>
+
+	<xs:element name="invokeMethodWithServiceInstanceIDResponse"
+		type="tns:invokeMethodWithServiceInstanceIDResponse"></xs:element>
+
+	<xs:element name="isFinished" type="tns:isFinished"></xs:element>
+
+	<xs:element name="isFinishedResponse" type="tns:isFinishedResponse"></xs:element>
+
+	<xs:complexType name="invokeMethodWithServiceInstanceID">
+		<xs:sequence>
+			<xs:element name="nodeTemplateID" type="xs:string"></xs:element>
+			<xs:element name="interface" type="xs:string"></xs:element>
+			<xs:element name="operation" type="xs:string"></xs:element>
+			<xs:element name="serviceInstanceID" type="xs:int"></xs:element>
+			<xs:element minOccurs="0" name="Params" type="tns:ParamsMap" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="invokeMethodWithServiceInstanceIDResponse">
+		<xs:sequence>
+			<xs:element name="requestID" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="invokeMethodWithNodeInstanceID">
+		<xs:sequence>
+			<xs:element name="interface" type="xs:string"></xs:element>
+			<xs:element name="operation" type="xs:string"></xs:element>
+			<xs:element name="nodeInstanceID" type="xs:int"></xs:element>
+			<xs:element minOccurs="0" name="Params" type="tns:ParamsMap" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="invokeMethodWithNodeInstanceIDResponse">
+		<xs:sequence>
+			<xs:element name="requestID" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ApplicationBusException">
+		<xs:sequence>
+			<xs:element name="message" type="xs:string" minOccurs="0"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getResult">
+		<xs:sequence>
+			<xs:element name="requestID" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getResultResponse">
+		<xs:sequence>
+			<xs:element name="result" type="xs:anyType" minOccurs="0"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="isFinished">
+		<xs:sequence>
+			<xs:element name="requestID" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="isFinishedResponse">
+		<xs:sequence>
+			<xs:element name="isFinished" type="xs:boolean"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+</xs:schema>

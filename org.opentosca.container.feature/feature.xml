@@ -1465,4 +1465,58 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.opentosca.bus.application.api.resthttp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.api.soaphttp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.dependencies"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.plugin.jsonhttp.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.plugin.service"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.service"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.opentosca.bus.application.api.jsonhttp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
 </feature>
