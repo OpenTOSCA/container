@@ -112,7 +112,7 @@ public class Handler {
 
 		/* create skript */
 		// the script itself
-		String bashCommand = "echo \"topicName = hostName\" >> $(find ~ -maxdepth 1 -path \"*.csar\")/mosquitto_connections.txt;";
+		String bashCommand = "echo \"topicName = hostName\" > $(find ~ -maxdepth 1 -path \"*.csar\")/mosquitto_connections.txt;";
 
 		// add it as a var to the plan
 		Variable bashCommandVariable = templateContext.createGlobalStringVariable("addMosquittoConnection",
