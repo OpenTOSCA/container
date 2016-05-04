@@ -4,3 +4,6 @@
 .project
 bin
 target
+org.opentosca.*/.project
+org.opentosca.*/.classpath
+org.opentosca.*/.settings
