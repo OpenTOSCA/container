@@ -315,7 +315,7 @@ public class Handler {
 		 */
 		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
 		String runShScriptString = "chmod +x ~/" + templateContext.getCSARFileName() + "/" + reference.getReference()
-				+ " && sudo " + this.createDANamePathMapEnvVar(templateContext, ia);
+				+ " && sudo -E " + this.createDANamePathMapEnvVar(templateContext, ia);
 		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 		String xpathQueryPrefix = "";
 		String xpathQuerySuffix = "";
