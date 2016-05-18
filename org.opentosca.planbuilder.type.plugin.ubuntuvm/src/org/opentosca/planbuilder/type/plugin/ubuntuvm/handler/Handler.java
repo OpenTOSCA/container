@@ -42,8 +42,8 @@ public class Handler {
 			"accessKey", "regionEndpoint", "AMIid", "instanceType" };
 
 	// new possible external params
-	private final static String[] createVMInstanceExternalInputParams = { "SecurityGroup", "KeyPairName",
-			"APIPassword", "APIUser", "APIEndpoint", "ImageName", "Type" };
+	private final static String[] createVMInstanceExternalInputParams = { "VMKeyPairName",
+			"HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID"};
 
 	public boolean handleOpenStackLiberty12WithUbuntu1404(TemplatePlanContext context,
 			AbstractNodeTemplate nodeTemplate) {
@@ -186,7 +186,7 @@ public class Handler {
 
 			// if we use ubuntu image version etc. from the nodeType not some
 			// property/parameter
-			if (externalParameter.equals("ImageName") && ubuntuAMIIdVar != null) {
+			if (externalParameter.equals("VMImageID") && ubuntuAMIIdVar != null) {
 				createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
 				continue;
 			}
@@ -246,9 +246,9 @@ public class Handler {
 		 */
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
 
-		startRequestInputParams.put("IP", serverIpPropWrapper);
-		startRequestInputParams.put("User", sshUserVariable);
-		startRequestInputParams.put("Password", sshKeyVariable);
+		startRequestInputParams.put("VMIP", serverIpPropWrapper);
+		startRequestInputParams.put("VMUserName", sshUserVariable);
+		startRequestInputParams.put("VMUserPassword", sshKeyVariable);
 
 		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
@@ -482,6 +482,11 @@ public class Handler {
 	private String createUbuntuImageStringFromNodeType(QName nodeType) {
 		if (!PluginUtils.isSupportedUbuntuVMNodeType(nodeType)) {
 			return null;
+		}
+		
+		// hack because of the openstack migration
+		if(nodeType.equals(Types.ubuntu1404ServerVmNodeType)){
+			return "ubuntu-14.04-trusty-server-cloudimg";
 		}
 
 		String localName = nodeType.getLocalPart();

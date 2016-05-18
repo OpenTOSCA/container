@@ -16,9 +16,9 @@ public class Properties {
 	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_SSHPRIVATEKEY = "SSHPrivateKey";
 	
 	// new properties
-	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP = "IP";
-	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID = "InstanceId";
-	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME = "User";
-	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD = "Password";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP = "VMIP";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID = "VMInstanceID";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME = "VMUserName";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD = "VMUserPassword";
 	
 }

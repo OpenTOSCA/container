@@ -524,9 +524,9 @@ public class Handler {
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 			// new nodetype properties
-			runScriptRequestInputParams.put("IP", serverIp);
-			runScriptRequestInputParams.put("User", sshUser);
-			runScriptRequestInputParams.put("Password", sshKey);
+			runScriptRequestInputParams.put("VMIP", serverIp);
+			runScriptRequestInputParams.put("VMUserName", sshUser);
+			runScriptRequestInputParams.put("VMUserPassword", sshKey);
 			runScriptRequestInputParams.put("Script", mkdirScriptVar);
 			this.handle(templateContext, templateId, true, "runScript",
 					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
@@ -558,9 +558,9 @@ public class Handler {
 					appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-			transferFileRequestInputParams.put("IP", serverIp);
-			transferFileRequestInputParams.put("User", sshUser);
-			transferFileRequestInputParams.put("Password", sshKey);
+			transferFileRequestInputParams.put("VMIP", serverIp);
+			transferFileRequestInputParams.put("VMUserName", sshUser);
+			transferFileRequestInputParams.put("VMUserPassword", sshKey);
 			transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
 			transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
 			this.handle(templateContext, templateId, true, "transferFile",

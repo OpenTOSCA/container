@@ -255,9 +255,9 @@ public class Handler {
 
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-			runScriptRequestInputParams.put("IP", serverIpPropWrapper);
-			runScriptRequestInputParams.put("Password", sshKeyVariable);
-			runScriptRequestInputParams.put("User", sshUserVariable);
+			runScriptRequestInputParams.put("VMIP", serverIpPropWrapper);
+			runScriptRequestInputParams.put("VMUserPassword", sshKeyVariable);
+			runScriptRequestInputParams.put("VMUserName", sshUserVariable);
 			runScriptRequestInputParams.put("Script", runShScriptStringVar);
 			this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
 					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",

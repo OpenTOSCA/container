@@ -192,7 +192,7 @@ public class Handler {
 			String cleanName = serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_")+1);
 			switch (cleanName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
-				LOG.debug("Adding sshUser field to plan input");
+				LOG.debug("Adding sshKey field to plan input");
 				templateContext.addStringValueToPlanRequest("sshKey");
 				break;
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:

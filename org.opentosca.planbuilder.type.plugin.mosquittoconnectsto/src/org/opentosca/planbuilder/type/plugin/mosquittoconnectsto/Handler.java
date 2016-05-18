@@ -142,19 +142,19 @@ public class Handler {
 		/* add logic to execute script on client machine */
 		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
 
-		runScriptRequestInputParams.put("IP", clientVmIp);
+		runScriptRequestInputParams.put("VMIP", clientVmIp);
 
 		// these two are requested from the input message if they are not set
 		if (!Utils.isVariableValueEmpty(clientVmUser, templateContext)) {
-			runScriptRequestInputParams.put("User", clientVmUser);
+			runScriptRequestInputParams.put("VMUserName", clientVmUser);
 		} else {
-			runScriptRequestInputParams.put("User", null);
+			runScriptRequestInputParams.put("VMUserName", null);
 		}
 
 		if (!Utils.isVariableValueEmpty(clientVmPass, templateContext)) {
-			runScriptRequestInputParams.put("Password", clientVmPass);
+			runScriptRequestInputParams.put("VMUserPassword", clientVmPass);
 		} else {
-			runScriptRequestInputParams.put("Password", null);
+			runScriptRequestInputParams.put("VMUserPassword", null);
 		}
 		
 		runScriptRequestInputParams.put("Script", bashCommandVariable);
