@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,23 +95,24 @@ public class Handler {
 		if (scriptRef == null) {
 			return false;
 		}
-		
-		// calculate relevant nodeTemplates for this operation call (the node itself and infraNodes)
+
+		// calculate relevant nodeTemplates for this operation call (the node
+		// itself and infraNodes)
 		List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
 		Utils.getInfrastructureNodes(templateContext.getNodeTemplate(), nodes);
 		nodes.add(templateContext.getNodeTemplate());
-		
+
 		// find the ubuntu node and its nodeTemplateId
 		AbstractNodeTemplate ubuntuNodeTemplate = null;
 		String templateId = "";
-		
+
 		for (AbstractNodeTemplate nodeTemplate : nodes) {
 			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
-				ubuntuNodeTemplate  = nodeTemplate;
+				ubuntuNodeTemplate = nodeTemplate;
 				templateId = nodeTemplate.getId();
 			}
 		}
-		
+
 		if (templateId.equals("")) {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
@@ -128,7 +130,7 @@ public class Handler {
 		// installed on
 		Variable serverIpPropWrapper = null;
 		for (String serverIp : PluginUtils.getSupportedVirtualMachineIPPropertyNames()) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(ubuntuNodeTemplate,serverIp);
+			serverIpPropWrapper = templateContext.getPropertyVariable(ubuntuNodeTemplate, serverIp);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, true);
 				if (serverIpPropWrapper == null) {
@@ -145,7 +147,7 @@ public class Handler {
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
 		for (String vmUserName : PluginUtils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			sshUserVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate,vmUserName);
+			sshUserVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate, vmUserName);
 			if (sshUserVariable == null) {
 				sshUserVariable = templateContext.getPropertyVariable(vmUserName, true);
 				if (sshUserVariable == null) {
@@ -166,7 +168,7 @@ public class Handler {
 		}
 		Variable sshKeyVariable = null;
 		for (String vmUserPassword : PluginUtils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			sshKeyVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate,vmUserPassword);
+			sshKeyVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate, vmUserPassword);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, true);
 				if (sshKeyVariable == null) {
@@ -224,7 +226,6 @@ public class Handler {
 
 			}
 		}
-
 
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
@@ -314,8 +315,11 @@ public class Handler {
 		 * params
 		 */
 		Map<String, Variable> inputMappings = new HashMap<String, Variable>();
-		String runShScriptString = "chmod +x ~/" + templateContext.getCSARFileName() + "/" + reference.getReference()
-				+ " && sudo -E " + this.createDANamePathMapEnvVar(templateContext, ia);
+		String runShScriptString = "mkdir -p ~/" + templateContext.getCSARFileName() + "/logs/plans/ && chmod +x ~/"
+				+ templateContext.getCSARFileName() + "/" + reference.getReference() + " && sudo -E "
+				+ this.createDANamePathMapEnvVar(templateContext, ia);
+
+
 		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 		String xpathQueryPrefix = "";
 		String xpathQuerySuffix = "";
@@ -353,6 +357,14 @@ public class Handler {
 		// add path to script
 		runShScriptString += "~/" + templateContext.getCSARFileName() + "/" + reference.getReference();
 
+		// construct log file path
+		String logFilePath = "~/" + templateContext.getCSARFileName() + "/logs/plans/"
+				+ templateContext.getTemplateBuildPlanName() + "$(date +\"%m_%d_%Y\").log";
+		// append command to log the operation call on the machine
+		runShScriptString += " > " + logFilePath;
+		// and echo the operation call log
+		runShScriptString += " && echo " + logFilePath;
+		
 		// generate string var with script
 		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName,
 				runShScriptString);

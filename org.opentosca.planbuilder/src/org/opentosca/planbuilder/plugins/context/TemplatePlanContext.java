@@ -96,6 +96,17 @@ public class TemplatePlanContext {
 	}
 
 	/**
+	 * Returns the name of the TemplateBuildPlan this TemplatePlanContext
+	 * belongs to
+	 * 
+	 * @return a String containing a Name for the TemplateBuildPlan consisting
+	 *         of the Id of the NodeTemplate processed in that plan
+	 */
+	public String getTemplateBuildPlanName() {
+		return this.templateBuildPlan.getBpelScopeElement().getAttribute("name");
+	}
+
+	/**
 	 * Returns the file name of the CSAR in which this Template resides
 	 *
 	 * @return a String with the file name of the CSAR
