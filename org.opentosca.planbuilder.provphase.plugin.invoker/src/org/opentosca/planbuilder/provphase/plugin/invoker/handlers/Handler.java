@@ -91,12 +91,11 @@ public class Handler {
 		String correlationSetName = null;
 
 		// setup correlation property and aliases for request and response
+		String query = "//*[local-name()=\"MessageID\" and namespace-uri()=\"http://siserver.org/schema\"]";
 		String correlationPropertyName = invokerPortType.getLocalPart() + "Property" + context.getIdForNames();
 		context.addProperty(correlationPropertyName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName,
-				"/" + InputMessageId.getPrefix() + ":" + "MessageID");
-		context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName,
-				"/" + OutputMessageId.getPrefix() + ":" + "MessageID");
+		context.addPropertyAlias(correlationPropertyName, InputMessageId, InputMessagePartName, query);
+		context.addPropertyAlias(correlationPropertyName, OutputMessageId, OutputMessagePartName, query);
 		// register correlationsets
 		correlationSetName = invokerPortType.getLocalPart() + "CorrelationSet" + context.getIdForNames();
 		context.addCorrelationSet(correlationSetName, correlationPropertyName);
@@ -211,41 +210,44 @@ public class Handler {
 			return false;
 		}
 
-		// add receive for service invoker callback
-		try {
-			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName,
-					"callback", invokerCallbackPortType, responseVariableName);
-			receiveNode = context.importNode(receiveNode);
+		// if TOSCA operation has no output we don't wait for an answer
+		if (!internalExternalPropsOutput.isEmpty()) {
+			// add receive for service invoker callback
+			try {
+				Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName,
+						partnerLinkName, "callback", invokerCallbackPortType, responseVariableName);
+				receiveNode = context.importNode(receiveNode);
 
-			Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
-			correlationSetsNode = context.importNode(correlationSetsNode);
-			receiveNode.appendChild(correlationSetsNode);
+				Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
+				correlationSetsNode = context.importNode(correlationSetsNode);
+				receiveNode.appendChild(correlationSetsNode);
 
-			context.getProvisioningPhaseElement().appendChild(receiveNode);
-		} catch (SAXException e1) {
-			Handler.LOG.error("Error reading/writing XML File", e1);
-			return false;
-		} catch (IOException e1) {
-			Handler.LOG.error("Error reading/writing File", e1);
-			return false;
-		}
+				context.getProvisioningPhaseElement().appendChild(receiveNode);
+			} catch (SAXException e1) {
+				Handler.LOG.error("Error reading/writing XML File", e1);
+				return false;
+			} catch (IOException e1) {
+				Handler.LOG.error("Error reading/writing File", e1);
+				return false;
+			}
 
-		// process response message
-		// add assign for response
-		try {
+			// process response message
+			// add assign for response
+			try {
 
-			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
-					OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
-					OutputMessageId, context.getPlanResponseMessageName(), "payload");
-			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
-			responseAssignNode = context.importNode(responseAssignNode);
-			context.getProvisioningPhaseElement().appendChild(responseAssignNode);
-		} catch (SAXException e) {
-			Handler.LOG.error("Error reading/writing XML File", e);
-			return false;
-		} catch (IOException e) {
-			Handler.LOG.error("Error reading/writing File", e);
-			return false;
+				Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
+						OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
+						OutputMessageId, context.getPlanResponseMessageName(), "payload");
+				Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
+				responseAssignNode = context.importNode(responseAssignNode);
+				context.getProvisioningPhaseElement().appendChild(responseAssignNode);
+			} catch (SAXException e) {
+				Handler.LOG.error("Error reading/writing XML File", e);
+				return false;
+			} catch (IOException e) {
+				Handler.LOG.error("Error reading/writing File", e);
+				return false;
+			}
 		}
 
 		return true;
@@ -386,52 +388,54 @@ public class Handler {
 			return false;
 		}
 
-		// add receive for service invoker callback
-		try {
-			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName,
-					"callback", invokerCallbackPortType, responseVariableName);
-			receiveNode = context.importNode(receiveNode);
+		if (!internalExternalPropsOutput.isEmpty()) {
+			// add receive for service invoker callback
+			try {
+				Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName,
+						partnerLinkName, "callback", invokerCallbackPortType, responseVariableName);
+				receiveNode = context.importNode(receiveNode);
 
-			Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
-			correlationSetsNode = context.importNode(correlationSetsNode);
-			receiveNode.appendChild(correlationSetsNode);
+				Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
+				correlationSetsNode = context.importNode(correlationSetsNode);
+				receiveNode.appendChild(correlationSetsNode);
 
-			if (appendToPrePhase) {
-				context.getPrePhaseElement().appendChild(receiveNode);
-			} else {
-				context.getProvisioningPhaseElement().appendChild(receiveNode);
+				if (appendToPrePhase) {
+					context.getPrePhaseElement().appendChild(receiveNode);
+				} else {
+					context.getProvisioningPhaseElement().appendChild(receiveNode);
+				}
+
+			} catch (SAXException e1) {
+				Handler.LOG.error("Error reading/writing XML File", e1);
+				return false;
+			} catch (IOException e1) {
+				Handler.LOG.error("Error reading/writing File", e1);
+				return false;
 			}
 
-		} catch (SAXException e1) {
-			Handler.LOG.error("Error reading/writing XML File", e1);
-			return false;
-		} catch (IOException e1) {
-			Handler.LOG.error("Error reading/writing File", e1);
-			return false;
-		}
+			// process response message
+			// add assign for response
+			try {
 
-		// process response message
-		// add assign for response
-		try {
+				Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
+						OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
+						OutputMessageId, context.getPlanResponseMessageName(), "payload");
+				Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
+				responseAssignNode = context.importNode(responseAssignNode);
 
-			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
-					OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
-					OutputMessageId, context.getPlanResponseMessageName(), "payload");
-			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
-			responseAssignNode = context.importNode(responseAssignNode);
+				if (appendToPrePhase) {
+					context.getPrePhaseElement().appendChild(responseAssignNode);
+				} else {
+					context.getProvisioningPhaseElement().appendChild(responseAssignNode);
+				}
 
-			if (appendToPrePhase) {
-				context.getPrePhaseElement().appendChild(responseAssignNode);
-			} else {
-				context.getProvisioningPhaseElement().appendChild(responseAssignNode);
+			} catch (SAXException e) {
+				Handler.LOG.error("Error reading/writing XML File", e);
+				return false;
+			} catch (IOException e) {
+				Handler.LOG.error("Error reading/writing File", e);
+				return false;
 			}
-
-		} catch (SAXException e) {
-			Handler.LOG.error("Error reading/writing XML File", e);
-			return false;
-		} catch (IOException e) {
-			Handler.LOG.error("Error reading/writing File", e);
-			return false;
 		}
 
 		return true;

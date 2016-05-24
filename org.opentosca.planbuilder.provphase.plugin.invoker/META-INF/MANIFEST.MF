@@ -16,3 +16,4 @@ Import-Package: org.apache.commons.io;version="2.4.0",
 Bundle-ClassPath: .,
  META-INF/resources/
 Export-Package: org.opentosca.planbuilder.provphase.plugin.invoker
+Bundle-Activator: org.opentosca.planbuilder.provphase.plugin.invoker.Activator
