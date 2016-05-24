@@ -54,7 +54,8 @@ public class Utils {
 	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes",
 			"Ubuntu-14.04-VM");
 	public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
-
+	public final static QName externalResourceNodeType = new QName("http://opentosca.org/nodetypes", "ExternalResource");
+	
 	public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(AbstractNodeTemplate nodeTemplate,
 			AbstractNodeTypeImplementation nodeImpl) {
 		Set<AbstractDeploymentArtifact> effectiveDAs = new HashSet<AbstractDeploymentArtifact>();
@@ -233,7 +234,8 @@ public class Utils {
 		if (Utils.getNodeBaseType(nodeTemplate).equals(Utils.TOSCABASETYPE_OS)
 				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.TOSCABASETYPE_SERVER)
 				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.ubuntu1404ServerVmNodeType)
-				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.raspbianJessieOSNodeType)) {
+				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.raspbianJessieOSNodeType)
+				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.externalResourceNodeType)) {
 			Utils.LOG.debug("Found infrastructure node: " + nodeTemplate.getId());
 			infrastructureNodes.add(nodeTemplate);
 		}

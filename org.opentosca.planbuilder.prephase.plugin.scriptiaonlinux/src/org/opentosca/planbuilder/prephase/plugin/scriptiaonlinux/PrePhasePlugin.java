@@ -83,8 +83,13 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 */
 	private boolean isSupportedDeploymentPair(QName artifactType, QName infrastructureNodeType) {
 		
+		boolean isSupportedInfrastructureNode = false;
+		
+		isSupportedInfrastructureNode |= PluginUtils.isSupportedUbuntuVMNodeType(infrastructureNodeType);
+		isSupportedInfrastructureNode |= infrastructureNodeType.equals(Utils.externalResourceNodeType);
+		
 		// we can deploy only on ubuntu nodes
-		if(!PluginUtils.isSupportedUbuntuVMNodeType(infrastructureNodeType)){
+		if(!isSupportedInfrastructureNode){
 			return false;
 		}
 		
