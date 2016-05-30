@@ -210,8 +210,6 @@ public class Handler {
 			return false;
 		}
 
-		// if TOSCA operation has no output we don't wait for an answer
-		if (!internalExternalPropsOutput.isEmpty()) {
 			// add receive for service invoker callback
 			try {
 				Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName,
@@ -248,7 +246,6 @@ public class Handler {
 				Handler.LOG.error("Error reading/writing File", e);
 				return false;
 			}
-		}
 
 		return true;
 	}
@@ -388,7 +385,6 @@ public class Handler {
 			return false;
 		}
 
-		if (!internalExternalPropsOutput.isEmpty()) {
 			// add receive for service invoker callback
 			try {
 				Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName,
@@ -436,7 +432,6 @@ public class Handler {
 				Handler.LOG.error("Error reading/writing File", e);
 				return false;
 			}
-		}
 
 		return true;
 	}
