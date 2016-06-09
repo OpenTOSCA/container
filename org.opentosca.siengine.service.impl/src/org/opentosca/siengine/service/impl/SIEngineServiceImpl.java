@@ -111,13 +111,18 @@ public class SIEngineServiceImpl implements ISIEngineService {
 				
 				String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID, serviceTemplateID);
 				
-				HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID, serviceTemplateName, nodeTemplateID, serviceInstanceID);
+				HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID, serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
 				
-				SIEngineServiceImpl.LOG.info("Propeties from InstanceData Service: {}", propertiesMap.toString());
+				if (propertiesMap != null) {
+					SIEngineServiceImpl.LOG.info("Properties from InstanceData Service: {}", propertiesMap.toString());
+					
+					inputParams.putAll(propertiesMap);
+					
+					SIEngineServiceImpl.LOG.info("New inputParams Map: {}", inputParams.toString());
+				} else {
+					SIEngineServiceImpl.LOG.info("No InstanceData found {}");
+				}
 				
-				inputParams.putAll(propertiesMap);
-				
-				SIEngineServiceImpl.LOG.info("New inputParams Map: {}", inputParams.toString());
 				
 			}
 			
