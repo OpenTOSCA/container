@@ -363,6 +363,8 @@
       <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.apachewebserver" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mysqldatabase" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mysqlserver" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.php" autoStart="true" startLevel="4" />
