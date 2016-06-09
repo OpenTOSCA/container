@@ -54,9 +54,9 @@ public class Plugin implements IPlanBuilderTypePlugin {
 
 		// when the cloudprovider node arrives start handling
 		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
-			if (nodeTemplate.getType().getId().equals(Types.openStackLiberty12NodeType)) {
+			if (nodeTemplate.getType().getId().equals(Types.openStackLiberty12NodeType) | nodeTemplate.getType().getId().equals(Types.vmWareVsphere55NodeType)) {
 				// bit hacky now, but until the nodeType cleanup is finished this should be enough right now
-				return this.handler.handleOpenStackLiberty12WithUbuntu1404(templateContext, nodeTemplate);
+				return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
 			} else {
 				return this.handler.handle(templateContext, nodeTemplate);
 			}
