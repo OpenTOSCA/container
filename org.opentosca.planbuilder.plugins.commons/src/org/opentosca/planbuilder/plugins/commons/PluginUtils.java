@@ -26,17 +26,18 @@ public class PluginUtils {
 		ipPropertyNames = new ArrayList<String>();
 		ipPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		ipPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP);
+		ipPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP);
 		instanceIdPropertyNames = new ArrayList<String>();
 		instanceIdPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
 		instanceIdPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID);
 		loginNamePropertyNames = new ArrayList<String>();
 		loginNamePropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SSHUSER);
 		loginNamePropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
+		loginNamePropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
 		loginPasswordPropertyNames = new ArrayList<String>();
 		loginPasswordPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SSHPRIVATEKEY);
 		loginPasswordPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
-		
-		
+		loginPasswordPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
 	}
 	
 	public static List<String> getSupportedVirtualMachineIPPropertyNames(){
@@ -100,7 +101,7 @@ public class PluginUtils {
 	 */
 	public static boolean isSupportedCloudProviderNodeType(QName nodeType) {
 		if (nodeType.equals(Types.ec2NodeType) | nodeType.equals(Types.openStackNodeType)
-				| nodeType.equals(Types.openStackLiberty12NodeType)) {
+				| nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)) {
 			return true;
 		}
 

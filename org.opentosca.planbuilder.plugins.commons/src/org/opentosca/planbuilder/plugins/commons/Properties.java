@@ -20,5 +20,8 @@ public class Properties {
 	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID = "VMInstanceID";
 	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME = "VMUserName";
 	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD = "VMUserPassword";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP = "IP";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER = "User";
+	public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD = "Password";
 	
 }
