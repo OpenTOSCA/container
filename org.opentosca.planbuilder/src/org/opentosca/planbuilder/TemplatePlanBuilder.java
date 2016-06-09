@@ -7,14 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.opentosca.planbuilder.helpers.TOSCAManagementInfrastructureNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
+import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
@@ -45,8 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TemplatePlanBuilder {
 
-	private final static Logger LOG = LoggerFactory
-			.getLogger(TemplatePlanBuilder.class);
+	private final static Logger LOG = LoggerFactory.getLogger(TemplatePlanBuilder.class);
 
 	/**
 	 * <p>
@@ -93,8 +97,7 @@ public class TemplatePlanBuilder {
 		 *            a RelationshipTemplate which the ProvisioningChain should
 		 *            belong
 		 */
-		private ProvisioningChain(
-				AbstractRelationshipTemplate relationshipTemplate) {
+		private ProvisioningChain(AbstractRelationshipTemplate relationshipTemplate) {
 			this.relationshipTemplate = relationshipTemplate;
 		}
 
@@ -118,12 +121,9 @@ public class TemplatePlanBuilder {
 			if (!this.iaCandidates.isEmpty()) {
 				IACandidateWrapper iaCandidate = this.iaCandidates.get(0);
 				for (int index = 0; index < iaCandidate.ias.size(); index++) {
-					AbstractImplementationArtifact ia = iaCandidate.ias
-							.get(index);
-					AbstractNodeTemplate infraNode = iaCandidate.infraNodes
-							.get(index);
-					IPlanBuilderPrePhaseIAPlugin plugin = iaCandidate.plugins
-							.get(index);
+					AbstractImplementationArtifact ia = iaCandidate.ias.get(index);
+					AbstractNodeTemplate infraNode = iaCandidate.infraNodes.get(index);
+					IPlanBuilderPrePhaseIAPlugin plugin = iaCandidate.plugins.get(index);
 					check &= plugin.handle(context, ia, infraNode);
 				}
 			}
@@ -151,10 +151,8 @@ public class TemplatePlanBuilder {
 				DACandidateWrapper daCandidate = this.daCandidates.get(0);
 				for (int index = 0; index < daCandidate.das.size(); index++) {
 					AbstractDeploymentArtifact da = daCandidate.das.get(index);
-					AbstractNodeTemplate infraNode = daCandidate.infraNodes
-							.get(index);
-					IPlanBuilderPrePhaseDAPlugin plugin = daCandidate.plugins
-							.get(index);
+					AbstractNodeTemplate infraNode = daCandidate.infraNodes.get(index);
+					IPlanBuilderPrePhaseDAPlugin plugin = daCandidate.plugins.get(index);
 					check &= plugin.handle(context, da, infraNode);
 				}
 			}
@@ -188,10 +186,8 @@ public class TemplatePlanBuilder {
 				ProvCandidateWrapper provCandidate = this.provCandidates.get(0);
 				for (int index = 0; index < provCandidate.ops.size(); index++) {
 					AbstractOperation op = provCandidate.ops.get(index);
-					AbstractImplementationArtifact ia = provCandidate.ias
-							.get(index);
-					IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins
-							.get(index);
+					AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+					IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 					check &= plugin.handle(context, op, ia);
 				}
 			}
@@ -218,8 +214,7 @@ public class TemplatePlanBuilder {
 		 *         ProvisioningCandidate available, because there is no need for
 		 *         operation to call. In this case true is also returned.
 		 */
-		public boolean executeOperationProvisioning(
-				TemplatePlanContext context, List<String> operationNames) {
+		public boolean executeOperationProvisioning(TemplatePlanContext context, List<String> operationNames) {
 			boolean check = true;
 			if (!this.provCandidates.isEmpty()) {
 				ProvCandidateWrapper provCandidate = this.provCandidates.get(0);
@@ -245,18 +240,15 @@ public class TemplatePlanBuilder {
 						// list, don't execute the operation
 						continue;
 					}
-					AbstractImplementationArtifact ia = provCandidate.ias
-							.get(index);
-					IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins
-							.get(index);
+					AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+					IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 					check &= plugin.handle(context, op, ia);
 				}
 			}
 			return check;
 		}
 
-		public List<AbstractDeploymentArtifact> getDAsOfCandidate(
-				int candidateIndex) {
+		public List<AbstractDeploymentArtifact> getDAsOfCandidate(int candidateIndex) {
 			return this.daCandidates.get(candidateIndex).das;
 		}
 	}
@@ -296,8 +288,7 @@ public class TemplatePlanBuilder {
 		 *            a ProvPhasePlugin that can execute on the given Operation
 		 *            and ImplementationArtifact
 		 */
-		private void add(AbstractOperation op,
-				AbstractImplementationArtifact ia,
+		private void add(AbstractOperation op, AbstractImplementationArtifact ia,
 				IPlanBuilderProvPhaseOperationPlugin plugin) {
 			this.ops.add(op);
 			this.ias.add(ia);
@@ -306,37 +297,49 @@ public class TemplatePlanBuilder {
 
 		/**
 		 * <p>
-		 * Checks if any Interfaceof the given NodeTemplate can be executed
+		 * Checks if any Interface of the given NodeTemplate can be executed
 		 * completely by this ProvisioningCandidate
 		 * </p>
 		 * 
 		 * @param nodeTemplate
 		 *            an AbtractNodeTemplate
-		 * @return true if one Interface of the NodeTemplate can be provisioned,
+		 * @return true if all Interfaces of the NodeTemplate can be provisioned,
 		 *         else false
 		 */
 		private boolean isValid(AbstractNodeTemplate nodeTemplate) {
-			for (AbstractInterface iface : nodeTemplate.getType()
-					.getInterfaces()) {
-				int interfaceSize = iface.getOperations().size();
-				if ((interfaceSize == this.ops.size())
-						&& (interfaceSize == this.ias.size())
-						&& (interfaceSize == this.plugins.size())) {
-					int counter = 0;
-					for (AbstractOperation iFaceOp : iface.getOperations()) {
-						for (AbstractOperation op : this.ops) {
-							if (iFaceOp.equals(op)) {
-								counter++;
-							}
+
+			int operationsCount = 0;
+
+			for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+				operationsCount += iface.getOperations().size();
+			}
+
+			// check if every operation defined on the template is matched
+			if (operationsCount != this.ops.size() && operationsCount != this.ias.size()
+					&& operationsCount != this.ias.size()) {
+				return false;
+			}
+
+			// check if the operations are the same
+
+			int counter = 0;
+			for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+				for (AbstractOperation iFaceOp : iface.getOperations()) {
+					for (AbstractOperation op : this.ops) {
+						if (iFaceOp.equals(op)) {
+							counter++;
 						}
 					}
-					if (counter == interfaceSize) {
-						// found an interface which can be provisioned
-						return true;
-					}
 				}
+
 			}
-			return false;
+
+			if (counter != operationsCount) {
+				// found an interface which can be provisioned
+				return false;
+			}
+			
+			return true;
 		}
 
 		/**
@@ -355,21 +358,15 @@ public class TemplatePlanBuilder {
 		 * @return true if the Mappings are valid for a Source- or
 		 *         TargetInterface of the given RelationshipTemplate, else false
 		 */
-		private boolean isValid(
-				AbstractRelationshipTemplate relationshipTemplate) {
-			TemplatePlanBuilder.LOG
-					.debug("Checking if the selected provisioning for relationshipTemplate {}",
-							relationshipTemplate.getId());
-			TemplatePlanBuilder.LOG
-					.debug(" with type {} is valid whether on the source or target interface",
-							relationshipTemplate.getRelationshipType().getId()
-									.toString());
+		private boolean isValid(AbstractRelationshipTemplate relationshipTemplate) {
+			TemplatePlanBuilder.LOG.debug("Checking if the selected provisioning for relationshipTemplate {}",
+					relationshipTemplate.getId());
+			TemplatePlanBuilder.LOG.debug(" with type {} is valid whether on the source or target interface",
+					relationshipTemplate.getRelationshipType().getId().toString());
 			// check if any source interface matches the selected prov plugins
-			for (AbstractInterface iface : relationshipTemplate
-					.getRelationshipType().getSourceInterfaces()) {
+			for (AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
 				int interfaceSize = iface.getOperations().size();
-				if ((interfaceSize == this.ops.size())
-						&& (interfaceSize == this.ias.size())
+				if ((interfaceSize == this.ops.size()) && (interfaceSize == this.ias.size())
 						&& (interfaceSize == this.plugins.size())) {
 					int counter = 0;
 					for (AbstractOperation iFaceOp : iface.getOperations()) {
@@ -385,11 +382,9 @@ public class TemplatePlanBuilder {
 				}
 			}
 			// same check for target interfaces
-			for (AbstractInterface iface : relationshipTemplate
-					.getRelationshipType().getTargetInterfaces()) {
+			for (AbstractInterface iface : relationshipTemplate.getRelationshipType().getTargetInterfaces()) {
 				int interfaceSize = iface.getOperations().size();
-				if ((interfaceSize == this.ops.size())
-						&& (interfaceSize == this.ias.size())
+				if ((interfaceSize == this.ops.size()) && (interfaceSize == this.ias.size())
 						&& (interfaceSize == this.plugins.size())) {
 					int counter = 0;
 					for (AbstractOperation iFaceOp : iface.getOperations()) {
@@ -435,8 +430,7 @@ public class TemplatePlanBuilder {
 		 * @param impl
 		 *            an AbstractNodeTypeImplementation with a DA
 		 */
-		private DACandidateWrapper(AbstractNodeTemplate nodeTemplate,
-				AbstractNodeTypeImplementation impl) {
+		private DACandidateWrapper(AbstractNodeTemplate nodeTemplate, AbstractNodeTypeImplementation impl) {
 			this.impl = impl;
 			this.nodeTemplate = nodeTemplate;
 		}
@@ -452,8 +446,7 @@ public class TemplatePlanBuilder {
 		 *            the PrePhaseDAPlugin which can deploy the DA unto the
 		 *            given NodeTemplate
 		 */
-		private void add(AbstractDeploymentArtifact da,
-				AbstractNodeTemplate nodeTemplate,
+		private void add(AbstractDeploymentArtifact da, AbstractNodeTemplate nodeTemplate,
 				IPlanBuilderPrePhaseDAPlugin plugin) {
 			this.das.add(da);
 			this.infraNodes.add(nodeTemplate);
@@ -467,8 +460,7 @@ public class TemplatePlanBuilder {
 		 *         deployed, else false
 		 */
 		private boolean isValid() {
-			return TemplatePlanBuilder.calculateEffectiveDAs(this.nodeTemplate,
-					this.impl).size() == this.das.size();
+			return TemplatePlanBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
 		}
 	}
 
@@ -524,8 +516,7 @@ public class TemplatePlanBuilder {
 		 *            the PrePhaseIAPlugin which can deploy the IA unto the
 		 *            InfrastructureNode
 		 */
-		private void add(AbstractImplementationArtifact ia,
-				AbstractNodeTemplate nodeTemplate,
+		private void add(AbstractImplementationArtifact ia, AbstractNodeTemplate nodeTemplate,
 				IPlanBuilderPrePhaseIAPlugin plugin) {
 			this.ias.add(ia);
 			this.infraNodes.add(nodeTemplate);
@@ -539,13 +530,12 @@ public class TemplatePlanBuilder {
 		 */
 		private boolean isValid() {
 			if (this.nodeImpl != null) {
-				return this.nodeImpl.getImplementationArtifacts().size() == this.ias
-						.size();
+				return this.nodeImpl.getImplementationArtifacts().size() == this.ias.size();
 			} else {
-				return this.relationImpl.getImplementationArtifacts().size() == this.ias
-						.size();
+				return this.relationImpl.getImplementationArtifacts().size() == this.ias.size();
 			}
 		}
+
 	}
 
 	/**
@@ -562,8 +552,7 @@ public class TemplatePlanBuilder {
 		Map<IACandidateWrapper, DACandidateWrapper> compatibleCandidates = new HashMap<IACandidateWrapper, DACandidateWrapper>();
 		for (IACandidateWrapper iaCandidate : chain.iaCandidates) {
 			for (DACandidateWrapper daCandidate : chain.daCandidates) {
-				if (iaCandidate.nodeImpl.getName().equals(
-						daCandidate.impl.getName())) {
+				if (iaCandidate.nodeImpl.getName().equals(daCandidate.impl.getName())) {
 					compatibleCandidates.put(iaCandidate, daCandidate);
 				}
 			}
@@ -587,11 +576,10 @@ public class TemplatePlanBuilder {
 	 *            SourceInterface (set to true) or TargetInterface
 	 * @return a ProvisioningChain with complete provisioning Candidates
 	 */
-	public static ProvisioningChain createProvisioningChain(
-			AbstractRelationshipTemplate relationshipTemplate, boolean forSource) {
+	public static ProvisioningChain createProvisioningChain(AbstractRelationshipTemplate relationshipTemplate,
+			boolean forSource) {
 		// get implementations
-		List<AbstractRelationshipTypeImplementation> relationshipTypeImpls = relationshipTemplate
-				.getImplementations();
+		List<AbstractRelationshipTypeImplementation> relationshipTypeImpls = relationshipTemplate.getImplementations();
 
 		if (relationshipTypeImpls.isEmpty()) {
 			return null;
@@ -603,19 +591,16 @@ public class TemplatePlanBuilder {
 		// calculate infraNodes
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 
-		Utils.getInfrastructureNodes(relationshipTemplate, infraNodes,
-				forSource);
+		Utils.getInfrastructureNodes(relationshipTemplate, infraNodes, forSource);
 
 		// check for IA Plugins
-		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry
-				.getIaPlugins();
+		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry.getIaPlugins();
 
-		TemplatePlanBuilder.calculateBestImplementationRelationIACandidates(
-				relationshipTypeImpls, iaPlugins, infraNodes, chain, forSource);
+		TemplatePlanBuilder.calculateBestImplementationRelationIACandidates(relationshipTypeImpls, iaPlugins,
+				infraNodes, chain, forSource);
 
 		// check for prov plugins
-		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry
-				.getProvPlugins();
+		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry.getProvPlugins();
 
 		TemplatePlanBuilder.calculateProvPlugins(chain, provPlugins);
 
@@ -633,16 +618,14 @@ public class TemplatePlanBuilder {
 	 *            an AbstractNodeTemplate to create a ProvisioningChain for
 	 * @return a complete ProvisioningChain
 	 */
-	public static ProvisioningChain createProvisioningChain(
-			AbstractNodeTemplate nodeTemplate) {
+	public static ProvisioningChain createProvisioningChain(AbstractNodeTemplate nodeTemplate) {
 		// get nodetype implementations
-		List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate
-				.getImplementations();
+		List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate.getImplementations();
 
 		if (nodeTypeImpls.isEmpty()) {
-			TemplatePlanBuilder.LOG
-					.warn("No implementations available for NodeTemplate {} , can't generate Provisioning logic",
-							nodeTemplate.getId());
+			TemplatePlanBuilder.LOG.warn(
+					"No implementations available for NodeTemplate {} , can't generate Provisioning logic",
+					nodeTemplate.getId());
 			return null;
 		}
 
@@ -652,46 +635,44 @@ public class TemplatePlanBuilder {
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 		Utils.getInfrastructureNodes(nodeTemplate, infraNodes);
 
-		// check for IA Plugins
-		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry
-				.getIaPlugins();
+		// we'll add here a dummy infra node, representing the management
+		// infrastructure of the tosca engine (WAR IA's implementing tosca
+		// operation,..)
+		infraNodes.add(new TOSCAManagementInfrastructureNodeTemplate());
 
-		TemplatePlanBuilder.LOG.debug(
-				"Calculating best IA candidates for nodeTemplate {} ",
-				nodeTemplate.getId());
+		// check for IA Plugins
+		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry.getIaPlugins();
+
+		TemplatePlanBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
 		// calculate nodeImpl candidates where all IAs of each can be
 		// provisioned
-		TemplatePlanBuilder.calculateBestImplementationIACandidates(
-				nodeTypeImpls, iaPlugins, infraNodes, chain);
+		TemplatePlanBuilder.calculateBestImplementationIACandidates(nodeTypeImpls, iaPlugins, infraNodes, chain);
 		for (IACandidateWrapper wrapper : chain.iaCandidates) {
 			int length = wrapper.ias.size();
 			for (int i = 0; i < length; i++) {
 				AbstractImplementationArtifact ia = wrapper.ias.get(i);
 				AbstractNodeTemplate infraNode = wrapper.infraNodes.get(i);
 				IPlanBuilderPlugin plugin = wrapper.plugins.get(i);
-				TemplatePlanBuilder.LOG
-						.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}",
-								ia.getName(), infraNode.getId(), plugin.getID());
+				TemplatePlanBuilder.LOG.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}",
+						ia.getName(), infraNode.getId(), plugin.getID());
 			}
 		}
 
 		// check for DA Plugins
-		List<IPlanBuilderPrePhaseDAPlugin> daPlugins = PluginRegistry
-				.getDaPlugins();
+		List<IPlanBuilderPrePhaseDAPlugin> daPlugins = PluginRegistry.getDaPlugins();
 
 		// calculate nodeImpl candidates where all DAs of each can be
 		// provisioned
-		TemplatePlanBuilder.calculateBestImplementationDACandidates(
-				nodeTemplate, nodeTypeImpls, daPlugins, infraNodes, chain);
+		TemplatePlanBuilder.calculateBestImplementationDACandidates(nodeTemplate, nodeTypeImpls, daPlugins, infraNodes,
+				chain);
 		for (DACandidateWrapper wrapper : chain.daCandidates) {
 			int length = wrapper.das.size();
 			for (int i = 0; i < length; i++) {
 				AbstractDeploymentArtifact da = wrapper.das.get(i);
 				AbstractNodeTemplate infraNode = wrapper.infraNodes.get(i);
 				IPlanBuilderPlugin plugin = wrapper.plugins.get(i);
-				TemplatePlanBuilder.LOG
-						.debug("Found DA {} for deployment on the InfraNode {} with the Plugin {}",
-								da.getName(), infraNode.getId(), plugin.getID());
+				TemplatePlanBuilder.LOG.debug("Found DA {} for deployment on the InfraNode {} with the Plugin {}",
+						da.getName(), infraNode.getId(), plugin.getID());
 			}
 		}
 
@@ -700,8 +681,7 @@ public class TemplatePlanBuilder {
 		TemplatePlanBuilder.filterIncompatibleIADACandidates(chain);
 
 		// check for prov plugins
-		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry
-				.getProvPlugins();
+		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry.getProvPlugins();
 
 		// search for prov plugins according to the chosen IA provisionings in
 		// the chain
@@ -891,21 +871,16 @@ public class TemplatePlanBuilder {
 				for (IPlanBuilderProvPhaseOperationPlugin plugin : provPlugins) {
 					if (chain.nodeTemplate != null) {
 						if (plugin.canHandle(ia.getArtifactType())
-								&& (TemplatePlanBuilder.getOperationForIa(
-										chain.nodeTemplate, ia) != null)) {
+								&& (TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia) != null)) {
 
-							provCandidate.add(TemplatePlanBuilder
-									.getOperationForIa(chain.nodeTemplate, ia),
-									ia, plugin);
+							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia), ia,
+									plugin);
 						}
 					} else {
 						if (plugin.canHandle(ia.getArtifactType())
-								&& (TemplatePlanBuilder.getOperationForIa(
-										chain.relationshipTemplate, ia) != null)) {
-							provCandidate.add(TemplatePlanBuilder
-									.getOperationForIa(
-											chain.relationshipTemplate, ia),
-									ia, plugin);
+								&& (TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia) != null)) {
+							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia), ia,
+									plugin);
 						}
 					}
 				}
@@ -934,8 +909,8 @@ public class TemplatePlanBuilder {
 	 * @return AbstractOperation of the NodeTemplate if the given IA implements
 	 *         it, else null
 	 */
-	private static AbstractOperation getOperationForIa(
-			AbstractNodeTemplate nodeTemplate, AbstractImplementationArtifact ia) {
+	private static AbstractOperation getOperationForIa(AbstractNodeTemplate nodeTemplate,
+			AbstractImplementationArtifact ia) {
 		for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
 			for (AbstractOperation op : iface.getOperations()) {
 				if (op.getName().equals(ia.getOperationName())) {
@@ -956,11 +931,9 @@ public class TemplatePlanBuilder {
 	 * @return AbstractOperation of the RelationshipTemplate if the given IA
 	 *         implements it, else null
 	 */
-	private static AbstractOperation getOperationForIa(
-			AbstractRelationshipTemplate relationshipTemplate,
+	private static AbstractOperation getOperationForIa(AbstractRelationshipTemplate relationshipTemplate,
 			AbstractImplementationArtifact ia) {
-		for (AbstractInterface iface : relationshipTemplate
-				.getRelationshipType().getSourceInterfaces()) {
+		for (AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
 			for (AbstractOperation op : iface.getOperations()) {
 				if (op.getName().equals(ia.getOperationName())) {
 					return op;
@@ -968,8 +941,7 @@ public class TemplatePlanBuilder {
 			}
 		}
 
-		for (AbstractInterface iface : relationshipTemplate
-				.getRelationshipType().getTargetInterfaces()) {
+		for (AbstractInterface iface : relationshipTemplate.getRelationshipType().getTargetInterfaces()) {
 			for (AbstractOperation op : iface.getOperations()) {
 				if (op.getName().equals(ia.getOperationName())) {
 					return op;
@@ -993,48 +965,38 @@ public class TemplatePlanBuilder {
 	 * @param chain
 	 *            a ProvisioningChain where the candidates are added to
 	 */
-	private static void calculateBestImplementationDACandidates(
-			AbstractNodeTemplate nodeTemplate,
-			List<AbstractNodeTypeImplementation> impls,
-			List<IPlanBuilderPrePhaseDAPlugin> plugins,
+	private static void calculateBestImplementationDACandidates(AbstractNodeTemplate nodeTemplate,
+			List<AbstractNodeTypeImplementation> impls, List<IPlanBuilderPrePhaseDAPlugin> plugins,
 			List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain) {
 		List<DACandidateWrapper> candidates = new ArrayList<DACandidateWrapper>();
 
 		for (AbstractNodeTypeImplementation impl : impls) {
-			TemplatePlanBuilder.LOG.debug(
-					"Checking DAs of NodeTypeImpl {} and NodeTemplate {}",
-					impl.getName(), nodeTemplate.getId());
-			DACandidateWrapper candidate = new DACandidateWrapper(nodeTemplate,
+			TemplatePlanBuilder.LOG.debug("Checking DAs of NodeTypeImpl {} and NodeTemplate {}", impl.getName(),
+					nodeTemplate.getId());
+			DACandidateWrapper candidate = new DACandidateWrapper(nodeTemplate, impl);
+
+			List<AbstractDeploymentArtifact> effectiveDAs = TemplatePlanBuilder.calculateEffectiveDAs(nodeTemplate,
 					impl);
 
-			List<AbstractDeploymentArtifact> effectiveDAs = TemplatePlanBuilder
-					.calculateEffectiveDAs(nodeTemplate, impl);
-
 			for (AbstractDeploymentArtifact da : effectiveDAs) {
-				TemplatePlanBuilder.LOG.debug(
-						"Checking whether DA {} can be deployed", da.getName());
+				TemplatePlanBuilder.LOG.debug("Checking whether DA {} can be deployed", da.getName());
 				for (AbstractNodeTemplate infraNode : infraNodes) {
-					TemplatePlanBuilder.LOG
-							.debug("Checking if DA {} can be deployed on InfraNode {}",
-									da.getName(), infraNode.getId());
+					TemplatePlanBuilder.LOG.debug("Checking if DA {} can be deployed on InfraNode {}", da.getName(),
+							infraNode.getId());
 					for (IPlanBuilderPrePhaseDAPlugin plugin : plugins) {
-						TemplatePlanBuilder.LOG.debug(
-								"Checking with Plugin {}", plugin.getID());
+						TemplatePlanBuilder.LOG.debug("Checking with Plugin {}", plugin.getID());
 						if (plugin.canHandle(da, infraNode.getType())) {
-							TemplatePlanBuilder.LOG
-									.debug("Adding Plugin, can handle DA on InfraNode");
+							TemplatePlanBuilder.LOG.debug("Adding Plugin, can handle DA on InfraNode");
 							candidate.add(da, infraNode, plugin);
 						}
 					}
 				}
 			}
 			if (candidate.isValid()) {
-				TemplatePlanBuilder.LOG
-						.debug("Generated Candidate was valid, adding to all Candidates");
+				TemplatePlanBuilder.LOG.debug("Generated Candidate was valid, adding to all Candidates");
 				candidates.add(candidate);
 			} else {
-				TemplatePlanBuilder.LOG
-						.debug("Generated Candidate was invalid, don't add to all Candidates");
+				TemplatePlanBuilder.LOG.debug("Generated Candidate was invalid, don't add to all Candidates");
 			}
 		}
 		chain.daCandidates = candidates;
@@ -1055,21 +1017,18 @@ public class TemplatePlanBuilder {
 	 * @return a list of Wrapper class Object which contain information of which
 	 *         ia is provisioned on which infrastructure by which plugin
 	 */
-	private static void calculateBestImplementationIACandidates(
-			List<AbstractNodeTypeImplementation> impls,
-			List<IPlanBuilderPrePhaseIAPlugin> plugins,
-			List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain) {
+	private static void calculateBestImplementationIACandidates(List<AbstractNodeTypeImplementation> impls,
+			List<IPlanBuilderPrePhaseIAPlugin> plugins, List<AbstractNodeTemplate> infraNodes,
+			ProvisioningChain chain) {
 
 		List<IACandidateWrapper> candidates = new ArrayList<IACandidateWrapper>();
 		// cycle through all implementations
 		for (AbstractNodeTypeImplementation impl : impls) {
 			IACandidateWrapper candidate = new IACandidateWrapper(impl);
 			// match the ias of the implementation with the infrastructure nodes
-			for (AbstractImplementationArtifact ia : impl
-					.getImplementationArtifacts()) {
-				TemplatePlanBuilder.LOG
-						.debug("Checking whether IA {} can be deployed on a specific Infrastructure Node",
-								ia.getName());
+			for (AbstractImplementationArtifact ia : impl.getImplementationArtifacts()) {
+				TemplatePlanBuilder.LOG.debug(
+						"Checking whether IA {} can be deployed on a specific Infrastructure Node", ia.getName());
 				for (AbstractNodeTemplate infraNode : infraNodes) {
 					// check if any plugin can handle installing the ia on the
 					// infraNode
@@ -1083,11 +1042,9 @@ public class TemplatePlanBuilder {
 			// check if all ias of the implementation can be provisioned
 			if (candidate.isValid()) {
 				candidates.add(candidate);
-				TemplatePlanBuilder.LOG
-						.debug("IA Candidate is valid, adding to candidate list");
+				TemplatePlanBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
 			} else {
-				TemplatePlanBuilder.LOG
-						.debug("IA Candidate is invalid, discarding candidate");
+				TemplatePlanBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
 			}
 		}
 		chain.iaCandidates = candidates;
@@ -1103,12 +1060,10 @@ public class TemplatePlanBuilder {
 	 * @return true if the IA implements a Operation inside a SourceInterface of
 	 *         the RelationshipTemplate
 	 */
-	private static boolean checkIfIaImplementsSrcIface(
-			AbstractImplementationArtifact ia,
+	private static boolean checkIfIaImplementsSrcIface(AbstractImplementationArtifact ia,
 			AbstractRelationshipTemplate relationshipTemplate) {
 
-		for (AbstractInterface iface : relationshipTemplate
-				.getRelationshipType().getSourceInterfaces()) {
+		for (AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
 			if (iface.getName().equals(ia.getInterfaceName())) {
 				for (AbstractOperation op : iface.getOperations()) {
 					if (op.getName().equals(ia.getOperationName())) {
@@ -1138,24 +1093,19 @@ public class TemplatePlanBuilder {
 	 *            the TargetInterface
 	 */
 	private static void calculateBestImplementationRelationIACandidates(
-			List<AbstractRelationshipTypeImplementation> impls,
-			List<IPlanBuilderPrePhaseIAPlugin> plugins,
-			List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain,
-			boolean forSource) {
+			List<AbstractRelationshipTypeImplementation> impls, List<IPlanBuilderPrePhaseIAPlugin> plugins,
+			List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain, boolean forSource) {
 		List<IACandidateWrapper> candidates = new ArrayList<IACandidateWrapper>();
 		for (AbstractRelationshipTypeImplementation impl : impls) {
 			IACandidateWrapper candidate = new IACandidateWrapper(impl);
-			for (AbstractImplementationArtifact ia : impl
-					.getImplementationArtifacts()) {
+			for (AbstractImplementationArtifact ia : impl.getImplementationArtifacts()) {
 				if (forSource) {
 					// check if ia implements source interfaces
-					if (!TemplatePlanBuilder.checkIfIaImplementsSrcIface(ia,
-							chain.relationshipTemplate)) {
+					if (!TemplatePlanBuilder.checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate)) {
 						continue;
 					}
 				} else {
-					if (TemplatePlanBuilder.checkIfIaImplementsSrcIface(ia,
-							chain.relationshipTemplate)) {
+					if (TemplatePlanBuilder.checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate)) {
 						continue;
 					}
 				}
@@ -1187,15 +1137,12 @@ public class TemplatePlanBuilder {
 	 *            a NodeTypeImplementation for the given NodeTemplate
 	 * @return a possibly empty list of AbstractDeploymentArtifacts
 	 */
-	private static List<AbstractDeploymentArtifact> calculateEffectiveDAs(
-			AbstractNodeTemplate nodeTemplate,
+	private static List<AbstractDeploymentArtifact> calculateEffectiveDAs(AbstractNodeTemplate nodeTemplate,
 			AbstractNodeTypeImplementation nodeImpl) {
 		List<AbstractDeploymentArtifact> effectiveDAs = new ArrayList<AbstractDeploymentArtifact>();
 
-		List<AbstractDeploymentArtifact> nodeImplDAs = nodeImpl
-				.getDeploymentArtifacts();
-		List<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate
-				.getDeploymentArtifacts();
+		List<AbstractDeploymentArtifact> nodeImplDAs = nodeImpl.getDeploymentArtifacts();
+		List<AbstractDeploymentArtifact> nodeTemplateDAs = nodeTemplate.getDeploymentArtifacts();
 
 		for (AbstractDeploymentArtifact templateDa : nodeTemplateDAs) {
 			boolean overridesDA = false;
@@ -1204,8 +1151,7 @@ public class TemplatePlanBuilder {
 				AbstractDeploymentArtifact nodeImplDa = nodeImplDAs.get(i);
 
 				if (nodeImplDa.getName().equals(templateDa.getName())
-						& nodeImplDa.getArtifactType().equals(
-								nodeImplDa.getArtifactType())) {
+						& nodeImplDa.getArtifactType().equals(nodeImplDa.getArtifactType())) {
 					overridesDA = true;
 					daIndex = i;
 				}

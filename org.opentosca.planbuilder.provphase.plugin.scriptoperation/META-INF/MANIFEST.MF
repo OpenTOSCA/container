@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.opentosca.planbuilder.provphase.plugin.scriptoperation
 Bundle-Version: 0.0.1.qualifier
 Bundle-Activator: org.opentosca.planbuilder.provphase.plugin.scriptoperation.Activator
 Bundle-Vendor: OpenTosca PlanBuilder Script Operation Plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.commons.io;version="2.4.0",
  org.eclipse.core.runtime;version="3.4.0",
  org.opentosca.planbuilder,

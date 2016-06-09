@@ -6,3 +6,9 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: OpenTOSCA Ecosystem
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.opentosca.planbuilder.plugins.commons
+Import-Package: org.opentosca.planbuilder,
+ org.opentosca.planbuilder.model.tosca,
+ org.opentosca.planbuilder.plugins,
+ org.opentosca.planbuilder.plugins.context,
+ org.osgi.framework;version="1.6.0"
+Bundle-Activator: org.opentosca.planbuilder.plugins.commons.Activator

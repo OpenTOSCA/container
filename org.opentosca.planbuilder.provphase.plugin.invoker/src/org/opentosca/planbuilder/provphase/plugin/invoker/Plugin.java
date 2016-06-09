@@ -37,87 +37,106 @@ import org.xml.sax.SAXException;
  *
  */
 public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
 	private Handler handler = new Handler();
-	
-	
+
 	@Override
 	public String getID() {
 		return "OpenTOSCA ProvPhase Plugin for the ServiceInvoker v0.1";
 	}
-	
+
 	@Override
 	public boolean canHandle(QName operationArtifactType) {
-		// we can handle every type, but i'm not sure if this is true ;)
+		// we can handle every type except scripts
+		if (operationArtifactType
+				.equals(new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact"))) {
+			return false;
+		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
 		try {
 			return this.handler.handle(context, operation, ia);
 		} catch (IOException e) {
-			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
+			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null
+					? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Method for adding a single call to the invoker with the given context
 	 *
-	 * @param context the TemplateContext of the Template to call the Operation
-	 *            on
-	 * @param operationName the Operation to call on the Template
-	 * @param interfaceName the name of the interface the operation belongs to
-	 * @param callbackAddressVarName the name of the variable containing the
-	 *            callbackAddress of this BuildPlan
-	 * @param internalExternalPropsInput Mappings from TOSCA Input Parameters to
-	 *            Invoker Parameters
-	 * @param internalExternalPropsOutput Mappings from TOSCA Output Parameters
-	 *            to Invoker Parameters
+	 * @param context
+	 *            the TemplateContext of the Template to call the Operation on
+	 * @param operationName
+	 *            the Operation to call on the Template
+	 * @param interfaceName
+	 *            the name of the interface the operation belongs to
+	 * @param callbackAddressVarName
+	 *            the name of the variable containing the callbackAddress of
+	 *            this BuildPlan
+	 * @param internalExternalPropsInput
+	 *            Mappings from TOSCA Input Parameters to Invoker Parameters
+	 * @param internalExternalPropsOutput
+	 *            Mappings from TOSCA Output Parameters to Invoker Parameters
 	 *
 	 * @return true iff adding logic for Invoker call was successful
 	 */
-	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput) {
+	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName,
+			String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput,
+			Map<String, Variable> internalExternalPropsOutput) {
 		try {
-			return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, false);
+			return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
+					internalExternalPropsInput, internalExternalPropsOutput, false);
 		} catch (IOException e) {
-			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
+			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null
+					? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Method for adding a single call to the invoker with the given context and
 	 * specified nodeTemplate
 	 *
-	 * @param context the TemplateContext of the Template to call the Operation
-	 *            on
-	 * @param templateId the Id of the Template the operation belongs to
-	 * @param isNodeTemplate whether the template is a NodeTemplate or
-	 *            RelationshipTemplate
-	 * @param operationName the Operation to call on the Template
-	 * @param interfaceName the name of the interface the operation belongs to
-	 * @param callbackAddressVarName the name of the variable containing the
-	 *            callbackAddress of this BuildPlan
-	 * @param internalExternalPropsInput Mappings from TOSCA Input Parameters to
-	 *            Invoker Parameters
-	 * @param internalExternalPropsOutput Mappings from TOSCA Output Parameters
-	 *            to Invoker Parameters
+	 * @param context
+	 *            the TemplateContext of the Template to call the Operation on
+	 * @param templateId
+	 *            the Id of the Template the operation belongs to
+	 * @param isNodeTemplate
+	 *            whether the template is a NodeTemplate or RelationshipTemplate
+	 * @param operationName
+	 *            the Operation to call on the Template
+	 * @param interfaceName
+	 *            the name of the interface the operation belongs to
+	 * @param callbackAddressVarName
+	 *            the name of the variable containing the callbackAddress of
+	 *            this BuildPlan
+	 * @param internalExternalPropsInput
+	 *            Mappings from TOSCA Input Parameters to Invoker Parameters
+	 * @param internalExternalPropsOutput
+	 *            Mappings from TOSCA Output Parameters to Invoker Parameters
 	 *
 	 * @return true iff adding logic for Invoker call was successful
 	 */
-	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) {
+	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName,
+			String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput,
+			Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) {
 		try {
-			return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
+			return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
+					callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
 		} catch (IOException e) {
-			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null ? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
+			Plugin.LOG.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null
+					? context.getNodeTemplate().getId() : context.getRelationshipTemplate().getId(), e);
 			return false;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Adds bpel code to the given templateContext, which uploads the given
 	 * ArtifactReference ref to the given server ip. The destination of the
@@ -125,23 +144,31 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	 * selected user. The file must be available from the openTosca container
 	 * api.
 	 *
-	 * @param ref the reference to upload
-	 * @param templateContext the templateContext to use
-	 * @param serverIp the ip to upload the file to
-	 * @param sshUser a variable containing the sshUser value, if null the user
-	 *            will be requested from the planInput
-	 * @param sshKey a variable containing the sshKey value, if null the key
-	 *            will be requested from the planInput
-	 * @param templateId the templateId the serverIp belongs to
+	 * @param ref
+	 *            the reference to upload
+	 * @param templateContext
+	 *            the templateContext to use
+	 * @param serverIp
+	 *            the ip to upload the file to
+	 * @param sshUser
+	 *            a variable containing the sshUser value, if null the user will
+	 *            be requested from the planInput
+	 * @param sshKey
+	 *            a variable containing the sshKey value, if null the key will
+	 *            be requested from the planInput
+	 * @param templateId
+	 *            the templateId the serverIp belongs to
 	 * @return true iff appending all bpel code was successful
 	 */
-	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, Variable sshUser, Variable sshKey, String templateId) {
+	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext,
+			Variable serverIp, Variable sshUser, Variable sshKey, String templateId) {
 		try {
-			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey, templateId, true);
+			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
+					templateId, true);
 		} catch (IOException e) {
 			LOG.error("Couldn't load internal files", e);
 			return false;
 		}
 	}
-	
+
 }

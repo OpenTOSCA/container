@@ -22,16 +22,16 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Plugin implements IPlanBuilderTypePlugin {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
-				
-	private Handler handler = new Handler();	
-	
+
+	private Handler handler = new Handler();
+
 	@Override
 	public String getID() {
-		return "OpenTOSCA PlanBuilder Type Plugin Ubuntu VM";
+		return "OpenTOSCA PlanBuilder VM and Cloud Provider Declarative Type Plugin";
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -41,25 +41,30 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		if (nodeTemplate == null) {
 			return false;
 		}
-		
+
 		// requirement: nodeTemplates with these two nodeTypes are handled,
 		// by doing nothing
 		if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
-		
+
 		if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
-		
+
 		// when the cloudprovider node arrives start handling
 		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
-			return this.handler.handle(templateContext, nodeTemplate);
+			if (nodeTemplate.getType().getId().equals(Types.openStackLiberty12NodeType) | nodeTemplate.getType().getId().equals(Types.vmWareVsphere55NodeType)) {
+				// bit hacky now, but until the nodeType cleanup is finished this should be enough right now
+				return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
+			} else {
+				return this.handler.handle(templateContext, nodeTemplate);
+			}
 		} else {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -79,7 +84,8 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return true;
 		} else if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			// checking if this vmNode is connected to a nodeTemplate of Type
-			// cloud provider (ec2, openstack), if not this plugin can't handle this node
+			// cloud provider (ec2, openstack), if not this plugin can't handle
+			// this node
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
 				if (PluginUtils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
 					return true;
@@ -87,28 +93,29 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			}
 			return false;
 		} else if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
-			// checking whether this GENERIC ubuntu NodeTemplate is connected to a VM
+			// checking whether this GENERIC ubuntu NodeTemplate is connected to
+			// a VM
 			// Node, after this checking whether the VM Node is connected to a
 			// EC2 Node
-			
+
 			// check for generic UbuntuNodeType
 			if (nodeTemplate.getType().getId().equals(Types.ubuntuNodeType)) {
 				// here we check for a 3 node stack ubuntu -> vm -> cloud
 				// provider(ec2,openstack)
 				return this.checkIfConnectedToVMandCloudProvider(nodeTemplate);
 			} else {
-				
+
 				// here we assume that a specific ubuntu image is selected as
 				// the nodeType e.g. ubuntu13.10server NodeType
 				// so we check only for a cloud provider
 				return this.checkIfConnectedToCloudProvider(nodeTemplate);
 			}
-			
+
 		} else {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -117,7 +124,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		// this plugin doesn't handle relations
 		return false;
 	}
-	
+
 	/**
 	 * <p>
 	 * Checks whether there is a path from the given NodeTemplate of length 3
@@ -128,7 +135,8 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * OpenStack
 	 * </p>
 	 * 
-	 * @param nodeTemplate any AbstractNodeTemplate
+	 * @param nodeTemplate
+	 *            any AbstractNodeTemplate
 	 * @return true if the there exists a path from the given NodeTemplate to a
 	 *         Cloud Provider node, else false
 	 */
@@ -142,14 +150,15 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * <p>
 	 * Checks whether the given NodeTemplate is connected to another node of
 	 * some Cloud Provider NodeType
 	 * </p>
 	 * 
-	 * @param nodeTemplate any AbstractNodeTemplate
+	 * @param nodeTemplate
+	 *            any AbstractNodeTemplate
 	 * @return true iff connected to Cloud Provider Node
 	 */
 	private boolean checkIfConnectedToCloudProvider(AbstractNodeTemplate nodeTemplate) {
@@ -160,5 +169,5 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		}
 		return false;
 	}
-	
+
 }

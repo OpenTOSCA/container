@@ -136,6 +136,15 @@
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
       <plugin id="org.opentosca.bpsconnector"/>
+<plugin id="org.opentosca.bus.application.api.jsonhttp" />
+      <plugin id="org.opentosca.bus.application.api.resthttp" />
+      <plugin id="org.opentosca.bus.application.api.soaphttp" />
+      <plugin id="org.opentosca.bus.application.dependencies" />
+      <plugin id="org.opentosca.bus.application.model" />
+      <plugin id="org.opentosca.bus.application.plugin.jsonhttp.service.impl"  />
+      <plugin id="org.opentosca.bus.application.plugin.service"  />
+      <plugin id="org.opentosca.bus.application.service" />
+      <plugin id="org.opentosca.bus.application.service.impl" />
       <plugin id="org.opentosca.containerapi"/>
       <plugin id="org.opentosca.core.internal.capability.service"/>
       <plugin id="org.opentosca.core.internal.capability.service.impl"/>
@@ -197,6 +206,8 @@
       <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation"/>
       <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation"/>
       <plugin id="org.opentosca.planbuilder.type.plugin.apachewebserver"/>
+<plugin id="org.opentosca.planbuilder.type.plugin.connectsto" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mysqldatabase"/>
       <plugin id="org.opentosca.planbuilder.type.plugin.mysqlserver"/>
       <plugin id="org.opentosca.planbuilder.type.plugin.php"/>
@@ -418,6 +429,8 @@
       <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.apachewebserver" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mysqldatabase" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.mysqlserver" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.php" autoStart="true" startLevel="4" />
