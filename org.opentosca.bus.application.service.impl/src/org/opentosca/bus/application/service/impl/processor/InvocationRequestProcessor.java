@@ -88,10 +88,11 @@ public class InvocationRequestProcessor implements Processor {
 			if (properties != null) {
 
 				String relativeHostEndpoint = ContainerProxy.getRelativeEndpoint(properties);
+				Integer port = ContainerProxy.getPort(properties);
 				invocationType = ContainerProxy.getInvocationType(properties);
 				className = ContainerProxy.getClass(properties, interfaceName);
 
-				if (relativeHostEndpoint != null && invocationType != null && className != null) {
+				if (relativeHostEndpoint != null && port != null && invocationType != null && className != null) {
 
 					String hostedOnNodeTemplateID = ContainerProxy
 							.getHostedOnNodeTemplateWithSpecifiedIPProperty(csarID, serviceTemplateID, nodeTemplateID);
@@ -111,7 +112,8 @@ public class InvocationRequestProcessor implements Processor {
 							InvocationRequestProcessor.LOG.debug("Generating endpoint for Node: {}", nodeTemplateID);
 
 							try {
-								endpoint = new URL(hostedOnNodeURL, relativeHostEndpoint);
+								endpoint = new URL(hostedOnNodeURL.getProtocol(), hostedOnNodeURL.getAuthority(), port,
+										relativeHostEndpoint);
 								InvocationRequestProcessor.LOG.debug("Generated endpoint: " + endpoint);
 
 							} catch (MalformedURLException e) {

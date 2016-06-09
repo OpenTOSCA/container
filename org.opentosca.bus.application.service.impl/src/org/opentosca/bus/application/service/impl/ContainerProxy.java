@@ -51,6 +51,7 @@ public class ContainerProxy {
 	static final private String INTERFACE_INFORMATIONS = "ApplicationInterfaceInformations";
 	static final private String INTERFACE_INFORMATION = "ApplicationInterfaceInformation";
 	static final private String RELATIVE_ENDPOINT = "Endpoint";
+	static final private String PORT = "Port";
 	static final private String INVOCATION_TYPE = "InvocationType";
 
 	static final private String HOSTED_ON_NAMESPACE = "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes";
@@ -197,6 +198,7 @@ public class ContainerProxy {
 									appPropsList.getLength() + " " + INTERFACES_PROPERTIES_NAME + " elements found.");
 
 							boolean hostEndpointSpecified = false;
+							boolean portSpecified = false;
 							boolean invocationTypeSpecified = false;
 							boolean interfaceFound = false;
 
@@ -205,6 +207,7 @@ public class ContainerProxy {
 							for (int i = 0; i < appPropsList.getLength(); i++) {
 
 								hostEndpointSpecified = false;
+								portSpecified = false;
 								invocationTypeSpecified = false;
 								interfaceFound = false;
 
@@ -226,6 +229,10 @@ public class ContainerProxy {
 										if (addProp.getLocalName().equals(RELATIVE_ENDPOINT)) {
 											ContainerProxy.LOG.debug("Endpoint property found.");
 											hostEndpointSpecified = true;
+
+										} else if (addProp.getLocalName().equals(PORT)) {
+											ContainerProxy.LOG.debug("Port property found.");
+											portSpecified = true;
 
 										} else if (addProp.getLocalName().equals(INVOCATION_TYPE)) {
 											ContainerProxy.LOG.debug("InvocationType property found.");
@@ -256,7 +263,7 @@ public class ContainerProxy {
 									}
 								}
 							}
-							if (hostEndpointSpecified && invocationTypeSpecified && interfaceFound) {
+							if (hostEndpointSpecified && portSpecified && invocationTypeSpecified && interfaceFound) {
 								ContainerProxy.LOG
 										.debug("Properties with all needed information(Endpoint & InvocationType) for interface: "
 												+ interfaceName + " of NodeType: " + nodeTypeName + " inside CSAR: "
@@ -302,6 +309,34 @@ public class ContainerProxy {
 					String hostEndpoint = addProp.getTextContent().trim();
 					ContainerProxy.LOG.debug("Endpoint property: {}", hostEndpoint);
 					return hostEndpoint;
+
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param propNode
+	 * @return port, specified in properties (as <tt>Port</tt> property).
+	 */
+	public static Integer getPort(Node propNode) {
+
+		// get properties like endpoint or
+		// invocationType
+		NodeList appProps = propNode.getChildNodes();
+
+		for (int i = 0; i < appProps.getLength(); i++) {
+
+			Node addProp = appProps.item(i);
+
+			if (addProp.getNodeType() == Node.ELEMENT_NODE) {
+
+				if (addProp.getLocalName().equals(PORT)) {
+
+					Integer port = Integer.parseInt(addProp.getTextContent().trim());
+					ContainerProxy.LOG.debug("Port property: {}", port);
+					return port;
 
 				}
 			}
