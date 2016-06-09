@@ -206,15 +206,8 @@ public class BPELFinalizer {
 				Node parent = sources.getParentNode();
 				parent.removeChild(sources);
 				templateBuildPlan.setBpelSourcesElement(null);
-			}/*
-			 * else { NodeList childElements = sources.getChildNodes(); for (int
-			 * index = 0; index < childElements.getLength(); index++) { Element
-			 * conditionElement = doc.createElementNS(
-			 * "http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-			 * "transitionCondition");
-			 * conditionElement.setTextContent("true()");
-			 * childElements.item(index).appendChild(conditionElement); } }
-			 */
+			}
+			
 			
 			Element correlationSets = templateBuildPlan.getBpelCorrelationSets();
 			if (correlationSets.getChildNodes().getLength() == 0) {

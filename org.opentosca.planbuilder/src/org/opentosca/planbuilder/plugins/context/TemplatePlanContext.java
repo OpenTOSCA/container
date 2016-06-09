@@ -17,6 +17,8 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.planbuilder.TemplatePlanBuilder;
+import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
 import org.opentosca.planbuilder.handlers.BPELProcessHandler;
 import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
@@ -1382,6 +1384,56 @@ public class TemplatePlanContext {
 		}
 	}
 
+	/**
+	 * Executes the operation of the given NodeTemplate
+	 * 
+	 * @param nodeTemplate
+	 *            the NodeTemplate the operation belongs to
+	 * @param operationName
+	 *            the name of the operation to execute
+	 * @return true if appending logic to execute the operation at runtime was
+	 *         successfull
+	 */
+	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String operationName) {		
+		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
+		if (chain == null) {
+			return false;
+		}
+
+		List<String> opNames = new ArrayList<String>();
+		opNames.add(operationName);
+		
+		
+		/* create a new templatePlanContext that combines the requested nodeTemplate and the scope of this context*/
+		// backup nodes
+		AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+		AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+	
+		// create context from this context and set the given nodeTemplate as the node for the scope
+		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.serviceTemplateName, this.propertyMap, this.serviceTemplateId);
+		
+		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
+		context.templateBuildPlan.setRelationshipTemplate(null);
+		
+		/*chain.executeIAProvisioning(context);
+		chain.executeDAProvisioning(context);*/
+		chain.executeOperationProvisioning(context, opNames);
+		
+		// re-set the orginal configuration of the templateBuildPlan
+		this.templateBuildPlan.setNodeTemplate(nodeBackup);
+		this.templateBuildPlan.setRelationshipTemplate(relationBackup);
+
+		return true;
+	}
+
+	/**
+	 * Appends the given node the the main sequence of the buildPlan this
+	 * context belongs to
+	 * 
+	 * @param node
+	 *            a XML DOM Node
+	 * @return true if adding the node to the main sequence was successfull
+	 */
 	public boolean appendToInitSequence(Node node) {
 		Node importedNode = this.importNode(node);
 
@@ -1394,6 +1446,12 @@ public class TemplatePlanContext {
 		return true;
 	}
 
+	/**
+	 * Returns the names of the global variables defined in the buildPlan this
+	 * context belongs to
+	 * 
+	 * @return a List of Strings representing the global variable names
+	 */
 	public List<String> getMainVariableNames() {
 		return this.bpelProcessHandler.getMainVariableNames(this.templateBuildPlan.getBuildPlan());
 	}

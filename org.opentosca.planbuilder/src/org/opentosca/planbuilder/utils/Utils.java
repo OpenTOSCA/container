@@ -234,8 +234,7 @@ public class Utils {
 		if (Utils.getNodeBaseType(nodeTemplate).equals(Utils.TOSCABASETYPE_OS)
 				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.TOSCABASETYPE_SERVER)
 				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.ubuntu1404ServerVmNodeType)
-				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.raspbianJessieOSNodeType)
-				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.externalResourceNodeType)) {
+				|| Utils.getNodeBaseType(nodeTemplate).equals(Utils.raspbianJessieOSNodeType)) {
 			Utils.LOG.debug("Found infrastructure node: " + nodeTemplate.getId());
 			infrastructureNodes.add(nodeTemplate);
 		}
@@ -267,6 +266,9 @@ public class Utils {
 	 */
 	public static void getInfrastructureNodes(AbstractRelationshipTemplate relationshipTemplate,
 			List<AbstractNodeTemplate> infrastructureNodes, boolean forSource) {
+		
+		
+		
 		if (forSource) {
 			Utils.getInfrastructureNodes(relationshipTemplate.getSource(), infrastructureNodes);
 		} else {

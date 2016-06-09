@@ -92,8 +92,8 @@ public class PlanBuilder {
 		this.opNames.add("install");
 		this.opNames.add("configure");
 		this.opNames.add("start");
-		this.opNames.add("connectTo");
-		this.opNames.add("hostOn");
+//		this.opNames.add("connectTo");
+//		this.opNames.add("hostOn");
 	}
 
 	/**
