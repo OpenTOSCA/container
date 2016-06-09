@@ -98,8 +98,9 @@ public class Handler {
 
 		// calculate relevant nodeTemplates for this operation call (the node
 		// itself and infraNodes)
-		List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
-		Utils.getInfrastructureNodes(templateContext.getNodeTemplate(), nodes);
+		List<AbstractNodeTemplate> nodes = templateContext.getInfrastructureNodes();
+		
+		// add the template itself
 		nodes.add(templateContext.getNodeTemplate());
 
 		// find the ubuntu node and its nodeTemplateId
@@ -135,7 +136,11 @@ public class Handler {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, true);
 				if (serverIpPropWrapper == null) {
 					serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, false);
+				}else {
+					break;
 				}
+			} else {
+				break;
 			}
 		}
 
@@ -152,7 +157,11 @@ public class Handler {
 				sshUserVariable = templateContext.getPropertyVariable(vmUserName, true);
 				if (sshUserVariable == null) {
 					sshUserVariable = templateContext.getPropertyVariable(vmUserName, false);
+				}else {
+					break;
 				}
+			}else {
+				break;
 			}
 		}
 
@@ -173,7 +182,11 @@ public class Handler {
 				sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, true);
 				if (sshKeyVariable == null) {
 					sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, false);
+				}else {
+					break;
 				}
+			}else {
+				break;
 			}
 		}
 
@@ -201,6 +214,10 @@ public class Handler {
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
 				break;
+			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
+				LOG.debug("Adding User fiel to plan input");
+				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
+				break;
 			default:
 				return false;
 
@@ -220,6 +237,10 @@ public class Handler {
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext
 						.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+				break;
+			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
+				LOG.debug("Adding User fiel to plan input");
+				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
 				break;
 			default:
 				return false;
@@ -264,6 +285,15 @@ public class Handler {
 					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
 					runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 
+			break;
+		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
+			runScriptRequestInputParams.put("VMIP", serverIpPropWrapper);
+			runScriptRequestInputParams.put("VMUserPassword", sshKeyVariable);
+			runScriptRequestInputParams.put("VMUserName", sshUserVariable);
+			runScriptRequestInputParams.put("Script", runShScriptStringVar);
+			this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
+					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
+					runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 			break;
 		default:
 			return false;

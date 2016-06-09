@@ -522,6 +522,7 @@ public class Handler {
 					appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
+		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 			// new nodetype properties
 			runScriptRequestInputParams.put("VMIP", serverIp);
 			runScriptRequestInputParams.put("VMUserName", sshUser);
@@ -532,6 +533,7 @@ public class Handler {
 					runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
 			break;
+			
 		default:
 			return false;
 		}
@@ -557,6 +559,7 @@ public class Handler {
 					appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
+		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 			transferFileRequestInputParams.put("VMIP", serverIp);
 			transferFileRequestInputParams.put("VMUserName", sshUser);
 			transferFileRequestInputParams.put("VMUserPassword", sshKey);

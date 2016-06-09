@@ -115,7 +115,11 @@ public class Handler {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, true);
 				if (serverIpPropWrapper == null) {
 					serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, false);
+				}else {
+					break;
 				}
+			} else {
+				break;
 			}
 		}
 
@@ -132,7 +136,11 @@ public class Handler {
 				sshUserVariable = templateContext.getPropertyVariable(vmLoginName, true);
 				if (sshUserVariable == null) {
 					sshUserVariable = templateContext.getPropertyVariable(vmLoginName, false);
+				}else {
+					break;
 				}
+			} else {
+				break;
 			}
 		}
 
@@ -154,7 +162,11 @@ public class Handler {
 				sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, true);
 				if (sshKeyVariable == null) {
 					sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, false);
+				}else {
+					break;
 				}
+			} else {
+				break;
 			}
 		}
 		// if variable null now -> the property isn't set according to schema
@@ -180,6 +192,9 @@ public class Handler {
 				LOG.debug("Adding sshUser field to plan input");
 				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
 				break;
+			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
+				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
+				break;
 			default:
 				return false;
 
@@ -198,6 +213,9 @@ public class Handler {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 				templateContext
 						.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+				break;
+			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
+				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
 				break;
 			default:
 				return false;

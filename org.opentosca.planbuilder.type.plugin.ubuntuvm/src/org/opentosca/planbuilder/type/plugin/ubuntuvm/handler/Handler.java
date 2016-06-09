@@ -43,9 +43,9 @@ public class Handler {
 
 	// new possible external params
 	private final static String[] createVMInstanceExternalInputParams = { "VMKeyPairName",
-			"HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID"};
+			"HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID", "VMPrivateKey", "VMPublicKey", "VMKeyPairName"};
 
-	public boolean handleOpenStackLiberty12WithUbuntu1404(TemplatePlanContext context,
+	public boolean handleWithCloudProviderInterface(TemplatePlanContext context,
 			AbstractNodeTemplate nodeTemplate) {
 		// we check if the ubuntu which must be connected to this node (if not
 		// directly then trough some vm nodetemplate) is a nodetype with a
@@ -81,6 +81,8 @@ public class Handler {
 			instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
 			if (instanceIdPropWrapper == null) {
 				instanceIdPropWrapper = context.getPropertyVariable(instanceIdName,true);
+			}else {
+				break;
 			}
 		}
 
@@ -95,6 +97,8 @@ public class Handler {
 			serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
+			}else {
+				break;
 			}
 		}
 
@@ -109,6 +113,8 @@ public class Handler {
 			sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate,userName);
 			if (sshUserVariable == null) {
 				sshUserVariable = context.getPropertyVariable(userName, true);
+			}else {
+				break;
 			}
 		}
 
@@ -129,6 +135,8 @@ public class Handler {
 			sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate,passwordName);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = context.getPropertyVariable(passwordName, true);
+			} else {
+				break;
 			}
 		}
 
@@ -245,15 +253,19 @@ public class Handler {
 		 * the necessity for the other plugins to wait for SSH to be up
 		 */
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
+		Map<String, Variable> startRequestOutputParams = new HashMap<String, Variable>();
 
 		startRequestInputParams.put("VMIP", serverIpPropWrapper);
 		startRequestInputParams.put("VMUserName", sshUserVariable);
 		startRequestInputParams.put("VMUserPassword", sshKeyVariable);
+		
+		startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
+		
 
 		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-				startRequestInputParams, new HashMap<String, Variable>(), false);
+				startRequestInputParams, startRequestOutputParams, false);
 
 		return true;
 	}
