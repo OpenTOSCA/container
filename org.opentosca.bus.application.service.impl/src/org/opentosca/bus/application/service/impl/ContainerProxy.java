@@ -25,6 +25,7 @@ import org.opentosca.model.tosca.TEntityTemplate;
 import org.opentosca.model.tosca.TNodeTemplate;
 import org.opentosca.model.tosca.TNodeTypeImplementation;
 import org.opentosca.model.tosca.TServiceTemplate;
+import org.opentosca.model.tosca.conventions.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -56,8 +57,6 @@ public class ContainerProxy {
 
 	static final private String HOSTED_ON_NAMESPACE = "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes";
 	static final private String HOSTED_ON_LOCALPART = "HostedOn";
-
-	static final private String IP_KEY = "Ip-Address";
 
 	final private static Logger LOG = LoggerFactory.getLogger(ContainerProxy.class);
 
@@ -464,13 +463,13 @@ public class ContainerProxy {
 
 	/**
 	 * Returns the first NodeTemplate underneath the defined NodeTemplate
-	 * containing the <tt>Ip-Address</tt> property.
+	 * containing the IP property.
 	 * 
 	 * @param csarID
 	 * @param serviceTemplateID
 	 * @param nodeTemplateID
 	 * @return name of the first NodeTemplate underneath the defined
-	 *         NodeTemplate containing the <tt>Ip-Address</tt> property.
+	 *         NodeTemplate containing the IP property.
 	 * 
 	 */
 	public static String getHostedOnNodeTemplateWithSpecifiedIPProperty(CSARID csarID, QName serviceTemplateID,
@@ -516,13 +515,13 @@ public class ContainerProxy {
 
 	/**
 	 * 
-	 * Returns the in the InstanceDataService stored <tt>Ip-Address</tt>
-	 * property of the specified ServiceInstance & NodeTemplate.
+	 * Returns the in the InstanceDataService stored IP property of the
+	 * specified ServiceInstance & NodeTemplate.
 	 * 
 	 * 
 	 * @param serviceInstanceID
 	 * @param nodeTemplateQName
-	 * @return <tt>Ip-Address</tt> property
+	 * @return IP property
 	 */
 	public static URL getIpFromInstanceDataProperties(URI serviceInstanceID, QName nodeTemplateQName) {
 
@@ -562,18 +561,24 @@ public class ContainerProxy {
 
 		if (props != null) {
 
-			ContainerProxy.LOG.debug(
-					"Checking if IP-Property: " + IP_KEY + " is defined in the xml document: " + docToString(props));
+			ContainerProxy.LOG.debug("Checking if IP-Property is defined in the xml document: " + docToString(props));
 
-			NodeList list = props.getElementsByTagName(IP_KEY);
+			List<String> knownIpProperties = Utils.getSupportedVirtualMachineIPPropertyNames();
 
-			if (list.getLength() > 0) {
-				String ip = list.item(0).getTextContent();
-				ContainerProxy.LOG.debug("Property: {} is defined.", IP_KEY);
-				return ip;
+			for (String ipProperty : knownIpProperties) {
+
+				NodeList list = props.getElementsByTagName(ipProperty);
+
+				if (list.getLength() > 0) {
+					String ip = list.item(0).getTextContent();
+					ContainerProxy.LOG.debug("Property: {} is defined: {}", ipProperty, ip);
+					return ip;
+				}
+
 			}
+
 		}
-		ContainerProxy.LOG.debug("Property: {} is not defined.", IP_KEY);
+		ContainerProxy.LOG.debug("No IP-Property defined.");
 		return null;
 	}
 
