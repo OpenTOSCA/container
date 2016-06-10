@@ -32,6 +32,15 @@
 </profiles> -->
 <modules>
   <module>org.opentosca.bpsconnector</module>
+  <module>org.opentosca.bus.application.api.jsonhttp</module>
+  <module>org.opentosca.bus.application.api.resthttp</module>
+  <module>org.opentosca.bus.application.api.soaphttp</module>
+  <module>org.opentosca.bus.application.dependencies</module>
+  <module>org.opentosca.bus.application.model</module>
+  <module>org.opentosca.bus.application.plugin.jsonhttp.service.impl</module>
+  <module>org.opentosca.bus.application.plugin.service</module>
+  <module>org.opentosca.bus.application.service</module>
+  <module>org.opentosca.bus.application.service.impl</module>
   <module>org.opentosca.containerapi</module>
   <module>org.opentosca.container.application</module>
   <module>org.opentosca.container.feature</module>
