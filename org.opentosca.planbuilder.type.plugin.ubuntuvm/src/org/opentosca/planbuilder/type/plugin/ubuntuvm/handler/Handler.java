@@ -7,10 +7,9 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.commons.Interfaces;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
-import org.opentosca.planbuilder.plugins.commons.Properties;
-import org.opentosca.planbuilder.plugins.commons.Types;
+import org.opentosca.model.tosca.conventions.Interfaces;
+import org.opentosca.model.tosca.conventions.Properties;
+import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -75,7 +74,7 @@ public class Handler {
 
 		Variable instanceIdPropWrapper = null;
 
-		for (String instanceIdName : PluginUtils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
+		for (String instanceIdName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
 			// find InstanceId Property inside ubuntu nodeTemplate
 			
 			instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
@@ -93,7 +92,7 @@ public class Handler {
 
 		// find ServerIp Property inside ubuntu nodeTemplate
 		Variable serverIpPropWrapper = null;
-		for (String vmIpName : PluginUtils.getSupportedVirtualMachineIPPropertyNames()) {
+		for (String vmIpName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 			serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
@@ -109,7 +108,7 @@ public class Handler {
 
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
-		for (String userName : PluginUtils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+		for (String userName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate,userName);
 			if (sshUserVariable == null) {
 				sshUserVariable = context.getPropertyVariable(userName, true);
@@ -131,7 +130,7 @@ public class Handler {
 
 		Variable sshKeyVariable = null;
 
-		for (String passwordName : PluginUtils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+		for (String passwordName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate,passwordName);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = context.getPropertyVariable(passwordName, true);
@@ -492,7 +491,7 @@ public class Handler {
 	 *         presenting an Ubuntu image then null
 	 */
 	private String createUbuntuImageStringFromNodeType(QName nodeType) {
-		if (!PluginUtils.isSupportedUbuntuVMNodeType(nodeType)) {
+		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(nodeType)) {
 			return null;
 		}
 		
@@ -567,12 +566,12 @@ public class Handler {
 	private AbstractNodeTemplate findUbuntuNode(AbstractNodeTemplate nodeTemplate) {
 
 		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
-			if (PluginUtils.isSupportedUbuntuVMNodeType(relationTemplate.getSource().getType().getId())) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(relationTemplate.getSource().getType().getId())) {
 				return relationTemplate.getSource();
 			}
 
 			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
-				if (PluginUtils.isSupportedUbuntuVMNodeType(relationTemplate2.getSource().getType().getId())) {
+				if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(relationTemplate2.getSource().getType().getId())) {
 					return relationTemplate2.getSource();
 				}
 			}

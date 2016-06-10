@@ -7,10 +7,10 @@ Bundle-Activator: org.opentosca.planbuilder.type.plugin.connectsto.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.commons.io;version="2.4.0",
  org.eclipse.core.runtime;version="3.4.0",
+ org.opentosca.model.tosca.conventions,
  org.opentosca.planbuilder.model.plan,
  org.opentosca.planbuilder.model.tosca,
  org.opentosca.planbuilder.plugins,
- org.opentosca.planbuilder.plugins.commons,
  org.opentosca.planbuilder.plugins.context,
  org.opentosca.planbuilder.provphase.plugin.invoker,
  org.opentosca.planbuilder.utils,

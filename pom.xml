@@ -90,6 +90,7 @@
   <module>org.opentosca.model.instancedata</module>
   <module>org.opentosca.model.staticresources</module>
   <module>org.opentosca.model.tosca</module>
+  <module>org.opentosca.model.tosca.conventions</module>
   <module>org.opentosca.model.tosca.referencemapping</module>
   <module>org.opentosca.opentoscacontrol.service</module>
   <module>org.opentosca.opentoscacontrol.service.impl</module>
@@ -100,7 +101,6 @@
   <module>org.opentosca.planbuilder.importer</module>
   <module>org.opentosca.planbuilder.integration</module>
   <module>org.opentosca.planbuilder.model</module>
-  <module>org.opentosca.planbuilder.plugins.commons</module>
   <module>org.opentosca.planbuilder.postphase.plugin.instancedata</module>
   <module>org.opentosca.planbuilder.postphase.plugin.vinothek</module>
   <module>org.opentosca.planbuilder.prephase.plugin.linuxpackageda</module>

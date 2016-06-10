@@ -3,8 +3,8 @@ package org.opentosca.planbuilder.type.plugin.ubuntuvm;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
-import org.opentosca.planbuilder.plugins.commons.Types;
+import org.opentosca.model.tosca.conventions.Utils;
+import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.ubuntuvm.handler.Handler;
 import org.slf4j.Logger;
@@ -44,16 +44,16 @@ public class Plugin implements IPlanBuilderTypePlugin {
 
 		// requirement: nodeTemplates with these two nodeTypes are handled,
 		// by doing nothing
-		if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
+		if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
 
-		if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+		if (Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
 
 		// when the cloudprovider node arrives start handling
-		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
+		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			if (nodeTemplate.getType().getId().equals(Types.openStackLiberty12NodeType) | nodeTemplate.getType().getId().equals(Types.vmWareVsphere55NodeType)) {
 				// bit hacky now, but until the nodeType cleanup is finished this should be enough right now
 				return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
@@ -80,19 +80,19 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			Plugin.LOG.debug("NodeTemplate NodeType id is null");
 		}
 		// this plugin can handle all referenced nodeTypes
-		if (PluginUtils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
+		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
-		} else if (PluginUtils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
+		} else if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			// checking if this vmNode is connected to a nodeTemplate of Type
 			// cloud provider (ec2, openstack), if not this plugin can't handle
 			// this node
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-				if (PluginUtils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
+				if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
 					return true;
 				}
 			}
 			return false;
-		} else if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+		} else if (Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 			// checking whether this GENERIC ubuntu NodeTemplate is connected to
 			// a VM
 			// Node, after this checking whether the VM Node is connected to a
@@ -163,7 +163,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 */
 	private boolean checkIfConnectedToCloudProvider(AbstractNodeTemplate nodeTemplate) {
 		for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (PluginUtils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
+			if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
 				return true;
 			}
 		}

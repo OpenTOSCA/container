@@ -28,9 +28,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.commons.Interfaces;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
-import org.opentosca.planbuilder.plugins.commons.Properties;
+import org.opentosca.model.tosca.conventions.Interfaces;
+import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -108,7 +107,7 @@ public class Handler {
 		String templateId = "";
 
 		for (AbstractNodeTemplate nodeTemplate : nodes) {
-			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				ubuntuNodeTemplate = nodeTemplate;
 				templateId = nodeTemplate.getId();
 			}
@@ -130,7 +129,7 @@ public class Handler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		Variable serverIpPropWrapper = null;
-		for (String serverIp : PluginUtils.getSupportedVirtualMachineIPPropertyNames()) {
+		for (String serverIp : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 			serverIpPropWrapper = templateContext.getPropertyVariable(ubuntuNodeTemplate, serverIp);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, true);
@@ -151,7 +150,7 @@ public class Handler {
 
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
-		for (String vmUserName : PluginUtils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			sshUserVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate, vmUserName);
 			if (sshUserVariable == null) {
 				sshUserVariable = templateContext.getPropertyVariable(vmUserName, true);
@@ -176,7 +175,7 @@ public class Handler {
 			}
 		}
 		Variable sshKeyVariable = null;
-		for (String vmUserPassword : PluginUtils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			sshKeyVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate, vmUserPassword);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, true);

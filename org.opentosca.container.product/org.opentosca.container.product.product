@@ -410,6 +410,7 @@
       <plugin id="org.opentosca.model.instancedata" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.staticresources" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.tosca" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.model.tosca.conventions" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.tosca.referencemapping" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.opentoscacontrol.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.opentoscacontrol.service.impl" autoStart="true" startLevel="4" />
@@ -420,7 +421,6 @@
       <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.planbuilder.plugins.commons" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.prephase.plugin.linuxpackageda" autoStart="true" startLevel="4" />

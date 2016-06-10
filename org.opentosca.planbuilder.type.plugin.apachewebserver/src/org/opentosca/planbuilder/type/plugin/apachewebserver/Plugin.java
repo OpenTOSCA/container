@@ -5,8 +5,8 @@ import javax.xml.namespace.QName;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
-import org.opentosca.planbuilder.plugins.commons.Types;
+import org.opentosca.model.tosca.conventions.Utils;
+import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.apachewebserver.handler.Handler;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		for (AbstractRelationshipTemplate relations : nodeTemplate.getOutgoingRelations()) {
 			Plugin.LOG.debug("Traversing relationshipType " + relations.getId());
 			Plugin.LOG.debug("Checking NodeTemplate " + relations.getTarget().getId());
-			if (PluginUtils.isSupportedUbuntuVMNodeType(relations.getTarget().getType().getId())) {
+			if (Utils.isSupportedUbuntuVMNodeType(relations.getTarget().getType().getId())) {
 				// the opentosca apacheWebServer template is connected to a
 				// template with Ubuntu nodeType, so we can handle it
 				return true;

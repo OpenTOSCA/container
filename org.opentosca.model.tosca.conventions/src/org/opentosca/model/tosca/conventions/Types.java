@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.plugins.commons;
+package org.opentosca.model.tosca.conventions;
 
 import javax.xml.namespace.QName;
 

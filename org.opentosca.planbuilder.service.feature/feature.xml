@@ -994,13 +994,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.planbuilder.plugins.commons"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.sun.jersey.jersey-server"
          download-size="0"
          install-size="0"
@@ -1270,6 +1263,13 @@
 
    <plugin
          id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.model.tosca.conventions"
          download-size="0"
          install-size="0"
          version="0.0.0"
