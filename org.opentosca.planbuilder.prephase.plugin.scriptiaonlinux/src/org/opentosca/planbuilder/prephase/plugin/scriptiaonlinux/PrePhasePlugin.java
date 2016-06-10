@@ -8,7 +8,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.handler.Handler;
 import org.opentosca.planbuilder.utils.Utils;
@@ -121,7 +120,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 
 		// we can deploy only on ubuntu nodes
-		if (!PluginUtils.isSupportedUbuntuVMNodeType(infrastructureNodeType)) {
+		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(infrastructureNodeType)) {
 			return false;
 		}
 

@@ -15,10 +15,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.model.tosca.conventions.Interfaces;
+import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.plugins.commons.Interfaces;
-import org.opentosca.planbuilder.plugins.commons.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;

@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.plugins.commons;
+package org.opentosca.model.tosca.conventions;
 
 /**
  * This class holds the names of the well-known interfaces and their operations.

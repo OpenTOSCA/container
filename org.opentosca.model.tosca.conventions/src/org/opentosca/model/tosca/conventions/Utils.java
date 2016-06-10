@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.opentosca.planbuilder.plugins.commons;
+package org.opentosca.model.tosca.conventions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import javax.xml.namespace.QName;
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class PluginUtils {
+public class Utils {
 	
 	private static final List<String> ipPropertyNames;
 	private static final List<String> instanceIdPropertyNames;
@@ -126,7 +126,7 @@ public class PluginUtils {
 		String nodeTypeLN = nodeType.getLocalPart();
 
 		if (nodeTypeNS.equals("http://opentosca.org/types/declarative")
-				&& PluginUtils.isProperUbuntuLocalName(nodeTypeLN)) {
+				&& Utils.isProperUbuntuLocalName(nodeTypeLN)) {
 			return true;
 		}
 

@@ -14,7 +14,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.plugins.commons.Types;
+import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.planbuilder.utils.Utils;
 
 /**

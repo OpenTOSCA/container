@@ -38,7 +38,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.planbuilder.plugins.commons.Properties;
+import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.Plugin;
 import org.opentosca.planbuilder.utils.Utils;

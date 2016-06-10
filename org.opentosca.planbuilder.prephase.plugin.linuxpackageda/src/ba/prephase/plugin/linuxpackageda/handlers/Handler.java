@@ -10,7 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.commons.Properties;
+import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

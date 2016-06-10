@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
+import org.opentosca.model.tosca.conventions.Utils;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.mysqlserver.handler.Handler;
 
@@ -51,7 +51,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			// check whether the mysql server is connected to a Ubuntu
 			// NodeTemplate
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-				if (PluginUtils.isSupportedUbuntuVMNodeType(relation.getTarget().getType().getId())) {
+				if (Utils.isSupportedUbuntuVMNodeType(relation.getTarget().getType().getId())) {
 					return true;
 				}
 			}

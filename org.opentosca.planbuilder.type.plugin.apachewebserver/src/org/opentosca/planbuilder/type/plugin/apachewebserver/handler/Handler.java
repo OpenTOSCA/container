@@ -9,8 +9,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.plugins.commons.PluginUtils;
-import org.opentosca.planbuilder.plugins.commons.Properties;
+import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
@@ -146,7 +145,7 @@ public class Handler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (PluginUtils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}
