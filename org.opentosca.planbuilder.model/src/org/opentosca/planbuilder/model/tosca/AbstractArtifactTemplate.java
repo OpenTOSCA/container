@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Node;
+
 /**
  * <p>
  * This class represents a TOSCA ArtifactTemplate
@@ -50,4 +52,13 @@ public abstract class AbstractArtifactTemplate {
 	 * @return a List of AbstractArtifactReferences
 	 */
 	public abstract List<AbstractArtifactReference> getArtifactReferences();
+	
+	/**
+	 * Returns all defined DOM nodes which aren't part of the TOSCA spec but can
+	 * be defined under the nodeTypes (e.g. extensible elements)
+	 * 
+	 * @return a List of DOM nodes representing additionaly elements defined on
+	 *         this nodeType
+	 */
+	public abstract List<Node> getAdditionalElements();
 }

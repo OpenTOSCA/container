@@ -10,6 +10,7 @@ import org.oasis_open.docs.tosca.ns._2011._12.TArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
+import org.w3c.dom.Node;
 
 /**
  * <p>
@@ -94,6 +95,19 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 	@Override
 	public QName getArtifactType() {
 		return this.getArtifactType();
+	}
+
+	@Override
+	public List<Node> getAdditionalElements() {
+		List<Node> nodes = new ArrayList<Node>();
+		
+		for(Object obj : this.template.getAny()){
+			if(obj instanceof Node && ((Node)obj).getNodeType() == Node.ELEMENT_NODE){
+				nodes.add((Node)obj);
+			}
+		}
+		
+		return nodes;
 	}
 	
 }

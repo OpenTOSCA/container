@@ -9,6 +9,7 @@ import org.oasis_open.docs.tosca.ns._2011._12.TInterface;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
+import org.w3c.dom.Node;
 
 /**
  * <p>
@@ -105,6 +106,19 @@ public class NodeTypeImpl extends AbstractNodeType {
 	@Override
 	public List<AbstractInterface> getInterfaces() {
 		return this.interfaces;
+	}
+
+	@Override
+	public List<Node> getAdditionalElements() {
+		List<Node> nodes = new ArrayList<Node>();
+		
+		for(Object obj : this.nodeType.getAny()){
+			if(obj instanceof Node && ((Node)obj).getNodeType() == Node.ELEMENT_NODE){
+				nodes.add((Node)obj);
+			}
+		}
+		
+		return nodes;
 	}
 
 }
