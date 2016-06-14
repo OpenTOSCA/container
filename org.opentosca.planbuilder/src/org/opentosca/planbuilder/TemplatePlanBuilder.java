@@ -16,6 +16,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
@@ -24,7 +25,9 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
@@ -250,6 +253,49 @@ public class TemplatePlanBuilder {
 
 		public List<AbstractDeploymentArtifact> getDAsOfCandidate(int candidateIndex) {
 			return this.daCandidates.get(candidateIndex).das;
+		}
+
+		public boolean executeOperationProvisioning(TemplatePlanContext context, List<String> operationNames,
+				Map<AbstractParameter, Variable> param2propertyMapping) {
+			int checkCount = 0;
+			if (!this.provCandidates.isEmpty()) {
+				ProvCandidateWrapper provCandidate = this.provCandidates.get(0);
+				Map<String, Integer> order = new HashMap<String, Integer>();
+				// check for index of prov candidates
+				for (String opName : operationNames) {
+					for (Integer index = 0; index < provCandidate.ops.size(); index++) {
+						AbstractOperation op = provCandidate.ops.get(index);
+						if (opName.equals(op.getName())) {
+							order.put(opName, index);
+						}
+					}
+				}
+
+				for (String opName : operationNames) {
+					Integer index = order.get(opName);
+					if (index == null) {
+						continue;
+					}
+					AbstractOperation op = provCandidate.ops.get(index);
+					if (!operationNames.contains(op.getName())) {
+						// if the operation isn't mentioned in operationName
+						// list, don't execute the operation
+						continue;
+					}
+					AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+					IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
+					
+					if(plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin){
+						IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
+						if(paramPlugin.handle(context, op, ia,param2propertyMapping)){
+							checkCount++;
+						}
+					} 
+					
+				}
+			}
+			return checkCount == operationNames.size();
+			
 		}
 	}
 

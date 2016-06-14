@@ -98,22 +98,14 @@ public class Handler {
 		// calculate relevant nodeTemplates for this operation call (the node
 		// itself and infraNodes)
 		List<AbstractNodeTemplate> nodes = templateContext.getInfrastructureNodes();
-		
+
 		// add the template itself
 		nodes.add(templateContext.getNodeTemplate());
 
 		// find the ubuntu node and its nodeTemplateId
-		AbstractNodeTemplate ubuntuNodeTemplate = null;
-		String templateId = "";
+		AbstractNodeTemplate infrastructureNodeTemplate = this.findInfrastructureNode(nodes);
 
-		for (AbstractNodeTemplate nodeTemplate : nodes) {
-			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
-				ubuntuNodeTemplate = nodeTemplate;
-				templateId = nodeTemplate.getId();
-			}
-		}
-
-		if (templateId.equals("")) {
+		if (infrastructureNodeTemplate == null) {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
 			return false;
 		}
@@ -129,13 +121,14 @@ public class Handler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		Variable serverIpPropWrapper = null;
-		for (String serverIp : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-			serverIpPropWrapper = templateContext.getPropertyVariable(ubuntuNodeTemplate, serverIp);
+		for (String serverIp : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineIPPropertyNames()) {
+			serverIpPropWrapper = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, true);
 				if (serverIpPropWrapper == null) {
 					serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, false);
-				}else {
+				} else {
 					break;
 				}
 			} else {
@@ -150,16 +143,17 @@ public class Handler {
 
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
-		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			sshUserVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate, vmUserName);
+		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+			sshUserVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
 			if (sshUserVariable == null) {
 				sshUserVariable = templateContext.getPropertyVariable(vmUserName, true);
 				if (sshUserVariable == null) {
 					sshUserVariable = templateContext.getPropertyVariable(vmUserName, false);
-				}else {
+				} else {
 					break;
 				}
-			}else {
+			} else {
 				break;
 			}
 		}
@@ -175,16 +169,17 @@ public class Handler {
 			}
 		}
 		Variable sshKeyVariable = null;
-		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			sshKeyVariable = templateContext.getPropertyVariable(ubuntuNodeTemplate, vmUserPassword);
+		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+			sshKeyVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, true);
 				if (sshKeyVariable == null) {
 					sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, false);
-				}else {
+				} else {
 					break;
 				}
-			}else {
+			} else {
 				break;
 			}
 		}
@@ -239,7 +234,8 @@ public class Handler {
 				break;
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 				LOG.debug("Adding User fiel to plan input");
-				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
+				templateContext
+						.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
 				break;
 			default:
 				return false;
@@ -262,6 +258,179 @@ public class Handler {
 		Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef,
 				ia);
 
+		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
+				sshUserVariable, sshKeyVariable, serverIpPropWrapper, runScriptRequestInputParams);
+	}
+
+	public boolean handle(TemplatePlanContext templateContext, AbstractOperation operation,
+			AbstractImplementationArtifact ia, Map<AbstractParameter, Variable> param2propertyMapping) {
+
+		AbstractNodeTemplate infrastructureNodeTemplate = this
+				.findInfrastructureNode(templateContext.getInfrastructureNodes());
+		if (infrastructureNodeTemplate == null) {
+			return false;
+		}
+
+		Variable runShScriptStringVar = null;
+		AbstractArtifactReference scriptRef = this.fetchScriptRefFromIA(ia);
+		if (scriptRef == null) {
+			return false;
+		}
+		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia);
+
+		
+		Variable ipStringVariable = null;
+		for (String serverIp : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineIPPropertyNames()) {
+			ipStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
+			if (ipStringVariable == null) {
+				ipStringVariable = templateContext.getPropertyVariable(serverIp, true);
+				if (ipStringVariable == null) {
+					ipStringVariable = templateContext.getPropertyVariable(serverIp, false);
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+
+		Variable userStringVariable = null;
+		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+			userStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
+			if (userStringVariable == null) {
+				userStringVariable = templateContext.getPropertyVariable(vmUserName, true);
+				if (userStringVariable == null) {
+					userStringVariable = templateContext.getPropertyVariable(vmUserName, false);
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+
+		Variable passwdStringVariable = null;
+		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+			passwdStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
+			if (passwdStringVariable == null) {
+				passwdStringVariable = templateContext.getPropertyVariable(vmUserPassword, true);
+				if (passwdStringVariable == null) {
+					passwdStringVariable = templateContext.getPropertyVariable(vmUserPassword, false);
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+
+		if (this.isNull(runShScriptStringVar, ipStringVariable, userStringVariable, passwdStringVariable)) {
+			// if either of the variables is null -> abort
+			return false;
+		}
+
+		Map<String, Variable> payloadVariableMapping = new HashMap<String, Variable>();
+
+		for (AbstractParameter param : param2propertyMapping.keySet()) {
+			payloadVariableMapping.put(param.getName(), param2propertyMapping.get(param));
+		}
+
+		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
+				userStringVariable, passwdStringVariable, ipStringVariable, payloadVariableMapping);
+	}
+
+	private boolean isNull(Variable... vars) {
+		for (Variable var : vars) {
+			if (var == null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private AbstractNodeTemplate findInfrastructureNode(List<AbstractNodeTemplate> nodes) {
+		for (AbstractNodeTemplate nodeTemplate : nodes) {
+			if (org.opentosca.model.tosca.conventions.Utils
+					.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
+				return nodeTemplate;
+			}
+		}
+		return null;
+	}
+
+	private Variable findPasswordVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
+		for (String pwName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+			for (AbstractParameter param : param2propertyMapping.keySet()) {
+				if (param.getName().equals(pwName)) {
+					return param2propertyMapping.get(param);
+				}
+			}
+		}
+		return null;
+
+	}
+
+	private Variable findUserVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
+		for (String userName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+			for (AbstractParameter param : param2propertyMapping.keySet()) {
+				if (param.getName().equals(userName)) {
+					return param2propertyMapping.get(param);
+				}
+			}
+		}
+		return null;
+	}
+
+	private Variable findIPVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
+		for (String ipName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+			for (AbstractParameter param : param2propertyMapping.keySet()) {
+				if (param.getName().equals(ipName)) {
+					return param2propertyMapping.get(param);
+				}
+			}
+		}
+		return null;
+	}
+
+	private Variable findScriptVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
+		for (AbstractParameter param : param2propertyMapping.keySet()) {
+			switch (param.getName()) {
+			case "Script":
+			case "script":
+				return param2propertyMapping.get(param);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Append logic for executing a script on a remote machine with the invoker
+	 * plugin
+	 * 
+	 * @param templateContext
+	 *            the context with a bpel templateBuildPlan
+	 * @param templateId
+	 *            the id of the template inside the context
+	 * @param runShScriptStringVar
+	 *            the bpel variable containing the script call
+	 * @param sshUserVariable
+	 *            the user name for the remote machine as a bpel variable
+	 * @param sshKeyVariable
+	 *            the pass for the remote machine as a bpel variable
+	 * @param serverIpPropWrapper
+	 *            the ip of the remote machine as a bpel variable
+	 * @param runScriptRequestInputParams
+	 *            a mapping from parameter names to bpel variables
+	 * @return true if appending the bpel logic was successful else false
+	 */
+	private boolean appendExecuteScript(TemplatePlanContext templateContext, String templateId,
+			Variable runShScriptStringVar, Variable sshUserVariable, Variable sshKeyVariable,
+			Variable serverIpPropWrapper, Map<String, Variable> runScriptRequestInputParams) {
 		// dirty check if we use old style properties
 		String cleanPropName = serverIpPropWrapper.getName()
 				.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
@@ -276,15 +445,6 @@ public class Handler {
 
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-			runScriptRequestInputParams.put("VMIP", serverIpPropWrapper);
-			runScriptRequestInputParams.put("VMUserPassword", sshKeyVariable);
-			runScriptRequestInputParams.put("VMUserName", sshUserVariable);
-			runScriptRequestInputParams.put("Script", runShScriptStringVar);
-			this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
-					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-					runScriptRequestInputParams, new HashMap<String, Variable>(), false);
-
-			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 			runScriptRequestInputParams.put("VMIP", serverIpPropWrapper);
 			runScriptRequestInputParams.put("VMUserPassword", sshKeyVariable);
@@ -348,7 +508,6 @@ public class Handler {
 				+ templateContext.getCSARFileName() + "/" + reference.getReference() + " && sudo -E "
 				+ this.createDANamePathMapEnvVar(templateContext, ia);
 
-
 		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 		String xpathQueryPrefix = "";
 		String xpathQuerySuffix = "";
@@ -393,7 +552,7 @@ public class Handler {
 		runShScriptString += " > " + logFilePath;
 		// and echo the operation call log
 		runShScriptString += " && echo " + logFilePath;
-		
+
 		// generate string var with script
 		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName,
 				runShScriptString);

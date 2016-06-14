@@ -1,11 +1,16 @@
 package org.opentosca.planbuilder.provphase.plugin.scriptoperation;
 
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.scriptoperation.handler.Handler;
 
 /**
@@ -19,7 +24,7 @@ import org.opentosca.planbuilder.provphase.plugin.scriptoperation.handler.Handle
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
+public class Plugin implements IPlanBuilderProvPhaseOperationPlugin,IPlanBuilderProvPhaseParamOperationPlugin {
 	
 	private QName baseTypeScriptArtifact = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
 	private Handler handler = new Handler();
@@ -47,6 +52,12 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
 		return this.handler.handle(context, operation, ia);
+	}
+
+	@Override
+	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+			Map<AbstractParameter, Variable> param2propertyMapping) {
+		return this.handler.handle(context, operation, ia,param2propertyMapping);
 	}
 	
 }

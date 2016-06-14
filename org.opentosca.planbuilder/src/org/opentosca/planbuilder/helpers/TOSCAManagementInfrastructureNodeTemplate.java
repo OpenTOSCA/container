@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRequirement;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * This class represents the TOSCA Management Infrastructure as a NodeTemplate.
@@ -131,6 +132,11 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
 			@Override
 			public QName getId() {
 				return new QName("http://opentosca.org/nodetypes","TOSCAManagmentInfrastructure");
+			}
+
+			@Override
+			public List<Node> getAdditionalElements() {
+				return new ArrayList<Node>();
 			}
 		};
 	}

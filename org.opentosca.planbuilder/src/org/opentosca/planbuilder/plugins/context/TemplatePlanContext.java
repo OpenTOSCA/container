@@ -29,6 +29,7 @@ import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.utils.Utils;
@@ -1391,10 +1392,14 @@ public class TemplatePlanContext {
 	 *            the NodeTemplate the operation belongs to
 	 * @param operationName
 	 *            the name of the operation to execute
+	 * @param param2propertyMapping
+	 *            If a Map of Parameter to Variable is given this will be used
+	 *            for the operation call
 	 * @return true if appending logic to execute the operation at runtime was
 	 *         successfull
 	 */
-	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String operationName) {		
+	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String operationName,
+			Map<AbstractParameter, Variable> param2propertyMapping) {
 		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
 		if (chain == null) {
 			return false;
@@ -1402,23 +1407,33 @@ public class TemplatePlanContext {
 
 		List<String> opNames = new ArrayList<String>();
 		opNames.add(operationName);
-		
-		
-		/* create a new templatePlanContext that combines the requested nodeTemplate and the scope of this context*/
+
+		/*
+		 * create a new templatePlanContext that combines the requested
+		 * nodeTemplate and the scope of this context
+		 */
 		// backup nodes
 		AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
 		AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
-	
-		// create context from this context and set the given nodeTemplate as the node for the scope
-		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.serviceTemplateName, this.propertyMap, this.serviceTemplateId);
-		
+
+		// create context from this context and set the given nodeTemplate as
+		// the node for the scope
+		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.serviceTemplateName,
+				this.propertyMap, this.serviceTemplateId);
+
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);
-		
-		/*chain.executeIAProvisioning(context);
-		chain.executeDAProvisioning(context);*/
-		chain.executeOperationProvisioning(context, opNames);
-		
+
+		/*
+		 * chain.executeIAProvisioning(context);
+		 * chain.executeDAProvisioning(context);
+		 */
+		if (param2propertyMapping == null) {
+			chain.executeOperationProvisioning(context, opNames);
+		} else {
+			chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
+		}
+
 		// re-set the orginal configuration of the templateBuildPlan
 		this.templateBuildPlan.setNodeTemplate(nodeBackup);
 		this.templateBuildPlan.setRelationshipTemplate(relationBackup);

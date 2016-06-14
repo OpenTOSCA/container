@@ -97,6 +97,7 @@ public class Handler {
 				if (property != null) {
 					// found property with matching name
 					param2propertyMapping.put(param, property);
+					break;
 				} else {
 					currentNode = this.fetchNodeConnectedWithHostedOn(currentNode);
 				}
@@ -122,7 +123,7 @@ public class Handler {
 				if (ia.getInterfaceName().equals(connectsToIface.getName()) && ia.getOperationName() != null
 						&& ia.getOperationName().equals(connectsToOp.getName())) {
 					// found valid ia for the operation -> determine script or invoker
-					templateContext.executeOperation(sourceNodeTemplate, connectsToOp.getName());
+					templateContext.executeOperation(sourceNodeTemplate, connectsToOp.getName(), param2propertyMapping);
 				}
 			}
 		}
