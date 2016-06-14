@@ -69,7 +69,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		for (AbstractRelationshipTemplate relations : nodeTemplate.getOutgoingRelations()) {
 			Plugin.LOG.debug("Traversing relationshipType " + relations.getId());
 			Plugin.LOG.debug("Checking NodeTemplate " + relations.getTarget().getId());
-			if (Utils.isSupportedUbuntuVMNodeType(relations.getTarget().getType().getId())) {
+			if (Utils.isSupportedInfrastructureNodeType(relations.getTarget().getType().getId())) {
 				// the opentosca apacheWebServer template is connected to a
 				// template with Ubuntu nodeType, so we can handle it
 				return true;

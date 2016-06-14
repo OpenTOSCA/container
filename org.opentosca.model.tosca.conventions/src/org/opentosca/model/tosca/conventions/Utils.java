@@ -109,14 +109,14 @@ public class Utils {
 	}
 
 	/**
-	 * Checks whether the given Node is an ubuntu nodeType that can be handled
+	 * Checks whether the given Node is an infrastructure nodeType that can be handled
 	 * by the set of plugins used by the PlanBuilder.
 	 * 
 	 * @param nodeType
 	 *            a QName denoting some nodeType
-	 * @return a boolean. True if the given nodeType is an ubuntu nodeType
+	 * @return a boolean. True if the given nodeType is an infrastructure nodeType
 	 */
-	public static boolean isSupportedUbuntuVMNodeType(QName nodeType) {
+	public static boolean isSupportedInfrastructureNodeType(QName nodeType) {
 
 		if (nodeType.equals(Types.ubuntuNodeType)) {
 			return true;

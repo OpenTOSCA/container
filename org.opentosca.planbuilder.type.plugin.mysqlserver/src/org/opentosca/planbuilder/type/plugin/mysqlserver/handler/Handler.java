@@ -149,7 +149,7 @@ public class Handler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate nodeTemplate : templateContext.getNodeTemplates()) {
-			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
 				templateId = nodeTemplate.getId();
 			}
 		}

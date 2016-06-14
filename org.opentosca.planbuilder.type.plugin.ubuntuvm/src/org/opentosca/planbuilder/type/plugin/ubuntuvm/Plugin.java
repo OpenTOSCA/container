@@ -48,7 +48,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return true;
 		}
 
-		if (Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+		if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
 
@@ -92,7 +92,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 				}
 			}
 			return false;
-		} else if (Utils.isSupportedUbuntuVMNodeType(nodeTemplate.getType().getId())) {
+		} else if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
 			// checking whether this GENERIC ubuntu NodeTemplate is connected to
 			// a VM
 			// Node, after this checking whether the VM Node is connected to a

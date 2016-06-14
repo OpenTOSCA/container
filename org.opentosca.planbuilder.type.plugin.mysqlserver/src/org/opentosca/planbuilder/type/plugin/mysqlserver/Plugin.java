@@ -51,7 +51,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			// check whether the mysql server is connected to a Ubuntu
 			// NodeTemplate
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-				if (Utils.isSupportedUbuntuVMNodeType(relation.getTarget().getType().getId())) {
+				if (Utils.isSupportedInfrastructureNodeType(relation.getTarget().getType().getId())) {
 					return true;
 				}
 			}

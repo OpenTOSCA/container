@@ -121,7 +121,7 @@ public class SQLFileHandler extends AbstractHandler {
 		String templateId = "";
 		
 		for (AbstractNodeTemplate node : templateContext.getNodeTemplates()) {
-			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(node.getType().getId())) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(node.getType().getId())) {
 				templateId = node.getId();
 			}
 		}

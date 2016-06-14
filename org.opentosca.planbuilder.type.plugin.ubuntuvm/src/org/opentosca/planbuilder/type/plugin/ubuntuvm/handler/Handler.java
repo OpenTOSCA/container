@@ -491,7 +491,7 @@ public class Handler {
 	 *         presenting an Ubuntu image then null
 	 */
 	private String createUbuntuImageStringFromNodeType(QName nodeType) {
-		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(nodeType)) {
+		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(nodeType)) {
 			return null;
 		}
 		
@@ -566,12 +566,12 @@ public class Handler {
 	private AbstractNodeTemplate findUbuntuNode(AbstractNodeTemplate nodeTemplate) {
 
 		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
-			if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(relationTemplate.getSource().getType().getId())) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(relationTemplate.getSource().getType().getId())) {
 				return relationTemplate.getSource();
 			}
 
 			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
-				if (org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(relationTemplate2.getSource().getType().getId())) {
+				if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(relationTemplate2.getSource().getType().getId())) {
 					return relationTemplate2.getSource();
 				}
 			}
