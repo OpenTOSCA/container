@@ -1470,4 +1470,15 @@ public class TemplatePlanContext {
 	public List<String> getMainVariableNames() {
 		return this.bpelProcessHandler.getMainVariableNames(this.templateBuildPlan.getBuildPlan());
 	}
+
+	/**
+	 * Returns the localNames defined inside the input message of the buildPlan
+	 * this context belongs to
+	 * 
+	 * @return a List of Strings representing the XML localNames of the elements
+	 *         inside the input message of the buildPlan this context belongs to
+	 */
+	public List<String> getInputMessageElementNames() {
+		return this.templateBuildPlan.getBuildPlan().getWsdl().getInputMessageLocalNames();
+	}
 }

@@ -178,8 +178,32 @@ public class Handler {
 			addressingCopyNode = context.importNode(addressingCopyNode);
 			assignNode.appendChild(addressingCopyNode);
 
-			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
-					InputMessagePartName, "ReplyTo");
+			// adds field into plan input message to give the plan it's own
+			// address
+			// for the invoker PortType (callback etc.). This is needed as WSO2
+			// BPS
+			// 2.x can't give that at runtime (bug)
+			LOG.debug("Adding plan callback address field to plan input");
+			context.addStringValueToPlanRequest("planCallbackAddress_invoker");
+
+			/*
+			 * Will be needed when we start to switch to a new bpel engine
+			 * String callbackAddressVarName =
+			 * this.inputHasCallbackAddressDefined(context);
+			 * 
+			 * if (callbackAddressVarName == null) { // if the plan doesn't have
+			 * an input message for the address of // the plan itself (for
+			 * callback/bps2.1.2) we get the address at // runtime Node
+			 * replyToCopy =
+			 * this.resHandler.generateReplyToCopyAsNode(partnerLinkName,
+			 * requestVariableName, InputMessagePartName, "ReplyTo");
+			 * replyToCopy = context.importNode(replyToCopy);
+			 * assignNode.appendChild(replyToCopy); } else { // else the address
+			 * is provided in the input message
+			 */
+
+			Node replyToCopy = this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
+					InputMessagePartName, "planCallbackAddress_invoker", "ReplyTo");
 			replyToCopy = context.importNode(replyToCopy);
 			assignNode.appendChild(replyToCopy);
 
@@ -210,42 +234,42 @@ public class Handler {
 			return false;
 		}
 
-			// add receive for service invoker callback
-			try {
-				Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName,
-						partnerLinkName, "callback", invokerCallbackPortType, responseVariableName);
-				receiveNode = context.importNode(receiveNode);
+		// add receive for service invoker callback
+		try {
+			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName,
+					"callback", invokerCallbackPortType, responseVariableName);
+			receiveNode = context.importNode(receiveNode);
 
-				Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
-				correlationSetsNode = context.importNode(correlationSetsNode);
-				receiveNode.appendChild(correlationSetsNode);
+			Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
+			correlationSetsNode = context.importNode(correlationSetsNode);
+			receiveNode.appendChild(correlationSetsNode);
 
-				context.getProvisioningPhaseElement().appendChild(receiveNode);
-			} catch (SAXException e1) {
-				Handler.LOG.error("Error reading/writing XML File", e1);
-				return false;
-			} catch (IOException e1) {
-				Handler.LOG.error("Error reading/writing File", e1);
-				return false;
-			}
+			context.getProvisioningPhaseElement().appendChild(receiveNode);
+		} catch (SAXException e1) {
+			Handler.LOG.error("Error reading/writing XML File", e1);
+			return false;
+		} catch (IOException e1) {
+			Handler.LOG.error("Error reading/writing File", e1);
+			return false;
+		}
 
-			// process response message
-			// add assign for response
-			try {
+		// process response message
+		// add assign for response
+		try {
 
-				Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
-						OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
-						OutputMessageId, context.getPlanResponseMessageName(), "payload");
-				Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
-				responseAssignNode = context.importNode(responseAssignNode);
-				context.getProvisioningPhaseElement().appendChild(responseAssignNode);
-			} catch (SAXException e) {
-				Handler.LOG.error("Error reading/writing XML File", e);
-				return false;
-			} catch (IOException e) {
-				Handler.LOG.error("Error reading/writing File", e);
-				return false;
-			}
+			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
+					OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
+					OutputMessageId, context.getPlanResponseMessageName(), "payload");
+			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
+			responseAssignNode = context.importNode(responseAssignNode);
+			context.getProvisioningPhaseElement().appendChild(responseAssignNode);
+		} catch (SAXException e) {
+			Handler.LOG.error("Error reading/writing XML File", e);
+			return false;
+		} catch (IOException e) {
+			Handler.LOG.error("Error reading/writing File", e);
+			return false;
+		}
 
 		return true;
 	}
@@ -385,53 +409,53 @@ public class Handler {
 			return false;
 		}
 
-			// add receive for service invoker callback
-			try {
-				Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName,
-						partnerLinkName, "callback", invokerCallbackPortType, responseVariableName);
-				receiveNode = context.importNode(receiveNode);
+		// add receive for service invoker callback
+		try {
+			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName,
+					"callback", invokerCallbackPortType, responseVariableName);
+			receiveNode = context.importNode(receiveNode);
 
-				Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
-				correlationSetsNode = context.importNode(correlationSetsNode);
-				receiveNode.appendChild(correlationSetsNode);
+			Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
+			correlationSetsNode = context.importNode(correlationSetsNode);
+			receiveNode.appendChild(correlationSetsNode);
 
-				if (appendToPrePhase) {
-					context.getPrePhaseElement().appendChild(receiveNode);
-				} else {
-					context.getProvisioningPhaseElement().appendChild(receiveNode);
-				}
-
-			} catch (SAXException e1) {
-				Handler.LOG.error("Error reading/writing XML File", e1);
-				return false;
-			} catch (IOException e1) {
-				Handler.LOG.error("Error reading/writing File", e1);
-				return false;
+			if (appendToPrePhase) {
+				context.getPrePhaseElement().appendChild(receiveNode);
+			} else {
+				context.getProvisioningPhaseElement().appendChild(receiveNode);
 			}
 
-			// process response message
-			// add assign for response
-			try {
+		} catch (SAXException e1) {
+			Handler.LOG.error("Error reading/writing XML File", e1);
+			return false;
+		} catch (IOException e1) {
+			Handler.LOG.error("Error reading/writing File", e1);
+			return false;
+		}
 
-				Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
-						OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
-						OutputMessageId, context.getPlanResponseMessageName(), "payload");
-				Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
-				responseAssignNode = context.importNode(responseAssignNode);
+		// process response message
+		// add assign for response
+		try {
 
-				if (appendToPrePhase) {
-					context.getPrePhaseElement().appendChild(responseAssignNode);
-				} else {
-					context.getProvisioningPhaseElement().appendChild(responseAssignNode);
-				}
+			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
+					OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
+					OutputMessageId, context.getPlanResponseMessageName(), "payload");
+			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
+			responseAssignNode = context.importNode(responseAssignNode);
 
-			} catch (SAXException e) {
-				Handler.LOG.error("Error reading/writing XML File", e);
-				return false;
-			} catch (IOException e) {
-				Handler.LOG.error("Error reading/writing File", e);
-				return false;
+			if (appendToPrePhase) {
+				context.getPrePhaseElement().appendChild(responseAssignNode);
+			} else {
+				context.getProvisioningPhaseElement().appendChild(responseAssignNode);
 			}
+
+		} catch (SAXException e) {
+			Handler.LOG.error("Error reading/writing XML File", e);
+			return false;
+		} catch (IOException e) {
+			Handler.LOG.error("Error reading/writing File", e);
+			return false;
+		}
 
 		return true;
 	}
@@ -533,7 +557,7 @@ public class Handler {
 					runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
 			break;
-			
+
 		default:
 			return false;
 		}
@@ -685,5 +709,14 @@ public class Handler {
 		}
 		return null;
 
+	}
+
+	private String inputHasCallbackAddressDefined(TemplatePlanContext context) {
+		for (String localName : context.getInputMessageElementNames()) {
+			if (localName.equals("planCallbackAddress_invoker")) {
+				return localName;
+			}
+		}
+		return null;
 	}
 }
