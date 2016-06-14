@@ -120,7 +120,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 
 		// we can deploy only on ubuntu nodes
-		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedUbuntuVMNodeType(infrastructureNodeType)) {
+		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
 			return false;
 		}
 
