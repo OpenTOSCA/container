@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.RunnableScheduledFuture;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -253,18 +254,20 @@ public class Handler {
 		LOG.debug("Adding csarEntryPoint field to plan input");
 		templateContext.addStringValueToPlanRequest("csarEntrypoint");
 
-		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
-
 		Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef,
 				ia);
 
 		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-				sshUserVariable, sshKeyVariable, serverIpPropWrapper, runScriptRequestInputParams);
+				sshUserVariable, sshKeyVariable, serverIpPropWrapper);
 	}
 
 	public boolean handle(TemplatePlanContext templateContext, AbstractOperation operation,
 			AbstractImplementationArtifact ia, Map<AbstractParameter, Variable> param2propertyMapping) {
 
+		if(operation.getInputParameters().size() != param2propertyMapping.size()){
+			return false;
+		}
+		
 		AbstractNodeTemplate infrastructureNodeTemplate = this
 				.findInfrastructureNode(templateContext.getInfrastructureNodes());
 		if (infrastructureNodeTemplate == null) {
@@ -276,7 +279,7 @@ public class Handler {
 		if (scriptRef == null) {
 			return false;
 		}
-		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia);
+		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia,param2propertyMapping);
 
 		
 		Variable ipStringVariable = null;
@@ -332,14 +335,9 @@ public class Handler {
 			return false;
 		}
 
-		Map<String, Variable> payloadVariableMapping = new HashMap<String, Variable>();
-
-		for (AbstractParameter param : param2propertyMapping.keySet()) {
-			payloadVariableMapping.put(param.getName(), param2propertyMapping.get(param));
-		}
 
 		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-				userStringVariable, passwdStringVariable, ipStringVariable, payloadVariableMapping);
+				userStringVariable, passwdStringVariable, ipStringVariable);
 	}
 
 	private boolean isNull(Variable... vars) {
@@ -361,53 +359,6 @@ public class Handler {
 		return null;
 	}
 
-	private Variable findPasswordVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
-		for (String pwName : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			for (AbstractParameter param : param2propertyMapping.keySet()) {
-				if (param.getName().equals(pwName)) {
-					return param2propertyMapping.get(param);
-				}
-			}
-		}
-		return null;
-
-	}
-
-	private Variable findUserVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
-		for (String userName : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			for (AbstractParameter param : param2propertyMapping.keySet()) {
-				if (param.getName().equals(userName)) {
-					return param2propertyMapping.get(param);
-				}
-			}
-		}
-		return null;
-	}
-
-	private Variable findIPVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
-		for (String ipName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-			for (AbstractParameter param : param2propertyMapping.keySet()) {
-				if (param.getName().equals(ipName)) {
-					return param2propertyMapping.get(param);
-				}
-			}
-		}
-		return null;
-	}
-
-	private Variable findScriptVariable(Map<AbstractParameter, Variable> param2propertyMapping) {
-		for (AbstractParameter param : param2propertyMapping.keySet()) {
-			switch (param.getName()) {
-			case "Script":
-			case "script":
-				return param2propertyMapping.get(param);
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Append logic for executing a script on a remote machine with the invoker
 	 * plugin
@@ -424,13 +375,13 @@ public class Handler {
 	 *            the pass for the remote machine as a bpel variable
 	 * @param serverIpPropWrapper
 	 *            the ip of the remote machine as a bpel variable
-	 * @param runScriptRequestInputParams
-	 *            a mapping from parameter names to bpel variables
 	 * @return true if appending the bpel logic was successful else false
 	 */
 	private boolean appendExecuteScript(TemplatePlanContext templateContext, String templateId,
 			Variable runShScriptStringVar, Variable sshUserVariable, Variable sshKeyVariable,
-			Variable serverIpPropWrapper, Map<String, Variable> runScriptRequestInputParams) {
+			Variable serverIpPropWrapper) {
+		
+		Map<String,Variable> runScriptRequestInputParams = new HashMap<String,Variable>();
 		// dirty check if we use old style properties
 		String cleanPropName = serverIpPropWrapper.getName()
 				.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
@@ -523,6 +474,86 @@ public class Handler {
 				}
 			}
 			inputMappings.put(parameter.getName(), var);
+
+			// Initialize bash script string variable with placeholders
+			runShScriptString += parameter.getName() + "=$" + parameter.getName() + "$ ";
+
+			// put together the xpath query
+			xpathQueryPrefix += "replace(";
+			// set the placeholder to replace
+			xpathQuerySuffix += ",'\\$" + parameter.getName() + "\\$',";
+			if (var == null) {
+				// param is external, query value form input message e.g.
+				// $input.payload//*[local-name()='csarEntrypoint']/text()
+
+				xpathQuerySuffix += "$" + templateContext.getPlanRequestMessageName() + ".payload//*[local-name()='"
+						+ parameter.getName() + "']/text())";
+			} else {
+				// param is internal, so just query the bpelvar e.g. $Varname
+				xpathQuerySuffix += "$" + var.getName() + ")";
+			}
+		}
+		// add path to script
+		runShScriptString += "~/" + templateContext.getCSARFileName() + "/" + reference.getReference();
+
+		// construct log file path
+		String logFilePath = "~/" + templateContext.getCSARFileName() + "/logs/plans/"
+				+ templateContext.getTemplateBuildPlanName() + "$(date +\"%m_%d_%Y\").log";
+		// append command to log the operation call on the machine
+		runShScriptString += " > " + logFilePath;
+		// and echo the operation call log
+		runShScriptString += " && echo " + logFilePath;
+
+		// generate string var with script
+		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName,
+				runShScriptString);
+
+		// Reassign string var with runtime values and replace their
+		// placeholders
+		try {
+			// create xpath query
+			String xpathQuery = xpathQueryPrefix + "$" + runShScriptStringVar.getName() + xpathQuerySuffix;
+			// create assign and append
+			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignShCallScriptVar", xpathQuery,
+					runShScriptStringVar.getName());
+			assignNode = templateContext.importNode(assignNode);
+			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			LOG.error("Couldn't load fragment from file", e);
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			LOG.error("Couldn't parse fragment to DOM", e);
+		}
+		return runShScriptStringVar;
+	}
+	
+	private Variable appendBPELAssignOperationShScript(TemplatePlanContext templateContext, AbstractOperation operation,
+			AbstractArtifactReference reference, AbstractImplementationArtifact ia, Map<AbstractParameter, Variable> inputMappings) {
+		/*
+		 * First we initialize a bash script of this form: sudo sh
+		 * $InputParamName=ValPlaceHolder* referenceShFileName.sh
+		 * 
+		 * After that we try to generate a xpath 2.0 query of this form:
+		 * ..replace
+		 * (replace($runShScriptStringVar,"ValPlaceHolder",$PropertyVariableName
+		 * ),"ValPlaceHolder",$planInputVar.partName/inputFieldLocalName)..
+		 * 
+		 * With both we have a string with runtime property values or input
+		 * params
+		 */
+		String runShScriptString = "mkdir -p ~/" + templateContext.getCSARFileName() + "/logs/plans/ && chmod +x ~/"
+				+ templateContext.getCSARFileName() + "/" + reference.getReference() + " && sudo -E "
+				+ this.createDANamePathMapEnvVar(templateContext, ia);
+
+		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
+		String xpathQueryPrefix = "";
+		String xpathQuerySuffix = "";
+
+		for (AbstractParameter parameter : operation.getInputParameters()) {
+			// First compute mappings from operation parameters to
+			// property/inputfield
+			Variable var = inputMappings.get(parameter);
 
 			// Initialize bash script string variable with placeholders
 			runShScriptString += parameter.getName() + "=$" + parameter.getName() + "$ ";
