@@ -102,22 +102,34 @@ public class Handler {
 	 */
 	private boolean handle(TemplatePlanContext templateContext, List<AbstractArtifactReference> refs,
 			String artifactName, AbstractNodeTemplate nodeTemplate) {
-
+		
+		LOG.debug("Handling DA upload with");
+		String refsString = "";
+		for(AbstractArtifactReference ref : refs){
+			refsString += ref.getReference() + ", ";
+		}
+		LOG.debug("Refs:" + refsString.substring(0, refsString.lastIndexOf(",")));
+		LOG.debug("ArtifactName: " + artifactName);
+		LOG.debug("NodeTemplate: " + nodeTemplate.getId() + "(Type: " + nodeTemplate.getType().getId().toString() + ")");
+				
 		// fetch server ip of the vm this artefact will be deployed on
-
+		
 		Variable serverIpPropWrapper = null;
 		for (String serverIpName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 			serverIpPropWrapper = templateContext.getPropertyVariable(nodeTemplate,serverIpName);
-			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, true);
-				if (serverIpPropWrapper == null) {
-					serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, false);
-				}else {
-					break;
-				}
-			} else {
+			if(serverIpPropWrapper != null){
 				break;
 			}
+//			if (serverIpPropWrapper == null) {
+//				serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, true);
+//				if (serverIpPropWrapper == null) {
+//					serverIpPropWrapper = templateContext.getPropertyVariable(serverIpName, false);
+//				}else {
+//					break;
+//				}
+//			} else {
+//				break;
+//			}
 		}
 
 		if (serverIpPropWrapper == null) {
@@ -129,16 +141,19 @@ public class Handler {
 		Variable sshUserVariable = null;
 		for (String vmLoginName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			sshUserVariable = templateContext.getPropertyVariable(nodeTemplate,vmLoginName);
-			if (sshUserVariable == null) {
-				sshUserVariable = templateContext.getPropertyVariable(vmLoginName, true);
-				if (sshUserVariable == null) {
-					sshUserVariable = templateContext.getPropertyVariable(vmLoginName, false);
-				}else {
-					break;
-				}
-			} else {
+			if(sshUserVariable != null){
 				break;
 			}
+//			if (sshUserVariable == null) {
+//				sshUserVariable = templateContext.getPropertyVariable(vmLoginName, true);
+//				if (sshUserVariable == null) {
+//					sshUserVariable = templateContext.getPropertyVariable(vmLoginName, false);
+//				}else {
+//					break;
+//				}
+//			} else {
+//				break;
+//			}
 		}
 
 		// if the variable is null now -> the property isn't set properly
@@ -155,16 +170,19 @@ public class Handler {
 		Variable sshKeyVariable = null;
 		for (String vmLoginPassword : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			sshKeyVariable = templateContext.getPropertyVariable(nodeTemplate, vmLoginPassword);
-			if (sshKeyVariable == null) {
-				sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, true);
-				if (sshKeyVariable == null) {
-					sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, false);
-				}else {
-					break;
-				}
-			} else {
+			if(sshKeyVariable != null){
 				break;
 			}
+//			if (sshKeyVariable == null) {
+//				sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, true);
+//				if (sshKeyVariable == null) {
+//					sshKeyVariable = templateContext.getPropertyVariable(vmLoginPassword, false);
+//				}else {
+//					break;
+//				}
+//			} else {
+//				break;
+//			}
 		}
 		// if variable null now -> the property isn't set according to schema
 		if (sshKeyVariable == null) {
