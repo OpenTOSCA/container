@@ -91,10 +91,13 @@ public class Handler {
 	 */
 	public boolean handle(TemplatePlanContext templateContext, AbstractOperation operation,
 			AbstractImplementationArtifact ia) {
+		
+		LOG.debug("Handling Script IA operation: " +operation.getName());
 		AbstractArtifactReference scriptRef = this.fetchScriptRefFromIA(ia);
 		if (scriptRef == null) {
 			return false;
 		}
+		LOG.debug("Ref: " + scriptRef.getReference());
 
 		// calculate relevant nodeTemplates for this operation call (the node
 		// itself and infraNodes)
@@ -125,16 +128,9 @@ public class Handler {
 		for (String serverIp : org.opentosca.model.tosca.conventions.Utils
 				.getSupportedVirtualMachineIPPropertyNames()) {
 			serverIpPropWrapper = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
-			if (serverIpPropWrapper == null) {
-				serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, true);
-				if (serverIpPropWrapper == null) {
-					serverIpPropWrapper = templateContext.getPropertyVariable(serverIp, false);
-				} else {
-					break;
-				}
-			} else {
+			if (serverIpPropWrapper != null) {
 				break;
-			}
+			} 
 		}
 
 		if (serverIpPropWrapper == null) {
@@ -147,16 +143,9 @@ public class Handler {
 		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils
 				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			sshUserVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
-			if (sshUserVariable == null) {
-				sshUserVariable = templateContext.getPropertyVariable(vmUserName, true);
-				if (sshUserVariable == null) {
-					sshUserVariable = templateContext.getPropertyVariable(vmUserName, false);
-				} else {
-					break;
-				}
-			} else {
+			if (sshUserVariable != null) {
 				break;
-			}
+			} 
 		}
 
 		// if the variable is null now -> the property isn't set properly
@@ -173,16 +162,9 @@ public class Handler {
 		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils
 				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			sshKeyVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
-			if (sshKeyVariable == null) {
-				sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, true);
-				if (sshKeyVariable == null) {
-					sshKeyVariable = templateContext.getPropertyVariable(vmUserPassword, false);
-				} else {
-					break;
-				}
-			} else {
+			if (sshKeyVariable != null) {
 				break;
-			}
+			} 
 		}
 
 		// if variable null now -> the property isn't set according to schema
