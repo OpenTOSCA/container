@@ -91,22 +91,31 @@ public class Handler {
 		Utils.getInfrastructureNodes(relationTemplate.getSource(), infrastructureNodes);
 
 		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
-			if (templateContext.getPropertyVariable(infraNode,
-					Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP) != null) {
-				clientVmIp = templateContext.getPropertyVariable(infraNode,
-						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP);
+
+			for (String ipPropName : org.opentosca.model.tosca.conventions.Utils
+					.getSupportedVirtualMachineIPPropertyNames()) {
+				if (templateContext.getPropertyVariable(infraNode, ipPropName) != null) {
+					clientVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
+					break;
+				}
+
 			}
-			if (templateContext.getPropertyVariable(infraNode,
-					Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME) != null) {
-				ubuntuTemplateId = infraNode.getId();
-				clientVmUser = templateContext.getPropertyVariable(infraNode,
-						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
+
+			for (String loginNameProp : org.opentosca.model.tosca.conventions.Utils
+					.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+				if (templateContext.getPropertyVariable(infraNode, loginNameProp) != null) {
+					ubuntuTemplateId = infraNode.getId();
+					clientVmUser = templateContext.getPropertyVariable(infraNode, loginNameProp);
+				}
 			}
-			if (templateContext.getPropertyVariable(infraNode,
-					Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD) != null) {
-				ubuntuTemplateId = infraNode.getId();
-				clientVmPass = templateContext.getPropertyVariable(infraNode,
-						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+			
+			for (String loginPwProp : org.opentosca.model.tosca.conventions.Utils
+					.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+				if (templateContext.getPropertyVariable(infraNode, loginPwProp) != null) {
+					ubuntuTemplateId = infraNode.getId();
+					clientVmPass = templateContext.getPropertyVariable(infraNode, loginPwProp);
+				}
+
 			}
 		}
 
@@ -156,7 +165,7 @@ public class Handler {
 		} else {
 			runScriptRequestInputParams.put("VMUserPassword", null);
 		}
-		
+
 		runScriptRequestInputParams.put("Script", bashCommandVariable);
 
 		this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
