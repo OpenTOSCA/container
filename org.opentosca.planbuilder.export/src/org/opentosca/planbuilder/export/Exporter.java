@@ -214,6 +214,7 @@ public class Exporter extends AbstractExporter {
 					}
 
 					if (exportedPlans.size() != plansToExport.size()) {
+
 						int optionCounter = 1 + appDesc.getOptions().getOption().size();
 						for (BuildPlan plan : plansToExport) {
 							if(exportedPlans.contains(plan)){
