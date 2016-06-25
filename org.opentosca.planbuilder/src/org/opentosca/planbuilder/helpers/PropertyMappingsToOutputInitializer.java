@@ -243,8 +243,6 @@ public class PropertyMappingsToOutputInitializer {
 			List<String> failedServiceTemplateProperties = new ArrayList<String>();
 			
 			for (String serviceTemplatePropertyName : mapping.getServiceTemplatePropertyNames()) {
-				// add to outputmessage
-				buildPlanHandler.addStringElementToPlanResponse(serviceTemplatePropertyName, buildPlan);
 				
 				// add copy to assign
 				String templateId = mapping.getTemplateId(serviceTemplatePropertyName);
@@ -265,6 +263,9 @@ public class PropertyMappingsToOutputInitializer {
 					failedServiceTemplateProperties.add(serviceTemplatePropertyName);
 					continue;
 				}
+				
+				// add to outputmessage
+				buildPlanHandler.addStringElementToPlanResponse(serviceTemplatePropertyName, buildPlan);
 				
 				processHandler.assginOutputWithVariableValue(propVarName, serviceTemplatePropertyName, buildPlan);
 			}
