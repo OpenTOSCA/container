@@ -40,9 +40,9 @@ public class Handler {
 	private final static String[] createEC2InstanceExternalInputParams = { "securityGroup", "keyPairName", "secretKey",
 			"accessKey", "regionEndpoint", "AMIid", "instanceType" };
 
-	// new possible external params
+	// new possible external params 
 	private final static String[] createVMInstanceExternalInputParams = { "VMKeyPairName",
-			"HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID", "VMPrivateKey", "VMPublicKey", "VMKeyPairName"};
+			"HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID", "VMUserPassword", "VMPublicKey", "VMKeyPairName"};
 
 	public boolean handleWithCloudProviderInterface(TemplatePlanContext context,
 			AbstractNodeTemplate nodeTemplate) {
@@ -256,7 +256,7 @@ public class Handler {
 
 		startRequestInputParams.put("VMIP", serverIpPropWrapper);
 		startRequestInputParams.put("VMUserName", sshUserVariable);
-		startRequestInputParams.put("VMUserPassword", sshKeyVariable);
+		startRequestInputParams.put("VMPrivateKey", sshKeyVariable);
 		
 		startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
 		

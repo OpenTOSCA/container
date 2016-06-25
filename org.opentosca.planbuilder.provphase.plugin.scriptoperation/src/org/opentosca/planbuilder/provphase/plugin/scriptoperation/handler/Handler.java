@@ -380,7 +380,7 @@ public class Handler {
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 			runScriptRequestInputParams.put("VMIP", serverIpPropWrapper);
-			runScriptRequestInputParams.put("VMUserPassword", sshKeyVariable);
+			runScriptRequestInputParams.put("VMPrivateKey", sshKeyVariable);
 			runScriptRequestInputParams.put("VMUserName", sshUserVariable);
 			runScriptRequestInputParams.put("Script", runShScriptStringVar);
 			this.invokerPlugin.handle(templateContext, templateId, true, "runScript",

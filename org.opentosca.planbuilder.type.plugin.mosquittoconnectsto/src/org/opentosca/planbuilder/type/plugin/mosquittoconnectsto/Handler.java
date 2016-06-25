@@ -161,9 +161,9 @@ public class Handler {
 		}
 
 		if (!Utils.isVariableValueEmpty(clientVmPass, templateContext)) {
-			runScriptRequestInputParams.put("VMUserPassword", clientVmPass);
+			runScriptRequestInputParams.put("VMPrivateKey", clientVmPass);
 		} else {
-			runScriptRequestInputParams.put("VMUserPassword", null);
+			runScriptRequestInputParams.put("VMPrivateKey", null);
 		}
 
 		runScriptRequestInputParams.put("Script", bashCommandVariable);

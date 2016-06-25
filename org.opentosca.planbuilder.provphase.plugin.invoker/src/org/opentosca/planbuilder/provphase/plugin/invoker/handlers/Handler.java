@@ -550,7 +550,7 @@ public class Handler {
 			// new nodetype properties
 			runScriptRequestInputParams.put("VMIP", serverIp);
 			runScriptRequestInputParams.put("VMUserName", sshUser);
-			runScriptRequestInputParams.put("VMUserPassword", sshKey);
+			runScriptRequestInputParams.put("VMPrivateKey", sshKey);
 			runScriptRequestInputParams.put("Script", mkdirScriptVar);
 			this.handle(templateContext, templateId, true, "runScript",
 					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
@@ -586,7 +586,7 @@ public class Handler {
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 			transferFileRequestInputParams.put("VMIP", serverIp);
 			transferFileRequestInputParams.put("VMUserName", sshUser);
-			transferFileRequestInputParams.put("VMUserPassword", sshKey);
+			transferFileRequestInputParams.put("VMPrivateKey", sshKey);
 			transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
 			transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
 			this.handle(templateContext, templateId, true, "transferFile",
