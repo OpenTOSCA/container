@@ -40,6 +40,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			"BPEL");
 	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
 	private final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
+	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes", "ConfigurationArtifact");
 
 	private Handler handler = new Handler();
 
@@ -116,6 +117,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 
 		if (this.sqlArtifactType.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
+		
+		if(this.configurationArtifactType.equals(artifactType)){
 			isSupportedArtifactType |= true;
 		}
 
