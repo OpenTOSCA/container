@@ -936,6 +936,21 @@ public class TemplatePlanContext {
 	}
 
 	/**
+	 * Adds a copy element to the main assign element of the buildPlan this
+	 * context belongs to
+	 * 
+	 * @param inputRequestLocalName
+	 *            the localName inside the input request message
+	 * @param internalVariable
+	 *            an internalVariable of this buildPlan
+	 * @return true iff adding the copy was successful, else false
+	 */
+	public boolean addAssignFromInput2VariableToMainAssign(String inputRequestLocalName, Variable internalVariable) {
+		return this.bpelProcessHandler.assignVariableValueFromInput(internalVariable.getName(), inputRequestLocalName,
+				this.templateBuildPlan.getBuildPlan());
+	}
+
+	/**
 	 * Adds a Element which is a String parameter to the BuildPlan response
 	 * message
 	 *
