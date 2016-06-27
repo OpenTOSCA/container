@@ -124,7 +124,13 @@ public class Handler {
 			if (Utils.isVariableValueEmpty(sshUserVariable, context)) {
 				// the property isn't set in the topology template -> we set it
 				// null here so it will be handled as an external parameter
+				LOG.debug("Adding sshUser field to plan input");
+				// add the new property name (not sshUser)
+				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
+				// add an assign from input to internal property variable
+				context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME, sshUserVariable);
 				sshUserVariable = null;
+				
 			}
 		}
 
@@ -145,21 +151,11 @@ public class Handler {
 		} else {
 			if (Utils.isVariableValueEmpty(sshKeyVariable, context)) {
 				// see sshUserVariable..
+				LOG.debug("Adding sshKey field to plan input");
+				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+				context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD, sshKeyVariable);
 				sshKeyVariable = null;
 			}
-		}
-		// add sshUser and sshKey to the input message of the build plan, if
-		// needed
-		if (sshUserVariable == null) {
-			LOG.debug("Adding sshUser field to plan input");
-			// add the new property name (not sshUser)
-			context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
-
-		}
-
-		if (sshKeyVariable == null) {
-			LOG.debug("Adding sshKey field to plan input");
-			context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
 		}
 
 		// adds field into plan input message to give the plan it's own address
