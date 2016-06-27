@@ -261,21 +261,14 @@ public class Handler {
 		if (scriptRef == null) {
 			return false;
 		}
-		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia,param2propertyMapping);
+		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia,
+				param2propertyMapping);
 
-		
 		Variable ipStringVariable = null;
 		for (String serverIp : org.opentosca.model.tosca.conventions.Utils
 				.getSupportedVirtualMachineIPPropertyNames()) {
 			ipStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
-			if (ipStringVariable == null) {
-				ipStringVariable = templateContext.getPropertyVariable(serverIp, true);
-				if (ipStringVariable == null) {
-					ipStringVariable = templateContext.getPropertyVariable(serverIp, false);
-				} else {
-					break;
-				}
-			} else {
+			if (ipStringVariable != null) {
 				break;
 			}
 		}
@@ -284,14 +277,7 @@ public class Handler {
 		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils
 				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			userStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
-			if (userStringVariable == null) {
-				userStringVariable = templateContext.getPropertyVariable(vmUserName, true);
-				if (userStringVariable == null) {
-					userStringVariable = templateContext.getPropertyVariable(vmUserName, false);
-				} else {
-					break;
-				}
-			} else {
+			if (userStringVariable != null) {
 				break;
 			}
 		}
@@ -300,14 +286,7 @@ public class Handler {
 		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils
 				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			passwdStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
-			if (passwdStringVariable == null) {
-				passwdStringVariable = templateContext.getPropertyVariable(vmUserPassword, true);
-				if (passwdStringVariable == null) {
-					passwdStringVariable = templateContext.getPropertyVariable(vmUserPassword, false);
-				} else {
-					break;
-				}
-			} else {
+			if (passwdStringVariable != null) {
 				break;
 			}
 		}
@@ -316,7 +295,6 @@ public class Handler {
 			// if either of the variables is null -> abort
 			return false;
 		}
-
 
 		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
 				userStringVariable, passwdStringVariable, ipStringVariable);

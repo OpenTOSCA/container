@@ -472,6 +472,9 @@ public class Utils {
 		// check whether the property is empty --> external parameter
 		for (AbstractNodeTemplate node : context.getNodeTemplates()) {
 			if (node.getId().equals(variable.getTemplateId())) {
+				if(node.getProperties() == null){
+					continue;
+				}
 				NodeList children = node.getProperties().getDOMElement().getChildNodes();
 				for (int i = 0; i < children.getLength(); i++) {
 					Node child = children.item(i);

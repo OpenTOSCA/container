@@ -42,17 +42,10 @@ import org.xml.sax.SAXException;
  */
 public class Handler {
 
-	private Plugin invokerPlugin = new Plugin();
-	
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
 
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
-	
-	private final QName scriptArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-			"ScriptArtifact");
-	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
-
 
 	/**
 	 * Constructor
