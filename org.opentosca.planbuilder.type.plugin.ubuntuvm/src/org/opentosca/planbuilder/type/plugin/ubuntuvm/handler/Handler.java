@@ -1,6 +1,8 @@
 package org.opentosca.planbuilder.type.plugin.ubuntuvm.handler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -33,22 +35,26 @@ public class Handler {
 
 	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
 
-	
 	private Plugin invokerOpPlugin = new Plugin();
 
 	// create method external input parameters without CorrelationId (old)
 	private final static String[] createEC2InstanceExternalInputParams = { "securityGroup", "keyPairName", "secretKey",
 			"accessKey", "regionEndpoint", "AMIid", "instanceType" };
 
-	// new possible external params 
-	private final static String[] createVMInstanceExternalInputParams = { "VMKeyPairName",
-			"HypervisorUserPassword", "HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID", "VMUserPassword", "VMPublicKey", "VMKeyPairName"};
+	// new possible external params
+	private final static String[] createVMInstanceExternalInputParams = { "VMKeyPairName", "HypervisorUserPassword",
+			"HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID", "VMUserPassword",
+			"VMPublicKey", "VMKeyPairName" };
 
-	public boolean handleWithCloudProviderInterface(TemplatePlanContext context,
-			AbstractNodeTemplate nodeTemplate) {
-		// we check if the ubuntu which must be connected to this node (if not
-		// directly then trough some vm nodetemplate) is a nodetype with a
-		// ubuntu version e.g. Ubuntu_13.10 and stuff
+	public boolean handleWithCloudProviderInterface(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+
+		// we need a cloud provider node
+		AbstractNodeTemplate cloudProviderNodeTemplate = this.findCloudProviderNode(nodeTemplate);
+		if (cloudProviderNodeTemplate == null) {
+			return false;
+		}
+
+		// and an OS node (check for ssh service..)
 		AbstractNodeTemplate ubuntuNodeTemplate = this.findUbuntuNode(nodeTemplate);
 		Variable ubuntuAMIIdVar = null;
 
@@ -74,13 +80,14 @@ public class Handler {
 
 		Variable instanceIdPropWrapper = null;
 
-		for (String instanceIdName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
+		for (String instanceIdName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineInstanceIdPropertyNames()) {
 			// find InstanceId Property inside ubuntu nodeTemplate
-			
+
 			instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
 			if (instanceIdPropWrapper == null) {
-				instanceIdPropWrapper = context.getPropertyVariable(instanceIdName,true);
-			}else {
+				instanceIdPropWrapper = context.getPropertyVariable(instanceIdName, true);
+			} else {
 				break;
 			}
 		}
@@ -92,11 +99,12 @@ public class Handler {
 
 		// find ServerIp Property inside ubuntu nodeTemplate
 		Variable serverIpPropWrapper = null;
-		for (String vmIpName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+		for (String vmIpName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineIPPropertyNames()) {
 			serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
 			if (serverIpPropWrapper == null) {
 				serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
-			}else {
+			} else {
 				break;
 			}
 		}
@@ -108,11 +116,12 @@ public class Handler {
 
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
-		for (String userName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-			sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate,userName);
+		for (String userName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+			sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
 			if (sshUserVariable == null) {
 				sshUserVariable = context.getPropertyVariable(userName, true);
-			}else {
+			} else {
 				break;
 			}
 		}
@@ -128,16 +137,18 @@ public class Handler {
 				// add the new property name (not sshUser)
 				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
 				// add an assign from input to internal property variable
-				context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME, sshUserVariable);
+				context.addAssignFromInput2VariableToMainAssign(
+						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME, sshUserVariable);
 				sshUserVariable = null;
-				
+
 			}
 		}
 
 		Variable sshKeyVariable = null;
 
-		for (String passwordName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-			sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate,passwordName);
+		for (String passwordName : org.opentosca.model.tosca.conventions.Utils
+				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+			sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
 			if (sshKeyVariable == null) {
 				sshKeyVariable = context.getPropertyVariable(passwordName, true);
 			} else {
@@ -153,7 +164,8 @@ public class Handler {
 				// see sshUserVariable..
 				LOG.debug("Adding sshKey field to plan input");
 				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
-				context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD, sshKeyVariable);
+				context.addAssignFromInput2VariableToMainAssign(
+						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD, sshKeyVariable);
 				sshKeyVariable = null;
 			}
 		}
@@ -182,9 +194,9 @@ public class Handler {
 		for (String externalParameter : Handler.createVMInstanceExternalInputParams) {
 			// find the variable for the inputparam
 
-			Variable variable = context.getPropertyVariable(ubuntuNodeTemplate,externalParameter);
+			Variable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
 			if (variable == null) {
-				variable = context.getPropertyVariable(externalParameter,true);
+				variable = context.getPropertyVariable(externalParameter, true);
 			}
 
 			// if we use ubuntu image version etc. from the nodeType not some
@@ -239,9 +251,10 @@ public class Handler {
 		// we'll add the logic to VM Nodes Prov phase, as we need proper updates
 		// of properties at the InstanceDataAPI
 
-		this.invokerOpPlugin.handle(context, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
+		this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
+				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, "planCallbackAddress_invoker",
-				createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput);
+				createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput, false);
 
 		/*
 		 * Check whether the SSH port is open on the VM. Doing this here removes
@@ -253,9 +266,8 @@ public class Handler {
 		startRequestInputParams.put("VMIP", serverIpPropWrapper);
 		startRequestInputParams.put("VMUserName", sshUserVariable);
 		startRequestInputParams.put("VMPrivateKey", sshKeyVariable);
-		
+
 		startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
-		
 
 		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
@@ -304,7 +316,7 @@ public class Handler {
 
 		// find InstanceId Property inside ubuntu nodeTemplate
 		Variable instanceIdPropWrapper = context
-				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID,true);
+				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID, true);
 		if (instanceIdPropWrapper == null) {
 			instanceIdPropWrapper = context
 					.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_INSTANCEID);
@@ -320,7 +332,7 @@ public class Handler {
 		Variable serverIpPropWrapper = context
 				.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP, true);
 		if (serverIpPropWrapper == null) {
-			serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);			
+			serverIpPropWrapper = context.getPropertyVariable(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 		}
 
 		if (serverIpPropWrapper == null) {
@@ -490,9 +502,9 @@ public class Handler {
 		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(nodeType)) {
 			return null;
 		}
-		
+
 		// hack because of the openstack migration
-		if(nodeType.equals(Types.ubuntu1404ServerVmNodeType)){
+		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType)) {
 			return "ubuntu-14.04-trusty-server-cloudimg";
 		}
 
@@ -560,16 +572,39 @@ public class Handler {
 	 * @return an Ubuntu NodeTemplate, may be null
 	 */
 	private AbstractNodeTemplate findUbuntuNode(AbstractNodeTemplate nodeTemplate) {
+		// check if the given node is the ubuntu node
+		if (org.opentosca.model.tosca.conventions.Utils
+				.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
+			return nodeTemplate;
+		}
 
 		for (AbstractRelationshipTemplate relationTemplate : nodeTemplate.getIngoingRelations()) {
-			if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(relationTemplate.getSource().getType().getId())) {
+			// check if the given node is connected to an ubuntu node
+			if (org.opentosca.model.tosca.conventions.Utils
+					.isSupportedInfrastructureNodeType(relationTemplate.getSource().getType().getId())) {
 				return relationTemplate.getSource();
 			}
 
+			// check if an ubuntu node is connected with the given node through
+			// a path of length 2
 			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
-				if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(relationTemplate2.getSource().getType().getId())) {
+				if (org.opentosca.model.tosca.conventions.Utils
+						.isSupportedInfrastructureNodeType(relationTemplate2.getSource().getType().getId())) {
 					return relationTemplate2.getSource();
 				}
+			}
+		}
+
+		return null;
+	}
+
+	private AbstractNodeTemplate findCloudProviderNode(AbstractNodeTemplate nodeTemplate) {
+		List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
+		Utils.getNodesFromNodeToSink(nodeTemplate, nodes);
+
+		for (AbstractNodeTemplate node : nodes) {
+			if (org.opentosca.model.tosca.conventions.Utils.isSupportedCloudProviderNodeType(node.getType().getId())) {
+				return node;
 			}
 		}
 

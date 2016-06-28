@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class represents a generic plugin containing bpel logic to start an EC2
+ * This class represents a generic plugin containing bpel logic to start a virtual machine
  * instance with the OpenTOSCA Container Invoker Service
  * </p>
- * Copyright 2014 IAAS University of Stuttgart <br>
+ * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  *
- * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart
+ * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
 public class Plugin implements IPlanBuilderTypePlugin {
@@ -42,27 +42,34 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return false;
 		}
 
-		// requirement: nodeTemplates with these two nodeTypes are handled,
-		// by doing nothing
-		if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
-			return true;
-		}
-
-		if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
-			return true;
-		}
+		LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
 		// when the cloudprovider node arrives start handling
 		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
-			if (nodeTemplate.getType().getId().equals(Types.openStackLiberty12NodeType) | nodeTemplate.getType().getId().equals(Types.vmWareVsphere55NodeType)) {
-				// bit hacky now, but until the nodeType cleanup is finished this should be enough right now
-				return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
-			} else {
-				return this.handler.handle(templateContext, nodeTemplate);
-			}
-		} else {
-			return false;
+			return true;
 		}
+
+		// requirement: nodeTemplates with these two nodeTypes are handled,
+		// by doing nothing
+		if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())
+				| Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
+			// check if this node is connected to a cloud provider node type, if
+			// true -> append code
+			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
+				if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
+					if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType)
+							| relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)) {
+						// bit hacky now, but until the nodeType cleanup is
+						// finished this should be enough right now
+						return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
+					} else {
+						return this.handler.handle(templateContext, nodeTemplate);
+					}
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
