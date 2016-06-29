@@ -1459,6 +1459,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.opentosca.planengine.plugin.camunda.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.opentosca.bus.application.api.resthttp"
          download-size="0"
          install-size="0"

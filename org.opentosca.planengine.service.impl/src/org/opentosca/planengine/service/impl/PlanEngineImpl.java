@@ -81,7 +81,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 		} else {
 			QName planId = new QName(targetNamespace, plan.getId());
 			PlanEngineImpl.LOG.debug("Created new management plan id " + planId);
-			PlanEngineImpl.LOG.info("Searching PlanReferencePlugin for plan {} ", plan.getId());
+			PlanEngineImpl.LOG.info("Searching PlanReferencePlugin for plan {} written in language {}", plan.getId(), language);
 			IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
 			if (plugin != null) {
 				PlanEngineImpl.LOG.info("Found PlanReferencePlugin for plan {} ", plan.getId());
@@ -250,7 +250,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	 */
 	protected void bindPlanReferencePlugin(IPlanEnginePlanRefPluginService planRefPlugin) {
 		if (planRefPlugin != null) {
-			PlanEngineImpl.LOG.debug("Registering PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
+			PlanEngineImpl.LOG.debug("Registering PlanEnginePlanRef Plugin {} for language {}", planRefPlugin.toString(), planRefPlugin.getLanguageUsed());
 			if (this.capabilityService != null) {
 				this.capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			} else {

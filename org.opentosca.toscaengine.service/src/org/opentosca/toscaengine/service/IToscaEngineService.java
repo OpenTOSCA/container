@@ -656,5 +656,14 @@ public interface IToscaEngineService {
 	 * @return the abstract artifact or null in case of an error
 	 */
 	public AbstractArtifact getPlanModelReferenceAbstractArtifact(CSARContent csar, QName planId);
+
+	/**
+	 * Returns the name of a Plan element.
+	 * 
+	 * @param csarID the ID of the CSAR
+	 * @param planId the ID of the Plan element
+	 * @return the String of the name attribute inside the Plan element
+	 */
+	public String getPlanName(CSARID csarID, QName planId);
 	
 }
