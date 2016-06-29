@@ -438,6 +438,7 @@
       <plugin id="org.opentosca.planbuilder.type.plugin.phpappconnectstomysqldb" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planengine.plugin.bpelwso2.service.impl" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planengine.plugin.camunda.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planengine.plugin.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planengine.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planengine.service.impl" autoStart="true" startLevel="4" />

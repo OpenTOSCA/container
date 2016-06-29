@@ -122,6 +122,7 @@
   <module>org.opentosca.planbuilder.type.plugin.phpappconnectstomysqldb</module>
   <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
   <module>org.opentosca.planengine.plugin.bpelwso2.service.impl</module>
+  <module>org.opentosca.planengine.plugin.camunda.service.impl</module>
   <module>org.opentosca.planengine.plugin.service</module>
   <module>org.opentosca.planengine.service</module>
   <module>org.opentosca.planengine.service.impl</module>
