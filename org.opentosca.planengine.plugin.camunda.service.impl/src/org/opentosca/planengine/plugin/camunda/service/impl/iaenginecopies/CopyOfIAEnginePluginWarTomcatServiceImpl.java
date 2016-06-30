@@ -18,11 +18,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.util.EntityUtils;
 import org.opentosca.core.model.artifact.AbstractArtifact;
 import org.opentosca.core.model.artifact.file.AbstractFile;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TImplementationArtifact;
-import org.opentosca.model.tosca.TPropertyConstraint;
 import org.opentosca.planengine.plugin.camunda.service.impl.Activator;
 import org.opentosca.util.http.service.IHTTPService;
 import org.osgi.framework.BundleContext;
@@ -94,14 +94,11 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deployImplementationArtifact(CSARID csarID, QName artifactType, Document artifactContent,
-			Document properties, List<TPropertyConstraint> propertyConstraints, File warFile,
-			List<String> requiredFeatures) {
+	public void deployImplementationArtifact(CSARID csarID, File warFile) {
 		
 		bindServices();
 
 		String deployPath = null;
-		String endpointSuffix = null;
 		// AbstractFile warFile = null;
 
 		CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Searching for a deployable WAR-File...");

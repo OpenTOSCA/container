@@ -6,10 +6,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.util.EntityUtils;
 import org.opentosca.core.endpoint.service.ICoreEndpointService;
 import org.opentosca.core.file.service.ICoreFileService;
 import org.opentosca.core.model.artifact.AbstractArtifact;
@@ -25,6 +29,7 @@ import org.opentosca.planengine.plugin.camunda.service.impl.util.Messages;
 import org.opentosca.planengine.plugin.service.IPlanEnginePlanRefPluginService;
 import org.opentosca.toscaengine.service.IToscaEngineService;
 import org.opentosca.util.fileaccess.service.IFileAccessService;
+import org.opentosca.util.http.service.IHTTPService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -63,14 +68,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 		
 		String planName = "";
 
-//		File tempDir;
-//		File tempPlan;
-
-		// variable for the (inbound) portType of the process, if this is null
-		// till end the process can't be instantiated by the container
-		// !!! in this copy, no wsdl is available
-		// QName portType = null;
-
 		// retrieve process
 		if (this.fileService != null) {
 
@@ -86,18 +83,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
 			AbstractArtifact planReference = null;
 
-			// try {
-			// TODO
-			// planReference =
-			// csar.resolveArtifactReference(planRef.getReference());
 			planReference = this.toscaEngineService.getPlanModelReferenceAbstractArtifact(csar, planId);
-			// } catch (UserException exc) {
-			// CamundaPlanEnginePlugin.LOG.error("An User Exception occured.",
-			// exc);
-			// } catch (SystemException exc) {
-			// CamundaPlanEnginePlugin.LOG.error("A System Exception occured.",
-			// exc);
-			// }
 
 			if (planReference == null) {
 				CamundaPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
@@ -140,90 +126,10 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 				return false;
 			}
 
-			if (this.fileAccessService != null) {
-				// creating temporary dir for update
-//				tempDir = this.fileAccessService.getTemp();
-//				tempPlan = fetchedPlan.toFile();
-//				
-//
-//				if (null == tempPlan || !tempPlan.exists()) {
-//					CamundaPlanEnginePlugin.LOG.error("Temporary copy of plan is missing.");
-//					return false;
-//				}
-
-			} else {
-				CamundaPlanEnginePlugin.LOG
-						.error("FileAccessService is not available, can't create needed temporary space on disk");
-				return false;
-			}
-
 		} else {
 			CamundaPlanEnginePlugin.LOG.error("Can't fetch relevant files from FileService: FileService not available");
 			return false;
 		}
-
-		// changing endpoints in WSDLs
-		// ODEEndpointUpdater odeUpdater;
-		// try {
-		// odeUpdater = new ODEEndpointUpdater();
-		// portType = odeUpdater.getPortType(planContents);
-		// if (!odeUpdater.changeEndpoints(planContents, csarId)) {
-		// CamundaPlanEnginePlugin.LOG.error("Not all endpoints used by the plan
-		// {} have been changed", planRef.getReference());
-		// }
-		// } catch (WSDLException e) {
-		// CamundaPlanEnginePlugin.LOG.error("Couldn't load ODEEndpointUpdater",
-		// e);
-		// }
-
-		// update the bpel and bpel4restlight elements (ex.: GET, PUT,..)
-		// BPELRESTLightUpdater bpelRestUpdater;
-		// try {
-		// bpelRestUpdater = new BPELRESTLightUpdater();
-		// if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
-		// // we don't abort deployment here
-		// CamundaPlanEnginePlugin.LOG.warn(
-		// "Could'nt change all endpoints inside BPEL4RESTLight Elements in the
-		// given process {}",
-		// planRef.getReference());
-		// }
-		// } catch (TransformerConfigurationException e) {
-		// CamundaPlanEnginePlugin.LOG.error("Couldn't load
-		// BPELRESTLightUpdater", e);
-		// } catch (ParserConfigurationException e) {
-		// CamundaPlanEnginePlugin.LOG.error("Couldn't load
-		// BPELRESTLightUpdater", e);
-		// } catch (SAXException e) {
-		// CamundaPlanEnginePlugin.LOG.error("ParseError: Couldn't parse .bpel
-		// file", e);
-		// } catch (IOException e) {
-		// CamundaPlanEnginePlugin.LOG.error("IOError: Couldn't access .bpel
-		// file", e);
-		// }
-
-		// package process
-		// CamundaPlanEnginePlugin.LOG.info("Prepare deployment of
-		// PlanModelReference");
-		// BpsConnector connector = new BpsConnector();
-		//
-		// if (this.fileAccessService != null) {
-		// try {
-		// if (tempPlan.createNewFile()) {
-		// // package the updated files
-		// CamundaPlanEnginePlugin.LOG.debug("Packaging plan to {} ",
-		// tempPlan.getAbsolutePath());
-		// tempPlan = this.fileAccessService.zip(tempDir, tempPlan);
-		// } else {
-		// CamundaPlanEnginePlugin.LOG.error("Can't package temporary plan for
-		// deployment");
-		// return false;
-		// }
-		// } catch (IOException e) {
-		// CamundaPlanEnginePlugin.LOG.error("Can't package temporary plan for
-		// deployment", e);
-		// return false;
-		// }
-		// }
 
 		// ##################################################################################################################################################
 		// ### dirty copy of IAEngine War Tomcat Plugin
@@ -231,47 +137,23 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 		// ##################################################################################################################################################
 
 		CopyOfIAEnginePluginWarTomcatServiceImpl deployer = new CopyOfIAEnginePluginWarTomcatServiceImpl();
-		deployer.deployImplementationArtifact(csarId, new QName("http://www.example.com/ToscaTypes", "WAR"), null, null,
-				null, fetchedPlan.toFile(), null);
+		deployer.deployImplementationArtifact(csarId, fetchedPlan.toFile());
 		// POST http://localhost:8080/engine-rest/process-definition/{id}/start
 		URI endpointURI = null;
 		try {
 			planName = toscaEngineService.getPlanName(csarId, planId);
-			endpointURI = new URI("http://localhost:8080/engine-rest/process-definition/"
-					+ planName + "/start");
+			endpointURI = searchForEndpoint(planName);
 			LOG.debug("Endpoint URI is {}", endpointURI.getPath());
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NullPointerException e){
+			
 		}
 
 		// ##################################################################################################################################################
 		// ##################################################################################################################################################
 
-		// deploy process
-		// CamundaPlanEnginePlugin.LOG.info("Deploying Plan: {}",
-		// tempPlan.getName());
-		// String processId = connector.deploy(tempPlan,
-		// Messages.CamundaPlanEnginePlugin_bpsAddress,
-		// Messages.CamundaPlanEnginePlugin_bpsLoginName,
-		// Messages.CamundaPlanEnginePlugin_bpsLoginPw);
-		// Map<String, URI> endpoints = connector.getEndpointsForPID(processId,
-		// Messages.CamundaPlanEnginePlugin_bpsAddress,
-		// Messages.CamundaPlanEnginePlugin_bpsLoginName,
-		// Messages.CamundaPlanEnginePlugin_bpsLoginPw);
-
-		// this will be the endpoint the container can use to instantiate the
-		// BPEL Process
-		// URI endpoint = null;
-		// if (endpoints.keySet().size() == 1) {
-		// endpoint = (URI) endpoints.values().toArray()[0];
-		// } else {
-		// for (String partnerLink : endpoints.keySet()) {
-		// if (partnerLink.equals("client")) {
-		// endpoint = endpoints.get(partnerLink);
-		// }
-		// }
-		// }
 
 		if (endpointURI == null) {
 			CamundaPlanEnginePlugin.LOG.warn(
@@ -279,20 +161,6 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 					planRef.getReference());
 			return false;
 		}
-		//
-		// if ((endpoint != null) && (portType != null)) {
-		// CamundaPlanEnginePlugin.LOG.debug("Endpoint for ProcessID \"" +
-		// processId + "\" is \"" + endpoints + "\".");
-		// CamundaPlanEnginePlugin.LOG.info("Deployment of Plan was successfull:
-		// {}", tempPlan.getName());
-		//
-		// // save endpoint
-		// WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType,
-		// csarId, planId, null, null);
-		//
-		// if (this.endpointService != null) {
-		// CamundaPlanEnginePlugin.LOG.debug("Store new endpoint!");
-		// this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
 		
 		if(null == endpointService){
 			LOG.error("Endpoint serivce is offline.");
@@ -306,28 +174,64 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 		
 		endpointService.storeWSDLEndpoint(point);
 		
-		
-		// } else {
-		// CamundaPlanEnginePlugin.LOG.warn(
-		// "Couldn't store endpoint {} for plan {}, cause endpoint service is
-		// not available",
-		// endpoint.toString(), planRef.getReference());
-		// return false;
-		// }
-		// } else {
-		// CamundaPlanEnginePlugin.LOG.error("Error while processing plan");
-		// if (processId == null) {
-		// CamundaPlanEnginePlugin.LOG.error("ProcessId is null");
-		// }
-		// if (endpoint == null) {
-		// CamundaPlanEnginePlugin.LOG.error("Endpoint for process is null");
-		// }
-		// if (portType == null) {
-		// CamundaPlanEnginePlugin.LOG.error("PortType of process is null");
-		// }
-		// return false;
-		// }
 		return true;
+	}
+
+	private URI searchForEndpoint(String planName) throws URISyntaxException {
+		URI endpointURI;
+		
+		String processDefinitions = "http://localhost:8080/engine-rest/process-definition/";
+		
+		IHTTPService httpService;
+		BundleContext context = Activator.getContext();
+		ServiceReference<IHTTPService> tmpHttpService = context.getServiceReference(IHTTPService.class);
+		httpService = context.getService(tmpHttpService);
+		
+		HttpResponse response;
+		String output = null;
+		try {
+			response = httpService.Get(processDefinitions);
+			output = EntityUtils.toString(response.getEntity(), "UTF-8");
+			output = output.substring(1, output.length() - 1);
+		} catch (IOException e) {
+			LOG.error("An error occured while retrieving the deployed plan list from camunda: ", e.getLocalizedMessage());
+			e.printStackTrace();
+			return null;
+		}
+		String json = output;
+
+		String[] list = json.split("\\{");
+		
+		HashMap<String, String> ids = new HashMap<String, String>();
+
+		for (String entry : list) {
+			if (null != entry && !entry.equals("")) {
+				String[] fields = entry.split(",");
+
+				String id = fields[0].substring(6, fields[0].length()-1);
+				String key = fields[1].substring(7, fields[1].length()-1);
+
+				ids.put(id, key);
+			}
+		}
+		
+		String planID = "";
+		
+		if(ids.containsValue(planName)){
+			for (String id : ids.keySet()){
+				if (ids.get(id).equals(planName)){
+					planID = id;
+				}
+			}
+		}
+		
+		if (planID.equals("")){
+			LOG.error("No endpoint found for plan {}!", planName);
+			return null;
+		}
+		
+		endpointURI = new URI(processDefinitions + planID + "/start");
+		return endpointURI;
 	}
 
 	private void bindServices() {
