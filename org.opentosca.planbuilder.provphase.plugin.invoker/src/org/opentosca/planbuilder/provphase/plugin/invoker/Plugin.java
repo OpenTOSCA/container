@@ -50,7 +50,8 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 	public boolean canHandle(QName operationArtifactType) {
 		// we can handle every type except scripts
 		if (operationArtifactType
-				.equals(new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact"))) {
+				.equals(new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact"))
+				| operationArtifactType.equals(new QName("http://example.com/ToscaTypes", "Ansible"))) {
 			return false;
 		}
 		return true;
