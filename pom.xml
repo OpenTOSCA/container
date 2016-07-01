@@ -107,6 +107,7 @@
   <module>org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux</module>
   <module>org.opentosca.planbuilder.provphase.plugin.invoker</module>
   <module>org.opentosca.planbuilder.provphase.plugin.scriptoperation</module>
+  <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>
   <module>org.opentosca.planbuilder.provphase.plugin.wsdloperation</module>
   <module>org.opentosca.planbuilder.service</module>
   <module>org.opentosca.planbuilder.service.feature</module>

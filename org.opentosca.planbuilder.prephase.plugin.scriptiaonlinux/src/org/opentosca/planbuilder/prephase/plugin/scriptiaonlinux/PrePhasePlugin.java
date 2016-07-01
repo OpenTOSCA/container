@@ -40,7 +40,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			"BPEL");
 	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
 	private final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
-	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes", "ConfigurationArtifact");
+	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes",
+			"ConfigurationArtifact");
+
+	private final QName ansibleArtifactType = new QName("http://example.com/ToscaTypes", "Ansible");
 
 	private Handler handler = new Handler();
 
@@ -108,6 +111,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			isSupportedArtifactType |= true;
 		}
 
+		if (this.ansibleArtifactType.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
+
 		if (this.bpelArchiveArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
@@ -119,8 +126,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		if (this.sqlArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
-		
-		if(this.configurationArtifactType.equals(artifactType)){
+
+		if (this.configurationArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
 
@@ -128,6 +135,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
 			return false;
 		}
+
+		System.out.println("********* TRUE" + isSupportedArtifactType);
 
 		return isSupportedArtifactType;
 	}
@@ -139,7 +148,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	public boolean handle(TemplatePlanContext context, AbstractImplementationArtifact ia,
 			AbstractNodeTemplate nodeTemplate) {
 		if (ia.getArtifactType().equals(this.warArtifactType)) {
-			// provisioning of IA that are webservice war files, is in the responsibility of
+			// provisioning of IA that are webservice war files, is in the
+			// responsibility of
 			// the opentosca IA Engine. We just let the planbuilder know that
 			// some ias where provisioned
 			return true;

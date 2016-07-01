@@ -425,6 +425,7 @@
       <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.prephase.plugin.linuxpackageda" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation" autoStart="true" startLevel="4" />
