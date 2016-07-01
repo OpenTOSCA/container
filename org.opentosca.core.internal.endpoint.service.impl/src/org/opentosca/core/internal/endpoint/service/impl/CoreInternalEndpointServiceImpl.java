@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
@@ -59,6 +60,10 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	private EntityManagerFactory emf;
 	private EntityManager em;
 
+	public CoreInternalEndpointServiceImpl() {
+		this.init();
+	}
+
 	@Override
 	/**
 	 * Destructor. This method is called when the garbage collector destroys the
@@ -90,7 +95,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public List<WSDLEndpoint> getWSDLEndpoints(QName portType, CSARID csarId) {
-		this.init();
 		ArrayList<WSDLEndpoint> results = new ArrayList<WSDLEndpoint>();
 
 		/**
@@ -134,8 +138,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public WSDLEndpoint getWSDLEndpoint(QName portType, CSARID csarId) {
-		this.init();
-
 		/**
 		 * Create Query to retrieve WSDLEndpoint
 		 * 
@@ -158,7 +160,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public void storeWSDLEndpoint(WSDLEndpoint endpoint) {
-		this.init();
 		CoreInternalEndpointServiceImpl.LOG.debug("Storing WSDL Endpoint with CSARID: \"" + endpoint.getCSARId()
 				+ "\", portType: \"" + endpoint.getPortType() + "\", IAName: \"" + endpoint.getIaName()
 				+ "\", NodeTypeImplementation: \"" + endpoint.getNodeTypeImplementation() + "\", URI: \""
@@ -167,7 +168,9 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 		// TODO this check is a hack because of the problem with deploying of
 		// multiple deployment artifacts
 		if (!this.existsWSDLEndpoint(endpoint)) {
-			this.em.getTransaction().begin();
+			if (!this.em.getTransaction().isActive()) {
+				this.em.getTransaction().begin();
+			}
 			CoreInternalEndpointServiceImpl.LOG.debug("The endpoint for \"{}\" is not stored. Thus store it.",
 					endpoint.getPortType());
 			this.em.persist(endpoint);
@@ -227,7 +230,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 			} else if (wsdlEndpoint.getIaName() != null) {
 				continue;
 			}
-			
+
 			// if we didn't skip the endpoint until now, we found an equal
 			// endpoint
 			return true;
@@ -241,7 +244,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public List<RESTEndpoint> getRestEndpoints(URI anyURI, CSARID csarId) {
-		this.init();
 		ArrayList<RESTEndpoint> results = new ArrayList<RESTEndpoint>();
 
 		/**
@@ -270,8 +272,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public RESTEndpoint getRestEndpoint(URI anyURI, restMethod method, CSARID csarId) {
-		this.init();
-
 		/**
 		 * Create Query to retrieve a RestEndpoint
 		 * 
@@ -294,10 +294,11 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public void storeRESTEndpoint(RESTEndpoint endpoint) {
-		this.init();
 		CoreInternalEndpointServiceImpl.LOG.debug("Storing REST Endpoint with Path : \"{}\", STID: \"{}\"",
 				endpoint.getPath(), endpoint.getCSARId().getFileName());
-		this.em.getTransaction().begin();
+		if (!this.em.getTransaction().isActive()) {
+			this.em.getTransaction().begin();
+		}
 		this.em.persist(endpoint);
 		this.em.getTransaction().commit();
 	}
@@ -307,7 +308,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	 * {@Inheritdoc}
 	 */
 	public boolean endpointExists(URI uri, CSARID csarId) {
-		this.init();
 		Query existsRestEndpointQuery = this.em.createNamedQuery(RESTEndpoint.getEndpointForUri);
 		existsRestEndpointQuery.setParameter("uri", uri);
 		existsRestEndpointQuery.setParameter("csarId", csarId);
@@ -344,7 +344,9 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	}
 
 	public void _endpoint_clear_wsdl(CommandInterpreter commandInterpreter) {
-		this.em.getTransaction().begin();
+		if (!this.em.getTransaction().isActive()) {
+			this.em.getTransaction().begin();
+		}
 		Query query = this.em.createQuery("DELETE FROM WSDLEndpoint");
 		int deletedWSDL = query.executeUpdate();
 		commandInterpreter.println("Deleted " + deletedWSDL + " WSDLEndpoints.");
@@ -352,7 +354,9 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 	}
 
 	public void _endpoint_clear_rest(CommandInterpreter commandInterpreter) {
-		this.em.getTransaction().begin();
+		if (!this.em.getTransaction().isActive()) {
+			this.em.getTransaction().begin();
+		}
 		Query query = this.em.createQuery("DELETE FROM RESTEndpoint");
 		int deletedREST = query.executeUpdate();
 		commandInterpreter.println("Deleted " + deletedREST + " RESTEndpoints.");
@@ -381,26 +385,23 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 					new QName("{someNamespace}someNodeTypeImplId"), "some ia name");
 			this.storeWSDLEndpoint(endpoint);
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 
 	public void _endpoint_show_rest(CommandInterpreter commandInterpreter) {
-		this.em.getTransaction().begin();
+		
 		Query query = this.em.createQuery("SELECT e FROM RESTEndpoint e");
 		@SuppressWarnings("unchecked")
 		List<RESTEndpoint> queryResults = query.getResultList();
 		for (RESTEndpoint e : queryResults) {
 			commandInterpreter.println("SeriviceTemplateID: " + e.getCSARId().getFileName() + " URI: " + e.getURI());
 		}
-		this.em.getTransaction().commit();
 
 	}
 
-	public void _endpoint_show_wsdl(CommandInterpreter commandInterpreter) {
-		this.em.getTransaction().begin();
+	public void _endpoint_show_wsdl(CommandInterpreter commandInterpreter) {		
 		Query query = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
 		@SuppressWarnings("unchecked")
 		List<WSDLEndpoint> queryResults = query.getResultList();
@@ -417,15 +418,14 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 			commandInterpreter.println("URI: " + e.getURI().toString());
 			commandInterpreter.println("");
 		}
-		this.em.getTransaction().commit();
 
 	}
 
 	@Override
 	public void removeEndpoints(CSARID csarId) {
-		this.init();
-		this.em.getTransaction().begin();
-
+		if (!this.em.getTransaction().isActive()) {
+			this.em.getTransaction().begin();
+		}
 		// FIXME if somebody deletes a csar before some endpoints where added,
 		// some exceptions occur
 
@@ -451,13 +451,12 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 		}
 
 		this.em.getTransaction().commit();
+		
 
 	}
 
 	@Override
 	public WSDLEndpoint getWSDLEndpointForPlanId(CSARID csarId, QName planId) {
-		this.init();
-		this.em.getTransaction().begin();
 		WSDLEndpoint endpoint = null;
 		Query queryWSDLEndpoint = this.em
 				.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId");
@@ -465,14 +464,11 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 		queryWSDLEndpoint.setParameter("planId", planId);
 
 		endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
-		this.em.getTransaction().commit();
 		return endpoint;
 	}
 
 	@Override
 	public WSDLEndpoint getWSDLEndpointForIa(CSARID csarId, QName nodeTypeImpl, String iaName) {
-		this.init();
-		this.em.getTransaction().begin();
 		WSDLEndpoint endpoint = null;
 		Query queryWSDLEndpoint = this.em.createQuery(
 				"SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
@@ -484,16 +480,12 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
 		} catch (NoResultException e) {
 			CoreInternalEndpointServiceImpl.LOG.info("No endpoint stored for requested IA.");
-		} finally {
-			this.em.getTransaction().commit();
-		}
+		} 
 		return endpoint;
 	}
 
 	@Override
 	public List<WSDLEndpoint> getWSDLEndpointsForCSARID(CSARID csarId) {
-		this.init();
-		this.em.getTransaction().begin();
 		ArrayList<WSDLEndpoint> endpoints = new ArrayList<WSDLEndpoint>();
 		Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId");
 		queryWSDLEndpoint.setParameter("csarId", csarId);
@@ -504,19 +496,16 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 			endpoints.add(endpoint);
 		}
 
-		this.em.getTransaction().commit();
 		return endpoints;
 	}
 
 	@Override
 	public void printPlanEndpoints() {
-		this.init();
-		this.em.getTransaction().begin();
 		List<WSDLEndpoint> endpoints = null;
 		Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
 
 		endpoints = queryWSDLEndpoint.getResultList();
-		this.em.getTransaction().commit();
+		
 
 		StringBuilder builder = new StringBuilder();
 		String ls = System.getProperty("line.separator");
@@ -531,12 +520,12 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
 	@Override
 	public boolean removeWSDLEndpoint(CSARID csarId, WSDLEndpoint endpoint) {
-		this.init();
-
 		// get all wsdlendpoints
 		List<WSDLEndpoint> endpoints = this.getWSDLEndpointsForCSARID(csarId);
 
-		this.em.getTransaction().begin();
+		if (!this.em.getTransaction().isActive()) {
+			this.em.getTransaction().begin();
+		}
 		boolean check = false;
 
 		// check if given endpoint is in the list and remove
