@@ -43,7 +43,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes",
 			"ConfigurationArtifact");
 
-	private final QName ansibleArtifactType = new QName("http://example.com/ToscaTypes", "Ansible");
+	private final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
 
 	private Handler handler = new Handler();
 
@@ -135,8 +135,6 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
 			return false;
 		}
-
-		System.out.println("********* TRUE" + isSupportedArtifactType);
 
 		return isSupportedArtifactType;
 	}

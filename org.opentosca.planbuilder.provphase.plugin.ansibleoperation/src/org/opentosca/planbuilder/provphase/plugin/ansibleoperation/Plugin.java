@@ -25,12 +25,11 @@ import org.opentosca.planbuilder.provphase.plugin.ansibleoperation.handler.Handl
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  * 
  */
-public class Plugin implements IPlanBuilderProvPhaseOperationPlugin,IPlanBuilderProvPhaseParamOperationPlugin {
-	
-	private QName ansibleArtifactType = new QName("http://example.com/ToscaTypes", "Ansible");
+public class Plugin implements IPlanBuilderProvPhaseOperationPlugin, IPlanBuilderProvPhaseParamOperationPlugin {
+
+	private QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
 	private Handler handler = new Handler();
-	
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -38,31 +37,27 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin,IPlanBuilder
 	public String getID() {
 		return "OpenTOSCA ProvPhase AnsibleOperation Plugin v0.1";
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean canHandle(QName artifactType) {
-		System.out.println("******** Can handle");
-		System.out.println(artifactType.equals(this.ansibleArtifactType));
 		return artifactType.equals(this.ansibleArtifactType);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
-		System.out.println("******** handle1");
 		return this.handler.handle(context, operation, ia);
 	}
 
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
 			Map<AbstractParameter, Variable> param2propertyMapping) {
-		System.out.println("******** handle2");
-		return this.handler.handle(context, operation, ia,param2propertyMapping);
+		return this.handler.handle(context, operation, ia, param2propertyMapping);
 	}
-	
+
 }
