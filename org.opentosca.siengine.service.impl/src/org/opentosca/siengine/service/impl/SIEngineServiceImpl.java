@@ -104,6 +104,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 			// Check if instanceID is set and merge input params with
 			// instance
 			// data params. Priority on instance data.
+			/*
 			if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?")) && (!inputParams.isEmpty())) {
 				
 				SIEngineServiceImpl.LOG.info("Getting InstanceData from InstanceDataService...");
@@ -138,7 +139,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 					
 				}
 			}
-			
+			*/
 			message.setBody(inputParams);
 			
 		} else {

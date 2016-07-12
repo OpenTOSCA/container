@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -64,6 +65,8 @@ public class PlanBuilder {
 	// class for initializing output with boundarydefinitions of a
 	// serviceTemplate
 	private PropertyMappingsToOutputInitializer propertyOutputInitializer;
+	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
+	private ServiceInstanceInitializer serviceInstanceInitializer;
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
 	private BPELFinalizer finalizer;
@@ -81,6 +84,7 @@ public class PlanBuilder {
 	public PlanBuilder() {
 		try {
 			this.planHandler = new BuildPlanHandler();
+			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 		} catch (ParserConfigurationException e) {
 			PlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
@@ -159,6 +163,9 @@ public class PlanBuilder {
 
 				// init output
 				this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
+				
+				// initialize instanceData handling
+				this.serviceInstanceInitializer.initializeInstanceData(newBuildPlan);
 
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				

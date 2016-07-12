@@ -162,11 +162,26 @@ public class Handler {
 			}
 		}
 
+		// fetch serviceInstanceId
+
+		String serviceInstanceIdVarName = null;
+
+		for (String varName : context.getMainVariableNames()) {
+			if (varName.contains("OpenTOSCAContainerAPIServiceInstanceID")) {
+				serviceInstanceIdVarName = varName;
+			}
+		}
+
+		if (serviceInstanceIdVarName == null) {
+			return false;
+		}
+
 		// add request message assign to prov phase scope
 		try {
 			Node assignNode = this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId,
-					serviceTemplateId, operationName, String.valueOf(System.currentTimeMillis()), requestVariableName,
-					InputMessagePartName, interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
+					serviceTemplateId, serviceInstanceIdVarName, operationName,
+					String.valueOf(System.currentTimeMillis()), requestVariableName, InputMessagePartName,
+					interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
 			assignNode = context.importNode(assignNode);
 
 			Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
@@ -339,10 +354,24 @@ public class Handler {
 			}
 		}
 
+		// fetch serviceInstanceId
+
+		String serviceInstanceIdVarName = null;
+
+		for (String varName : context.getMainVariableNames()) {
+			if (varName.contains("OpenTOSCAContainerAPIServiceInstanceID")) {
+				serviceInstanceIdVarName = varName;
+			}
+		}
+
+		if (serviceInstanceIdVarName == null) {
+			return false;
+		}
+
 		// add request message assign to prov phase scope
 		try {
 			Node assignNode = this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(
-					context.getCSARFileName(), context.getServiceTemplateId(), operationName,
+					context.getCSARFileName(), context.getServiceTemplateId(), serviceInstanceIdVarName, operationName,
 					String.valueOf(System.currentTimeMillis()), requestVariableName, InputMessagePartName,
 					interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
 			assignNode = context.importNode(assignNode);
