@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="Ansible" namespace="http://opentosca.org/artifacttypes">
+	<packages>
+		<package>asd</package>
+		<package>fsdf</package>
+		<package>sdf</package>
+	</packages>
+	<commands>
+		<command>install XYZ</command>
+		<command>do ABC</command>
+	</commands>
+</artifacttype>

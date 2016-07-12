@@ -35,4 +35,10 @@ public class Types {
 
 	// raspbian nodeTypes
 	public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
+	
+	// relationship types
+	public final static QName connectsToRelationType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
+	public final static QName dependsOnRelationType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
+	public final static QName deployedOnRelationType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
+	public final static QName hostedOnRelationType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
 }

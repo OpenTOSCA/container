@@ -283,7 +283,7 @@ public interface IToscaEngineService {
 	 * @param csarID of the CSAR.
 	 * @param nodeTypeID of the operation.
 	 * @param interfaceName of the operation.
-	 * @param operation name of which the parameters should be returned.
+	 * @param operationName of which the parameters should be returned.
 	 * @return Node containing of the InputParameters.
 	 */
 	public Node getInputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName, String operationName);
