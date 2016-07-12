@@ -152,7 +152,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			// some ias where provisioned
 			return true;
 		}
-		return this.handler.handle(context, ia, nodeTemplate);
+		return true;
+		// this.handler.handle(context, ia, nodeTemplate);
 	}
 
 	/**

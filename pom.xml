@@ -136,6 +136,7 @@
   <module>org.opentosca.siengine.model</module>
   <module>org.opentosca.siengine.plugins.rest.service.impl</module>
   <module>org.opentosca.siengine.plugins.script.service.impl</module>
+  <module>org.opentosca.siengine.plugins.remote.service.impl</module>
   <module>org.opentosca.siengine.plugins.service</module>
   <module>org.opentosca.siengine.plugins.soaphttp.service.impl</module>
   <module>org.opentosca.siengine.service</module>
