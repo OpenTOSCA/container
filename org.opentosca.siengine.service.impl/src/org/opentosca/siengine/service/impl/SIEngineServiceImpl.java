@@ -3,6 +3,7 @@ package org.opentosca.siengine.service.impl;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
@@ -115,7 +116,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 			// Check if instanceID is set and merge input params with
 			// instance
 			// data params. Priority on instance data.
-			/*
+
 			if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?"))
 					&& (!inputParams.isEmpty())) {
 
@@ -153,8 +154,6 @@ public class SIEngineServiceImpl implements ISIEngineService {
 
 				}
 			}
-			*/
-
 
 			message.setBody(inputParams);
 
