@@ -1,9 +1,9 @@
 package org.opentosca.siengine.service.impl;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
@@ -66,7 +66,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 	@Override
 	public void invokeIA(Exchange exchange) {
 
-		SIEngineServiceImpl.LOG.info("Starting SI-Engine: InvokeIA");
+		SIEngineServiceImpl.LOG.debug("Starting SI-Engine: InvokeIA");
 
 		Message message = exchange.getIn();
 
@@ -95,82 +95,31 @@ public class SIEngineServiceImpl implements ISIEngineService {
 		String neededOperation = message.getHeader(SIHeader.OPERATIONNAME_STRING.toString(), String.class);
 		SIEngineServiceImpl.LOG.debug("Operation: {}", neededOperation);
 
-		if (message.getBody() instanceof HashMap) {
-
-			SIEngineServiceImpl.LOG.trace("Input parameters found.");
-
-			@SuppressWarnings("unchecked")
-			HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
-
-			System.out.println("*************: ");
-			System.out.println(inputParams.size());
-
-			for (Entry<String, String> entry : inputParams.entrySet()) {
-				String key = entry.getKey();
-				Object value = entry.getValue();
-				System.out.println(key + " : " + value);
-			}
-
-			System.out.println("*************");
-
-			// Check if instanceID is set and merge input params with
-			// instance
-			// data params. Priority on instance data.
-
-			if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?"))
-					&& (!inputParams.isEmpty())) {
-
-				SIEngineServiceImpl.LOG.info("Getting InstanceData from InstanceDataService...");
-				SIEngineServiceImpl.LOG.info("Old inputParams Map: {}", inputParams.toString());
-
-				String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
-						serviceTemplateID);
-
-				HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID,
-						serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
-
-				if (propertiesMap != null) {
-					SIEngineServiceImpl.LOG.info("Properties from InstanceData Service: {}", propertiesMap.toString());
-
-					inputParams.putAll(propertiesMap);
-
-					SIEngineServiceImpl.LOG.info("New inputParams Map: {}", inputParams.toString());
-				} else {
-					SIEngineServiceImpl.LOG.info("No InstanceData found {}");
-				}
-
-			}
-
-			// If NodeInstanceID is set, it should be insert into the
-			// paramsMap if not existing.
-			if ((nodeInstanceID != null) && !(nodeInstanceID.equals("?") || nodeInstanceID.isEmpty())) {
-
-				SIEngineServiceImpl.LOG.info(
-						"A NodeInstanceID with value {} is set. It will be added to the params map.", nodeInstanceID);
-
-				if (!inputParams.containsKey("NodeInstanceID")) {
-
-					inputParams.put("NodeInstanceID", nodeInstanceID);
-
-				}
-			}
-
-			message.setBody(inputParams);
-
-		} else {
-			SIEngineServiceImpl.LOG.warn("There are no input parameters.");
-		}
-
 		boolean wasFound = false;
 		String invocationType = null;
 
 		if (nodeTemplateID != null) {
 
-			SIEngineServiceImpl.LOG.info("Getting information about the ImplementationArtifact from TOSCA Engine...");
 			QName nodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
 					nodeTemplateID);
 
-			SIEngineServiceImpl.LOG.info("Getting nodeTypeImplementationIDs of NodeType: {} from CSAR: {}", nodeTypeID,
+			if (message.getBody() instanceof HashMap) {
+
+				@SuppressWarnings("unchecked")
+				HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
+
+				// update inputParams with instance data
+				inputParams = updateInputParams(inputParams, csarID, serviceTemplateID, nodeTypeID, nodeTemplateID,
+						neededInterface, neededOperation, serviceInstanceID);
+				message.setBody(inputParams);
+
+			} else {
+				SIEngineServiceImpl.LOG.warn("There are no input parameters specified.");
+			}
+
+			SIEngineServiceImpl.LOG.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
+
+			SIEngineServiceImpl.LOG.debug("Getting nodeTypeImplementationIDs of NodeType: {} from CSAR: {}", nodeTypeID,
 					csarID);
 
 			List<QName> nodeTypeImplementationIDs = ServiceHandler.toscaEngineService
@@ -206,7 +155,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 						if (invocationType != null) {
 							SIEngineServiceImpl.LOG.debug("InvocationType found: {} ", invocationType);
 
-							SIEngineServiceImpl.LOG.info(
+							SIEngineServiceImpl.LOG.debug(
 									"Getting Endpoint for ImplementationArtifact: {} from NodeTypeImplementation: {}",
 									implementationArtifactName, nodeTypeImplementationID);
 							// EndpointService needs to be refactored.
@@ -266,11 +215,11 @@ public class SIEngineServiceImpl implements ISIEngineService {
 
 		} else if (relationshipTemplateID != null) {
 
-			SIEngineServiceImpl.LOG.info("Getting information about the ImplementationArtifact from TOSCA Engine...");
+			SIEngineServiceImpl.LOG.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
 			QName relationshipTypeID = ServiceHandler.toscaEngineService
 					.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID);
 
-			SIEngineServiceImpl.LOG.info(
+			SIEngineServiceImpl.LOG.debug(
 					"Getting RelationshipTypeImplementationIDs of RelationshipType: {} from CSAR: {}",
 					relationshipTypeID, csarID);
 
@@ -309,7 +258,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 						if (invocationType != null) {
 							SIEngineServiceImpl.LOG.debug("InvocationType found: {} ", invocationType);
 
-							SIEngineServiceImpl.LOG.info(
+							SIEngineServiceImpl.LOG.debug(
 									"Getting Endpoint for ImplementationArtifact: {} from RelationshipTypeImplementation: {}",
 									implementationArtifactName, relationshipTypeImplementationID);
 							// EndpointService needs to be refactored.
@@ -384,7 +333,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 	@Override
 	public void invokePlan(Exchange exchange) {
 
-		SIEngineServiceImpl.LOG.info("Starting SI-Engine: InvokePlan");
+		SIEngineServiceImpl.LOG.debug("Starting SI-Engine: InvokePlan");
 
 		Message message = exchange.getIn();
 
@@ -414,9 +363,9 @@ public class SIEngineServiceImpl implements ISIEngineService {
 			// !(serviceInstanceID.equals("?") || serviceInstanceID.isEmpty() ||
 			// inputParams.isEmpty())) {
 			//
-			// SIEngineServiceImpl.LOG.info("Getting InstanceData from
+			// SIEngineServiceImpl.LOG.debug("Getting InstanceData from
 			// InstanceDataService...");
-			// SIEngineServiceImpl.LOG.info("Old inputParams Map: {}",
+			// SIEngineServiceImpl.LOG.debug("Old inputParams Map: {}",
 			// inputParams.toString());
 			//
 			// String key = csarID + "/" + serviceInstanceID + "/" +
@@ -424,13 +373,13 @@ public class SIEngineServiceImpl implements ISIEngineService {
 			// HashMap<String, String> properties =
 			// ServiceHandler.instanceDataService.getProperties(key);
 			//
-			// SIEngineServiceImpl.LOG.info("Propeties from InstanceData
+			// SIEngineServiceImpl.LOG.debug("Propeties from InstanceData
 			// Service: {}",
 			// properties.toString());
 			//
 			// inputParams.putAll(properties);
 			//
-			// SIEngineServiceImpl.LOG.info("New inputParams Map: {}",
+			// SIEngineServiceImpl.LOG.debug("New inputParams Map: {}",
 			// inputParams.toString());
 			//
 			// }
@@ -438,12 +387,12 @@ public class SIEngineServiceImpl implements ISIEngineService {
 
 		}
 
-		SIEngineServiceImpl.LOG.info("Getting Endpoint for Plan {} from CSAR: {}", planID, csarID);
+		SIEngineServiceImpl.LOG.debug("Getting Endpoint for Plan {} from CSAR: {}", planID, csarID);
 		WSDLEndpoint WSDLendpoint = ServiceHandler.endpointService.getWSDLEndpointForPlanId(csarID, planID);
 
 		if (WSDLendpoint != null) {
 			URI endpoint = WSDLendpoint.getURI();
-			SIEngineServiceImpl.LOG.info("Endpoint for Plan {} : {} ", planID, endpoint);
+			SIEngineServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
 
 			message.setHeader(SIHeader.ENDPOINT_URI.toString(), endpoint);
 			// Assumption. Should be checked with ToscaEngine
@@ -471,9 +420,9 @@ public class SIEngineServiceImpl implements ISIEngineService {
 	 */
 	private Exchange callMatchingPlugin(Exchange exchange, String invokeType) {
 
-		SIEngineServiceImpl.LOG.info("Searching a matching SI-Plug-in for InvocationType: {}...", invokeType);
+		SIEngineServiceImpl.LOG.debug("Searching a matching SI-Plug-in for InvocationType: {}...", invokeType);
 
-		SIEngineServiceImpl.LOG.info("Available plug-ins: {}", ServiceHandler.pluginServices.toString());
+		SIEngineServiceImpl.LOG.debug("Available plug-ins: {}", ServiceHandler.pluginServices.toString());
 
 		ISIEnginePluginService plugin;
 		synchronized (ServiceHandler.pluginServices) {
@@ -481,7 +430,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 		}
 
 		if (plugin != null) {
-			SIEngineServiceImpl.LOG.info("Matching SI-Plug-in found: {}. Calling it.", plugin.toString());
+			SIEngineServiceImpl.LOG.debug("Matching SI-Plug-in found: {}. Calling it.", plugin.toString());
 			exchange = plugin.invoke(exchange);
 
 		} else {
@@ -694,6 +643,100 @@ public class SIEngineServiceImpl implements ISIEngineService {
 		return false;
 	}
 
+	private HashMap<String, String> updateInputParams(HashMap<String, String> inputParams, CSARID csarID,
+			QName serviceTemplateID, QName nodeTypeID, String nodeTemplateID, String neededInterface,
+			String neededOperation, URI serviceInstanceID) {
+
+		SIEngineServiceImpl.LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(),
+				neededOperation, inputParams.toString());
+
+		nodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
+				nodeTemplateID);
+
+		List<String> expectedParams = getExpectedInputParams(csarID, nodeTypeID, neededInterface, neededOperation);
+
+		SIEngineServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(),
+				expectedParams.toString());
+
+		// Check if instanceID is set and merge input params with
+		// instance data. Priority on instance data.
+		if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?"))) {
+
+			SIEngineServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService...");
+
+			String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
+					serviceTemplateID);
+
+			HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID,
+					serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
+
+			if (propertiesMap != null) {
+				SIEngineServiceImpl.LOG.debug("Properties from InstanceData Service: {}", propertiesMap.toString());
+
+				for (String expectedParam : expectedParams) {
+					if (propertiesMap.containsKey(expectedParam)) {
+						inputParams.put(expectedParam, propertiesMap.get(expectedParam));
+					}
+				}
+
+				SIEngineServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(),
+						neededOperation, inputParams.toString());
+
+			} else {
+				SIEngineServiceImpl.LOG.debug("No stored InstanceData found.");
+			}
+		} else {
+			SIEngineServiceImpl.LOG.debug("No InstanceDataID specified.");
+		}
+
+		return inputParams;
+	}
+
+	/**
+	 * 
+	 * Returns the input parameters that are specified in the TOSCA of the
+	 * definied operation.
+	 * 
+	 * @param csarID
+	 * @param nodeTypeID
+	 * @param interfaceName
+	 * @param operationName
+	 * 
+	 * 
+	 * @return specified input parameters of the operation
+	 */
+	private List<String> getExpectedInputParams(CSARID csarID, QName nodeTypeID, String interfaceName,
+			String operationName) {
+
+		List<String> inputParams = new ArrayList<String>();
+
+		if (ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID,
+				interfaceName, operationName)) {
+
+			Node definedInputParameters = ServiceHandler.toscaEngineService
+					.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID, interfaceName, operationName);
+
+			if (definedInputParameters != null) {
+
+				NodeList definedInputParameterList = definedInputParameters.getChildNodes();
+
+				for (int i = 0; i < definedInputParameterList.getLength(); i++) {
+
+					Node currentNode = definedInputParameterList.item(i);
+
+					if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+
+						String name = ((Element) currentNode).getAttribute("name");
+
+						inputParams.add(name);
+
+					}
+				}
+			}
+		}
+		return inputParams;
+	}
+
 	/**
 	 * @param csarID
 	 * @param serviceTemplateID
@@ -737,21 +780,20 @@ public class SIEngineServiceImpl implements ISIEngineService {
 
 							Document doc = nodeInstance.getProperties();
 
-							propertiesMap = this.docToMap(doc);
+							if (doc != null) {
+								propertiesMap = this.docToMap(doc);
+							}
 
 							return propertiesMap;
 
-						} else {
-							SIEngineServiceImpl.LOG.debug("No InstanceData found NodeTemplate: {}.", nodeTemplateQName);
 						}
-
 					}
 
-				} else {
-					SIEngineServiceImpl.LOG.debug("No InstanceData found for CsarID: " + csarID
-							+ ", ServiceTemplateID: " + serviceTemplateID + ", ServiceTemplateName: "
-							+ serviceTemplateName + " and ServiceInstanceID: " + serviceInstanceID);
 				}
+
+				SIEngineServiceImpl.LOG.debug("No InstanceData found for CsarID: " + csarID + ", ServiceTemplateID: "
+						+ serviceTemplateID + ", ServiceTemplateName: " + serviceTemplateName
+						+ " and ServiceInstanceID: " + serviceInstanceID);
 			}
 
 		}
@@ -774,7 +816,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 
 		for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
-			String name = ((Element) node).getTagName();
+			String name = ((Element) node).getLocalName();
 			StringBuilder content = new StringBuilder();
 			NodeList children = node.getChildNodes();
 			for (int i = 0; i < children.getLength(); i++) {
