@@ -11,8 +11,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.instancedata.ServiceInstance;
-import org.opentosca.model.tosca.TArtifactTemplate;
 import org.opentosca.model.tosca.conventions.Interfaces;
 import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.siengine.model.header.SIHeader;
