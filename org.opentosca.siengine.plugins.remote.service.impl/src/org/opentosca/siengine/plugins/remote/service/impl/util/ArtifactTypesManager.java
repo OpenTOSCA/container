@@ -83,11 +83,15 @@ public class ArtifactTypesManager {
 
 	public static List<String> getRequiredPackages(QName artifactType) {
 
+		List<String> requiredPackages = new ArrayList<String>();
+
 		if (artifact_types.containsKey(artifactType)) {
-			return artifact_types.get(artifactType).getPackages().getPackage();
+			requiredPackages = artifact_types.get(artifactType).getPackages().getPackage();
 		}
 
-		return null;
+		ArtifactTypesManager.LOG.debug("Required packages of artifactType: {} : {}", artifactType, requiredPackages);
+
+		return requiredPackages;
 	}
 
 	public static List<String> getCommands(QName artifactType) {

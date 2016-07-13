@@ -2227,28 +2227,27 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 		ToscaEngineServiceImpl.LOG.trace("Resolve the absolute path of the PlanModelReference of plan \"" + planId
 				+ "\" inside of CSAR \"" + csar + "\".");
 
-		QName containingDefinitions = ToscaEngineServiceImpl.toscaReferenceMapper
-				.getContainingDefinitionsID(csar, planId);
+		QName containingDefinitions = ToscaEngineServiceImpl.toscaReferenceMapper.getContainingDefinitionsID(csar,
+				planId);
 
 		if (null != containingDefinitions) {
 
 			ToscaEngineServiceImpl.LOG.trace(
 					"Desired path to the PlanModel is inside the Definitions \"" + containingDefinitions + "\".");
 
-			String definitionsLocation = ToscaEngineServiceImpl.toscaReferenceMapper
-					.getDefinitionsLocation(csar, containingDefinitions);
+			String definitionsLocation = ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsLocation(csar,
+					containingDefinitions);
 
 			if (null != definitionsLocation) {
 
 				ToscaEngineServiceImpl.LOG.trace("Definitions path is \"" + definitionsLocation + "\".");
 
-				TPlan plan = (TPlan) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csar,
-						planId);
+				TPlan plan = (TPlan) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csar, planId);
 				return plan.getName();
 
 			}
 		}
-		
+
 		LOG.error("Not able to retrieve to plan name of " + planId.toString() + " inside of CSAR " + csar.toString());
 		return null;
 	}
@@ -2307,6 +2306,48 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 				.error("There was an error while resolving the absolute path of the PlanModelReference of plan \""
 						+ planId + "\" inside of CSAR \"" + csar.getCSARID() + "\".");
 		return null;
+	}
+
+	@Override
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getArtifactReferenceWithinArtifactTemplate(CSARID csarID, QName artifactTemplate) {
+
+		List<String> references = new ArrayList<String>();
+
+		Object obj = ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, artifactTemplate);
+
+		if (obj != null) {
+			TArtifactTemplate artifactTemplateObject = (TArtifactTemplate) obj;
+
+			List<TArtifactReference> tArtifactReferences = artifactTemplateObject.getArtifactReferences()
+					.getArtifactReference();
+
+			for (TArtifactReference tArtifactReference : tArtifactReferences) {
+				references.add(tArtifactReference.getReference());
+			}
+		}
+		return references;
+	}
+
+	@Override
+	/**
+	 * {@inheritDoc}
+	 */
+	public QName getArtifactTypeOfArtifactTemplate(CSARID csarID, QName artifactTemplate) {
+
+		QName artifactType = null;
+
+		Object obj = ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, artifactTemplate);
+
+		if (obj != null) {
+			TArtifactTemplate artifactTemplateObject = (TArtifactTemplate) obj;
+
+			artifactType = artifactTemplateObject.getType();
+
+		}
+		return artifactType;
 	}
 
 }
