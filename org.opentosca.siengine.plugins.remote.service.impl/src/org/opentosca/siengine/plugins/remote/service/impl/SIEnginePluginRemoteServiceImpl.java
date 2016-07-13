@@ -13,6 +13,7 @@ import org.apache.camel.ProducerTemplate;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.conventions.Interfaces;
 import org.opentosca.model.tosca.conventions.Types;
+import org.opentosca.settings.Settings;
 import org.opentosca.siengine.model.header.SIHeader;
 import org.opentosca.siengine.plugins.remote.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.siengine.plugins.remote.service.impl.util.ArtifactTypesManager;
@@ -20,9 +21,6 @@ import org.opentosca.siengine.plugins.service.ISIEnginePluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * SIEngine-Plug-in for remoteIAs.<br>
@@ -100,14 +98,8 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 
 					QName osNodeTypeImpl = getNodeTypeImplIDWithSpecifiedIA(csarID, osNodeTypeID, osIAName);
 
-					QName osArtifactTemplate = ServiceHandler.toscaEngineService
-							.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-									osNodeTypeImpl, osIAName);
-
 					SIEnginePluginRemoteServiceImpl.LOG.debug(
 							"OperatingSystem-IA: {} found in NodeTypeImplementation: {}", osIAName, osNodeTypeImpl);
-
-					HashMap<String, String> inputParamsMap;
 
 					// set new values
 					exchange.getIn().setHeader(SIHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplateID);
@@ -115,29 +107,13 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 							Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM);
 
 					// install packages
-					installPackages(exchange, csarID, osNodeTypeID, artifactType);
+					installPackages(exchange, csarID, artifactType);
 
 					// Upload file
-					transferFiles(exchange, csarID, osNodeTypeID, osArtifactTemplate);
+					transferFiles(exchange, csarID, artifactTemplateID);
 
 					// Run script
-					exchange.getIn().setHeader(SIHeader.OPERATIONNAME_STRING.toString().toString(),
-							Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT);
-					inputParamsMap = getInputParamsMap(csarID, osNodeTypeID,
-							Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-							Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT);
-
-					String commandsString = "";
-					List<String> commands = ArtifactTypesManager.getCommands(artifactType);
-					for (String command : commands) {
-						commandsString += command;
-						commandsString += " ";
-					}
-					inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SCRIPT,
-							commandsString);
-
-					exchange.getIn().setBody(inputParamsMap);
-					invokeManagementBusEngine(exchange);
+					runScript(exchange, csarID, artifactType);
 
 				} else {
 					SIEnginePluginRemoteServiceImpl.LOG.warn("No OperatingSystem-IA found!");
@@ -274,43 +250,12 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return null;
 	}
 
-	private HashMap<String, String> getInputParamsMap(CSARID csarID, QName nodeTypeID, String interfaceName,
-			String operationName) {
-
-		HashMap<String, String> inputParamsMap = new HashMap<>();
-
-		if (ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID,
-				interfaceName, operationName)) {
-
-			Node definedInputParameters = ServiceHandler.toscaEngineService
-					.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID, interfaceName, operationName);
-			NodeList definedInputParameterList = definedInputParameters.getChildNodes();
-
-			for (int i = 0; i < definedInputParameterList.getLength(); i++) {
-
-				Node currentNode = definedInputParameterList.item(i);
-
-				if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
-
-					String name = ((Element) currentNode).getAttribute("name");
-
-					inputParamsMap.put(name, "null");
-
-				}
-			}
-		}
-
-		return inputParamsMap;
-	}
-
-	private void installPackages(Exchange exchange, CSARID csarID, QName nodeTypeID, QName artifactType) {
+	private void installPackages(Exchange exchange, CSARID csarID, QName artifactType) {
 
 		exchange.getIn().setHeader(SIHeader.OPERATIONNAME_STRING.toString().toString(),
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
 
-		HashMap<String, String> inputParamsMap = getInputParamsMap(csarID, nodeTypeID,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
+		HashMap<String, String> inputParamsMap = new HashMap<>();
 
 		String requiredPackagesString = "";
 		List<String> requiredPackages = ArtifactTypesManager.getRequiredPackages(artifactType);
@@ -322,38 +267,62 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 				requiredPackagesString);
 
 		exchange.getIn().setBody(inputParamsMap);
+
+		SIEnginePluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages,
+				artifactType);
+
 		invokeManagementBusEngine(exchange);
 	}
 
-	private void transferFiles(Exchange exchange, CSARID csarID, QName nodeTypeID, QName artifactTemplate) {
+	private void transferFiles(Exchange exchange, CSARID csarID, QName artifactTemplate) {
 
 		exchange.getIn().setHeader(SIHeader.OPERATIONNAME_STRING.toString().toString(),
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE);
 
-		HashMap<String, String> inputParamsMap = getInputParamsMap(csarID, nodeTypeID,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE);
+		HashMap<String, String> inputParamsMap = new HashMap<>();
 
 		List<String> artifactReferences = ServiceHandler.toscaEngineService
 				.getArtifactReferenceWithinArtifactTemplate(csarID, artifactTemplate);
 
 		for (String artifactRef : artifactReferences) {
 
-			System.out.println("*********: " + artifactRef);
+			String target = "~/" + csarID.getFileName() + "/" + artifactRef;
+
+			String source = Settings.CONTAINER_API + "/CSARs/" + csarID.getFileName() + "/Content/" + artifactRef;
 
 			inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_TARGETABSOLUTPATH,
-					"~/" + artifactRef);
+					target);
 			inputParamsMap.put(
-					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH,
-					artifactRef);
+					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH, source);
 
 			exchange.getIn().setBody(inputParamsMap);
+
+			SIEnginePluginRemoteServiceImpl.LOG.debug("Uploading file. Source: {} Target: {} ", source, target);
+
 			invokeManagementBusEngine(exchange);
 		}
 	}
 
-	private void runScript(Exchange exchange) {
+	private void runScript(Exchange exchange, CSARID csarID, QName artifactType) {
 
+		exchange.getIn().setHeader(SIHeader.OPERATIONNAME_STRING.toString().toString(),
+				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT);
+
+		HashMap<String, String> inputParamsMap = new HashMap<>();
+
+		String commandsString = "";
+		List<String> commands = ArtifactTypesManager.getCommands(artifactType);
+		for (String command : commands) {
+			commandsString += command;
+			commandsString += " ";
+		}
+		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SCRIPT, commandsString);
+
+		exchange.getIn().setBody(inputParamsMap);
+
+		SIEnginePluginRemoteServiceImpl.LOG.debug("RunScript: {} ", commandsString);
+
+		invokeManagementBusEngine(exchange);
 	}
 
 	private void invokeManagementBusEngine(Exchange exchange) {
