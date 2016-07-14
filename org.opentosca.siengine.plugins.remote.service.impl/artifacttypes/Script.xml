@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="ScriptArtifact"
+	namespace="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+	<packages>
+	</packages>
+	<commands>
+		<command>{TARGET_PATH_FOLDER}/{FILE_NAME_WITH_E}</command>
+	</commands>
+</artifacttype>

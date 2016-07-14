@@ -662,7 +662,8 @@ public class SIEngineServiceImpl implements ISIEngineService {
 		// instance data. Priority on instance data.
 		if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?"))) {
 
-			SIEngineServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService...");
+			SIEngineServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
+					serviceInstanceID);
 
 			String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
 					serviceTemplateID);
@@ -671,7 +672,9 @@ public class SIEngineServiceImpl implements ISIEngineService {
 					serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
 
 			if (propertiesMap != null) {
-				SIEngineServiceImpl.LOG.debug("Properties from InstanceData Service: {}", propertiesMap.toString());
+				SIEngineServiceImpl.LOG.debug(
+						"The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
+						serviceInstanceID, nodeTemplateID, propertiesMap.toString());
 
 				for (String expectedParam : expectedParams) {
 					if (propertiesMap.containsKey(expectedParam)) {
@@ -850,13 +853,19 @@ public class SIEngineServiceImpl implements ISIEngineService {
 			ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 
 			String caller = exchange.getIn().getHeader(SIHeader.APIID_STRING.toString(), String.class);
-			SIEngineServiceImpl.LOG.debug("Sending response message back to api: {}", caller);
 
-			exchange = template.send("direct-vm:" + caller, exchange);
+			if (caller != null) {
 
-			if (exchange.isFailed()) {
-				SIEngineServiceImpl.LOG.error("Sending exchange message failed! {}",
-						exchange.getException().getMessage());
+				SIEngineServiceImpl.LOG.debug("Sending response message back to api: {}", caller);
+
+				exchange = template.send("direct-vm:" + caller, exchange);
+
+				if (exchange.isFailed()) {
+					SIEngineServiceImpl.LOG.error("Sending exchange message failed! {}",
+							exchange.getException().getMessage());
+				}
+			} else {
+				SIEngineServiceImpl.LOG.debug("No caller found. Can't send the response message back.");
 			}
 		}
 
