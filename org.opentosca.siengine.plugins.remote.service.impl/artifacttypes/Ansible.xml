@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <artifacttype name="Ansible" namespace="http://opentosca.org/artifacttypes">
 	<packages>
-		<package>asd</package>
-		<package>fsdf</package>
-		<package>sdf</package>
+		<package>unzip</package>
 	</packages>
 	<commands>
-		<command>install XYZ</command>
-		<command>do ABC</command>
+		<command>sudo apt-add-repository -y ppa:ansible/ansible</command>
+		<command>sudo apt-get update</command>
+		<command>sudo apt-get install -y ansible</command>
+		<command>cd {TARGET_PATH_FOLDER}</command>
+		<command>unzip {FILE_NAME_WITH_E}</command>
+		<command>ansible-playbook {FILE_NAME_WITHOUT_E}/{{Playbook}}</command>
 	</commands>
 </artifacttype>
