@@ -349,44 +349,6 @@ public class SIEngineServiceImpl implements ISIEngineService {
 		String nodeTemplateID = message.getHeader(SIHeader.NODETEMPLATEID_STRING.toString(), String.class);
 		SIEngineServiceImpl.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
 
-		// FIXME is this intended?
-		// map a = blub.getA
-		// blub.setA(a)
-		if (message.getBody() instanceof HashMap) {
-
-			@SuppressWarnings("unchecked")
-			HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
-
-			// Check if instanceID is set and merge input params with instance
-			// data params. Priority on instance data.
-			// if ((serviceInstanceID != null) &&
-			// !(serviceInstanceID.equals("?") || serviceInstanceID.isEmpty() ||
-			// inputParams.isEmpty())) {
-			//
-			// SIEngineServiceImpl.LOG.debug("Getting InstanceData from
-			// InstanceDataService...");
-			// SIEngineServiceImpl.LOG.debug("Old inputParams Map: {}",
-			// inputParams.toString());
-			//
-			// String key = csarID + "/" + serviceInstanceID + "/" +
-			// nodeTemplateID + "/Properties/";
-			// HashMap<String, String> properties =
-			// ServiceHandler.instanceDataService.getProperties(key);
-			//
-			// SIEngineServiceImpl.LOG.debug("Propeties from InstanceData
-			// Service: {}",
-			// properties.toString());
-			//
-			// inputParams.putAll(properties);
-			//
-			// SIEngineServiceImpl.LOG.debug("New inputParams Map: {}",
-			// inputParams.toString());
-			//
-			// }
-			message.setBody(inputParams);
-
-		}
-
 		SIEngineServiceImpl.LOG.debug("Getting Endpoint for Plan {} from CSAR: {}", planID, csarID);
 		WSDLEndpoint WSDLendpoint = ServiceHandler.endpointService.getWSDLEndpointForPlanId(csarID, planID);
 
@@ -643,6 +605,23 @@ public class SIEngineServiceImpl implements ISIEngineService {
 		return false;
 	}
 
+	/**
+	 * 
+	 * Updates the input parameters. If instance data are available the provided
+	 * input parameters will be overwritten with them.
+	 * 
+	 * @param inputParams
+	 * @param csarID
+	 * @param serviceTemplateID
+	 * @param nodeTypeID
+	 * @param nodeTemplateID
+	 * @param neededInterface
+	 * @param neededOperation
+	 * @param serviceInstanceID
+	 * 
+	 * 
+	 * @return the updated input parameters.
+	 */
 	private HashMap<String, String> updateInputParams(HashMap<String, String> inputParams, CSARID csarID,
 			QName serviceTemplateID, QName nodeTypeID, String nodeTemplateID, String neededInterface,
 			String neededOperation, URI serviceInstanceID) {
