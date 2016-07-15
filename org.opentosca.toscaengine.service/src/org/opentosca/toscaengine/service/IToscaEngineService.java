@@ -837,4 +837,35 @@ public interface IToscaEngineService {
 	 */
 	public QName getArtifactTypeOfArtifactTemplate(CSARID csarID, QName artifactTemplate);
 
+	/**
+	 * This method returns a list of the names of DeploymentArtifacts of a given
+	 * NodeTypeImplementation in a given CSAR.
+	 * 
+	 * @param csarID
+	 *            of the CSAR containing the NodeTypeImplementation.
+	 * @param nodeTypeImplementationID
+	 *            of the NodeTypeImplementation containing the
+	 *            ImplementationArtifact names.
+	 * @return List of String containing the names of the DeploymentArtifacts or
+	 *         empty list if there none.
+	 */
+	public List<String> getDeploymentArtifactNamesOfNodeTypeImplementation(CSARID csarID,
+			QName nodeTypeImplementationID);
+
+	/**
+	 * This method returns the ArtifactTemplate of a given DeploymentArtifact of
+	 * a given NodeTypeImplementation in a given CSAR.
+	 * 
+	 * @param csarID
+	 *            of the CSAR containing the NodeTypeImplementation.
+	 * @param nodeTypeImplementationID
+	 *            of the NodeTypeImplementation containing the
+	 *            DeploymentArtifact.
+	 * @param deploymentArtifactName
+	 *            of the DeploymentArtifact
+	 * @return QName of the ArtifactType or null in case of an error
+	 */
+	public QName getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(CSARID csarID,
+			QName nodeTypeImplementationID, String deploymentArtifactName);
+
 }

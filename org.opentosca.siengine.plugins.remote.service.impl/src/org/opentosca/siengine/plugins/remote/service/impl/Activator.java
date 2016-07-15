@@ -2,7 +2,7 @@ package org.opentosca.siengine.plugins.remote.service.impl;
 
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.opentosca.siengine.plugins.remote.service.impl.util.ArtifactTypesManager;
+import org.opentosca.siengine.plugins.remote.service.impl.typeshandler.ArtifactTypesHandler;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class Activator implements BundleActivator {
 		Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
 		Activator.camelContext.start();
 
-		ArtifactTypesManager.init(bundleContext);
+		ArtifactTypesHandler.init(bundleContext);
 
 		Activator.LOG.info("REMOTE-IA-PLUGIN-STARTED");
 	}

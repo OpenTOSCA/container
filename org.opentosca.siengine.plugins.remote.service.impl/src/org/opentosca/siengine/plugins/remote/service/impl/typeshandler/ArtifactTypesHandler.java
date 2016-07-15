@@ -1,4 +1,4 @@
-package org.opentosca.siengine.plugins.remote.service.impl.util;
+package org.opentosca.siengine.plugins.remote.service.impl.typeshandler;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -14,22 +14,22 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.siengine.plugins.remote.service.impl.artifacttypes.Artifacttype;
+import org.opentosca.siengine.plugins.remote.service.impl.model.artifacttypes.Artifacttype;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ArtifactTypesManager {
+public class ArtifactTypesHandler {
 
 	private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "artifacttypes";
 
-	final private static Logger LOG = LoggerFactory.getLogger(ArtifactTypesManager.class);
+	final private static Logger LOG = LoggerFactory.getLogger(ArtifactTypesHandler.class);
 
 	private static HashMap<QName, Artifacttype> artifact_types = new HashMap<QName, Artifacttype>();
 
 	public static void init(BundleContext bundleContext) {
 
-		ArtifactTypesManager.LOG.debug("Registering the supported ArtifactTypes...");
+		ArtifactTypesHandler.LOG.debug("Registering the supported ArtifactTypes...");
 
 		File[] types_definitions_files = null;
 
@@ -68,7 +68,7 @@ public class ArtifactTypesManager {
 
 					QName artifactType = new QName(artifactTypeNamespace, artifactTypeName);
 
-					ArtifactTypesManager.LOG.debug("Supported ArtifactType found: {}", artifactType);
+					ArtifactTypesHandler.LOG.debug("Supported ArtifactType found: {}", artifactType);
 
 					artifact_types.put(artifactType, artitacttype);
 
@@ -77,7 +77,7 @@ public class ArtifactTypesManager {
 				}
 			}
 		} else {
-			ArtifactTypesManager.LOG.debug("No supported ArtifactTypes found.");
+			ArtifactTypesHandler.LOG.debug("No supported ArtifactTypes found.");
 		}
 	}
 
@@ -89,7 +89,7 @@ public class ArtifactTypesManager {
 			requiredPackages = artifact_types.get(artifactType).getPackages().getPackage();
 		}
 
-		ArtifactTypesManager.LOG.debug("Required packages of artifactType: {} : {}", artifactType, requiredPackages);
+		ArtifactTypesHandler.LOG.debug("Required packages of artifactType: {} : {}", artifactType, requiredPackages);
 
 		return requiredPackages;
 	}
@@ -107,7 +107,7 @@ public class ArtifactTypesManager {
 
 		ArrayList<QName> supportedTypes = new ArrayList<QName>(artifact_types.keySet());
 
-		ArtifactTypesManager.LOG.debug("SupportedTypes: {}", supportedTypes);
+		ArtifactTypesHandler.LOG.debug("SupportedTypes: {}", supportedTypes);
 
 		return supportedTypes;
 

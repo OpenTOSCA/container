@@ -6,7 +6,7 @@
 //
 
 
-package org.opentosca.siengine.plugins.remote.service.impl.artifacttypes;
+package org.opentosca.siengine.plugins.remote.service.impl.model.artifacttypes;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

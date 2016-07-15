@@ -2350,4 +2350,55 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 		return artifactType;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> getDeploymentArtifactNamesOfNodeTypeImplementation(CSARID csarID,
+			QName nodeTypeImplementationID) {
+
+		// return list
+		List<String> listOfNames = new ArrayList<String>();
+
+		// get the NodeTypeImplementation
+		TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper
+				.getJAXBReference(csarID, nodeTypeImplementationID);
+
+		// if there are ImplementationArtifacts, get the names
+		if (nodeTypeImplementation.getDeploymentArtifacts() != null) {
+			for (TDeploymentArtifact da : nodeTypeImplementation.getDeploymentArtifacts().getDeploymentArtifact()) {
+				listOfNames.add(da.getName());
+			}
+		}
+
+		return listOfNames;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public QName getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(CSARID csarID,
+			QName nodeTypeImplementationID, String deploymentArtifactName) {
+
+		// get the NodeTypeImplementation
+		TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper
+				.getJAXBReference(csarID, nodeTypeImplementationID);
+
+		// if there are DeploymentArtifacts
+		if (nodeTypeImplementation.getDeploymentArtifacts() != null) {
+			for (TDeploymentArtifact da : nodeTypeImplementation.getDeploymentArtifacts().getDeploymentArtifact()) {
+
+				if (da.getName().equals(deploymentArtifactName)) {
+					ToscaEngineServiceImpl.LOG
+							.trace("The ArtifactTemplate is found and has the QName \"" + da.getArtifactRef() + "\".");
+					return da.getArtifactRef();
+				}
+			}
+		}
+
+		ToscaEngineServiceImpl.LOG.error("The requested ArtifactTemplate was not found.");
+		return null;
+	}
+
 }

@@ -865,7 +865,7 @@ public class SIEngineServiceImpl implements ISIEngineService {
 							exchange.getException().getMessage());
 				}
 			} else {
-				SIEngineServiceImpl.LOG.debug("No caller found. Can't send the response message back.");
+				SIEngineServiceImpl.LOG.debug("Invocation was InOnly. No response message will be sent to the caller.");
 			}
 		}
 
