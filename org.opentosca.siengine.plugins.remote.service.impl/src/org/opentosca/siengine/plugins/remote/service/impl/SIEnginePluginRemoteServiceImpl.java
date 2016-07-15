@@ -34,18 +34,17 @@ import org.w3c.dom.traversal.NodeIterator;
  * SIEngine-Plug-in for remoteIAs.<br>
  * <br>
  * 
- * Copyright 2013 IAAS University of Stuttgart <br>
- * <br>
  * 
- * The Plug-in gets needed information from the SI-Engine and is responsible to
- * handle "remote IAs". Remote IAs are IAs such as scripts that needs to be
+ * 
+ * The Plugin gets needed information from the ManagementBus and is responsible
+ * to handle "remote IAs". Remote IAs are IAs such as scripts that needs to be
  * executed on the host machine. Therefore this plugin also is responsible for
  * the uploading of the files and the installation of required packagers on the
  * target machine (if specified).
  * 
  * 
  * 
- * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
+ * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  * 
  * @TODO check different candidates (e.g. it is possible that there are several
  *       IAs implementing the OperatingSystem interface)
@@ -212,6 +211,16 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return exchange;
 	}
 
+	/**
+	 * 
+	 * Returns the OperatingSystem NodeTemplate.
+	 * 
+	 * @param csarID
+	 * @param serviceTemplateID
+	 * @param nodeTemplateID
+	 * 
+	 * @return name of the OperatingSystem NodeTemplate.
+	 */
 	private String getOperatingSystemNodeTemplateID(CSARID csarID, QName serviceTemplateID, String nodeTemplateID) {
 
 		SIEnginePluginRemoteServiceImpl.LOG.debug(
@@ -264,6 +273,15 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return nodeTemplateID;
 	}
 
+	/**
+	 * 
+	 * Checks if the specified NodeType is the OperatingSystem NodeType.
+	 * 
+	 * @param csarID
+	 * @param nodeType
+	 * @return true if the specified NodeType is the OperatingSystem NodeType.
+	 *         Otherwise false.
+	 */
 	private boolean isOperatingSystemNodeType(CSARID csarID, QName nodeType) {
 
 		if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
@@ -281,6 +299,17 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return false;
 	}
 
+	/**
+	 * 
+	 * Returns the name of the OperatingSystem ImplementationArtifact.
+	 * 
+	 * @param csarID
+	 * @param serviceTemplateID
+	 * @param osNodeTemplateID
+	 * 
+	 * 
+	 * @return name of the OperatingSystem ImplementationArtifact.
+	 */
 	private static String getOperatingSystemIA(CSARID csarID, QName serviceTemplateID, String osNodeTemplateID) {
 
 		SIEnginePluginRemoteServiceImpl.LOG.debug(
@@ -320,6 +349,14 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return null;
 	}
 
+	/**
+	 * @param csarID
+	 * @param serviceTemplateID
+	 * @param nodeTypeID
+	 * @param nodeTemplateID
+	 * 
+	 * @return mapping with DeploymentArtifact names and their paths.
+	 */
 	private String createDANamePathMapEnvVar(CSARID csarID, QName serviceTemplateID, QName nodeTypeID,
 			String nodeTemplateID) {
 
@@ -376,6 +413,14 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return daEnvMap;
 	}
 
+	/**
+	 * 
+	 * Installs required and specified packages of the specified ArtifactType.
+	 * Required packages are in defined the corresponding *.xml file.
+	 * 
+	 * @param artifactType
+	 * @param headers
+	 */
 	private void installPackages(QName artifactType, HashMap<String, Object> headers) {
 
 		List<String> requiredPackages = ArtifactTypesHandler.getRequiredPackages(artifactType);
@@ -406,6 +451,16 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		}
 	}
 
+	/**
+	 * 
+	 * For transferring files to the target machine.
+	 * 
+	 * @param csarID
+	 * @param artifactTemplate
+	 * @param source
+	 * @param target
+	 * @param headers
+	 */
 	private void transferFile(CSARID csarID, QName artifactTemplate, String source, String target,
 			HashMap<String, Object> headers) {
 
@@ -425,6 +480,14 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 
 	}
 
+	/**
+	 * 
+	 * For running scripts on the target machine. Commands to be executed are
+	 * defined in the corresponding *.xml file.
+	 * 
+	 * @param commandsString
+	 * @param headers
+	 */
 	private void runScript(String commandsString, HashMap<String, Object> headers) {
 
 		HashMap<String, String> inputParamsMap = new HashMap<>();
@@ -439,6 +502,19 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		invokeManagementBusEngine(inputParamsMap, headers);
 	}
 
+	/**
+	 * 
+	 * Creates ArtifactType specific commands that should be executed on the
+	 * target machine. Commands to be executed are defined in the corresponding
+	 * *.xml file.
+	 * 
+	 * @param csarID
+	 * @param artifactType
+	 * @param artifactTemplateID
+	 * @param params
+	 * 
+	 * @return the created command
+	 */
 	@SuppressWarnings("unchecked")
 	private String createArtifcatTypeSpecificCommandString(CSARID csarID, QName artifactType, QName artifactTemplateID,
 			Object params) {
@@ -493,6 +569,13 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return commandsString;
 	}
 
+	/**
+	 * 
+	 * Invokes the Management Bus.
+	 * 
+	 * @param paramsMap
+	 * @param headers
+	 */
 	private void invokeManagementBusEngine(HashMap<String, String> paramsMap, HashMap<String, Object> headers) {
 
 		SIEnginePluginRemoteServiceImpl.LOG.debug("Invoking the Management Bus...");
