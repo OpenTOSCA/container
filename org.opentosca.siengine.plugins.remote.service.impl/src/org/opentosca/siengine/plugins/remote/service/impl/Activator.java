@@ -12,13 +12,11 @@ import org.slf4j.LoggerFactory;
  * Activator of the RemoteIA-SIEngine-Plug-in.<br>
  * <br>
  * 
- * Copyright 2013 IAAS University of Stuttgart <br>
- * <br>
  * 
  * The activator is needed to start the camel context.
  * 
  * 
- * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
+ * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  * 
  */
 public class Activator implements BundleActivator {

@@ -7,11 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper class that handles all needed services for SIEngine-ScriptPlugin.<br>
+ * Helper class that handles all needed services for ManagementBus-RemotePlugin.<br>
  * <br>
  * 
- * Copyright 2013 IAAS University of Stuttgart <br>
- * <br>
  * 
  * In this class the from the ScriptPlugin needed services are binded an
  * unbinded.
@@ -21,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @see IToscaEngineService
  * @see ICoreEndpointService
  * 
- * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
+ * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  * 
  */
 

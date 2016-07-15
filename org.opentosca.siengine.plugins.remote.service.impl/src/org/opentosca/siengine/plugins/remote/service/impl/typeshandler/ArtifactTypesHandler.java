@@ -19,6 +19,15 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * Handles the config files (located in artifacttypes folder) for the different
+ * supported ArtifactTypes.
+ * 
+ * 
+ * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
+ *
+ */
 public class ArtifactTypesHandler {
 
 	private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "artifacttypes";
@@ -27,6 +36,11 @@ public class ArtifactTypesHandler {
 
 	private static HashMap<QName, Artifacttype> artifact_types = new HashMap<QName, Artifacttype>();
 
+	/**
+	 * Initially reads all config files.
+	 * 
+	 * @param bundleContext
+	 */
 	public static void init(BundleContext bundleContext) {
 
 		ArtifactTypesHandler.LOG.debug("Registering the supported ArtifactTypes...");
@@ -81,6 +95,12 @@ public class ArtifactTypesHandler {
 		}
 	}
 
+	/**
+	 * Returns the required packages of the specified ArtifactType.
+	 * 
+	 * @param artifactType
+	 * @return the required packages of the specified ArtifactType.
+	 */
 	public static List<String> getRequiredPackages(QName artifactType) {
 
 		List<String> requiredPackages = new ArrayList<String>();
@@ -94,6 +114,12 @@ public class ArtifactTypesHandler {
 		return requiredPackages;
 	}
 
+	/**
+	 * Returns the defined commands of the specified ArtifactType.
+	 * 
+	 * @param artifactType
+	 * @return the defined commands of the specified ArtifactType.
+	 */
 	public static List<String> getCommands(QName artifactType) {
 
 		if (artifact_types.containsKey(artifactType)) {
@@ -103,6 +129,10 @@ public class ArtifactTypesHandler {
 		return null;
 	}
 
+	/**
+	 * @return the supported Types of the plugin. Based on the available *.xml
+	 *         files.
+	 */
 	public static List<QName> getSupportedTypes() {
 
 		ArrayList<QName> supportedTypes = new ArrayList<QName>(artifact_types.keySet());
