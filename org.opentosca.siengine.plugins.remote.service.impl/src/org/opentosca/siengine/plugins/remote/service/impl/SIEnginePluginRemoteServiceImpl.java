@@ -11,13 +11,14 @@ import javax.xml.namespace.QName;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
+import org.apache.commons.io.FilenameUtils;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.conventions.Interfaces;
 import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.settings.Settings;
 import org.opentosca.siengine.model.header.SIHeader;
 import org.opentosca.siengine.plugins.remote.service.impl.servicehandler.ServiceHandler;
-import org.opentosca.siengine.plugins.remote.service.impl.util.ArtifactTypesManager;
+import org.opentosca.siengine.plugins.remote.service.impl.typeshandler.ArtifactTypesHandler;
 import org.opentosca.siengine.plugins.service.ISIEnginePluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +47,21 @@ import org.w3c.dom.traversal.NodeIterator;
  * 
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  * 
- * 
+ * @TODO check different candidates (e.g. it is possible that there are several
+ *       IAs implementing the OperatingSystem interface)
+ * @TODO relationships
+ * @TODO comments
+ * @TODO refactoring (simplify methods, xml in META-INF & use file source
+ *       bundle, naming to bus.management...)
  * 
  */
 public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 
-	final private static String PLACEHOLDER_TARGET_PATH_FOLDER = "{TARGET_PATH_FOLDER}";
-	final private static String PLACEHOLDER_FILE_NAME_WITH_EXTENSION = "{FILE_NAME_WITH_E}";
-	final private static String PLACEHOLDER_FILE_NAME_WITHOUT_EXTENSION = "{FILE_NAME_WITHOUT_E}";
+	final private static String PLACEHOLDER_TARGET_FILE_PATH = "{TARGET_FILE_PATH}";
+	final private static String PLACEHOLDER_TARGET_FILE_FOLDER_PATH = "{TARGET_FILE_FOLDER_PATH}";
+	final private static String PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION = "{TARGET_FILE_NAME_WITH_E}";
+	final private static String PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION = "{TARGET_FILE_NAME_WITHOUT_E}";
+	final private static String PLACEHOLDER_DA_NAME_PATH_MAP = "{DA_NAME_PATH_MAP}";
 
 	final private static Logger LOG = LoggerFactory.getLogger(SIEnginePluginRemoteServiceImpl.class);
 
@@ -133,23 +141,26 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 						List<String> artifactReferences = ServiceHandler.toscaEngineService
 								.getArtifactReferenceWithinArtifactTemplate(csarID, artifactTemplateID);
 
-						String source;
-						String target = null;
-						String targetFolder = null;
+						String fileSource;
+						String targetFilePath = null;
+						String targetFileFolderPath = null;
 
 						for (String artifactRef : artifactReferences) {
-							source = Settings.CONTAINER_API + "/CSARs/" + csarID.getFileName() + "/Content/"
+
+							fileSource = Settings.CONTAINER_API + "/CSARs/" + csarID.getFileName() + "/Content/"
 									+ artifactRef;
 
-							target = "~/" + csarID.getFileName() + "/" + artifactRef;
+							targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
 
-							targetFolder = target.substring(0, target.lastIndexOf("/"));
+							targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
+
+							String createDirCommand = "sleep 5 && mkdir -p " + targetFileFolderPath;
 
 							// create directory before uploading file
-							runScript("sleep 5 && mkdir -p " + targetFolder, headers);
+							runScript(createDirCommand, headers);
 
 							// upload file
-							transferFile(csarID, artifactTemplateID, source, target, headers);
+							transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
 						}
 
 						SIEnginePluginRemoteServiceImpl.LOG.debug("Files uploaded.");
@@ -157,17 +168,29 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 						// run script
 						SIEnginePluginRemoteServiceImpl.LOG.debug("Running scripts...");
 
-						String targetFileWithE = target.substring(target.lastIndexOf("/"));
-						String targetFileWithoutE = target.substring(target.lastIndexOf("/"), target.lastIndexOf("."));
+						String fileNameWithE = FilenameUtils.getName(targetFilePath);
+						String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
 
 						String artifactTypeSpecificCommand = createArtifcatTypeSpecificCommandString(csarID,
-								artifactTemplateID, artifactType);
+								artifactType, artifactTemplateID, message.getBody());
+
+						SIEnginePluginRemoteServiceImpl.LOG.debug("Replacing further generic placeholder...");
 
 						// replace placeholders
-						artifactTypeSpecificCommand.replace(PLACEHOLDER_TARGET_PATH_FOLDER, targetFolder);
-						artifactTypeSpecificCommand.replace(PLACEHOLDER_FILE_NAME_WITH_EXTENSION, targetFileWithE);
-						artifactTypeSpecificCommand.replace(PLACEHOLDER_FILE_NAME_WITHOUT_EXTENSION,
-								targetFileWithoutE);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(PLACEHOLDER_TARGET_FILE_PATH,
+								targetFilePath);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand
+								.replace(PLACEHOLDER_TARGET_FILE_FOLDER_PATH, targetFileFolderPath);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand
+								.replace(PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION, fileNameWithE);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand
+								.replace(PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION, fileNameWithoutE);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(PLACEHOLDER_DA_NAME_PATH_MAP,
+								"sudo -E " + createDANamePathMapEnvVar(csarID, serviceTemplateID, nodeTypeID,
+										nodeTemplateID));
+
+						SIEnginePluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}",
+								artifactType, artifactTypeSpecificCommand);
 
 						runScript(artifactTypeSpecificCommand, headers);
 
@@ -261,7 +284,7 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 	private static String getOperatingSystemIA(CSARID csarID, QName serviceTemplateID, String osNodeTemplateID) {
 
 		SIEnginePluginRemoteServiceImpl.LOG.debug(
-				"Searching the OperatingSystemm-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
+				"Searching the OperatingSystem-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
 				osNodeTemplateID, serviceTemplateID, csarID);
 
 		QName osNodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
@@ -297,26 +320,90 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		return null;
 	}
 
+	private String createDANamePathMapEnvVar(CSARID csarID, QName serviceTemplateID, QName nodeTypeID,
+			String nodeTemplateID) {
+
+		HashMap<String, String> daNameReferenceMapping = new HashMap<>();
+
+		List<QName> nodeTypeImpls = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID,
+				nodeTypeID);
+
+		for (QName nodeTypeImpl : nodeTypeImpls) {
+			List<String> daNames = ServiceHandler.toscaEngineService
+					.getDeploymentArtifactNamesOfNodeTypeImplementation(csarID, nodeTypeImpl);
+
+			for (String daName : daNames) {
+				QName daArtifactTemplate = ServiceHandler.toscaEngineService
+						.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID, nodeTypeImpl,
+								daName);
+
+				List<String> daArtifactReferences = ServiceHandler.toscaEngineService
+						.getArtifactReferenceWithinArtifactTemplate(csarID, daArtifactTemplate);
+
+				for (String daArtifactReference : daArtifactReferences) {
+					daNameReferenceMapping.put(daName, daArtifactReference);
+				}
+			}
+		}
+
+		SIEnginePluginRemoteServiceImpl.LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplateID);
+
+		String daEnvMap = "";
+		if (!daNameReferenceMapping.isEmpty()) {
+
+			SIEnginePluginRemoteServiceImpl.LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplateID,
+					daNameReferenceMapping.size());
+
+			daEnvMap += "DAs=\"";
+			for (Entry<String, String> da : daNameReferenceMapping.entrySet()) {
+
+				String daName = da.getKey();
+				String daRef = da.getValue();
+
+				// FIXME / is a brutal assumption
+				if (!daRef.startsWith("/")) {
+					daRef = "/" + daRef;
+				}
+
+				daEnvMap += daName + "," + daRef + ";";
+			}
+			daEnvMap += "\" ";
+
+			SIEnginePluginRemoteServiceImpl.LOG.debug("Created DA-DANamePathMapEnvVar for NodeTemplate {} : {}",
+					nodeTemplateID, daEnvMap);
+		}
+
+		return daEnvMap;
+	}
+
 	private void installPackages(QName artifactType, HashMap<String, Object> headers) {
 
-		HashMap<String, String> inputParamsMap = new HashMap<>();
+		List<String> requiredPackages = ArtifactTypesHandler.getRequiredPackages(artifactType);
 
 		String requiredPackagesString = "";
-		List<String> requiredPackages = ArtifactTypesManager.getRequiredPackages(artifactType);
-		for (String requiredPackage : requiredPackages) {
-			requiredPackagesString += requiredPackage;
-			requiredPackagesString += " ";
+
+		if (!requiredPackages.isEmpty()) {
+
+			HashMap<String, String> inputParamsMap = new HashMap<>();
+
+			for (String requiredPackage : requiredPackages) {
+				requiredPackagesString += requiredPackage;
+				requiredPackagesString += " ";
+			}
+			inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES,
+					requiredPackagesString);
+
+			SIEnginePluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages,
+					artifactType);
+
+			headers.put(SIHeader.OPERATIONNAME_STRING.toString(),
+					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
+
+			invokeManagementBusEngine(inputParamsMap, headers);
+		} else {
+			SIEnginePluginRemoteServiceImpl.LOG.debug("ArtifactType: {} needs no packages to install.",
+					requiredPackages, artifactType);
 		}
-		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES,
-				requiredPackagesString);
-
-		SIEnginePluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages,
-				artifactType);
-
-		headers.put(SIHeader.OPERATIONNAME_STRING.toString(),
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
-
-		invokeManagementBusEngine(inputParamsMap, headers);
 	}
 
 	private void transferFile(CSARID csarID, QName artifactTemplate, String source, String target,
@@ -352,34 +439,55 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		invokeManagementBusEngine(inputParamsMap, headers);
 	}
 
-	private String createArtifcatTypeSpecificCommandString(CSARID csarID, QName artifactTemplateID,
-			QName artifactType) {
+	@SuppressWarnings("unchecked")
+	private String createArtifcatTypeSpecificCommandString(CSARID csarID, QName artifactType, QName artifactTemplateID,
+			Object params) {
 
-		SIEnginePluginRemoteServiceImpl.LOG.debug("Creating scripts...");
+		SIEnginePluginRemoteServiceImpl.LOG.debug("Creating ArtifcatType specific command...");
 
 		String commandsString = "";
 
-		List<String> commands = ArtifactTypesManager.getCommands(artifactType);
+		List<String> commands = ArtifactTypesHandler.getCommands(artifactType);
+
 		for (String command : commands) {
 			commandsString += command;
 			commandsString += " && ";
 		}
-
-		SIEnginePluginRemoteServiceImpl.LOG.debug("Defined script for ArtifactType {} : {} ", artifactType,
-				commandsString);
-
 		commandsString = commandsString.substring(0, commandsString.length() - 4);
 
-		Document propDoc = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID,
-				artifactTemplateID);
+		SIEnginePluginRemoteServiceImpl.LOG.debug("Defined generic command for ArtifactType {} : {} ", artifactType,
+				commandsString);
 
-		if (propDoc != null) {
+		// replace placeholder with data from inputParams and instance data
 
-			HashMap<String, String> propertiesMap = docToMap(propDoc);
+		if (commandsString.contains("{{") && commandsString.contains("}}")) {
 
-			for (Entry<String, String> prop : propertiesMap.entrySet()) {
-				commandsString = commandsString.replace("{{" + prop.getKey() + "}}", prop.getValue());
+			SIEnginePluginRemoteServiceImpl.LOG.debug(
+					"Replacing the placeholder of the generic command with properties data and/or provided input parameter...");
+
+			HashMap<String, String> paramsMap = new HashMap<>();
+
+			if (params instanceof HashMap) {
+				paramsMap = (HashMap<String, String>) params;
+			} else if (params instanceof Document) {
+				Document paramsDoc = (Document) params;
+				paramsMap = docToMap(paramsDoc);
 			}
+
+			Document propDoc = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID,
+					artifactTemplateID);
+
+			if (propDoc != null) {
+
+				paramsMap.putAll(docToMap(propDoc));
+
+				for (Entry<String, String> prop : paramsMap.entrySet()) {
+					commandsString = commandsString.replace("{{" + prop.getKey() + "}}",
+							FilenameUtils.separatorsToUnix(prop.getValue()));
+				}
+			}
+
+			SIEnginePluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}", commandsString);
 		}
 
 		return commandsString;
@@ -395,7 +503,7 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 				"bean:org.opentosca.siengine.service.ISIEngineService?method=invokeIA", paramsMap, headers,
 				String.class);
 
-		SIEnginePluginRemoteServiceImpl.LOG.debug("Response received: {}", response);
+		SIEnginePluginRemoteServiceImpl.LOG.debug("Invocation finished: {}", response);
 
 	}
 
@@ -438,7 +546,7 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 
 		List<String> supportedTypes = new ArrayList<String>();
 
-		List<QName> supportedTypesQName = ArtifactTypesManager.getSupportedTypes();
+		List<QName> supportedTypesQName = ArtifactTypesHandler.getSupportedTypes();
 
 		for (QName supportedTypeQName : supportedTypesQName) {
 			supportedTypes.add(supportedTypeQName.toString());

@@ -6,7 +6,7 @@
 //
 
 
-package org.opentosca.siengine.plugins.remote.service.impl.artifacttypes;
+package org.opentosca.siengine.plugins.remote.service.impl.model.artifacttypes;
 
 import java.util.ArrayList;
 import java.util.List;

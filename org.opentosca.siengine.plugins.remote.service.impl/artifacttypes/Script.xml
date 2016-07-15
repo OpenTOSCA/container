@@ -4,6 +4,7 @@
 	<packages>
 	</packages>
 	<commands>
-		<command>{TARGET_PATH_FOLDER}/{FILE_NAME_WITH_E}</command>
+		<command>chmod +x {TARGET_FILE_PATH}</command>
+		<command>{DA_NAME_PATH_MAP}{TARGET_FILE_PATH}</command>
 	</commands>
 </artifacttype>
