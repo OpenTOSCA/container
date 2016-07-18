@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ArtifactTypesHandler {
 
-	private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "artifacttypes";
+	private static final String ARTIFACT_TYPES_DEFINTION_FOLDER = "/META-INF/artifacttypes";
 
 	final private static Logger LOG = LoggerFactory.getLogger(ArtifactTypesHandler.class);
 
 	private static HashMap<QName, Artifacttype> artifact_types = new HashMap<QName, Artifacttype>();
 
 	/**
-	 * Initially reads all config files.
+	 * Initially reads all ArtifactTypes config files.
 	 * 
 	 * @param bundleContext
 	 */
@@ -47,16 +47,25 @@ public class ArtifactTypesHandler {
 
 		File[] types_definitions_files = null;
 
-		URL configURL = bundleContext.getBundle().getResource(ARTIFACT_TYPES_DEFINTION_FOLDER);
-		File folder = null;
+		URL bundleResURL = null;
+		URL fileResURL = null;
+		File typesFolder = null;
+
 		try {
-			folder = new File(FileLocator.toFileURL(configURL).getPath());
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			bundleResURL = bundleContext.getBundle().getEntry(ARTIFACT_TYPES_DEFINTION_FOLDER);
+			// convert bundle resource URL to file URL
+			fileResURL = FileLocator.toFileURL(bundleResURL);
+			typesFolder = new File(fileResURL.getPath());
+		} catch (IOException e) {
+			ArtifactTypesHandler.LOG.error("", e);
 		}
 
-		if (folder != null && folder.isDirectory()) {
-			types_definitions_files = folder.listFiles(new FileFilter() {
+		if (typesFolder == null) {
+			ArtifactTypesHandler.LOG.error("Can't get ArtifactTypes configuration files.");
+		}
+
+		if (typesFolder != null && typesFolder.isDirectory()) {
+			types_definitions_files = typesFolder.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
 					String name = pathname.getName().toLowerCase();

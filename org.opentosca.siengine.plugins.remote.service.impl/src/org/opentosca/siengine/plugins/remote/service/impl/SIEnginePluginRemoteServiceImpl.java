@@ -39,19 +39,14 @@ import org.w3c.dom.traversal.NodeIterator;
  * The Plugin gets needed information from the ManagementBus and is responsible
  * to handle "remote IAs". Remote IAs are IAs such as scripts that needs to be
  * executed on the host machine. Therefore this plugin also is responsible for
- * the uploading of the files and the installation of required packagers on the
+ * the uploading of the files and the installation of required packages on the
  * target machine (if specified).
  * 
  * 
  * 
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  * 
- * @TODO check different candidates (e.g. it is possible that there are several
- *       IAs implementing the OperatingSystem interface)
- * @TODO relationships
- * @TODO comments
- * @TODO refactoring (simplify methods, xml in META-INF & use file source
- *       bundle, naming to bus.management...)
+ * @TODO refactoring (renaming to bus.management)
  * 
  */
 public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
@@ -68,8 +63,6 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 	public Exchange invoke(Exchange exchange) {
 
 		Message message = exchange.getIn();
-
-		// Object params = message.getBody();
 
 		SIEnginePluginRemoteServiceImpl.LOG.debug("SIEngine Remote Plugin getting information...");
 
@@ -97,10 +90,24 @@ public class SIEnginePluginRemoteServiceImpl implements ISIEnginePluginService {
 		String nodeInstanceID = message.getHeader(SIHeader.NODEINSTANCEID_STRING.toString(), String.class);
 		SIEnginePluginRemoteServiceImpl.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
 
+		if (nodeTemplateID == null && relationshipTemplateID != null) {
+
+			boolean isBoundToSourceNode = ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(
+					csarID, relationshipTypeID, interfaceName, operationName);
+
+			if (isBoundToSourceNode) {
+				nodeTemplateID = ServiceHandler.toscaEngineService.getSourceNodeTemplateIDOfRelationshipTemplate(csarID,
+						serviceTemplateID, relationshipTemplateID);
+			} else {
+				nodeTemplateID = ServiceHandler.toscaEngineService.getTargetNodeTemplateIDOfRelationshipTemplate(csarID,
+						serviceTemplateID, relationshipTemplateID);
+			}
+		}
+
 		QName artifactType = ServiceHandler.toscaEngineService.getArtifactTypeOfArtifactTemplate(csarID,
 				artifactTemplateID);
 
-		if (artifactType != null) {
+		if (artifactType != null && nodeTemplateID != null) {
 
 			// search operating system ia to upload files and run scripts on
 			// target

@@ -7,7 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper class that handles all needed services for ManagementBus-RemotePlugin.<br>
+ * Helper class that handles all needed services for ManagementBus-RemotePlugin.
+ * <br>
  * <br>
  * 
  * 
@@ -24,15 +25,12 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ServiceHandler {
-	
-	public static IInstanceDataService instanceDataService,
-			oldInstanceDataService;
-	public static IToscaEngineService toscaEngineService,
-			oldToscaEngineService;
-	
+
+	public static IInstanceDataService instanceDataService, oldInstanceDataService;
+	public static IToscaEngineService toscaEngineService, oldToscaEngineService;
+
 	private final static Logger LOG = LoggerFactory.getLogger(ServiceHandler.class);
-	
-	
+
 	/**
 	 * Bind ToscaEngineService
 	 * 
@@ -46,13 +44,13 @@ public class ServiceHandler {
 				ServiceHandler.oldToscaEngineService = toscaEngineService;
 				ServiceHandler.toscaEngineService = toscaEngineService;
 			}
-			
+
 			ServiceHandler.LOG.debug("Bind ToscaEngineService: {} bound.", toscaEngineService.toString());
 		} else {
 			ServiceHandler.LOG.error("Bind ToscaEngineService: Supplied parameter is null!");
 		}
 	}
-	
+
 	/**
 	 * Unbind ToscaEngineService
 	 * 
@@ -64,10 +62,10 @@ public class ServiceHandler {
 		} else {
 			ServiceHandler.oldToscaEngineService = null;
 		}
-		
-		ServiceHandler.LOG.debug("Unbind ToscaEngineService unbound.");
+
+		ServiceHandler.LOG.debug("ToscaEngineService unbound.");
 	}
-	
+
 	/**
 	 * Bind InstanceDataService
 	 * 
@@ -81,13 +79,14 @@ public class ServiceHandler {
 				ServiceHandler.oldInstanceDataService = instanceDataService;
 				ServiceHandler.instanceDataService = instanceDataService;
 			}
-			
-			ServiceHandler.LOG.debug("Bind InstanceDataServiceInterface: {} bound.", ServiceHandler.instanceDataService.toString());
+
+			ServiceHandler.LOG.debug("Bind InstanceDataServiceInterface: {} bound.",
+					ServiceHandler.instanceDataService.toString());
 		} else {
 			ServiceHandler.LOG.error("Bind InstanceDataServiceInterface: Supplied parameter is null!");
 		}
 	}
-	
+
 	/**
 	 * Unbind InstanceDataServiceInterface
 	 * 
@@ -99,8 +98,8 @@ public class ServiceHandler {
 		} else {
 			ServiceHandler.oldInstanceDataService = null;
 		}
-		
-		ServiceHandler.LOG.debug("Unbind InstanceDataServiceInterface unbound.");
+
+		ServiceHandler.LOG.debug("InstanceDataServiceInterface unbound.");
 	}
-	
+
 }
