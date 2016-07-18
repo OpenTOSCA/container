@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.opentosca.siengine.api.soaphttp
-Bundle-SymbolicName: org.opentosca.siengine.api.soaphttp
+Bundle-Name: org.opentosca.bus.management.api.soaphttp
+Bundle-SymbolicName: org.opentosca.bus.management.api.soaphttp
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.camel;version="2.10.4",
@@ -14,12 +14,12 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.spi;version="2.10.4",
  org.apache.cxf.binding.soap;version="2.7.3",
  org.apache.cxf.headers;version="2.7.3",
+ org.opentosca.bus.management.model.header,
  org.opentosca.core.endpoint.service,
  org.opentosca.core.model.csar.id,
  org.opentosca.core.model.endpoint.wsdl,
- org.opentosca.siengine.model.header,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
-Bundle-Activator: org.opentosca.siengine.api.soaphttp.Activator
+Bundle-Activator: org.opentosca.bus.management.api.soaphttp.Activator
 Service-Component: OSGI-INF/EndpointServiceHandler - component.xml
 Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"

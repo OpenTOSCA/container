@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.opentosca.siengine.plugins.service</name>
+	<name>org.opentosca.bus.management.plugins.service</name>
 	<comment></comment>
 	<projects>
 	</projects>

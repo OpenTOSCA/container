@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false" name="org.opentosca.siengine.api.osgievent.SIEventHandler">
-   <implementation class="org.opentosca.siengine.api.osgievent.SIEventHandler"/>
-   <reference bind="bindEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unbindEventAdmin"/>
-   <service>
-      <provide interface="org.osgi.service.event.EventHandler"/>
-   </service>
-   <property name="event.topics" type="String" value="org_opentosca_plans/requests"/>
-</scr:component>

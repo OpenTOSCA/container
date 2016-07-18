@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.opentosca.siengine.api.soaphttp
-Bundle-SymbolicName: org.opentosca.siengine.model
+Bundle-Name: org.opentosca.bus.management.api.soaphttp
+Bundle-SymbolicName: org.opentosca.bus.management.model
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.opentosca.siengine.model.header
+Export-Package: org.opentosca.bus.management.model.header

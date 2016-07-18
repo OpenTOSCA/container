@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.opentosca.siengine.plugins.soaphttp.service.impl</name>
+	<name>org.opentosca.bus.management.plugins.soaphttp.service.impl</name>
 	<comment></comment>
 	<projects>
 	</projects>
