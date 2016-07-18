@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.siengine.plugins.rest.service.impl.SIEnginePluginRestServiceImpl">
-   <implementation class="org.opentosca.siengine.plugins.rest.service.impl.SIEnginePluginRestServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.siengine.plugins.service.ISIEnginePluginService"/>
-   </service>
-</scr:component>

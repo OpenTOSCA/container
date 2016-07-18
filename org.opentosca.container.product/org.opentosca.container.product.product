@@ -367,6 +367,16 @@
       <plugin id="org.opentosca.bus.application.plugin.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.application.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.application.service.impl" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.management.api.osgievent" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.api.soaphttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.model" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.management.plugins.remote.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.rest.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.script.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.service" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.management.plugins.soaphttp.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.service" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.management.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.container.application" autoStart="false" startLevel="0" />
       <plugin id="org.opentosca.containerapi" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.core.internal.capability.service" autoStart="true" startLevel="4" />
@@ -447,15 +457,6 @@
       <plugin id="org.opentosca.portability.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.portability.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.settings" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.siengine.api.osgievent" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.siengine.api.soaphttp" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.siengine.model" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.siengine.plugins.rest.service.impl" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.siengine.plugins.script.service.impl" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.siengine.plugins.service" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.siengine.plugins.soaphttp.service.impl" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.siengine.service" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.siengine.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.toscaengine.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.util.fileaccess.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.util.fileaccess.service.impl" autoStart="true" startLevel="4" />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.siengine.service.impl.servicehandler.ServiceHandler">
-   <implementation class="org.opentosca.siengine.service.impl.servicehandler.ServiceHandler"/>
-   <reference bind="bindPluginService" cardinality="0..n" interface="org.opentosca.siengine.plugins.service.ISIEnginePluginService" name="SIPluginInterface" policy="dynamic" unbind="unbindPluginService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler">
+   <implementation class="org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler"/>
+   <reference bind="bindPluginService" cardinality="0..n" interface="org.opentosca.bus.management.plugins.service.IManagementBusPluginService" name="SIPluginInterface" policy="dynamic" unbind="unbindPluginService"/>
    <reference bind="bindToscaService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaService"/>
    <reference bind="bindEndpointService" cardinality="1..1" interface="org.opentosca.core.endpoint.service.ICoreEndpointService" name="ICoreEndpointService" policy="static" unbind="unbindEndpointService"/>
    <reference bind="bindInstanceDataService" cardinality="1..1" interface="org.opentosca.instancedata.service.IInstanceDataService" name="InstanceDataServiceInterface" policy="static" unbind="unbindInstanceDataService"/>

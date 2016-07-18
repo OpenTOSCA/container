@@ -53,13 +53,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.siengine.service.impl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.camel.camel-cxf"
          download-size="0"
          install-size="0"
@@ -103,13 +96,6 @@
 
    <plugin
          id="jclouds-blobstore"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.siengine.model"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -172,13 +158,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.siengine.api.soaphttp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.commons.io"
          download-size="0"
          install-size="0"
@@ -222,13 +201,6 @@
 
    <plugin
          id="org.opentosca.core.model.endpoints"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.siengine.plugins.soaphttp.service.impl"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -299,13 +271,6 @@
 
    <plugin
          id="com.google.gson"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.siengine.plugins.service"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -833,13 +798,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.siengine.service"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.aries.blueprint"
          download-size="0"
          install-size="0"
@@ -1093,13 +1051,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.siengine.api.osgievent"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.equinox.app"
          download-size="0"
          install-size="0"
@@ -1143,13 +1094,6 @@
 
    <plugin
          id="org.eclipse.jetty.io"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.siengine.plugins.rest.service.impl"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1326,13 +1270,6 @@
 
    <plugin
          id="org.opentosca.planbuilder.provphase.plugin.wsdloperation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.siengine.plugins.script.service.impl"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1542,6 +1479,76 @@
 
    <plugin
          id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.api.osgievent"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.api.soaphttp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.plugins.remote.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.plugins.rest.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.plugins.script.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.plugins.service"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.plugins.soaphttp.service.impl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.service"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.bus.management.service.impl"
          download-size="0"
          install-size="0"
          version="0.0.0"

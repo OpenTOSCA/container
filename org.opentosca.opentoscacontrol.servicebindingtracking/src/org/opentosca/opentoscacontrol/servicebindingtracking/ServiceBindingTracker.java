@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.core.capability.service.ICoreCapabilityService;
 import org.opentosca.core.deployment.tracker.service.ICoreDeploymentTrackerService;
 import org.opentosca.core.endpoint.service.ICoreEndpointService;
@@ -21,7 +22,6 @@ import org.opentosca.iaengine.service.IIAEngineService;
 import org.opentosca.opentoscacontrol.service.IOpenToscaControlService;
 import org.opentosca.planengine.service.IPlanEngineService;
 import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
-import org.opentosca.siengine.service.ISIEngineService;
 import org.opentosca.toscaengine.service.IToscaEngineService;
 import org.opentosca.toscaengine.xmlserializer.service.IXMLSerializerService;
 import org.opentosca.util.fileaccess.service.IFileAccessService;
@@ -59,7 +59,7 @@ public class ServiceBindingTracker {
 	IToscaEngineService toscaEngineService;
 	IXMLSerializerService xmlSerializerService;
 	IPlanInvocationEngine planInvocationEngine;
-	ISIEngineService siEngine;
+	IManagementBusService managementBusService;
 	EventAdmin eventAdmin;
 
 	private final Logger LOG = LoggerFactory
@@ -660,12 +660,12 @@ public class ServiceBindingTracker {
 	 * @param service
 	 *            The service to bind.
 	 */
-	protected void bindSIEngine(ISIEngineService service) {
+	protected void bindIManagementBusService(IManagementBusService service) {
 		if (service == null) {
-			this.LOG.error("Service ISIEngineService is null.");
+			this.LOG.error("Service IManagementBusService is null.");
 		} else {
-			this.LOG.debug("Bind of the ISIEngineService.");
-			this.siEngine = service;
+			this.LOG.debug("Bind of the IManagementBusService.");
+			this.managementBusService = service;
 			this.log_online(service.getClass().getSimpleName());
 			this.checkAvailability();
 		}
@@ -677,9 +677,9 @@ public class ServiceBindingTracker {
 	 * @param service
 	 *            The service to unbind.
 	 */
-	protected void unbindSIEngine(ISIEngineService service) {
-		this.LOG.debug("Unbind of the ISIEngineService.");
-		this.siEngine = null;
+	protected void unbindIManagementBusService(IManagementBusService service) {
+		this.LOG.debug("Unbind of the IManagementBusService.");
+		this.managementBusService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
 

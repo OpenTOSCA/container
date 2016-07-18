@@ -20,5 +20,5 @@
    <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.toscaengine.xmlserializer.service.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
    <reference bind="bindEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unbindEventAdmin"/>
    <reference bind="bindIPlanInvocationEngine" cardinality="1..1" interface="org.opentosca.planinvocationengine.service.IPlanInvocationEngine" name="IPlanInvocationEngine" policy="static" unbind="unbindIPlanInvocationEngine"/>
-   <reference bind="bindSIEngine" cardinality="1..1" interface="org.opentosca.siengine.service.ISIEngineService" name="ISIEngineService" policy="static" unbind="unbindSIEngine"/>
+   <reference bind="bindIManagementBusService" cardinality="1..1" interface="org.opentosca.bus.management.service.IManagementBusService" name="IManagementBusService" policy="static" unbind="unbindIManagementBusService"/>
 </scr:component>
