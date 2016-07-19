@@ -12,14 +12,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.TokenStream;
 import org.opentosca.planbuilder.handlers.BPELProcessHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.helpers.xpath.xpathLexer;
-import org.opentosca.planbuilder.helpers.xpath.xpathParser;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractBoundaryDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -522,12 +517,12 @@ public class PropertyMappingsToOutputInitializer {
 		List<String> augmentedFunctionParts = new ArrayList<String>();
 
 		for (String functionPart : functionParts) {
-			if (functionPart.startsWith("'")) {
+			if (functionPart.trim().startsWith("'")) {
 				// string function part, just add to list
 				augmentedFunctionParts.add(functionPart);
-			} else if (functionPart.split("\\.").length == 3) {
+			} else if (functionPart.trim().split("\\.").length == 3) {
 				// "DSL" Query
-				String[] queryParts = functionPart.split("\\.");
+				String[] queryParts = functionPart.trim().split("\\.");
 				// fast check for validity
 				if (!queryParts[1].equals("Properties")) {
 					return null;
@@ -557,6 +552,7 @@ public class PropertyMappingsToOutputInitializer {
 			resultString += functionPart + ",";
 		}
 
+		
 		resultString = resultString.substring(0, resultString.length() - 1) + ")";
 
 		return resultString;
