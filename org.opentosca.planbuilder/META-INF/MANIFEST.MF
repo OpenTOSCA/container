@@ -17,8 +17,7 @@ Import-Package: javax.wsdl;version="1.6.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .,
- META-INF/resources/,
- META-INF/antlr4-runtime-4.5.3.jar
+ META-INF/resources/
 Export-Package: org.opentosca.planbuilder,
  org.opentosca.planbuilder.plugins,
  org.opentosca.planbuilder.plugins.context,

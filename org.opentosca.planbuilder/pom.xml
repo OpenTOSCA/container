@@ -12,13 +12,4 @@
 	<artifactId>org.opentosca.planbuilder</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
-
-	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.antlr/antlr4-runtime -->
-		<dependency>
-			<groupId>org.antlr</groupId>
-			<artifactId>antlr4-runtime</artifactId>
-			<version>4.5.3</version>
-		</dependency>
-	</dependencies>
 </project>
