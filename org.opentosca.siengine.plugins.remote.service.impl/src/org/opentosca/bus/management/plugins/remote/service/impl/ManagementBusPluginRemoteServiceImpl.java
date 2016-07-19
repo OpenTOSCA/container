@@ -46,7 +46,6 @@ import org.w3c.dom.traversal.NodeIterator;
  * 
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
  * 
- * @TODO refactoring (renaming to bus.management)
  * 
  */
 public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPluginService {
@@ -634,6 +633,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	@Override
 	public List<String> getSupportedTypes() {
 
+		System.out.println("**********");
+		
 		List<String> supportedTypes = new ArrayList<String>();
 
 		List<QName> supportedTypesQName = ArtifactTypesHandler.getSupportedTypes();
