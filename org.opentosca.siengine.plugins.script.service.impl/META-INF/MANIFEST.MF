@@ -23,7 +23,7 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.opentosca.toscaengine.service,
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.5"
-Service-Component: OSGI-INF/IAEnginePluginScriptServiceImpl - component.xml,
+Service-Component: OSGI-INF/ManagementBusPluginScriptServiceImpl - component.xml,
  OSGI-INF/ServiceHandler - component.xml
 Bundle-Activator: org.opentosca.bus.management.plugins.script.service.impl.Activator
 Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"
