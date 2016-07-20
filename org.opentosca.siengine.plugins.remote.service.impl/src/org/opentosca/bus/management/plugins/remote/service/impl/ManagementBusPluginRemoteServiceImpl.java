@@ -20,6 +20,8 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.conventions.Interfaces;
 import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.settings.Settings;
+import org.opentosca.toscaengine.service.ResolvedArtifacts;
+import org.opentosca.toscaengine.service.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -366,7 +368,27 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	private String createDANamePathMapEnvVar(CSARID csarID, QName serviceTemplateID, QName nodeTypeID,
 			String nodeTemplateID) {
 
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplateID);
+
 		HashMap<String, String> daNameReferenceMapping = new HashMap<>();
+
+		QName nodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
+
+		ResolvedArtifacts resolvedArtifacts = ServiceHandler.toscaEngineService
+				.getResolvedArtifactsOfNodeTemplate(csarID, nodeTemplateQName);
+
+		List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+
+		List<String> daArtifactReferences;
+
+		for (ResolvedDeploymentArtifact resolvedDA : resolvedDAs) {
+
+			daArtifactReferences = resolvedDA.getReferences();
+
+			for (String daArtifactReference : daArtifactReferences) {
+				daNameReferenceMapping.put(resolvedDA.getName(), daArtifactReference);
+			}
+		}
 
 		List<QName> nodeTypeImpls = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID,
 				nodeTypeID);
@@ -380,7 +402,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 						.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID, nodeTypeImpl,
 								daName);
 
-				List<String> daArtifactReferences = ServiceHandler.toscaEngineService
+				daArtifactReferences = ServiceHandler.toscaEngineService
 						.getArtifactReferenceWithinArtifactTemplate(csarID, daArtifactTemplate);
 
 				for (String daArtifactReference : daArtifactReferences) {
@@ -388,8 +410,6 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				}
 			}
 		}
-
-		ManagementBusPluginRemoteServiceImpl.LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplateID);
 
 		String daEnvMap = "";
 		if (!daNameReferenceMapping.isEmpty()) {
@@ -444,8 +464,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES,
 					requiredPackagesString);
 
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages,
-					artifactType);
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ",
+					requiredPackages, artifactType);
 
 			headers.put(MBHeader.OPERATIONNAME_STRING.toString(),
 					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
@@ -535,10 +555,12 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			commandsString += command;
 			commandsString += " && ";
 		}
-		commandsString = commandsString.substring(0, commandsString.length() - 4);
+		if (commandsString.endsWith(" && ")) {
+			commandsString = commandsString.substring(0, commandsString.length() - 4);
+		}
 
-		ManagementBusPluginRemoteServiceImpl.LOG.debug("Defined generic command for ArtifactType {} : {} ", artifactType,
-				commandsString);
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("Defined generic command for ArtifactType {} : {} ",
+				artifactType, commandsString);
 
 		// replace placeholder with data from inputParams and instance data
 
@@ -569,7 +591,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				}
 			}
 
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}", commandsString);
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}",
+					commandsString);
 		}
 
 		return commandsString;
@@ -633,8 +656,6 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	@Override
 	public List<String> getSupportedTypes() {
 
-		System.out.println("**********");
-		
 		List<String> supportedTypes = new ArrayList<String>();
 
 		List<QName> supportedTypesQName = ArtifactTypesHandler.getSupportedTypes();
