@@ -555,6 +555,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			commandsString += command;
 			commandsString += " && ";
 		}
+
 		if (commandsString.endsWith(" && ")) {
 			commandsString = commandsString.substring(0, commandsString.length() - 4);
 		}
@@ -593,6 +594,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 			ManagementBusPluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}",
 					commandsString);
+
 		}
 
 		return commandsString;
