@@ -16,12 +16,12 @@ import javax.xml.namespace.QName;
  *
  */
 public class Utils {
-	
+
 	private static final List<String> ipPropertyNames;
 	private static final List<String> instanceIdPropertyNames;
 	private static final List<String> loginNamePropertyNames;
 	private static final List<String> loginPasswordPropertyNames;
-	
+
 	static {
 		ipPropertyNames = new ArrayList<String>();
 		ipPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
@@ -39,20 +39,20 @@ public class Utils {
 		loginPasswordPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
 		loginPasswordPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
 	}
-	
-	public static List<String> getSupportedVirtualMachineIPPropertyNames(){
+
+	public static List<String> getSupportedVirtualMachineIPPropertyNames() {
 		return ipPropertyNames;
 	}
-	
-	public static List<String> getSupportedVirtualMachineInstanceIdPropertyNames(){
+
+	public static List<String> getSupportedVirtualMachineInstanceIdPropertyNames() {
 		return instanceIdPropertyNames;
 	}
-	
-	public static List<String> getSupportedVirtualMachineLoginUserNamePropertyNames(){
+
+	public static List<String> getSupportedVirtualMachineLoginUserNamePropertyNames() {
 		return loginNamePropertyNames;
 	}
-	
-	public static List<String> getSupportedVirtualMachineLoginPasswordPropertyNames(){
+
+	public static List<String> getSupportedVirtualMachineLoginPasswordPropertyNames() {
 		return loginPasswordPropertyNames;
 	}
 
@@ -109,12 +109,13 @@ public class Utils {
 	}
 
 	/**
-	 * Checks whether the given Node is an infrastructure nodeType that can be handled
-	 * by the set of plugins used by the PlanBuilder.
+	 * Checks whether the given Node is an infrastructure nodeType that can be
+	 * handled by the set of plugins used by the PlanBuilder.
 	 * 
 	 * @param nodeType
 	 *            a QName denoting some nodeType
-	 * @return a boolean. True if the given nodeType is an infrastructure nodeType
+	 * @return a boolean. True if the given nodeType is an infrastructure
+	 *         nodeType
 	 */
 	public static boolean isSupportedInfrastructureNodeType(QName nodeType) {
 
@@ -125,8 +126,7 @@ public class Utils {
 		String nodeTypeNS = nodeType.getNamespaceURI();
 		String nodeTypeLN = nodeType.getLocalPart();
 
-		if (nodeTypeNS.equals("http://opentosca.org/types/declarative")
-				&& Utils.isProperUbuntuLocalName(nodeTypeLN)) {
+		if (nodeTypeNS.equals("http://opentosca.org/types/declarative") && Utils.isProperUbuntuLocalName(nodeTypeLN)) {
 			return true;
 		}
 
@@ -134,9 +134,9 @@ public class Utils {
 		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType)) {
 			return true;
 		}
-		
+
 		// code for raspbian and stuff
-		if(nodeType.equals(Types.raspbianJessieOSNodeType)){
+		if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
 			return true;
 		}
 
@@ -192,10 +192,13 @@ public class Utils {
 	 * @return a boolean. True if given nodeType is a virtual machine nodeType
 	 */
 	public static boolean isSupportedVMNodeType(QName nodeType) {
-		if (nodeType.equals(Types.vmNodeType)) {
-			return true;
+		boolean check = Utils.isSupportedInfrastructureNodeType(nodeType);
+
+		// code for raspbian and stuff
+		if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
+			check = false;
 		}
-		return false;
+		return check;
 	}
 
 }
