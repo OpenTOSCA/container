@@ -21,6 +21,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,51 +97,102 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 					&& serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				String processName = serviceTemplate.getId() + "_terminationPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
-				BuildPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 2);
-				newBuildPlan.setDefinitions(definitions);
-				newBuildPlan.setCsarName(csarName);
+				BuildPlan newTerminationPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 2);
+				newTerminationPlan.setDefinitions(definitions);
+				newTerminationPlan.setCsarName(csarName);
 
 				// create empty templateplans for each template and add them to
 				// buildplan
 				for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
 					TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate,
-							newBuildPlan);
+							newTerminationPlan);
 					newTemplate.setNodeTemplate(nodeTemplate);
-					newBuildPlan.addTemplateBuildPlan(newTemplate);
+					newTerminationPlan.addTemplateBuildPlan(newTemplate);
 				}
 
 				for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate()
 						.getRelationshipTemplates()) {
 					TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate,
-							newBuildPlan);
+							newTerminationPlan);
 					newTemplate.setRelationshipTemplate(relationshipTemplate);
-					newBuildPlan.addTemplateBuildPlan(newTemplate);
+					newTerminationPlan.addTemplateBuildPlan(newTemplate);
 				}
 
 				// connect the templates
-				this.initializeDependenciesInTerminationPlan(newBuildPlan);
+				this.initializeConnectionsInTerminationPlan(newTerminationPlan);
 
-				PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
+				PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
+				
+				// instanceDataAPI handling is done solely trough this extension
+				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newTerminationPlan);
 
-				// TODO IMPORTANT! SERVICEINSTANCEURL MUST BE IN THE TERMINATIONPLAN INPUT
-				// initialize instanceData handling
-				this.serviceInstanceInitializer.initializeInstanceData(newBuildPlan);
+				// initialize instanceData handling, add
+				// instanceDataAPI/serviceInstanceID into input, add global
+				// variables to hold the value for plugins
+				this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newTerminationPlan);
 
-				this.nodeInstanceInitializer.initializeNodeInstanceData(newBuildPlan, propMap);
+				this.nodeInstanceInitializer.initializeNodeInstanceData(newTerminationPlan, propMap);
 
-				// this.runPlugins(newBuildPlan, serviceTemplate.getQName(),
-				// propMap);
+				this.runPlugins(newTerminationPlan, serviceTemplate.getQName(), propMap);
 
-				this.idInit.addCorrellationID(newBuildPlan);
+				// TODO add logic at the end of the process to DELETE the
+				// serviceInstance with the instanceDataAPI
 
-				this.finalizer.finalize(newBuildPlan);
+				this.idInit.addCorrellationID(newTerminationPlan);
 
-				return newBuildPlan;
+				this.finalizer.finalize(newTerminationPlan);
+
+				return newTerminationPlan;
 			}
 		}
 		TerminationPlanBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
 				serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
+	}
+
+	/**
+	 * This method will execute plugins on each TemplatePlan inside the given
+	 * plan for termination of each node and relation.
+	 * 
+	 * @param plan
+	 *            the plan to execute the plugins on
+	 * @param serviceTemplate
+	 *            the serviceTemplate the plan belongs to
+	 * @param propMap
+	 *            a PropertyMapping from NodeTemplate to Properties to
+	 *            BPELVariables
+	 */
+	private void runPlugins(BuildPlan plan, QName serviceTemplate, PropertyMap propMap) {
+		/*
+		 * TODO/FIXME until we decided whether we allow type plugins that
+		 * achieve termination, we just terminate each VM we can find
+		 */
+		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+			// we handle only nodeTemplates..
+			if (templatePlan.getNodeTemplate() != null) {
+				// .. that are VM nodeTypes
+				if (org.opentosca.model.tosca.conventions.Utils
+						.isSupportedVMNodeType(templatePlan.getNodeTemplate().getType().getId())) {
+					// create context for the templatePlan
+					TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, serviceTemplate);
+					// fetch infrastructure node (cloud provider)
+					List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
+					for (AbstractNodeTemplate infraNode : infraNodes) {
+						if (org.opentosca.model.tosca.conventions.Utils
+								.isSupportedCloudProviderNodeType(infraNode.getType().getId())) {
+							// append logic to call terminateVM method on the
+							// node
+
+							context.executeOperation(infraNode,
+									org.opentosca.model.tosca.conventions.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+									null);
+						}
+					}
+
+				}
+			}
+		}
+
 	}
 
 	/*
@@ -194,7 +246,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
 	 */
-	private void initializeDependenciesInTerminationPlan(BuildPlan plan) {
+	private void initializeConnectionsInTerminationPlan(BuildPlan plan) {
 		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(plan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());

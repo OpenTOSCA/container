@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <bpel:copy xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
 	<!-- $PropertyVarName, $NodeInstancePropertyRequestVarName, $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
 	<bpel:from variable="$NodeInstancePropertyRequestVarName">

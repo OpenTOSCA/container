@@ -153,8 +153,11 @@ public class PlanBuilder implements IPlanBuilder {
 				// init output
 				this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
 				
+				// instanceDataAPI handling is done solely trough this extension
+				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newBuildPlan);
+				
 				// initialize instanceData handling
-				this.serviceInstanceInitializer.initializeInstanceData(newBuildPlan);
+				this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
 
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				
@@ -214,14 +217,13 @@ public class PlanBuilder implements IPlanBuilder {
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
 	private void runPlugins(BuildPlan buildPlan, QName serviceTemplateId, PropertyMap map) {
-		String serviceTemplateName = serviceTemplateId.getLocalPart() + "_buildPlan";
 
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				// handling nodetemplate
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 				PlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, serviceTemplateName, map, serviceTemplateId);
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
@@ -250,7 +252,7 @@ public class PlanBuilder implements IPlanBuilder {
 			} else {
 				// handling relationshiptemplate
 				AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, serviceTemplateName, map, serviceTemplateId);
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
 
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the

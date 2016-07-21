@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,6 +47,56 @@ public class Fragments {
 	}
 
 	/**
+	 * Generates an assign activity that fetches the value of the input message
+	 * and writes it into a string variable
+	 * 
+	 * @param inputMessageElementLocalName
+	 *            the localName of the element inside the input message
+	 * @param stringVariableName
+	 *            the name of the variable to assign the value to
+	 * @return a String containing a BPEL assign activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 */
+	public String generateAssignFromInputMessageToStringVariable(String inputMessageElementLocalName,
+			String stringVariableName) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BpelAssignFromInputToStringVar.xml");
+		File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
+		// <!-- $inputElementLocalName, $StringVariableName, $assignName -->
+		bpelAssignString = bpelAssignString.replace("$inputElementLocalName", inputMessageElementLocalName);
+		bpelAssignString = bpelAssignString.replace("$StringVariableName", stringVariableName);
+		bpelAssignString = bpelAssignString.replace("$assignName",
+				"assignFromInputToString" + System.currentTimeMillis());
+		return bpelAssignString;
+	}
+
+	/**
+	 * Generates an assign activity that fetches the value of the input message
+	 * and writes it into a string variable
+	 * 
+	 * @param inputMessageElementLocalName
+	 *            the localName of the element inside the input message
+	 * @param stringVariableName
+	 *            the name of the variable to assign the value to
+	 * @return a Node containing a BPEL assign activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fail
+	 */
+	public Node generateAssignFromInputMessageToStringVariableAsNode(String inputMessageElementLocalName,
+			String stringVariableName) throws IOException, SAXException {
+		String templateString = this.generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName,
+				stringVariableName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
 	 * Creates a BPEL assign activity that reads the property values from a
 	 * NodeInstance Property response and sets the given variables
 	 * 
@@ -68,7 +119,7 @@ public class Fragments {
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 
-		String assignString = "<bpel:assign name=\"" + assignName + "\"xmlns:bpel=\"" + BuildPlan.bpelNamespace + "\">";
+		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BuildPlan.bpelNamespace + "\" >";
 
 		// <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
 		// $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
@@ -81,6 +132,9 @@ public class Fragments {
 		}
 
 		assignString += "</bpel:assign>";
+		
+		LOG.debug("Generated following assign string:");
+		LOG.debug(assignString);
 
 		return assignString;
 	}
@@ -292,6 +346,121 @@ public class Fragments {
 			throws SAXException, IOException {
 		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(instanceDataUrlVar,
 				responseVarName, templateId, serviceInstanceUrlVarName, isNodeTemplate);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
+	 * Generates a BPEL assign that retrieves the URL/ID of a serviceInstance
+	 * POST response
+	 * 
+	 * @param serviceInstanceResponseVarName
+	 *            the var name of the POST response
+	 * @param serviceInstanceURLVarName
+	 *            the var name to save the URL/ID into
+	 * @return a String containing a BPEL assign activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 */
+	public String generateServiceInstanceURLVarAssignAsString(String serviceInstanceResponseVarName,
+			String serviceInstanceURLVarName) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BpelAssignServiceInstancePOSTResponse.xml");
+		File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
+		// <!-- $assignName $ServiceInstanceResponseVarName
+		// $ServiceInstanceURLVarName-->
+
+		bpelAssignString = bpelAssignString.replace("$assignName",
+				"assignServiceInstance" + System.currentTimeMillis());
+		bpelAssignString = bpelAssignString.replace("$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
+		bpelAssignString = bpelAssignString.replace("$ServiceInstanceURLVarName", serviceInstanceURLVarName);
+		return bpelAssignString;
+	}
+
+	/**
+	 * Generates a BPEL assign that retrieves the URL/ID of a serviceInstance
+	 * POST response
+	 * 
+	 * @param serviceInstanceResponseVarName
+	 *            the var name of the POST response
+	 * @param serviceInstanceURLVarName
+	 *            the var name to save the URL/ID into
+	 * @return a String containing a BPEL assign activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fail
+	 */
+	public Node generateServiceInstanceURLVarAssignAsNode(String serviceInstanceResponseVarName,
+			String serviceInstanceURLVarName) throws IOException, SAXException {
+		String templateString = this.generateServiceInstanceURLVarAssignAsString(serviceInstanceResponseVarName,
+				serviceInstanceURLVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
+	 * Generates a BPEL POST at the given InstanceDataAPI with the given
+	 * ServiceTemplate id to create a Service Instance
+	 * 
+	 * @param instanceDataAPIUrlVariableName
+	 *            the name of the variable holding the address to the
+	 *            instanceDataAPI
+	 * @param csarId
+	 *            the name of the csar the serviceTemplate belongs to
+	 * @param serviceTemplateId
+	 *            the id of the serviceTemplate
+	 * @param responseVariableName
+	 *            a name of an anyType variable to save the response into
+	 * @return a String containing a BPEL4RESTLight POST extension activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 */
+	public String generateBPEL4RESTLightServiceInstancePOST(String instanceDataAPIUrlVariableName, String csarId,
+			QName serviceTemplateId, String responseVariableName) throws IOException {
+		// tags in xml snippet: $InstanceDataURLVar, $CSARName,
+		// $serviceTemplateId, $ResponseVarName
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
+		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
+
+		bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
+		bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
+		bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
+		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
+
+		return bpel4RestString;
+	}
+
+	/**
+	 * Generates a BPEL POST at the given InstanceDataAPI with the given
+	 * ServiceTemplate id to create a Service Instance
+	 * 
+	 * @param instanceDataAPIUrlVariableName
+	 *            the name of the variable holding the address to the
+	 *            instanceDataAPI
+	 * @param csarId
+	 *            the name of the csar the serviceTemplate belongs to
+	 * @param serviceTemplateId
+	 *            the id of the serviceTemplate
+	 * @param responseVariableName
+	 *            a name of an anyType variable to save the response into
+	 * @return a Node containing a BPEL4RESTLight POST extension activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fail
+	 */
+	public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(String instanceDataAPIUrlVariableName, String csarId,
+			QName serviceTemplateId, String responseVariableName) throws IOException, SAXException {
+		String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId,
+				serviceTemplateId, responseVariableName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);

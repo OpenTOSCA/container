@@ -56,7 +56,6 @@ public class TemplatePlanContext {
 	private final static Logger LOG = LoggerFactory.getLogger(TemplatePlanContext.class);
 
 	private TemplateBuildPlan templateBuildPlan;
-	private String serviceTemplateName;
 	private QName serviceTemplateId;
 
 	private BuildPlanHandler buildPlanHandler;
@@ -80,10 +79,9 @@ public class TemplatePlanContext {
 	 *            a PropertyMap containing mappings for all Template properties
 	 *            of the TopologyTemplate the ServiceTemplate has
 	 */
-	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, String serviceTemplateName, PropertyMap map,
+	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, PropertyMap map,
 			QName serviceTemplateId) {
 		this.templateBuildPlan = templateBuildPlan;
-		this.serviceTemplateName = serviceTemplateName;
 		this.serviceTemplateId = serviceTemplateId;
 
 		try {
@@ -1433,8 +1431,7 @@ public class TemplatePlanContext {
 
 		// create context from this context and set the given nodeTemplate as
 		// the node for the scope
-		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.serviceTemplateName,
-				this.propertyMap, this.serviceTemplateId);
+		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan,this.propertyMap, this.serviceTemplateId);
 
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);
