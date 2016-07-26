@@ -41,6 +41,16 @@
   <module>org.opentosca.bus.application.plugin.service</module>
   <module>org.opentosca.bus.application.service</module>
   <module>org.opentosca.bus.application.service.impl</module>
+  <module>org.opentosca.bus.management.api.osgievent</module>
+  <module>org.opentosca.bus.management.api.soaphttp</module>
+  <module>org.opentosca.bus.management.model</module>
+  <module>org.opentosca.bus.management.plugins.rest.service.impl</module>
+  <module>org.opentosca.bus.management.plugins.script.service.impl</module>
+  <module>org.opentosca.bus.management.plugins.remote.service.impl</module>
+  <module>org.opentosca.bus.management.plugins.service</module>
+  <module>org.opentosca.bus.management.plugins.soaphttp.service.impl</module>
+  <module>org.opentosca.bus.management.service</module>
+  <module>org.opentosca.bus.management.service.impl</module>
   <module>org.opentosca.containerapi</module>
   <module>org.opentosca.container.application</module>
   <module>org.opentosca.container.feature</module>
@@ -131,16 +141,6 @@
   <module>org.opentosca.portability.service</module>
   <module>org.opentosca.portability.service.impl</module>
   <module>org.opentosca.settings</module>
-  <module>org.opentosca.siengine.api.osgievent</module>
-  <module>org.opentosca.siengine.api.soaphttp</module>
-  <module>org.opentosca.siengine.model</module>
-  <module>org.opentosca.siengine.plugins.rest.service.impl</module>
-  <module>org.opentosca.siengine.plugins.script.service.impl</module>
-  <module>org.opentosca.siengine.plugins.remote.service.impl</module>
-  <module>org.opentosca.siengine.plugins.service</module>
-  <module>org.opentosca.siengine.plugins.soaphttp.service.impl</module>
-  <module>org.opentosca.siengine.service</module>
-  <module>org.opentosca.siengine.service.impl</module>
   <module>org.opentosca.toscaengine.service</module>
   <module>org.opentosca.util.fileaccess.service</module>
   <module>org.opentosca.util.fileaccess.service.impl</module>
