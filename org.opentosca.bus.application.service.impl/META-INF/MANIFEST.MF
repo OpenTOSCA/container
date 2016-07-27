@@ -9,6 +9,7 @@ Service-Component: OSGI-INF/ApplicationBusServiceImpl_component.xml, OSGI-INF/Ap
  OSGI-INF/ToscaServiceHandler_component.xml
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.builder;version="2.10.4",
+ org.apache.camel.component.directvm;version="2.10.4",
  org.apache.camel.core.osgi;version="2.10.4",
  org.apache.camel.impl;version="2.10.4",
  org.apache.camel.model;version="2.10.4",
