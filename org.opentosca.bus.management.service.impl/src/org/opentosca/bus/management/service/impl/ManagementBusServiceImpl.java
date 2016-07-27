@@ -19,6 +19,7 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.model.instancedata.NodeInstance;
 import org.opentosca.model.instancedata.ServiceInstance;
+import org.opentosca.model.tosca.conventions.Utils;
 import org.opentosca.toscaengine.service.IToscaEngineService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,10 +118,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 				ManagementBusServiceImpl.LOG.warn("There are no input parameters specified.");
 			}
 
-			ManagementBusServiceImpl.LOG.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
+			ManagementBusServiceImpl.LOG
+					.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
 
-			ManagementBusServiceImpl.LOG.debug("Getting nodeTypeImplementationIDs of NodeType: {} from CSAR: {}", nodeTypeID,
-					csarID);
+			ManagementBusServiceImpl.LOG.debug("Getting nodeTypeImplementationIDs of NodeType: {} from CSAR: {}",
+					nodeTypeID, csarID);
 
 			List<QName> nodeTypeImplementationIDs = ServiceHandler.toscaEngineService
 					.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeID);
@@ -215,7 +217,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
 		} else if (relationshipTemplateID != null) {
 
-			ManagementBusServiceImpl.LOG.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
+			ManagementBusServiceImpl.LOG
+					.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
 			QName relationshipTypeID = ServiceHandler.toscaEngineService
 					.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID);
 
@@ -634,44 +637,107 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
 		List<String> expectedParams = getExpectedInputParams(csarID, nodeTypeID, neededInterface, neededOperation);
 
-		ManagementBusServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation, expectedParams.size(),
-				expectedParams.toString());
+		ManagementBusServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
+				expectedParams.size(), expectedParams.toString());
 
-		// Check if instanceID is set and merge input params with
-		// instance data. Priority on instance data.
-		if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?"))) {
+		if (!expectedParams.isEmpty()) {
 
-			ManagementBusServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
-					serviceInstanceID);
+			// Check if instanceID is set and merge input params with
+			// instance data. Priority on instance data.
+			if ((serviceInstanceID != null) && (!serviceInstanceID.toString().equals("?"))) {
 
-			String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
-					serviceTemplateID);
-
-			HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID,
-					serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
-
-			if (propertiesMap != null) {
 				ManagementBusServiceImpl.LOG.debug(
-						"The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
-						serviceInstanceID, nodeTemplateID, propertiesMap.toString());
+						"Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
+						serviceInstanceID);
 
-				for (String expectedParam : expectedParams) {
-					if (propertiesMap.containsKey(expectedParam)) {
-						inputParams.put(expectedParam, propertiesMap.get(expectedParam));
+				String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
+						serviceTemplateID);
+
+				HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID,
+						serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
+
+				if (propertiesMap != null) {
+
+					List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
+					List<String> supportedInstanceIdPropertyNames = Utils
+							.getSupportedVirtualMachineInstanceIdPropertyNames();
+					List<String> supportedPasswordPropertyNames = Utils
+							.getSupportedVirtualMachineLoginPasswordPropertyNames();
+					List<String> supportedUsernamePropertyNames = Utils
+							.getSupportedVirtualMachineLoginUserNamePropertyNames();
+
+					ManagementBusServiceImpl.LOG.debug(
+							"The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
+							serviceInstanceID, nodeTemplateID, propertiesMap.toString());
+
+					String prop;
+					// Check for property convention
+					for (String expectedParam : expectedParams) {
+
+						if (supportedIPPropertyNames.contains(expectedParam)) {
+							ManagementBusServiceImpl.LOG.debug("Supported IP-Property found.");
+							prop = getSupportedProperty(supportedIPPropertyNames, propertiesMap);
+
+							if (prop != null) {
+								inputParams.put(expectedParam, prop);
+							}
+
+						} else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
+							ManagementBusServiceImpl.LOG.debug("Supported InstanceID-Property found.");
+							prop = getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
+
+							if (prop != null) {
+								inputParams.put(expectedParam, prop);
+							}
+
+						} else if (supportedPasswordPropertyNames.contains(expectedParam)) {
+							ManagementBusServiceImpl.LOG.debug("Supported Password-Property found.");
+							prop = getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
+
+							if (prop != null) {
+								inputParams.put(expectedParam, prop);
+							}
+
+						} else if (supportedUsernamePropertyNames.contains(expectedParam)) {
+							ManagementBusServiceImpl.LOG.debug("Supported Username-Property found.");
+							prop = getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
+
+							if (prop != null) {
+								inputParams.put(expectedParam, prop);
+							}
+
+						}
+
 					}
+
+					ManagementBusServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}",
+							inputParams.size(), neededOperation, inputParams.toString());
+
+				} else {
+					ManagementBusServiceImpl.LOG.debug("No stored InstanceData found.");
 				}
-
-				ManagementBusServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}", inputParams.size(),
-						neededOperation, inputParams.toString());
-
 			} else {
-				ManagementBusServiceImpl.LOG.debug("No stored InstanceData found.");
+				ManagementBusServiceImpl.LOG.debug("No InstanceDataID specified.");
 			}
-		} else {
-			ManagementBusServiceImpl.LOG.debug("No InstanceDataID specified.");
 		}
 
 		return inputParams;
+	}
+
+	private String getSupportedProperty(List<String> supportedProperties, HashMap<String, String> propertiesMap) {
+
+		String prop;
+
+		for (String supportedProperty : supportedProperties) {
+
+			if (propertiesMap.containsKey(supportedProperty)) {
+				prop = propertiesMap.get(supportedProperty);
+				ManagementBusServiceImpl.LOG.debug("Supported convention property: {} found: {}", supportedProperty,
+						prop);
+				return prop;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -773,8 +839,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
 				}
 
-				ManagementBusServiceImpl.LOG.debug("No InstanceData found for CsarID: " + csarID + ", ServiceTemplateID: "
-						+ serviceTemplateID + ", ServiceTemplateName: " + serviceTemplateName
+				ManagementBusServiceImpl.LOG.debug("No InstanceData found for CsarID: " + csarID
+						+ ", ServiceTemplateID: " + serviceTemplateID + ", ServiceTemplateName: " + serviceTemplateName
 						+ " and ServiceInstanceID: " + serviceInstanceID);
 			}
 
@@ -844,7 +910,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 							exchange.getException().getMessage());
 				}
 			} else {
-				ManagementBusServiceImpl.LOG.debug("Invocation was InOnly. No response message will be sent to the caller.");
+				ManagementBusServiceImpl.LOG
+						.debug("Invocation was InOnly. No response message will be sent to the caller.");
 			}
 		}
 

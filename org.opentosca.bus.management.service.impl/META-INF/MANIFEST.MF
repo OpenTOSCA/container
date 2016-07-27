@@ -17,6 +17,7 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.opentosca.core.model.endpoint.wsdl,
  org.opentosca.instancedata.service,
  org.opentosca.model.instancedata,
+ org.opentosca.model.tosca.conventions,
  org.opentosca.toscaengine.service,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"

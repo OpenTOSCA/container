@@ -108,6 +108,9 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		QName artifactType = ServiceHandler.toscaEngineService.getArtifactTypeOfArtifactTemplate(csarID,
 				artifactTemplateID);
 
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplateID,
+				artifactType);
+
 		if (artifactType != null && nodeTemplateID != null) {
 
 			// search operating system ia to upload files and run scripts on
@@ -140,7 +143,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 						installPackages(artifactType, headers);
 
-						ManagementBusPluginRemoteServiceImpl.LOG.debug("Packages isntalled.");
+						ManagementBusPluginRemoteServiceImpl.LOG.debug("Packages installed.");
 
 						// upload files
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Uploading files...");
