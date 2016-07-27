@@ -45,7 +45,6 @@
   <module>org.opentosca.bus.management.api.soaphttp</module>
   <module>org.opentosca.bus.management.model</module>
   <module>org.opentosca.bus.management.plugins.rest.service.impl</module>
-  <module>org.opentosca.bus.management.plugins.script.service.impl</module>
   <module>org.opentosca.bus.management.plugins.remote.service.impl</module>
   <module>org.opentosca.bus.management.plugins.service</module>
   <module>org.opentosca.bus.management.plugins.soaphttp.service.impl</module>
