@@ -11,7 +11,7 @@ import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.ProducerTemplate;
-import org.opentosca.bus.management.model.header.MBHeader;
+import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;

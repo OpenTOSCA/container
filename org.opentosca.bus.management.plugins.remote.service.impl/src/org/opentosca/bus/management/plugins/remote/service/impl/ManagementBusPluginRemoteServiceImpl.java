@@ -12,25 +12,19 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.io.FilenameUtils;
-import org.opentosca.bus.management.model.header.MBHeader;
+import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.plugins.remote.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.plugins.remote.service.impl.typeshandler.ArtifactTypesHandler;
 import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
+import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.conventions.Interfaces;
-import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.settings.Settings;
 import org.opentosca.toscaengine.service.ResolvedArtifacts;
 import org.opentosca.toscaengine.service.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * Management Bus-Plug-in for remoteIAs.<br>
@@ -116,7 +110,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			// search operating system ia to upload files and run scripts on
 			// target
 			// machine
-			String osNodeTemplateID = getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
+			String osNodeTemplateID = MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID,
+					nodeTemplateID);
 
 			if (osNodeTemplateID != null) {
 				QName osNodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
@@ -124,7 +119,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 				if (osNodeTypeID != null) {
 					ManagementBusPluginRemoteServiceImpl.LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
-					String osIAName = getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
+					String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID,
+							osNodeTemplateID);
 
 					if (osIAName != null) {
 
@@ -220,144 +216,6 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 					artifactTemplateID);
 		}
 		return exchange;
-	}
-
-	/**
-	 * 
-	 * Returns the OperatingSystem NodeTemplate.
-	 * 
-	 * @param csarID
-	 * @param serviceTemplateID
-	 * @param nodeTemplateID
-	 * 
-	 * @return name of the OperatingSystem NodeTemplate.
-	 */
-	private String getOperatingSystemNodeTemplateID(CSARID csarID, QName serviceTemplateID, String nodeTemplateID) {
-
-		ManagementBusPluginRemoteServiceImpl.LOG.debug(
-				"Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
-				nodeTemplateID, serviceTemplateID, csarID);
-
-		QName nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-				nodeTemplateID);
-
-		while (!isOperatingSystemNodeType(csarID, nodeType) && (nodeTemplateID != null)) {
-
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("{} isn't the OperatingSystemNode.", nodeTemplateID);
-			ManagementBusPluginRemoteServiceImpl.LOG
-					.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
-
-			// try different relationshiptypes with priority on hostedOn
-			nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-					nodeTemplateID, Types.hostedOnRelationType);
-
-			if (nodeTemplateID == null) {
-				nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-						nodeTemplateID, Types.deployedOnRelationType);
-
-				if (nodeTemplateID == null) {
-					nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID,
-							serviceTemplateID, nodeTemplateID, Types.deployedOnRelationType);
-
-					if (nodeTemplateID == null) {
-						nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID,
-								serviceTemplateID, nodeTemplateID, Types.dependsOnRelationType);
-					}
-				}
-			}
-
-			if (nodeTemplateID != null) {
-				ManagementBusPluginRemoteServiceImpl.LOG
-						.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
-				nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-						nodeTemplateID);
-
-			} else {
-				ManagementBusPluginRemoteServiceImpl.LOG.debug("No underneath Node found.");
-			}
-		}
-
-		if (nodeTemplateID != null) {
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("OperatingSystemNode found: {}", nodeTemplateID);
-		}
-
-		return nodeTemplateID;
-	}
-
-	/**
-	 * 
-	 * Checks if the specified NodeType is the OperatingSystem NodeType.
-	 * 
-	 * @param csarID
-	 * @param nodeType
-	 * @return true if the specified NodeType is the OperatingSystem NodeType.
-	 *         Otherwise false.
-	 */
-	private boolean isOperatingSystemNodeType(CSARID csarID, QName nodeType) {
-
-		if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-				&& ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-						Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-						Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
-				&& ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-						Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-						Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * 
-	 * Returns the name of the OperatingSystem ImplementationArtifact.
-	 * 
-	 * @param csarID
-	 * @param serviceTemplateID
-	 * @param osNodeTemplateID
-	 * 
-	 * 
-	 * @return name of the OperatingSystem ImplementationArtifact.
-	 */
-	private static String getOperatingSystemIA(CSARID csarID, QName serviceTemplateID, String osNodeTemplateID) {
-
-		ManagementBusPluginRemoteServiceImpl.LOG.debug(
-				"Searching the OperatingSystem-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
-				osNodeTemplateID, serviceTemplateID, csarID);
-
-		QName osNodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-				osNodeTemplateID);
-
-		List<QName> osNodeTypeImpls = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID,
-				osNodeType);
-
-		for (QName osNodeTypeImpl : osNodeTypeImpls) {
-
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeTypeImpl: {} ", osNodeTypeImpl);
-
-			List<String> osIANames = ServiceHandler.toscaEngineService
-					.getImplementationArtifactNamesOfNodeTypeImplementation(csarID, osNodeTypeImpl);
-
-			for (String osIAName : osIANames) {
-
-				ManagementBusPluginRemoteServiceImpl.LOG.debug("IA: {} ", osIAName);
-
-				String osIAInterface = ServiceHandler.toscaEngineService
-						.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(csarID, osNodeTypeImpl,
-								osIAName);
-
-				ManagementBusPluginRemoteServiceImpl.LOG.debug("Interface: {} ", osIAInterface);
-
-				if (osIAInterface.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)) {
-
-					return osIAName;
-
-				}
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -579,7 +437,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				paramsMap = (HashMap<String, String>) params;
 			} else if (params instanceof Document) {
 				Document paramsDoc = (Document) params;
-				paramsMap = docToMap(paramsDoc);
+				paramsMap = MBUtils.docToMap(paramsDoc);
 			}
 
 			Document propDoc = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID,
@@ -587,7 +445,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 			if (propDoc != null) {
 
-				paramsMap.putAll(docToMap(propDoc));
+				paramsMap.putAll(MBUtils.docToMap(propDoc));
 
 				for (Entry<String, String> prop : paramsMap.entrySet()) {
 					commandsString = commandsString.replace("{{" + prop.getKey() + "}}",
@@ -622,40 +480,6 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Invocation finished: {}", response);
 
-	}
-
-	/**
-	 * Transfers the properties document to a map.
-	 * 
-	 * @param propertiesDocument
-	 *            to be transfered to a map.
-	 * @return transfered map.
-	 */
-	private HashMap<String, String> docToMap(Document propertiesDocument) {
-		HashMap<String, String> reponseMap = new HashMap<String, String>();
-
-		DocumentTraversal traversal = (DocumentTraversal) propertiesDocument;
-		NodeIterator iterator = traversal.createNodeIterator(propertiesDocument.getDocumentElement(),
-				NodeFilter.SHOW_ELEMENT, null, true);
-
-		for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
-
-			String name = ((Element) node).getLocalName();
-			StringBuilder content = new StringBuilder();
-			NodeList children = node.getChildNodes();
-			for (int i = 0; i < children.getLength(); i++) {
-				Node child = children.item(i);
-				if (child.getNodeType() == Node.TEXT_NODE) {
-					content.append(child.getTextContent());
-				}
-			}
-
-			if (!content.toString().trim().isEmpty()) {
-				reponseMap.put(name, content.toString());
-			}
-		}
-
-		return reponseMap;
 	}
 
 	@Override

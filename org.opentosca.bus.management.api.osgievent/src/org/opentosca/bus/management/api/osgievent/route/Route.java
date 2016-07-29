@@ -4,7 +4,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.osgievent.Activator;
-import org.opentosca.bus.management.model.header.MBHeader;
+import org.opentosca.bus.management.header.MBHeader;
 
 /**
  * Route of the Management Bus-OSGiEvent-API.<br>

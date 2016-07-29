@@ -7,4 +7,4 @@
  * 
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
-package org.opentosca.bus.management.model.header;
+package org.opentosca.bus.management.header;

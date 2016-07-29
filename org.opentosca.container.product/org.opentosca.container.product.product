@@ -367,9 +367,9 @@
       <plugin id="org.opentosca.bus.application.plugin.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.application.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.application.service.impl" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.management" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.management.api.osgievent" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.soaphttp" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.bus.management.model" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.management.plugins.remote.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.plugins.rest.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.plugins.service" autoStart="true" startLevel="4" />

@@ -10,15 +10,14 @@ import javax.xml.namespace.QName;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
-import org.opentosca.bus.management.model.header.MBHeader;
+import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
+import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.core.endpoint.service.ICoreEndpointService;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.core.model.endpoint.wsdl.WSDLEndpoint;
-import org.opentosca.model.instancedata.NodeInstance;
-import org.opentosca.model.instancedata.ServiceInstance;
 import org.opentosca.model.tosca.conventions.Utils;
 import org.opentosca.toscaengine.service.IToscaEngineService;
 import org.slf4j.Logger;
@@ -27,9 +26,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
 
 /**
  * Engine for delegating invoke-requests of implementation artifacts or plans to
@@ -171,6 +167,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 							if (wsdlEndpoint != null) {
 
 								URI endpoint = wsdlEndpoint.getURI();
+
+								// if endpoint has placeholder, replace it with
+								// a matching property value
+								if (endpoint.toString().startsWith("/PLACEHOLDER_")) {
+
+									endpoint = replacePlaceholderWithInstanceData(endpoint, csarID, serviceTemplateID,
+											nodeTemplateID, serviceInstanceID);
+								}
+
 								ManagementBusServiceImpl.LOG.debug("Endpoint: " + endpoint.toString());
 
 								message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
@@ -650,11 +655,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 						"Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
 						serviceInstanceID);
 
-				String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
-						serviceTemplateID);
-
-				HashMap<String, String> propertiesMap = this.getInstanceDataProperties(csarID, serviceTemplateID,
-						serviceTemplateName.trim(), nodeTemplateID.trim(), serviceInstanceID);
+				HashMap<String, String> propertiesMap = MBUtils.getInstanceDataProperties(csarID, serviceTemplateID,
+						nodeTemplateID.trim(), serviceInstanceID);
 
 				if (propertiesMap != null) {
 
@@ -724,6 +726,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 		return inputParams;
 	}
 
+	/**
+	 * @param supportedProperties
+	 * @param propertiesMap
+	 * 
+	 * 
+	 * @return convention defined properties.
+	 */
 	private String getSupportedProperty(List<String> supportedProperties, HashMap<String, String> propertiesMap) {
 
 		String prop;
@@ -738,6 +747,56 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * 
+	 * Replaces placeholder with a matching instance data value. Placeholder is
+	 * defined like "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/".
+	 * 
+	 * @param endpoint
+	 * @param csarID
+	 * @param serviceTemplateID
+	 * @param nodeTemplateID
+	 * @param serviceInstanceID
+	 * 
+	 * @return URI with replaced placeholder.
+	 */
+	private URI replacePlaceholderWithInstanceData(URI endpoint, CSARID csarID, QName serviceTemplateID,
+			String nodeTemplateID, URI serviceInstanceID) {
+
+		String placeholder = endpoint.toString().substring(0, endpoint.toString().lastIndexOf("_PLACEHOLDER/") + 1);
+
+		ManagementBusServiceImpl.LOG.debug("{} placeholder detected in Endpoint: {}", placeholder, endpoint.toString());
+
+		String[] placeholderProperties = placeholder.replace("/PLACEHOLDER_", "").replace("_PLACEHOLDER/", "")
+				.split("_");
+
+		String propertyValue = null;
+
+		for (String placeholderProperty : placeholderProperties) {
+			ManagementBusServiceImpl.LOG.debug("Searching instance data value for property {} ...",
+					placeholderProperty);
+
+			propertyValue = MBUtils.searchProperty(placeholderProperty, csarID, serviceTemplateID, nodeTemplateID,
+					serviceInstanceID);
+
+			if (propertyValue != null) {
+				ManagementBusServiceImpl.LOG.debug("Value for property {} found: {}.", placeholderProperty,
+						propertyValue);
+
+				endpoint.toString().replace(placeholder, propertyValue);
+
+				break;
+			} else {
+				ManagementBusServiceImpl.LOG.debug("Value for property {} not found.", placeholderProperty);
+			}
+		}
+
+		if (propertyValue == null) {
+			ManagementBusServiceImpl.LOG.warn("No instance data value for placeholder {} found!", placeholder);
+		}
+		return endpoint;
 	}
 
 	/**
@@ -783,103 +842,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 			}
 		}
 		return inputParams;
-	}
-
-	/**
-	 * @param csarID
-	 * @param serviceTemplateID
-	 * @param serviceTemplateName
-	 * @param nodeTemplateID
-	 * @param serviceInstanceID
-	 * @return the in the InstanceService stored properties for the specified
-	 *         parameters or null if it can not be found.
-	 */
-	private HashMap<String, String> getInstanceDataProperties(CSARID csarID, QName serviceTemplateID,
-			String serviceTemplateName, String nodeTemplateID, URI serviceInstanceID) {
-
-		HashMap<String, String> propertiesMap = new HashMap<String, String>();
-
-		if (serviceInstanceID != null) {
-
-			List<ServiceInstance> serviceInstanceList = ServiceHandler.instanceDataService
-					.getServiceInstances(serviceInstanceID, serviceTemplateName, serviceTemplateID);
-
-			QName nodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
-
-			for (ServiceInstance serviceInstance : serviceInstanceList) {
-
-				if (serviceInstance.getCSAR_ID().toString().equals(csarID.toString())) {
-					/**
-					 * This is a workaround. The first statement should work,
-					 * but unfortunately does not (the list is null / empty). We
-					 * were not able to identify the root of the error, in debug
-					 * mode it seemed to work but in "production" mode not.
-					 * Somehow the lazy loading mechanism of JPA / EclipseLink
-					 * seems to not work properly.
-					 */
-					// List<NodeInstance> nodeInstanceList =
-					// serviceInstance.getNodeInstances();
-					List<NodeInstance> nodeInstanceList = ServiceHandler.instanceDataService.getNodeInstances(null,
-							null, null, serviceInstanceID);
-
-					for (NodeInstance nodeInstance : nodeInstanceList) {
-
-						if (nodeInstance.getNodeTemplateID().equals(nodeTemplateQName)) {
-
-							Document doc = nodeInstance.getProperties();
-
-							if (doc != null) {
-								propertiesMap = this.docToMap(doc);
-							}
-
-							return propertiesMap;
-
-						}
-					}
-
-				}
-
-				ManagementBusServiceImpl.LOG.debug("No InstanceData found for CsarID: " + csarID
-						+ ", ServiceTemplateID: " + serviceTemplateID + ", ServiceTemplateName: " + serviceTemplateName
-						+ " and ServiceInstanceID: " + serviceInstanceID);
-			}
-
-		}
-		return null;
-	}
-
-	/**
-	 * Transfers the properties document to a map.
-	 * 
-	 * @param propertiesDocument
-	 *            to be transfered to a map.
-	 * @return transfered map.
-	 */
-	private HashMap<String, String> docToMap(Document propertiesDocument) {
-		HashMap<String, String> reponseMap = new HashMap<String, String>();
-
-		DocumentTraversal traversal = (DocumentTraversal) propertiesDocument;
-		NodeIterator iterator = traversal.createNodeIterator(propertiesDocument.getDocumentElement(),
-				NodeFilter.SHOW_ELEMENT, null, true);
-
-		for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
-
-			String name = ((Element) node).getLocalName();
-			StringBuilder content = new StringBuilder();
-			NodeList children = node.getChildNodes();
-			for (int i = 0; i < children.getLength(); i++) {
-				Node child = children.item(i);
-				if (child.getNodeType() == Node.TEXT_NODE) {
-					content.append(child.getTextContent());
-				}
-			}
-
-			if (!content.toString().trim().isEmpty()) {
-				reponseMap.put(name, content.toString());
-			}
-		}
-
-		return reponseMap;
 	}
 
 	/**

@@ -20,7 +20,7 @@ import org.opentosca.bus.management.api.soaphttp.model.InvokeOperationSync;
 import org.opentosca.bus.management.api.soaphttp.model.InvokePlan;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
-import org.opentosca.bus.management.model.header.MBHeader;
+import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

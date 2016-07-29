@@ -33,7 +33,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * IAEnginePlugin for deploying/undeploying a WAR-File on/from a locale Tomcat.<br>
+ * IAEnginePlugin for deploying/undeploying a WAR-File on/from a locale Tomcat.
+ * <br>
  * <br>
  * 
  * Copyright 2012 IAAS University of Stuttgart <br>
@@ -61,7 +62,7 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginService {
-	
+
 	// Hardcoded location of Tomcat, username & password. Defined in
 	// messages.properties.
 	// Role "manager-script" has to be assigned in tomcat-user.xml.
@@ -70,135 +71,179 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 	static final private String URL = Messages.TomcatIAEnginePlugin_url;
 	static final private String TYPES = Messages.TomcatIAEnginePlugin_types;
 	static final private String CAPABILITIES = Messages.TomcatIAEnginePlugin_capabilities;
-	
+
 	static final private Logger LOG = LoggerFactory.getLogger(IAEnginePluginWarTomcatServiceImpl.class);
-	
+
 	private IHTTPService httpService;
-	
-	
+
 	@Override
 	/**
 	 * {@inheritDoc}
 	 */
-	public URI deployImplementationArtifact(CSARID csarID, QName artifactType, Document artifactContent, Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts, List<String> requiredFeatures) {
-		
+	public URI deployImplementationArtifact(CSARID csarID, QName artifactType, Document artifactContent,
+			Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts,
+			List<String> requiredFeatures) {
+
 		String endpoint = null;
 		String endpointSuffix = null;
 		AbstractFile warFile = null;
-		
+
 		IAEnginePluginWarTomcatServiceImpl.LOG.info("Searching for a deployable WAR-File...");
-		
+
 		warFile = this.getWar(artifacts);
-		
+
 		// Check if a WAR-File was found.
 		if (warFile != null) {
-			endpoint = this.deploy(csarID, warFile);
-			
-			// Checks if a endpoint was set.
-			if (endpoint != null) {
-				
-				endpointSuffix = this.getEndpointSuffix(properties);
-				
-				// Create final endpoint.
-				endpoint = endpoint.concat(endpointSuffix);
-				IAEnginePluginWarTomcatServiceImpl.LOG.info("Complete endpoint of IA {}: {}", warFile.getName(), endpoint);
+
+			IAEnginePluginWarTomcatServiceImpl.LOG.info("Deployable WAR-File found: {}", warFile.getName());
+
+			endpointSuffix = this.getServiceEndpointProperty(properties);
+
+			IAEnginePluginWarTomcatServiceImpl.LOG.debug("EndpointSuffix found: {}", endpointSuffix);
+
+			// If placeholder is specified, the war file shouldn't be deployed
+			// locally
+
+			String placeholderBegin = "/PLACEHOLDER_";
+			String placeholderEnd = "_PLACEHOLDER/";
+			if (endpointSuffix.startsWith(placeholderBegin)) {
+
+				String placeholder = endpointSuffix.substring(0,
+						endpointSuffix.indexOf(placeholderEnd) + placeholderEnd.length());
+
+				IAEnginePluginWarTomcatServiceImpl.LOG.debug(
+						"Placeholder {} defined. {} won't be deployed on local tomcat.", placeholder,
+						warFile.getName());
+
+				IAEnginePluginWarTomcatServiceImpl.LOG.debug("Specified ServiceEndpoint property of {}: {}",
+						warFile.getName(), endpointSuffix);
+
+				// Hack, port of tomcat hard-coded 8080. Find a cooler solution.
+				String endpointEnd = endpointSuffix.substring(endpointSuffix.lastIndexOf("_PLACEHOLDER/") + 1);
+				endpoint = placeholder + ":8080/" + warFile.getName() + endpointEnd;
+
+				IAEnginePluginWarTomcatServiceImpl.LOG.debug("Endpoint with palceholder of IA {}: {}",
+						warFile.getName(), endpoint);
+
+			} else {
+				endpoint = this.deploy(csarID, warFile);
+
+				// Checks if a endpoint was set.
+				if (endpoint != null) {
+
+					// Create final endpoint.
+					endpoint = endpoint.concat(endpointSuffix);
+					IAEnginePluginWarTomcatServiceImpl.LOG.info("Complete endpoint of IA {}: {}", warFile.getName(),
+							endpoint);
+				}
 			}
-			
+
+			IAEnginePluginWarTomcatServiceImpl.LOG.info("Complete endpoint of IA {}: {}", warFile.getName(), endpoint);
+
 		} else {
 			IAEnginePluginWarTomcatServiceImpl.LOG.warn("No deployable WAR-File found.");
 		}
-		
+
 		return this.getURI(endpoint);
 	}
-	
+
 	/**
 	 * Deploys a WAR-File on Tomcat. As path on Tomcat the CSAR-ID with removed
 	 * special characters (except '-') and the name of the WAR-File (without
 	 * ".war") is used: <tt>[CSAR-ID]/[File-Name]</tt>
 	 * 
-	 * @param warFile WAR-File that should be deployed.
-	 * @param csarID for identifying the CSAR-File.
+	 * @param warFile
+	 *            WAR-File that should be deployed.
+	 * @param csarID
+	 *            for identifying the CSAR-File.
 	 * @return if deploying was successful. If <tt>null</tt> is returned,
 	 *         deploying wasn't successful. Otherwise the endpoint will be
 	 *         returned.
 	 * 
 	 */
 	private String deploy(CSARID csarID, AbstractFile warFile) {
-		
+
 		String endpoint = null;
 		String convertedQname = null;
 		String filePath = warFile.getPath();
 		String fileName = warFile.getName().replace(".war", "");
-		
+
 		if (this.isRunning()) {
-			
+
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug("URI of file {}.war: {}", fileName, filePath);
-			
+
 			try {
 				// Needed, cause some characters are not correctly converted
 				// in URIs/URLs
 				convertedQname = this.getConvertedcsarID(csarID);
 				String deployPath = "/" + convertedQname + "/" + fileName;
-				
-				String uri = IAEnginePluginWarTomcatServiceImpl.URL + "/manager/text/deploy?update=true&path=" + deployPath;
-				
+
+				String uri = IAEnginePluginWarTomcatServiceImpl.URL + "/manager/text/deploy?update=true&path="
+						+ deployPath;
+
 				IAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat command to deploy IA {}: {}", fileName, uri);
-				
+
 				MultipartEntity uploadEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 				uploadEntity.addPart(fileName, new FileBody(warFile.getFile().toFile()));
-				
+
 				IAEnginePluginWarTomcatServiceImpl.LOG.info("Deploying {} ...", fileName);
-				
-				HttpResponse httpResponse = this.httpService.Put(uri, uploadEntity, IAEnginePluginWarTomcatServiceImpl.USERNAME, IAEnginePluginWarTomcatServiceImpl.PASSWORD);
+
+				HttpResponse httpResponse = this.httpService.Put(uri, uploadEntity,
+						IAEnginePluginWarTomcatServiceImpl.USERNAME, IAEnginePluginWarTomcatServiceImpl.PASSWORD);
 				InputStream inputStream = httpResponse.getEntity().getContent();
 				String response = this.convertStreamToString(inputStream);
-				
+
 				IAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat response: {} ", response);
-				
+
 				// Check if WAR-File was deployed successfully.
 				if (response.contains("OK - Deployed application at context path " + deployPath)) {
 					IAEnginePluginWarTomcatServiceImpl.LOG.info("{} was deployed successfully.", fileName);
-					
+
 					endpoint = IAEnginePluginWarTomcatServiceImpl.URL + deployPath;
-					
+
 					IAEnginePluginWarTomcatServiceImpl.LOG.debug("Endpoint of {} : {}", fileName, endpoint);
-					
+
 				} else {
 					IAEnginePluginWarTomcatServiceImpl.LOG.error("{} wasn't deployed successfully.", fileName);
 				}
-				
+
 			} catch (UnsupportedEncodingException e) {
-				IAEnginePluginWarTomcatServiceImpl.LOG.error("UnsupportedEncodingException occured while deploying the WAR-File: {}!", fileName, e);
+				IAEnginePluginWarTomcatServiceImpl.LOG
+						.error("UnsupportedEncodingException occured while deploying the WAR-File: {}!", fileName, e);
 			} catch (ClientProtocolException e) {
-				IAEnginePluginWarTomcatServiceImpl.LOG.error("ClientProtocolException occured while deploying the WAR-File: {}!", fileName, e);
+				IAEnginePluginWarTomcatServiceImpl.LOG
+						.error("ClientProtocolException occured while deploying the WAR-File: {}!", fileName, e);
 			} catch (IOException e) {
-				IAEnginePluginWarTomcatServiceImpl.LOG.error("IOException occured while deploying the WAR-File: {}!", fileName, e);
+				IAEnginePluginWarTomcatServiceImpl.LOG.error("IOException occured while deploying the WAR-File: {}!",
+						fileName, e);
 			} catch (SystemException e) {
-				IAEnginePluginWarTomcatServiceImpl.LOG.error("SystemException occured while deploying the WAR-File: {}!", fileName, e);
+				IAEnginePluginWarTomcatServiceImpl.LOG
+						.error("SystemException occured while deploying the WAR-File: {}!", fileName, e);
 			}
-			
+
 		} else {
-			IAEnginePluginWarTomcatServiceImpl.LOG.error("Tomcat isn't running or can't be accessed! Can't deploy {}!", fileName);
+			IAEnginePluginWarTomcatServiceImpl.LOG.error("Tomcat isn't running or can't be accessed! Can't deploy {}!",
+					fileName);
 		}
-		
+
 		return endpoint;
 	}
-	
+
 	@Override
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean undeployImplementationArtifact(String iaName, QName nodeTypeImpl, CSARID csarID, URI path) {
-		
+
 		if (this.isRunning()) {
-			
+
 			String command = null;
 			String convertedQname = null;
 			String pathString;
 			String tempPath;
 			String fileName = null;
 			String deployPath;
-			
+
 			// Needed, cause some characters are not correctly converted
 			// in URIs/URLs
 			convertedQname = this.getConvertedcsarID(csarID);
@@ -206,54 +251,58 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 			tempPath = pathString.replace(IAEnginePluginWarTomcatServiceImpl.URL + "/" + convertedQname + "/", "");
 			fileName = tempPath.substring(0, tempPath.indexOf("/"));
 			deployPath = "/" + convertedQname + "/" + fileName;
-			
+
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Path of IA {} to undeploy: {}", iaName, pathString);
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Converted CsarID of IA to undeploy: {}", convertedQname);
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Path without Tomcat url and converted CsarID: {}", tempPath);
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Name of IA to undeploy: {}", fileName);
-			
+
 			// Tomcat command to undeploy a WAR-File.
 			command = IAEnginePluginWarTomcatServiceImpl.URL + "/manager/text/undeploy?path=" + deployPath;
-			
+
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Tomcat command: {}", command);
 			IAEnginePluginWarTomcatServiceImpl.LOG.info("Undeploying {} ...", fileName);
-			
+
 			try {
-				
-				HttpResponse httpResponse = this.httpService.Get(command, IAEnginePluginWarTomcatServiceImpl.USERNAME, IAEnginePluginWarTomcatServiceImpl.PASSWORD);
+
+				HttpResponse httpResponse = this.httpService.Get(command, IAEnginePluginWarTomcatServiceImpl.USERNAME,
+						IAEnginePluginWarTomcatServiceImpl.PASSWORD);
 				String response = this.convertStreamToString(httpResponse.getEntity().getContent());
-				
+
 				IAEnginePluginWarTomcatServiceImpl.LOG.info(response);
-				
+
 				// Check if WAR-File was deployed successfully.
 				if (response.contains("OK - Undeployed application at context path " + deployPath)) {
 					IAEnginePluginWarTomcatServiceImpl.LOG.info("{} was undeployed successfully.", iaName);
-					
+
 					return true;
-					
+
 				} else {
 					IAEnginePluginWarTomcatServiceImpl.LOG.error("{} wasn't undeployed successfully", iaName);
 				}
-				
+
 			} catch (IOException e) {
-				IAEnginePluginWarTomcatServiceImpl.LOG.error("A I/O Exception occurred while undeploying IA: {} ", iaName, e);
+				IAEnginePluginWarTomcatServiceImpl.LOG.error("A I/O Exception occurred while undeploying IA: {} ",
+						iaName, e);
 			}
-			
+
 		} else {
-			IAEnginePluginWarTomcatServiceImpl.LOG.error("Tomcat isn't running or can't be accessed! Can't undeploy {}!", iaName);
+			IAEnginePluginWarTomcatServiceImpl.LOG
+					.error("Tomcat isn't running or can't be accessed! Can't undeploy {}!", iaName);
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Checks if the Artifacts contains a WAR-File and returns it if so.
 	 * 
-	 * @param artifacts to check.
+	 * @param artifacts
+	 *            to check.
 	 * @return WAR-File if available. Otherwise <tt>null</tt>.
 	 */
 	private AbstractFile getWar(List<AbstractArtifact> artifacts) {
-		
+
 		// Check if there are artifacts
 		if (artifacts != null) {
 			// Check if artifacts contains a WAR-File.
@@ -264,96 +313,104 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 					// only
 					// the first one found
 					if (this.isADeployableWar(file)) {
-						IAEnginePluginWarTomcatServiceImpl.LOG.info("Deployable WAR-File with name {} found.", file.getName());
-						
+						IAEnginePluginWarTomcatServiceImpl.LOG.info("Deployable WAR-File with name {} found.",
+								file.getName());
+
 						return file;
-						
+
 					}
 				}
 			}
 		}
-		
+
 		return null;
-		
+
 	}
-	
+
 	/**
 	 * 
-	 * @param file to check.
+	 * @param file
+	 *            to check.
 	 * @return if file is a WAR-File that can be deployed.
 	 */
 	private boolean isADeployableWar(AbstractFile file) {
-		
+
 		if (file.getName().toLowerCase().endsWith(".war")) {
 			return true;
 		} else {
-			IAEnginePluginWarTomcatServiceImpl.LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.", file.getName());
+			IAEnginePluginWarTomcatServiceImpl.LOG.warn(
+					"Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
+					file.getName());
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
-	 * Checks if a endpointSuffix was specified in the Tosca.xml and returns it
-	 * if so.
+	 * Checks if a "ServiceEndpoint" property was specified in the Tosca.xml and
+	 * returns it if so.
 	 * 
-	 * @param properties to check for endpoint information.
-	 * @return endpointSuffix if specified. Otherwise <tt>""</tt>.
+	 * @param properties
+	 *            to check for endpoint information.
+	 * @return serviceEndpoint if specified. Otherwise <tt>""</tt>.
 	 */
-	private String getEndpointSuffix(Document properties) {
-		
+	private String getServiceEndpointProperty(Document properties) {
+
 		String endpointSuffix = "";
-		
+
 		// Checks if there are specified properties at all.
 		if (properties != null) {
-			
+
 			NodeList list = properties.getFirstChild().getChildNodes();
-			
+
 			for (int i = 0; i < list.getLength(); i++) {
-				
+
 				Node propNode = list.item(i);
-				
-				if (this.containsEndpointSuffix(propNode)) {
+
+				if (this.containsServiceEndpointProperty(propNode)) {
 					endpointSuffix = this.getNodeContent(propNode);
-					IAEnginePluginWarTomcatServiceImpl.LOG.info("ServiceEndpointSuffix found: {}", endpointSuffix);
+					IAEnginePluginWarTomcatServiceImpl.LOG.info("ServiceEndpoint property found: {}", endpointSuffix);
 					return endpointSuffix;
 				}
 			}
 		}
-		
-		IAEnginePluginWarTomcatServiceImpl.LOG.debug("No ServiceEndpointSuffix found!");
+
+		IAEnginePluginWarTomcatServiceImpl.LOG.debug("No ServiceEndpoint property found!");
 		return endpointSuffix;
 	}
-	
+
 	/**
 	 * Checks if the Node contains endpoint information, that will be used to
 	 * generate the complete endpoint. Endpoint information has to be specified
 	 * with <tt>{@literal <}namespace:ServiceEndpoint{@literal >}...
 	 * {@literal <}/namespace:ServiceEndpoint{@literal >}</tt>.
 	 * 
-	 * @param currentNode to check.
+	 * @param currentNode
+	 *            to check.
 	 * @return if currentNode contains endpoint information.
 	 */
-	private boolean containsEndpointSuffix(Node currentNode) {
+	private boolean containsServiceEndpointProperty(Node currentNode) {
 		String localName = currentNode.getLocalName();
-		
+
 		if (localName != null) {
 			return localName.equals("ServiceEndpoint");
 		}
 		return false;
 	}
-	
+
 	/**
-	 * @param currentNode where to get the content from.
+	 * @param currentNode
+	 *            where to get the content from.
 	 * @return Content of currentNode as String.
 	 */
 	private String getNodeContent(Node currentNode) {
 		String nodeContent = currentNode.getTextContent().trim();
 		return nodeContent;
 	}
-	
+
 	/**
-	 * @param endpoint to create URI from.
+	 * @param endpoint
+	 *            to create URI from.
 	 * @return URI of endpoint.
 	 */
 	private URI getURI(String endpoint) {
@@ -362,58 +419,62 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 			try {
 				endpointURI = new URI(endpoint);
 			} catch (URISyntaxException e) {
-				IAEnginePluginWarTomcatServiceImpl.LOG.error("URISyntaxException occurred while creating endpoint URI: {} ", endpoint, e);
+				IAEnginePluginWarTomcatServiceImpl.LOG
+						.error("URISyntaxException occurred while creating endpoint URI: {} ", endpoint, e);
 			}
 		}
 		return endpointURI;
 	}
-	
+
 	/**
-	 * @param csarID for identifying the CSAR-File.
+	 * @param csarID
+	 *            for identifying the CSAR-File.
 	 * @return csarID as String with removed special characters (except '-').
 	 */
 	private String getConvertedcsarID(CSARID csarID) {
-		
+
 		String qname = csarID.toString();
 		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Converting QName: {} ...", qname);
-		
+
 		// Remove all special characters except '-'
 		String convertedCsarID = qname.replaceAll("[^-a-zA-Z0-9]", "");
-		
+
 		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Converted QName: {}", convertedCsarID);
-		
+
 		return convertedCsarID;
 	}
-	
+
 	/**
 	 * 
 	 * @return If Tomcat is running and can be accessed.
 	 */
 	private boolean isRunning() {
-		
+
 		boolean isRunning = false;
-		
+
 		// URL to get serverinfo from Tomcat.
 		String url = IAEnginePluginWarTomcatServiceImpl.URL + "/manager/text/serverinfo";
-		
-		IAEnginePluginWarTomcatServiceImpl.LOG.info("Checking if Tomcat is running on '" + IAEnginePluginWarTomcatServiceImpl.URL + "' and can be accessed...");
-		
+
+		IAEnginePluginWarTomcatServiceImpl.LOG.info("Checking if Tomcat is running on '"
+				+ IAEnginePluginWarTomcatServiceImpl.URL + "' and can be accessed...");
+
 		// Execute the Tomcat command and get response message back. If no
 		// exception occurs, Tomcat is running.
 		HttpResponse httpResponse;
-		
+
 		try {
-			httpResponse = this.httpService.Get(url, IAEnginePluginWarTomcatServiceImpl.USERNAME, IAEnginePluginWarTomcatServiceImpl.PASSWORD);
-			
+			httpResponse = this.httpService.Get(url, IAEnginePluginWarTomcatServiceImpl.USERNAME,
+					IAEnginePluginWarTomcatServiceImpl.PASSWORD);
+
 			String response = this.convertStreamToString(httpResponse.getEntity().getContent());
-			
+
 			IAEnginePluginWarTomcatServiceImpl.LOG.debug(response);
-			
+
 			if (response.contains("OK - Server info")) {
 				IAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat is running and can be accessed!");
 				isRunning = true;
 			}
-			
+
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -421,10 +482,10 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return isRunning;
 	}
-	
+
 	/**
 	 * Converts incoming InputStream from TOmcat into a String.
 	 * 
@@ -441,7 +502,7 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 		}
 		return theString;
 	}
-	
+
 	@Override
 	/**
 	 * {@inheritDoc}
@@ -449,48 +510,53 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 	public List<String> getSupportedTypes() {
 		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Types: {}.", IAEnginePluginWarTomcatServiceImpl.TYPES);
 		List<String> types = new ArrayList<String>();
-		
+
 		for (String type : IAEnginePluginWarTomcatServiceImpl.TYPES.split("[,;]")) {
 			types.add(type.trim());
 		}
 		return types;
 	}
-	
+
 	@Override
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<String> getCapabilties() {
-		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.", IAEnginePluginWarTomcatServiceImpl.CAPABILITIES);
+		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.",
+				IAEnginePluginWarTomcatServiceImpl.CAPABILITIES);
 		List<String> capabilities = new ArrayList<String>();
-		
+
 		for (String capability : IAEnginePluginWarTomcatServiceImpl.CAPABILITIES.split("[,;]")) {
 			capabilities.add(capability.trim());
 		}
 		return capabilities;
 	}
-	
+
 	/**
 	 * Register IHTTPService.
 	 * 
-	 * @param service - A IHTTPService to register.
+	 * @param service
+	 *            - A IHTTPService to register.
 	 */
 	public void bindHTTPService(IHTTPService httpService) {
 		if (httpService != null) {
 			this.httpService = httpService;
-			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Register IHTTPService: {} registered.", httpService.toString());
+			IAEnginePluginWarTomcatServiceImpl.LOG.debug("Register IHTTPService: {} registered.",
+					httpService.toString());
 		} else {
 			IAEnginePluginWarTomcatServiceImpl.LOG.error("Register IHTTPService: Supplied parameter is null!");
 		}
 	}
-	
+
 	/**
 	 * Unregister IHTTPService.
 	 * 
-	 * @param service - A IHTTPService to unregister.
+	 * @param service
+	 *            - A IHTTPService to unregister.
 	 */
 	public void unbindHTTPService(IHTTPService httpService) {
 		this.httpService = null;
-		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Unregister IHTTPService: {} unregistered.", httpService.toString());
+		IAEnginePluginWarTomcatServiceImpl.LOG.debug("Unregister IHTTPService: {} unregistered.",
+				httpService.toString());
 	}
 }

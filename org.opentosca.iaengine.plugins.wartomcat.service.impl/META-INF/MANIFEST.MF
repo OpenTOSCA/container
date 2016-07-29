@@ -17,6 +17,7 @@ Import-Package: javax.xml.namespace,
  org.opentosca.exceptions,
  org.opentosca.iaengine.plugins.service,
  org.opentosca.model.tosca,
+ org.opentosca.model.tosca.conventions,
  org.opentosca.util.http.service,
  org.slf4j;version="1.6.4",
  org.w3c.dom

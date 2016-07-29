@@ -17,7 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
-import org.opentosca.bus.management.model.header.MBHeader;
+import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.plugins.rest.service.impl.model.ContentType;
 import org.opentosca.bus.management.plugins.rest.service.impl.model.DataAssign;
 import org.opentosca.bus.management.plugins.rest.service.impl.model.EndpointType;

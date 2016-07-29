@@ -1,4 +1,4 @@
-package org.opentosca.bus.management.model.header;
+package org.opentosca.bus.management.header;
 
 /**
  * Enum needed for the MB-components.<br>
