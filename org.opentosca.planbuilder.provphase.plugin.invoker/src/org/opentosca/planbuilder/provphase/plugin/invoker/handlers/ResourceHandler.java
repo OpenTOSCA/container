@@ -171,8 +171,9 @@ public class ResourceHandler {
 			}
 		}
 
-		// assign serviceInstanceID	
-		String serviceInstanceCopyString = this.generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName, requestVarPartName);
+		// assign serviceInstanceID
+		String serviceInstanceCopyString = this.generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName,
+				requestVarPartName);
 		serviceInstanceCopyString = serviceInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
 		assignTemplateString = assignTemplateString.replace("{copies}", serviceInstanceCopyString + "{copies}");
 
@@ -285,6 +286,69 @@ public class ResourceHandler {
 			String paramName) throws IOException, SAXException {
 		String addressingCopyString = this.generateReplyToCopy(partnerLinkName, requestVarName, requestVarPartName,
 				paramName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(addressingCopyString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
+	 * Generates a copy from a partnerLink myRole EPR to a invoker request param
+	 * such as ReplyTo
+	 * 
+	 * @param partnerLinkName
+	 *            the name of the partnerLink to use
+	 * @param invokerRequestVarName
+	 *            the name of the invoker request message
+	 * @param invokerRequestVarPartName
+	 *            the name of the message part of the referenced invoker request
+	 *            message variable
+	 * @param invokerParamName
+	 *            the name of the invoker param to assign
+	 * @return a String containing a BPEL copy element
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 */
+	public String generateEPRMyRoleCopyToInvokerParamAsString(String partnerLinkName, String invokerRequestVarName,
+			String invokerRequestVarPartName, String invokerParamName) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("EPRCopyToInvokerReplyTo.xml");
+		File eprCopyFile = new File(FileLocator.toFileURL(url).getPath());
+		String eprCopyFileString = FileUtils.readFileToString(eprCopyFile);
+
+		// <!--{partnerLinkName} {requestVarName} {requestVarPartName}
+		// {invokerParamName}-->
+		eprCopyFileString = eprCopyFileString.replace("{partnerLinkName}", partnerLinkName);
+		eprCopyFileString = eprCopyFileString.replace("{requestVarName}  ", invokerRequestVarName);
+		eprCopyFileString = eprCopyFileString.replace("{requestVarPartName}", invokerRequestVarPartName);
+		eprCopyFileString = eprCopyFileString.replace("{invokerParamName}", invokerParamName);
+
+		return eprCopyFileString;
+	}
+
+	/**
+	 * Generates a copy from a partnerLink myRole EPR to a invoker request param
+	 * such as ReplyTo
+	 * 
+	 * @param partnerLinkName
+	 *            the name of the partnerLink to use
+	 * @param invokerRequestVarName
+	 *            the name of the invoker request message
+	 * @param invokerRequestVarPartName
+	 *            the name of the message part of the referenced invoker request
+	 *            message variable
+	 * @param invokerParamName
+	 *            the name of the invoker param to assign
+	 * @return a DOM node containing a BPEL copy element
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fail
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 */
+	public Node generateEPRMyRoleCopyToInvokerParamAsNode(String partnerLinkName, String invokerRequestVarName,
+			String invokerRequestVarPartName, String invokerParamName) throws SAXException, IOException {
+		String addressingCopyString = this.generateEPRMyRoleCopyToInvokerParamAsString(partnerLinkName,
+				invokerRequestVarName, invokerRequestVarPartName, invokerParamName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(addressingCopyString));
 		Document doc = this.docBuilder.parse(is);

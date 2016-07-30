@@ -26,6 +26,7 @@ import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
+import org.opentosca.planbuilder.utils.Utils;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,8 +218,8 @@ public class Handler {
 			 * is provided in the input message
 			 */
 
-			Node replyToCopy = this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
-					InputMessagePartName, "planCallbackAddress_invoker", "ReplyTo");
+			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
+					InputMessagePartName, "ReplyTo");
 			replyToCopy = context.importNode(replyToCopy);
 			assignNode.appendChild(replyToCopy);
 
@@ -385,7 +386,7 @@ public class Handler {
 			addressingCopyNode = context.importNode(addressingCopyNode);
 			assignNode.appendChild(addressingCopyNode);
 
-			if (callbackAddressVarName == null) {
+//			if (callbackAddressVarName == null) {
 				// if the plan doesn't have an input message for the address of
 				// the plan itself (for callback/bps2.1.2) we get the address at
 				// runtime
@@ -393,13 +394,13 @@ public class Handler {
 						InputMessagePartName, "ReplyTo");
 				replyToCopy = context.importNode(replyToCopy);
 				assignNode.appendChild(replyToCopy);
-			} else {
-				// else the address is provided in the input message
-				Node replyToCopy = this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
-						InputMessagePartName, callbackAddressVarName, "ReplyTo");
-				replyToCopy = context.importNode(replyToCopy);
-				assignNode.appendChild(replyToCopy);
-			}
+//			} else {
+//				// else the address is provided in the input message
+//				Node replyToCopy = this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
+//						InputMessagePartName, callbackAddressVarName, "ReplyTo");
+//				replyToCopy = context.importNode(replyToCopy);
+//				assignNode.appendChild(replyToCopy);
+//			}
 
 			if (appendToPrePhase) {
 				context.getPrePhaseElement().appendChild(assignNode);
@@ -738,14 +739,5 @@ public class Handler {
 		}
 		return null;
 
-	}
-
-	private String inputHasCallbackAddressDefined(TemplatePlanContext context) {
-		for (String localName : context.getInputMessageElementNames()) {
-			if (localName.equals("planCallbackAddress_invoker")) {
-				return localName;
-			}
-		}
-		return null;
 	}
 }
