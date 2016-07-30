@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -54,18 +56,33 @@ import com.ibm.wsdl.ServiceImpl;
  * 
  */
 public class SimpleFileExporter {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(SimpleFileExporter.class);
-	
-	
+
+	// wrapper class for the rewriting of service names in WSDL's
+	public class Service2ServiceEntry {
+
+		public QName service0;
+		public QName service1;
+
+		public Service2ServiceEntry(QName service0, QName service1) {
+			this.service0 = service0;
+			this.service1 = service1;
+		}
+	}
+
 	/**
 	 * Exports the given BuildPlan to the given URI location
 	 * 
-	 * @param destination the URI to export to
-	 * @param buildPlan the BuildPlan to export
+	 * @param destination
+	 *            the URI to export to
+	 * @param buildPlan
+	 *            the BuildPlan to export
 	 * @return true iff exporting the BuildPlan was successful
-	 * @throws IOException is thrown when reading/writing the file fails
-	 * @throws JAXBException is thrown when writing with JAXB fails
+	 * @throws IOException
+	 *             is thrown when reading/writing the file fails
+	 * @throws JAXBException
+	 *             is thrown when writing with JAXB fails
 	 */
 	public boolean export(URI destination, BuildPlan buildPlan) throws IOException, JAXBException {
 		if (!new File(destination).getName().contains("zip")) {
@@ -73,33 +90,33 @@ public class SimpleFileExporter {
 		}
 		// fetch imported files
 		List<File> importedFiles = buildPlan.getImportedFiles();
-		
+
 		SimpleFileExporter.LOG.debug("BuildPlan has following files attached");
 		for (File file : importedFiles) {
 			SimpleFileExporter.LOG.debug(file.getAbsolutePath());
 		}
-		
+
 		// fetch import elements
 		List<Element> importElements = buildPlan.getBpelImportElements();
-		
+
 		SimpleFileExporter.LOG.debug("BuildPlan has following import elements");
 		for (Element element : importElements) {
 			SimpleFileExporter.LOG.debug("LocalName: " + element.getLocalName());
 			SimpleFileExporter.LOG.debug("location:" + element.getAttribute("location"));
 		}
-		
+
 		// fetch wsdl
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
-		
+
 		// generate temp folder
 		File tempDir = FileUtils.getTempDirectory();
 		SimpleFileExporter.LOG.debug("Trying to write files in system temp folder: " + tempDir.getAbsolutePath());
 		File tempFolder = new File(tempDir, Long.toString(System.currentTimeMillis()));
 		tempFolder.mkdir();
 		SimpleFileExporter.LOG.debug("Trying to write files to temp folder: " + tempFolder.getAbsolutePath());
-		
+
 		List<File> exportedFiles = new ArrayList<File>();
-		
+
 		// match importedFiles with importElements, to change temporary paths
 		// inside import elements to relative paths inside the generated zip
 		for (File importedFile : importedFiles) {
@@ -120,25 +137,25 @@ public class SimpleFileExporter {
 					// copy file to tempdir
 					File fileLocationInDir = new File(tempFolder, fileName);
 					FileUtils.copyFile(importedFile, fileLocationInDir);
-					
+
 					exportedFiles.add(fileLocationInDir);
 				}
 			}
 		}
-		
+
 		// write deploy.xml
 		SimpleFileExporter.LOG.debug("Starting marshalling");
 		Deploy deployment = buildPlan.getDeploymentDeskriptor();
-		
+
 		// rewrite service names in deploy.xml and potential wsdl files
 		try {
 			this.rewriteServiceNames(deployment, exportedFiles, buildPlan.getCsarName());
 		} catch (WSDLException e) {
-			LOG.warn("Rewriting of Service names failed",e);
-		} catch (FileNotFoundException  e){
-			LOG.warn("Something went wrong with locating wsdl files that needed to be changed",e);
+			LOG.warn("Rewriting of Service names failed", e);
+		} catch (FileNotFoundException e) {
+			LOG.warn("Something went wrong with locating wsdl files that needed to be changed", e);
 		}
-		
+
 		File deployXmlFile = new File(tempFolder, "deploy.xml");
 		deployXmlFile.createNewFile();
 		JAXBContext jaxbContext = JAXBContext.newInstance(Deploy.class);
@@ -146,11 +163,11 @@ public class SimpleFileExporter {
 		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		// output to console uncomment this: m.marshal(deployment, System.out);
 		m.marshal(deployment, deployXmlFile);
-		
+
 		// save wsdl in tempfolder
 		File wsdlFile = new File(tempFolder, wsdl.getFileName());
 		FileUtils.writeStringToFile(wsdlFile, wsdl.getFinalizedWsdlAsString());
-		
+
 		// save bpel file in tempfolder
 		File bpelFile = new File(tempFolder, wsdl.getFileName().replace(".wsdl", ".bpel"));
 		try {
@@ -159,124 +176,132 @@ public class SimpleFileExporter {
 			SimpleFileExporter.LOG.error("Error while writing BPEL Document to a file", e);
 			return false;
 		}
-		
+
 		// package temp dir and move to destination URI
-		ServiceReference<?> servRef = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getServiceReference(IFileAccessService.class.getName());
-		IFileAccessService service = (IFileAccessService) FrameworkUtil.getBundle(this.getClass()).getBundleContext().getService(servRef);
+		ServiceReference<?> servRef = FrameworkUtil.getBundle(this.getClass()).getBundleContext()
+				.getServiceReference(IFileAccessService.class.getName());
+		IFileAccessService service = (IFileAccessService) FrameworkUtil.getBundle(this.getClass()).getBundleContext()
+				.getService(servRef);
 		service.zip(tempFolder, new File(destination));
 		return true;
 	}
-	
-	private void rewriteServiceNames(Deploy deploy, List<File> referencedFiles, String csarName) throws WSDLException, FileNotFoundException {
-		WSDLFactory factory = WSDLFactory.newInstance();		
+
+	private void rewriteServiceNames(Deploy deploy, List<File> referencedFiles, String csarName)
+			throws WSDLException, FileNotFoundException {
+		WSDLFactory factory = WSDLFactory.newInstance();
 		WSDLReader reader = factory.newWSDLReader();
 		WSDLWriter writer = factory.newWSDLWriter();
-		
+
 		// first fetch all provide and invoke element which aren't using the
 		// 'client' partnerLink
 		// single process only
 		List<TInvoke> invokes = deploy.getProcess().get(0).getInvoke();
 		List<TProvide> provides = deploy.getProcess().get(0).getProvide();
-		
-		// the services the dd uses, excluding the client services, will be here
-		List<QName> servicesToRewrite = new ArrayList<QName>();
+
+		// the services and their new name the dd uses, excluding the client services, will be added here
+		Map<QName, QName> servicesToRewrite = new HashMap<QName,QName>();
 		
 		for (TInvoke invoke : invokes) {
 			if (invoke.getPartnerLink().equals("client")) {
 				continue;
 			}
-			
+
 			TService service = invoke.getService();
 			QName serviceName = service.getName();
-			
-			servicesToRewrite.add(serviceName);
-			
-			QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart());
-			
+
+			QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart() + System.currentTimeMillis());
+
+			servicesToRewrite.put(serviceName, renamedServiceName);
+
 			service.setName(renamedServiceName);
-			
+
 			invoke.setService(service);
 		}
-		
+
 		for (TProvide provide : provides) {
 			if (provide.getPartnerLink().equals("client")) {
 				continue;
 			}
-			
+
 			TService service = provide.getService();
 			QName serviceName = service.getName();
-			
-			servicesToRewrite.add(serviceName);
-			
-			QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart());
-			
+
+			QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart() + System.currentTimeMillis());
+
+			servicesToRewrite.put(serviceName, renamedServiceName);
+
 			service.setName(renamedServiceName);
-			
+
 			provide.setService(service);
 		}
-		
+
 		// and now for the killer part..
-		for (QName serviceName : servicesToRewrite) {
+		for (QName serviceName : servicesToRewrite.keySet()) {
+
 			for (File file : referencedFiles) {
 				if (!file.getAbsolutePath().endsWith(".wsdl")) {
 					continue;
 				}
-				
+
 				Definition def = reader.readWSDL(file.getAbsolutePath());
-				
+
 				List<QName> servicesToRemove = new ArrayList<QName>();
 				// fetch defined services
-				for(Object obj : def.getAllServices().values()){
+				for (Object obj : def.getAllServices().values()) {
 					Service service = (Service) obj;
-					
-					if(serviceName.equals(service.getQName())){
+
+					if (serviceName.equals(service.getQName())) {
 						// found wsdl with service we have to rewrite
 						servicesToRemove.add(service.getQName());
-						
+
 						Service newService = new ServiceImpl();
-						
-						for(Object o : service.getPorts().values()){
+
+						for (Object o : service.getPorts().values()) {
 							Port port = (Port) o;
 							newService.addPort(port);
 						}
-						
-						newService.setQName(new QName(serviceName.getNamespaceURI(),csarName + serviceName.getLocalPart()));
-						
+
+						newService.setQName(servicesToRewrite.get(serviceName));
+
 						def.addService(newService);
-						
+
 					}
 				}
-				
-				for(QName serviceToRemove: servicesToRemove){
+
+				for (QName serviceToRemove : servicesToRemove) {
 					def.removeService(serviceToRemove);
 				}
-									
+
 				writer.writeWSDL(def, new FileOutputStream(file));
 			}
 		}
-				
+
 	}
-	
+
 	/**
 	 * Writes the given DOM Document to the location denoted by the given File
 	 * 
-	 * @param destination a File denoting the location to export to
-	 * @param doc the Document to export
-	 * @throws TransformerException is thrown when initializing a
-	 *             TransformerFactory or writing the Document fails
-	 * @throws FileNotFoundException is thrown when the File denoted by the File
-	 *             Object doesn't exist
+	 * @param destination
+	 *            a File denoting the location to export to
+	 * @param doc
+	 *            the Document to export
+	 * @throws TransformerException
+	 *             is thrown when initializing a TransformerFactory or writing
+	 *             the Document fails
+	 * @throws FileNotFoundException
+	 *             is thrown when the File denoted by the File Object doesn't
+	 *             exist
 	 */
 	private void writeBPELDocToFile(File destination, Document doc) throws TransformerException, FileNotFoundException {
 		TransformerFactory tFactory = TransformerFactory.newInstance();
 		Transformer transformer = tFactory.newTransformer();
-		
+
 		transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
 		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-		
+
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new FileOutputStream(destination));
 		transformer.transform(source, result);
