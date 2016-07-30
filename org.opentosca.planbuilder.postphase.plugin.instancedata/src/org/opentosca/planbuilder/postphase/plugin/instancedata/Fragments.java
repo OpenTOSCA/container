@@ -237,7 +237,7 @@ public class Fragments {
 	
 	public Node generateAssignFromPropertyVarToDomMapping(String nodeInstancePropertyRequestVarName, Map<String, Node> propertyVarToDomMapping) throws SAXException, IOException {
 		// create empty bpel:assign
-		String bpelAssignString = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"assignPropertyVarsToAnyElement" + System.currentTimeMillis() + "\"/>";
+		String bpelAssignString = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"assignPropertyVarsToAnyElement" + System.currentTimeMillis() + "\" />";
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(bpelAssignString));
 		Document doc = this.docBuilder.parse(is);
