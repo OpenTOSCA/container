@@ -139,7 +139,6 @@ public class Handler {
 				// add an assign from input to internal property variable
 				context.addAssignFromInput2VariableToMainAssign(
 						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME, sshUserVariable);
-				sshUserVariable = null;
 
 			}
 		}
@@ -166,7 +165,6 @@ public class Handler {
 				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
 				context.addAssignFromInput2VariableToMainAssign(
 						Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD, sshKeyVariable);
-				sshKeyVariable = null;
 			}
 		}
 
@@ -217,7 +215,14 @@ public class Handler {
 
 			if (Utils.isVariableValueEmpty(variable, context)) {
 				Handler.LOG.debug("Variable value is empty, adding to plan input");
-				createEC2InternalExternalPropsInput.put(externalParameter, null);
+
+				// add the new property name to input
+				context.addStringValueToPlanRequest(externalParameter);
+				// add an assign from input to internal property variable
+				context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
+
+				createEC2InternalExternalPropsInput.put(externalParameter, variable);
+
 			} else {
 				createEC2InternalExternalPropsInput.put(externalParameter, variable);
 			}
