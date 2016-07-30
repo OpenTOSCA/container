@@ -368,6 +368,11 @@ public class Utils {
 		AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
+			if (outgoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
+				// we skip connectTo relations, as they are connecting stacks and
+				// make the result even more ambigious
+				continue;
+			}
 			Utils.getNodesFromRelationToSink(outgoingTemplate, nodes);
 		}
 		Utils.cleanDuplciates(nodes);
@@ -385,6 +390,11 @@ public class Utils {
 	public static void getNodesFromNodeToSink(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> nodes) {
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
+			if (outgoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
+				// we skip connectTo relations, as they are connecting stacks and
+				// make the result even more ambigious
+				continue;
+			}
 			Utils.getNodesFromRelationToSink(outgoingTemplate, nodes);
 		}
 		Utils.cleanDuplciates(nodes);
@@ -507,5 +517,31 @@ public class Utils {
 			}
 		}
 		return false;
+	}
+
+	public static void getNodesFromNodeToSource(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> nodes) {
+		nodes.add(nodeTemplate);
+		for (AbstractRelationshipTemplate ingoingTemplate : nodeTemplate.getIngoingRelations()) {
+			if (ingoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
+				// we skip connectTo relations, as they are connecting stacks and
+				// make the result even more ambigious
+				continue;
+			}
+			Utils.getNodesFromRelationToSources(ingoingTemplate, nodes);
+		}
+		Utils.cleanDuplciates(nodes);
+	}
+
+	private static void getNodesFromRelationToSources(AbstractRelationshipTemplate ingoingTemplate,
+			List<AbstractNodeTemplate> nodes) {
+		AbstractNodeTemplate nodeTemplate = ingoingTemplate.getSource();
+		nodes.add(nodeTemplate);
+		for (AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getIngoingRelations()) {
+			if (outgoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
+				continue;
+			}
+			Utils.getNodesFromRelationToSources(outgoingTemplate, nodes);
+		}
+		Utils.cleanDuplciates(nodes);
 	}
 }

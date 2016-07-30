@@ -297,7 +297,7 @@ public class Fragments {
 	 *             is thrown when reading internal files fails
 	 */
 	public String createRESTExtensionGETForNodeInstanceDataAsString(String instanceDataUrlVar, String responseVarName,
-			String templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate) throws IOException {
+			QName templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate) throws IOException {
 		// <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId,
 		// $serviceInstanceUrlVarName, $templateType -->
 
@@ -307,12 +307,12 @@ public class Fragments {
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 		template = template.replace("$InstanceDataURLVar", instanceDataUrlVar);
 		template = template.replace("$ResponseVarName", responseVarName);
-		template = template.replace("$TemplateId", templateId);
+		template = template.replace("$TemplateId", templateId.toString());
 		template = template.replace("$serviceInstanceUrlVarName", serviceInstanceUrlVarName);
 		if (isNodeTemplate) {
-			template = template.replace("$templateType", "nodeTemplate");
+			template = template.replace("$templateType", "nodeTemplateID");
 		} else {
-			template = template.replace("$templateType", "relationshipTemplate");
+			template = template.replace("$templateType", "relationshipTemplateID");
 		}
 		return template;
 	}
@@ -342,7 +342,7 @@ public class Fragments {
 	 *             is thrown when parsing internal files fails
 	 */
 	public Node createRESTExtensionGETForNodeInstanceDataAsNode(String instanceDataUrlVar, String responseVarName,
-			String templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate)
+			QName templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate)
 			throws SAXException, IOException {
 		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(instanceDataUrlVar,
 				responseVarName, templateId, serviceInstanceUrlVarName, isNodeTemplate);

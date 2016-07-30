@@ -218,7 +218,7 @@ public class ServiceInstanceInitializer {
 
 		try {
 			Node assignNode = this.fragments.generateAssignFromInputMessageToStringVariableAsNode(
-					ServiceInstanceInitializer.InstanceDataAPIUrlKeyword, varName);
+					varName, varName);
 
 			assignNode = plan.getBpelDocument().importNode(assignNode, true);
 			this.appendToInitSequence(assignNode, plan);

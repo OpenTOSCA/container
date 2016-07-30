@@ -79,8 +79,7 @@ public class TemplatePlanContext {
 	 *            a PropertyMap containing mappings for all Template properties
 	 *            of the TopologyTemplate the ServiceTemplate has
 	 */
-	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, PropertyMap map,
-			QName serviceTemplateId) {
+	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, PropertyMap map, QName serviceTemplateId) {
 		this.templateBuildPlan = templateBuildPlan;
 		this.serviceTemplateId = serviceTemplateId;
 
@@ -845,7 +844,7 @@ public class TemplatePlanContext {
 	}
 
 	/**
-	 * Registers XML Schema Type in the BPEL Plan
+	 * Registers XML Schema Types in the given BPEL Plan
 	 *
 	 * @param type
 	 *            QName of the XML Schema Type
@@ -1120,8 +1119,13 @@ public class TemplatePlanContext {
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 
 		if (this.isNodeTemplate()) {
-			// get all NodeTemplates that are reachable from this nodeTemplate
-			Utils.getNodesFromNodeToSink(this.getNodeTemplate(), infraNodes);
+			if (forSource) {
+				// get all NodeTemplates that are reachable from this
+				// nodeTemplate
+				Utils.getNodesFromNodeToSink(this.getNodeTemplate(), infraNodes);
+			} else {
+				Utils.getNodesFromNodeToSource(this.getNodeTemplate(), infraNodes);
+			}
 		} else {
 			if (forSource) {
 				Utils.getNodesFromNodeToSink(this.getRelationshipTemplate().getSource(), infraNodes);
@@ -1431,7 +1435,8 @@ public class TemplatePlanContext {
 
 		// create context from this context and set the given nodeTemplate as
 		// the node for the scope
-		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan,this.propertyMap, this.serviceTemplateId);
+		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.propertyMap,
+				this.serviceTemplateId);
 
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);

@@ -226,8 +226,14 @@ public class TemplatePlanBuilder {
 				for (String opName : operationNames) {
 					for (Integer index = 0; index < provCandidate.ops.size(); index++) {
 						AbstractOperation op = provCandidate.ops.get(index);
-						if (opName.equals(op.getName())) {
-							order.put(opName, index);
+						if (op instanceof InterfaceDummy) {
+							if (((InterfaceDummy) op).getOperationNames().contains(opName)) {
+								order.put(opName, index);
+							}
+						} else {
+							if (opName.equals(op.getName())) {
+								order.put(opName, index);
+							}
 						}
 					}
 				}
@@ -238,6 +244,11 @@ public class TemplatePlanBuilder {
 						continue;
 					}
 					AbstractOperation op = provCandidate.ops.get(index);
+
+					if (op instanceof InterfaceDummy) {
+						op = ((InterfaceDummy) op).getOperation(opName);
+					}
+
 					if (!operationNames.contains(op.getName())) {
 						// if the operation isn't mentioned in operationName
 						// list, don't execute the operation
@@ -284,18 +295,18 @@ public class TemplatePlanBuilder {
 					}
 					AbstractImplementationArtifact ia = provCandidate.ias.get(index);
 					IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
-					
-					if(plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin){
+
+					if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
 						IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
-						if(paramPlugin.handle(context, op, ia,param2propertyMapping)){
+						if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
 							checkCount++;
 						}
-					} 
-					
+					}
+
 				}
 			}
 			return checkCount == operationNames.size();
-			
+
 		}
 	}
 
@@ -349,42 +360,88 @@ public class TemplatePlanBuilder {
 		 * 
 		 * @param nodeTemplate
 		 *            an AbtractNodeTemplate
-		 * @return true if all Interfaces of the NodeTemplate can be provisioned,
-		 *         else false
+		 * @return true if all Interfaces of the NodeTemplate can be
+		 *         provisioned, else false
 		 */
 		private boolean isValid(AbstractNodeTemplate nodeTemplate) {
+			// calculate the size of implemented operations by the IAs
 
-			int operationsCount = 0;
+			int implementedOpsByIAsCount = 0;
 
-			for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-				operationsCount += iface.getOperations().size();
-			}
-
-			// check if every operation defined on the template is matched
-			if (operationsCount != this.ops.size() && operationsCount != this.ias.size()
-					&& operationsCount != this.ias.size()) {
-				return false;
-			}
-
-			// check if the operations are the same
-
-			int counter = 0;
-			for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
-				for (AbstractOperation iFaceOp : iface.getOperations()) {
-					for (AbstractOperation op : this.ops) {
-						if (iFaceOp.equals(op)) {
-							counter++;
+			for (AbstractImplementationArtifact ia : this.ias) {
+				if (ia.getInterfaceName() != null) {
+					if (ia.getOperationName() != null) {
+						// ia implements some single operation
+						implementedOpsByIAsCount++;
+					} else {
+						// we have to find the interface and count the
+						// operations in it
+						for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+							if (iface.getName().equals(ia.getInterfaceName())) {
+								implementedOpsByIAsCount += iface.getOperations().size();
+							}
 						}
 					}
 				}
-
 			}
 
-			if (counter != operationsCount) {
-				// found an interface which can be provisioned
+			int operationsToImplementCount = 0;
+
+			for (AbstractOperation op : this.ops) {
+				if (op instanceof InterfaceDummy) {
+					String ifaceName = ((InterfaceDummy) op).getIA().getInterfaceName();
+					for (AbstractInterface iface : ((InterfaceDummy) op).getNodeTemplate().getType().getInterfaces()) {
+						if (iface.getName().equals(ifaceName)) {
+							operationsToImplementCount += iface.getOperations().size();
+						}
+					}
+				} else {
+					operationsToImplementCount++;
+				}
+			}
+
+			if (operationsToImplementCount != implementedOpsByIAsCount) {
 				return false;
 			}
-			
+
+			if (this.ias.size() != this.plugins.size() && this.ops.size() != this.plugins.size()) {
+				return false;
+			}
+
+			// /* old */
+			// int operationsCount = 0;
+			//
+			// for (AbstractInterface iface :
+			// nodeTemplate.getType().getInterfaces()) {
+			// operationsCount += iface.getOperations().size();
+			// }
+			//
+			// // check if every operation defined on the template is matched
+			// if (operationsCount != this.ops.size() && operationsCount !=
+			// this.ias.size()) {
+			// return false;
+			// }
+			//
+			// // check if the operations are the same
+			//
+			// int counter = 0;
+			// for (AbstractInterface iface :
+			// nodeTemplate.getType().getInterfaces()) {
+			// for (AbstractOperation iFaceOp : iface.getOperations()) {
+			// for (AbstractOperation op : this.ops) {
+			// if (iFaceOp.equals(op)) {
+			// counter++;
+			// }
+			// }
+			// }
+			//
+			// }
+			//
+			// if (counter != operationsCount) {
+			// // found an interface which can be provisioned
+			// return false;
+			// }
+
 			return true;
 		}
 
@@ -946,6 +1003,75 @@ public class TemplatePlanBuilder {
 	}
 
 	/**
+	 * As some IAs may implement a whole interface we mock the matching of these
+	 * kind of IAs with this dummy class
+	 * 
+	 * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
+	 *
+	 */
+	private static class InterfaceDummy extends AbstractOperation {
+
+		private AbstractImplementationArtifact ia;
+		private AbstractNodeTemplate nodeTemplate;
+
+		public InterfaceDummy(AbstractNodeTemplate nodeTemplate, AbstractImplementationArtifact ia) {
+			this.ia = ia;
+			this.nodeTemplate = nodeTemplate;
+		}
+
+		public AbstractOperation getOperation(String opName) {
+			for (AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+				if (iface.getName().equals(this.ia.getInterfaceName())) {
+					for (AbstractOperation op : iface.getOperations()) {
+						if (op.getName().equals(opName)) {
+							return op;
+						}
+					}
+
+				}
+			}
+			return null;
+		}
+
+		public List<String> getOperationNames() {
+			for (AbstractInterface iface : this.nodeTemplate.getType().getInterfaces()) {
+				if (iface.getName().equals(this.ia.getInterfaceName())) {
+					List<String> opNames = new ArrayList<String>();
+					for (AbstractOperation op : iface.getOperations()) {
+						opNames.add(op.getName());
+					}
+					return opNames;
+				}
+			}
+			return new ArrayList<String>();
+		}
+
+		public AbstractNodeTemplate getNodeTemplate() {
+			return this.nodeTemplate;
+		}
+
+		public AbstractImplementationArtifact getIA() {
+			return this.ia;
+		}
+
+		@Override
+		public String getName() {
+			return this.ia.getInterfaceName();
+		}
+
+		@Override
+		public List<AbstractParameter> getInputParameters() {
+			return null;
+		}
+
+		@Override
+		public List<AbstractParameter> getOutputParameters() {
+			return null;
+		}
+
+	}
+
+	/**
 	 * Returns the Operation which is implemented by the given IA
 	 * 
 	 * @param nodeTemplate
@@ -957,6 +1083,11 @@ public class TemplatePlanBuilder {
 	 */
 	private static AbstractOperation getOperationForIa(AbstractNodeTemplate nodeTemplate,
 			AbstractImplementationArtifact ia) {
+
+		if (ia.getInterfaceName() != null & ia.getOperationName() == null) {
+			return new InterfaceDummy(nodeTemplate, ia);
+		}
+
 		for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
 			for (AbstractOperation op : iface.getOperations()) {
 				if (op.getName().equals(ia.getOperationName())) {

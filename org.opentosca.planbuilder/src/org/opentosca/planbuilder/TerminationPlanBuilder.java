@@ -97,7 +97,8 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 					&& serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				String processName = serviceTemplate.getId() + "_terminationPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
-				BuildPlan newTerminationPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 2);
+				BuildPlan newTerminationPlan = this.planHandler.createPlan(serviceTemplate, processName,
+						processNamespace, 2);
 				newTerminationPlan.setDefinitions(definitions);
 				newTerminationPlan.setCsarName(csarName);
 
@@ -122,18 +123,31 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				this.initializeConnectionsInTerminationPlan(newTerminationPlan);
 
 				PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
-				
+
 				// instanceDataAPI handling is done solely trough this extension
-				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newTerminationPlan);
+				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+						newTerminationPlan);
 
 				// initialize instanceData handling, add
 				// instanceDataAPI/serviceInstanceID into input, add global
 				// variables to hold the value for plugins
 				this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newTerminationPlan);
 
-				this.nodeInstanceInitializer.initializeNodeInstanceData(newTerminationPlan, propMap);
+				this.nodeInstanceInitializer.addNodeInstanceIDVarToTemplatePlans(newTerminationPlan);
+				this.nodeInstanceInitializer.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
+						propMap);
+
+				// TODO add null/empty check of property variables, as the
+				// templatePlan should abort when the properties aren't set with
+				// values
 
 				this.runPlugins(newTerminationPlan, serviceTemplate.getQName(), propMap);
+
+				// TODO we need to wrap the pre-, prov- and post-phase sequences
+				// into a forEach activity that iterates over all nodeInstances
+				// of a given nodeTemplate. This allows us to generate code for
+				// a single nodeInstance which can then be used for all
+				// nodeInstances by using the same code on each instance
 
 				// TODO add logic at the end of the process to DELETE the
 				// serviceInstance with the instanceDataAPI

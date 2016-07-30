@@ -28,6 +28,7 @@ public class NodeInstanceInitializer {
 
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
+	private static final String NodeInstanceIDVarKeyword = "nodeInstanceID";
 
 	private BPELProcessHandler bpelProcessHandler;
 
@@ -39,6 +40,142 @@ public class NodeInstanceInitializer {
 		this.bpelProcessHandler = new BPELProcessHandler();
 		this.bpelTemplateScopeHandler = new BPELTemplateScopeHandler();
 		this.bpelFragments = new Fragments();
+	}
+
+	/**
+	 * Adds logic to fetch property data from the instanceDataAPI with the
+	 * nodeInstanceID variable. The property data is then assigned to
+	 * appropriate BPEL variables of the given plan.
+	 * 
+	 * @param plan
+	 *            a plan containing templatePlans with set nodeInstanceID
+	 *            variables
+	 * @param propMap
+	 *            a Mapping from NodeTemplate Properties to BPEL Variables
+	 * @return true if adding logic described above was successful
+	 */
+	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(BuildPlan plan, PropertyMap propMap) {
+		boolean check = true;
+		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null
+					&& templatePlan.getNodeTemplate().getProperties().getDOMElement() != null) {
+				check &= this.addPropertyVariableUpdateBasedOnNodeInstanceID(templatePlan, propMap);
+			}
+		}
+		return check;
+	}
+
+	/**
+	 * Adds logic to fetch property data from the instanceDataAPI with the
+	 * nodeInstanceID variable. The property data is then assigned to
+	 * appropriate BPEL Variables of the given templatePlan.
+	 * 
+	 * @param templatePlan
+	 *            a TemplatePlan of a NodeTemplate that has properties
+	 * @param propMap
+	 *            a Mapping from NodeTemplate Properties to BPEL Variables
+	 * @return true if adding logic described above was successful
+	 */
+	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(TemplateBuildPlan templatePlan, PropertyMap propMap) {
+		// check if everything is available
+		if (templatePlan.getNodeTemplate() == null) {
+			return false;
+		}
+
+		if (templatePlan.getNodeTemplate().getProperties() == null) {
+			return false;
+		}
+
+		if (!this.bpelTemplateScopeHandler.getVariableNames(templatePlan).contains(NodeInstanceIDVarKeyword)) {
+			return false;
+		}
+
+		AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+		// add XMLSchema Namespace for the logic
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
+		// create Response Variable for interaction
+		String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
+		this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
+				new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+
+		// fetch properties from nodeInstance
+		try {
+			Node nodeInstancePropertiesGETNode = this.bpelFragments
+					.createRESTExtensionGETForNodeInstancePropertiesAsNode(NodeInstanceIDVarKeyword,
+							instanceDataAPIResponseVarName);
+			nodeInstancePropertiesGETNode = templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode,
+					true);
+			templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		}
+
+		// assign bpel variables from the requested properties
+		// create mapping from property dom nodes to bpelvariable
+		Map<Element, String> element2BpelVarNameMap = new HashMap<Element, String>();
+		NodeList propChildNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
+		for (int index = 0; index < propChildNodes.getLength(); index++) {
+			if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
+				Element childElement = (Element) propChildNodes.item(index);
+				// find bpelVariable
+				String bpelVarName = propMap.getPropertyMappingMap(nodeTemplate.getId())
+						.get(childElement.getLocalName());
+				if (bpelVarName != null) {
+					element2BpelVarNameMap.put(childElement, bpelVarName);
+				}
+			}
+		}
+
+		try {
+			Node assignPropertiesToVariables = this.bpelFragments
+					.createAssignFromNodeInstancePropertyToBPELVariableAsNode(
+							"assignPropertiesFromResponseToBPELVariable" + System.currentTimeMillis(),
+							instanceDataAPIResponseVarName, element2BpelVarNameMap);
+			assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
+			templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Adds a NodeInstanceID Variable to each TemplatePlan inside the given Plan
+	 * 
+	 * @param plan
+	 *            a plan with TemplatePlans
+	 * @return
+	 */
+	public boolean addNodeInstanceIDVarToTemplatePlans(BuildPlan plan) {
+		boolean check = true;
+		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+			check &= this.addNodeInstanceIDVarToTemplatePlan(templatePlan);
+		}
+		return check;
+	}
+
+	/**
+	 * Adds a NodeInstanceID Variable to the given TemplatePlan
+	 * 
+	 * @param templatePlan
+	 *            a TemplatePlan
+	 * @return true iff adding a NodeInstanceID Var was successful
+	 */
+	public boolean addNodeInstanceIDVarToTemplatePlan(TemplateBuildPlan templatePlan) {
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+
+		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
+
+		return this.bpelTemplateScopeHandler.addVariable(NodeInstanceInitializer.NodeInstanceIDVarKeyword,
+				VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
 	}
 
 	/**
@@ -98,7 +235,8 @@ public class NodeInstanceInitializer {
 			// find nodeInstance with query at instanceDataAPI
 			try {
 				Node nodeInstanceGETNode = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(
-						instanceDataUrlVarName, instanceDataAPIResponseVarName, nodeTemplate.getId(),
+						instanceDataUrlVarName, instanceDataAPIResponseVarName,
+						new QName(plan.getServiceTemplate().getNamespaceURI(), nodeTemplate.getId()),
 						serviceInstanceIdVarName, true);
 				nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
 				templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstanceGETNode);

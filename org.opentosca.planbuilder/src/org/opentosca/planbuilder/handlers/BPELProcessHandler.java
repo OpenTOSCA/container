@@ -404,12 +404,12 @@ public class BPELProcessHandler {
 	 *            Note: Prefix must be set.
 	 * @param buildPlan
 	 *            the buildPlan to add the variable to
-	 * @return
+	 * @return true if adding a variable to the plan was successful
 	 */
 	public boolean addVariable(String name, BuildPlan.VariableType variableType, QName declarationId,
 			BuildPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to BuildPlan {}",
-				name, variableType, declarationId.toString(), buildPlan.getBpelProcessElement().getAttribute("name"));
+		BPELProcessHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to Plan {}", name,
+				variableType, declarationId.toString(), buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasVariable(name, buildPlan)) {
 			BPELProcessHandler.LOG.warn("Adding variable failed");
 			return false;
@@ -773,9 +773,18 @@ public class BPELProcessHandler {
 
 	}
 
-	public List<String> getMainVariableNames(BuildPlan buildPlan) {
+	/**
+	 * Returns a List of Names of variables defined in the globla scope of the
+	 * given plan
+	 * 
+	 * @param plan
+	 *            a BPEL plan
+	 * @return a List of Strings containing the names of the variables defined
+	 *         inside the given plan
+	 */
+	public List<String> getMainVariableNames(BuildPlan plan) {
 		List<String> names = new ArrayList<String>();
-		NodeList childNodes = buildPlan.getBpelProcessVariablesElement().getChildNodes();
+		NodeList childNodes = plan.getBpelProcessVariablesElement().getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node child = childNodes.item(i);
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
