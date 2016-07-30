@@ -11,6 +11,7 @@ public class Messages extends NLS {
 	public static String BpsPlanEnginePlugin_bpsLoginPw;
 	public static String BpsPlanEnginePlugin_language;
 	public static String BpsPlanEnginePlugin_capabilities;
+	public static String BpsPlanEnginPlugin_bpsServiceRootAddress;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(Messages.BUNDLE_NAME, Messages.class);
