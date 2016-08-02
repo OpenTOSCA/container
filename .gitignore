@@ -1,9 +1,6 @@
-.sonar/
-.settings
-.classpath
-.project
+*.sonar/
+*.settings
+*.classpath
+*.project
 bin
 target
-org.opentosca.*/.project
-org.opentosca.*/.classpath
-org.opentosca.*/.settings
