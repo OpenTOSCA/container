@@ -12,6 +12,6 @@
 		<command>cd {TARGET_FILE_FOLDER_PATH}</command>
 		<command>unzip {TARGET_FILE_NAME_WITH_E}</command>
 		<command>cd {TARGET_FILE_NAME_WITHOUT_E}</command>
-		<command>ansible-playbook {{Playbook}}</command>
+		<command>ansible-playbook {{Playbook}} {{Variables}}</command>
 	</commands>
 </artifacttype>

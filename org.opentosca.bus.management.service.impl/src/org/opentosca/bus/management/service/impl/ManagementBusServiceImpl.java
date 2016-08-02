@@ -170,7 +170,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
 								// if endpoint has placeholder, replace it with
 								// a matching property value
-								if (endpoint.toString().startsWith("/PLACEHOLDER_")) {
+								if (endpoint.toString().startsWith("/PLACEHOLDER_")
+										&& endpoint.toString().contains("_PLACEHOLDER/")) {
 
 									endpoint = replacePlaceholderWithInstanceData(endpoint, csarID, serviceTemplateID,
 											nodeTemplateID, serviceInstanceID);

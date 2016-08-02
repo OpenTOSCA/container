@@ -119,8 +119,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 				if (osNodeTypeID != null) {
 					ManagementBusPluginRemoteServiceImpl.LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
-					String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID,
-							osNodeTemplateID);
+					String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
 
 					if (osIAName != null) {
 
@@ -424,7 +423,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Defined generic command for ArtifactType {} : {} ",
 				artifactType, commandsString);
 
-		// replace placeholder with data from inputParams and instance data
+		// replace placeholder with data from inputParams and/or instance data
 
 		if (commandsString.contains("{{") && commandsString.contains("}}")) {
 
@@ -437,7 +436,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				paramsMap = (HashMap<String, String>) params;
 			} else if (params instanceof Document) {
 				Document paramsDoc = (Document) params;
-				paramsMap = MBUtils.docToMap(paramsDoc);
+				paramsMap = MBUtils.docToMap(paramsDoc, true);
 			}
 
 			Document propDoc = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID,
@@ -445,11 +444,10 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 			if (propDoc != null) {
 
-				paramsMap.putAll(MBUtils.docToMap(propDoc));
+				paramsMap.putAll(MBUtils.docToMap(propDoc, true));
 
 				for (Entry<String, String> prop : paramsMap.entrySet()) {
-					commandsString = commandsString.replace("{{" + prop.getKey() + "}}",
-							FilenameUtils.separatorsToUnix(prop.getValue()));
+					commandsString = commandsString.replace("{{" + prop.getKey() + "}}", prop.getValue());
 				}
 			}
 
