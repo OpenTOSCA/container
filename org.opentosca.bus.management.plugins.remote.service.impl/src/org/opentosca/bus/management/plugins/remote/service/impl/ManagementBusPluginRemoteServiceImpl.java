@@ -405,7 +405,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	private String createArtifcatTypeSpecificCommandString(CSARID csarID, QName artifactType, QName artifactTemplateID,
 			Object params) {
 
-		ManagementBusPluginRemoteServiceImpl.LOG.debug("Creating ArtifcatType specific command...");
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("Creating ArtifcatType specific command for artifactType {}:...",
+				artifactType);
 
 		String commandsString = "";
 
