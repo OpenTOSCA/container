@@ -119,7 +119,8 @@ public class Fragments {
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 
-		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BuildPlan.bpelNamespace + "\" >";
+		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BuildPlan.bpelNamespace
+				+ "\" >";
 
 		// <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
 		// $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
@@ -132,7 +133,7 @@ public class Fragments {
 		}
 
 		assignString += "</bpel:assign>";
-		
+
 		LOG.debug("Generated following assign string:");
 		LOG.debug(assignString);
 
@@ -318,6 +319,55 @@ public class Fragments {
 	}
 
 	/**
+	 * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to
+	 * request on.
+	 * 
+	 * @param bpelVarName
+	 *            the variable containing an URL
+	 * @param responseVarName
+	 *            the variable to hold the response
+	 * @return a String containing a BPEL4RESTLight Activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fails
+	 */
+	public String createRESTDeleteOnURLBPELVarAsString(String bpelVarName, String responseVarName) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPEL4RESTLightDELETE.xml");
+		// <!-- $urlVarName, $ResponseVarName -->
+
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("$urlVarName", bpelVarName);
+		template = template.replace("$ResponseVarName", responseVarName);
+
+		return template;
+	}
+
+	/**
+	 * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to
+	 * request on.
+	 * 
+	 * @param bpelVarName
+	 *            the variable containing an URL
+	 * @param responseVarName
+	 *            the variable to hold the response
+	 * @return a String containing a BPEL4RESTLight Activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fails
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fails
+	 */
+	public Node createRESTDeleteOnURLBPELVarAsNode(String bpelVarName, String responseVarName)
+			throws IOException, SAXException {
+		String templateString = this.createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
 	 * Creates a Node containing a BPEL fragment which uses the
 	 * BPELRESTExtension to fetch the InstanceData from an OpenTOSCA Container
 	 * instanceDataAPI
@@ -461,6 +511,58 @@ public class Fragments {
 			QName serviceTemplateId, String responseVariableName) throws IOException, SAXException {
 		String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId,
 				serviceTemplateId, responseVariableName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
+	 * Generates a BPEL If activity that throws the given fault when the given
+	 * expr evaluates to true at runtime
+	 * 
+	 * @param xpath1Expr
+	 *            a XPath 1.0 expression as String
+	 * @param faultQName
+	 *            a QName denoting the fault to be thrown when the if evaluates
+	 *            to true
+	 * @return a String containing a BPEL If Activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fails
+	 */
+	public String generateBPELIfTrueThrowFaultAsString(String xpath1Expr, QName faultQName) throws IOException {
+		// <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPELIfTrueThrowFault.xml");
+		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelIfString = FileUtils.readFileToString(bpel4RestFile);
+
+		bpelIfString = bpelIfString.replace("$xpath1Expr", xpath1Expr);
+
+		bpelIfString = bpelIfString.replace("$faultPrefix", faultQName.getLocalPart());
+		bpelIfString = bpelIfString.replace("$faultLocalName", faultQName.getLocalPart());
+
+		return bpelIfString;
+	}
+
+	/**
+	 * Generates a BPEL If activity that throws the given fault when the given
+	 * expr evaluates to true at runtime
+	 * 
+	 * @param xpath1Expr
+	 *            a XPath 1.0 expression as String
+	 * @param faultQName
+	 *            a QName denoting the fault to be thrown when the if evaluates
+	 *            to true
+	 * @return a Node containing a BPEL If Activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fails
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fails
+	 */
+	public Node generateBPELIfTrueThrowFaultAsNode(String xpath1Expr, QName faultQName)
+			throws IOException, SAXException {
+		String templateString = this.generateBPELIfTrueThrowFaultAsString(xpath1Expr, faultQName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);

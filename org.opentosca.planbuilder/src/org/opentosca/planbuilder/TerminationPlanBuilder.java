@@ -132,14 +132,18 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				// instanceDataAPI/serviceInstanceID into input, add global
 				// variables to hold the value for plugins
 				this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newTerminationPlan);
+				this.serviceInstanceInitializer.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 
 				this.nodeInstanceInitializer.addNodeInstanceIDVarToTemplatePlans(newTerminationPlan);
+				this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan);
 				this.nodeInstanceInitializer.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
 						propMap);
 
 				// TODO add null/empty check of property variables, as the
 				// templatePlan should abort when the properties aren't set with
 				// values
+				this.nodeInstanceInitializer.addIfNullAbortCheck(newTerminationPlan, propMap);
+				
 
 				this.runPlugins(newTerminationPlan, serviceTemplate.getQName(), propMap);
 
@@ -149,8 +153,9 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				// a single nodeInstance which can then be used for all
 				// nodeInstances by using the same code on each instance
 
-				// TODO add logic at the end of the process to DELETE the
+				// add logic at the end of the process to DELETE the
 				// serviceInstance with the instanceDataAPI
+				this.serviceInstanceInitializer.appendServiceInstanceDelete(newTerminationPlan);
 
 				this.idInit.addCorrellationID(newTerminationPlan);
 

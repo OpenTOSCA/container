@@ -175,7 +175,78 @@ public class NodeInstanceInitializer {
 		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
 
 		return this.bpelTemplateScopeHandler.addVariable(NodeInstanceInitializer.NodeInstanceIDVarKeyword,
-				VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+				VariableType.TYPE, new QName(xsdNamespace, "string", xsdPrefix), templatePlan);
+	}
+
+	public boolean addNodeInstanceFindLogic(BuildPlan plan) {
+		boolean check = true;
+
+		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+			if (templatePlan.getNodeTemplate() != null) {
+				check &= this.addNodeInstanceFindLogic(templatePlan, ServiceInstanceVarKeyword,
+						InstanceDataAPIUrlKeyword);
+			}
+		}
+
+		return check;
+	}
+
+	/**
+	 * Fetches the correct nodeInstanceID link for the given TemplatePlan and
+	 * sets the value inside a NodeInstanceID bpel variable
+	 * 
+	 * @param templatePlan
+	 *            a templatePlan with set variable with name NodeInstanceID
+	 * @param serviceInstanceIdVarName
+	 *            the name of the variable holding the url to the
+	 *            serviceInstance
+	 * @param instanceDataUrlVarName
+	 *            the name of the variable holding the url to the
+	 *            instanceDataAPI
+	 * @return
+	 */
+	public boolean addNodeInstanceFindLogic(TemplateBuildPlan templatePlan, String serviceInstanceIdVarName,
+			String instanceDataUrlVarName) {
+		// add XML Schema Namespace for the logic
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
+		// create Response Variable for interaction
+		String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
+		this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
+				new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+		// find nodeInstance with query at instanceDataAPI
+		try {
+			Node nodeInstanceGETNode = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(
+					instanceDataUrlVarName, instanceDataAPIResponseVarName,
+					new QName(templatePlan.getBuildPlan().getServiceTemplate().getNamespaceURI(),
+							templatePlan.getNodeTemplate().getId()),
+					serviceInstanceIdVarName, true);
+			nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
+			templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstanceGETNode);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// fetch nodeInstanceID from nodeInstance query
+		try {
+			Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse = this.bpelFragments
+					.createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsNode(
+							"assignNodeInstanceIDFromInstanceDataAPIResponse" + System.currentTimeMillis(),
+							NodeInstanceInitializer.NodeInstanceIDVarKeyword, instanceDataAPIResponseVarName);
+			assignNodeInstanceIDFromInstanceDataAPIQueryResponse = templatePlan.getBpelDocument()
+					.importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
+			templatePlan.getBpelSequencePrePhaseElement()
+					.appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return true;
 	}
 
 	/**
@@ -312,6 +383,40 @@ public class NodeInstanceInitializer {
 				e.printStackTrace();
 			}
 
+		}
+
+		return true;
+	}
+
+	public boolean addIfNullAbortCheck(BuildPlan plan, PropertyMap propMap) {
+		boolean check = true;
+		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null) {
+				check &= this.addIfNullAbortCheck(templatePlan, propMap);
+			}
+		}
+		return check;
+	}
+
+	public boolean addIfNullAbortCheck(TemplateBuildPlan templatePlan, PropertyMap propMap) {
+
+		for (String propLocalName : propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId()).keySet()) {
+			String bpelVarName = propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId())
+					.get(propLocalName);
+			// as the variables are there and only possibly empty we just check the string inside
+			String xpathQuery = "string-length(normalize-space($" + bpelVarName + ")) = 0";
+			QName propertyEmptyFault = new QName("http://opentosca.org/plans/faults", "PropertyValueEmptyFault");
+			try {
+				Node bpelIf = this.bpelFragments.generateBPELIfTrueThrowFaultAsNode(xpathQuery, propertyEmptyFault);
+				bpelIf = templatePlan.getBpelDocument().importNode(bpelIf, true);
+				templatePlan.getBpelSequencePrePhaseElement().appendChild(bpelIf);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			} catch (SAXException e) {
+				e.printStackTrace();
+				return false;
+			}
 		}
 
 		return true;
