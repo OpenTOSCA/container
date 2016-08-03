@@ -56,6 +56,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 		String containerPort = getProperty(properties, "containerPort");
 		String endpointPath = getProperty(properties, "endpointPath");
 		String endpointKind = getProperty(properties, "endpointKind");
+		String soapPortType = getProperty(properties, "soapPortType");
 
 		LOG.info("contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={}", contextFile, serviceName, containerPort, endpointPath, endpointKind);
 
@@ -91,11 +92,15 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 			                     + "\"serviceName\":   \"" + serviceName   + "\","
 			                     + "\"endpointPath\":  \"" + endpointPath  + "\","
 			                     + "\"endpointKind\":  \"" + endpointKind  + "\","
-			                     + "\"csar\":          \"" + csarIdStr     + "\""
+			                     + "\"soapPortType\":  \"" + soapPortType  + "\","
+			                     + "\"csar\":          \"" + csarIdStr     + "\","
+			                     + "\"deployed\":            true                "
 													 + "}");
  		} catch (Exception e) {
 			LOG.error("Error deployImplementationArtifact", e);
  		}
+
+		LOG.info("Docker Compose IA deployed: {}", endpoint);
 
 		return toUri(endpoint);
 	}
@@ -112,11 +117,19 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 			rmrf(contextPath);
 
 			CONTEXT.remove(endpoint);
+
+			append(ENDPOINTS_FILE, "{"
+			                     + "\"contextPath\":   \"" + contextPath   + "\","
+			                     + "\"endpoint\":      \"" + endpoint      + "\","
+			                     + "\"undeployed\":          true                "
+													 + "}");
 		} catch (Exception e) {
 			LOG.error("Error undeployImplementationArtifact", e);
 
 			return false;
 		}
+
+		LOG.info("Docker Compose IA undeployed: {}", endpoint);
 
 		return true;
 	}

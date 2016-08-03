@@ -322,7 +322,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		String localName = currentNode.getLocalName();
 		
 		if (localName != null) {
-			return localName.equals("PortType");
+			return localName.equals("PortType") || localName.equals("soapPortType");
 		}
 		return false;
 	}
