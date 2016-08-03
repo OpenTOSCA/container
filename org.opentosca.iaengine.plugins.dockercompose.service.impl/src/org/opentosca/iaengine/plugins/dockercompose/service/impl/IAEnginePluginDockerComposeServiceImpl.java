@@ -252,14 +252,17 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 	 * Static helper functions
 	 *
 	 */
-  private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
-  private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_SCRIPT");
+  //private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
+  private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_CMD");
   private static String LOG_FILE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_LOG");
   private static String ENDPOINTS_FILE = System.getenv("OPENTOSCA_ENDPOINTS_JSON");
 
   static {
       if (ENDPOINTS_FILE == null) ENDPOINTS_FILE = "/tmp/opentosca-docker-compose-endpoints.json";
 
+			if (DOCKER_COMPOSE == null) DOCKER_COMPOSE = "docker-compose";
+
+			/*
       if (DOCKER_COMPOSE == null) {
           try {
               DOCKER_COMPOSE = java.nio.file.Files.createTempDirectory("docker-compose-").toString() + "/run.sh";
@@ -271,6 +274,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
               e.printStackTrace();
           }
       }
+			*/
   }
 
   private static void log(String message) {
@@ -293,17 +297,17 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static void dcBuild(String contextPath) throws Exception {
-      String[] cmd = { "bash", DOCKER_COMPOSE, "build", "--force-rm" };
+      String[] cmd = { DOCKER_COMPOSE, "build", "--force-rm" };
       execCmd(cmd, contextPath);
   }
 
   private static void dcUp(String contextPath) throws Exception {
-      String[] cmd = { "bash", DOCKER_COMPOSE, "up", "-d", "--remove-orphans" };
+      String[] cmd = { DOCKER_COMPOSE, "up", "-d", "--remove-orphans" };
       execCmd(cmd, contextPath);
   }
 
   private static String dcLogs(String contextPath) throws Exception {
-      String[] cmd = { "bash", DOCKER_COMPOSE, "logs" };
+      String[] cmd = { DOCKER_COMPOSE, "logs" };
       String[] res = execCmd(cmd, contextPath);
 
       String logs = res[1];
@@ -311,7 +315,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static String dcPort(String contextPath, String serviceName, String containerPort) throws Exception {
-      String[] cmd = { "bash", DOCKER_COMPOSE, "port", serviceName, containerPort };
+      String[] cmd = { DOCKER_COMPOSE, "port", serviceName, containerPort };
       String[] res = execCmd(cmd, contextPath);
 
 			try {
@@ -323,7 +327,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static void dcDown(String contextPath) throws Exception {
-      String[] cmd = { "bash", DOCKER_COMPOSE, "down", "--rmi", "all", "-v", "--remove-orphans" };
+      String[] cmd = { DOCKER_COMPOSE, "down", "--rmi", "all", "-v", "--remove-orphans" };
       execCmd(cmd, contextPath);
   }
 
@@ -344,7 +348,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       java.nio.file.Files.write(java.nio.file.Paths.get(filePath), (content + "\n").getBytes(), java.nio.file.StandardOpenOption.APPEND);
   }
 
-  private static void fetchFile(String url, String filePath) throws Exception {
+  /*
+	private static void fetchFile(String url, String filePath) throws Exception {
       java.net.URL website = new java.net.URL(url);
 
       java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(website.openStream());
@@ -353,6 +358,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
       fos.close();
   }
+	*/
 
   private static String[] execCmd(String[] cmd) throws Exception {
       return execCmd(cmd, null, null);
