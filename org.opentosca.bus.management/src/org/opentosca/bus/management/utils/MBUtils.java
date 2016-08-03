@@ -39,8 +39,7 @@ public class MBUtils {
 	public static String getOperatingSystemNodeTemplateID(CSARID csarID, QName serviceTemplateID,
 			String nodeTemplateID) {
 
-		MBUtils.LOG.debug(
-				"Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
+		MBUtils.LOG.debug("Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
 				nodeTemplateID, serviceTemplateID, csarID);
 
 		QName nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
@@ -49,8 +48,7 @@ public class MBUtils {
 		while (!isOperatingSystemNodeType(csarID, nodeType) && (nodeTemplateID != null)) {
 
 			MBUtils.LOG.debug("{} isn't the OperatingSystemNode.", nodeTemplateID);
-			MBUtils.LOG
-					.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
+			MBUtils.LOG.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
 
 			// try different relationshiptypes with priority on hostedOn
 			nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
@@ -72,8 +70,7 @@ public class MBUtils {
 			}
 
 			if (nodeTemplateID != null) {
-				MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.",
-						nodeTemplateID);
+				MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
 				nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
 						nodeTemplateID);
 
@@ -128,8 +125,7 @@ public class MBUtils {
 	 */
 	public static String getOperatingSystemIA(CSARID csarID, QName serviceTemplateID, String osNodeTemplateID) {
 
-		MBUtils.LOG.debug(
-				"Searching the OperatingSystem-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
+		MBUtils.LOG.debug("Searching the OperatingSystem-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
 				osNodeTemplateID, serviceTemplateID, csarID);
 
 		QName osNodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
@@ -210,8 +206,7 @@ public class MBUtils {
 			}
 
 			if (nodeTemplateID != null) {
-				MBUtils.LOG.debug("Checking if the Node: {} has the searched property: {}.", nodeTemplateID,
-						property);
+				MBUtils.LOG.debug("Checking if the Node: {} has the searched property: {}.", nodeTemplateID, property);
 
 			} else {
 				MBUtils.LOG.debug("No underneath Node found.");
@@ -285,7 +280,7 @@ public class MBUtils {
 							Document doc = nodeInstance.getProperties();
 
 							if (doc != null) {
-								propertiesMap = docToMap(doc);
+								propertiesMap = docToMap(doc, false);
 							}
 
 							return propertiesMap;
@@ -311,7 +306,7 @@ public class MBUtils {
 	 *            to be transfered to a map.
 	 * @return transfered map.
 	 */
-	public static HashMap<String, String> docToMap(Document propertiesDocument) {
+	public static HashMap<String, String> docToMap(Document propertiesDocument, boolean allowEmptyEntries) {
 		HashMap<String, String> reponseMap = new HashMap<String, String>();
 
 		DocumentTraversal traversal = (DocumentTraversal) propertiesDocument;
@@ -330,9 +325,14 @@ public class MBUtils {
 				}
 			}
 
-			if (!content.toString().trim().isEmpty()) {
+			if (allowEmptyEntries) {
 				reponseMap.put(name, content.toString());
+			} else {
+				if (!content.toString().trim().isEmpty()) {
+					reponseMap.put(name, content.toString());
+				}
 			}
+
 		}
 
 		return reponseMap;

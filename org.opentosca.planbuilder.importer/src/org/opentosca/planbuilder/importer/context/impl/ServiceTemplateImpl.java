@@ -143,5 +143,22 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean hasTerminationPlan() {
+		if ((this.serviceTemplate.getPlans() != null)) {
+			TPlans plans = this.serviceTemplate.getPlans();
+			List<TPlan> plans2 = plans.getPlan();
+			ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no TerminationPlan", this.getQName().toString());
+			for (TPlan plan : plans.getPlan()) {
+				ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
+				if (plan.getPlanType().trim().equals("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan")) {
+					return true;
+				}
+			}
+			
+		}
+		return false;
+	}
 	
 }

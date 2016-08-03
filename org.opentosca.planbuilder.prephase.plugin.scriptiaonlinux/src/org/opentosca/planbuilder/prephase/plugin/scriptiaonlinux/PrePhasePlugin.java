@@ -44,6 +44,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			"ConfigurationArtifact");
 
 	private final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
+	private final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
 
 	private Handler handler = new Handler();
 
@@ -112,6 +113,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 
 		if (this.ansibleArtifactType.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
+
+		if (this.chefArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
 

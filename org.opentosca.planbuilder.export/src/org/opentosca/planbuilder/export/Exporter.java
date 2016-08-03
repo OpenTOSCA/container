@@ -217,10 +217,10 @@ public class Exporter extends AbstractExporter {
 
 						int optionCounter = 1 + appDesc.getOptions().getOption().size();
 						for (BuildPlan plan : plansToExport) {
-							if(exportedPlans.contains(plan)){
+							if (exportedPlans.contains(plan)) {
 								continue;
 							}
-							
+
 							ApplicationOption option = new ApplicationOption();
 							option.setName("Default" + optionCounter);
 							option.setId(String.valueOf(optionCounter));
@@ -231,11 +231,11 @@ public class Exporter extends AbstractExporter {
 							option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
 							this.writePlanInputMessageInstance(plan,
 									new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
-							
+
 							appDesc.getOptions().getOption().add(option);
 							optionCounter++;
 						}
-						
+
 						Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
 						wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
 					}
@@ -387,11 +387,11 @@ public class Exporter extends AbstractExporter {
 	/**
 	 * Generates a JAXB TPlan element for the given BuildPlan
 	 *
-	 * @param buildPlan
-	 *            a BuildPlan
+	 * @param generatedPlan
+	 *            a Plan
 	 * @return a JAXB TPlan Object which represents the given BuildPlan
 	 */
-	private TPlan generateTPlanElement(BuildPlan buildPlan) {
+	private TPlan generateTPlanElement(BuildPlan generatedPlan) {
 		TPlan plan = new Plan();
 		TPlan.PlanModelReference ref = new TPlan.PlanModelReference();
 		TPlan.InputParameters inputParams = new TPlan.InputParameters();
@@ -399,10 +399,10 @@ public class Exporter extends AbstractExporter {
 		List<TParameter> inputParamsList = inputParams.getInputParameter();
 		List<TParameter> outputParamsList = outputParams.getOutputParameter();
 
-		ref.setReference(this.generateRelativePlanPath(buildPlan));
+		ref.setReference(this.generateRelativePlanPath(generatedPlan));
 		plan.setPlanModelReference(ref);
 
-		for (String paramName : buildPlan.getWsdl().getInputMessageLocalNames()) {
+		for (String paramName : generatedPlan.getWsdl().getInputMessageLocalNames()) {
 			// the builder supports only string types
 			TParameter param = this.toscaFactory.createTParameter();
 			param.setName(paramName);
@@ -411,7 +411,7 @@ public class Exporter extends AbstractExporter {
 			inputParamsList.add(param);
 		}
 
-		for (String paramName : buildPlan.getWsdl().getOuputMessageLocalNames()) {
+		for (String paramName : generatedPlan.getWsdl().getOuputMessageLocalNames()) {
 			TParameter param = this.toscaFactory.createTParameter();
 			param.setName(paramName);
 			param.setRequired(TBoolean.YES);
@@ -422,8 +422,21 @@ public class Exporter extends AbstractExporter {
 		plan.setInputParameters(inputParams);
 		plan.setOutputParameters(outputParams);
 
-		plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
-		plan.setId(buildPlan.getBpelProcessElement().getAttribute("name"));
+		switch (generatedPlan.getType()) {
+		case BUILD:
+			plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
+			break;
+		case TERMINATE:
+			plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
+			break;
+		default:
+			// every other plan is a management plan
+		case MANAGE:
+			plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan");
+			break;
+		}
+
+		plan.setId(generatedPlan.getBpelProcessElement().getAttribute("name"));
 		plan.setPlanLanguage(BuildPlan.bpelNamespace);
 
 		return plan;

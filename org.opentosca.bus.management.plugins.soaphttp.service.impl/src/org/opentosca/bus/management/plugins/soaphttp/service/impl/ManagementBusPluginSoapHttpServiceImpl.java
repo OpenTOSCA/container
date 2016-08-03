@@ -265,7 +265,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Transforming Document to HashMap...");
 
-			HashMap<String, String> responseMap = MBUtils.docToMap(response);
+			HashMap<String, String> responseMap = MBUtils.docToMap(response, false);
 
 			exchange.getIn().setBody(responseMap);
 

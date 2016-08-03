@@ -4,12 +4,14 @@
 		<package>unzip</package>
 	</packages>
 	<commands>
-		<command>sudo apt-add-repository -y ppa:ansible/ansible</command>
+	    <!-- Install Ansible -->
+		<command>sudo apt-add-repository -y ppa:ansible/ansible</command> 
 		<command>sudo apt-get update</command>
 		<command>sudo apt-get install -y ansible</command>
+		<!-- Unzip zipped Ansible files (*.zip) and start the Playbook specified in the properties -->
 		<command>cd {TARGET_FILE_FOLDER_PATH}</command>
 		<command>unzip {TARGET_FILE_NAME_WITH_E}</command>
 		<command>cd {TARGET_FILE_NAME_WITHOUT_E}</command>
-		<command>ansible-playbook {{Playbook}}</command>
+		<command>ansible-playbook {{Playbook}} {{Variables}}</command>
 	</commands>
 </artifacttype>

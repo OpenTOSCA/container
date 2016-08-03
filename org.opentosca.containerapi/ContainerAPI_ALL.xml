@@ -137,6 +137,10 @@
 <startLevel>default</startLevel>
 <autoStart>default</autoStart>
 </bundle>
+<bundle name="org.opentosca.iaengine.plugins.dockercompose.service.impl">
+<startLevel>default</startLevel>
+<autoStart>default</autoStart>
+</bundle>
 <bundle name="org.opentosca.iaengine.service">
 <startLevel>default</startLevel>
 <autoStart>default</autoStart>

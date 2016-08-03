@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -12,14 +14,18 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.BPELProcessHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
+import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.osgi.framework.FrameworkUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -36,6 +42,8 @@ public class ServiceInstanceInitializer {
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 
+	private Fragments fragments;
+
 	private BuildPlanHandler planHandler;
 	private BPELProcessHandler bpelProcessHandler;
 
@@ -48,61 +56,188 @@ public class ServiceInstanceInitializer {
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		this.planHandler = new BuildPlanHandler();
 		this.bpelProcessHandler = new BPELProcessHandler();
-	}
-
-	public void initializeInstanceData(BuildPlan buildPlan) {
-		this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, buildPlan);
-		String instanceDataAPIURlVarName = this.appendInstanceDataAPIVariableInitCode(buildPlan);
-		this.appendServiceInstanceInitCode(buildPlan, instanceDataAPIURlVarName);
+		this.fragments = new Fragments();
 	}
 
 	/**
-	 * Appends BPEL code to the given context which sets the InstanceData API
-	 * URL globally on the plan.
+	 * Appends to logic to handle instanceDataAPI interaction. Adds
+	 * instanceDataAPI and serviceInstanceAPI elements into the input message of
+	 * the given plan and assign internal global variables with the input values
 	 * 
-	 * @param context
-	 *            a TemplateContext
-	 * @return a String containing the Variable Name of the Variable holding the
-	 *         InstanceData API URL
+	 * @param plan
+	 *            a plan
 	 */
-	private String appendInstanceDataAPIVariableInitCode(BuildPlan buildPlan) {
-		// add instancedata api url element to plan input message
-		this.planHandler.addStringElementToPlanRequest(ServiceInstanceInitializer.InstanceDataAPIUrlKeyword, buildPlan);
+	public void initializeCompleteInstanceDataFromInput(BuildPlan plan) {
+		this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.InstanceDataAPIUrlKeyword);
+		this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.ServiceInstanceVarKeyword);
+	}
 
-		// generate single string variable for InstanceDataAPI HTTP calls, as
-		// REST BPEL PLugin
-		// can only handle simple xsd types (no queries from input message)
-		String instanceDataAPIUrlVarName = ServiceInstanceInitializer.InstanceDataAPIUrlKeyword
-				+ System.currentTimeMillis();
+	/**
+	 * Appends logic to handle instanceDataAPI interaction. Adds instanceDataAPI
+	 * element into input message. At runtime saves the input value into a
+	 * global variable and creates a serviceInstance for the plan.
+	 * 
+	 * @param plan
+	 *            a plan
+	 */
+	public void initializeInstanceDataFromInput(BuildPlan plan) {
+		String instanceDataAPIVarName = this.appendAssignFromInputToVariable(plan, InstanceDataAPIUrlKeyword);
+		this.appendServiceInstanceInitCode(plan, instanceDataAPIVarName);
+	}
+	
+	public boolean appendServiceInstanceDelete(BuildPlan plan){
 
-		QName instanceDataAPIUrlDeclId = new QName("http://www.w3.org/2001/XMLSchema", "string",
-				"xsd" + System.currentTimeMillis());
-		this.bpelProcessHandler.addNamespaceToBPELDoc(instanceDataAPIUrlDeclId.getPrefix(),
-				instanceDataAPIUrlDeclId.getNamespaceURI(), buildPlan);
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
-		if (!this.bpelProcessHandler.addVariable(instanceDataAPIUrlVarName, BuildPlan.VariableType.TYPE,
-				instanceDataAPIUrlDeclId, buildPlan)) {
-			return null;
+		// generate any type variable for REST call response
+		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+		QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
+
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BuildPlan.VariableType.TYPE,
+				rescalResponseVarDeclId, plan)) {
+			return false;
 		}
-
-		// TODO Missing assign of simple string variable and return of
-		// variablename
+		
 		try {
-			Node assignNode = this.generateAssignFromInputMessageToStringVariableAsNode(
-					ServiceInstanceInitializer.InstanceDataAPIUrlKeyword, instanceDataAPIUrlVarName);
-
-			assignNode = buildPlan.getBpelDocument().importNode(assignNode, true);
-			this.appendToInitSequence(assignNode, buildPlan);
+			Node RESTDeleteNode = this.fragments.createRESTDeleteOnURLBPELVarAsNode(ServiceInstanceVarKeyword, restCallResponseVarName);
+			RESTDeleteNode = plan.getBpelDocument().importNode(RESTDeleteNode, true);
+			plan.getBpelMainSequenceOutputAssignElement().getParentNode().insertBefore(RESTDeleteNode, plan.getBpelMainSequenceOutputAssignElement());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return null;
 		}
-		return instanceDataAPIUrlVarName;
+		
+		return true;
+	}
+
+	public boolean initPropertyVariablesFromInstanceData(BuildPlan plan, PropertyMap propMap) {
+
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+
+		// generate any type variable for REST call response
+		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+		QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
+
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BuildPlan.VariableType.TYPE,
+				rescalResponseVarDeclId, plan)) {
+			return false;
+		}
+
+		// create temp nodeInstanceIDLink var
+		String tempNodeInstanceIDVarName = "tempNodeInstanceID" + System.currentTimeMillis();
+		QName tempNodeInstanceIDVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
+
+		if (!this.bpelProcessHandler.addVariable(tempNodeInstanceIDVarName, BuildPlan.VariableType.TYPE,
+				tempNodeInstanceIDVarDeclId, plan)) {
+			return false;
+		}
+
+		// create temp anyType element for properties
+		String tempNodeInstancePropertiesVarName = "tempNodeInstanceProperties" + System.currentTimeMillis();
+		QName tempNodeInstancePropertiesVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
+
+		if (!this.bpelProcessHandler.addVariable(tempNodeInstancePropertiesVarName, BuildPlan.VariableType.TYPE,
+				tempNodeInstancePropertiesVarDeclId, plan)) {
+			return false;
+		}
+
+		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+
+			if (templatePlan.getNodeTemplate() == null) {
+				continue;
+			}
+			
+			if(templatePlan.getNodeTemplate().getProperties() == null){
+				continue;
+			}
+
+			// find nodeInstance with query at instanceDataAPI
+			try {
+				Node nodeInstanceGETNode = this.fragments.createRESTExtensionGETForNodeInstanceDataAsNode(
+						ServiceInstanceInitializer.InstanceDataAPIUrlKeyword, restCallResponseVarName,
+						new QName(templatePlan.getBuildPlan().getServiceTemplate().getNamespaceURI(),
+								templatePlan.getNodeTemplate().getId()),
+						ServiceInstanceInitializer.ServiceInstanceVarKeyword, true);
+				nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
+				plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode,
+						plan.getBpelMainFlowElement());
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// fetch nodeInstanceID from nodeInstance query
+			try {
+				Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse = this.fragments
+						.createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsNode(
+								"assignNodeInstanceIDFromInstanceDataAPIResponse" + System.currentTimeMillis(),
+								tempNodeInstanceIDVarName, restCallResponseVarName);
+				assignNodeInstanceIDFromInstanceDataAPIQueryResponse = templatePlan.getBpelDocument()
+						.importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
+				plan.getBpelMainFlowElement().getParentNode().insertBefore(
+						assignNodeInstanceIDFromInstanceDataAPIQueryResponse, plan.getBpelMainFlowElement());
+			} catch (SAXException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// fetch properties into temp anyType var
+			try {
+				Node nodeInstancePropertiesGETNode = this.fragments
+						.createRESTExtensionGETForNodeInstancePropertiesAsNode(tempNodeInstanceIDVarName,
+								restCallResponseVarName);
+				nodeInstancePropertiesGETNode = templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode,
+						true);
+				plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstancePropertiesGETNode,
+						plan.getBpelMainFlowElement());
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			}
+
+			// assign bpel variables from the requested properties
+			// create mapping from property dom nodes to bpelvariable
+			Map<Element, String> element2BpelVarNameMap = new HashMap<Element, String>();
+			NodeList propChildNodes = templatePlan.getNodeTemplate().getProperties().getDOMElement().getChildNodes();
+			for (int index = 0; index < propChildNodes.getLength(); index++) {
+				if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
+					Element childElement = (Element) propChildNodes.item(index);
+					// find bpelVariable
+					String bpelVarName = propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId())
+							.get(childElement.getLocalName());
+					if (bpelVarName != null) {
+						element2BpelVarNameMap.put(childElement, bpelVarName);
+					}
+				}
+			}
+
+			try {
+				Node assignPropertiesToVariables = this.fragments
+						.createAssignFromNodeInstancePropertyToBPELVariableAsNode(
+								"assignPropertiesFromResponseToBPELVariable" + System.currentTimeMillis(),
+								restCallResponseVarName, element2BpelVarNameMap);
+				assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables,
+						true);
+				plan.getBpelMainFlowElement().getParentNode().insertBefore(assignPropertiesToVariables,
+						plan.getBpelMainFlowElement());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			}
+		}
+		return true;
 	}
 
 	private String appendServiceInstanceInitCode(BuildPlan buildPlan, String instanceDataAPIUrlVarName) {
@@ -130,20 +265,21 @@ public class ServiceInstanceInitializer {
 
 		// generate any type variable for REST call response
 		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
-		QName rescalResponseVarDeclId = new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd" + System.currentTimeMillis());
+		QName rescalResponseVarDeclId = new QName("http://www.w3.org/2001/XMLSchema", "anyType",
+				"xsd" + System.currentTimeMillis());
 		this.bpelProcessHandler.addNamespaceToBPELDoc(rescalResponseVarDeclId.getPrefix(),
 				rescalResponseVarDeclId.getNamespaceURI(), buildPlan);
-		
+
 		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BuildPlan.VariableType.TYPE,
 				rescalResponseVarDeclId, buildPlan)) {
 			return null;
 		}
 
 		try {
-			Node serviceInstancePOSTNode = this.generateBPEL4RESTLightServiceInstancePOSTAsNode(
+			Node serviceInstancePOSTNode = this.fragments.generateBPEL4RESTLightServiceInstancePOSTAsNode(
 					instanceDataAPIUrlVarName, csarId, serviceTemplateId, restCallResponseVarName);
-			serviceInstancePOSTNode = buildPlan.getBpelDocument().importNode(serviceInstancePOSTNode,true);
-			this.appendToInitSequence(serviceInstancePOSTNode,buildPlan);
+			serviceInstancePOSTNode = buildPlan.getBpelDocument().importNode(serviceInstancePOSTNode, true);
+			this.appendToInitSequence(serviceInstancePOSTNode, buildPlan);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -181,20 +317,21 @@ public class ServiceInstanceInitializer {
 
 		String serviceInstanceUrlVarName = ServiceInstanceInitializer.ServiceInstanceVarKeyword
 				+ System.currentTimeMillis();
-		QName serviceInstanceUrlDeclId = new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());
+		QName serviceInstanceUrlDeclId = new QName("http://www.w3.org/2001/XMLSchema", "string",
+				"xsd" + System.currentTimeMillis());
 		this.bpelProcessHandler.addNamespaceToBPELDoc(serviceInstanceUrlDeclId.getPrefix(),
 				serviceInstanceUrlDeclId.getNamespaceURI(), buildPlan);
-		
+
 		if (!this.bpelProcessHandler.addVariable(serviceInstanceUrlVarName, BuildPlan.VariableType.TYPE,
 				serviceInstanceUrlDeclId, buildPlan)) {
 			return null;
 		}
 
 		try {
-			Node serviceInstanceURLAssignNode = this.generateServiceInstanceURLVarAssignAsNode(restCallResponseVarName,
-					serviceInstanceUrlVarName);
-			serviceInstanceURLAssignNode = buildPlan.getBpelDocument().importNode(serviceInstanceURLAssignNode,true);
-			this.appendToInitSequence(serviceInstanceURLAssignNode,buildPlan);
+			Node serviceInstanceURLAssignNode = this.fragments
+					.generateServiceInstanceURLVarAssignAsNode(restCallResponseVarName, serviceInstanceUrlVarName);
+			serviceInstanceURLAssignNode = buildPlan.getBpelDocument().importNode(serviceInstanceURLAssignNode, true);
+			this.appendToInitSequence(serviceInstanceURLAssignNode, buildPlan);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -205,7 +342,56 @@ public class ServiceInstanceInitializer {
 			return null;
 		}
 
+		// add logic to update the variables at runtime before one of the
+		// templates is going to be handled
+
 		return serviceInstanceUrlVarName;
+	}
+
+	/**
+	 * Adds an element with the given varName to the input message of the given
+	 * plan and adds logic assign the input value to an internal variable with
+	 * the given varName.
+	 * 
+	 * @param plan
+	 *            a plan to add the logic to
+	 * @param varName
+	 *            a name to use inside the input message and as name for the
+	 *            global string variable where the value will be added to.
+	 * @return a String containing the generated Variable Name of the Variable
+	 *         holding the value from the input at runtime
+	 */
+	private String appendAssignFromInputToVariable(BuildPlan plan, String varName) {
+		// add instancedata api url element to plan input message
+		this.planHandler.addStringElementToPlanRequest(varName, plan);
+
+		// generate single string variable for InstanceDataAPI HTTP calls, as
+		// REST BPEL PLugin
+		// can only handle simple xsd types (no queries from input message)
+
+		QName instanceDataAPIUrlDeclId = new QName("http://www.w3.org/2001/XMLSchema", "string",
+				"xsd" + System.currentTimeMillis());
+		this.bpelProcessHandler.addNamespaceToBPELDoc(instanceDataAPIUrlDeclId.getPrefix(),
+				instanceDataAPIUrlDeclId.getNamespaceURI(), plan);
+
+		if (!this.bpelProcessHandler.addVariable(varName, BuildPlan.VariableType.TYPE, instanceDataAPIUrlDeclId,
+				plan)) {
+			return null;
+		}
+
+		try {
+			Node assignNode = this.fragments.generateAssignFromInputMessageToStringVariableAsNode(varName, varName);
+
+			assignNode = plan.getBpelDocument().importNode(assignNode, true);
+			this.appendToInitSequence(assignNode, plan);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (SAXException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return varName;
 	}
 
 	/**
@@ -225,83 +411,6 @@ public class ServiceInstanceInitializer {
 		mainSequenceNode.insertBefore(node, flowElement);
 
 		return true;
-	}
-
-	private String generateAssignFromInputMessageToStringVariable(String inputMessageElementLocalName,
-			String stringVariableName) throws IOException {
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("BpelAssignFromInputToStringVar.xml");
-		File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
-		String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
-		// <!-- $inputElementLocalName, $StringVariableName, $assignName -->
-		bpelAssignString = bpelAssignString.replace("$inputElementLocalName", inputMessageElementLocalName);
-		bpelAssignString = bpelAssignString.replace("$StringVariableName", stringVariableName);
-		bpelAssignString = bpelAssignString.replace("$assignName",
-				"assignFromInputToString" + System.currentTimeMillis());
-		return bpelAssignString;
-	}
-
-	private Node generateAssignFromInputMessageToStringVariableAsNode(String inputMessageElementLocalName,
-			String stringVariableName) throws IOException, SAXException {
-		String templateString = this.generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName,
-				stringVariableName);
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(templateString));
-		Document doc = this.docBuilder.parse(is);
-		return doc.getFirstChild();
-	}
-
-	private String generateBPEL4RESTLightServiceInstancePOST(String instanceDataAPIUrlVariableName, String csarId,
-			QName serviceTemplateId, String responseVariableName) throws IOException {
-		// tags in xml snippet: $InstanceDataURLVar, $CSARName,
-		// $serviceTemplateId, $ResponseVarName
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
-		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
-		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
-
-		bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
-		bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
-		bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
-		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
-
-		return bpel4RestString;
-	}
-
-	private Node generateBPEL4RESTLightServiceInstancePOSTAsNode(String instanceDataAPIUrlVariableName, String csarId,
-			QName serviceTemplateId, String responseVariableName) throws IOException, SAXException {
-		String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId,
-				serviceTemplateId, responseVariableName);
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(templateString));
-		Document doc = this.docBuilder.parse(is);
-		return doc.getFirstChild();
-	}
-
-	private String generateServiceInstanceURLVarAssign(String serviceInstanceResponseVarName,
-			String serviceInstanceURLVarName) throws IOException {
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("BpelAssignServiceInstancePOSTResponse.xml");
-		File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
-		String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
-		// <!-- $assignName $ServiceInstanceResponseVarName
-		// $ServiceInstanceURLVarName-->
-
-		bpelAssignString = bpelAssignString.replace("$assignName",
-				"assignServiceInstance" + System.currentTimeMillis());
-		bpelAssignString = bpelAssignString.replace("$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
-		bpelAssignString = bpelAssignString.replace("$ServiceInstanceURLVarName", serviceInstanceURLVarName);
-		return bpelAssignString;
-	}
-
-	private Node generateServiceInstanceURLVarAssignAsNode(String serviceInstanceResponseVarName,
-			String serviceInstanceURLVarName) throws IOException, SAXException {
-		String templateString = this.generateServiceInstanceURLVarAssign(serviceInstanceResponseVarName,
-				serviceInstanceURLVarName);
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(templateString));
-		Document doc = this.docBuilder.parse(is);
-		return doc.getFirstChild();
 	}
 
 }

@@ -3,6 +3,10 @@ package org.opentosca.planengine.plugin.bpelwso2.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +29,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.ode.schemas.dd._2007._03.TDeployment;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
+import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.opentosca.core.endpoint.service.ICoreEndpointService;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.core.model.endpoint.wsdl.WSDLEndpoint;
@@ -58,47 +63,57 @@ import com.ibm.wsdl.extensions.soap.SOAPConstants;
  * 
  */
 public class ODEEndpointUpdater {
-	
+
 	final private static Logger LOG = LoggerFactory.getLogger(ODEEndpointUpdater.class);
 	private final WSDLFactory factory;
 	private CSARID csarId;
-	// the services are static (bind/unbind too), if not instantiation of
+	// the services are static (bind/unbind too), if not, instantiation of
 	// this class will not have the services
 	private static ICoreEndpointService endpointService;
 	private static ICoreEndpointService oldEndpointService;
-	
-	
+
 	// private static IToscaEngineService toscaEngineService = null;
-	
+
 	/**
 	 * Contructor
 	 * 
-	 * @throws WSDLException if no instance of WSDLFactory was found
+	 * @throws WSDLException
+	 *             if no instance of WSDLFactory was found
 	 */
 	public ODEEndpointUpdater() throws WSDLException {
 		this.factory = WSDLFactory.newInstance();
 	}
-	
+
 	/**
 	 * Changes the endpoints of all WSDL files used by the given WS-BPEL 2.0
 	 * Process
 	 * 
-	 * @param processFiles a list of files containing the complete content of a
-	 *            Apache ODE WS-BPEL 2.0 zip file
-	 * @param csarId the identifier of the CSAR where this process/plan is
-	 *            declared
+	 * @param processFiles
+	 *            a list of files containing the complete content of a Apache
+	 *            ODE WS-BPEL 2.0 zip file
+	 * @param csarId
+	 *            the identifier of the CSAR where this process/plan is declared
 	 * @return true if every WSDL file used by the process was updated (if
 	 *         needed) with endpoints from the openTOSCA Core, else false
 	 */
 	public boolean changeEndpoints(List<File> processFiles, CSARID csarId) {
 		this.csarId = csarId;
+
 		Map<QName, List<File>> unchangedFiles = null;
-		
+		File deployXml = this.getDeployXML(processFiles);
+
+		if (deployXml == null) {
+			ODEEndpointUpdater.LOG.error("Given BPEL Plan has no deploy.xml file! Can't change addresses!");
+			return false;
+		}
+
+		// update addresses inside the process archive that are invoked by the
+		// plan
 		try {
-			List<QName> portsInDeployXml = this.getDeployXMLPorts(this.getDeployXMl(processFiles));
+			List<QName> portsInDeployXml = this.getInvokedDeployXMLPorts(deployXml);
 			// check with modelrepo if any of the qnames have to be thrown out
 			// cause they aren't referenced in the CSAR/TOSCA
-			
+
 			// quick fix,until we know how to "add" porttypes to tosca again
 			// if (ODEEndpointUpdater.modelRepoService != null) {
 			// List<QName> csarPortTypeReferences =
@@ -111,48 +126,64 @@ public class ODEEndpointUpdater {
 			// }
 			// portsInDeployXml.removeAll(toRemove);
 			// } else {
-			// ODEEndpointUpdater.LOG.warn("No ModelRepositoryService is bound, may corrupt private wsdl files");
+			// ODEEndpointUpdater.LOG.warn("No ModelRepositoryService is bound,
+			// may corrupt private wsdl files");
 			// }
-			
+
 			if (!portsInDeployXml.isEmpty()) {
 				for (QName portType : portsInDeployXml) {
 					ODEEndpointUpdater.LOG.debug("Proceeding to update address for portType: {}", portType);
 				}
 			} else {
-				ODEEndpointUpdater.LOG.debug("No PortTypes to change were found: No portType in plan is referenced in ServiceTemplate");
+				ODEEndpointUpdater.LOG.debug(
+						"No PortTypes to change were found: No portType in plan is referenced in ServiceTemplate");
 				return true;
 			}
-			Map<QName, List<File>> changeMap = this.getWSDLtoChange(portsInDeployXml, this.getAllWSDLFiles(processFiles));
-			unchangedFiles = this.updateWSDLAddresses(changeMap);
+			Map<QName, List<File>> changeMap = this.getWSDLtoChange(portsInDeployXml,
+					this.getAllWSDLFiles(processFiles));
+			unchangedFiles = this.updateInvokedWSDLAddresses(changeMap);
 		} catch (JAXBException e) {
 			ODEEndpointUpdater.LOG.error("Deploy.xml file in process isn't valid", e);
 		} catch (WSDLException e) {
 			ODEEndpointUpdater.LOG.error("Couldn't access wsdl files of process", e);
 		}
-		
-		if (unchangedFiles == null) {
-			ODEEndpointUpdater.LOG.warn("No changes were made to the given WSDL files!");
-		} else {
-			for (QName portType : unchangedFiles.keySet()) {
-				ODEEndpointUpdater.LOG.warn("Following files weren't changed for PortType {}", portType.toString());
-				for (File file : unchangedFiles.get(portType)) {
-					ODEEndpointUpdater.LOG.warn("WSDL file {} which contained portType {} and could'nt be updated", file.toPath().toString(), portType.toString());
-				}
+
+		// update addresses in bpel archive that are provided by the plan
+		try {
+			List<QName> portsInDeployXml = this.getProvidedDeployXMLPorts(deployXml);
+
+			Map<QName, List<File>> changeMap = this.getWSDLtoChange(portsInDeployXml,
+					this.getAllWSDLFiles(processFiles));
+			unchangedFiles.putAll(this.updateProvidedWSDLAddresses(changeMap));
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		} catch (WSDLException e) {
+			e.printStackTrace();
+		}
+
+		for (QName portType : unchangedFiles.keySet()) {
+			ODEEndpointUpdater.LOG.warn("Following files weren't changed for PortType {}", portType.toString());
+			for (File file : unchangedFiles.get(portType)) {
+				ODEEndpointUpdater.LOG.warn("WSDL file {} which contained portType {} and couldn't be updated",
+						file.toPath().toString(), portType.toString());
 			}
 		}
+
 		// as of recent events, when some address couldn't be changed we return
 		// true, even if nothing was changed
 		return true;
 	}
-	
+
 	/**
 	 * Returns a file named deploy.xml,if it is in the list of files
 	 * 
-	 * @param files a list of files
+	 * @param files
+	 *            a list of files
 	 * @return a file object of a deploy.xml (can be invalid) file if it was
 	 *         found in the given list, else null
 	 */
-	private File getDeployXMl(List<File> files) {
+	private File getDeployXML(List<File> files) {
 		for (File file : files) {
 			if (file.getName().equals("deploy.xml")) {
 				ODEEndpointUpdater.LOG.debug("Found deploy.xml file");
@@ -162,21 +193,24 @@ public class ODEEndpointUpdater {
 		ODEEndpointUpdater.LOG.debug("Didn't find deploy.xml file");
 		return null;
 	}
-	
+
 	/**
-	 * Returns a list of QName's which are referenced in the ODE deploy.xml
-	 * File.<br>
+	 * Returns a list of QName's which are referenced in the ODE deploy.xml File
+	 * as invoked service.<br>
 	 * 
-	 * @param deployXML a file object of a valid deploy.xml File
+	 * @param deployXML
+	 *            a file object of a valid deploy.xml File
 	 * @return a list of QNames which represent the PortTypes used by the BPEL
 	 *         process to invoke operations
-	 * @throws JAXBException if the JAXB parser couldn't work properly
+	 * @throws JAXBException
+	 *             if the JAXB parser couldn't work properly
 	 */
-	private List<QName> getDeployXMLPorts(File deployXML) throws JAXBException {
+	private List<QName> getInvokedDeployXMLPorts(File deployXML) throws JAXBException {
 		// http://svn.apache.org/viewvc/ode/trunk/bpel-schemas/src/main/xsd/
 		// grabbed that and using jaxb
 		List<QName> qnames = new LinkedList<QName>();
-		JAXBContext context = JAXBContext.newInstance("org.apache.ode.schemas.dd._2007._03", this.getClass().getClassLoader());
+		JAXBContext context = JAXBContext.newInstance("org.apache.ode.schemas.dd._2007._03",
+				this.getClass().getClassLoader());
 		Unmarshaller unmarshaller = context.createUnmarshaller();
 		TDeployment deploy = unmarshaller.unmarshal(new StreamSource(deployXML), TDeployment.class).getValue();
 		for (org.apache.ode.schemas.dd._2007._03.TDeployment.Process process : deploy.getProcess()) {
@@ -190,11 +224,40 @@ public class ODEEndpointUpdater {
 		}
 		return qnames;
 	}
-	
+
+	/**
+	 * Returns a List of Services referenced in the provide elements of the
+	 * given deploy.xml file
+	 * 
+	 * @param deployXML
+	 *            a Apache ODE deploy.xml file
+	 * @return a List of QNames denoting services
+	 * @throws JAXBException
+	 *             is thrown when the given file can't be parsed
+	 */
+	private List<QName> getProvidedDeployXMLPorts(File deployXML) throws JAXBException {
+		List<QName> ports = new ArrayList<QName>();
+		JAXBContext context = JAXBContext.newInstance("org.apache.ode.schemas.dd._2007._03",
+				this.getClass().getClassLoader());
+		Unmarshaller unmarshaller = context.createUnmarshaller();
+		TDeployment deploy = unmarshaller.unmarshal(new StreamSource(deployXML), TDeployment.class).getValue();
+		for (org.apache.ode.schemas.dd._2007._03.TDeployment.Process process : deploy.getProcess()) {
+			for (TProvide provide : process.getProvide()) {
+				QName serviceName = provide.getService().getName();
+				// add only qnames which aren't from the plan itself
+				if (!serviceName.getNamespaceURI().equals(process.getName().getNamespaceURI())) {
+					ports.add(new QName(serviceName.getNamespaceURI(), provide.getService().getPort()));
+				}
+			}
+		}
+		return ports;
+	}
+
 	/**
 	 * Returns all WSDL files of the given List
 	 * 
-	 * @param files a list of files
+	 * @param files
+	 *            a list of files
 	 * @return a list of WSDL files if there are any
 	 */
 	private List<File> getAllWSDLFiles(List<File> files) {
@@ -221,14 +284,16 @@ public class ODEEndpointUpdater {
 		}
 		return tempFiles;
 	}
-	
+
 	/**
 	 * Returns a map with QNames as keys and list of files as values, where the
 	 * QNames are taken out of the given list of portTypes and the files from
 	 * the other given List
 	 * 
-	 * @param ports a list of portType QName's
-	 * @param wsdlFiles a list of wsdl Files
+	 * @param ports
+	 *            a list of portType QName's
+	 * @param wsdlFiles
+	 *            a list of wsdl Files
 	 * @return a Map<QName, List<File>> containing information which porttype is
 	 *         in which wsdl file
 	 * @throws WSDLException
@@ -241,7 +306,8 @@ public class ODEEndpointUpdater {
 			List<File> filesContainingPortType = new LinkedList<File>();
 			QName portType = null;
 			for (File wsdlFile : wsdlFiles) {
-				ODEEndpointUpdater.LOG.debug("Checking if wsdl file {} contains portType {}", wsdlFile.getAbsolutePath(), port.toString());
+				ODEEndpointUpdater.LOG.debug("Checking if wsdl file {} contains portType {}",
+						wsdlFile.getAbsolutePath(), port.toString());
 				Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdlFile.getAbsolutePath());
 				// check if port is in wsdl file
 				if (!this.checkIfPortIsInWsdlDef(port, wsdlDef)) {
@@ -249,7 +315,7 @@ public class ODEEndpointUpdater {
 				} else {
 					portType = this.getPortTypeFromPort(port, wsdlDef);
 				}
-				
+
 				for (Object obj : wsdlDef.getPortTypes().values()) {
 					PortType portTypeInWsdl = (PortType) obj;
 					// TODO when axis1 service port and porttype have the same
@@ -270,13 +336,15 @@ public class ODEEndpointUpdater {
 		}
 		return portTypeToFileMap;
 	}
-	
+
 	/**
 	 * Returns a PortType as QName if the given port is defined inside the given
 	 * WSDL Definition
 	 * 
-	 * @param port the Port to check with as QName
-	 * @param wsdlDef the WSDL Definition to look trough
+	 * @param port
+	 *            the Port to check with as QName
+	 * @param wsdlDef
+	 *            the WSDL Definition to look trough
 	 * @return a QName representing the PortType implemented by the given Port
 	 *         if it was found inside the WSDL Definition, else null
 	 */
@@ -285,19 +353,22 @@ public class ODEEndpointUpdater {
 			Service service = (Service) serviceObj;
 			for (Object portObj : service.getPorts().values()) {
 				Port wsdlPort = (Port) portObj;
-				if (wsdlPort.getName().equals(port.getLocalPart()) && wsdlDef.getTargetNamespace().equals(port.getNamespaceURI())) {
+				if (wsdlPort.getName().equals(port.getLocalPart())
+						&& wsdlDef.getTargetNamespace().equals(port.getNamespaceURI())) {
 					return wsdlPort.getBinding().getPortType().getQName();
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Checks whether the given Port is defined inside the given WSDL Definition
 	 * 
-	 * @param port the Port to check with as QName
-	 * @param wsdlDef the WSDL Definition to check in
+	 * @param port
+	 *            the Port to check with as QName
+	 * @param wsdlDef
+	 *            the WSDL Definition to check in
 	 * @return true if the Port is found inside the given WSDL Definition, else
 	 *         false
 	 */
@@ -308,33 +379,55 @@ public class ODEEndpointUpdater {
 				Port wsdlPort = (Port) portObj;
 				String namespace = wsdlDef.getTargetNamespace();
 				String name = wsdlPort.getName();
-				ODEEndpointUpdater.LOG.debug("Checking if port {} matches port with name {} and namespace {} ", port.toString(), name, namespace);
+				ODEEndpointUpdater.LOG.debug("Checking if port {} matches port with name {} and namespace {} ",
+						port.toString(), name, namespace);
 				if (name.equals(port.getLocalPart()) && namespace.equals(port.getNamespaceURI())) {
 					return true;
 				}
-				
+
 			}
 		}
 		return false;
 	}
-	
+
+	private Map<QName, List<File>> updateProvidedWSDLAddresses(Map<QName, List<File>> changeMap) throws WSDLException {
+		Map<QName, List<File>> notChanged = new HashMap<QName, List<File>>();
+		for (QName portType : changeMap.keySet()) {
+			List<File> notUpdateWSDLs = new ArrayList<File>();
+
+			for (File wsdlFile : changeMap.get(portType)) {
+				if (!this.updateProvidedWSDLAddresses(portType, wsdlFile)) {
+					notUpdateWSDLs.add(wsdlFile);
+				}
+			}
+			if (!notUpdateWSDLs.isEmpty()) {
+				notChanged.put(portType, notUpdateWSDLs);
+			}
+
+		}
+		return notChanged;
+	}
+
 	/**
-	 * Updates the addresses in the given WSDL files
+	 * Updates the addresses in the given WSDL files by using endpoints added in
+	 * the endpoint db
 	 * 
-	 * @param map a map containing <QName,List<File>> pairs. A QName here
+	 * @param map
+	 *            a map containing <QName,List<File>> pairs. A QName here
 	 *            represents a portType that is inside the files
 	 * @return returns a map <QName,List<File>> containing all the files which
 	 *         weren't changed
 	 * @throws WSDLException
 	 */
-	private Map<QName, List<File>> updateWSDLAddresses(Map<QName, List<File>> map) throws WSDLException {
+	private Map<QName, List<File>> updateInvokedWSDLAddresses(Map<QName, List<File>> map) throws WSDLException {
 		Map<QName, List<File>> notChanged = new HashMap<QName, List<File>>();
 		for (QName portType : map.keySet()) {
 			List<File> notUpdatedWSDLs = new LinkedList<File>();
 			// update wsdl files associated with the given porttype
 			for (File wsdlFile : map.get(portType)) {
-				if (!this.updateWSDLAddresses(portType, wsdlFile)) {
-					ODEEndpointUpdater.LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile.toString(), portType.toString());
+				if (!this.updateInvokedWSDLAddresses(portType, wsdlFile)) {
+					ODEEndpointUpdater.LOG.error("Unable to update '{}' for porttype '{}'.", wsdlFile.toString(),
+							portType.toString());
 					notUpdatedWSDLs.add(wsdlFile);
 				}
 			}
@@ -346,15 +439,45 @@ public class ODEEndpointUpdater {
 		}
 		return notChanged;
 	}
-	
+
+	private boolean updateProvidedWSDLAddresses(QName portType, File wsdlFile) throws WSDLException {
+		boolean changed = false;
+		Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdlFile.getAbsolutePath());
+		for (Object o : wsdlDef.getAllServices().values()) {
+			Service service = (Service) o;
+			for (Object obj : service.getPorts().values()) {
+				Port port = (Port) obj;
+				if (port.getBinding().getPortType().getQName().equals(portType)) {
+					if (this.changePortAddressWithBPSEndpoints(service, port)) {
+						changed = true;
+					}
+				}
+			}
+		}
+		try {
+			// if we changed something, rewrite the the wsdl
+			if (changed) {
+				this.factory.newWSDLWriter().writeWSDL(wsdlDef, new FileOutputStream(wsdlFile));
+			}
+		} catch (FileNotFoundException e) {
+			ODEEndpointUpdater.LOG.debug("Couldn't locate wsdl file", e);
+			changed = false;
+		}
+		return changed;
+	}
+
 	/**
-	 * Updates the addresses inside the given WSDL file
+	 * Updates the addresses inside the given WSDL file by using endpoints
+	 * inside the endpoint db
 	 * 
-	 * @param portType a QName which represents a PortType
-	 * @param wsdl a File which is from type .wsdl
-	 * @throws WSDLException if the WSDL parser couldn't parse
+	 * @param portType
+	 *            a QName which represents a PortType
+	 * @param wsdl
+	 *            a File which is from type .wsdl
+	 * @throws WSDLException
+	 *             if the WSDL parser couldn't parse
 	 */
-	private boolean updateWSDLAddresses(QName portType, File wsdl) throws WSDLException {
+	private boolean updateInvokedWSDLAddresses(QName portType, File wsdl) throws WSDLException {
 		boolean changed = false;
 		ODEEndpointUpdater.LOG.debug("Trying to change WSDL file {} ", wsdl.getName());
 		Definition wsdlDef = this.factory.newWSDLReader().readWSDL(wsdl.getAbsolutePath());
@@ -368,9 +491,9 @@ public class ODEEndpointUpdater {
 					// get binding and its porttype
 					// get the extensible elements out of wsdl and check them
 					// with endpointservice
-					
+
 					ODEEndpointUpdater.LOG.debug("Found matching porttype for WSDL file {} ", wsdl.getName());
-					if (this.changePortAddress(port)) {
+					if (this.changePortAddressWithEndpointDB(port)) {
 						// changing -> success
 						changed = true;
 					}
@@ -388,57 +511,92 @@ public class ODEEndpointUpdater {
 		}
 		return changed;
 	}
-	
+
+	private boolean changePortAddressWithBPSEndpoints(Service service, Port port) {
+		boolean changed = false;
+
+		for (Object obj : port.getExtensibilityElements()) {
+			ExtensibilityElement element = (ExtensibilityElement) obj;
+			for (WSDLEndpoint endpoint : this.getWSDLEndpointForBPSCallback(service, port)) {
+				if (this.changeAddress(element, endpoint)) {
+					changed = true;
+				}
+			}
+		}
+
+		return changed;
+	}
+
 	/**
 	 * Changes address in the given port if endpoint in the endpoint service is
 	 * available
 	 * 
-	 * @param port the Port to update
+	 * @param port
+	 *            the Port to update
 	 * @return true if change was made, else false
 	 */
-	private boolean changePortAddress(Port port) {
+	private boolean changePortAddressWithEndpointDB(Port port) {
 		boolean changed = false;
-		
-		ODEEndpointUpdater.LOG.debug("Trying to match address element with available endpoints for port {} ", port.getName());
+
+		ODEEndpointUpdater.LOG.debug("Trying to match address element with available endpoints for port {} ",
+				port.getName());
 		for (Object obj : port.getExtensibilityElements()) {
 			// in the wsdl spec they use the extensibility mechanism
 			ExtensibilityElement element = (ExtensibilityElement) obj;
-			for (WSDLEndpoint endpoint : this.getWSDLEndpoints(port)) {
-				// this is a quickfix until service bus or another solution is
-				// available to change addresses without this hack
-				
-				// ODEEndpointUpdater.LOG.debug(
-				// "Trying to match adresstype {} and elementtype {}",
-				// endpoint.getAddressType().toString(), element
-				// .getElementType().toString());
-				// in short: check the QNames of the address elements
-				// if
-				// (element.getElementType().equals(endpoint.getAddressType()))
-				// {
-				// ODEEndpointUpdater.LOG
-				// .debug("Found matching address element and endpoint for port {} ",
-				// port.getName());
+			for (WSDLEndpoint endpoint : this.getWSDLEndpointsFromEndpointDB(port)) {
+
 				if (this.changeAddress(element, endpoint)) {
 					changed = true;
 				}
-				// }
+
 			}
 		}
 		return changed;
 	}
-	
+
+	private List<WSDLEndpoint> getWSDLEndpointForBPSCallback(Service service, Port port) {
+		List<WSDLEndpoint> endpoints = new ArrayList<WSDLEndpoint>();
+
+		/*
+		 * The BPS creates addresses by using the Service Name
+		 * OpenTOSCA_On_VSphere.csarInvokerService
+		 * location="http://10.0.2.15:9763/services/OpenTOSCA_On_VSphere.
+		 * csarInvokerService/
+		 */
+		String callbackEndpoint = "";
+		if (Messages.BpsPlanEnginPlugin_bpsServiceRootAddress.endsWith("/")) {
+			callbackEndpoint += Messages.BpsPlanEnginPlugin_bpsServiceRootAddress + service.getQName().getLocalPart();
+		} else {
+			callbackEndpoint += Messages.BpsPlanEnginPlugin_bpsServiceRootAddress + "/"
+					+ service.getQName().getLocalPart();
+		}
+
+		try {
+			endpoints.add(new WSDLEndpoint(new URI(callbackEndpoint), port.getBinding().getPortType().getQName(), null,
+					null, null, null));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		return endpoints;
+	}
+
 	/**
-	 * Returns a list of WSDLEndpoints for the specific Port
+	 * Returns a list of WSDLEndpoints for the specific Port from the endpoint
+	 * DB
 	 * 
-	 * @param port the Port to check for
+	 * @param port
+	 *            the Port to check for
 	 * @return a list containing all WSDLEndpoints that matches the portTypes of
 	 *         the given Port
 	 */
-	private List<WSDLEndpoint> getWSDLEndpoints(Port port) {
+	private List<WSDLEndpoint> getWSDLEndpointsFromEndpointDB(Port port) {
 		List<WSDLEndpoint> endpoints = new LinkedList<WSDLEndpoint>();
 		if (ODEEndpointUpdater.endpointService != null) {
-			ODEEndpointUpdater.LOG.debug("Fetching Endpoints for PortType {} ", port.getBinding().getPortType().getQName().toString());
-			List<WSDLEndpoint> temp = ODEEndpointUpdater.endpointService.getWSDLEndpoints(port.getBinding().getPortType().getQName(), this.csarId);
+			ODEEndpointUpdater.LOG.debug("Fetching Endpoints for PortType {} ",
+					port.getBinding().getPortType().getQName().toString());
+			List<WSDLEndpoint> temp = ODEEndpointUpdater.endpointService
+					.getWSDLEndpoints(port.getBinding().getPortType().getQName(), this.csarId);
 			for (WSDLEndpoint endpoint : temp) {
 				ODEEndpointUpdater.LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
 				endpoints.add(endpoint);
@@ -448,13 +606,15 @@ public class ODEEndpointUpdater {
 		}
 		return endpoints;
 	}
-	
+
 	/**
 	 * Changes the address in the given ExtensibilityElement to address given in
 	 * the given WSDLEndpoint
 	 * 
-	 * @param element the ExtensibilityElement to change
-	 * @param endpoint the WSDLEndpoint containing the address
+	 * @param element
+	 *            the ExtensibilityElement to change
+	 * @param endpoint
+	 *            the WSDLEndpoint containing the address
 	 * @return true if changing was successful, this means the
 	 *         ExtensibilityElement had the type
 	 *         {@link com.ibm.wsdl.extensions.soap.SOAPConstants.Q_ELEM_SOAP_ADDRESS}
@@ -466,11 +626,13 @@ public class ODEEndpointUpdater {
 		// TODO check if we could generalize this, we did once, but after
 		// looking at it again it seems not right enough
 		if (element.getElementType().equals(SOAPConstants.Q_ELEM_SOAP_ADDRESS)) {
-			ODEEndpointUpdater.LOG.debug("Changing the SOAP-Address Element inside for porttype {} ", endpoint.getPortType().toString());
+			ODEEndpointUpdater.LOG.debug("Changing the SOAP-Address Element inside for porttype {} ",
+					endpoint.getPortType().toString());
 			SOAPAddress address = (SOAPAddress) element;
 			address.setLocationURI(endpoint.getURI().toString());
 		} else if (element.getElementType().equals(HTTPConstants.Q_ELEM_HTTP_ADDRESS)) {
-			ODEEndpointUpdater.LOG.debug("Changing the HTTP-Address Element inside for porttype {} ", endpoint.getPortType().toString());
+			ODEEndpointUpdater.LOG.debug("Changing the HTTP-Address Element inside for porttype {} ",
+					endpoint.getPortType().toString());
 			HTTPAddress address = (HTTPAddress) element;
 			address.setLocationURI(endpoint.getURI().toString());
 		} else {
@@ -479,11 +641,12 @@ public class ODEEndpointUpdater {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Bind method for EndpointService
 	 * 
-	 * @param endpointService the EndpointService to bind
+	 * @param endpointService
+	 *            the EndpointService to bind
 	 */
 	protected static void bindEndpointService(ICoreEndpointService endpointService) {
 		if (endpointService != null) {
@@ -497,11 +660,12 @@ public class ODEEndpointUpdater {
 			ODEEndpointUpdater.LOG.debug("Registered EndpointService {}", endpointService.toString());
 		}
 	}
-	
+
 	/**
 	 * Unbind method for EndpointService
 	 * 
-	 * @param endpointService the EndpointService to unbind
+	 * @param endpointService
+	 *            the EndpointService to unbind
 	 */
 	protected static void unbindEndpointService(ICoreEndpointService endpointService) {
 		ODEEndpointUpdater.LOG.debug("Unregistering EndpointService {}", endpointService.toString());
@@ -512,18 +676,20 @@ public class ODEEndpointUpdater {
 		}
 		ODEEndpointUpdater.LOG.debug("Unregistered EndpointService {}", endpointService.toString());
 	}
-	
+
 	/**
 	 * Returns PortType of the bpel process composed of the given files list
 	 * 
-	 * @param planContents List of Files which make up the BPEL Process
+	 * @param planContents
+	 *            List of Files which make up the BPEL Process
 	 * @return QName which should be exactly the PortType of the given BPEL
 	 *         Process
 	 */
 	public QName getPortType(List<File> planContents) {
 		try {
-			File deployXML = this.getDeployXMl(planContents);
-			JAXBContext context = JAXBContext.newInstance("org.apache.ode.schemas.dd._2007._03", this.getClass().getClassLoader());
+			File deployXML = this.getDeployXML(planContents);
+			JAXBContext context = JAXBContext.newInstance("org.apache.ode.schemas.dd._2007._03",
+					this.getClass().getClassLoader());
 			Unmarshaller unmarshaller = context.createUnmarshaller();
 			TDeployment deploy = unmarshaller.unmarshal(new StreamSource(deployXML), TDeployment.class).getValue();
 			for (TDeployment.Process process : deploy.getProcess()) {
@@ -534,78 +700,5 @@ public class ODEEndpointUpdater {
 		}
 		return null;
 	}
-	
-	// /**
-	// * Bind method for ModelRepositoryServices
-	// *
-	// * @param modelRepoService
-	// * the ModelRepositoryService to bind
-	// */
-	// protected static void bindModelRepositoryService(
-	// ICoreModelRepositoryService modelRepoService) {
-	// if (modelRepoService != null) {
-	// ODEEndpointUpdater.LOG.info(
-	// "Registering ModelRepositoryService {}",
-	// modelRepoService.toString());
-	// if (ODEEndpointUpdater.modelRepoService == null) {
-	// ODEEndpointUpdater.modelRepoService = modelRepoService;
-	// } else {
-	// ODEEndpointUpdater.oldModelRepoService = modelRepoService;
-	// ODEEndpointUpdater.modelRepoService = modelRepoService;
-	// }
-	// ODEEndpointUpdater.LOG.info("Registered ModelRepositoryService {}",
-	// modelRepoService.toString());
-	// }
-	// }
-	//
-	// /**
-	// * Unbind method for ModelRepositoryServices
-	// *
-	// * @param modelRepoService
-	// * the ModelRepositoryService to unbind
-	// */
-	// protected static void unbindModelRepositoryService(
-	// ICoreModelRepositoryService modelRepoService) {
-	// ODEEndpointUpdater.LOG.info("Unregistering ModelRepositoryService {}",
-	// modelRepoService.toString());
-	// if (ODEEndpointUpdater.oldModelRepoService == null) {
-	// ODEEndpointUpdater.modelRepoService = null;
-	// } else {
-	// ODEEndpointUpdater.oldModelRepoService = null;
-	// }
-	// ODEEndpointUpdater.LOG.info("Unregistered ModelRepositoryService {}",
-	// modelRepoService.toString());
-	// }
-	
-	// /**
-	// * Bind method for IToscaEngineService
-	// *
-	// * @param toscaEngine
-	// * the IToscaEngineService to bind
-	// */
-	// // protected void bindIToscaEngineService(IToscaEngineService
-	// toscaEngine) {
-	// // if (toscaEngine != null) {
-	// // ODEEndpointUpdater.LOG.info("Registering IToscaEngineService {}",
-	// // toscaEngine.toString());
-	// // ODEEndpointUpdater.toscaEngineService = toscaEngine;
-	// // ODEEndpointUpdater.LOG.info("Registered IToscaEngineService {}",
-	// // toscaEngine.toString());
-	// // }
-	// // }
-	//
-	// /**
-	// * Unbind method for IToscaEngineService
-	// *
-	// * @param toscaEngienService
-	// * the IToscaEngineService to unbind
-	// */
-	// // protected void unbindIToscaEngineService(
-	// IToscaEngineService toscaEngienService) {
-	// ODEEndpointUpdater.LOG.info("Unregistering IToscaEngineService {}",
-	// toscaEngienService.toString());
-	// ODEEndpointUpdater.toscaEngineService = null;
-	// ODEEndpointUpdater.LOG.info("Unregistered IToscaEngineService {}",
-	// toscaEngienService.toString());
-	// }
+
 }

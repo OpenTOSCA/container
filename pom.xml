@@ -8,7 +8,8 @@
   <packaging>pom</packaging>
 
   <properties>
-    <tycho-version>0.23.1</tycho-version>
+    <tycho-version>0.22.0</tycho-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <!--<repositories>
       <repository>
@@ -88,6 +89,7 @@
   <module>org.opentosca.iaengine.plugins.script.service.impl</module>
   <module>org.opentosca.iaengine.plugins.service</module>
   <module>org.opentosca.iaengine.plugins.wartomcat.service.impl</module>
+  <module>org.opentosca.iaengine.plugins.dockercompose.service.impl</module>
   <module>org.opentosca.iaengine.service</module>
   <module>org.opentosca.iaengine.service.impl</module>
   <module>org.opentosca.instancedata.service</module>
