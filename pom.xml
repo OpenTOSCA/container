@@ -89,6 +89,7 @@
   <module>org.opentosca.iaengine.plugins.script.service.impl</module>
   <module>org.opentosca.iaengine.plugins.service</module>
   <module>org.opentosca.iaengine.plugins.wartomcat.service.impl</module>
+  <module>org.opentosca.iaengine.plugins.dockercompose.service.impl</module>
   <module>org.opentosca.iaengine.service</module>
   <module>org.opentosca.iaengine.service.impl</module>
   <module>org.opentosca.instancedata.service</module>
