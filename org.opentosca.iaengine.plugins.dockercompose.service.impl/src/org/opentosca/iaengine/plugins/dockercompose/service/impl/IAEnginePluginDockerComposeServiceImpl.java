@@ -306,7 +306,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static void log(String[] cmd, String cwd, String exitCode, String stdout, String stderr) {
-      String message = "Command " + java.util.Arrays.deepToString(cmd) + " (cwd " + cwd + ") exit " + exitCode + ". stdout: " + stdout + ". stderr: " + stderr;
+      String message = "COMMAND " + java.util.Arrays.deepToString(cmd) + " (CWD " + cwd + ") EXIT " + exitCode + ". STDOUT: " + stdout + ". STDERR: " + stderr;
 
       log(message);
   }
@@ -410,7 +410,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       log(cmd, cwd, Integer.toString(exitCode), stdout.trim(), stderr.trim());
 
       if (exitCode != 0) {
-          throw new Exception("Command " + java.util.Arrays.deepToString(cmd) + " (cwd " + cwd + ") exit " + exitCode + ". stdout: " + stdout.trim() + ". stderr: " + stderr.trim());
+          throw new Exception("COMMAND " + java.util.Arrays.deepToString(cmd) + " (CWD " + cwd + ") EXIT " + exitCode + ". STDOUT: " + stdout.trim() + ". STDERR: " + stderr.trim());
       }
 
       String[] result = { Integer.toString(exitCode), stdout.trim(), stderr.trim() };
