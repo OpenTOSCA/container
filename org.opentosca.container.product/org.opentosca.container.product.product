@@ -177,6 +177,7 @@
       <plugin id="org.opentosca.iaengine.plugins.script.service.impl"/>
       <plugin id="org.opentosca.iaengine.plugins.service"/>
       <plugin id="org.opentosca.iaengine.plugins.wartomcat.service.impl"/>
+      <plugin id="org.opentosca.iaengine.plugins.dockercompose.service.impl"/>
       <plugin id="org.opentosca.iaengine.service"/>
       <plugin id="org.opentosca.iaengine.service.impl"/>
       <plugin id="org.opentosca.instancedata.service"/>
@@ -409,6 +410,7 @@
       <plugin id="org.opentosca.iaengine.plugins.script.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.iaengine.plugins.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.iaengine.plugins.wartomcat.service.impl" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.iaengine.plugins.dockercompose.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.iaengine.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.iaengine.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.instancedata.service" autoStart="true" startLevel="4" />
