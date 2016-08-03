@@ -14,7 +14,7 @@ import org.opentosca.core.model.csar.id.CSARID;
 public class CSARInstanceID {
 	
 	private CSARID csarID;
-	private int internalID = 0;
+	private int instanceID = 0;
 	
 	
 	@SuppressWarnings("unused")
@@ -24,11 +24,11 @@ public class CSARInstanceID {
 	public CSARInstanceID(CSARID csarID, int internalID) {
 		super();
 		this.csarID = csarID;
-		this.internalID = internalID;
+		this.instanceID = internalID;
 	}
 	
-	public int getInternalID() {
-		return this.internalID;
+	public int getInstanceID() {
+		return this.instanceID;
 	}
 	
 	public CSARID getOwner() {
@@ -37,7 +37,7 @@ public class CSARInstanceID {
 	
 	@Override
 	public String toString() {
-		return "InstanceID for CSAR \"" + this.csarID + "\" and internal ID " + this.internalID + ".";
+		return "InstanceID for CSAR \"" + this.csarID + "\" and internal ID " + this.instanceID + ".";
 	}
 	
 	@Override
@@ -45,7 +45,7 @@ public class CSARInstanceID {
 		final int prime = 31;
 		int result = 1;
 		result = (prime * result) + ((this.csarID == null) ? 0 : this.csarID.hashCode());
-		result = (prime * result) + this.internalID;
+		result = (prime * result) + this.instanceID;
 		return result;
 	}
 	
@@ -68,7 +68,7 @@ public class CSARInstanceID {
 		} else if (!this.csarID.equals(other.csarID)) {
 			return false;
 		}
-		if (this.internalID != other.internalID) {
+		if (this.instanceID != other.instanceID) {
 			return false;
 		}
 		return true;

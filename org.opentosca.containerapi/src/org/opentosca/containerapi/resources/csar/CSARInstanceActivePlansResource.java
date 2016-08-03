@@ -15,8 +15,8 @@ import org.opentosca.containerapi.resources.xlink.Reference;
 import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.consolidatedtosca.PublicPlan;
 import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.opentoscacontrol.service.IOpenToscaControlService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,63 +30,63 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CSARInstanceActivePlansResource {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARInstanceActivePlansResource.class);
-	
-	private final CSARID csarID;
-	private final int instanceID;
-	
-	
-	public CSARInstanceActivePlansResource(CSARID csarID, int instanceID) {
-		this.csarID = csarID;
-		this.instanceID = instanceID;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CSARInstanceActivePlansResource.class);
+
+    private final CSARID csarID;
+    private final int instanceID;
+
+
+    public CSARInstanceActivePlansResource(CSARID csarID, int instanceID) {
+	this.csarID = csarID;
+	this.instanceID = instanceID;
+    }
+
+    /**
+     * Produces the xml which lists the CorrelationIDs of the active
+     * PublicPlans.
+     * 
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferences(@Context UriInfo uriInfo) {
+
+	CSARInstanceActivePlansResource.LOG.debug("Access active plans at " + uriInfo.getAbsolutePath().toString());
+
+	if (csarID == null) {
+	    CSARInstanceActivePlansResource.LOG.debug("The CSAR does not exist.");
+	    return Response.status(404).build();
 	}
-	
-	/**
-	 * Produces the xml which lists the CorrelationIDs of the active
-	 * PublicPlans.
-	 * 
-	 * @param uriInfo
-	 * @return The response with the legal PublicPlanTypes.
-	 */
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
-		
-		CSARInstanceActivePlansResource.LOG.debug("Access active plans at " + uriInfo.getAbsolutePath().toString());
-		
-		if (this.csarID == null) {
-			CSARInstanceActivePlansResource.LOG.debug("The CSAR does not exist.");
-			return Response.status(404).build();
-		}
-		
-		References refs = new References();
-		
-		IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
-		
-		for (String correlation : control.getActiveCorrelationsOfInstance(new CSARInstanceID(this.csarID, this.instanceID))) {
-			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), correlation), XLinkConstants.SIMPLE, correlation));
-		}
-		
-		// selflink
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+
+	References refs = new References();
+
+	IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
+
+	for (String correlation : control.getActiveCorrelationsOfInstance(new CSARInstanceID(csarID, instanceID))) {
+	    refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), correlation), XLinkConstants.SIMPLE, correlation));
 	}
-	
-	/**
-	 * Returns the PublicPlan for the CorrelationID
-	 * 
-	 * @param correlationID
-	 * @return the PublicPlan for the CorrelationID
-	 */
-	@GET
-	@Path("{CorrelationID}")
-	@Produces(ResourceConstants.TOSCA_XML)
-	public PublicPlan getInstance(@PathParam("CorrelationID") String correlationID) {
-		CSARInstanceActivePlansResource.LOG.debug("Return plan for correlation " + correlationID);
-		IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
-		
-		return control.getActivePublicPlanOfInstance(new CSARInstanceID(this.csarID, this.instanceID), correlationID);
-	}
-	
+
+	// selflink
+	refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+	return Response.ok(refs.getXMLString()).build();
+    }
+
+    /**
+     * Returns the PublicPlan for the CorrelationID
+     * 
+     * @param correlationID
+     * @return the PublicPlan for the CorrelationID
+     */
+    @GET
+    @Path("{CorrelationID}")
+    @Produces(ResourceConstants.TOSCA_XML)
+    public TPlanDTO getInstance(@PathParam("CorrelationID") String correlationID) {
+	CSARInstanceActivePlansResource.LOG.debug("Return plan for correlation " + correlationID);
+	IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
+
+	return control.getActivePlanOfInstance(new CSARInstanceID(csarID, instanceID), correlationID);
+    }
+
 }

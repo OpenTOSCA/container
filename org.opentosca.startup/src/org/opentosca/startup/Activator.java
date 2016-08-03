@@ -19,7 +19,9 @@ public class Activator implements BundleActivator {
 
     /*
      * (non-Javadoc)
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
+     * 
+     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
+     * BundleContext)
      */
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -29,19 +31,26 @@ public class Activator implements BundleActivator {
 
     /*
      * (non-Javadoc)
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     * 
+     * @see
+     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
 	Activator.context = null;
     }
 
-    private void deleteOpenTOSCADir(){
+    private void deleteOpenTOSCADir() {
 
 	Path path = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "openTOSCA");
-	System.out.println("This is the first run, thus, delete the temporary directory: "+ path);
+	System.out.println("This is the start-up clean-up, thus, delete the temporary directory: " + path);
 	try {
-	    FileUtils.deleteDirectory(path.toFile());
+	    if (path.toFile().exists()) {
+		FileUtils.deleteDirectory(path.toFile());
+	    } else {
+		System.out.println("The directory did not exist.");
+	    }
+	    System.out.println("The directory was deleted: " + !path.toFile().exists());
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}

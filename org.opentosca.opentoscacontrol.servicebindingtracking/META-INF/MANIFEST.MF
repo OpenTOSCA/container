@@ -4,7 +4,8 @@ Bundle-Name: Servicebindingtracking
 Bundle-SymbolicName: org.opentosca.opentoscacontrol.servicebindingtracking
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.opentosca.bus.management.service,
+Import-Package: org.apache.commons.io;version="2.4.0",
+ org.opentosca.bus.management.service,
  org.opentosca.core.capability.service,
  org.opentosca.core.deployment.tracker.service,
  org.opentosca.core.endpoint.service,

@@ -64,344 +64,345 @@ import com.sun.jersey.multipart.FormDataParam;
  */
 @Path("/CSARs")
 public class CSARsResource {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARsResource.class);
-	
-	private final ICoreFileService fileHandler;
-	private final IOpenToscaControlService control;
-	
-	@Context
-	UriInfo uriInfo;
-	@Context
-	Request request;
-	
-	
-	public CSARsResource() {
-		this.fileHandler = FileRepositoryServiceHandler.getFileHandler();
-		this.control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
-		CSARsResource.LOG.debug("{} created: {}", this.getClass(), this);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CSARsResource.class);
+
+    private final ICoreFileService fileHandler;
+    private final IOpenToscaControlService control;
+
+    @Context
+    UriInfo uriInfo;
+    @Context
+    Request request;
+
+
+    public CSARsResource() {
+	fileHandler = FileRepositoryServiceHandler.getFileHandler();
+	control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
+	CSARsResource.LOG.debug("{} created: {}", this.getClass(), this);
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferences() {
+	References refs = new References();
+	for (CSARID csarID : fileHandler.getCSARIDs()) {
+	    Reference ref = new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE, csarID.toString());
+	    refs.getReference().add(ref);
+
+	    CSARsResource.LOG.debug("CSAR \"{}\" added as Reference.", csarID);
+
 	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences() {
-		References refs = new References();
-		for (CSARID csarID : this.fileHandler.getCSARIDs()) {
-			Reference ref = new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE, csarID.toString());
-			refs.getReference().add(ref);
-			
-			CSARsResource.LOG.debug("CSAR \"{}\" added as Reference.", csarID);
-			
-		}
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+	refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+	return Response.ok(refs.getXMLString()).build();
+    }
+
+    /**
+     * Stores the CSAR file at {@code fileLocation} (absolute path on the local
+     * file system) in the Container.
+     * 
+     * @param fileLocation
+     * @return
+     * @throws SystemException
+     * @throws UserException
+     */
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response uploadCSAR(String fileLocation) throws UserException, SystemException {
+
+	CSARsResource.LOG.info("Upload file from location: {}", fileLocation);
+
+	try {
+
+	    java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
+
+	    // try {
+	    CSARID csarID = fileHandler.storeCSAR(csarFile);
+	    csarID = startPlanBuilder(csarID);
+	    // } catch (UserException exc) {
+	    // CSARsResource.LOG.warn("An User Exception occured.", exc);
+	    // return Response.status(Status.BAD_REQUEST).build();
+	    //
+	    // } catch (SystemException exc) {
+	    // CSARsResource.LOG.warn("An System Exception occured.", exc);
+	    // return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+	    // }
+
+	    control.setDeploymentProcessStateStored(csarID);
+	    return Response.created(URI.create(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()))).build();
+
+	} catch (java.nio.file.InvalidPathException exc) {
+	    throw new SystemException("Given file path \"" + fileLocation + "\" is syntactically invalid.", exc);
 	}
-	
-	/**
-	 * Stores the CSAR file at {@code fileLocation} (absolute path on the local
-	 * file system) in the Container.
-	 * 
-	 * @param fileLocation
-	 * @return
-	 * @throws SystemException
-	 * @throws UserException
-	 */
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	public Response uploadCSAR(String fileLocation) throws UserException, SystemException {
-		
-		CSARsResource.LOG.info("Upload file from location: {}", fileLocation);
-		
-		try {
-			
-			java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
-			
-			// try {
-			CSARID csarID = this.fileHandler.storeCSAR(csarFile);
-			csarID = this.startPlanBuilder(csarID);
-			// } catch (UserException exc) {
-			// CSARsResource.LOG.warn("An User Exception occured.", exc);
-			// return Response.status(Status.BAD_REQUEST).build();
-			//
-			// } catch (SystemException exc) {
-			// CSARsResource.LOG.warn("An System Exception occured.", exc);
-			// return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-			// }
-			
-			this.control.setDeploymentProcessStateStored(csarID);
-			return Response.created(URI.create(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()))).build();
-			
-		} catch (java.nio.file.InvalidPathException exc) {
-			throw new SystemException("Given file path \"" + fileLocation + "\" is syntactically invalid.", exc);
-		}
-		
+
+    }
+
+    @POST
+    public Response uploadCSARAdminUI(@QueryParam("url") URL url) {
+
+	if ((null == url) || url.equals("")) {
+	    CSARsResource.LOG.error("The url is null or empty.");
+	    return Response.serverError().build();
 	}
-	
-	@POST
-	public Response uploadCSARAdminUI(@QueryParam("url") URL url) {
-		
-		if ((null == url) || url.equals("")) {
-			CSARsResource.LOG.error("The url is null or empty.");
-			return Response.serverError().build();
-		}
-		
-		String fileName = "";
-		try {
-			
-			// http://ds/joomla/images/a%25.txt to
-			// http://ds/joomla/images/a%2525.txt
-			
-			String urlStr = url.toExternalForm();
-			urlStr = urlStr.substring(0, urlStr.lastIndexOf("/") + 1) + Utilities.encodeURIPath((urlStr.substring(urlStr.lastIndexOf("/") + 1)));
-			url = new URL(urlStr);
-			
-			fileName = CSARsResource.createXMLidAsString(url.toExternalForm().substring(url.toExternalForm().lastIndexOf("/") + 1));
-			
-			CSARsResource.LOG.debug("Recieved URL " + urlStr);
-			// } catch (UnsupportedEncodingException e1) {
-			// CSARsResource.LOG.error("Encoding of recieved URL failed.");
-			// e1.printStackTrace();
-		} catch (MalformedURLException e) {
-			CSARsResource.LOG.error("Generation of URL of encoded URL failed.");
-			e.printStackTrace();
-		}
-		
-		if ((null == fileName) || fileName.equals("")) {
-			CSARsResource.LOG.error("The decoding of the file name has failed.");
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-		
-		CSARsResource.LOG.info("Recieved the URL \"" + url + "\" for uploading a CSAR.");
-		CSARsResource.LOG.debug("File name is \"" + fileName + "\".");
-		
-		try {
-			return this.storeCSAR(fileName, url.openStream());
-		} catch (IOException e) {
-			CSARsResource.LOG.error("There was an error while opening the input stream.");
-			e.printStackTrace();
-		}
-		
-		return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+
+	String fileName = "";
+	try {
+
+	    // http://ds/joomla/images/a%25.txt to
+	    // http://ds/joomla/images/a%2525.txt
+
+	    String urlStr = url.toExternalForm();
+	    urlStr = urlStr.substring(0, urlStr.lastIndexOf("/") + 1) + Utilities.encodeURIPath((urlStr.substring(urlStr.lastIndexOf("/") + 1)));
+	    url = new URL(urlStr);
+
+	    fileName = CSARsResource.createXMLidAsString(url.toExternalForm().substring(url.toExternalForm().lastIndexOf("/") + 1));
+
+	    CSARsResource.LOG.debug("Recieved URL " + urlStr);
+	    // } catch (UnsupportedEncodingException e1) {
+	    // CSARsResource.LOG.error("Encoding of recieved URL failed.");
+	    // e1.printStackTrace();
+	} catch (MalformedURLException e) {
+	    CSARsResource.LOG.error("Generation of URL of encoded URL failed.");
+	    e.printStackTrace();
 	}
-	
-	/**
-	 * 
-	 * Accepts the InputStream of a CSAR file. After storing and unzipping the
-	 * CSAR the processing of TOSCA, IAs and BPEL-Plans is triggered.
-	 * 
-	 * @param uploadedInputStream
-	 * @param fileDetail
-	 * @return
-	 */
-	@POST
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public Response uploadCSARAdminUI(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail) {
-		CSARsResource.LOG.info("Try to upload a new CSAR.");
-		
-		if (null == uploadedInputStream) {
-			CSARsResource.LOG.error("The stream is null.");
-			return Response.serverError().build();
-		}
-		if (null == fileDetail) {
-			CSARsResource.LOG.error("The file details are null.");
-			return Response.serverError().build();
-		}
-		
-		CSARsResource.LOG.debug("Post for uploading a new CSAR as file with name \"" + fileDetail.getFileName() + "\" with size " + fileDetail.getSize() + ".");
-		
-		String fileName = fileDetail.getFileName();
-		
-		return this.storeCSAR(fileName, uploadedInputStream);
-		
+
+	if ((null == fileName) || fileName.equals("")) {
+	    CSARsResource.LOG.error("The decoding of the file name has failed.");
+	    return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 	}
-	
-	private Response storeCSAR(String fileName, InputStream uploadedInputStream) {
-		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
-		tmpDir.mkdir();
-		
-		File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + fileName);
-		
-		OutputStream out;
-		
-		try {
-			out = new FileOutputStream(uploadFile);
-			
-			int read = 0;
-			byte[] bytes = new byte[1024];
-			
-			while ((read = uploadedInputStream.read(bytes)) != -1) {
-				out.write(bytes, 0, read);
+
+	CSARsResource.LOG.info("Recieved the URL \"" + url + "\" for uploading a CSAR.");
+	CSARsResource.LOG.debug("File name is \"" + fileName + "\".");
+
+	try {
+	    return storeCSAR(fileName, url.openStream());
+	} catch (IOException e) {
+	    CSARsResource.LOG.error("There was an error while opening the input stream.");
+	    e.printStackTrace();
+	}
+
+	return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    /**
+     * 
+     * Accepts the InputStream of a CSAR file. After storing and unzipping the
+     * CSAR the processing of TOSCA, IAs and BPEL-Plans is triggered.
+     * 
+     * @param uploadedInputStream
+     * @param fileDetail
+     * @return
+     */
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadCSARAdminUI(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail) {
+	CSARsResource.LOG.info("Try to upload a new CSAR.");
+
+	if (null == uploadedInputStream) {
+	    CSARsResource.LOG.error("The stream is null.");
+	    return Response.serverError().build();
+	}
+	if (null == fileDetail) {
+	    CSARsResource.LOG.error("The file details are null.");
+	    return Response.serverError().build();
+	}
+
+	CSARsResource.LOG.debug("Post for uploading a new CSAR as file with name \"" + fileDetail.getFileName() + "\" with size " + fileDetail.getSize() + ".");
+
+	String fileName = fileDetail.getFileName();
+
+	return storeCSAR(fileName, uploadedInputStream);
+
+    }
+
+    private Response storeCSAR(String fileName, InputStream uploadedInputStream) {
+	File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
+	tmpDir.mkdir();
+
+	File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + fileName);
+
+	OutputStream out;
+
+	try {
+	    out = new FileOutputStream(uploadFile);
+
+	    int read = 0;
+	    byte[] bytes = new byte[1024];
+
+	    while ((read = uploadedInputStream.read(bytes)) != -1) {
+		out.write(bytes, 0, read);
+	    }
+
+	    uploadedInputStream.close();
+
+	    CSARsResource.LOG.debug("Temporary file: " + uploadFile.getAbsolutePath() + " with size " + uploadFile.getTotalSpace());
+
+	    out.flush();
+	    out.close();
+
+	    CSARID csarID = null;
+	    csarID = fileHandler.storeCSAR(uploadFile.toPath());
+
+	    csarID = startPlanBuilder(csarID);
+
+	    if (csarID != null) {
+		CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
+		CSARsResource.LOG.trace("Control is bound: " + (null != control));
+		control.setDeploymentProcessStateStored(csarID);
+
+		if (control.invokeTOSCAProcessing(csarID)) {
+
+		    List<QName> serviceTemplates = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID);
+
+		    for (QName serviceTemplate : serviceTemplates) {
+
+			CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \"" + csarID + "\".");
+			if (!control.invokeIADeployment(csarID, serviceTemplate)) {
+
+			    break;
 			}
-			
-			uploadedInputStream.close();
-			
-			CSARsResource.LOG.debug("Temporary file: " + uploadFile.getAbsolutePath() + " with size " + uploadFile.getTotalSpace());
-			
-			out.flush();
-			out.close();
-			
-			CSARID csarID = null;
-			csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
-			
-			csarID = this.startPlanBuilder(csarID);
-			
-			if (csarID != null) {
-				CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
-				this.control.setDeploymentProcessStateStored(csarID);
-				
-				if (this.control.invokeTOSCAProcessing(csarID)) {
-					
-					List<QName> serviceTemplates = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID);
-					
-					for (QName serviceTemplate : serviceTemplates) {
-						
-						CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \"" + csarID + "\".");
-						if (!this.control.invokeIADeployment(csarID, serviceTemplate)) {
-							
-							break;
-						}
-						
-						CSARsResource.LOG.debug("Invoke PlanDeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \"" + csarID + "\".");
-						CSARsResource.LOG.debug("");
-						if (!this.control.invokePlanDeployment(csarID, serviceTemplate)) {
-							
-							break;
-						}
-						
-					}
-					return Response.created(URI.create(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()))).build();
-				}
+
+			CSARsResource.LOG.debug("Invoke PlanDeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \"" + csarID + "\".");
+			CSARsResource.LOG.debug("");
+			if (!control.invokePlanDeployment(csarID, serviceTemplate)) {
+
+			    break;
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (UserException e) {
-			e.printStackTrace();
-		} catch (SystemException e) {
-			e.printStackTrace();
+
+		    }
+		    return Response.created(URI.create(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()))).build();
 		}
-		
-		CSARsResource.LOG.error("Can't upload CSAR located at \"{}\". CSAR is invalid!", uploadFile.getAbsolutePath());
-		
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+	    }
+	} catch (FileNotFoundException e) {
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	} catch (UserException e) {
+	    e.printStackTrace();
+	} catch (SystemException e) {
+	    e.printStackTrace();
 	}
-	
-	@Path("{csarID}")
-	public CSARResource getCSAR(@PathParam("csarID") String csarIDAsString) throws UserException {
-		
-		CSARsResource.LOG.debug("Searching for CSAR \"{}\".", csarIDAsString);
-		
-		// try {
-		CSARContent csar = this.fileHandler.getCSAR(new CSARID(csarIDAsString));
-		// } catch (UserException exc) {
-		// CSARsResource.LOG.warn("An User Exception occured.", exc);
-		// }
-		
-		if (csar != null) {
-			CSARsResource.LOG.debug("CSAR \"{}\" was found.", csarIDAsString);
-		} else {
-			CSARsResource.LOG.warn("CSAR \"{}\" was not found.", csarIDAsString);
-		}
-		
-		return new CSARResource(csar);
-		
+
+	CSARsResource.LOG.error("Can't upload CSAR located at \"{}\". CSAR is invalid!", uploadFile.getAbsolutePath());
+
+	return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @Path("{csarID}")
+    public CSARResource getCSAR(@PathParam("csarID") String csarIDAsString) throws UserException {
+
+	CSARsResource.LOG.debug("Searching for CSAR \"{}\".", csarIDAsString);
+
+	// try {
+	CSARContent csar = fileHandler.getCSAR(new CSARID(csarIDAsString));
+	// } catch (UserException exc) {
+	// CSARsResource.LOG.warn("An User Exception occured.", exc);
+	// }
+
+	if (csar != null) {
+	    CSARsResource.LOG.debug("CSAR \"{}\" was found.", csarIDAsString);
+	} else {
+	    CSARsResource.LOG.warn("CSAR \"{}\" was not found.", csarIDAsString);
 	}
-	
-	@DELETE
-	@Produces("text/plain")
-	public Response deleteCSARs() throws SystemException, UserException {
-		
-		List<String> notDeleted = new ArrayList<String>();
-		
-		for (CSARID csarID : this.fileHandler.getCSARIDs()) {
-			CSARsResource.LOG.info("Deleting CSAR \"{}\".", csarID);
-			if (!IOpenToscaControlServiceHandler.getOpenToscaControlService().deleteCSAR(csarID).isEmpty()) {
-				notDeleted.add(csarID.toString());
-			}
-			
-		}
-		
-		if (notDeleted.isEmpty()) {
-			return Response.ok("All CSARs were deleted.").build();
-		} else {
-			return Response.serverError().build();
-		}
+
+	return new CSARResource(csar);
+
+    }
+
+    @DELETE
+    @Produces("text/plain")
+    public Response deleteCSARs() throws SystemException, UserException {
+
+	List<String> notDeleted = new ArrayList<String>();
+
+	for (CSARID csarID : fileHandler.getCSARIDs()) {
+	    CSARsResource.LOG.info("Deleting CSAR \"{}\".", csarID);
+	    if (!IOpenToscaControlServiceHandler.getOpenToscaControlService().deleteCSAR(csarID).isEmpty()) {
+		notDeleted.add(csarID.toString());
+	    }
+
 	}
-	
-	/**
-	 * Checks whether the root tosca definitions file, contains servicetemplates
-	 * where no build plan is available. If there is no such plan available the
-	 * plan builder starts to generate a build plan.
-	 * 
-	 * @param csarId the CSARID of the definitions to generate build plans for
-	 * @return a new CSARID for the repackaged csar if new build plans were
-	 *         generated, the same csarid if no build plans were generated, else
-	 *         null
-	 */
-	private CSARID startPlanBuilder(CSARID csarId) {
-		Importer planBuilderImporter = new Importer();
-		Exporter planBuilderExporter = new Exporter();
-		
-		List<BuildPlan> buildPlans = planBuilderImporter.importDefs(csarId);
-		
-		// no buildplan generated <=> nothing to do
-		if (buildPlans.isEmpty()) {
-			return csarId;
-		}
-		
-		File repackagedCsar = planBuilderExporter.export(buildPlans, csarId);
-		try {
-			this.fileHandler.deleteCSAR(csarId);
-			return this.fileHandler.storeCSAR(repackagedCsar.toPath());
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
+
+	if (notDeleted.isEmpty()) {
+	    return Response.ok("All CSARs were deleted.").build();
+	} else {
+	    return Response.serverError().build();
 	}
-	
-	/**
-	 * Creates a (valid) XML ID (NCName) based on the passed name
-	 * 
-	 * Valid NCNames: http://www.w3.org/TR/REC-xml-names/#NT-NCName /
-	 * http://www.w3.org/TR/xml/#NT-Name http://www.w3.org/TR/xml/#NT-Name
-	 * 
-	 * @author oliver.kopp@iaas.uni-stuttgart.de license: Apache 2.0 without
-	 *         NOTICE
-	 * 
-	 */
-	private static String createXMLidAsString(String name) {
-		
-		// RegExp inspired by http://stackoverflow.com/a/5396246/873282
-		// NameStartChar without ":"
-		// stackoverflow: -dfff, standard: d7fff
-		String RANGE_NCNAMESTARTCHAR = "A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d" + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff" + "\\uf900-\\ufdcf\\ufdf0-\\ufffd\\x10000-\\xEFFFF";
-		String REGEX_NCNAMESTARTCHAR = "[" + RANGE_NCNAMESTARTCHAR + "]";
-		String RANGE_NCNAMECHAR = RANGE_NCNAMESTARTCHAR + "\\-\\.0-9\\u00b7\\u0300-\\u036f\\u203f-\\u2040";
-		String REGEX_INVALIDNCNAMESCHAR = "[^" + RANGE_NCNAMECHAR + "]";
-		
-		String id = name;
-		if (!id.substring(0, 1).matches(REGEX_NCNAMESTARTCHAR)) {
-			id = "_".concat(id);
-		}
-		// id starts with a valid character
-		
-		// before we wipe out all invalid characters, we do a readable
-		// replacement for appropriate characters
-		id = id.replace(' ', '_');
-		
-		// keep length of ID, only wipe out invalid characters
-		// alternative: replace invalid characters by URLencoded version. As the
-		// ID is visible only in the URL, this quick hack should be OK
-		// ID is visible only in the URL, this quick hack should be OK
-		id = id.replaceAll(REGEX_INVALIDNCNAMESCHAR, "_");
-		
-		return id;
+    }
+
+    /**
+     * Checks whether the root tosca definitions file, contains servicetemplates
+     * where no build plan is available. If there is no such plan available the
+     * plan builder starts to generate a build plan.
+     * 
+     * @param csarId the CSARID of the definitions to generate build plans for
+     * @return a new CSARID for the repackaged csar if new build plans were
+     *         generated, the same csarid if no build plans were generated, else
+     *         null
+     */
+    private CSARID startPlanBuilder(CSARID csarId) {
+	Importer planBuilderImporter = new Importer();
+	Exporter planBuilderExporter = new Exporter();
+
+	List<BuildPlan> buildPlans = planBuilderImporter.importDefs(csarId);
+
+	// no buildplan generated <=> nothing to do
+	if (buildPlans.isEmpty()) {
+	    return csarId;
 	}
-	
+
+	File repackagedCsar = planBuilderExporter.export(buildPlans, csarId);
+	try {
+	    fileHandler.deleteCSAR(csarId);
+	    return fileHandler.storeCSAR(repackagedCsar.toPath());
+	} catch (SystemException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (UserException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
+	return null;
+    }
+
+    /**
+     * Creates a (valid) XML ID (NCName) based on the passed name
+     * 
+     * Valid NCNames: http://www.w3.org/TR/REC-xml-names/#NT-NCName /
+     * http://www.w3.org/TR/xml/#NT-Name http://www.w3.org/TR/xml/#NT-Name
+     * 
+     * @author oliver.kopp@iaas.uni-stuttgart.de license: Apache 2.0 without
+     *         NOTICE
+     * 
+     */
+    private static String createXMLidAsString(String name) {
+
+	// RegExp inspired by http://stackoverflow.com/a/5396246/873282
+	// NameStartChar without ":"
+	// stackoverflow: -dfff, standard: d7fff
+	String RANGE_NCNAMESTARTCHAR = "A-Z_a-z\\u00C0\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02ff\\u0370-\\u037d" + "\\u037f-\\u1fff\\u200c\\u200d\\u2070-\\u218f\\u2c00-\\u2fef\\u3001-\\ud7ff" + "\\uf900-\\ufdcf\\ufdf0-\\ufffd\\x10000-\\xEFFFF";
+	String REGEX_NCNAMESTARTCHAR = "[" + RANGE_NCNAMESTARTCHAR + "]";
+	String RANGE_NCNAMECHAR = RANGE_NCNAMESTARTCHAR + "\\-\\.0-9\\u00b7\\u0300-\\u036f\\u203f-\\u2040";
+	String REGEX_INVALIDNCNAMESCHAR = "[^" + RANGE_NCNAMECHAR + "]";
+
+	String id = name;
+	if (!id.substring(0, 1).matches(REGEX_NCNAMESTARTCHAR)) {
+	    id = "_".concat(id);
+	}
+	// id starts with a valid character
+
+	// before we wipe out all invalid characters, we do a readable
+	// replacement for appropriate characters
+	id = id.replace(' ', '_');
+
+	// keep length of ID, only wipe out invalid characters
+	// alternative: replace invalid characters by URLencoded version. As the
+	// ID is visible only in the URL, this quick hack should be OK
+	// ID is visible only in the URL, this quick hack should be OK
+	id = id.replaceAll(REGEX_INVALIDNCNAMESCHAR, "_");
+
+	return id;
+    }
+
 }

@@ -33,8 +33,8 @@ public class CSARIDToInstanceToCorrelation {
 		int highest = -1;
 		
 		for (CSARInstanceID id : this.getInstanceMap(csarID).keySet()) {
-			if (highest < id.getInternalID()) {
-				highest = id.getInternalID();
+			if (highest < id.getInstanceID()) {
+				highest = id.getInstanceID();
 			}
 		}
 		

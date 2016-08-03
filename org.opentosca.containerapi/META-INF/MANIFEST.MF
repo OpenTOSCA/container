@@ -25,11 +25,13 @@ Import-Package: com.sun.jersey.core.header;version="1.17.0",
  org.opentosca.csarinstancemanagement.service,
  org.opentosca.exceptions,
  org.opentosca.instancedata.service,
- org.opentosca.model.consolidatedtosca,
  org.opentosca.model.csarinstancemanagement,
  org.opentosca.model.instancedata,
  org.opentosca.model.staticresources,
  org.opentosca.model.tosca,
+ org.opentosca.model.tosca.extension.helpers,
+ org.opentosca.model.tosca.extension.planinvocationevent,
+ org.opentosca.model.tosca.extension.transportextension,
  org.opentosca.opentoscacontrol.service,
  org.opentosca.planbuilder.export,
  org.opentosca.planbuilder.importer,
@@ -46,5 +48,5 @@ Import-Package: com.sun.jersey.core.header;version="1.17.0",
  org.slf4j;version="1.6.4",
  org.w3c.dom
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Service-Component: OSGI-INF/HttpService_component.xml, OSGI-INF/CSARInstanceManagementHandler_component.xml, OSGI-INF/ICoreFileService_component.xml, OSGI-INF/ICoreModelRepositoryService_component.xml, OSGI-INF/IOpenToscaControlService_component.xml, OSGI-INF/IFileAccessService_component.xml, OSGI-INF/IToscaEngineService_component.xml, OSGI-INF/ToscaServiceHandler_component.xml, OSGI-INF/CredentialsServiceHandler_component.xml, OSGI-INF/PortabilityService_component.xml, OSGI-INF/InstanceData_component.xml
+Service-Component: OSGI-INF/HttpService_component.xml, OSGI-INF/CSARInstanceManagementHandler_component.xml, OSGI-INF/ICoreFileService_component.xml, OSGI-INF/ICoreModelRepositoryService_component.xml, OSGI-INF/IOpenToscaControlService_component.xml, OSGI-INF/IFileAccessService_component.xml, OSGI-INF/ToscaServiceHandler_component.xml, OSGI-INF/CredentialsServiceHandler_component.xml, OSGI-INF/PortabilityService_component.xml, OSGI-INF/InstanceData_component.xml
 Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"
