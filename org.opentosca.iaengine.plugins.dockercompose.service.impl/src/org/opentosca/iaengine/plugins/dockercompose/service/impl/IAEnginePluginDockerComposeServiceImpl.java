@@ -247,6 +247,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
 
 
+	/*
+	 *
+	 * Static helper functions
+	 *
+	 */
   private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
   private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_SCRIPT");
   private static String LOG_FILE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_LOG");
@@ -309,8 +314,12 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       String[] cmd = { "bash", DOCKER_COMPOSE, "port", serviceName, containerPort };
       String[] res = execCmd(cmd, contextPath);
 
-      String port = res[1];
-      return port;
+			try {
+					String port = res[1].split(":")[1];
+					return port;
+			} catch (Exception e) {
+					return null;
+			}
   }
 
   private static void dcDown(String contextPath) throws Exception {
@@ -354,7 +363,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static String[] execCmd(String[] cmd, String cwd, String[] env) throws Exception {
-      Process proc = Runtime.getRuntime().exec(cmd, env, new java.io.File(cwd));
+			java.io.File cwdObj = null;
+			if (cwd != null) cwdObj = new java.io.File(cwd);
+
+			Process proc = Runtime.getRuntime().exec(cmd, env, cwdObj);
 
       java.io.InputStream stdoutStream = proc.getInputStream();
       java.io.InputStream stderrStream = proc.getErrorStream();
