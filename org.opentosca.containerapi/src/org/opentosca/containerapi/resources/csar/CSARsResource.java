@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.osgi.servicegetter.FileAccessServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.FileRepositoryServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
@@ -216,7 +217,9 @@ public class CSARsResource {
     }
 
     private Response storeCSAR(String fileName, InputStream uploadedInputStream) {
-	File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
+    	
+    	
+	File tmpDir = FileAccessServiceHandler.getFileAccessService().getTemp();
 	tmpDir.mkdir();
 
 	File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + fileName);

@@ -32,10 +32,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
 import org.opentosca.util.fileaccess.service.IFileAccessService;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -109,7 +111,7 @@ public class SimpleFileExporter {
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 
 		// generate temp folder
-		File tempDir = FileUtils.getTempDirectory();
+		File tempDir = this.getFileAccessService().getTemp();
 		SimpleFileExporter.LOG.debug("Trying to write files in system temp folder: " + tempDir.getAbsolutePath());
 		File tempFolder = new File(tempDir, Long.toString(System.currentTimeMillis()));
 		tempFolder.mkdir();
@@ -276,6 +278,18 @@ public class SimpleFileExporter {
 			}
 		}
 
+	}
+	
+	/**
+	 * Returns the FileAccessService of the OpenTOSCA Core
+	 *
+	 * @return the IFileAccessService of the OpenTOSCA Core
+	 */
+	private IFileAccessService getFileAccessService() {
+		BundleContext ctx = FrameworkUtil.getBundle(Exporter.class).getBundleContext();
+		ServiceReference serviceReference = ctx.getServiceReference(IFileAccessService.class.getName());
+		IFileAccessService service = (IFileAccessService) ctx.getService(serviceReference);
+		return service;
 	}
 
 	/**
