@@ -107,8 +107,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
 	@Override
 	public boolean undeployImplementationArtifact(String iaName, QName nodeTypeImpl, CSARID csarId, URI endpointUri) {
+		String endpoint = null;
+
 		try {
-			String endpoint = endpointUri.toString();
+			endpoint = endpointUri.toString();
 
 			String contextPath = CONTEXT.get(endpoint);
 
