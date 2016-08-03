@@ -64,7 +64,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 		try {
 			String csarIdStr = normalizeCsarId(csarId);
 			AbstractFile context = getFile(artifacts, contextFile);
-			String contextFilePath = context.getPath();
+			String contextFilePath = context.getFile().toFile().getCanonicalPath();
 			//String contextFileName = context.getName();
 			//String contextPath = "/tmp/opentosca-docker-compose-" + csarIdStr + "-" + serviceName;
 			String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
