@@ -221,6 +221,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.opentosca.model.tosca.extension"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.apache.cxf.cxf-rt-core"
          download-size="0"
          install-size="0"
@@ -1276,13 +1283,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.model.consolidatedtosca"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="sts"
          download-size="0"
          install-size="0"
@@ -1542,6 +1542,13 @@
 
    <plugin
          id="org.opentosca.bus.management"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.startup"
          download-size="0"
          install-size="0"
          version="0.0.0"

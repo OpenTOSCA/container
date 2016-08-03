@@ -414,12 +414,12 @@
       <plugin id="org.opentosca.instancedata.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.instancedata.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.logging.config.test" autoStart="false" startLevel="4" />
-      <plugin id="org.opentosca.model.consolidatedtosca" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.csarinstancemanagement" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.instancedata" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.staticresources" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.tosca" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.tosca.conventions" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.model.tosca.extension" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.model.tosca.referencemapping" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.opentoscacontrol.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.opentoscacontrol.service.impl" autoStart="true" startLevel="4" />
@@ -454,6 +454,7 @@
       <plugin id="org.opentosca.portability.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.portability.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.settings" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.startup" autoStart="true" startLevel="2" />
       <plugin id="org.opentosca.toscaengine.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.util.fileaccess.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.util.fileaccess.service.impl" autoStart="true" startLevel="4" />
