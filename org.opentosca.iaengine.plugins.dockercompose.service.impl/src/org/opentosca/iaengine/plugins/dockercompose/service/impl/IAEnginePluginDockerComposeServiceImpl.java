@@ -26,247 +26,247 @@ import org.w3c.dom.NodeList;
 
 public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginService {
 
-	private static final String TYPES = "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact";
-	private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose";
-	private static final Logger LOG = LoggerFactory.getLogger(IAEnginePluginDockerComposeServiceImpl.class);
+  private static final String TYPES = "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact";
+  private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose";
+  private static final Logger LOG = LoggerFactory.getLogger(IAEnginePluginDockerComposeServiceImpl.class);
 
-	private static final Map<String, String> CONTEXT = new HashMap<String, String>();
+  private static final Map<String, String> CONTEXT = new HashMap<String, String>();
 
-	private IHTTPService httpService;
+  private IHTTPService httpService;
 
-	@Override
-	public URI deployImplementationArtifact(CSARID csarId, QName artifactType, Document artifactContent,
-			Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts,
-			List<String> requiredFeatures) {
-		/*
-		ArtifactProperties:
-			contextFile: 'context.tar.gz',
-			serviceName: 'mysql-mgmt-api',
-			containerPort: '3000',
-			endpointPath: '/',
-			endpointKind: 'soap'
+  @Override
+  public URI deployImplementationArtifact(CSARID csarId, QName artifactType, Document artifactContent,
+      Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts,
+      List<String> requiredFeatures) {
+    /*
+    ArtifactProperties:
+      contextFile: 'context.tar.gz',
+      serviceName: 'mysql-mgmt-api',
+      containerPort: '3000',
+      endpointPath: '/',
+      endpointKind: 'soap'
 
-		AbstractFile:
-			String filePath = warFile.getPath();
-			String fileName = warFile.getName();
-			java.io.File file = warFile.getFile().toFile();
-		*/
-		String contextFile = getProperty(properties, "contextFile");
-		String serviceName = getProperty(properties, "serviceName");
-		String containerPort = getProperty(properties, "containerPort");
-		String endpointPath = getProperty(properties, "endpointPath");
-		String endpointKind = getProperty(properties, "endpointKind");
-		String soapPortType = getProperty(properties, "soapPortType");
+    AbstractFile:
+      String filePath = warFile.getPath();
+      String fileName = warFile.getName();
+      java.io.File file = warFile.getFile().toFile();
+    */
+    String contextFile = getProperty(properties, "contextFile");
+    String serviceName = getProperty(properties, "serviceName");
+    String containerPort = getProperty(properties, "containerPort");
+    String endpointPath = getProperty(properties, "endpointPath");
+    String endpointKind = getProperty(properties, "endpointKind");
+    String soapPortType = getProperty(properties, "soapPortType");
 
-		LOG.info("contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={}", contextFile, serviceName, containerPort, endpointPath, endpointKind);
+    LOG.info("contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={}", contextFile, serviceName, containerPort, endpointPath, endpointKind);
 
-		String endpoint = null;
+    String endpoint = null;
 
-		try {
-			String csarIdStr = normalizeCsarId(csarId);
-			AbstractFile context = getFile(artifacts, contextFile);
-			String contextFilePath = context.getFile().toFile().getCanonicalPath();
-			//String contextFileName = context.getName();
-			//String contextPath = "/tmp/opentosca-docker-compose-" + csarIdStr + "-" + serviceName;
-			String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
+    try {
+      String csarIdStr = normalizeCsarId(csarId);
+      AbstractFile context = getFile(artifacts, contextFile);
+      String contextFilePath = context.getFile().toFile().getCanonicalPath();
+      //String contextFileName = context.getName();
+      //String contextPath = "/tmp/opentosca-docker-compose-" + csarIdStr + "-" + serviceName;
+      String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
 
-			untar(contextFilePath, contextPath);
+      untar(contextFilePath, contextPath);
 
-			dcBuild(contextPath);
+      dcBuild(contextPath);
 
-			dcUp(contextPath);
+      dcUp(contextPath);
 
-			String publicPort = dcPort(contextPath, serviceName, containerPort);
+      String publicPort = dcPort(contextPath, serviceName, containerPort);
 
-			//String logs = dcLogs(contextPath);
+      //String logs = dcLogs(contextPath);
 
-			endpoint = "http://localhost:" + publicPort + endpointPath;
+      endpoint = "http://localhost:" + publicPort + endpointPath;
 
-			CONTEXT.put(endpoint, contextPath);
+      CONTEXT.put(endpoint, contextPath);
 
-			append(ENDPOINTS_FILE, "{"
-			                     + "\"contextPath\":   \"" + contextPath   + "\","
-			                     + "\"endpoint\":      \"" + endpoint      + "\","
-			                     + "\"publicPort\":    \"" + publicPort    + "\","
-			                     + "\"containerPort\": \"" + containerPort + "\","
-			                     + "\"serviceName\":   \"" + serviceName   + "\","
-			                     + "\"endpointPath\":  \"" + endpointPath  + "\","
-			                     + "\"endpointKind\":  \"" + endpointKind  + "\","
-			                     + "\"soapPortType\":  \"" + soapPortType  + "\","
-			                     + "\"csar\":          \"" + csarIdStr     + "\","
-			                     + "\"deployed\":            true                "
-													 + "}");
- 		} catch (Exception e) {
-			LOG.error("Error deployImplementationArtifact", e);
- 		}
+      append(ENDPOINTS_FILE, "{"
+                           + "\"contextPath\":   \"" + contextPath   + "\","
+                           + "\"endpoint\":      \"" + endpoint      + "\","
+                           + "\"publicPort\":    \"" + publicPort    + "\","
+                           + "\"containerPort\": \"" + containerPort + "\","
+                           + "\"serviceName\":   \"" + serviceName   + "\","
+                           + "\"endpointPath\":  \"" + endpointPath  + "\","
+                           + "\"endpointKind\":  \"" + endpointKind  + "\","
+                           + "\"soapPortType\":  \"" + soapPortType  + "\","
+                           + "\"csar\":          \"" + csarIdStr     + "\","
+                           + "\"deployed\":            true                "
+                           + "}");
+     } catch (Exception e) {
+      LOG.error("Error deployImplementationArtifact", e);
+     }
 
-		LOG.info("Docker Compose IA deployed: {}", endpoint);
+    LOG.info("Docker Compose IA deployed: {}", endpoint);
 
-		return toUri(endpoint);
-	}
+    return toUri(endpoint);
+  }
 
-	@Override
-	public boolean undeployImplementationArtifact(String iaName, QName nodeTypeImpl, CSARID csarId, URI endpointUri) {
-		String endpoint = null;
+  @Override
+  public boolean undeployImplementationArtifact(String iaName, QName nodeTypeImpl, CSARID csarId, URI endpointUri) {
+    String endpoint = null;
 
-		try {
-			endpoint = endpointUri.toString();
+    try {
+      endpoint = endpointUri.toString();
 
-			String contextPath = CONTEXT.get(endpoint);
+      String contextPath = CONTEXT.get(endpoint);
 
-			dcDown(contextPath);
+      dcDown(contextPath);
 
-			rmrf(contextPath);
+      rmrf(contextPath);
 
-			CONTEXT.remove(endpoint);
+      CONTEXT.remove(endpoint);
 
-			append(ENDPOINTS_FILE, "{"
-			                     + "\"contextPath\":   \"" + contextPath   + "\","
-			                     + "\"endpoint\":      \"" + endpoint      + "\","
-			                     + "\"undeployed\":          true                "
-													 + "}");
-		} catch (Exception e) {
-			LOG.error("Error undeployImplementationArtifact", e);
+      append(ENDPOINTS_FILE, "{"
+                           + "\"contextPath\":   \"" + contextPath   + "\","
+                           + "\"endpoint\":      \"" + endpoint      + "\","
+                           + "\"undeployed\":          true                "
+                           + "}");
+    } catch (Exception e) {
+      LOG.error("Error undeployImplementationArtifact", e);
 
-			return false;
-		}
+      return false;
+    }
 
-		LOG.info("Docker Compose IA undeployed: {}", endpoint);
+    LOG.info("Docker Compose IA undeployed: {}", endpoint);
 
-		return true;
-	}
+    return true;
+  }
 
-	private static AbstractFile getFile(List<AbstractArtifact> artifacts, String filename) {
-		if (artifacts != null && filename != null) {
-			for (AbstractArtifact artifact : artifacts) {
-				Set<AbstractFile> files = artifact.getFilesRecursively();
+  private static AbstractFile getFile(List<AbstractArtifact> artifacts, String filename) {
+    if (artifacts != null && filename != null) {
+      for (AbstractArtifact artifact : artifacts) {
+        Set<AbstractFile> files = artifact.getFilesRecursively();
 
-				for (AbstractFile file : files) {
-					if (file.getName().toLowerCase().endsWith(filename.toLowerCase())) {
-						return file;
-					}
-				}
-			}
-		}
+        for (AbstractFile file : files) {
+          if (file.getName().toLowerCase().endsWith(filename.toLowerCase())) {
+            return file;
+          }
+        }
+      }
+    }
 
-		return null;
-	}
+    return null;
+  }
 
-	/*
-	private boolean isADeployableWar(AbstractFile file) {
+  /*
+  private boolean isADeployableWar(AbstractFile file) {
 
-		if (file.getName().toLowerCase().endsWith(".war")) {
-			return true;
-		} else {
-			LOG.warn(
-					"Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
-					file.getName());
-		}
+    if (file.getName().toLowerCase().endsWith(".war")) {
+      return true;
+    } else {
+      LOG.warn(
+          "Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
+          file.getName());
+    }
 
-		return false;
-	}
-	*/
+    return false;
+  }
+  */
 
-	private static String getProperty(Document properties, String propertyName) {
-		if (properties != null) {
-			NodeList list = properties.getFirstChild().getChildNodes();
+  private static String getProperty(Document properties, String propertyName) {
+    if (properties != null) {
+      NodeList list = properties.getFirstChild().getChildNodes();
 
-			for (int i = 0; i < list.getLength(); i++) {
-				Node propertyNode = list.item(i);
+      for (int i = 0; i < list.getLength(); i++) {
+        Node propertyNode = list.item(i);
 
-				if (hasProperty(propertyNode, propertyName)) {
-					String propertyValue = getNodeContent(propertyNode);
+        if (hasProperty(propertyNode, propertyName)) {
+          String propertyValue = getNodeContent(propertyNode);
 
-					LOG.info("{} property found: {}", propertyName, propertyValue);
+          LOG.info("{} property found: {}", propertyName, propertyValue);
 
-					return propertyValue;
-				}
-			}
-		}
+          return propertyValue;
+        }
+      }
+    }
 
-		LOG.debug("{} property not found", propertyName);
+    LOG.debug("{} property not found", propertyName);
 
-		return null;
-	}
+    return null;
+  }
 
-	private static boolean hasProperty(Node node, String propertyName) {
-		String localName = node.getLocalName();
+  private static boolean hasProperty(Node node, String propertyName) {
+    String localName = node.getLocalName();
 
-		if (localName != null) {
-			return localName.equals(propertyName);
-		}
+    if (localName != null) {
+      return localName.equals(propertyName);
+    }
 
-		return false;
-	}
+    return false;
+  }
 
-	private static String getNodeContent(Node node) {
-		return node.getTextContent().trim();
-	}
+  private static String getNodeContent(Node node) {
+    return node.getTextContent().trim();
+  }
 
-	private static URI toUri(String endpoint) {
-		URI endpointURI = null;
+  private static URI toUri(String endpoint) {
+    URI endpointURI = null;
 
-		if (endpoint != null) {
-			try {
-				endpointURI = new URI(endpoint);
-			} catch (Exception e) {
-				LOG.error("Exception occurred while creating endpoint URI: {}", endpoint, e);
-			}
-		}
+    if (endpoint != null) {
+      try {
+        endpointURI = new URI(endpoint);
+      } catch (Exception e) {
+        LOG.error("Exception occurred while creating endpoint URI: {}", endpoint, e);
+      }
+    }
 
-		return endpointURI;
-	}
+    return endpointURI;
+  }
 
-	private static String normalizeCsarId(CSARID id) {
-		if (id == null) return null;
-		else return id.toString().replaceAll("[^-a-zA-Z0-9]", "");
-	}
+  private static String normalizeCsarId(CSARID id) {
+    if (id == null) return null;
+    else return id.toString().replaceAll("[^-a-zA-Z0-9]", "");
+  }
 
-	@Override
-	public List<String> getSupportedTypes() {
-		List<String> types = new ArrayList<String>();
+  @Override
+  public List<String> getSupportedTypes() {
+    List<String> types = new ArrayList<String>();
 
-		for (String type : IAEnginePluginDockerComposeServiceImpl.TYPES.split("[,;]")) {
-			types.add(type.trim());
-		}
+    for (String type : IAEnginePluginDockerComposeServiceImpl.TYPES.split("[,;]")) {
+      types.add(type.trim());
+    }
 
-		return types;
-	}
+    return types;
+  }
 
-	@Override
-	public List<String> getCapabilties() {
-		List<String> capabilities = new ArrayList<String>();
+  @Override
+  public List<String> getCapabilties() {
+    List<String> capabilities = new ArrayList<String>();
 
-		for (String capability : IAEnginePluginDockerComposeServiceImpl.CAPABILITIES.split("[,;]")) {
-			capabilities.add(capability.trim());
-		}
+    for (String capability : IAEnginePluginDockerComposeServiceImpl.CAPABILITIES.split("[,;]")) {
+      capabilities.add(capability.trim());
+    }
 
-		return capabilities;
-	}
+    return capabilities;
+  }
 
-	// probably required for compatibility reasons
-	public void bindHTTPService(IHTTPService httpService) {
-		if (httpService != null) {
-			this.httpService = httpService;
-			LOG.debug("Register IHTTPService: {} registered", httpService.toString());
-		} else {
-			LOG.error("Register IHTTPService: supplied parameter is null");
-		}
-	}
+  // probably required for compatibility reasons
+  public void bindHTTPService(IHTTPService httpService) {
+    if (httpService != null) {
+      this.httpService = httpService;
+      LOG.debug("Register IHTTPService: {} registered", httpService.toString());
+    } else {
+      LOG.error("Register IHTTPService: supplied parameter is null");
+    }
+  }
 
-	// probably required for compatibility reasons
-	public void unbindHTTPService(IHTTPService httpService) {
-		this.httpService = null;
-		LOG.debug("Unregister IHTTPService: {} unregistered", httpService.toString());
-	}
+  // probably required for compatibility reasons
+  public void unbindHTTPService(IHTTPService httpService) {
+    this.httpService = null;
+    LOG.debug("Unregister IHTTPService: {} unregistered", httpService.toString());
+  }
 
 
 
-	/*
-	 *
-	 * Static helper functions
-	 *
-	 */
+  /*
+   *
+   * Static helper functions
+   *
+   */
   //private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
   private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_CMD");
   private static String LOG_FILE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_LOG");
@@ -275,9 +275,9 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   static {
       if (ENDPOINTS_FILE == null) ENDPOINTS_FILE = "/tmp/opentosca-docker-compose-endpoints.json";
 
-			if (DOCKER_COMPOSE == null) DOCKER_COMPOSE = "docker-compose";
+      if (DOCKER_COMPOSE == null) DOCKER_COMPOSE = "docker-compose";
 
-			/*
+      /*
       if (DOCKER_COMPOSE == null) {
           try {
               DOCKER_COMPOSE = java.nio.file.Files.createTempDirectory("docker-compose-").toString() + "/run.sh";
@@ -289,7 +289,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
               e.printStackTrace();
           }
       }
-			*/
+      */
   }
 
   private static void log(String message) {
@@ -333,12 +333,12 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       String[] cmd = { DOCKER_COMPOSE, "port", serviceName, containerPort };
       String[] res = execCmd(cmd, contextPath);
 
-			try {
-					String port = res[1].split(":")[1];
-					return port;
-			} catch (Exception e) {
-					return null;
-			}
+      try {
+          String port = res[1].split(":")[1];
+          return port;
+      } catch (Exception e) {
+          return null;
+      }
   }
 
   private static void dcDown(String contextPath) throws Exception {
@@ -364,7 +364,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   /*
-	private static void fetchFile(String url, String filePath) throws Exception {
+  private static void fetchFile(String url, String filePath) throws Exception {
       java.net.URL website = new java.net.URL(url);
 
       java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(website.openStream());
@@ -373,7 +373,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
       fos.close();
   }
-	*/
+  */
 
   private static String[] execCmd(String[] cmd) throws Exception {
       return execCmd(cmd, null, null);
@@ -384,10 +384,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static String[] execCmd(String[] cmd, String cwd, String[] env) throws Exception {
-			java.io.File cwdObj = null;
-			if (cwd != null) cwdObj = new java.io.File(cwd);
+      java.io.File cwdObj = null;
+      if (cwd != null) cwdObj = new java.io.File(cwd);
 
-			Process proc = Runtime.getRuntime().exec(cmd, env, cwdObj);
+      Process proc = Runtime.getRuntime().exec(cmd, env, cwdObj);
 
       java.io.InputStream stdoutStream = proc.getInputStream();
       java.io.InputStream stderrStream = proc.getErrorStream();
