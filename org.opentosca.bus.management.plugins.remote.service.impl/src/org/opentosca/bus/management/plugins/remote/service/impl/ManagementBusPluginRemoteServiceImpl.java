@@ -452,9 +452,11 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				}
 			}
 
+			// delete not replaced placeholder
+			commandsString = commandsString.replaceAll("\\{\\{.*?\\}\\}", "");
+
 			ManagementBusPluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}",
 					commandsString);
-
 		}
 
 		return commandsString;
