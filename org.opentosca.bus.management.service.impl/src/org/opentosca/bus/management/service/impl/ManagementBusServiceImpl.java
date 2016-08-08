@@ -1,6 +1,7 @@
 package org.opentosca.bus.management.service.impl;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -766,9 +767,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 	private URI replacePlaceholderWithInstanceData(URI endpoint, CSARID csarID, QName serviceTemplateID,
 			String nodeTemplateID, URI serviceInstanceID) {
 
-		String placeholder = endpoint.toString().substring(0, endpoint.toString().lastIndexOf("_PLACEHOLDER/") + 1);
+		String placeholder = endpoint.toString().substring(0,
+				endpoint.toString().lastIndexOf("_PLACEHOLDER/") + ("_PLACEHOLDER/").length());
 
-		ManagementBusServiceImpl.LOG.debug("{} placeholder detected in Endpoint: {}", placeholder, endpoint.toString());
+		ManagementBusServiceImpl.LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder,
+				endpoint.toString());
 
 		String[] placeholderProperties = placeholder.replace("/PLACEHOLDER_", "").replace("_PLACEHOLDER/", "")
 				.split("_");
@@ -786,7 +789,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 				ManagementBusServiceImpl.LOG.debug("Value for property {} found: {}.", placeholderProperty,
 						propertyValue);
 
-				endpoint.toString().replace(placeholder, propertyValue);
+				try {
+					endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 				break;
 			} else {
