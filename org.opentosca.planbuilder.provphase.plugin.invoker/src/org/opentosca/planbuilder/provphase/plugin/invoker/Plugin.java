@@ -17,7 +17,9 @@ import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.handlers.Handler;
@@ -36,7 +38,7 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
+public class Plugin implements IPlanBuilderProvPhaseOperationPlugin, IPlanBuilderProvPhaseParamOperationPlugin {
 
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
 	private Handler handler = new Handler();
@@ -162,6 +164,33 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin {
 					templateId, true);
 		} catch (IOException e) {
 			LOG.error("Couldn't load internal files", e);
+			return false;
+		}
+	}
+
+	@Override
+	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+			Map<AbstractParameter, Variable> param2propertyMapping) {
+		String templateId = "";
+		boolean isNodeTemplate = false;
+		if(context.getNodeTemplate() != null){
+			templateId = context.getNodeTemplate().getId();
+			isNodeTemplate = true;
+		}else {
+			templateId = context.getRelationshipTemplate().getId();
+		}
+		
+		Map<String, Variable> inputParams = new HashMap<String,Variable>();
+		
+		for(AbstractParameter key : param2propertyMapping.keySet()){
+			inputParams.put(key.getName(), param2propertyMapping.get(key));
+		}
+		
+		
+		try {
+			return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(), null, inputParams, new HashMap<String,Variable>(), false);
+		} catch (IOException e) {
+			e.printStackTrace();
 			return false;
 		}
 	}

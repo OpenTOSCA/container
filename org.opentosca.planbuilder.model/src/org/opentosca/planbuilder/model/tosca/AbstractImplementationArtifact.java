@@ -60,4 +60,47 @@ public abstract class AbstractImplementationArtifact {
 	 * @return a List of AbstractProperties of this ImplementationArtifact
 	 */
 	public abstract List<AbstractProperties> getAdditionalElements();
+	
+	
+	public boolean equals(Object obj){
+		if(!(obj instanceof AbstractImplementationArtifact)){
+			return false;
+		}
+		
+		AbstractImplementationArtifact ia = (AbstractImplementationArtifact) obj;
+		
+		if(!this.getArtifactType().equals(ia.getArtifactType())){
+			return false;
+		}
+		
+		if(!ia.getName().equals(this.getName())){
+			return false;
+		}
+		
+		if(ia.getInterfaceName() == null && this.getInterfaceName() != null){
+			return false;
+		}
+		
+		if(ia.getInterfaceName() != null && this.getInterfaceName() == null){
+			return false;
+		}
+		
+		if(ia.getInterfaceName() != null && !ia.getInterfaceName().equals(this.getInterfaceName())){
+			return false;
+		}		
+		
+		if(ia.getOperationName() != null && this.getOperationName() == null){
+			return false;
+		}
+		
+		if(ia.getOperationName() == null && this.getOperationName() != null) {
+			return false;
+		}
+		
+		if(ia.getOperationName() != null && !this.getOperationName().equals(ia.getOperationName())){
+			return false;
+		}
+		
+		return true;
+	}
 }
