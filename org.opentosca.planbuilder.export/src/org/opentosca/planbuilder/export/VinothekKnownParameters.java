@@ -19,6 +19,7 @@ public class VinothekKnownParameters {
 		this.knownParameterToXmlMapping.put("planCallbackAddress_invoker", "<org:planCallbackAddress_invoker>%PLANCALLBACKINVOKER-URL%</org:planCallbackAddress_invoker>");		
 		// e.g. <org:instanceDataAPIUrl>http://localhost:1337/containerapi/instancedata</org:instanceDataAPIUrl>
 		this.knownParameterToXmlMapping.put("instanceDataAPIUrl", "<org:instanceDataAPIUrl>%INSTANCEDATA-URL%</org:instanceDataAPIUrl>");
+		this.knownParameterToXmlMapping.put("OpenTOSCAContainerAPIServiceInstanceID", "<org:OpenTOSCAContainerAPIServiceInstanceID>%SERVICEINSTANCE-URL%</org:OpenTOSCAContainerAPIServiceInstanceID>");
 		
 	}
 	

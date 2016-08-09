@@ -1,32 +1,21 @@
 package org.opentosca.planbuilder.helpers;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.BPELProcessHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
-import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
-import org.osgi.framework.FrameworkUtil;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -47,13 +36,7 @@ public class ServiceInstanceInitializer {
 	private BuildPlanHandler planHandler;
 	private BPELProcessHandler bpelProcessHandler;
 
-	private DocumentBuilderFactory docFactory;
-	private DocumentBuilder docBuilder;
-
 	public ServiceInstanceInitializer() throws ParserConfigurationException {
-		this.docFactory = DocumentBuilderFactory.newInstance();
-		this.docFactory.setNamespaceAware(true);
-		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		this.planHandler = new BuildPlanHandler();
 		this.bpelProcessHandler = new BPELProcessHandler();
 		this.fragments = new Fragments();
@@ -83,9 +66,33 @@ public class ServiceInstanceInitializer {
 	public void initializeInstanceDataFromInput(BuildPlan plan) {
 		String instanceDataAPIVarName = this.appendAssignFromInputToVariable(plan, InstanceDataAPIUrlKeyword);
 		this.appendServiceInstanceInitCode(plan, instanceDataAPIVarName);
+		this.addAssignOutputWithServiceInstanceId(plan);
 	}
-	
-	public boolean appendServiceInstanceDelete(BuildPlan plan){
+
+	private void addAssignOutputWithServiceInstanceId(BuildPlan plan) {
+		this.planHandler.addStringElementToPlanResponse("instanceId", plan);
+
+		String serviceInstanceVarName = null;
+		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+			if (varName.contains(ServiceInstanceVarKeyword)) {
+				serviceInstanceVarName = varName;
+				break;
+			}
+		}
+
+		try {
+			Node copyNode = this.fragments.generateCopyFromStringVarToOutputVariableAsNode(serviceInstanceVarName, "output", "payload", "instanceId");
+			copyNode = plan.getBpelDocument().importNode(copyNode, true);
+			plan.getBpelMainSequenceOutputAssignElement().appendChild(copyNode);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public boolean appendServiceInstanceDelete(BuildPlan plan) {
 
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -99,11 +106,13 @@ public class ServiceInstanceInitializer {
 				rescalResponseVarDeclId, plan)) {
 			return false;
 		}
-		
+
 		try {
-			Node RESTDeleteNode = this.fragments.createRESTDeleteOnURLBPELVarAsNode(ServiceInstanceVarKeyword, restCallResponseVarName);
+			Node RESTDeleteNode = this.fragments.createRESTDeleteOnURLBPELVarAsNode(ServiceInstanceVarKeyword,
+					restCallResponseVarName);
 			RESTDeleteNode = plan.getBpelDocument().importNode(RESTDeleteNode, true);
-			plan.getBpelMainSequenceOutputAssignElement().getParentNode().insertBefore(RESTDeleteNode, plan.getBpelMainSequenceOutputAssignElement());
+			plan.getBpelMainSequenceOutputAssignElement().getParentNode().insertBefore(RESTDeleteNode,
+					plan.getBpelMainSequenceOutputAssignElement());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -111,7 +120,7 @@ public class ServiceInstanceInitializer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return true;
 	}
 
@@ -153,8 +162,8 @@ public class ServiceInstanceInitializer {
 			if (templatePlan.getNodeTemplate() == null) {
 				continue;
 			}
-			
-			if(templatePlan.getNodeTemplate().getProperties() == null){
+
+			if (templatePlan.getNodeTemplate().getProperties() == null) {
 				continue;
 			}
 

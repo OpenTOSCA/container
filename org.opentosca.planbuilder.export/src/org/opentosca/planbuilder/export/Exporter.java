@@ -221,14 +221,7 @@ public class Exporter extends AbstractExporter {
 								continue;
 							}
 
-							ApplicationOption option = new ApplicationOption();
-							option.setName("Default" + optionCounter);
-							option.setId(String.valueOf(optionCounter));
-							option.setIconUrl("");
-							option.setDescription("N/A");
-							option.setPlanServiceName(
-									this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
-							option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
+							ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 							this.writePlanInputMessageInstance(plan,
 									new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
 
@@ -245,14 +238,7 @@ public class Exporter extends AbstractExporter {
 					Application.Options options = new Application.Options();
 
 					for (BuildPlan plan : plansToExport) {
-						ApplicationOption option = new ApplicationOption();
-						option.setName("Default" + optionCounter);
-						option.setId(String.valueOf(optionCounter));
-						option.setIconUrl("");
-						option.setDescription("N/A");
-						option.setPlanServiceName(
-								this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
-						option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
+						ApplicationOption option =this.createApplicationOption(plan, optionCounter);
 						this.writePlanInputMessageInstance(plan,
 								new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
 						optionCounter++;
@@ -278,14 +264,7 @@ public class Exporter extends AbstractExporter {
 					Application.Options options = new Application.Options();
 
 					for (BuildPlan plan : plansToExport) {
-						ApplicationOption option = new ApplicationOption();
-						option.setName("Default" + optionCounter);
-						option.setId(String.valueOf(optionCounter));
-						option.setIconUrl("");
-						option.setDescription("N/A");
-						option.setPlanServiceName(
-								this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
-						option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
+						ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 						this.writePlanInputMessageInstance(plan,
 								new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
 						optionCounter++;
@@ -308,6 +287,29 @@ public class Exporter extends AbstractExporter {
 		service.zip(tempDir, repackagedCsar);
 		Exporter.LOG.debug(repackagedCsar.toString());
 		return repackagedCsar;
+	}
+
+	private ApplicationOption createApplicationOption(BuildPlan plan, int optionCounter) {
+		ApplicationOption option = new ApplicationOption();
+		switch (plan.getType()) {
+		case BUILD:
+			option.setName("Build" + optionCounter);
+			option.setDescription("Generated BuildPlan");
+			break;
+		case MANAGE:
+			option.setName("Manage" + optionCounter);
+			option.setDescription("Generated ManagementPlan");
+			break;
+		case TERMINATE:
+			option.setName("Terminate" + optionCounter);
+			option.setDescription("Generated TerminationPlan");
+			break;
+		}
+		option.setId(String.valueOf(optionCounter));
+		option.setIconUrl("");
+		option.setPlanServiceName(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
+		option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
+		return option;
 	}
 
 	/**

@@ -47,6 +47,75 @@ public class Fragments {
 	}
 
 	/**
+	 * Generates an Assign Activity that writes the content of a String variable
+	 * into the first element specified by prefix and localname
+	 * 
+	 * @param assignName
+	 *            the name of the assign
+	 * @param variableName
+	 *            the name of the string variable to take the value from
+	 * @param outputVarName
+	 *            the name of the output message variable
+	 * @param outputVarPartName
+	 *            the name of the part inside the message variable
+	 * @param outputVarPrefix
+	 *            the prefix of the element inside the message part
+	 * @param outputVarLocalName
+	 *            the localname of the element inside the message part
+	 * @return a String containing a BPEL assign activitiy
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 */
+	public String generateCopyFromStringVarToOutputVariableAsString(String variableName,
+			String outputVarName, String outputVarPartName, String outputVarLocalName) throws IOException {
+		// BpelAssignOutputVarFromStringVariable.xml
+		// <!-- ${assignName}, ${variableName}, ${outputVarName},
+		// ${outputVarPartName}, ${outputVarPrefix}, ${outputVarLocalName} -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BpelCopyOutputVarFromStringVariable.xml");
+		File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
+		bpelAssignString = bpelAssignString.replace("${variableName}", variableName);
+		bpelAssignString = bpelAssignString.replace("${outputVarName}", outputVarName);
+		bpelAssignString = bpelAssignString.replace("${outputVarPartName}", outputVarPartName);
+		bpelAssignString = bpelAssignString.replace("${outputVarLocalName}", outputVarLocalName);
+		return bpelAssignString;
+	}
+
+	/**
+	 * Generates an Assign Acitivity that writes the content of a Strig variable
+	 * into the first element specified by prefix and localname
+	 * 
+	 * @param assignName
+	 *            the name of the assign
+	 * @param variableName
+	 *            the name of the string variable to take the value from
+	 * @param outputVarName
+	 *            the name of the output message variable
+	 * @param outputVarPartName
+	 *            the name of the part inside the message variable
+	 * @param outputVarPrefix
+	 *            the prefix of the element inside the message part
+	 * @param outputVarLocalName
+	 *            the localName of the element inside the message part
+	 * @return a DOM Node containing a BPEL Assign Activity
+	 * @throws IOException
+	 *             is thrown when reading internal files fail
+	 * @throws SAXException
+	 *             is thrown when parsing internal files fail
+	 */
+	public Node generateCopyFromStringVarToOutputVariableAsNode(String variableName,
+			String outputVarName, String outputVarPartName, String outputVarLocalName)
+			throws IOException, SAXException {
+		String templateString = this.generateCopyFromStringVarToOutputVariableAsString(variableName,
+				outputVarName, outputVarPartName, outputVarLocalName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
 	 * Generates an assign activity that fetches the value of the input message
 	 * and writes it into a string variable
 	 * 
