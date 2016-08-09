@@ -106,9 +106,9 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 
 			String placeholderBegin = "/PLACEHOLDER_";
 			String placeholderEnd = "_PLACEHOLDER/";
-			if (endpointSuffix.startsWith(placeholderBegin)) {
+			if (endpointSuffix.contains(placeholderBegin) && endpointSuffix.contains(placeholderEnd)) {
 
-				String placeholder = endpointSuffix.substring(0,
+				String placeholder = endpointSuffix.substring(endpointSuffix.indexOf(placeholderBegin),
 						endpointSuffix.indexOf(placeholderEnd) + placeholderEnd.length());
 
 				IAEnginePluginWarTomcatServiceImpl.LOG.debug(
@@ -118,11 +118,14 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 				IAEnginePluginWarTomcatServiceImpl.LOG.debug("Specified ServiceEndpoint property of {}: {}",
 						warFile.getName(), endpointSuffix);
 
-				// Hack, port of tomcat hard-coded 8080. Find a cooler solution.
-				String endpointEnd = endpointSuffix.substring(endpointSuffix.lastIndexOf("_PLACEHOLDER/") + 1);
-				endpoint = placeholder + ":8080/" + warFile.getName() + endpointEnd;
+				String endpointBegin = endpointSuffix.substring(0, endpointSuffix.indexOf(placeholderBegin));
+				String endpointEnd = endpointSuffix
+						.substring(endpointSuffix.lastIndexOf(placeholderEnd) + placeholderEnd.length());
+				// Hack, port of tomcat hard-coded 8080. Find a better solution.
+				endpoint = endpointBegin + placeholder + ":8080/" + warFile.getName().replace(".war", "") + "/"
+						+ endpointEnd;
 
-				IAEnginePluginWarTomcatServiceImpl.LOG.debug("Endpoint with palceholder of IA {}: {}",
+				IAEnginePluginWarTomcatServiceImpl.LOG.debug("Endpoint with placeholder of IA {}: {}",
 						warFile.getName(), endpoint);
 
 			} else {

@@ -171,7 +171,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
 								// if endpoint has placeholder, replace it with
 								// a matching property value
-								if (endpoint.toString().startsWith("/PLACEHOLDER_")
+								if (endpoint.toString().contains("/PLACEHOLDER_")
 										&& endpoint.toString().contains("_PLACEHOLDER/")) {
 
 									endpoint = replacePlaceholderWithInstanceData(endpoint, csarID, serviceTemplateID,
@@ -767,13 +767,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 	private URI replacePlaceholderWithInstanceData(URI endpoint, CSARID csarID, QName serviceTemplateID,
 			String nodeTemplateID, URI serviceInstanceID) {
 
-		String placeholder = endpoint.toString().substring(0,
-				endpoint.toString().lastIndexOf("_PLACEHOLDER/") + ("_PLACEHOLDER/").length());
+		String placeholderBegin = "/PLACEHOLDER_";
+		String placeholderEnd = "_PLACEHOLDER/";
+
+		String placeholder = endpoint.toString().substring(endpoint.toString().lastIndexOf(placeholderBegin),
+				endpoint.toString().lastIndexOf(placeholderEnd) + (placeholderEnd).length());
 
 		ManagementBusServiceImpl.LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder,
 				endpoint.toString());
 
-		String[] placeholderProperties = placeholder.replace("/PLACEHOLDER_", "").replace("_PLACEHOLDER/", "")
+		String[] placeholderProperties = placeholder.replace(placeholderBegin, "").replace(placeholderEnd, "")
 				.split("_");
 
 		String propertyValue = null;
