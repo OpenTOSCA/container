@@ -108,7 +108,31 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
 			ManagementBusPluginSoapHttpServiceImpl.LOG.info("Parsing WSDL at: {}.", endpoint);
 
-			Definitions wsdl = parser.parse(endpoint.toString());
+			Definitions wsdl;
+
+			// If wsdl is not accessible, try again (max wait 5 min)
+			int count = 0;
+			int maxTries = 30;
+			while (true) {
+				try {
+					wsdl = parser.parse(endpoint.toString());
+					break;
+				} catch (Exception e) {
+					// handle exception
+					if (++count == maxTries) {
+						ManagementBusPluginSoapHttpServiceImpl.LOG.error("Unable to access the wsdl at: {}.", endpoint);
+						throw e;
+					} else {
+						ManagementBusPluginSoapHttpServiceImpl.LOG
+								.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})", endpoint, count, maxTries);
+						try {
+							Thread.sleep(10000);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
 
 			// Jump-Label to stop both loops at once
 			searchOperation: for (Binding bind : wsdl.getBindings()) {

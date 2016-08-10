@@ -99,6 +99,7 @@ public class ConnectsToPlugin implements IPlanBuilderTypePlugin {
 					// found mosquitto -> found stack: topic -hostedOn->
 					// mosquitto
 					check = true;
+					break;
 				}
 			}
 		}

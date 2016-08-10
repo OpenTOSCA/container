@@ -208,9 +208,19 @@ public class MBUtils {
 			if (nodeTemplateID != null) {
 				MBUtils.LOG.debug("Checking if the Node: {} has the searched property: {}.", nodeTemplateID, property);
 
+				propertyValue = getInstanceDataPropertyValue(property, csarID, serviceTemplateID, nodeTemplateID,
+						serviceInstanceID);
+
 			} else {
 				MBUtils.LOG.debug("No underneath Node found.");
 			}
+		}
+		if (propertyValue != null) {
+			MBUtils.LOG.debug("Searched property: {} with value: {} found in NodeTemplate: {}.", property,
+					propertyValue, nodeTemplateID);
+
+		} else {
+			MBUtils.LOG.debug("Searched property: {} not found!", property);
 		}
 
 		return propertyValue;

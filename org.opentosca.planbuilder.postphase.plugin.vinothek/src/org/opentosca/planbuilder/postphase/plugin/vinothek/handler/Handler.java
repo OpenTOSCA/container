@@ -59,11 +59,10 @@ import org.xml.sax.SAXException;
  */
 public class Handler {
 
-	private final QName zipArtifactType = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
+	private final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
 			"ArchiveArtifact");
-	private final QName bpelArtifactType = new QName(
-			"http://docs.oasis-open.org/wsbpel/2.0/process/executable", "BPEL");
+	private final QName bpelArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
+			"BPEL");
 
 	private final CSARHandler csarHandler = new CSARHandler();
 	private DocumentBuilderFactory docFactory;
@@ -72,24 +71,20 @@ public class Handler {
 	public Handler() throws ParserConfigurationException {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
-		this.docBuilder = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder();
+		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	}
 
-	public boolean handle(TemplatePlanContext context,
-			AbstractNodeTemplate nodeTemplate,
+	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate,
 			AbstractNodeTypeImplementation nodeImpl) {
 		if (Utils.checkForTypeInHierarchy(nodeTemplate, Plugin.phpApp)) {
 			return this.handlePhpApp(context, nodeTemplate, nodeImpl);
-		} else if (Utils.checkForTypeInHierarchy(nodeTemplate,
-				Plugin.bpelProcess)) {
+		} else if (Utils.checkForTypeInHierarchy(nodeTemplate, Plugin.bpelProcess)) {
 			return this.handleBPELApp(context, nodeTemplate, nodeImpl);
 		}
 		return false;
 	}
 
-	private boolean handlePhpApp(TemplatePlanContext context,
-			AbstractNodeTemplate nodeTemplate,
+	private boolean handlePhpApp(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate,
 			AbstractNodeTypeImplementation nodeImpl) {
 
 		// fetch the application zip file
@@ -108,8 +103,7 @@ public class Handler {
 
 		try {
 
-			CSARContent content = this.csarHandler
-					.getCSARContentForID(new CSARID(context.getCSARFileName()));
+			CSARContent content = this.csarHandler.getCSARContentForID(new CSARID(context.getCSARFileName()));
 			String reference = zipRef.getReference();
 			Set<AbstractFile> files = content.getFilesRecursively();
 			AbstractFile daFile = null;
@@ -119,8 +113,7 @@ public class Handler {
 
 				// this decode is used as counter-measure against the double
 				// encoding in winery
-				if (file.getPath()
-						.equals(URLDecoder.decode(reference, "UTF-8"))) {
+				if (file.getPath().equals(URLDecoder.decode(reference, "UTF-8"))) {
 					daFile = file;
 				}
 			}
@@ -170,8 +163,7 @@ public class Handler {
 
 			Element postPhaseElement = context.getPostPhaseElement();
 
-			Node assignNode = this.createSelfserviceApplicationUrlAssign(
-					serverIpVarName, applicationFolderName,
+			Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
 					context.getPlanResponseMessageName(), "payload", "tns");
 			assignNode = context.importNode(assignNode);
 
@@ -198,8 +190,7 @@ public class Handler {
 		return true;
 	}
 
-	private boolean handleBPELApp(TemplatePlanContext context,
-			AbstractNodeTemplate nodeTemplate,
+	private boolean handleBPELApp(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate,
 			AbstractNodeTypeImplementation nodeImpl) {
 		// FIXME: this will be working under many assumptions (bpel-engine: wso2
 		// bps.., no port reconfigs,..)
@@ -222,8 +213,7 @@ public class Handler {
 
 		CSARContent content;
 		try {
-			content = this.csarHandler.getCSARContentForID(new CSARID(context
-					.getCSARFileName()));
+			content = this.csarHandler.getCSARContentForID(new CSARID(context.getCSARFileName()));
 			String reference = bpelRef.getReference();
 			Set<AbstractFile> files = content.getFilesRecursively();
 			AbstractFile daFile = null;
@@ -233,8 +223,7 @@ public class Handler {
 
 				// this decode is used as counter-measure against the double
 				// encoding in winery
-				if (file.getPath()
-						.equals(URLDecoder.decode(reference, "UTF-8"))) {
+				if (file.getPath().equals(URLDecoder.decode(reference, "UTF-8"))) {
 					daFile = file;
 				}
 			}
@@ -300,29 +289,40 @@ public class Handler {
 
 			InputSource inputSource = new InputSource(is);
 
-			String value = (String) xpath
-					.evaluate(
-							"/ns:deploy/ns:process/ns:provide[@partnerLink='client']/ns:service/@name",
-							inputSource, XPathConstants.STRING);
+			String value = (String) xpath.evaluate(
+					"/ns:deploy/ns:process/ns:provide[@partnerLink='client']/ns:service/@name", inputSource,
+					XPathConstants.STRING);
 
 			String serviceName = value.split(":")[1];
-			
-			// this is really a crude assumption of axis2 AND that the bps port is still set to 9763
+
+			// this is really a crude assumption of axis2 AND that the bps port
+			// is still set to 9763
 			String applicationFolderName = ":9763/services/" + serviceName;
 
 			zipFile.close();
 
-			// find serverip var name of the VM hosting the application
-			String serverIpVarName = context
-					.getVariableNameOfInfraNodeProperty(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+			String serverIpVarName = null;
+
+			for (String serverPropName : org.opentosca.model.tosca.conventions.Utils
+					.getSupportedVirtualMachineIPPropertyNames()) {
+
+				// find serverip var name of the VM hosting the application
+				serverIpVarName = context.getVariableNameOfInfraNodeProperty(serverPropName);
+				if(serverIpVarName != null){
+					break;
+				}
+			}
+			
+			if(serverIpVarName == null){
+				return false;
+			}
 
 			// add selfserviceApplicationUrl to output
 			context.addStringValueToPlanResponse("selfserviceApplicationUrl");
 
 			Element postPhaseElement = context.getPostPhaseElement();
 
-			Node assignNode = this.createSelfserviceApplicationUrlAssign(
-					serverIpVarName, applicationFolderName,
+			Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
 					context.getPlanResponseMessageName(), "payload", "tns");
 			assignNode = context.importNode(assignNode);
 
@@ -350,12 +350,10 @@ public class Handler {
 		return false;
 	}
 
-	private AbstractArtifactReference fetchPhpAppDA(
-			List<AbstractDeploymentArtifact> das) {
+	private AbstractArtifactReference fetchPhpAppDA(List<AbstractDeploymentArtifact> das) {
 		for (AbstractDeploymentArtifact da : das) {
 			if (da.getArtifactType().equals(this.zipArtifactType)) {
-				for (AbstractArtifactReference ref : da.getArtifactRef()
-						.getArtifactReferences()) {
+				for (AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
 					if (ref.getReference().endsWith(".zip")) {
 						return ref;
 					}
@@ -365,12 +363,10 @@ public class Handler {
 		return null;
 	}
 
-	private AbstractArtifactReference fetchBPELAppDA(
-			List<AbstractDeploymentArtifact> das) {
+	private AbstractArtifactReference fetchBPELAppDA(List<AbstractDeploymentArtifact> das) {
 		for (AbstractDeploymentArtifact da : das) {
 			if (da.getArtifactType().equals(this.bpelArtifactType)) {
-				for (AbstractArtifactReference ref : da.getArtifactRef()
-						.getArtifactReferences()) {
+				for (AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
 					if (ref.getReference().endsWith(".zip")) {
 						return ref;
 					}
@@ -381,15 +377,13 @@ public class Handler {
 		return null;
 	}
 
-	private Node createSelfserviceApplicationUrlAssign(String serverIpVarName,
-			String applicationName, String outputVarName,
-			String outputVarPartName, String outputVarPrefix)
-			throws IOException, SAXException {
+	private Node createSelfserviceApplicationUrlAssign(String serverIpVarName, String applicationName,
+			String outputVarName, String outputVarPartName, String outputVarPrefix) throws IOException, SAXException {
 		// <!--{serverIpVarName} {appName} {outputVarName} {outputVarPartName}
 		// {outputVarPrefix} -->
 
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext()
-				.getBundle().getResource("assignSelfserviceApplicationUrl.xml");
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("assignSelfserviceApplicationUrl.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 		template = template.replace("{serverIpVarName}", serverIpVarName);

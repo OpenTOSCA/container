@@ -621,6 +621,12 @@ public class TemplatePlanBuilder {
 		 */
 		private void add(AbstractImplementationArtifact ia, AbstractNodeTemplate nodeTemplate,
 				IPlanBuilderPrePhaseIAPlugin plugin) {
+			
+			for(AbstractImplementationArtifact candidateIa : this.ias){
+				if(candidateIa.equals(ia)){
+					return;
+				}
+			}
 			this.ias.add(ia);
 			this.infraNodes.add(nodeTemplate);
 			this.plugins.add(plugin);
@@ -633,9 +639,35 @@ public class TemplatePlanBuilder {
 		 */
 		private boolean isValid() {
 			if (this.nodeImpl != null) {
-				return this.nodeImpl.getImplementationArtifacts().size() == this.ias.size();
+				
+				for(AbstractImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()){
+					boolean matched = false;
+					for(AbstractImplementationArtifact handledIa : this.ias){
+						if(ia.equals(handledIa)){
+							matched = true;
+						}
+					}
+					if(!matched){
+						return false;
+					}
+				}
+				
+				return true;
 			} else {
-				return this.relationImpl.getImplementationArtifacts().size() == this.ias.size();
+				
+				for(AbstractImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()){
+					boolean matched = false;
+					for(AbstractImplementationArtifact handledIa : this.ias){
+						if(ia.equals(handledIa)){
+							matched = true;
+						}
+					}
+					if(!matched){
+						return false;
+					}
+				}
+				
+				return true;
 			}
 		}
 

@@ -230,7 +230,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplateID);
 
-		HashMap<String, String> daNameReferenceMapping = new HashMap<>();
+		HashMap<String, List<String>> daNameReferenceMapping = new HashMap<>();
 
 		QName nodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
 
@@ -246,7 +246,16 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			daArtifactReferences = resolvedDA.getReferences();
 
 			for (String daArtifactReference : daArtifactReferences) {
-				daNameReferenceMapping.put(resolvedDA.getName(), daArtifactReference);
+
+				ManagementBusPluginRemoteServiceImpl.LOG.debug("Artifact reference for DA: {} found: {} .",
+						resolvedDA.getName(), daArtifactReference);
+
+				List<String> currentValue = daNameReferenceMapping.get(resolvedDA.getName());
+				if (currentValue == null) {
+					currentValue = new ArrayList<String>();
+					daNameReferenceMapping.put(resolvedDA.getName(), currentValue);
+				}
+				currentValue.add(daArtifactReference);
 			}
 		}
 
@@ -266,7 +275,16 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 						.getArtifactReferenceWithinArtifactTemplate(csarID, daArtifactTemplate);
 
 				for (String daArtifactReference : daArtifactReferences) {
-					daNameReferenceMapping.put(daName, daArtifactReference);
+
+					ManagementBusPluginRemoteServiceImpl.LOG.debug("Artifact reference for DA: {} found: {} .", daName,
+							daArtifactReference);
+
+					List<String> currentValue = daNameReferenceMapping.get(daName);
+					if (currentValue == null) {
+						currentValue = new ArrayList<String>();
+						daNameReferenceMapping.put(daName, currentValue);
+					}
+					currentValue.add(daArtifactReference);
 				}
 			}
 		}
@@ -278,17 +296,20 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 					daNameReferenceMapping.size());
 
 			daEnvMap += "DAs=\"";
-			for (Entry<String, String> da : daNameReferenceMapping.entrySet()) {
+			for (Entry<String, List<String>> da : daNameReferenceMapping.entrySet()) {
 
 				String daName = da.getKey();
-				String daRef = da.getValue();
+				List<String> daRefs = da.getValue();
 
-				// FIXME / is a brutal assumption
-				if (!daRef.startsWith("/")) {
-					daRef = "/" + daRef;
+				for (String daRef : daRefs) {
+
+					// FIXME / is a brutal assumption
+					if (!daRef.startsWith("/")) {
+						daRef = "/" + daRef;
+					}
+
+					daEnvMap += daName + "," + daRef + ";";
 				}
-
-				daEnvMap += daName + "," + daRef + ";";
 			}
 			daEnvMap += "\" ";
 
