@@ -470,12 +470,11 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 					artifactTemplateID);
 
 			if (propDoc != null) {
-
 				paramsMap.putAll(MBUtils.docToMap(propDoc, true));
+			}
 
-				for (Entry<String, String> prop : paramsMap.entrySet()) {
-					commandsString = commandsString.replace("{{" + prop.getKey() + "}}", prop.getValue());
-				}
+			for (Entry<String, String> prop : paramsMap.entrySet()) {
+				commandsString = commandsString.replace("{{" + prop.getKey() + "}}", prop.getValue());
 			}
 
 			// delete not replaced placeholder
@@ -490,7 +489,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 	/**
 	 * @param params
-	 * @return whitespace separated String with parameter values
+	 * @return whitespace separated String with parameter keys and values
 	 */
 	@SuppressWarnings("unchecked")
 	private String createParamsString(Object params) {
@@ -504,8 +503,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		}
 
 		String paramsString = "";
-		for (String param : paramsMap.values()) {
-			paramsString += " " + param;
+		for (Entry<String, String> param : paramsMap.entrySet()) {
+			paramsString += " " + param.getKey() + "=" + param.getValue();
 		}
 
 		return paramsString;
