@@ -5,6 +5,6 @@
 	</packages>
 	<commands>
 		<command>chmod +x {TARGET_FILE_PATH}</command>
-		<command>{DA_NAME_PATH_MAP}{TARGET_FILE_PATH}</command>
+		<command>{DA_NAME_PATH_MAP}{TARGET_FILE_PATH}{INPUT_PARAMETER}</command>
 	</commands>
 </artifacttype>

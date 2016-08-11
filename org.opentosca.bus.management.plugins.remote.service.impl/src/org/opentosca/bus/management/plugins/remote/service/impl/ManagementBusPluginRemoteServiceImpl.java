@@ -51,6 +51,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	final private static String PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION = "{TARGET_FILE_NAME_WITH_E}";
 	final private static String PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION = "{TARGET_FILE_NAME_WITHOUT_E}";
 	final private static String PLACEHOLDER_DA_NAME_PATH_MAP = "{DA_NAME_PATH_MAP}";
+	final private static String PLACEHOLDER_DA_INPUT_PARAMETER = "{INPUT_PARAMETER}";
 
 	final private static Logger LOG = LoggerFactory.getLogger(ManagementBusPluginRemoteServiceImpl.class);
 
@@ -123,6 +124,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 					if (osIAName != null) {
 
+						Object params = message.getBody();
+
 						// create headers
 						HashMap<String, Object> headers = new HashMap<>();
 
@@ -177,7 +180,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 						String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
 
 						String artifactTypeSpecificCommand = createArtifcatTypeSpecificCommandString(csarID,
-								artifactType, artifactTemplateID, message.getBody());
+								artifactType, artifactTemplateID, params);
 
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Replacing further generic placeholder...");
 
@@ -193,6 +196,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(PLACEHOLDER_DA_NAME_PATH_MAP,
 								"sudo -E " + createDANamePathMapEnvVar(csarID, serviceTemplateID, nodeTypeID,
 										nodeTemplateID));
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand
+								.replace(PLACEHOLDER_DA_INPUT_PARAMETER, createParamsString(params));
 
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}",
 								artifactType, artifactTypeSpecificCommand);
@@ -481,6 +486,29 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		}
 
 		return commandsString;
+	}
+
+	/**
+	 * @param params
+	 * @return whitespace separated String with parameter values
+	 */
+	@SuppressWarnings("unchecked")
+	private String createParamsString(Object params) {
+		HashMap<String, String> paramsMap = new HashMap<>();
+
+		if (params instanceof HashMap) {
+			paramsMap = (HashMap<String, String>) params;
+		} else if (params instanceof Document) {
+			Document paramsDoc = (Document) params;
+			paramsMap = MBUtils.docToMap(paramsDoc, true);
+		}
+
+		String paramsString = "";
+		for (String param : paramsMap.values()) {
+			paramsString += " " + param;
+		}
+
+		return paramsString;
 	}
 
 	/**
