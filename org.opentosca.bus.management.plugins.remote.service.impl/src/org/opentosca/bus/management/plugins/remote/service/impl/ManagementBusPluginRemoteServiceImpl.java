@@ -506,6 +506,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		for (Entry<String, String> param : paramsMap.entrySet()) {
 			paramsString += " " + param.getKey() + "=" + param.getValue();
 		}
+		paramsString += " ";
 
 		return paramsString;
 	}
