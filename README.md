@@ -21,4 +21,6 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 ## Build & run using Docker
 
-See [opentosca-dockerfiles](https://github.com/jojow/opentosca-dockerfiles).
+Dockerfiles and docker-compose.yml available, see [opentosca-dockerfiles](https://github.com/jojow/opentosca-dockerfiles).
+
+Prebuilt Docker images availabe on [Docker Hub](https://hub.docker.com/r/opentosca).
