@@ -52,6 +52,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       java.io.File file = warFile.getFile().toFile();
     */
     String contextFile = getProperty(properties, "contextFile");
+    String envFileContent = getProperty(properties, "envFileContent"); // https://docs.docker.com/compose/env-file
     String serviceName = getProperty(properties, "serviceName");
     String containerPort = getProperty(properties, "containerPort");
     String endpointPath = getProperty(properties, "endpointPath");
@@ -70,7 +71,15 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       //String contextPath = "/tmp/opentosca-docker-compose-" + csarIdStr + "-" + serviceName;
       String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
 
-      untar(contextFilePath, contextPath);
+      if (contextFilePath.toLowerCase().endsWith(".yml") || contextFilePath.toLowerCase().endsWith(".yaml")) {
+        copy(contextFilePath, contextPath + "/docker-compose.yml");
+      } else {
+        untar(contextFilePath, contextPath);
+      }
+
+      if (envFileContent != null) {
+        write(contextPath + "/.env", envFileContent.trim());
+      }
 
       dcBuild(contextPath);
 
@@ -151,21 +160,6 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
     return null;
   }
-
-  /*
-  private boolean isADeployableWar(AbstractFile file) {
-
-    if (file.getName().toLowerCase().endsWith(".war")) {
-      return true;
-    } else {
-      LOG.warn(
-          "Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
-          file.getName());
-    }
-
-    return false;
-  }
-  */
 
   private static String getProperty(Document properties, String propertyName) {
     if (properties != null) {
@@ -351,6 +345,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       execCmd(cmd);
   }
 
+  private static void copy(String sourcePath, String targetPath) throws Exception {
+      String[] cmd = { "cp", "-a", sourcePath, targetPath };
+      execCmd(cmd);
+  }
+
   private static void rmrf(String dirPath) throws Exception {
       String[] cmd = { "rm", "-rf", dirPath };
       execCmd(cmd);
@@ -361,6 +360,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       execCmd(touchCmd);
 
       java.nio.file.Files.write(java.nio.file.Paths.get(filePath), (content + "\n").getBytes(), java.nio.file.StandardOpenOption.APPEND);
+  }
+
+  private static void write(String filePath, String content) throws Exception {
+      java.nio.file.Files.write(java.nio.file.Paths.get(filePath), (content + "\n").getBytes());
   }
 
   /*
