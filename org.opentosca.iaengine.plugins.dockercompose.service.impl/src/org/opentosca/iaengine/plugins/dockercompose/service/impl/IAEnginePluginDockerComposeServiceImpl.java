@@ -61,6 +61,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
     LOG.info("contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={}", contextFile, serviceName, containerPort, endpointPath, endpointKind);
 
+    if (endpointPath == null) endpointPath = "";
+
     String endpoint = null;
 
     try {
@@ -331,7 +333,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
           String port = res[1].split(":")[1];
           return port;
       } catch (Exception e) {
-          return null;
+          return containerPort;
       }
   }
 
