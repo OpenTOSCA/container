@@ -116,6 +116,8 @@ public class ArtifactTypesHandler {
 
 		if (artifact_types.containsKey(artifactType)) {
 			requiredPackages = artifact_types.get(artifactType).getPackages().getPackage();
+		} else {
+			ArtifactTypesHandler.LOG.warn("ArtifactType: {} is not supported!", artifactType);
 		}
 
 		ArtifactTypesHandler.LOG.debug("Required packages of artifactType: {} : {}", artifactType, requiredPackages);
@@ -131,11 +133,17 @@ public class ArtifactTypesHandler {
 	 */
 	public static List<String> getCommands(QName artifactType) {
 
+		List<String> commands = new ArrayList<String>();
+
 		if (artifact_types.containsKey(artifactType)) {
-			return artifact_types.get(artifactType).getCommands().getCommand();
+			commands = artifact_types.get(artifactType).getCommands().getCommand();
+		} else {
+			ArtifactTypesHandler.LOG.warn("ArtifactType: {} is not supported!", artifactType);
 		}
 
-		return null;
+		ArtifactTypesHandler.LOG.debug("Commands to run for artifactType: {} : {}", artifactType, commands);
+
+		return commands;
 	}
 
 	/**
