@@ -26,8 +26,8 @@ import org.w3c.dom.NodeList;
 
 public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginService {
 
-  private static final String TYPES = "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact";
-  private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose";
+  private static final String TYPES = "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact, {http://toscafy.github.io/artifacttypes}any2api";
+  private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose, http://www.any2api.org, http://github.com/any2api";
   private static final Logger LOG = LoggerFactory.getLogger(IAEnginePluginDockerComposeServiceImpl.class);
 
   private static final Map<String, String> CONTEXT = new HashMap<String, String>();
@@ -35,7 +35,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   private IHTTPService httpService;
 
   @Override
-  public URI deployImplementationArtifact(CSARID csarId, QName artifactType, Document artifactContent,
+  public URI deployImplementationArtifact(CSARID csarId, QName artifactTypeQName, Document artifactContent,
       Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts,
       List<String> requiredFeatures) {
     /*
@@ -51,6 +51,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       String fileName = warFile.getName();
       java.io.File file = warFile.getFile().toFile();
     */
+    String artifactType = artifactTypeQName.getLocalPart(); // "DockerComposeArtifact", "any2api"
+    String artifactName = getProperty(properties, "artifactName");
     String contextFile = getProperty(properties, "contextFile");
     String envFileContent = getProperty(properties, "envFileContent"); // https://docs.docker.com/compose/env-file
     String serviceName = getProperty(properties, "serviceName");
@@ -59,7 +61,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
     String endpointKind = getProperty(properties, "endpointKind");
     String soapPortType = getProperty(properties, "soapPortType");
 
-    LOG.info("contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={}", contextFile, serviceName, containerPort, endpointPath, endpointKind);
+    LOG.info("artifactType={} artifactName={} contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={} soapPortType={}", artifactType, artifactName, contextFile, serviceName, containerPort, endpointPath, endpointKind, soapPortType);
 
     if (endpointPath == null) endpointPath = "";
 
@@ -73,10 +75,26 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       //String contextPath = "/tmp/opentosca-docker-compose-" + csarIdStr + "-" + serviceName;
       String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
 
-      if (contextFilePath.toLowerCase().endsWith(".yml") || contextFilePath.toLowerCase().endsWith(".yaml")) {
-        copy(contextFilePath, contextPath + "/docker-compose.yml");
-      } else {
-        untar(contextFilePath, contextPath);
+      if (artifactType.equals("any2api")) {
+        if (serviceName == null) serviceName = "api";
+        if (containerPort == null) containerPort = "3000";
+        if (endpointKind == null) endpointKind = "rest";
+
+        String any2apiExecutablePath = java.nio.file.Files.createTempDirectory("any2api-executable-").toString();
+
+        if (contextFilePath.toLowerCase().endsWith(".json")) {
+          copy(contextFilePath, any2apiExecutablePath + "/apispec.json");
+        } else {
+          untar(contextFilePath, any2apiExecutablePath);
+        }
+
+        any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
+      } else { // artifactType.equals("DockerComposeArtifact")
+        if (contextFilePath.toLowerCase().endsWith(".yml") || contextFilePath.toLowerCase().endsWith(".yaml")) {
+          copy(contextFilePath, contextPath + "/docker-compose.yml");
+        } else {
+          untar(contextFilePath, contextPath);
+        }
       }
 
       if (envFileContent != null) {
@@ -96,6 +114,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       CONTEXT.put(endpoint, contextPath);
 
       append(ENDPOINTS_FILE, "{"
+                           + "\"artifactType\":  \"" + artifactType  + "\","
+                           + "\"artifactName\":  \"" + artifactName  + "\","
                            + "\"contextPath\":   \"" + contextPath   + "\","
                            + "\"endpoint\":      \"" + endpoint      + "\","
                            + "\"publicPort\":    \"" + publicPort    + "\","
@@ -264,6 +284,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
    *
    */
   //private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
+  private static String DOCKER = System.getenv("OPENTOSCA_DOCKER_CMD");
   private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_CMD");
   private static String LOG_FILE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_LOG");
   private static String ENDPOINTS_FILE = System.getenv("OPENTOSCA_ENDPOINTS_JSON");
@@ -271,6 +292,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   static {
       if (ENDPOINTS_FILE == null) ENDPOINTS_FILE = "/tmp/opentosca-docker-compose-endpoints.json";
 
+      if (DOCKER == null) DOCKER = "docker";
       if (DOCKER_COMPOSE == null) DOCKER_COMPOSE = "docker-compose";
 
       /*
@@ -340,6 +362,12 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   private static void dcDown(String contextPath) throws Exception {
       String[] cmd = { DOCKER_COMPOSE, "down", "--rmi", "all", "-v", "--remove-orphans" };
       execCmd(cmd, contextPath);
+  }
+
+  private static void any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
+      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli -i " + endpointKind + " -c -o " + outputPath + " gen " + apispecPath };
+
+      execCmd(cmd, apispecPath);
   }
 
   private static void untar(String filePath, String dirPath) throws Exception {
