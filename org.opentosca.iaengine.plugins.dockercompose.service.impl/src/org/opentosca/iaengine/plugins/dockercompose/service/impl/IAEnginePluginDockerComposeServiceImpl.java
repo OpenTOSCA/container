@@ -365,7 +365,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   }
 
   private static void any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
-      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli -i " + endpointKind + " -c -o " + outputPath + " gen " + apispecPath };
+      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i " + endpointKind + " -c -o " + outputPath + " gen " + apispecPath };
 
       execCmd(cmd, apispecPath);
   }
