@@ -88,7 +88,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
           untar(contextFilePath, any2apiExecutablePath);
         }
 
-        contextPath = any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
+        any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
       } else { // artifactType.equals("DockerComposeArtifact")
         if (contextFilePath.toLowerCase().endsWith(".yml") || contextFilePath.toLowerCase().endsWith(".yaml")) {
           copy(contextFilePath, contextPath + "/docker-compose.yml");
@@ -364,11 +364,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       execCmd(cmd, contextPath);
   }
 
-  private static String any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
-      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath + "/any2api-generated", "gen", apispecPath };
-      execCmd(cmd, apispecPath);
+  private static void any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
+      rmrf(outputPath); // any2api output dir must not exist
 
-      return outputPath + "/any2api-generated";
+      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath };
+      execCmd(cmd, apispecPath);
   }
 
   private static void untar(String filePath, String dirPath) throws Exception {
