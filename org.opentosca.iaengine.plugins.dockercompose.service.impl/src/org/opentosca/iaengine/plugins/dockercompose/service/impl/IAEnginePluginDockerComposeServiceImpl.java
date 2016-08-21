@@ -368,6 +368,16 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i " + endpointKind + " -c -o " + outputPath + " gen " + apispecPath };
 
       execCmd(cmd, apispecPath);
+
+
+      String[] cmd2 = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath };
+      execCmd(cmd2, apispecPath);
+
+      String[] cmd3 = { DOCKER, "run", "-i", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath };
+      execCmd(cmd3, apispecPath);
+
+      String[] cmd4 = { DOCKER, "run", "-i", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i " + endpointKind + " -c -o " + outputPath + " gen " + apispecPath };
+      execCmd(cmd4, apispecPath);
   }
 
   private static void untar(String filePath, String dirPath) throws Exception {
