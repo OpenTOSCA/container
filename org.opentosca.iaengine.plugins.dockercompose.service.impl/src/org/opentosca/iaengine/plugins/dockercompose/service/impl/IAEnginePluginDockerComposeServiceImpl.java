@@ -82,15 +82,13 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
         String any2apiExecutablePath = java.nio.file.Files.createTempDirectory("any2api-executable-").toString();
 
-        contextPath = contextPath + "/any2api-generated";
-
         if (contextFilePath.toLowerCase().endsWith(".json")) {
           copy(contextFilePath, any2apiExecutablePath + "/apispec.json");
         } else {
           untar(contextFilePath, any2apiExecutablePath);
         }
 
-        any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
+        contextPath = any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
       } else { // artifactType.equals("DockerComposeArtifact")
         if (contextFilePath.toLowerCase().endsWith(".yml") || contextFilePath.toLowerCase().endsWith(".yaml")) {
           copy(contextFilePath, contextPath + "/docker-compose.yml");
@@ -366,9 +364,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       execCmd(cmd, contextPath);
   }
 
-  private static void any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
-      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath };
+  private static String any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
+      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath + "/any2api-generated", "gen", apispecPath };
       execCmd(cmd, apispecPath);
+
+      return outputPath + "/any2api-generated";
   }
 
   private static void untar(String filePath, String dirPath) throws Exception {
