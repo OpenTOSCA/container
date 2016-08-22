@@ -82,7 +82,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
         if (endpointKind == null) endpointKind = "rest";
 
         //String any2apiExecutablePath = java.nio.file.Files.createTempDirectory("any2api-executable-").toString();
-        String any2apiExecutablePath = TEMP_DIR + "any2api-executable-" + java.util.UUID.randomUUID().toString();
+        String any2apiExecutablePath = TEMP_DIR + "/any2api-executable-" + java.util.UUID.randomUUID().toString();
 
         mkdirp(any2apiExecutablePath);
 
