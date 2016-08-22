@@ -73,14 +73,18 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       String contextFilePath = context.getFile().toFile().getCanonicalPath();
       //String contextFileName = context.getName();
       //String contextPath = "/tmp/opentosca-docker-compose-" + csarIdStr + "-" + serviceName;
-      String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
+      //String contextPath = java.nio.file.Files.createTempDirectory("docker-compose-ia-").toString();
+      String contextPath = TEMP_DIR + "/docker-compose-ia-" + java.util.UUID.randomUUID().toString();
 
       if (artifactType.equals("any2api")) {
         if (serviceName == null) serviceName = "api";
         if (containerPort == null) containerPort = "3000";
         if (endpointKind == null) endpointKind = "rest";
 
-        String any2apiExecutablePath = java.nio.file.Files.createTempDirectory("any2api-executable-").toString();
+        //String any2apiExecutablePath = java.nio.file.Files.createTempDirectory("any2api-executable-").toString();
+        String any2apiExecutablePath = TEMP_DIR + "any2api-executable-" + java.util.UUID.randomUUID().toString();
+
+        mkdirp(any2apiExecutablePath);
 
         if (contextFilePath.toLowerCase().endsWith(".json")) {
           copy(contextFilePath, any2apiExecutablePath + "/apispec.json");
@@ -88,8 +92,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
           untar(contextFilePath, any2apiExecutablePath);
         }
 
-        contextPath = any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
+        any2apiGen(any2apiExecutablePath, contextPath, endpointKind);
       } else { // artifactType.equals("DockerComposeArtifact")
+        mkdirp(contextPath);
+
         if (contextFilePath.toLowerCase().endsWith(".yml") || contextFilePath.toLowerCase().endsWith(".yaml")) {
           copy(contextFilePath, contextPath + "/docker-compose.yml");
         } else {
@@ -286,14 +292,16 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   //private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
   private static String DOCKER = System.getenv("OPENTOSCA_DOCKER_CMD");
   private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_CMD");
+  private static String TEMP_DIR = System.getenv("OPENTOSCA_DOCKER_COMPOSE_TMP");
   private static String LOG_FILE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_LOG");
   private static String ENDPOINTS_FILE = System.getenv("OPENTOSCA_ENDPOINTS_JSON");
 
   static {
-      if (ENDPOINTS_FILE == null) ENDPOINTS_FILE = "/tmp/opentosca-docker-compose-endpoints.json";
-
       if (DOCKER == null) DOCKER = "docker";
       if (DOCKER_COMPOSE == null) DOCKER_COMPOSE = "docker-compose";
+
+      if (TEMP_DIR == null) TEMP_DIR = "/tmp";
+      if (ENDPOINTS_FILE == null) ENDPOINTS_FILE = TEMP_DIR + "/opentosca-docker-compose-endpoints.json";
 
       /*
       if (DOCKER_COMPOSE == null) {
@@ -364,13 +372,9 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       execCmd(cmd, contextPath);
   }
 
-  private static String any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
-      String genDir = outputPath + "/any2api-gen-" + java.util.UUID.randomUUID().toString();
-
-      String[] cmd = { DOCKER, "run", "--rm", "-v", apispecPath + ":" + apispecPath, "-v", outputPath + ":" + outputPath, "any2api/cli", "-i", endpointKind, "-c", "-o", genDir, "gen", apispecPath };
+  private static void any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
+      String[] cmd = { DOCKER, "run", "--rm", "-v", TEMP_DIR + ":" + TEMP_DIR, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath };
       execCmd(cmd, apispecPath);
-
-      return genDir;
   }
 
   private static void untar(String filePath, String dirPath) throws Exception {
@@ -380,6 +384,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
   private static void copy(String sourcePath, String targetPath) throws Exception {
       String[] cmd = { "cp", "-a", sourcePath, targetPath };
+      execCmd(cmd);
+  }
+
+  private static void mkdirp(String dirPath) throws Exception {
+      String[] cmd = { "mkdir", "-p", dirPath };
       execCmd(cmd);
   }
 
