@@ -68,7 +68,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
     String endpoint = null;
 
     try {
-      String csarIdStr = normalizeCsarId(csarId);
+      String csarIdStr = csarIdToStr(csarId);
       AbstractFile context = getFile(artifacts, contextFile);
       String contextFilePath = context.getFile().toFile().getCanonicalPath();
       //String contextFileName = context.getName();
@@ -239,9 +239,9 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
     return endpointURI;
   }
 
-  private static String normalizeCsarId(CSARID id) {
+  private static String csarIdToStr(CSARID id) {
     if (id == null) return null;
-    else return id.toString().replaceAll("[^-a-zA-Z0-9]", "");
+    else return id.toString(); //.replaceAll("[^-a-zA-Z0-9]", "");
   }
 
   @Override
