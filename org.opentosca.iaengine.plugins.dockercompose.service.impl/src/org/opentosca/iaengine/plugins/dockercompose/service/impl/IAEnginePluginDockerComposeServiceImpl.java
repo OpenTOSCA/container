@@ -30,7 +30,9 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose, http://www.any2api.org, http://github.com/any2api";
   private static final Logger LOG = LoggerFactory.getLogger(IAEnginePluginDockerComposeServiceImpl.class);
 
-  private static final Map<String, String> CONTEXT = new HashMap<String, String>();
+  private static final Map<String, String> ENDPOINTS = new HashMap<String, String>();     // artifactId: endpoint
+  private static final Map<String, String> CONTEXT_PATHS = new HashMap<String, String>(); // endpoint: contextPath
+  private static final Map<String, String> ARTIFACT_IDS = new HashMap<String, String>();  // endpoint: artifactId
 
   private IHTTPService httpService;
 
@@ -65,7 +67,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
     if (endpointPath == null) endpointPath = "";
 
-    String endpoint = null;
+    String artifactId = artifactType + artifactName + contextFile + envFileContent + serviceName + containerPort + endpointPath + endpointKind + soapPortType;
+
+    String endpoint = ENDPOINTS.get(artifactId);
+
+    if (endpoint != null) return toUri(endpoint);
 
     try {
       String csarIdStr = csarIdToStr(csarId);
@@ -117,22 +123,26 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
       endpoint = "http://localhost:" + publicPort + endpointPath;
 
-      CONTEXT.put(endpoint, contextPath);
+      ENDPOINTS.put(artifactId, endpoint);
+      CONTEXT_PATHS.put(endpoint, contextPath);
+      ARTIFACT_IDS.put(endpoint, artifactId);
 
-      append(ENDPOINTS_FILE, "{"
-                           + "\"artifactType\":  \"" + artifactType  + "\","
-                           + "\"artifactName\":  \"" + artifactName  + "\","
-                           + "\"contextPath\":   \"" + contextPath   + "\","
-                           + "\"endpoint\":      \"" + endpoint      + "\","
-                           + "\"publicPort\":    \"" + publicPort    + "\","
-                           + "\"containerPort\": \"" + containerPort + "\","
-                           + "\"serviceName\":   \"" + serviceName   + "\","
-                           + "\"endpointPath\":  \"" + endpointPath  + "\","
-                           + "\"endpointKind\":  \"" + endpointKind  + "\","
-                           + "\"soapPortType\":  \"" + soapPortType  + "\","
-                           + "\"csar\":          \"" + csarIdStr     + "\","
-                           + "\"deployed\":            true                "
-                           + "}");
+      String endpointJson = "{"
+                          + "\"artifactType\":  \"" + artifactType  + "\","
+                          + "\"artifactName\":  \"" + artifactName  + "\","
+                          + "\"contextPath\":   \"" + contextPath   + "\","
+                          + "\"endpoint\":      \"" + endpoint      + "\","
+                          + "\"publicPort\":    \"" + publicPort    + "\","
+                          + "\"containerPort\": \"" + containerPort + "\","
+                          + "\"serviceName\":   \"" + serviceName   + "\","
+                          + "\"endpointPath\":  \"" + endpointPath  + "\","
+                          + "\"endpointKind\":  \"" + endpointKind  + "\","
+                          + "\"soapPortType\":  \"" + soapPortType  + "\","
+                          + "\"csar\":          \"" + csarIdStr     + "\","
+                          + "\"deployed\":            true                "
+                          + "}";
+
+      append(ENDPOINTS_FILE, endpointJson);
      } catch (Exception e) {
       LOG.error("Error deployImplementationArtifact", e);
      }
@@ -149,13 +159,18 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
     try {
       endpoint = endpointUri.toString();
 
-      String contextPath = CONTEXT.get(endpoint);
+      String contextPath = CONTEXT_PATHS.get(endpoint);
+      String artifactId = ARTIFACT_IDS.get(endpoint);
+
+      if (contextPath == null) return true;
 
       dcDown(contextPath);
 
       rmrf(contextPath);
 
-      CONTEXT.remove(endpoint);
+      ENDPOINTS.remove(artifactId);
+      CONTEXT_PATHS.remove(endpoint);
+      ARTIFACT_IDS.remove(endpoint);
 
       append(ENDPOINTS_FILE, "{"
                            + "\"contextPath\":   \"" + contextPath   + "\","
