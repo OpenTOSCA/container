@@ -392,7 +392,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   private static String diIp(String containerId) {
       try {
           //String[] cmd = { DOCKER, "inspect", "--format", "'{{ .NetworkSettings.IPAddress }}'", containerId };
-          String[] cmd = { DOCKER, "inspect", "--format", "'{{(index .NetworkSettings.Networks \"" + SHARED_NETWORK + "\").IPAddress}}'", containerId };
+          // docker inspect --format '{{(index .NetworkSettings.Networks "opentosca-docker-compose").IPAddress}}' 8fe5baffbf26
+          String[] cmd = { DOCKER, "inspect", "--format", "{{(index .NetworkSettings.Networks \"" + SHARED_NETWORK + "\").IPAddress}}", containerId };
           String[] res = execCmd(cmd);
 
           String containerIp = res[1];
