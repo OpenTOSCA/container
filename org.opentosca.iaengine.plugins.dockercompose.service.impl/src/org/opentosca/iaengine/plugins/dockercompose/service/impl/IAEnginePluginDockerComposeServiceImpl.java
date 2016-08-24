@@ -118,10 +118,12 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       dcUp(contextPath);
 
       String publicPort = dcPort(contextPath, serviceName, containerPort);
+
       String containerId = dcId(contextPath, serviceName);
-      String containerIp = diIp(containerId);
 
       if (SHARED_NETWORK != null) dnConnect(SHARED_NETWORK, containerId);
+
+      String containerIp = diIp(containerId);
 
       //String logs = dcLogs(contextPath);
 
