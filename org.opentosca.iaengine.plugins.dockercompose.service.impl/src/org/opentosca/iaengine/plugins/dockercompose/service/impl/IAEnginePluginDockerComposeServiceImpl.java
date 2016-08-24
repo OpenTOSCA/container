@@ -118,6 +118,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       dcUp(contextPath);
 
       String publicPort = dcPort(contextPath, serviceName, containerPort);
+      String containerId = dcId(contextPath, serviceName);
+      String containerIp = diIp(containerId);
+
+      if (SHARED_NETWORK != null) dnConnect(SHARED_NETWORK, containerId);
 
       //String logs = dcLogs(contextPath);
 
@@ -134,6 +138,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
                           + "\"endpoint\":      \"" + endpoint      + "\","
                           + "\"publicPort\":    \"" + publicPort    + "\","
                           + "\"containerPort\": \"" + containerPort + "\","
+                          + "\"containerId\":   \"" + containerId   + "\","
+                          + "\"containerIp\":   \"" + containerIp   + "\","
                           + "\"serviceName\":   \"" + serviceName   + "\","
                           + "\"endpointPath\":  \"" + endpointPath  + "\","
                           + "\"endpointKind\":  \"" + endpointKind  + "\","
@@ -307,6 +313,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
   //private static final String DOCKER_COMPOSE_SCRIPT_URL = "https://github.com/docker/compose/releases/download/1.8.0/run.sh";
   private static String DOCKER = System.getenv("OPENTOSCA_DOCKER_CMD");
   private static String DOCKER_COMPOSE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_CMD");
+  private static String SHARED_NETWORK = System.getenv("OPENTOSCA_DOCKER_COMPOSE_NET");
   private static String TEMP_DIR = System.getenv("OPENTOSCA_DOCKER_COMPOSE_TMP");
   private static String LOG_FILE = System.getenv("OPENTOSCA_DOCKER_COMPOSE_LOG");
   private static String ENDPOINTS_FILE = System.getenv("OPENTOSCA_ENDPOINTS_JSON");
@@ -317,6 +324,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
       if (TEMP_DIR == null) TEMP_DIR = "/tmp";
       if (ENDPOINTS_FILE == null) ENDPOINTS_FILE = TEMP_DIR + "/opentosca-docker-compose-endpoints.json";
+
+      if (SHARED_NETWORK != null) dnCreate(SHARED_NETWORK);
 
       /*
       if (DOCKER_COMPOSE == null) {
@@ -370,11 +379,46 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
       return logs;
   }
 
-  private static String dcPort(String contextPath, String serviceName, String containerPort) throws Exception {
-      String[] cmd = { DOCKER_COMPOSE, "port", serviceName, containerPort };
+  private static String dcId(String contextPath, String serviceName) throws Exception {
+      String[] cmd = { DOCKER_COMPOSE, "ps", "-q", serviceName };
       String[] res = execCmd(cmd, contextPath);
 
+      String containerId = res[1];
+      return containerId;
+  }
+
+  private static String diIp(String containerId) {
       try {
+          //String[] cmd = { DOCKER, "inspect", "--format", "'{{ .NetworkSettings.IPAddress }}'", containerId };
+          String[] cmd = { DOCKER, "inspect", "--format", "'{{(index .NetworkSettings.Networks \"" + SHARED_NETWORK + "\").IPAddress}}'", containerId };
+          String[] res = execCmd(cmd);
+
+          String containerIp = res[1];
+          return containerIp;
+      } catch (Exception e) {
+          return null;
+      }
+  }
+
+  private static void dnCreate(String networkName) {
+      try {
+          String[] cmd = { DOCKER, "network", "create", networkName };
+          String[] res = execCmd(cmd);
+      } catch (Exception e) {
+          LOG.info("cannot create Docker network " + networkName);
+      }
+  }
+
+  private static void dnConnect(String networkName, String containerId) throws Exception {
+      String[] cmd = { DOCKER, "network", "connect", networkName, containerId };
+      String[] res = execCmd(cmd);
+  }
+
+  private static String dcPort(String contextPath, String serviceName, String containerPort) {
+      try {
+          String[] cmd = { DOCKER_COMPOSE, "port", serviceName, containerPort };
+          String[] res = execCmd(cmd, contextPath);
+
           String port = res[1].split(":")[1];
           return port;
       } catch (Exception e) {
