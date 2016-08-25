@@ -17,12 +17,18 @@ import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEve
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
+import org.opentosca.planinvocationengine.service.impl.messages.generation.RESTMessageGenerator;
 import org.opentosca.planinvocationengine.service.impl.messages.generation.SOAPMessageGenerator;
-import org.opentosca.planinvocationengine.service.impl.messages.parsing.SOAPResponseParser;
+import org.opentosca.planinvocationengine.service.impl.messages.parsing.ResponseParser;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 /**
  * The Implementation of the Engine. Also deals with OSGI events for
@@ -35,10 +41,14 @@ import org.slf4j.LoggerFactory;
  */
 public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
 
-    private final SOAPMessageGenerator messageGenerator = new SOAPMessageGenerator();
-    private final SOAPResponseParser responseParser = new SOAPResponseParser();
+    private final SOAPMessageGenerator soapInvokeMessageGenerator = new SOAPMessageGenerator();
+    private final ResponseParser soapResponseParser = new ResponseParser();
+    private final RESTMessageGenerator restInvokeMessageGenerator = new RESTMessageGenerator();
 
     private final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
+
+    private static String nsBPEL = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
+    private static String nsBPMN = "http://www.omg.org/spec/BPMN/2.0";
 
     /**
      * {@inheritDoc}
@@ -90,11 +100,16 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	planEvent.setHasFailed(false);
 	for (TParameter temp : storedPlan.getInputParameters().getInputParameter()) {
 	    boolean found = false;
-	    for (TParameter param : plan.getInputParameters().getInputParameter()) {
+
+	    List<TParameterDTO> params = plan.getInputParameters().getInputParameter();
+	    for (TParameterDTO param : params) {
+
 		if (param.getName().equals(temp.getName())) {
-		    param.setRequired(temp.getRequired());
-		    param.setType(temp.getType());
+		    TParameterDTO dto = param;
+		    // param.setRequired(temp.getRequired());
+		    // param.setType(temp.getType());
 		    found = true;
+		    planEvent.getInputParameter().add(dto);
 		}
 	    }
 	    if (!found) {
@@ -118,15 +133,6 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	// get new correlationID
 	String correlationID = ServiceHandler.correlationHandler.getNewCorrelationID(csarID, planEvent);
 
-	// build message
-	SOAPMessage message = messageGenerator.createRequest(csarID,
-	    ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, plan.getId()),
-	    planEvent.getInputParameter(), correlationID);
-
-	if (null == message) {
-	    return false;
-	}
-
 	// plan is of type build, thus create an instance and put the
 	// CSARInstanceID into the plan
 	CSARInstanceID instanceID;
@@ -138,26 +144,55 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	}
 	ServiceHandler.csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
 
-	// send the message to the service bus
 	Map<String, Object> eventValues = new Hashtable<String, Object>();
 	eventValues.put("CSARID", csarID);
 	eventValues.put("PLANID", planEvent.getPlanID());
 	eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
-	try {
-	    eventValues.put("BODY", message.getSOAPBody().extractContentAsDocument());
-	} catch (SOAPException e) {
-	    LOG.error(e.getLocalizedMessage());
-	    e.printStackTrace();
+
+	// build message
+	if (plan.getPlanLanguage().startsWith(nsBPEL)) {
+	    LOG.debug("Start of BPEL message construction for plan {}", plan.getId());
+	    SOAPMessage message = soapInvokeMessageGenerator.createRequest(csarID,
+		ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, plan.getId()),
+		planEvent.getInputParameter(), correlationID);
+
+	    if (null == message) {
+		LOG.error("Failed to construct message for plan {} of type {}", plan.getId(), plan.getPlanLanguage());
+		return false;
+	    }
+	    try {
+		eventValues.put("BODY", message.getSOAPBody().extractContentAsDocument());
+	    } catch (SOAPException e) {
+		LOG.error(e.getLocalizedMessage());
+		e.printStackTrace();
+		LOG.error("Failed to construct message for plan {} of type {}", plan.getId(), plan.getPlanLanguage());
+		return false;
+	    }
+	} else if (plan.getPlanLanguage().startsWith(nsBPMN)) {
+
+	    LOG.debug("Start of BPMN message construction for plan {}", plan.getId());
+
+	    Map<String, String> message = restInvokeMessageGenerator.createRequest(csarID,
+		ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, plan.getId()),
+		planEvent.getInputParameter(), correlationID);
+
+	    // TODO correlation id
+
+	    if (null == message) {
+		LOG.error("Failed to construct message for plan {} of type {}", plan.getId(), plan.getPlanLanguage());
+		return false;
+	    }
+
+	    eventValues.put("BODY", message);
+	} else {
+	    LOG.error("No message construction found for plan {} of type {}", plan.getId(), plan.getPlanLanguage());
 	    return false;
 	}
 
-	// FIXME implement!
-	// if the plan is asynchronous: send the correlation id with the event
-	// if the plan is synchronous: do not send the correlation id!!!
 	if (null == ServiceHandler.toscaReferenceMapper.isPlanAsynchronous(csarID, plan.getId())) {
 	    LOG.error(
-		" There are no informations stored about whether the plan is synchronous or asynchronous. Thus abort.");
-	    return false;
+		" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
+	    eventValues.put("ASYNC", true);
 	} else if (ServiceHandler.toscaReferenceMapper.isPlanAsynchronous(csarID, plan.getId())) {
 	    eventValues.put("ASYNC", true);
 	} else {
@@ -165,6 +200,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	}
 	eventValues.put("MESSAGEID", correlationID);
 
+	ServiceHandler.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
+
+	// send the message to the service bus
 	Event event = new Event("org_opentosca_plans/requests", eventValues);
 	LOG.debug("Send event with SOAP message.");
 	ServiceHandler.eventAdmin.postEvent(event);
@@ -179,36 +217,129 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     @Override
     public void handleEvent(Event eve) {
 
-	org.w3c.dom.Document responseBody = (org.w3c.dom.Document) eve.getProperty("RESPONSE");
 	String correlationID = (String) eve.getProperty("MESSAGEID");
+	String planLanguage = (String) eve.getProperty("PLANLANGUAGE");
+	LOG.trace("The correlation ID is {} and plan language is {}", correlationID, planLanguage);
 
-	LOG.debug("Received an event with a SOAP response body " + responseBody.getChildNodes().item(0).getLocalName());
+	PlanInvocationEvent event;
 
-	PlanInvocationEvent event = ServiceHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
-	CSARID csarID = new CSARID(event.getCSARID());
+	if (planLanguage.startsWith(nsBPEL)) {
 
-	// parse the body
-	correlationID = responseParser.parseSOAPBody(csarID, event.getPlanID(), correlationID, responseBody);
+	    org.w3c.dom.Document responseBody = (org.w3c.dom.Document) eve.getProperty("RESPONSE");
 
-	// if plan is not null
-	if (null == correlationID) {
-	    LOG.error("The parsing of the response failed!");
-	    return;
-	}
+	    LOG.debug(
+		"Received an event with a SOAP response body " + responseBody.getChildNodes().item(0).getLocalName());
 
-	// save
-	CSARInstanceID instanceID = new CSARInstanceID(csarID, event.getCSARInstanceID());
-	LOG.debug("The instanceID is: " + instanceID);
-	ServiceHandler.csarInstanceManagement.storeCorrelationForAnInstance(csarID, instanceID, correlationID);
+	    event = ServiceHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
+	    CSARID csarID = new CSARID(event.getCSARID());
 
-	if (event.isHasFailed()) {
-	    LOG.info("The process instance was not successful.");
+	    // parse the body
+	    correlationID = soapResponseParser.parseSOAPBody(csarID, event.getPlanID(), correlationID, responseBody);
 
-	} else {
-	    if (PlanTypes.isPlanTypeURI(event.getPlanType()).equals(PlanTypes.TERMINATION)) {
-		boolean deletion = ServiceHandler.csarInstanceManagement.deleteInstance(csarID, instanceID);
-		LOG.debug("Delete of instance returns: " + deletion);
+	    // if plan is not null
+	    if (null == correlationID) {
+		LOG.error("The parsing of the response failed!");
+		return;
 	    }
+
+	    // save
+	    CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+	    LOG.debug("The instanceID is: " + instanceID);
+	    ServiceHandler.csarInstanceManagement.storeCorrelationForAnInstance(instanceID.getOwner(), instanceID,
+		correlationID);
+
+	    if (event.isHasFailed()) {
+		LOG.info("The process instance was not successful.");
+
+	    } else {
+		if (PlanTypes.isPlanTypeURI(event.getPlanType()).equals(PlanTypes.TERMINATION)) {
+		    boolean deletion = ServiceHandler.csarInstanceManagement.deleteInstance(instanceID.getOwner(),
+			instanceID);
+		    LOG.debug("Delete of instance returns: " + deletion);
+		}
+	    }
+	} else if (planLanguage.startsWith(nsBPMN)) {
+
+	    Object response = eve.getProperty("RESPONSE");
+
+	    LOG.debug("Received an event with a REST response: {}", response);
+
+	    event = ServiceHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
+	    LOG.trace("Found invocation in plan history for instance: {}", event.getCSARInstanceID());
+	    CSARID csarID = new CSARID(event.getCSARID());
+
+	    // parse the body
+	    String planInstanceID = soapResponseParser.parseRESTResponse(csarID, event.getPlanID(), correlationID,
+		response);
+
+	    // if plan is not null
+	    if (null == planInstanceID || planInstanceID.equals("")) {
+		LOG.error("The parsing of the response failed!");
+		return;
+	    }
+
+	    /**
+	     * TODO remove jersey and search for the history with the bus(?)!!!
+	     */
+
+	    // searching for history
+	    String pathBase = "http://localhost:8080/engine-rest/";
+	    String pathProcessInstance = "process-instance/";
+	    String pathHistoryVariables = "history/variable-instance";
+
+	    LOG.debug("Instance ID: " + planInstanceID);
+
+	    Client client = Client.create();
+	    client.addFilter(new HTTPBasicAuthFilter("demo", "demo"));
+
+	    boolean ended = false;
+	    String path = pathBase + pathProcessInstance + planInstanceID;
+	    WebResource webResource = client.resource(path);
+
+	    ClientResponse camundaResponse;
+	    while (!ended) {
+		camundaResponse = webResource.get(ClientResponse.class);
+		String resp = camundaResponse.getEntity(String.class);
+		LOG.debug("Active process instance response: " + resp);
+
+		try {
+		    Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}
+
+		if (resp.contains("Process instance with id " + planInstanceID + " does not exist")) {
+		    ended = true;
+		}
+	    }
+
+	    // History of process instance
+	    path = pathBase + pathHistoryVariables + "?processInstanceId=" + planInstanceID;
+
+	    webResource = client.resource(path);
+	    camundaResponse = webResource.get(ClientResponse.class);
+	    LOG.debug("History with output response: " + camundaResponse.getEntity(String.class));
+
+	    // save
+	    CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+	    LOG.debug("The instanceID is: " + instanceID);
+	    ServiceHandler.csarInstanceManagement.storeCorrelationForAnInstance(instanceID.getOwner(), instanceID,
+		correlationID);
+
+	    if (event.isHasFailed()) {
+		LOG.info("The process instance was not successful.");
+
+	    } else {
+		if (PlanTypes.isPlanTypeURI(event.getPlanType()).equals(PlanTypes.TERMINATION)) {
+		    boolean deletion = ServiceHandler.csarInstanceManagement.deleteInstance(instanceID.getOwner(),
+			instanceID);
+		    LOG.debug("Delete of instance returns: " + deletion);
+		}
+	    }
+	} else {
+	    LOG.error("The returned response cannot be matched to a supported plan language!");
+	    return;
 	}
     }
 

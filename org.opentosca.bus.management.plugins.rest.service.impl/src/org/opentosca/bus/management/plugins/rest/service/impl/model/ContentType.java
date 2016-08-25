@@ -35,7 +35,9 @@ public enum ContentType {
     @XmlEnumValue("urlencoded")
     URLENCODED("urlencoded"),
     @XmlEnumValue("xml")
-    XML("xml");
+    XML("xml"),
+    @XmlEnumValue("json")
+    JSON("json");
     private final String value;
 
     ContentType(String v) {

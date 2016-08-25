@@ -13,7 +13,6 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.tosca.TParameter;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.settings.Settings;
 import org.osgi.service.event.Event;
@@ -71,9 +70,7 @@ public class SOAPMessageGenerator implements EventHandler {
 	    SOAPBodyElement payload = soapBody.addBodyElement(bodyName);
 
 	    // put in the InputParameter details.
-	    for (TParameter para : params) {
-
-		org.opentosca.model.tosca.extension.transportextension.TParameterDTO castedPara = (org.opentosca.model.tosca.extension.transportextension.TParameterDTO) para;
+	    for (TParameterDTO para : params) {
 
 		if (para.getType().equalsIgnoreCase("correlation")) {
 		    LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
@@ -98,9 +95,9 @@ public class SOAPMessageGenerator implements EventHandler {
 		    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API);
 		    // para.setValue(Settings.CONTAINER_API);
 		} else {
-		    LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + castedPara.getValue() + "\".");
+		    LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
 		    Name elementName = envelope.createName(para.getName(), "tns", messageNS);
-		    payload.addChildElement(elementName).addTextNode(castedPara.getValue());
+		    payload.addChildElement(elementName).addTextNode(para.getValue());
 		}
 	    }
 

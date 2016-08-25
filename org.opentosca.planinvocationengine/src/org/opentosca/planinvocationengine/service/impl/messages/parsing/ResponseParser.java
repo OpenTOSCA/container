@@ -21,9 +21,9 @@ import org.w3c.dom.NodeList;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
-public class SOAPResponseParser {
+public class ResponseParser {
 
-    private final Logger LOG = LoggerFactory.getLogger(SOAPResponseParser.class);
+    private final Logger LOG = LoggerFactory.getLogger(ResponseParser.class);
 
     /**
      * Parses the response and returns the CorrelationID of the Response.
@@ -48,8 +48,8 @@ public class SOAPResponseParser {
 	    new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
 		ServiceHandler.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
 		ServiceHandler.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-		ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, planID),
-		null, //TODO !!!
+		ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+		// !!!
 		false, // not active anymore
 		false));
 	// delete correlation as running plan
@@ -109,5 +109,14 @@ public class SOAPResponseParser {
 	// // }
 	// }
 	// return null;
+    }
+
+    public String parseRESTResponse(CSARID csarID, QName planID, String correlationID, Object responseBody) {
+
+	String resp = (String) responseBody;
+	String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());
+	instanceID = instanceID.substring(instanceID.lastIndexOf("/") + 1, instanceID.indexOf("\""));
+
+	return instanceID;
     }
 }
