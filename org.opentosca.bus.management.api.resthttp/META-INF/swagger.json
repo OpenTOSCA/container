@@ -10,18 +10,12 @@
     "schemes": [
         "http"
     ],
-    "consumes": [
-        "application/json"
-    ],
-    "produces": [
-        "application/json"
-    ],
     "paths": {
         "/invoker": {
             "post": {
                 "description": "To invoke a management operation",
                 "operationId": "invoke",
-                "produces": [
+                "consumes": [
                     "application/json"
                 ],
                 "parameters": [
@@ -41,7 +35,7 @@
 						"headers": {
 							"Location": {
 								"description": "URL to poll if the invocation has finished",
-								"type": "url"
+								"type": "string"
 							}
 						}
                     },
@@ -85,7 +79,7 @@
 						"headers": {
 							"Location": {
 								"description": "URL to fetch the result of the invocation",
-								"type": "url"
+								"type": "string"
 							}
 						}
                     },
@@ -135,9 +129,6 @@
             "delete": {
                 "description": "To delete the stored data of the specified invocation request",
                 "operationId": "delete",
-                "produces": [
-                    "application/json"
-                ],
                 "parameters": [
                     {
                         "name": "id",

@@ -3,6 +3,7 @@ package org.opentosca.bus.management.api.resthttp.route;
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
+import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -25,9 +26,12 @@ public class DeleteRoute extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
+		CORSProcessor corsProcessor = new CORSProcessor();
+
 		from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
 				+ "?restletMethods=delete").bean(QueueMap.class, "remove(${header." + InvocationRoute.ID + "})")
-						.bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})").removeHeaders("*");
+						.bean(ResultMap.class, "remove(${header." + InvocationRoute.ID + "})").process(corsProcessor)
+						.removeHeaders("*");
 
 	}
 }

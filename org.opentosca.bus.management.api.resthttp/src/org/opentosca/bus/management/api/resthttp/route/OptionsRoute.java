@@ -24,5 +24,8 @@ public class OptionsRoute extends RouteBuilder {
 		// options route
 		from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.INVOKE_ENDPOINT + "?restletMethods=options")
 				.process(corsProcessor);
+
+		from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT
+				+ "?restletMethods=options").process(corsProcessor);
 	}
 }

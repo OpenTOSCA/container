@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.resthttp.route;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.GetResultRequestProcessor;
@@ -27,14 +28,15 @@ public class GetResultRoute extends RouteBuilder {
 		GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
 		GetResultProcessor getResultProcessor = new GetResultProcessor();
 		ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+		CORSProcessor corsProcessor = new CORSProcessor();
 
 		// handle exceptions
 		onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
 				.process(exceptionProcessor);
 
 		from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.GET_RESULT_ENDPOINT + "?restletMethods=get")
-				.process(getResultRequestProcessor).process(getResultProcessor).process(getResultResponseProcessor)
-				.removeHeaders("*");
+				.process(getResultRequestProcessor).process(getResultProcessor).process(corsProcessor)
+				.process(getResultResponseProcessor).removeHeaders("*");
 
 	}
 }

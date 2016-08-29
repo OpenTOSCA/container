@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.resthttp.route;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.IsFinishedProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.IsFinishedRequestProcessor;
@@ -26,7 +27,7 @@ public class IsFinishedRoute extends RouteBuilder {
 		IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
 		IsFinishedProcessor isFinishedProcessor = new IsFinishedProcessor();
 		IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
-
+		CORSProcessor corsProcessor = new CORSProcessor();
 		ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
 		// handle exceptions
@@ -34,8 +35,8 @@ public class IsFinishedRoute extends RouteBuilder {
 				.process(exceptionProcessor);
 
 		from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT + "?restletMethods=get")
-				.process(isFinishedRequestProcessor).process(isFinishedProcessor).process(isFinishedResponseProcessor)
-				.removeHeaders("*");
+				.process(isFinishedRequestProcessor).process(isFinishedProcessor).process(corsProcessor)
+				.process(isFinishedResponseProcessor).removeHeaders("*");
 
 	}
 }

@@ -8,6 +8,7 @@ import org.opentosca.bus.management.api.resthttp.Activator;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.RequestID;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
+import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
@@ -56,9 +57,10 @@ public class InvocationRoute extends RouteBuilder {
 		InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
 		InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
 		ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+		CORSProcessor corsProcessor = new CORSProcessor();
 
 		// handle exceptions
-		onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
+		onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT)).process(corsProcessor)
 				.process(exceptionProcessor);
 
 		// invoke main route
@@ -69,7 +71,8 @@ public class InvocationRoute extends RouteBuilder {
 
 		// route if no exception was caught
 		from("direct:invoke").setHeader(MANAGEMENT_BUS_REQUEST_ID_HEADER, method(RequestID.class, "getNextID"))
-				.wireTap("direct:toManagementBus").end().to("direct:init").process(invocationResponseProcessor);
+				.wireTap("direct:toManagementBus").end().to("direct:init").process(corsProcessor)
+				.process(invocationResponseProcessor);
 
 		// route in case an exception was caught
 		from("direct:exception").setBody(property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
