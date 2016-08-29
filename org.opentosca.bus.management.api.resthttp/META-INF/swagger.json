@@ -1,0 +1,252 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Management Bus REST API",
+        "description": "REST API of the OpenTOSCA Management Bus"
+    },
+    "host": "localhost:8086",
+    "basePath": "/ManagementBus/v1",
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/invoker": {
+            "post": {
+                "description": "To invoke a management operation",
+                "operationId": "invoke",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "InvokeBody",
+                        "in": "body",
+                        "description": "Needed information to invoke a management operation",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/invokeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Invocation request accepted",
+						"headers": {
+							"Location": {
+								"description": "URL to poll if the invocation has finished",
+								"type": "url"
+							}
+						}
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/invoker/activeRequests/{id}": {
+            "get": {
+                "description": "To poll if the invocation has finished",
+                "operationId": "isFinished",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the invocation request",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invocation still pending",
+                        "schema": {
+                            "$ref": "#/definitions/pending"
+                        },
+						"examples": {
+							"application/json": {
+									"status": "PENDING"
+							}
+						}						
+                    },
+                    "303": {
+                        "description": "Invocation finished",
+						"headers": {
+							"Location": {
+								"description": "URL to fetch the result of the invocation",
+								"type": "url"
+							}
+						}
+                    },
+                    "404": {
+                        "description": "Unknown id"
+                    }
+                }
+            }
+        },
+        "/invoker/activeRequests/{id}/response": {
+            "get": {
+                "description": "To fetch the response of the invocation request",
+                "operationId": "getResult",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the invocation request",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response of the invocation request",
+                        "schema": {
+                            "$ref": "#/definitions/response"
+                        },
+						"examples": {
+							"application/json": {
+								"response": {
+									"VMIP": "192.186.200.220",
+									"VMInstanceID": "OT-ProvInstance-1472211189678"
+								}
+							}
+						}
+					},
+                    "404": {
+                        "description": "Unknown id"
+                    }
+                }
+            },
+            "delete": {
+                "description": "To delete the stored data of the specified invocation request",
+                "operationId": "delete",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the invocation request",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "invokeRequest": {
+            "type": "object",
+            "required": [
+                "invocation-information"
+            ],
+            "properties": {
+                "invocation-information": {
+                    "$ref": "#/definitions/invocation-information"
+                },
+                "params": {
+                    "$ref": "#/definitions/params"
+                }
+            }
+        },
+        "invocation-information": {
+            "type": "object",
+            "required": [
+                "csarID",
+                "serviceTemplateID",
+                "interface",
+                "operation"
+            ],
+            "properties": {
+                "csarID": {
+                    "type": "string",
+                    "example": "Ubuntu_On_VSphere.csar"
+                },
+                "serviceTemplateID": {
+                    "type": "string",
+                    "example": "{http://opentosca.org/servicetemplates}Ubuntu_On_VSphere"
+                },
+                "serviceInstanceID": {
+                    "type": "string",
+                    "example": "http://localhost:1337/containerapi/instancedata/serviceInstances/1"
+                },
+                "nodeInstanceID": {
+                    "type": "string"
+                },
+                "nodeTemplateID": {
+                    "type": "string",
+                    "example": "VSphere_5_5"
+                },
+                "relationshipTemplateID": {
+                    "type": "string"
+                },
+                "interface": {
+                    "type": "string",
+                    "example": "CloudProviderInterface"
+                },
+                "operation": {
+                    "type": "string",
+                    "example": "createVM"
+                }
+            }
+        },
+        "params": {
+			"type": "object",
+			"additionalProperties": {
+				"type": "string"
+			},						
+			"example": {
+					"VMType":"m1.medium.template4",
+					"VMImageID":"ubuntu-14.04-trusty-server-cloudimg",
+					"VMUserPassword":"ubuntu"
+			}
+        },        
+		"pending": {
+            "type": "object",
+            "required": [
+                "pending"
+            ],
+            "properties": {
+                "pending": {
+                    "type": "object"
+                }
+            }
+        },
+        "response": {
+            "type": "object",
+			"required": [
+                "response"
+            ],
+            "properties": {
+                "response": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

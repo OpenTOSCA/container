@@ -33,7 +33,7 @@ public class EndpointServiceHandler {
 			
 			EndpointServiceHandler.LOG.debug("Bind Endpoint Service: {} bound.", endpointService.toString());
 			
-			EndpointServiceHandler.LOG.debug("Storing the Management Bus endpoint: {} via EndpointService...", Route.ENDPOINT);
+			EndpointServiceHandler.LOG.debug("Storing the Management Bus SOAP-API endpoint: {} via EndpointService...", Route.ENDPOINT);
 			
 			URI uri = null;
 			try {
@@ -43,7 +43,7 @@ public class EndpointServiceHandler {
 				e.printStackTrace();
 			}
 			// Stores the Management Bus endpoint in the endpointDB. "***",
-			// cause the MB-endpoint is csar independence.
+			// cause the MB-endpoint is csar independent.
 			WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, new CSARID("***"), null, null, null);
 			EndpointServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 			
