@@ -1,7 +1,10 @@
 package org.opentosca.toscaengine.xmlserializer.service.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.List;
 
@@ -17,6 +20,12 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
@@ -89,17 +98,24 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
 			this.validationEventCollector = new ValidationEventCollector();
 
+			this.marshaller = this.jaxbContext.createMarshaller();
 			this.marshaller.setEventHandler(this.validationEventCollector);
 
+			this.marshallerWithoutValidation = this.jaxbContext.createMarshaller();
 			this.marshallerWithoutValidation.setEventHandler(this.validationEventCollector);
 
+			this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			this.documentBuilderFactory.setNamespaceAware(true);
 
 			// if the Schema object is null no validation is set
 			if (schemaFile != null) {
+				this.LOG.info("There is a given Schema at \"" + schemaFile.toString() + "\".");
+				this.schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 				this.schema = this.schemaFactory.newSchema(schemaFile);
 
 				// set the validation
+				this.LOG.debug("Activate validation for serialization to JAXB classes.");
+				this.setValidation(true);
 				this.documentBuilderFactory.setSchema(this.schema);
 
 			} else {
@@ -163,6 +179,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 		Document result = null;
 		try {
 
+			result = this.documentBuilder.newDocument();
 			this.marshaller.marshal(definitions, result);
 
 			return result;
@@ -250,6 +267,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 	@Override
 	public Definitions unmarshal(Document doc) {
 
+		this.LOG.debug("Start the unmarshalling of a DOM Document.");
 		this.LOG.trace(this.docToString(doc.getFirstChild(), true));
 		try {
 			return (Definitions) this.createUnmarshaller().unmarshal(doc.getFirstChild());
