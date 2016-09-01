@@ -11,49 +11,49 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-    private static BundleContext context;
+	private static BundleContext context;
 
-    static BundleContext getContext() {
-	return context;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
-     * BundleContext)
-     */
-    @Override
-    public void start(BundleContext bundleContext) throws Exception {
-	Activator.context = bundleContext;
-	deleteOpenTOSCADir();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
-    @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	Activator.context = null;
-    }
-
-    private void deleteOpenTOSCADir() {
-
-	Path path = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "openTOSCA");
-	System.out.println("This is the start-up clean-up, thus, delete the temporary directory: " + path);
-	try {
-	    if (path.toFile().exists()) {
-		FileUtils.deleteDirectory(path.toFile());
-	    } else {
-		System.out.println("The directory did not exist.");
-	    }
-	    System.out.println("The directory was deleted: " + !path.toFile().exists());
-	} catch (IOException e) {
-	    e.printStackTrace();
+	static BundleContext getContext() {
+		return context;
 	}
-    }
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
+	 * BundleContext)
+	 */
+	@Override
+	public void start(BundleContext bundleContext) throws Exception {
+		Activator.context = bundleContext;
+		deleteOpenTOSCADir();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 */
+	@Override
+	public void stop(BundleContext bundleContext) throws Exception {
+		Activator.context = null;
+	}
+
+	private void deleteOpenTOSCADir() {
+
+		Path path = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "openTOSCA");
+		System.out.println("This is the start-up clean-up, thus, delete the temporary directory: " + path);
+		try {
+			if (path.toFile().exists()) {
+				FileUtils.deleteDirectory(path.toFile());
+			} else {
+				System.out.println("The directory did not exist.");
+			}
+			System.out.println("The directory was deleted: " + !path.toFile().exists());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 }

@@ -457,7 +457,7 @@
       <plugin id="org.opentosca.portability.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.portability.service.impl" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.settings" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.startup" autoStart="false" startLevel="2" />
+      <plugin id="org.opentosca.startup" autoStart="true" startLevel="2" />
       <plugin id="org.opentosca.toscaengine.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.util.fileaccess.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.util.fileaccess.service.impl" autoStart="true" startLevel="4" />
