@@ -55,7 +55,7 @@ public class NodeInstancePropertiesResource {
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			Document properties = service.getProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), qnameList);
+			Document properties = service.getNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), qnameList);
 			return properties;
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
@@ -69,7 +69,7 @@ public class NodeInstancePropertiesResource {
 			Document xml) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			service.setProperties(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), xml);
+			service.setNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), xml);
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
 		}

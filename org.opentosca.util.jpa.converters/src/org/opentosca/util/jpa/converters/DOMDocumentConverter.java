@@ -80,6 +80,7 @@ public class DOMDocumentConverter implements Converter {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(true);
+			dbf.setIgnoringComments(true);
 			DocumentBuilder db = dbf.newDocumentBuilder();
 
 			// parse

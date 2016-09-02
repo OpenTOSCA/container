@@ -102,6 +102,7 @@ public class ServiceInstanceListResource {
 			SimpleXLink response = new SimpleXLink(LinkBuilder.linkToServiceInstance(uriInfo, createServiceInstance.getDBId()), createServiceInstance.getServiceInstanceID().toString());
 			return Response.ok(response).build();
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 		

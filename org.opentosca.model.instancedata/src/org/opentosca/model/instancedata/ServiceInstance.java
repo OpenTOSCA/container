@@ -28,6 +28,7 @@ import org.eclipse.persistence.annotations.Converter;
 import org.eclipse.persistence.annotations.Converters;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.settings.Settings;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -37,7 +38,7 @@ import org.opentosca.settings.Settings;
  */
 
 @Entity
-@Converters({ @Converter(name = "QNameConverter", converterClass = org.opentosca.util.jpa.converters.QNameConverter.class) })
+@Converters({ @Converter(name = "QNameConverter", converterClass = org.opentosca.util.jpa.converters.QNameConverter.class), @Converter(name = "DOMDocumentConverter", converterClass = org.opentosca.util.jpa.converters.DOMDocumentConverter.class) })
 @NamedQueries({
 	@NamedQuery(name = ServiceInstance.getServiceInstances, query = ServiceInstance.getServiceInstancesQuery) })
 public class ServiceInstance {
@@ -74,6 +75,10 @@ public class ServiceInstance {
 
 	@Column(name = "csarID")
 	private String csarID_DB;
+	
+	@Column(name = "properties", columnDefinition = "VARCHAR(4096)")
+	@Convert("DOMDocumentConverter")
+	Document properties;
 
 	// This empty constructor is required by JPA
 	@SuppressWarnings("unused")
@@ -105,6 +110,7 @@ public class ServiceInstance {
 		this.setServiceTemplateID(serviceTemplateID);
 		this.serviceTemplateName = serviceTemplateName;
 		this.created = new Date();
+		this.properties = null;
 	}
 
 	public String getServiceTemplateName() {
@@ -154,6 +160,14 @@ public class ServiceInstance {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void setProperties(Document props) {
+		this.properties = props;
+	}
+
+	public Document getProperties() {
+		return this.properties;
 	}
 
 	@Override

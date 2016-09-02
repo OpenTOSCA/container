@@ -24,10 +24,9 @@ public class LinkBuilder {
 		return new SimpleXLink(uriInfo.getAbsolutePath().toString(), "self");
 	}
 
-	//TODO: move to own linkBuilder
+	// TODO: move to own linkBuilder
 	public static URI linkToArtifactList(UriInfo uriInfo) {
-		return uriInfo.getBaseUriBuilder().path(PortabilityRoot.class)
-				.path(PortabilityRoot.class, "getArtifacts")
+		return uriInfo.getBaseUriBuilder().path(PortabilityRoot.class).path(PortabilityRoot.class, "getArtifacts")
 				.build(new Object[0]);
 	}
 
@@ -38,50 +37,40 @@ public class LinkBuilder {
 	}
 
 	public static URI linkToNodeInstanceList(UriInfo uriInfo) {
-		return uriInfo.getBaseUriBuilder().path(InstanceDataRoot.class)
-				.path(InstanceDataRoot.class, "getNodeInstances")
+		return uriInfo.getBaseUriBuilder().path(InstanceDataRoot.class).path(InstanceDataRoot.class, "getNodeInstances")
 				.build(new Object[0]);
 	}
-
 
 	public static URI linkToServiceInstanceList(UriInfo uriInfo) {
 		return uriInfo.getBaseUriBuilder().path(InstanceDataRoot.class)
-				.path(InstanceDataRoot.class, "getServiceInstances")
-				.build(new Object[0]);
+				.path(InstanceDataRoot.class, "getServiceInstances").build(new Object[0]);
 	}
 
 	public static URI linkToCSAR(UriInfo uriInfo, String csarID) {
-		return uriInfo.getBaseUriBuilder().path(CSARsResource.class)
-				.path(CSARsResource.class, "getCSAR")
+		return uriInfo.getBaseUriBuilder().path(CSARsResource.class).path(CSARsResource.class, "getCSAR")
 				.build(new Object[] { csarID });
 	}
 
 	public static URI linkToCSARContent(UriInfo uriInfo, String csarID) {
-		return UriBuilder.fromUri(linkToCSAR(uriInfo, csarID))
-				.path(CSARResource.class, "getContent").build(new Object[0]);
+		return UriBuilder.fromUri(linkToCSAR(uriInfo, csarID)).path(CSARResource.class, "getContent")
+				.build(new Object[0]);
 	}
 
 	public static URI linkToNodeInstance(UriInfo uriInfo, int id) {
 		Map<String, String> paramMap = new HashMap<String, String>();
-		paramMap.put(Constants.NodeInstanceListResource_getNodeInstance_PARAM,
-				Integer.toString(id));
+		paramMap.put(Constants.NodeInstanceListResource_getNodeInstance_PARAM, Integer.toString(id));
 		return UriBuilder.fromUri(linkToNodeInstanceList(uriInfo))
-				.path(NodeInstanceListResource.class, "getNodeInstance")
-				.buildFromMap(paramMap);
+				.path(NodeInstanceListResource.class, "getNodeInstance").buildFromMap(paramMap);
 	}
 
 	public static URI linkToServiceInstance(UriInfo uriInfo, int id) {
 		Map<String, String> paramMap = new HashMap<String, String>();
-		paramMap.put(
-				Constants.ServiceInstanceListResource_getServiceInstance_PARAM,
-				Integer.toString(id));
+		paramMap.put(Constants.ServiceInstanceListResource_getServiceInstance_PARAM, Integer.toString(id));
 		return UriBuilder.fromUri(linkToServiceInstanceList(uriInfo))
-				.path(ServiceInstanceListResource.class, "getServiceInstance")
-				.buildFromMap(paramMap);
+				.path(ServiceInstanceListResource.class, "getServiceInstance").buildFromMap(paramMap);
 	}
 
-	public static URI linkToFile(UriInfo uriInfo, String csarID,
-			String relativePath) {
+	public static URI linkToFile(UriInfo uriInfo, String csarID, String relativePath) {
 
 		// get base path to csar content
 		URI uri = linkToCSARContent(uriInfo, csarID);
@@ -92,6 +81,11 @@ public class LinkBuilder {
 
 		return uri;
 
+	}
+
+	public static URI linkToServiceInstanceProperties(UriInfo uriInfo, int serviceInstanceID) {
+		return UriBuilder.fromUri(linkToServiceInstance(uriInfo, serviceInstanceID))
+				.path(ServiceInstanceResource.class, "getProperties").build(new Object[0]);
 	}
 
 	public static URI linkToNodeInstanceProperties(UriInfo uriInfo, int nodeInstanceID) {

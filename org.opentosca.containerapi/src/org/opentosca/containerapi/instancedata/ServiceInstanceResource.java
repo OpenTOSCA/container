@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -78,7 +79,11 @@ public class ServiceInstanceResource {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		service.deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(this.id));
 		return Response.noContent().build();
-		
+	}
+	
+	@Path("/properties")
+	public Object getProperties() {
+		return new ServiceInstancePropertiesResource(id);
 	}
 	
 }

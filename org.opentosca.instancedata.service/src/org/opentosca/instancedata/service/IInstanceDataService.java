@@ -157,12 +157,28 @@ public interface IInstanceDataService {
 	 * <li>if propertiesList is <code>null</code> no properties are returned</li>
 	 * </ul>
 	 * 
+	 * @param serviceInstanceID
+	 * @param propertiesList
+	 * @return DOM
+	 * @throws ReferenceNotFoundException
+	 */
+	public Document getServiceInstanceProperties(URI serviceInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException;
+	
+	/**
+	 * returns a DOM structure containing all properties specified in the propertiesList
+	 * <ul>
+	 * <li>if propertiesList is <code>empty</code> all properties are returned</li>
+	 * <li>if propertiesList is <code>null</code> no properties are returned</li>
+	 * </ul>
+	 * 
 	 * @param nodeInstanceID
 	 * @param propertiesList
 	 * @return DOM
 	 * @throws ReferenceNotFoundException
 	 */
-	public Document getProperties(URI nodeInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException;
+	public Document getNodeInstanceProperties(URI nodeInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException;
 	
-	public void setProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException;
+	public void setNodeInstanceProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException;
+	
+	public void setServiceInstanceProperties(URI serviceInstanceID, Document properties) throws ReferenceNotFoundException;
 }
