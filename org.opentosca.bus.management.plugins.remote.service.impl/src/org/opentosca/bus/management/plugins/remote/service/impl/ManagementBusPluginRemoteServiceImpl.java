@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
@@ -29,23 +30,24 @@ import org.w3c.dom.Document;
 /**
  * Management Bus-Plug-in for remoteIAs.<br>
  * <br>
- * 
- * 
- * 
+ *
+ *
+ *
  * The Plugin gets needed information from the ManagementBus and is responsible
  * to handle "remote IAs". Remote IAs are IAs such as scripts that needs to be
  * executed on the host machine. Therefore this plugin also is responsible for
  * the uploading of the files and the installation of required packages on the
  * target machine (if specified).
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - michael.zimmermann@iaas.uni-stuttgart.de
- * 
- * 
+ *
+ *
  */
 public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPluginService {
-
+	
+	
 	final private static String PLACEHOLDER_TARGET_FILE_PATH = "{TARGET_FILE_PATH}";
 	final private static String PLACEHOLDER_TARGET_FILE_FOLDER_PATH = "{TARGET_FILE_FOLDER_PATH}";
 	final private static String PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION = "{TARGET_FILE_NAME_WITH_E}";
@@ -55,9 +57,10 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 	final private static Logger LOG = LoggerFactory.getLogger(ManagementBusPluginRemoteServiceImpl.class);
 
+
 	@Override
 	public Exchange invoke(Exchange exchange) {
-
+		
 		Message message = exchange.getIn();
 
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Management Bus Remote Plugin getting information...");
@@ -68,8 +71,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactTemplateID: {}", artifactTemplateID);
 		String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeTemplateID: {}", nodeTemplateID);
-		String relationshipTemplateID = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(),
-				String.class);
+		String relationshipTemplateID = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("RelationshipTemplateID: {}", relationshipTemplateID);
 		QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("ServiceTemplateID: {}", serviceTemplateID);
@@ -86,44 +88,37 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 		String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
 
-		if (nodeTemplateID == null && relationshipTemplateID != null) {
-
-			boolean isBoundToSourceNode = ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(
-					csarID, relationshipTypeID, interfaceName, operationName);
+		if ((nodeTemplateID == null) && (relationshipTemplateID != null)) {
+			
+			boolean isBoundToSourceNode = ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, relationshipTypeID, interfaceName, operationName);
 
 			if (isBoundToSourceNode) {
-				nodeTemplateID = ServiceHandler.toscaEngineService.getSourceNodeTemplateIDOfRelationshipTemplate(csarID,
-						serviceTemplateID, relationshipTemplateID);
+				nodeTemplateID = ServiceHandler.toscaEngineService.getSourceNodeTemplateIDOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID);
 			} else {
-				nodeTemplateID = ServiceHandler.toscaEngineService.getTargetNodeTemplateIDOfRelationshipTemplate(csarID,
-						serviceTemplateID, relationshipTemplateID);
+				nodeTemplateID = ServiceHandler.toscaEngineService.getTargetNodeTemplateIDOfRelationshipTemplate(csarID, serviceTemplateID, relationshipTemplateID);
 			}
 		}
 
-		QName artifactType = ServiceHandler.toscaEngineService.getArtifactTypeOfArtifactTemplate(csarID,
-				artifactTemplateID);
+		QName artifactType = ServiceHandler.toscaEngineService.getArtifactTypeOfArtifactTemplate(csarID, artifactTemplateID);
 
-		ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplateID,
-				artifactType);
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactType of ArtifactTemplate {} : {}", artifactTemplateID, artifactType);
 
-		if (artifactType != null && nodeTemplateID != null) {
-
+		if ((artifactType != null) && (nodeTemplateID != null)) {
+			
 			// search operating system ia to upload files and run scripts on
 			// target
 			// machine
-			String osNodeTemplateID = MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID,
-					nodeTemplateID);
+			String osNodeTemplateID = MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
 
 			if (osNodeTemplateID != null) {
-				QName osNodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
-						serviceTemplateID, osNodeTemplateID);
+				QName osNodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
 
 				if (osNodeTypeID != null) {
 					ManagementBusPluginRemoteServiceImpl.LOG.debug("OperatingSystem-NodeType found: {}", osNodeTypeID);
 					String osIAName = MBUtils.getOperatingSystemIA(csarID, serviceTemplateID, osNodeTemplateID);
 
 					if (osIAName != null) {
-
+						
 						Object params = message.getBody();
 
 						// create headers
@@ -132,31 +127,28 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 						headers.put(MBHeader.CSARID.toString(), csarID);
 						headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
 						headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), osNodeTemplateID);
-						headers.put(MBHeader.INTERFACENAME_STRING.toString(),
-								Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM);
+						headers.put(MBHeader.INTERFACENAME_STRING.toString(), Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM);
 						headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
 
 						// install packages
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages...");
 
-						installPackages(artifactType, headers);
+						this.installPackages(artifactType, headers);
 
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Packages installed.");
 
 						// upload files
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Uploading files...");
 
-						List<String> artifactReferences = ServiceHandler.toscaEngineService
-								.getArtifactReferenceWithinArtifactTemplate(csarID, artifactTemplateID);
+						List<String> artifactReferences = ServiceHandler.toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID, artifactTemplateID);
 
 						String fileSource;
 						String targetFilePath = null;
 						String targetFileFolderPath = null;
 
 						for (String artifactRef : artifactReferences) {
-
-							fileSource = Settings.CONTAINER_API + "/CSARs/" + csarID.getFileName() + "/Content/"
-									+ artifactRef;
+							
+							fileSource = Settings.CONTAINER_API + "/CSARs/" + csarID.getFileName() + "/Content/" + artifactRef;
 
 							targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
 
@@ -165,10 +157,10 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 							String createDirCommand = "sleep 5 && mkdir -p " + targetFileFolderPath;
 
 							// create directory before uploading file
-							runScript(createDirCommand, headers);
+							this.runScript(createDirCommand, headers);
 
 							// upload file
-							transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
+							this.transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
 						}
 
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Files uploaded.");
@@ -179,32 +171,29 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 						String fileNameWithE = FilenameUtils.getName(targetFilePath);
 						String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
 
-						String artifactTypeSpecificCommand = createArtifcatTypeSpecificCommandString(csarID,
-								artifactType, artifactTemplateID, params);
+						String artifactTypeSpecificCommand = this.createArtifcatTypeSpecificCommandString(csarID, artifactType, artifactTemplateID, params);
 
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Replacing further generic placeholder...");
 
 						// replace placeholders
-						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(PLACEHOLDER_TARGET_FILE_PATH,
-								targetFilePath);
-						artifactTypeSpecificCommand = artifactTypeSpecificCommand
-								.replace(PLACEHOLDER_TARGET_FILE_FOLDER_PATH, targetFileFolderPath);
-						artifactTypeSpecificCommand = artifactTypeSpecificCommand
-								.replace(PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION, fileNameWithE);
-						artifactTypeSpecificCommand = artifactTypeSpecificCommand
-								.replace(PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION, fileNameWithoutE);
-						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(PLACEHOLDER_DA_NAME_PATH_MAP,
-								"sudo -E " + createDANamePathMapEnvVar(csarID, serviceTemplateID, nodeTypeID,
-										nodeTemplateID));
-						artifactTypeSpecificCommand = artifactTypeSpecificCommand
-								.replace(PLACEHOLDER_DA_INPUT_PARAMETER, createParamsString(params));
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_TARGET_FILE_PATH, targetFilePath);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_TARGET_FILE_FOLDER_PATH, targetFileFolderPath);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION, fileNameWithE);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION, fileNameWithoutE);
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP, "sudo -E " + this.createDANamePathMapEnvVar(csarID, serviceTemplateID, nodeTypeID, nodeTemplateID));
+						artifactTypeSpecificCommand = artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER, this.createParamsString(params));
 
-						ManagementBusPluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}",
-								artifactType, artifactTypeSpecificCommand);
+						ManagementBusPluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}", artifactType, artifactTypeSpecificCommand);
 
-						runScript(artifactTypeSpecificCommand, headers);
+						this.runScript(artifactTypeSpecificCommand, headers);
 
 						ManagementBusPluginRemoteServiceImpl.LOG.debug("Scripts finished.");
+
+						// dummy response
+						Map<String, String> resultMap = new HashMap<String, String>();
+						resultMap.put("invocation", "finished");
+
+						exchange.getIn().setBody(resultMap);
 
 					} else {
 						ManagementBusPluginRemoteServiceImpl.LOG.warn("No OperatingSystem-IA found!");
@@ -216,8 +205,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				ManagementBusPluginRemoteServiceImpl.LOG.warn("No OperatingSystem-NodeTemplate found!");
 			}
 		} else {
-			ManagementBusPluginRemoteServiceImpl.LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!",
-					artifactTemplateID);
+			ManagementBusPluginRemoteServiceImpl.LOG.warn("Could not determine ArtifactType of ArtifactTemplate: {}!", artifactTemplateID);
 		}
 		return exchange;
 	}
@@ -227,33 +215,30 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	 * @param serviceTemplateID
 	 * @param nodeTypeID
 	 * @param nodeTemplateID
-	 * 
+	 *
 	 * @return mapping with DeploymentArtifact names and their paths.
 	 */
-	private String createDANamePathMapEnvVar(CSARID csarID, QName serviceTemplateID, QName nodeTypeID,
-			String nodeTemplateID) {
-
+	private String createDANamePathMapEnvVar(CSARID csarID, QName serviceTemplateID, QName nodeTypeID, String nodeTemplateID) {
+		
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Checking if NodeTemplate {} has DAs...", nodeTemplateID);
 
 		HashMap<String, List<String>> daNameReferenceMapping = new HashMap<>();
 
 		QName nodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
 
-		ResolvedArtifacts resolvedArtifacts = ServiceHandler.toscaEngineService
-				.getResolvedArtifactsOfNodeTemplate(csarID, nodeTemplateQName);
+		ResolvedArtifacts resolvedArtifacts = ServiceHandler.toscaEngineService.getResolvedArtifactsOfNodeTemplate(csarID, nodeTemplateQName);
 
 		List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
 
 		List<String> daArtifactReferences;
 
 		for (ResolvedDeploymentArtifact resolvedDA : resolvedDAs) {
-
+			
 			daArtifactReferences = resolvedDA.getReferences();
 
 			for (String daArtifactReference : daArtifactReferences) {
-
-				ManagementBusPluginRemoteServiceImpl.LOG.debug("Artifact reference for DA: {} found: {} .",
-						resolvedDA.getName(), daArtifactReference);
+				
+				ManagementBusPluginRemoteServiceImpl.LOG.debug("Artifact reference for DA: {} found: {} .", resolvedDA.getName(), daArtifactReference);
 
 				List<String> currentValue = daNameReferenceMapping.get(resolvedDA.getName());
 				if (currentValue == null) {
@@ -264,25 +249,19 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			}
 		}
 
-		List<QName> nodeTypeImpls = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID,
-				nodeTypeID);
+		List<QName> nodeTypeImpls = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeID);
 
 		for (QName nodeTypeImpl : nodeTypeImpls) {
-			List<String> daNames = ServiceHandler.toscaEngineService
-					.getDeploymentArtifactNamesOfNodeTypeImplementation(csarID, nodeTypeImpl);
+			List<String> daNames = ServiceHandler.toscaEngineService.getDeploymentArtifactNamesOfNodeTypeImplementation(csarID, nodeTypeImpl);
 
 			for (String daName : daNames) {
-				QName daArtifactTemplate = ServiceHandler.toscaEngineService
-						.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID, nodeTypeImpl,
-								daName);
+				QName daArtifactTemplate = ServiceHandler.toscaEngineService.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID, nodeTypeImpl, daName);
 
-				daArtifactReferences = ServiceHandler.toscaEngineService
-						.getArtifactReferenceWithinArtifactTemplate(csarID, daArtifactTemplate);
+				daArtifactReferences = ServiceHandler.toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID, daArtifactTemplate);
 
 				for (String daArtifactReference : daArtifactReferences) {
-
-					ManagementBusPluginRemoteServiceImpl.LOG.debug("Artifact reference for DA: {} found: {} .", daName,
-							daArtifactReference);
+					
+					ManagementBusPluginRemoteServiceImpl.LOG.debug("Artifact reference for DA: {} found: {} .", daName, daArtifactReference);
 
 					List<String> currentValue = daNameReferenceMapping.get(daName);
 					if (currentValue == null) {
@@ -296,18 +275,17 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 		String daEnvMap = "";
 		if (!daNameReferenceMapping.isEmpty()) {
-
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplateID,
-					daNameReferenceMapping.size());
+			
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeTemplate {} has {} DAs.", nodeTemplateID, daNameReferenceMapping.size());
 
 			daEnvMap += "DAs=\"";
 			for (Entry<String, List<String>> da : daNameReferenceMapping.entrySet()) {
-
+				
 				String daName = da.getKey();
 				List<String> daRefs = da.getValue();
 
 				for (String daRef : daRefs) {
-
+					
 					// FIXME / is a brutal assumption
 					if (!daRef.startsWith("/")) {
 						daRef = "/" + daRef;
@@ -318,121 +296,109 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			}
 			daEnvMap += "\" ";
 
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("Created DA-DANamePathMapEnvVar for NodeTemplate {} : {}",
-					nodeTemplateID, daEnvMap);
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("Created DA-DANamePathMapEnvVar for NodeTemplate {} : {}", nodeTemplateID, daEnvMap);
 		}
 
 		return daEnvMap;
 	}
 
 	/**
-	 * 
+	 *
 	 * Installs required and specified packages of the specified ArtifactType.
 	 * Required packages are in defined the corresponding *.xml file.
-	 * 
+	 *
 	 * @param artifactType
 	 * @param headers
 	 */
 	private void installPackages(QName artifactType, HashMap<String, Object> headers) {
-
+		
 		List<String> requiredPackages = ArtifactTypesHandler.getRequiredPackages(artifactType);
 
 		String requiredPackagesString = "";
 
 		if (!requiredPackages.isEmpty()) {
-
+			
 			HashMap<String, String> inputParamsMap = new HashMap<>();
 
 			for (String requiredPackage : requiredPackages) {
 				requiredPackagesString += requiredPackage;
 				requiredPackagesString += " ";
 			}
-			inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES,
-					requiredPackagesString);
+			inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES, requiredPackagesString);
 
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ",
-					requiredPackages, artifactType);
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages: {} for ArtifactType: {} ", requiredPackages, artifactType);
 
-			headers.put(MBHeader.OPERATIONNAME_STRING.toString(),
-					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
+			headers.put(MBHeader.OPERATIONNAME_STRING.toString(), Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
 
-			invokeManagementBusEngine(inputParamsMap, headers);
+			this.invokeManagementBusEngine(inputParamsMap, headers);
 		} else {
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactType: {} needs no packages to install.",
-					requiredPackages, artifactType);
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactType: {} needs no packages to install.", requiredPackages, artifactType);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * For transferring files to the target machine.
-	 * 
+	 *
 	 * @param csarID
 	 * @param artifactTemplate
 	 * @param source
 	 * @param target
 	 * @param headers
 	 */
-	private void transferFile(CSARID csarID, QName artifactTemplate, String source, String target,
-			HashMap<String, Object> headers) {
-
+	private void transferFile(CSARID csarID, QName artifactTemplate, String source, String target, HashMap<String, Object> headers) {
+		
 		HashMap<String, String> inputParamsMap = new HashMap<>();
 
-		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_TARGETABSOLUTPATH,
-				target);
-		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH,
-				source);
+		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_TARGETABSOLUTPATH, target);
+		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SOURCEURLORLOCALPATH, source);
 
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Uploading file. Source: {} Target: {} ", source, target);
 
-		headers.put(MBHeader.OPERATIONNAME_STRING.toString(),
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE);
+		headers.put(MBHeader.OPERATIONNAME_STRING.toString(), Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE);
 
-		invokeManagementBusEngine(inputParamsMap, headers);
+		this.invokeManagementBusEngine(inputParamsMap, headers);
 
 	}
 
 	/**
-	 * 
+	 *
 	 * For running scripts on the target machine. Commands to be executed are
 	 * defined in the corresponding *.xml file.
-	 * 
+	 *
 	 * @param commandsString
 	 * @param headers
 	 */
 	private void runScript(String commandsString, HashMap<String, Object> headers) {
-
+		
 		HashMap<String, String> inputParamsMap = new HashMap<>();
 
 		inputParamsMap.put(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SCRIPT, commandsString);
 
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("RunScript: {} ", commandsString);
 
-		headers.put(MBHeader.OPERATIONNAME_STRING.toString(),
-				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT);
+		headers.put(MBHeader.OPERATIONNAME_STRING.toString(), Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT);
 
-		invokeManagementBusEngine(inputParamsMap, headers);
+		this.invokeManagementBusEngine(inputParamsMap, headers);
 	}
 
 	/**
-	 * 
+	 *
 	 * Creates ArtifactType specific commands that should be executed on the
 	 * target machine. Commands to be executed are defined in the corresponding
 	 * *.xml file.
-	 * 
+	 *
 	 * @param csarID
 	 * @param artifactType
 	 * @param artifactTemplateID
 	 * @param params
-	 * 
+	 *
 	 * @return the created command
 	 */
 	@SuppressWarnings("unchecked")
-	private String createArtifcatTypeSpecificCommandString(CSARID csarID, QName artifactType, QName artifactTemplateID,
-			Object params) {
-
-		ManagementBusPluginRemoteServiceImpl.LOG.debug("Creating ArtifcatType specific command for artifactType {}:...",
-				artifactType);
+	private String createArtifcatTypeSpecificCommandString(CSARID csarID, QName artifactType, QName artifactTemplateID, Object params) {
+		
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("Creating ArtifcatType specific command for artifactType {}:...", artifactType);
 
 		String commandsString = "";
 
@@ -447,15 +413,13 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			commandsString = commandsString.substring(0, commandsString.length() - 4);
 		}
 
-		ManagementBusPluginRemoteServiceImpl.LOG.debug("Defined generic command for ArtifactType {} : {} ",
-				artifactType, commandsString);
+		ManagementBusPluginRemoteServiceImpl.LOG.debug("Defined generic command for ArtifactType {} : {} ", artifactType, commandsString);
 
 		// replace placeholder with data from inputParams and/or instance data
 
 		if (commandsString.contains("{{") && commandsString.contains("}}")) {
-
-			ManagementBusPluginRemoteServiceImpl.LOG.debug(
-					"Replacing the placeholder of the generic command with properties data and/or provided input parameter...");
+			
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("Replacing the placeholder of the generic command with properties data and/or provided input parameter...");
 
 			HashMap<String, String> paramsMap = new HashMap<>();
 
@@ -466,8 +430,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 				paramsMap = MBUtils.docToMap(paramsDoc, true);
 			}
 
-			Document propDoc = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID,
-					artifactTemplateID);
+			Document propDoc = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID, artifactTemplateID);
 
 			if (propDoc != null) {
 				paramsMap.putAll(MBUtils.docToMap(propDoc, true));
@@ -480,8 +443,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 			// delete not replaced placeholder
 			commandsString = commandsString.replaceAll("\\{\\{.*?\\}\\}", "");
 
-			ManagementBusPluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}",
-					commandsString);
+			ManagementBusPluginRemoteServiceImpl.LOG.debug("Generic command with replaced placeholder: {}", commandsString);
 		}
 
 		return commandsString;
@@ -511,21 +473,19 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 	}
 
 	/**
-	 * 
+	 *
 	 * Invokes the Management Bus.
-	 * 
+	 *
 	 * @param paramsMap
 	 * @param headers
 	 */
 	private void invokeManagementBusEngine(HashMap<String, String> paramsMap, HashMap<String, Object> headers) {
-
+		
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Invoking the Management Bus...");
 
 		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 
-		String response = template.requestBodyAndHeaders(
-				"bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA", paramsMap, headers,
-				String.class);
+		String response = template.requestBodyAndHeaders("bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA", paramsMap, headers, String.class);
 
 		ManagementBusPluginRemoteServiceImpl.LOG.debug("Invocation finished: {}", response);
 
@@ -533,7 +493,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 	@Override
 	public List<String> getSupportedTypes() {
-
+		
 		List<String> supportedTypes = new ArrayList<String>();
 
 		List<QName> supportedTypesQName = ArtifactTypesHandler.getSupportedTypes();
