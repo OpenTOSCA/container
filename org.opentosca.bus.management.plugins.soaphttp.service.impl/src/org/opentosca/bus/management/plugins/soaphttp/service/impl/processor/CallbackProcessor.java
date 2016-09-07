@@ -23,25 +23,27 @@ import org.w3c.dom.Element;
 /**
  * Callback-Processor of the Management Bus-SOAP/HTTP-Plug-in.<br>
  * <br>
- * 
+ *
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * This processor processes incoming soap messages. It checks if the messages
  * are containing existing messageIDs.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class CallbackProcessor implements Processor {
-
+	
+	
 	final private static Logger LOG = LoggerFactory.getLogger(CallbackProcessor.class);
+
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		
 		Set<String> messageIDs = ManagementBusPluginSoapHttpServiceImpl.getMessageIDs();
 
 		CallbackProcessor.LOG.debug("Stored messageIDs: {}", messageIDs.toString());
@@ -63,9 +65,9 @@ public class CallbackProcessor implements Processor {
 		CallbackProcessor.LOG.debug("Searching the callback Message for a MessageID matching the stored ones...");
 
 		for (String messageID : messageIDs) {
-
-			if (message.contains(messageID) || headers.containsValue(messageID)) {
-
+			
+			if (message.contains(">" + messageID + "<") || headers.containsValue(messageID)) {
+				
 				CallbackProcessor.LOG.debug("Found MessageID: {}", messageID);
 
 				MessageFactory messageFactory = MessageFactory.newInstance();
@@ -83,11 +85,10 @@ public class CallbackProcessor implements Processor {
 					exchange.getIn().setBody(doc);
 
 				} catch (SOAPException e) {
-
+					
 					doc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
 
-					CallbackProcessor.LOG.warn(
-							"SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
+					CallbackProcessor.LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
 					exchange.getIn().setBody(doc);
 				}
 
