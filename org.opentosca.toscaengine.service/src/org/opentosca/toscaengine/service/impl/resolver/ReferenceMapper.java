@@ -39,6 +39,7 @@ import org.w3c.dom.NodeList;
  */
 public class ReferenceMapper {
 	
+	
 	private XPath xpath = XPathFactory.newInstance().newXPath();
 	private CSARID csarID = null;
 	private Map<String, List<Document>> mapOfNSToDocuments = null;
@@ -49,6 +50,7 @@ public class ReferenceMapper {
 	 * This defines some default namespaces in which elements can be nested.
 	 */
 	NamespaceContext nsContext = new NamespaceContext() {
+		
 		
 		@Override
 		public String getNamespaceURI(String prefix) {
@@ -92,7 +94,7 @@ public class ReferenceMapper {
 	public ReferenceMapper(CSARID csarID, Map<String, List<Document>> mapOfNSToDocuments) {
 		this.csarID = csarID;
 		this.mapOfNSToDocuments = mapOfNSToDocuments;
-		this.xpath.setNamespaceContext(this.nsContext);
+		xpath.setNamespaceContext(nsContext);
 	}
 	
 	/**
@@ -104,7 +106,7 @@ public class ReferenceMapper {
 	 */
 	public void storeJAXBObjectIntoToscaReferenceMapper(QName reference, Object objectToStore) {
 		Node node = ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(objectToStore);
-		ToscaEngineServiceImpl.toscaReferenceMapper.storeReference(this.csarID, reference, node);
+		ToscaEngineServiceImpl.toscaReferenceMapper.storeReference(csarID, reference, node);
 	}
 	
 	/**
@@ -118,7 +120,7 @@ public class ReferenceMapper {
 	 * @param nodeToStore Node to store.
 	 */
 	private void storeNodeIntoReferenceMapper(QName nodeReference, Node nodeToStore) {
-		ToscaEngineServiceImpl.toscaReferenceMapper.storeReference(this.csarID, nodeReference, nodeToStore);
+		ToscaEngineServiceImpl.toscaReferenceMapper.storeReference(csarID, nodeReference, nodeToStore);
 	}
 	
 	/**
@@ -133,7 +135,7 @@ public class ReferenceMapper {
 	 * @param documentToStore Document to store.
 	 */
 	protected void storeDocumentIntoReferenceMapper(QName nodeReference, Document documentToStore) {
-		ToscaEngineServiceImpl.toscaReferenceMapper.storeDocument(this.csarID, nodeReference, documentToStore);
+		ToscaEngineServiceImpl.toscaReferenceMapper.storeDocument(csarID, nodeReference, documentToStore);
 	}
 	
 	/**
@@ -159,18 +161,18 @@ public class ReferenceMapper {
 	 */
 	private ReferenceResultWrapper searchElementWithID(QName elementReference, String documentType) {
 		
-		this.LOG.debug("Search for an ID for the QName \"" + elementReference.toString() + "\".");
+		LOG.debug("Search for an ID for the QName \"" + elementReference.toString() + "\".");
 		
 		// if there are no documents
-		if (this.mapOfNSToDocuments.isEmpty()) {
-			this.LOG.error("There are no known documents.");
+		if (mapOfNSToDocuments.isEmpty()) {
+			LOG.error("There are no known documents.");
 			return null;
 		}
 		
 		// if there is no document list defined for the namespace of the element
 		// reference there cannot be searched
-		if (!this.mapOfNSToDocuments.containsKey(elementReference.getNamespaceURI())) {
-			this.LOG.warn("The namespace \"" + elementReference.getNamespaceURI() + "\" was not found inside the data structure.");
+		if (!mapOfNSToDocuments.containsKey(elementReference.getNamespaceURI())) {
+			LOG.warn("The namespace \"" + elementReference.getNamespaceURI() + "\" was not found inside the data structure.");
 			return null;
 		}
 		
@@ -178,14 +180,14 @@ public class ReferenceMapper {
 		String exprString = "//*[@id=\"" + elementReference.getLocalPart() + "\"]";
 		
 		// search inside of the documents of the passed reference namespace
-		for (Document doc : this.mapOfNSToDocuments.get(elementReference.getNamespaceURI())) {
+		for (Document doc : mapOfNSToDocuments.get(elementReference.getNamespaceURI())) {
 			
 			// checks if the document type is the passed one
 			if (doc.getFirstChild().getLocalName().equals(documentType)) {
 				
 				// search and wrap the result
 				try {
-					XPathExpression expr = this.xpath.compile(exprString);
+					XPathExpression expr = xpath.compile(exprString);
 					Object result = expr.evaluate(doc, XPathConstants.NODESET);
 					NodeList list = (NodeList) result;
 					if (list.getLength() > 0) {
@@ -197,12 +199,12 @@ public class ReferenceMapper {
 					
 				} catch (XPathExpressionException e) {
 					e.printStackTrace();
-					this.LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
+					LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
 				}
 			}
 		}
 		
-		this.LOG.warn("The ID \"" + elementReference + "\" was not found.");
+		LOG.warn("The ID \"" + elementReference + "\" was not found.");
 		
 		return null;
 	}
@@ -216,11 +218,11 @@ public class ReferenceMapper {
 	 */
 	private ReferenceResultWrapper searchElementWithIDWithoutNamespacePresort(QName reference) {
 		
-		this.LOG.debug("Search somewhere else.");
+		LOG.debug("Search somewhere else.");
 		
 		// if there are no documents
-		if (this.mapOfNSToDocuments.isEmpty()) {
-			this.LOG.error("There are no known documents.");
+		if (mapOfNSToDocuments.isEmpty()) {
+			LOG.error("There are no known documents.");
 			return null;
 		}
 		
@@ -228,13 +230,13 @@ public class ReferenceMapper {
 		String exprString = "//*[@id=\"" + reference.getLocalPart() + "\"]";
 		
 		// search inside of all known documents
-		for (String key : this.mapOfNSToDocuments.keySet()) {
-			for (Document doc : this.mapOfNSToDocuments.get(key)) {
+		for (String key : mapOfNSToDocuments.keySet()) {
+			for (Document doc : mapOfNSToDocuments.get(key)) {
 				
 				// search and wrap the result
 				try {
 					
-					XPathExpression expr = this.xpath.compile(exprString);
+					XPathExpression expr = xpath.compile(exprString);
 					Object result = expr.evaluate(doc, XPathConstants.NODESET);
 					NodeList list = (NodeList) result;
 					if (list.getLength() > 0) {
@@ -246,12 +248,12 @@ public class ReferenceMapper {
 					
 				} catch (XPathExpressionException e) {
 					e.printStackTrace();
-					this.LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
+					LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
 				}
 			}
 		}
 		
-		this.LOG.error("The ID \"" + reference + "\" was not found.");
+		LOG.error("The ID \"" + reference + "\" was not found.");
 		
 		return null;
 	}
@@ -269,15 +271,15 @@ public class ReferenceMapper {
 	private ReferenceResultWrapper searchElementWithName(QName elementReference, String elementName, String documentType) {
 		
 		// if there are no documents
-		if (this.mapOfNSToDocuments.isEmpty()) {
-			this.LOG.error("There are no known documents.");
+		if (mapOfNSToDocuments.isEmpty()) {
+			LOG.error("There are no known documents.");
 			return null;
 		}
 		
 		// if there is no document list defined for the namespace of the element
 		// reference there cannot be searched
-		if (!this.mapOfNSToDocuments.containsKey(elementReference.getNamespaceURI())) {
-			this.LOG.warn("The namespace \"" + elementReference.getNamespaceURI() + "\" was not found inside the data structure.");
+		if (!mapOfNSToDocuments.containsKey(elementReference.getNamespaceURI())) {
+			LOG.warn("The namespace \"" + elementReference.getNamespaceURI() + "\" was not found inside the data structure.");
 			return null;
 		}
 		
@@ -286,21 +288,21 @@ public class ReferenceMapper {
 			elementName = "*";
 		}
 		
-		this.LOG.debug("Search for a name for the QName \"" + elementReference.toString() + "\" inside of an element \"" + elementName + "\".");
+		LOG.debug("Search for a name for the QName \"" + elementReference.toString() + "\" inside of an element \"" + elementName + "\".");
 		
 		// xpath expression which selects by element name and the attribute name
 		// of the element
 		String exprString = "//" + elementName + "[@name=\"" + elementReference.getLocalPart() + "\"]";
 		
 		// search inside of the documents of the passed reference namespace
-		for (Document doc : this.mapOfNSToDocuments.get(elementReference.getNamespaceURI())) {
+		for (Document doc : mapOfNSToDocuments.get(elementReference.getNamespaceURI())) {
 			
 			// checks if the document type is the passed one
 			if (doc.getFirstChild().getLocalName().equals(documentType)) {
 				
 				try {
 					
-					XPathExpression expr = this.xpath.compile(exprString);
+					XPathExpression expr = xpath.compile(exprString);
 					Object result = expr.evaluate(doc, XPathConstants.NODESET);
 					NodeList list = (NodeList) result;
 					if (list.getLength() > 0) {
@@ -312,12 +314,12 @@ public class ReferenceMapper {
 					
 				} catch (XPathExpressionException e) {
 					e.printStackTrace();
-					this.LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
+					LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
 				}
 			}
 		}
 		
-		this.LOG.warn("The element with the name \"" + elementReference + "\" was not found.");
+		LOG.warn("The element with the name \"" + elementReference + "\" was not found.");
 		
 		return null;
 	}
@@ -333,11 +335,11 @@ public class ReferenceMapper {
 	 */
 	private ReferenceResultWrapper searchElementWithNameWithoutNamespacePresort(QName reference, String elementName) {
 		
-		this.LOG.debug("Search somewhere else.");
+		LOG.debug("Search somewhere else.");
 		
 		// if there are no documents
-		if (this.mapOfNSToDocuments.isEmpty()) {
-			this.LOG.error("There are no known documents.");
+		if (mapOfNSToDocuments.isEmpty()) {
+			LOG.error("There are no known documents.");
 			return null;
 		}
 		
@@ -352,16 +354,16 @@ public class ReferenceMapper {
 		// reference.getLocalPart() + "\" and @targetNamespace='" +
 		// reference.getNamespaceURI() + "']";
 		String exprString = "//" + elementName + "[@name=\"" + reference.getLocalPart() + "\"]";
-		this.LOG.debug(exprString);
+		LOG.debug(exprString);
 		
 		// search inside of all known documents
-		for (String key : this.mapOfNSToDocuments.keySet()) {
-			for (Document doc : this.mapOfNSToDocuments.get(key)) {
+		for (String key : mapOfNSToDocuments.keySet()) {
+			for (Document doc : mapOfNSToDocuments.get(key)) {
 				
 				// search and wrap the result
 				try {
 					
-					XPathExpression expr = this.xpath.compile(exprString);
+					XPathExpression expr = xpath.compile(exprString);
 					Object result = expr.evaluate(doc, XPathConstants.NODESET);
 					NodeList list = (NodeList) result;
 					if (list.getLength() > 0) {
@@ -373,12 +375,12 @@ public class ReferenceMapper {
 					
 				} catch (XPathExpressionException e) {
 					e.printStackTrace();
-					this.LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
+					LOG.error("An error occured while searching inside the document via xpath. The message is: " + e.getMessage());
 				}
 			}
 		}
 		
-		this.LOG.error("The element with the name \"" + reference + "\" was not found.");
+		LOG.error("The element with the name \"" + reference + "\" was not found.");
 		
 		return null;
 	}
@@ -392,10 +394,10 @@ public class ReferenceMapper {
 	 */
 	protected boolean searchElementViaIDREF(Object targetElement, String targetNamespace) {
 		
-		this.LOG.debug("Resolve an IDREF.");
+		LOG.debug("Resolve an IDREF.");
 		
 		if (!((targetElement instanceof TNodeTemplate) || (targetElement instanceof TRequirement) || (targetElement instanceof TCapability))) {
-			this.LOG.error("The referenced element is of the Type \"" + targetElement.getClass().getCanonicalName() + "\". It has to be one of NodeTemplate, Requirement or Capability.");
+			LOG.error("The referenced element is of the Type \"" + targetElement.getClass().getCanonicalName() + "\". It has to be one of NodeTemplate, Requirement or Capability.");
 			return false;
 		}
 		
@@ -408,11 +410,11 @@ public class ReferenceMapper {
 		if (node != null) {
 			
 			id = node.getAttributes().getNamedItem("id").getTextContent();
-			this.storeNodeIntoReferenceMapper(new QName(targetNamespace, id), node);
+			storeNodeIntoReferenceMapper(new QName(targetNamespace, id), node);
 			return true;
 			
 		} else {
-			this.LOG.error("There occured an error while marshalling \"" + id + "\" to a Node.");
+			LOG.error("There occured an error while marshalling \"" + id + "\" to a Node.");
 		}
 		
 		return false;
@@ -438,19 +440,19 @@ public class ReferenceMapper {
 		}
 		
 		// search
-		this.LOG.debug("Search for a element inside of a Definitions with the QName \"" + reference + "\".");
-		ReferenceResultWrapper wrapper = this.searchElementWithID(reference, "Definitions");
+		LOG.debug("Search for a element inside of a Definitions with the QName \"" + reference + "\".");
+		ReferenceResultWrapper wrapper = searchElementWithID(reference, "Definitions");
 		
 		// search again everywhere
 		if (wrapper == null) {
-			wrapper = this.searchElementWithIDWithoutNamespacePresort(reference);
+			wrapper = searchElementWithIDWithoutNamespacePresort(reference);
 			if (wrapper == null) {
 				
 				// not found, thus error
-				this.LOG.error("The requested Element was not found!");
+				LOG.error("The requested Element was not found!");
 				return false;
 			} else {
-				this.LOG.info("Luckily found the requested Element!");
+				LOG.info("Luckily found the requested Element!");
 			}
 		}
 		
@@ -458,21 +460,21 @@ public class ReferenceMapper {
 		if (wrapper.getNodeList().getLength() == 1) {
 			
 			// found exactly the requested
-			this.storeNodeIntoReferenceMapper(reference, wrapper.getNodeList().item(0));
-			this.LOG.info("The element " + reference + " was found.");
+			storeNodeIntoReferenceMapper(reference, wrapper.getNodeList().item(0));
+			LOG.info("The element " + reference + " was found.");
 			return true;
 		} else if (wrapper.getNodeList().getLength() == 0) {
 			
 			// found nothing, but should be catched by the both conditions
 			// wrapper == null
-			this.LOG.debug("The element was not found.");
+			LOG.debug("The element was not found.");
 		} else {
 			
 			// found too much
-			this.LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
+			LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
 			NodeList foundElements = wrapper.getNodeList();
 			for (int itr = 0; itr < foundElements.getLength(); itr++) {
-				this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+				LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
 			}
 		}
 		
@@ -499,19 +501,19 @@ public class ReferenceMapper {
 		}
 		
 		// search
-		this.LOG.debug("Search for a " + element + " inside of a Definitions with the name \"" + reference.getLocalPart() + "\" inside the namespace \"" + reference.getNamespaceURI() + "\".");
-		ReferenceResultWrapper wrapper = this.searchElementWithName(reference, element.toString(), "Definitions");
+		LOG.debug("Search for a " + element + " inside of a Definitions with the name \"" + reference.getLocalPart() + "\" inside the namespace \"" + reference.getNamespaceURI() + "\".");
+		ReferenceResultWrapper wrapper = searchElementWithName(reference, element.toString(), "Definitions");
 		
 		// search again everywhere
 		if (wrapper == null) {
-			wrapper = this.searchElementWithNameWithoutNamespacePresort(reference, element.toString());
+			wrapper = searchElementWithNameWithoutNamespacePresort(reference, element.toString());
 			if (wrapper == null) {
 				
 				// not found, thus error
-				this.LOG.error("The requested Element was not found!");
+				LOG.error("The requested Element was not found!");
 				return false;
 			} else {
-				this.LOG.info("Luckily found the requested Element!");
+				LOG.info("Luckily found the requested Element!");
 			}
 		}
 		
@@ -519,24 +521,24 @@ public class ReferenceMapper {
 		if (wrapper.getNodeList().getLength() == 1) {
 			
 			// found exactly the requested
-			this.storeNodeIntoReferenceMapper(reference, wrapper.getNodeList().item(0));
-			this.LOG.info("The element " + reference + " was found.");
+			storeNodeIntoReferenceMapper(reference, wrapper.getNodeList().item(0));
+			LOG.info("The element " + reference + " was found.");
 			return true;
 		} else
-		
-		// found nothing, but should be catched by the both conditions
-		// wrapper == null
-		if (wrapper.getNodeList().getLength() == 0) {
-			this.LOG.debug("The element was not found.");
-		} else {
 			
-			// found too much
-			this.LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
-			NodeList foundElements = wrapper.getNodeList();
-			for (int itr = 0; itr < foundElements.getLength(); itr++) {
-				this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+			// found nothing, but should be catched by the both conditions
+			// wrapper == null
+			if (wrapper.getNodeList().getLength() == 0) {
+				LOG.debug("The element was not found.");
+			} else {
+				
+				// found too much
+				LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
+				NodeList foundElements = wrapper.getNodeList();
+				for (int itr = 0; itr < foundElements.getLength(); itr++) {
+					LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+				}
 			}
-		}
 		
 		return false;
 	}
@@ -551,19 +553,19 @@ public class ReferenceMapper {
 	protected boolean searchXMLElement(QName element) {
 		
 		// search
-		this.LOG.debug("Search for a element with the QName \"" + element + "\".");
-		ReferenceResultWrapper wrapper = this.searchElementWithName(element, null, "schema");
+		LOG.debug("Search for a element with the QName \"" + element + "\".");
+		ReferenceResultWrapper wrapper = searchElementWithName(element, null, "schema");
 		
 		// search again everywhere
 		if (wrapper == null) {
-			wrapper = this.searchElementWithNameWithoutNamespacePresort(element, "xs:element");
+			wrapper = searchElementWithNameWithoutNamespacePresort(element, "xs:element");
 			if (wrapper == null) {
 				
 				// not found, thus error
-				this.LOG.error("The requested Element was not found!");
+				LOG.error("The requested Element was not found!");
 				return false;
 			} else {
-				this.LOG.info("Luckily found the requested Element!");
+				LOG.info("Luckily found the requested Element!");
 			}
 		}
 		
@@ -571,21 +573,21 @@ public class ReferenceMapper {
 		if (wrapper.getNodeList().getLength() == 1) {
 			
 			// found exactly the requested
-			this.storeNodeIntoReferenceMapper(element, wrapper.getNodeList().item(0));
-			this.storeDocumentIntoReferenceMapper(element, wrapper.getDoc());
+			storeNodeIntoReferenceMapper(element, wrapper.getNodeList().item(0));
+			storeDocumentIntoReferenceMapper(element, wrapper.getDoc());
 			return true;
 		} else if (wrapper.getNodeList().getLength() == 0) {
 			
 			// found nothing, but should be catched by the both conditions
 			// wrapper == null
-			this.LOG.debug("The element was not found.");
+			LOG.debug("The element was not found.");
 		} else {
 			
 			// found too much
-			this.LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
+			LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
 			NodeList foundElements = wrapper.getNodeList();
 			for (int itr = 0; itr < foundElements.getLength(); itr++) {
-				this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+				LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
 			}
 			
 		}
@@ -603,19 +605,19 @@ public class ReferenceMapper {
 	protected boolean searchXMLType(QName type) {
 		
 		// search
-		this.LOG.debug("Search for a ComplexType with the QName \"" + type + "\".");
-		ReferenceResultWrapper wrapper = this.searchElementWithName(type, "xs:complexType", "schema");
+		LOG.debug("Search for a ComplexType with the QName \"" + type + "\".");
+		ReferenceResultWrapper wrapper = searchElementWithName(type, "xs:complexType", "schema");
 		
 		// search again everywhere
 		if (wrapper == null) {
-			wrapper = this.searchElementWithNameWithoutNamespacePresort(type, "xs:complexType");
+			wrapper = searchElementWithNameWithoutNamespacePresort(type, "xs:complexType");
 			if (wrapper == null) {
 				
 				// not found, thus error
-				this.LOG.error("The requested Element was not found!");
+				LOG.error("The requested Element was not found!");
 				return false;
 			} else {
-				this.LOG.info("Luckily found the requested Element!");
+				LOG.info("Luckily found the requested Element!");
 			}
 		}
 		
@@ -623,21 +625,21 @@ public class ReferenceMapper {
 		if (wrapper.getNodeList().getLength() == 1) {
 			
 			// found exactly the requested
-			this.storeNodeIntoReferenceMapper(type, wrapper.getNodeList().item(0));
-			this.storeDocumentIntoReferenceMapper(type, wrapper.getDoc());
+			storeNodeIntoReferenceMapper(type, wrapper.getNodeList().item(0));
+			storeDocumentIntoReferenceMapper(type, wrapper.getDoc());
 			return true;
 		} else if (wrapper.getNodeList().getLength() == 0) {
 			
 			// found nothing, but should be catched by the both conditions
 			// wrapper == null
-			this.LOG.debug("The complex type was not found.");
+			LOG.debug("The complex type was not found.");
 		} else {
 			
 			// found too much
-			this.LOG.error("There are " + wrapper.getNodeList().getLength() + " complex types with the requested QName found inside this document. The following Nodes are found:");
+			LOG.error("There are " + wrapper.getNodeList().getLength() + " complex types with the requested QName found inside this document. The following Nodes are found:");
 			NodeList foundElements = wrapper.getNodeList();
 			for (int itr = 0; itr < foundElements.getLength(); itr++) {
-				this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+				LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
 			}
 			
 		}
@@ -656,19 +658,19 @@ public class ReferenceMapper {
 	protected boolean searchRESTBody(QName body) {
 		
 		// TODO dont know how to search, thus search for all
-		this.LOG.debug("Search for a REST body with the QName \"" + body + "\".");
-		ReferenceResultWrapper wrapper = this.searchElementWithName(body, null, "schema");
+		LOG.debug("Search for a REST body with the QName \"" + body + "\".");
+		ReferenceResultWrapper wrapper = searchElementWithName(body, null, "schema");
 		
 		// search again everywhere
 		if (wrapper == null) {
-			wrapper = this.searchElementWithNameWithoutNamespacePresort(body, ElementNamesEnum.ALLELEMENTS.toString());
+			wrapper = searchElementWithNameWithoutNamespacePresort(body, ElementNamesEnum.ALLELEMENTS.toString());
 			if (wrapper == null) {
 				
 				// not found, thus error
-				this.LOG.error("The requested Element was not found!");
+				LOG.error("The requested Element was not found!");
 				return false;
 			} else {
-				this.LOG.info("Luckily found the requested Element!");
+				LOG.info("Luckily found the requested Element!");
 			}
 		}
 		
@@ -676,25 +678,29 @@ public class ReferenceMapper {
 		if (wrapper.getNodeList().getLength() == 1) {
 			
 			// found exactly the requested
-			this.storeNodeIntoReferenceMapper(body, wrapper.getNodeList().item(0));
-			this.storeDocumentIntoReferenceMapper(body, wrapper.getDoc());
+			storeNodeIntoReferenceMapper(body, wrapper.getNodeList().item(0));
+			storeDocumentIntoReferenceMapper(body, wrapper.getDoc());
 			return true;
 		} else if (wrapper.getNodeList().getLength() == 0) {
 			
 			// found nothing, but should be catched by the both conditions
 			// wrapper == null
-			this.LOG.debug("The element was not found.");
+			LOG.debug("The element was not found.");
 		} else {
 			
 			// found too much
-			this.LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
+			LOG.error("There are " + wrapper.getNodeList().getLength() + " elements with the requested QName found inside this document. The following Nodes are found:");
 			NodeList foundElements = wrapper.getNodeList();
 			for (int itr = 0; itr < foundElements.getLength(); itr++) {
-				this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+				LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
 			}
 			
 		}
 		
 		return false;
+	}
+	
+	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id) {
+		ToscaEngineServiceImpl.toscaReferenceMapper.storeNodeTemplateIDForServiceTemplateAndCSAR(csarID, serviceTemplateID, id);
 	}
 }
