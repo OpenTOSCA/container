@@ -1,12 +1,12 @@
 package org.opentosca.planinvocationengine.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
 
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.csarinstancemanagement.service.ICSARInstanceManagementService;
@@ -21,10 +21,13 @@ import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
 import org.opentosca.planinvocationengine.service.impl.messages.generation.RESTMessageGenerator;
 import org.opentosca.planinvocationengine.service.impl.messages.generation.SOAPMessageGenerator;
 import org.opentosca.planinvocationengine.service.impl.messages.parsing.ResponseParser;
+import org.opentosca.settings.Settings;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -152,46 +155,78 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		eventValues.put("CSARID", csarID);
 		eventValues.put("PLANID", planEvent.getPlanID());
 		eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
+		eventValues.put("OPERATIONNAME", planEvent.getOperationName());
 		
 		// build message
-		if (givenPlan.getPlanLanguage().startsWith(nsBPEL)) {
-			LOG.debug("Start of BPEL message construction for plan {}", givenPlan.getId());
-			SOAPMessage message = soapInvokeMessageGenerator.createRequest(csarID, ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
-			
-			if (null == message) {
-				LOG.error("Failed to construct message for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
-				return null;
-			}
-			try {
-				eventValues.put("BODY", message.getSOAPBody().extractContentAsDocument());
-			} catch (SOAPException e) {
-				LOG.error(e.getLocalizedMessage());
-				e.printStackTrace();
-				LOG.error("Failed to construct message for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
-				return null;
-			}
-		} else if (givenPlan.getPlanLanguage().startsWith(nsBPMN)) {
-			
-			LOG.debug("Start of BPMN message construction for plan {}", givenPlan.getId());
-			
-			Map<String, String> message = restInvokeMessageGenerator.createRequest(csarID, ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
-			
-			if (null == message) {
-				LOG.error("Failed to construct message for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
-				return null;
-			}
-			
-			StringBuilder builder = new StringBuilder("Invoking the BPMN plan with the following parameters:\n");
-			for (String key : message.keySet()) {
-				builder.append("     " + key + " : " + message.get(key) + "\n");
-			}
-			LOG.debug(builder.toString());
-			
-			eventValues.put("BODY", message);
-		} else {
-			LOG.error("No message construction found for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
+		// if (givenPlan.getPlanLanguage().startsWith(nsBPEL)) {
+		// LOG.debug("Start of BPEL message construction for plan {}",
+		// givenPlan.getId());
+		// SOAPMessage message =
+		// soapInvokeMessageGenerator.createRequest(csarID,
+		// ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID,
+		// givenPlan.getId()), planEvent.getInputParameter(), correlationID);
+		//
+		// if (null == message) {
+		// LOG.error("Failed to construct message for plan {} of type {}",
+		// givenPlan.getId(), givenPlan.getPlanLanguage());
+		// return null;
+		// }
+		// try {
+		// eventValues.put("BODY",
+		// message.getSOAPBody().extractContentAsDocument());
+		// } catch (SOAPException e) {
+		// LOG.error(e.getLocalizedMessage());
+		// e.printStackTrace();
+		// LOG.error("Failed to construct message for plan {} of type {}",
+		// givenPlan.getId(), givenPlan.getPlanLanguage());
+		// return null;
+		// }
+		// } else if (givenPlan.getPlanLanguage().startsWith(nsBPMN)) {
+		//
+		// LOG.debug("Start of BPMN message construction for plan {}",
+		// givenPlan.getId());
+		//
+		// Map<String, String> message =
+		// restInvokeMessageGenerator.createRequest(csarID,
+		// ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID,
+		// givenPlan.getId()), planEvent.getInputParameter(), correlationID);
+		//
+		// if (null == message) {
+		// LOG.error("Failed to construct message for plan {} of type {}",
+		// givenPlan.getId(), givenPlan.getPlanLanguage());
+		// return null;
+		// }
+		//
+		// StringBuilder builder = new StringBuilder("Invoking the BPMN plan
+		// with the following parameters:\n");
+		// for (String key : message.keySet()) {
+		// builder.append(" " + key + " : " + message.get(key) + "\n");
+		// }
+		// LOG.debug(builder.toString());
+		//
+		// eventValues.put("BODY", message);
+		// } else {
+		// LOG.error("No message construction found for plan {} of type {}",
+		// givenPlan.getId(), givenPlan.getPlanLanguage());
+		// return null;
+		// }
+		
+		LOG.debug("complete the list of parameters {}", givenPlan.getId());
+		
+		Map<String, String> message = createRequest(csarID, ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
+		
+		if (null == message) {
+			LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
 			return null;
 		}
+		
+		StringBuilder builder = new StringBuilder("Invoking the plan with the following parameters:\n");
+		for (String key : message.keySet()) {
+			builder.append("     " + key + " : " + message.get(key) + "\n");
+		}
+		LOG.trace(builder.toString());
+		
+		eventValues.put("BODY", message);
 		
 		if (null == ServiceHandler.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
 			LOG.error(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
@@ -211,6 +246,67 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		ServiceHandler.eventAdmin.postEvent(event);
 		
 		return correlationID;
+	}
+	
+	public Map<String, String> createRequest(CSARID csarID, QName planInputMessageID, List<TParameterDTO> inputParameter, String correlationID) {
+		
+		Map<String, String> map = new HashMap<String, String>();
+		List<Document> docs = new ArrayList<Document>();
+		
+		List<QName> serviceTemplates = ServiceHandler.toscaEngineService.getServiceTemplatesInCSAR(csarID);
+		for (QName serviceTemplate : serviceTemplates) {
+			List<String> nodeTemplates = ServiceHandler.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
+			
+			for (String nodeTemplate : nodeTemplates) {
+				Document doc = ServiceHandler.toscaEngineService.getPropertiesOfNodeTemplate(csarID, serviceTemplate, nodeTemplate);
+				if (null != doc) {
+					docs.add(doc);
+					LOG.trace("Found property document: {}", ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(doc, false));
+				}
+			}
+		}
+		
+		LOG.trace("Processing a list of {} parameters", inputParameter.size());
+		for (TParameterDTO para : inputParameter) {
+			LOG.trace("Put in the parameter {} with value \"{}\".", para.getName(), para.getValue());
+			
+			if (para.getType().equalsIgnoreCase("correlation")) {
+				LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
+				map.put(para.getName(), correlationID);
+			} else if (para.getName().equalsIgnoreCase("csarName")) {
+				LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
+				map.put(para.getName(), csarID.toString());
+			} else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
+				LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API + "\".");
+				map.put(para.getName(), Settings.CONTAINER_API);
+			} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
+				LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
+				map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_API);
+			} else {
+				if (para.getName() == null || para.getValue().equals("")) {
+					LOG.debug("The parameter \"" + para.getName() + "\" has an empty value, thus search in the properties.");
+					String value = "";
+					for (Document doc : docs) {
+						NodeList nodes = doc.getElementsByTagNameNS("*", para.getName());
+						LOG.trace("Found {} nodes.", nodes.getLength());
+						if (nodes.getLength() > 0) {
+							value = nodes.item(0).getTextContent();
+							LOG.debug("Found value {}", value);
+							break;
+						}
+					}
+					if (value.equals("")) {
+						LOG.debug("No value found.");
+					}
+					map.put(para.getName(), value);
+				} else {
+					LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
+					map.put(para.getName(), para.getValue());
+				}
+			}
+		}
+		
+		return map;
 	}
 	
 	/**

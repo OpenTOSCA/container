@@ -55,6 +55,7 @@ import com.google.gson.JsonObject;
  */
 public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginService {
 	
+	
 	final private static Logger LOG = LoggerFactory.getLogger(ManagementBusPluginRestServiceImpl.class);
 	
 	// Supported types defined in messages.properties.
@@ -65,6 +66,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	final String ENDPOINT = "no";
 	final String CONTENTTYPE = "urlencoded";
 	final String METHOD = "POST";
+	
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -87,14 +89,14 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		if (params instanceof HashMap) {
 			paramsMap = (HashMap<String, String>) params;
 			LOG.debug("params are hashmap: {}", mapToQueryString(paramsMap));
-			//			for (String str : paramsMap.keySet()) {
-			//				LOG.trace("   {}: {}", str, paramsMap.get(str));
-			//			}
+			// for (String str : paramsMap.keySet()) {
+			// LOG.trace(" {}: {}", str, paramsMap.get(str));
+			// }
 		}
 		
-		else if (params instanceof Document) {
-			paramsDoc = (Document) params;
-			isDoc = true;
+		else {
+			LOG.error("Cannot map parameters to a map.");
+			return null;
 		}
 		
 		DataAssign dataAssign = null;
@@ -123,58 +125,14 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		
 		ContentType contentTypeParam = ContentType.JSON;
 		
-		// Invoking according to default values
-		// if (operation == null) {
-		//
-		// ManagementBusPluginRestServiceImpl.LOG.debug("No specified operation
-		// found. Invoking with default values.");
-		//
-		// if ((paramsDoc != null) || (paramsMap != null)) {
-		// String queryString = getQueryString(paramsDoc, paramsMap);
-		// headers.put(Exchange.HTTP_QUERY, queryString);
-		// }
-		//
-		// // Invoking according to provided values
-		// } else {
-		
-		// ManagementBusPluginRestServiceImpl.LOG.debug("Specified operation
-		// found. Invoking with provided values.");
-		//
-		// EndpointType endpointParam = operation.getEndpoint();
-		// ParamsType paramsParam = operation.getParams();
-		// ContentType contentTypeParam = operation.getContentType();
-		// MethodeType methodParam = operation.getMethode();
-		//
-		// // Endpoint-param set to yes
-		// if ((endpointParam != null) &&
-		// !endpointParam.value().equalsIgnoreCase(ENDPOINT)) {
-		//
-		// ManagementBusPluginRestServiceImpl.LOG.debug(
-		// "EndpointParams set: OperationName / InterfaceName should be appended
-		// to the endpoint if set.");
-		//
-		// String httpPath = getHttpPath(operation);
-		// headers.put(Exchange.HTTP_PATH, httpPath);
-		// }
-		//
-		// // params in payload
-		// if ((paramsParam != null) &&
-		// !paramsParam.value().equalsIgnoreCase(PARAMS)) {
-		
 		ManagementBusPluginRestServiceImpl.LOG.debug("ParamsParam set: params into payload.");
 		
 		// ...as xml
 		if ((contentTypeParam != null) && !contentTypeParam.value().equalsIgnoreCase(CONTENTTYPE)) {
 			
-			ManagementBusPluginRestServiceImpl.LOG.debug("ContenttypeParam set: params into payload as {}.",
-					contentTypeParam);
+			ManagementBusPluginRestServiceImpl.LOG.debug("ContenttypeParam set: params into payload as {}.", contentTypeParam);
 			
-			// if (paramsDoc != null) {
-			// body = paramsDoc;
-			//
-			// } else if (paramsMap != null) {
 			body = mapToJSON(paramsMap);
-			// }
 		}
 		// ...as urlencoded String
 		else {
@@ -187,30 +145,6 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 			}
 			
 		}
-		// }
-		// // params as queryString
-		// else {
-		//
-		// ManagementBusPluginRestServiceImpl.LOG.debug("Params as
-		// queryString.");
-		//
-		// if ((paramsDoc != null) || (paramsMap != null)) {
-		// String queryString = getQueryString(paramsDoc, paramsMap);
-		// headers.put(Exchange.HTTP_QUERY, queryString);
-		// }
-		//
-		// }
-		//
-		// // GET as http-method
-		// if ((methodParam != null) &&
-		// !methodParam.value().equalsIgnoreCase(METHOD)) {
-		//
-		// ManagementBusPluginRestServiceImpl.LOG.debug("HTTP method set to
-		// GET.");
-		//
-		// headers.put(Exchange.HTTP_METHOD, "GET");
-		// }
-		// }
 		
 		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 		// the dummyhost uri is ignored, so this is ugly but intended
@@ -240,10 +174,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Returns the created queryString.
 	 * 
-	 * @param paramsDoc
-	 *            to create queryString from.
-	 * @param paramsMap
-	 *            to create queryString from.
+	 * @param paramsDoc to create queryString from.
+	 * @param paramsMap to create queryString from.
 	 * @return created queryString
 	 */
 	private String getQueryString(Document paramsDoc, HashMap<String, String> paramsMap) {
@@ -266,8 +198,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Generates the queryString from the given params HashMap.
 	 * 
-	 * @param params
-	 *            to generate the queryString from.
+	 * @param params to generate the queryString from.
 	 * 
 	 * @return the queryString.
 	 */
@@ -298,8 +229,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Transfers the given string (if it is valid xml) into Document. *
 	 * 
-	 * @param string
-	 *            to generate Document from.
+	 * @param string to generate Document from.
 	 * @return Document or null if string wasn't valid xml.
 	 */
 	private Document stringToDoc(String string) {
@@ -321,8 +251,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Transfers the given string (if it is a valid queryString) into a HashMap.
 	 * 
-	 * @param queryString
-	 *            to generate the map from.
+	 * @param queryString to generate the map from.
 	 * @return HashMap or null if string wasn't a valid queryString.
 	 */
 	private HashMap<String, String> queryStringToMap(String queryString) {
@@ -384,12 +313,9 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Searches for the correct operation of the artifact specific content.
 	 * 
-	 * @param dataAssign
-	 *            containing all operations.
-	 * @param operationName
-	 *            that will be searched for.
-	 * @param interfaceName
-	 *            that will be searched for.
+	 * @param dataAssign containing all operations.
+	 * @param operationName that will be searched for.
+	 * @param interfaceName that will be searched for.
 	 * 
 	 * @return matching operation.
 	 */
@@ -402,14 +328,11 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 			String provOpName = op.getName();
 			String provIntName = op.getInterfaceName();
 			
-			ManagementBusPluginRestServiceImpl.LOG.debug("Provided operation name: {}. Needed: {}", provOpName,
-					operationName);
-			ManagementBusPluginRestServiceImpl.LOG.debug("Provided interface name: {}. Needed: {}", provIntName,
-					interfaceName);
+			ManagementBusPluginRestServiceImpl.LOG.debug("Provided operation name: {}. Needed: {}", provOpName, operationName);
+			ManagementBusPluginRestServiceImpl.LOG.debug("Provided interface name: {}. Needed: {}", provIntName, interfaceName);
 			
 			if ((op.getName() == null) && (op.getInterfaceName() == null)) {
-				ManagementBusPluginRestServiceImpl.LOG.debug(
-						"Operation found. No operation name nor interfaceName is specified meaning this IA implements just one operation or the provided information count for all implemented operations.");
+				ManagementBusPluginRestServiceImpl.LOG.debug("Operation found. No operation name nor interfaceName is specified meaning this IA implements just one operation or the provided information count for all implemented operations.");
 				return op;
 				
 			} else if ((op.getName() != null) && op.getName().equalsIgnoreCase(operationName)) {
@@ -424,10 +347,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 					
 				}
 				
-			} else if ((op.getInterfaceName() != null) && (op.getName() == null)
-					&& op.getInterfaceName().equalsIgnoreCase(interfaceName)) {
-				ManagementBusPluginRestServiceImpl.LOG.debug(
-						"Operation found. Provided information count for all operations of the specified interface.");
+			} else if ((op.getInterfaceName() != null) && (op.getName() == null) && op.getInterfaceName().equalsIgnoreCase(interfaceName)) {
+				ManagementBusPluginRestServiceImpl.LOG.debug("Operation found. Provided information count for all operations of the specified interface.");
 				return op;
 			}
 		}
@@ -437,16 +358,14 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Transfers the document to a map.
 	 * 
-	 * @param doc
-	 *            to be transfered to a map.
+	 * @param doc to be transfered to a map.
 	 * @return transfered map.
 	 */
 	private HashMap<String, String> docToMap(Document doc) {
 		HashMap<String, String> map = new HashMap<String, String>();
 		
 		DocumentTraversal traversal = (DocumentTraversal) doc;
-		NodeIterator iterator = traversal.createNodeIterator(doc.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null,
-				true);
+		NodeIterator iterator = traversal.createNodeIterator(doc.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null, true);
 		
 		for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 			
@@ -471,8 +390,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Transfers the paramsMap into a Document.
 	 * 
-	 * @param operationName
-	 *            as root element.
+	 * @param operationName as root element.
 	 * @param paramsMap
 	 * 
 	 * @return the created Document.
@@ -509,10 +427,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	 * Alters the exchange with the response of the invoked service depending of
 	 * the type of the body.
 	 * 
-	 * @param exchange
-	 *            to be altered.
-	 * @param responseString
-	 *            containing the response of the invoked service.
+	 * @param exchange to be altered.
+	 * @param responseString containing the response of the invoked service.
 	 * @param operationName
 	 * @param isDoc
 	 * @return exchange with response of the invokes service as body.
@@ -520,8 +436,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	 * @TODO: Response handling is a bit hacky. Should be updated sometime to
 	 *        determine the response type with content-type header.
 	 */
-	private Exchange createResponseExchange(Exchange exchange, String responseString, String operationName,
-			boolean isDoc) {
+	private Exchange createResponseExchange(Exchange exchange, String responseString, String operationName, boolean isDoc) {
 		
 		ManagementBusPluginRestServiceImpl.LOG.debug("Handling the response: {}.", responseString);
 		
@@ -552,8 +467,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 			responseMap = queryStringToMap(responseString);
 			
 			if ((responseMap == null) || responseMap.isEmpty()) {
-				ManagementBusPluginRestServiceImpl.LOG.debug(
-						"Response isn't neihter xml nor queryString. Returning the reponse: {} as string.", responseString);
+				ManagementBusPluginRestServiceImpl.LOG.debug("Response isn't neihter xml nor queryString. Returning the reponse: {} as string.", responseString);
 				exchange.getIn().setBody(responseString);
 			}
 			
@@ -576,15 +490,13 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 	/**
 	 * Unmarshalls the provided artifact specific content.
 	 * 
-	 * @param doc
-	 *            to unmarshall.
+	 * @param doc to unmarshall.
 	 * 
 	 * @return DataAssign object.
 	 */
 	private DataAssign unmarshall(Document doc) {
 		
-		NodeList nodeList = doc.getElementsByTagNameNS("http://www.siengine.restplugin.org/SpecificContentRestSchema",
-				"DataAssign");
+		NodeList nodeList = doc.getElementsByTagNameNS("http://www.siengine.restplugin.org/SpecificContentRestSchema", "DataAssign");
 		
 		Node node = nodeList.item(0);
 		
@@ -605,8 +517,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 			e.printStackTrace();
 		}
 		
-		ManagementBusPluginRestServiceImpl.LOG
-		.debug("No unmarshallable artifact specific content provided. Using default values now.");
+		ManagementBusPluginRestServiceImpl.LOG.debug("No unmarshallable artifact specific content provided. Using default values now.");
 		
 		return null;
 	}

@@ -103,6 +103,7 @@ will be sent to the Lilith event viewer.
 	<logger name="jclouds" level="DEBUG" />
 	<logger name="org.jclouds" level="DEBUG" />
 	<logger name="org.apache.camel" level="INFO" />
+	<logger name="org.opentosca.toscaengine.xmlserializer" level="INFO" />
 	
 	<!-- data transfer of jclouds should be not logged -->
 	<logger name="jclouds.wire" level="INFO" />

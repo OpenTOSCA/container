@@ -1,6 +1,8 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -24,12 +26,15 @@ import org.opentosca.containerapi.resources.xlink.Reference;
 import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
+import org.opentosca.model.tosca.TParameter;
 import org.opentosca.model.tosca.TPlan;
 import org.opentosca.model.tosca.extension.helpers.PlanTypes;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.toscaengine.service.IToscaReferenceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 public class CSARBoundsInterfaceOperationTypePlanResource {
 	
@@ -66,6 +71,7 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 		String plan = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), plan), XLinkConstants.SIMPLE, plan));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), plan + "/PlanWithMinimalInput"), XLinkConstants.SIMPLE, "PlanWithMinimalInput"));
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
@@ -142,5 +148,74 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 		
 		return Response.status(Response.Status.ACCEPTED).entity(refs.getXMLString()).build();
 		
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Path("{PlanName}/PlanWithMinimalInput")
+	@Produces(ResourceConstants.TOSCA_XML)
+	public JAXBElement<?> getMissingInputFields(@PathParam("PlanName") String plan) {
+		LOG.trace("Return missing input fields of plan " + plan);
+		
+		List<Document> docs = new ArrayList<Document>();
+		
+		List<QName> serviceTemplates = ToscaServiceHandler.getToscaEngineService().getServiceTemplatesInCSAR(csarID);
+		for (QName serviceTemplate : serviceTemplates) {
+			List<String> nodeTemplates = ToscaServiceHandler.getToscaEngineService().getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
+			
+			for (String nodeTemplate : nodeTemplates) {
+				Document doc = ToscaServiceHandler.getToscaEngineService().getPropertiesOfNodeTemplate(csarID, serviceTemplate, nodeTemplate);
+				if (null != doc) {
+					docs.add(doc);
+					LOG.trace("Found property document: {}", ToscaServiceHandler.getIXMLSerializer().docToString(doc, false));
+				}
+			}
+		}
+		
+		Map<PlanTypes, LinkedHashMap<QName, TPlan>> mapPlans = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarID);
+		
+		IToscaReferenceMapper service = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper();
+		String ns = service.getNamespaceOfPlan(csarID, plan);
+		
+		QName id = new QName(ns, plan);
+		TPlan tPlan = null;
+		for (PlanTypes type : PlanTypes.values()) {
+			if (mapPlans.get(type).containsKey(id)) {
+				tPlan = mapPlans.get(type).get(id);
+			}
+		}
+		
+		List<TParameter> list = new ArrayList<>();
+		for (TParameter para : tPlan.getInputParameters().getInputParameter()) {
+			if (para.getType().equalsIgnoreCase("correlation") || para.getName().equalsIgnoreCase("csarName") || para.getName().equalsIgnoreCase("containerApiAddress") || para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
+				list.add(para);
+			} else {
+				LOG.trace("The parameter \"" + para.getName() + "\" may have values in the properties.");
+				String value = "";
+				for (Document doc : docs) {
+					NodeList nodes = doc.getElementsByTagNameNS("*", para.getName());
+					LOG.trace("Found {} nodes.", nodes.getLength());
+					if (nodes.getLength() > 0) {
+						value = nodes.item(0).getTextContent();
+						LOG.debug("Found value {}", value);
+						break;
+					}
+				}
+				if (value.equals("")) {
+					LOG.debug("Found empty input paramater {}.", para.getName());
+				} else {
+					list.add(para);
+				}
+			}
+		}
+		tPlan.getInputParameters().getInputParameter().removeAll(list);
+		
+		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(tPlan);
 	}
 }
