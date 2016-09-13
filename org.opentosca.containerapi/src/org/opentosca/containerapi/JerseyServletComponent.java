@@ -1,5 +1,7 @@
 package org.opentosca.containerapi;
 
+import javax.servlet.Servlet;
+
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
@@ -18,13 +20,16 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
  */
 public class JerseyServletComponent {
 	
+	
 	private static final Logger LOG = LoggerFactory.getLogger(JerseyServletComponent.class);
 	
 	
 	protected void bindHttpService(HttpService httpService) {
 		JerseyServletComponent.LOG.debug("Binding HTTP Service");
 		try {
-			httpService.registerServlet(ResourceConstants.ROOT, new ServletContainer(new JerseyApplication()), null, null);
+			Servlet serv = new ServletContainer(new JerseyApplication());
+			//			 serv.init();
+			httpService.registerServlet(ResourceConstants.ROOT, serv, null, null);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -44,5 +49,4 @@ public class JerseyServletComponent {
 		
 		JerseyServletComponent.LOG.info("Container API started: http://localhost:{}{}", port, ResourceConstants.ROOT);
 	}
-	
 }

@@ -8,6 +8,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -20,6 +21,8 @@ import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.CSARContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 /**
  * Temporary class until instance data api is merged into the csars api
@@ -63,20 +66,47 @@ public class CSARPlanResults {
 		return Response.ok(refs.getXMLString()).build();
 	}
 	
+	//	@GET
+	//	@Path("{corr}")
+	//	@Consumes(ResourceConstants.TOSCA_XML)
+	//	@Produces("application/xml")
+	//	public Response getStatusOfPlanXML(@PathParam("corr") String corr) {
+	//		
+	//		if (CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(csar.getCSARID()).contains(corr)) {
+	//			Map<String, String> map = CSARInstanceManagementHandler.csarInstanceManagement.getOutputForCorrelation(corr);
+	//			LOG.trace("Response for correlation {}", corr);
+	//			StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><response>");
+	//			for (String str : map.keySet()) {
+	//				xml.append("<var><name>" + str + "</name><val>" + map.get(str) + "</val></var>");
+	//			}
+	//			xml.append("</response>");
+	//			return Response.ok(xml.toString()).build();
+	//		} else {
+	//			LOG.warn("Correlation not known for corr ", corr);
+	//			return Response.status(Response.Status.BAD_REQUEST).entity("<response>Given correlation is not known.</response>").build();
+	//		}
+	//	}
+	
 	@GET
 	@Path("{corr}")
 	@Consumes(ResourceConstants.TOSCA_XML)
-	public Response getStatusOfPlan(@PathParam("corr") String corr) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getStatusOfPlanJSON(@PathParam("corr") String corr) {
 		
 		if (CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(csar.getCSARID()).contains(corr)) {
 			Map<String, String> map = CSARInstanceManagementHandler.csarInstanceManagement.getOutputForCorrelation(corr);
 			LOG.trace("Response for correlation {}", corr);
-			StringBuilder xml = new StringBuilder("<response>");
+			
+			JsonObject ret = new JsonObject();
+			
+			StringBuilder json = new StringBuilder("{");
 			for (String str : map.keySet()) {
-				xml.append("<var><name>" + str + "</name><val>" + map.get(str) + "</val></var>");
+				json.append("\"name\":\"" + str + "\",\"val\":\"" + map.get(str) + "\"");
+				ret.addProperty(str, map.get(str));
 			}
-			xml.append("</response>");
-			return Response.ok(xml.toString()).build();
+			json.append("}");
+			LOG.trace("Return json: {}", ret.toString());
+			return Response.ok("callback({\"json\":" + ret.toString() + "})").build();
 		} else {
 			LOG.warn("Correlation not known for corr ", corr);
 			return Response.status(Response.Status.BAD_REQUEST).entity("<response>Given correlation is not known.</response>").build();

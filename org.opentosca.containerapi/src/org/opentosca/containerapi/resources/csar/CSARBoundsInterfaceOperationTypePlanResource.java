@@ -28,6 +28,7 @@ import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TParameter;
 import org.opentosca.model.tosca.TPlan;
+import org.opentosca.model.tosca.TPlan.InputParameters;
 import org.opentosca.model.tosca.extension.helpers.PlanTypes;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.toscaengine.service.IToscaReferenceMapper;
@@ -108,51 +109,6 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 	}
 	
 	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
-	 * 
-	 * @param planElement the BUILD PublicPlan
-	 * @return Response
-	 */
-	@POST
-	@Path("{PlanName}")
-	@Consumes(ResourceConstants.TOSCA_XML)
-	public Response postManagementPlan(@PathParam("PlanName") String plan, JAXBElement<TPlanDTO> planElement) {
-		
-		CSARBoundsInterfaceOperationTypePlanResource.LOG.debug("Received a plan for CSAR " + csarID);
-		
-		TPlanDTO planDTO = planElement.getValue();
-		
-		if (null == planDTO) {
-			LOG.error("The given PublicPlan is null!");
-			return Response.status(Status.CONFLICT).build();
-		}
-		
-		if (null == planDTO.getId()) {
-			LOG.error("The given PublicPlan has no ID!");
-			return Response.status(Status.CONFLICT).build();
-		}
-		
-		String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getNamespaceOfPlan(csarID, planDTO.getId().getLocalPart());
-		planDTO.setId(new QName(namespace, planDTO.getId().getLocalPart()));
-		
-		LOG.debug("PublicPlan to invoke: " + planDTO.getId());
-		
-		CSARBoundsInterfaceOperationTypePlanResource.LOG.debug("Post of the PublicPlan " + planDTO.getId());
-		
-		// TODO return correlation ID
-		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, planDTO);
-		
-		References refs = new References();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI("http://localhost:1337/containerapi", "/CSARs/" + csarID + "/PlanInstances/" + correlationID), XLinkConstants.SIMPLE, plan));
-		
-		return Response.status(Response.Status.ACCEPTED).entity(refs.getXMLString()).build();
-		
-	}
-	
-	/**
-	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
-	 * yet, thus, just returns itself.
 	 * 
 	 * TODO consider to deliver this output not under the path
 	 * "{PlanName}/PlanWithMinimalInput" but with other MIME type under
@@ -195,10 +151,21 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 			}
 		}
 		
+		TPlan retPlan = new TPlan();
+		retPlan.setId(tPlan.getId());
+		retPlan.setName(tPlan.getName());
+		retPlan.setPlanLanguage(tPlan.getPlanLanguage());
+		retPlan.setPlanType(tPlan.getPlanType());
+		retPlan.setInputParameters(new InputParameters());
+		
 		List<TParameter> list = new ArrayList<>();
 		for (TParameter para : tPlan.getInputParameters().getInputParameter()) {
-			if (para.getType().equalsIgnoreCase("correlation") || para.getName().equalsIgnoreCase("csarName") || para.getName().equalsIgnoreCase("containerApiAddress") || para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
-				list.add(para);
+			if (para.getType().equalsIgnoreCase("correlation") || 
+					para.getName().equalsIgnoreCase("csarName") || 
+					para.getName().equalsIgnoreCase("containerApiAddress") || 
+					para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
+				LOG.trace("Skipping parameter {}", para.getName());
+				// list.add(para);
 			} else {
 				LOG.trace("The parameter \"" + para.getName() + "\" may have values in the properties.");
 				String value = "";
@@ -213,13 +180,57 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 				}
 				if (value.equals("")) {
 					LOG.debug("Found empty input paramater {}.", para.getName());
-				} else {
 					list.add(para);
+				} else {
 				}
 			}
 		}
-		tPlan.getInputParameters().getInputParameter().removeAll(list);
+		retPlan.getInputParameters().getInputParameter().addAll(list);
 		
-		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(tPlan);
+		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(retPlan);
 	}
+	
+	/**
+	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * 
+	 * @param planElement the BUILD PublicPlan
+	 * @return Response
+	 */
+	@POST
+	@Path("{PlanName}")
+	@Consumes(ResourceConstants.TOSCA_XML)
+	public Response postManagementPlan(@PathParam("PlanName") String plan, JAXBElement<TPlanDTO> planElement) {
+		
+		CSARBoundsInterfaceOperationTypePlanResource.LOG.debug("Received a plan for CSAR " + csarID);
+		
+		TPlanDTO planDTO = planElement.getValue();
+		
+		if (null == planDTO) {
+			LOG.error("The given PublicPlan is null!");
+			return Response.status(Status.CONFLICT).build();
+		}
+		
+		if (null == planDTO.getId()) {
+			LOG.error("The given PublicPlan has no ID!");
+			return Response.status(Status.CONFLICT).build();
+		}
+		
+		String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getNamespaceOfPlan(csarID, planDTO.getId().getLocalPart());
+		planDTO.setId(new QName(namespace, planDTO.getId().getLocalPart()));
+		
+		LOG.debug("PublicPlan to invoke: " + planDTO.getId());
+		
+		CSARBoundsInterfaceOperationTypePlanResource.LOG.debug("Post of the PublicPlan " + planDTO.getId());
+		
+		// TODO return correlation ID
+		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, planDTO);
+		
+		References refs = new References();
+		
+		refs.getReference().add(new Reference(Utilities.buildURI("http://localhost:1337/containerapi", "/CSARs/" + csarID + "/PlanInstances/" + correlationID), XLinkConstants.SIMPLE, plan));
+		
+		return Response.status(Response.Status.ACCEPTED).entity(refs.getXMLString()).build();
+		
+	}
+	
 }
