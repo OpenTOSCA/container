@@ -1,11 +1,16 @@
 package org.opentosca.planbuilder.utils;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -17,9 +22,12 @@ import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -37,28 +45,20 @@ public class Utils {
 
 	// these are the baseTypes of the PlanBuilder -> TODO refactor into some
 	// kind of baseType-Configuration
-	public static final QName TOSCABASETYPE_CONNECTSTO = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
-	public static final QName TOSCABASETYPE_HOSTEDON = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
-	public static final QName TOSCABASETYPE_DEPLOYEDON = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
-	public static final QName TOSCABASETYPE_DEPENDSON = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
-	public static final QName TOSCABASETYPE_SERVER = new QName(
-			"http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
-	public static final QName TOSCABASETYPE_OS = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-			"OperatingSystem");
+	public static final QName TOSCABASETYPE_CONNECTSTO = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
+	public static final QName TOSCABASETYPE_HOSTEDON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
+	public static final QName TOSCABASETYPE_DEPLOYEDON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
+	public static final QName TOSCABASETYPE_DEPENDSON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
+	public static final QName TOSCABASETYPE_SERVER = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
+	public static final QName TOSCABASETYPE_OS = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
 
 	// this is a BRUTAL hack for the new nodetypes
-	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes",
-			"Ubuntu-14.04-VM");
+	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
 	public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
-	public final static QName externalResourceNodeType = new QName("http://opentosca.org/nodetypes",
-			"ExternalResource");
+	public final static QName externalResourceNodeType = new QName("http://opentosca.org/nodetypes", "ExternalResource");
 
-	public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(AbstractNodeTemplate nodeTemplate,
-			AbstractNodeTypeImplementation nodeImpl) {
+
+	public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(AbstractNodeTemplate nodeTemplate, AbstractNodeTypeImplementation nodeImpl) {
 		Set<AbstractDeploymentArtifact> effectiveDAs = new HashSet<AbstractDeploymentArtifact>();
 		effectiveDAs.addAll(nodeTemplate.getDeploymentArtifacts());
 		for (AbstractDeploymentArtifact da : nodeImpl.getDeploymentArtifacts()) {
@@ -73,12 +73,9 @@ public class Utils {
 	/**
 	 * Looks for a childelement with an attribute with the given name and value
 	 *
-	 * @param element
-	 *            the element to look in
-	 * @param attributeName
-	 *            the name of the attribute
-	 * @param attributeValue
-	 *            the value of the attribute
+	 * @param element the element to look in
+	 * @param attributeName the name of the attribute
+	 * @param attributeValue the value of the attribute
 	 * @return true if the given element has a child element with an attribute
 	 *         where attrname.equals(attributeName) &
 	 *         attr.value(attributeValue), else false
@@ -89,8 +86,7 @@ public class Utils {
 		}
 		for (int i = 0; i < element.getChildNodes().getLength(); i++) {
 			Node child = element.getChildNodes().item(i);
-			if ((child.getAttributes().getNamedItem(attributeName) != null)
-					&& child.getAttributes().getNamedItem(attributeName).getNodeValue().equals(attributeValue)) {
+			if ((child.getAttributes().getNamedItem(attributeName) != null) && child.getAttributes().getNamedItem(attributeName).getNodeValue().equals(attributeValue)) {
 				return true;
 			}
 		}
@@ -104,8 +100,7 @@ public class Utils {
 	 * {someNs}someNodeType,{someNs}someOtherNodeType inside, in the exact same
 	 * order.
 	 *
-	 * @param nodeType
-	 *            the nodeType to get the hierarchy for
+	 * @param nodeType the nodeType to get the hierarchy for
 	 * @return a List containing an order of inheritance of NodeTypes for this
 	 *         NodeType with itself at the first spot in the list.
 	 */
@@ -142,10 +137,8 @@ public class Utils {
 	 * {someNs}someRelationType,{someNs}someOtherRelationType inside, in the
 	 * exact same order.
 	 *
-	 * @param definitions
-	 *            the Definitions to look in
-	 * @param relationshipType
-	 *            the RelationshipType to get the hierarchy for
+	 * @param definitions the Definitions to look in
+	 * @param relationshipType the RelationshipType to get the hierarchy for
 	 * @return a List containing an order of inheritance of RelationshipTypes of
 	 *         the given RelationshipType
 	 */
@@ -170,8 +163,7 @@ public class Utils {
 	/**
 	 * Returns the baseType of the given NodeTemplate
 	 *
-	 * @param nodeTemplate
-	 *            an AbstractNodeTemplate
+	 * @param nodeTemplate an AbstractNodeTemplate
 	 * @return a QName which represents the baseType of the given NodeTemplate
 	 */
 	public static QName getNodeBaseType(AbstractNodeTemplate nodeTemplate) {
@@ -192,8 +184,7 @@ public class Utils {
 	/**
 	 * Returns the baseType of the given RelationshipTemplate
 	 *
-	 * @param relationshipTemplate
-	 *            an AbstractRelationshipTemplate
+	 * @param relationshipTemplate an AbstractRelationshipTemplate
 	 * @return a QName representing the baseType of the given
 	 *         RelationshipTemplate
 	 */
@@ -220,31 +211,22 @@ public class Utils {
 	 * Calculates all Infrastructure Nodes of all Infrastructure Paths
 	 * originating from the given NodeTemplate
 	 *
-	 * @param nodeTemplate
-	 *            AbstractNodeTemplate from where the search for Infrstructure
-	 *            Nodes begin
-	 * @param infrastructureNodes
-	 *            a List of AbstractNodeTemplates which represent Infrastructure
-	 *            Nodes of the given NodeTemplate
+	 * @param nodeTemplate AbstractNodeTemplate from where the search for
+	 *            Infrstructure Nodes begin
+	 * @param infrastructureNodes a List of AbstractNodeTemplates which
+	 *            represent Infrastructure Nodes of the given NodeTemplate
 	 * @Info the infrastructureNodes List must be empty
 	 */
-	public static void getInfrastructureNodes(AbstractNodeTemplate nodeTemplate,
-			List<AbstractNodeTemplate> infrastructureNodes) {
-		Utils.LOG.debug(
-				"BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + Utils.getNodeBaseType(nodeTemplate));
+	public static void getInfrastructureNodes(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> infrastructureNodes) {
+		Utils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + Utils.getNodeBaseType(nodeTemplate));
 
-		if (org.opentosca.model.tosca.conventions.Utils
-				.isSupportedInfrastructureNodeType(Utils.getNodeBaseType(nodeTemplate))
-				|| org.opentosca.model.tosca.conventions.Utils
-						.isSupportedCloudProviderNodeType(Utils.getNodeBaseType(nodeTemplate))) {
+		if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(Utils.getNodeBaseType(nodeTemplate)) || org.opentosca.model.tosca.conventions.Utils.isSupportedCloudProviderNodeType(Utils.getNodeBaseType(nodeTemplate))) {
 			Utils.LOG.debug("Found infrastructure node: " + nodeTemplate.getId());
 			infrastructureNodes.add(nodeTemplate);
 		}
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 			Utils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
-			if (Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPENDSON)
-					|| Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_HOSTEDON)
-					|| Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+			if (Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPENDSON) || Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_HOSTEDON) || Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 				Utils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 				Utils.getInfrastructureNodes(relation.getTarget(), infrastructureNodes);
 			}
@@ -256,18 +238,14 @@ public class Utils {
 	 * Adds InfrastructureNodes of the given RelaitonshipTemplate to the given
 	 * List of NodeTemplates
 	 *
-	 * @param relationshipTemplate
-	 *            an AbstractRelationshipTemplate to search its
+	 * @param relationshipTemplate an AbstractRelationshipTemplate to search its
 	 *            InfrastructureNodes
-	 * @param infrastructureNodes
-	 *            a List of AbstractNodeTemplate where the InfrastructureNodes
-	 *            will be added
-	 * @param forSource
-	 *            whether to search for InfrastructureNodes along the
+	 * @param infrastructureNodes a List of AbstractNodeTemplate where the
+	 *            InfrastructureNodes will be added
+	 * @param forSource whether to search for InfrastructureNodes along the
 	 *            SourceInterface or TargetInterface
 	 */
-	public static void getInfrastructureNodes(AbstractRelationshipTemplate relationshipTemplate,
-			List<AbstractNodeTemplate> infrastructureNodes, boolean forSource) {
+	public static void getInfrastructureNodes(AbstractRelationshipTemplate relationshipTemplate, List<AbstractNodeTemplate> infrastructureNodes, boolean forSource) {
 
 		if (forSource) {
 			Utils.getInfrastructureNodes(relationshipTemplate.getSource(), infrastructureNodes);
@@ -280,8 +258,7 @@ public class Utils {
 	/**
 	 * Removes duplicates from the given List
 	 *
-	 * @param nodeTemplates
-	 *            a List of AbstractNodeTemplate
+	 * @param nodeTemplates a List of AbstractNodeTemplate
 	 */
 	private static void cleanDuplciates(List<AbstractNodeTemplate> nodeTemplates) {
 		List<AbstractNodeTemplate> list = new ArrayList<AbstractNodeTemplate>();
@@ -304,8 +281,7 @@ public class Utils {
 	/**
 	 * Removes duplicates from the given List
 	 *
-	 * @param relationshipTemplates
-	 *            a List of AbstractRelationshipTemplate
+	 * @param relationshipTemplates a List of AbstractRelationshipTemplate
 	 */
 	private static void cleanDuplicates(List<AbstractRelationshipTemplate> relationshipTemplates) {
 		List<AbstractRelationshipTemplate> list = new ArrayList<AbstractRelationshipTemplate>();
@@ -327,14 +303,11 @@ public class Utils {
 	/**
 	 * Adds the InfrastructureEdges of the given NodeTemplate to the given List
 	 *
-	 * @param nodeTemplate
-	 *            an AbstractNodeTemplate
-	 * @param infrastructureEdges
-	 *            a List of AbstractRelationshipTemplate to add the
-	 *            InfrastructureEdges to
+	 * @param nodeTemplate an AbstractNodeTemplate
+	 * @param infrastructureEdges a List of AbstractRelationshipTemplate to add
+	 *            the InfrastructureEdges to
 	 */
-	public static void getInfrastructureEdges(AbstractNodeTemplate nodeTemplate,
-			List<AbstractRelationshipTemplate> infrastructureEdges) {
+	public static void getInfrastructureEdges(AbstractNodeTemplate nodeTemplate, List<AbstractRelationshipTemplate> infrastructureEdges) {
 
 		// fetch all infrastructureNodes
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
@@ -344,9 +317,7 @@ public class Utils {
 		// edges
 		for (AbstractNodeTemplate infraNode : infraNodes) {
 			for (AbstractRelationshipTemplate outgoingEdge : infraNode.getOutgoingRelations()) {
-				if (Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPENDSON)
-						|| Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_HOSTEDON)
-						|| Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+				if (Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPENDSON) || Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_HOSTEDON) || Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 					infrastructureEdges.add(outgoingEdge);
 				}
 			}
@@ -358,18 +329,16 @@ public class Utils {
 	 * Returns all NodeTemplates from the given RelationshipTemplate going along
 	 * all occuring Relationships using the Target
 	 *
-	 * @param relationshipTemplate
-	 *            an AbstractRelationshipTemplate
-	 * @param nodes
-	 *            a List of AbstractNodeTemplate to add the result to
+	 * @param relationshipTemplate an AbstractRelationshipTemplate
+	 * @param nodes a List of AbstractNodeTemplate to add the result to
 	 */
-	public static void getNodesFromRelationToSink(AbstractRelationshipTemplate relationshipTemplate,
-			List<AbstractNodeTemplate> nodes) {
+	public static void getNodesFromRelationToSink(AbstractRelationshipTemplate relationshipTemplate, List<AbstractNodeTemplate> nodes) {
 		AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (outgoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
-				// we skip connectTo relations, as they are connecting stacks and
+			if (outgoingTemplate.getType().equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+				// we skip connectTo relations, as they are connecting stacks
+				// and
 				// make the result even more ambigious
 				continue;
 			}
@@ -382,16 +351,15 @@ public class Utils {
 	 * Returns all NodeTemplates from the given NodeTemplate going along the
 	 * path of relation following the target interfaces
 	 *
-	 * @param nodeTemplate
-	 *            an AbstractNodeTemplate
-	 * @param nodes
-	 *            a List of AbstractNodeTemplate to add the result to
+	 * @param nodeTemplate an AbstractNodeTemplate
+	 * @param nodes a List of AbstractNodeTemplate to add the result to
 	 */
 	public static void getNodesFromNodeToSink(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> nodes) {
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (outgoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
-				// we skip connectTo relations, as they are connecting stacks and
+			if (outgoingTemplate.getType().equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+				// we skip connectTo relations, as they are connecting stacks
+				// and
 				// make the result even more ambigious
 				continue;
 			}
@@ -404,17 +372,13 @@ public class Utils {
 	 * Adds the InfrastructureEdges of the given RelationshipTemplate to the
 	 * given List
 	 *
-	 * @param relationshipTemplate
-	 *            an AbstractRelationshipTemplate
-	 * @param infraEdges
-	 *            a List of AbstractRelationshipTemplate to add the
+	 * @param relationshipTemplate an AbstractRelationshipTemplate
+	 * @param infraEdges a List of AbstractRelationshipTemplate to add the
 	 *            InfrastructureEdges to
-	 * @param forSource
-	 *            whether to search for InfrastructureEdges along the
+	 * @param forSource whether to search for InfrastructureEdges along the
 	 *            SourceInterface or TargetInterface
 	 */
-	public static void getInfrastructureEdges(AbstractRelationshipTemplate relationshipTemplate,
-			List<AbstractRelationshipTemplate> infraEdges, boolean forSource) {
+	public static void getInfrastructureEdges(AbstractRelationshipTemplate relationshipTemplate, List<AbstractRelationshipTemplate> infraEdges, boolean forSource) {
 		if (forSource) {
 			Utils.getInfrastructureEdges(relationshipTemplate.getSource(), infraEdges);
 		} else {
@@ -426,10 +390,8 @@ public class Utils {
 	 * Returns true if the given QName type denotes to a RelationshipType in the
 	 * type hierarchy of the given RelationshipTemplate
 	 *
-	 * @param relationshipTemplate
-	 *            an AbstractRelationshipTemplate
-	 * @param type
-	 *            the Type as a QName to check against
+	 * @param relationshipTemplate an AbstractRelationshipTemplate
+	 * @param type the Type as a QName to check against
 	 * @return true iff the given RelationshipTemplate contains the given type
 	 *         in its type hierarchy
 	 */
@@ -448,10 +410,8 @@ public class Utils {
 	 * Returns true if the given QName type denotes to a NodeType in the type
 	 * hierarchy of the given NodeTemplate
 	 *
-	 * @param nodeTemplate
-	 *            an AbstractNodeTemplate
-	 * @param type
-	 *            the Type as a QName to check against
+	 * @param nodeTemplate an AbstractNodeTemplate
+	 * @param type the Type as a QName to check against
 	 * @return true iff the given NodeTemplate contains the given type in its
 	 *         type hierarchy
 	 */
@@ -465,16 +425,35 @@ public class Utils {
 		}
 		return false;
 	}
+	
+	/**
+	 * Transforms the given string to a DOM node
+	 * 
+	 * @param xmlString the xml to transform as String
+	 * @return a DOM Node representing the given string
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	public static Node string2dom(String xmlString) throws ParserConfigurationException, SAXException, IOException {
+		
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		docFactory.setNamespaceAware(true);
+		DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(xmlString));
+		Document doc = docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
 
 	/**
 	 * Checks whether the property of the given variable is empty in the
 	 * TopologyTemplate
-	 * 
-	 * @param variable
-	 *            a property variable (var must belong to a topology template
-	 *            property) to check
-	 * @param context
-	 *            the context the variable belongs to
+	 *
+	 * @param variable a property variable (var must belong to a topology
+	 *            template property) to check
+	 * @param context the context the variable belongs to
 	 * @return true iff the content of the given variable is empty in the
 	 *         topology template property
 	 */
@@ -522,8 +501,9 @@ public class Utils {
 	public static void getNodesFromNodeToSource(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> nodes) {
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate ingoingTemplate : nodeTemplate.getIngoingRelations()) {
-			if (ingoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
-				// we skip connectTo relations, as they are connecting stacks and
+			if (ingoingTemplate.getType().equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+				// we skip connectTo relations, as they are connecting stacks
+				// and
 				// make the result even more ambigious
 				continue;
 			}
@@ -532,12 +512,11 @@ public class Utils {
 		Utils.cleanDuplciates(nodes);
 	}
 
-	private static void getNodesFromRelationToSources(AbstractRelationshipTemplate ingoingTemplate,
-			List<AbstractNodeTemplate> nodes) {
+	private static void getNodesFromRelationToSources(AbstractRelationshipTemplate ingoingTemplate, List<AbstractNodeTemplate> nodes) {
 		AbstractNodeTemplate nodeTemplate = ingoingTemplate.getSource();
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getIngoingRelations()) {
-			if (outgoingTemplate.getType().equals(TOSCABASETYPE_CONNECTSTO)) {
+			if (outgoingTemplate.getType().equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 				continue;
 			}
 			Utils.getNodesFromRelationToSources(outgoingTemplate, nodes);

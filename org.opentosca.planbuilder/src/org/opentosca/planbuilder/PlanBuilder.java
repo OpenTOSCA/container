@@ -18,6 +18,7 @@ import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.helpers.EmptyPropertyToInputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
@@ -28,8 +29,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.utils.Utils;
@@ -74,6 +75,8 @@ public class PlanBuilder implements IPlanBuilder {
 	private List<String> opNames = new ArrayList<String>();
 	
 	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
+	
+	private EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
 
 
 	/**
@@ -96,8 +99,8 @@ public class PlanBuilder implements IPlanBuilder {
 		this.opNames.add("install");
 		this.opNames.add("configure");
 		this.opNames.add("start");
-//		this.opNames.add("connectTo");
-//		this.opNames.add("hostOn");
+		// this.opNames.add("connectTo");
+		// this.opNames.add("hostOn");
 	}
 
 	/**
@@ -109,8 +112,12 @@ public class PlanBuilder implements IPlanBuilder {
 		return PluginRegistry.getGenericPlugins().size() + PluginRegistry.getDaPlugins().size() + PluginRegistry.getIaPlugins().size() + PluginRegistry.getPostPlugins().size() + PluginRegistry.getProvPlugins().size();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String, org.opentosca.planbuilder.model.tosca.AbstractDefinitions, javax.xml.namespace.QName)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.opentosca.planbuilder.IPlanBuilder#buildPlan(java.lang.String,
+	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions,
+	 * javax.xml.namespace.QName)
 	 */
 	@Override
 	public BuildPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
@@ -127,7 +134,7 @@ public class PlanBuilder implements IPlanBuilder {
 			if (namespace.equals(serviceTemplateId.getNamespaceURI()) && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				String processName = serviceTemplate.getId() + "_buildPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
-				BuildPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate,processName, processNamespace,0);
+				BuildPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 0);
 				newBuildPlan.setDefinitions(definitions);
 				newBuildPlan.setCsarName(csarName);
 
@@ -159,6 +166,8 @@ public class PlanBuilder implements IPlanBuilder {
 				// initialize instanceData handling
 				this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
 
+				this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
+
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				
 				this.idInit.addCorrellationID(newBuildPlan);
@@ -173,8 +182,11 @@ public class PlanBuilder implements IPlanBuilder {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String, org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.opentosca.planbuilder.IPlanBuilder#buildPlans(java.lang.String,
+	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
 	 */
 	@Override
 	public List<BuildPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
@@ -331,8 +343,6 @@ public class PlanBuilder implements IPlanBuilder {
 		return false;
 	}
 
-
-
 	/**
 	 * <p>
 	 * Takes the first occurence of a generic plugin which can handle the given
@@ -435,7 +445,7 @@ public class PlanBuilder implements IPlanBuilder {
 				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
 
-			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)){
+			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 
 				// with the other relations we have to build first the source,
 				// then the relation and at last the target
