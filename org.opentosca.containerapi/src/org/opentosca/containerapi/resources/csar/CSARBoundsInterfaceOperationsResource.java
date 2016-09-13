@@ -19,50 +19,50 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CSARBoundsInterfaceOperationsResource {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceOperationsResource.class);
-    CSARID csarID;
-    String intName;
-
-    public CSARBoundsInterfaceOperationsResource(CSARID csarID, String intName) {
-	this.csarID = csarID;
-	this.intName = intName;
-
-	if (null == ToscaServiceHandler.getToscaEngineService()) {
-	    LOG.error("The ToscaEngineService is not alive.");
+	
+	
+	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceOperationsResource.class);
+	CSARID csarID;
+	String intName;
+	
+	
+	public CSARBoundsInterfaceOperationsResource(CSARID csarID, String intName) {
+		this.csarID = csarID;
+		this.intName = intName;
+		
+		if (null == ToscaServiceHandler.getToscaEngineService()) {
+			LOG.error("The ToscaEngineService is not alive.");
+		}
 	}
-    }
-
-    /**
-     * Builds the references of the Boundary Definitions of a CSAR.
-     * 
-     * @param uriInfo
-     * @return Response
-     */
-    @GET
-    @Produces(ResourceConstants.LINKED_XML)
-    public Response getReferences(@Context UriInfo uriInfo) {
-
-	References refs = new References();
-
-	refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Operations"),
-	    XLinkConstants.SIMPLE, "Operations"));
-
-	// selflink
-	refs.getReference()
-	.add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-	return Response.ok(refs.getXMLString()).build();
-    }
-
-    /**
-     * Returns the Interface Operations for a given Interface name.
-     * 
-     * @param planName
-     * @return the PublicPlan
-     */
-    @Path("Operations")
-    public CSARBoundsInterfaceOperationResource getPublicPlan(@PathParam("InterfaceName") String intName) {
-	return new CSARBoundsInterfaceOperationResource(csarID, intName);
-    }
-
+	
+	/**
+	 * Builds the references of the Boundary Definitions of a CSAR.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Produces(ResourceConstants.LINKED_XML)
+	public Response getReferences(@Context UriInfo uriInfo) {
+		
+		References refs = new References();
+		
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Operations"), XLinkConstants.SIMPLE, "Operations"));
+		
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		return Response.ok(refs.getXMLString()).build();
+	}
+	
+	/**
+	 * Returns the Interface Operations for a given Interface name.
+	 * 
+	 * @param planName
+	 * @return the PublicPlan
+	 */
+	@Path("Operations")
+	public CSARBoundsInterfaceOperationResource getPublicPlan(@PathParam("InterfaceName") String intName) {
+		return new CSARBoundsInterfaceOperationResource(csarID, intName);
+	}
+	
 }

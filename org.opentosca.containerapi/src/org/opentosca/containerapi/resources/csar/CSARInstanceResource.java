@@ -31,11 +31,13 @@ import org.slf4j.LoggerFactory;
  */
 public class CSARInstanceResource {
 	
+	
 	private static final Logger LOG = LoggerFactory.getLogger(CSARInstancesResource.class);
 	
 	// If the csarID is null, there is no CSAR file stored in the Container
 	private final CSARID csarID;
 	private final int instanceID;
+	
 	
 	public CSARInstanceResource(CSARID csarID, String instanceID) {
 		if (null == csarID) {
@@ -44,16 +46,14 @@ public class CSARInstanceResource {
 			CSARInstanceResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
 		} else {
 			if ((null == instanceID) || instanceID.equals("")) {
-				CSARInstanceResource.LOG.error("CSAR Instance " + instanceID + " does not exit for requested CSAR: {}",
-						csarID.getFileName());
+				CSARInstanceResource.LOG.error("CSAR Instance " + instanceID + " does not exit for requested CSAR: {}", csarID.getFileName());
 				this.csarID = null;
 				this.instanceID = -1;
 			} else {
 				this.csarID = csarID;
 				this.instanceID = Integer.parseInt(instanceID);
 				CSARInstanceResource.LOG.debug("{} created: {}", this.getClass(), csarID);
-				CSARInstanceResource.LOG.debug("CSAR Instance " + instanceID + " for requested CSAR: {}",
-						this.csarID.getFileName());
+				CSARInstanceResource.LOG.debug("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
 			}
 		}
 	}
@@ -78,13 +78,9 @@ public class CSARInstanceResource {
 		
 		// selflink
 		References refs = new References();
-		refs.getReference()
-		.add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "activePublicPlans"),
-				XLinkConstants.SIMPLE, "history"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "history"),
-				XLinkConstants.SIMPLE, "history"));
-		refs.getReference()
-		.add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "activePublicPlans"), XLinkConstants.SIMPLE, "history"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "history"), XLinkConstants.SIMPLE, "history"));
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return Response.ok(refs.getXMLString()).build();
 	}
 	
@@ -98,8 +94,7 @@ public class CSARInstanceResource {
 	@Consumes(ResourceConstants.TOSCA_XML)
 	public Response postManagementPlan(JAXBElement<TPlanDTO> transferElement) {
 		
-		CSARInstanceResource.LOG.debug(
-				"Received a management request to invoke the plan for Instance " + instanceID + " of CSAR " + csarID);
+		CSARInstanceResource.LOG.debug("Received a management request to invoke the plan for Instance " + instanceID + " of CSAR " + csarID);
 		
 		TPlanDTO plan = transferElement.getValue();
 		// QName id = plan.getId();

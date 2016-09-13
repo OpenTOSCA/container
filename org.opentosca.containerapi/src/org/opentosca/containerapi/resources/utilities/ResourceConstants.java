@@ -32,9 +32,9 @@ public final class ResourceConstants {
 		tmp.put("jpg","image/jpeg");
 		tmp.put("jpeg","image/jpeg");
 		tmp.put("gif","image/gif");
-        imageMediaTypes = Collections.unmodifiableMap(tmp);
-    }
-
+		imageMediaTypes = Collections.unmodifiableMap(tmp);
+	}
+	
 	
 	public static final String ROOT = "/containerapi";
 	

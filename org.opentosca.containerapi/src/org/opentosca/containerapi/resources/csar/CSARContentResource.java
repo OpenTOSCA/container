@@ -42,13 +42,14 @@ import org.slf4j.LoggerFactory;
  */
 public class CSARContentResource {
 	
+	
 	private static final Logger LOG = LoggerFactory.getLogger(CSARContentResource.class);
 	// If the CSAR is null, CSAR does not exist in the Container
 	private final CSARContent CSAR;
 	
 	
 	public CSARContentResource(CSARContent csar) {
-		this.CSAR = csar;
+		CSAR = csar;
 		CSARContentResource.LOG.debug("{} created: {}", this.getClass(), this);
 		
 		if (csar != null) {
@@ -64,7 +65,7 @@ public class CSARContentResource {
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferences(@Context UriInfo uriInfo) {
 		
-		if (this.CSAR == null) {
+		if (CSAR == null) {
 			CSARContentResource.LOG.info("CSAR is not stored.");
 			
 			return Response.status(Status.NOT_FOUND).build();
@@ -72,12 +73,12 @@ public class CSARContentResource {
 		
 		References refs = new References();
 		
-		Set<AbstractDirectory> directories = this.CSAR.getDirectories();
+		Set<AbstractDirectory> directories = CSAR.getDirectories();
 		for (AbstractDirectory directory : directories) {
 			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), directory.getName()), XLinkConstants.SIMPLE, directory.getName()));
 		}
 		
-		Set<AbstractFile> files = this.CSAR.getFiles();
+		Set<AbstractFile> files = CSAR.getFiles();
 		for (AbstractFile file : files) {
 			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), file.getName()), XLinkConstants.SIMPLE, file.getName()));
 		}
@@ -91,28 +92,28 @@ public class CSARContentResource {
 	@Path("{directoryOrFile}")
 	public Object getDirectoryOrFile(@PathParam("directoryOrFile") String directoryOrFile) {
 		
-		CSARContentResource.LOG.debug("Checking if \"{}\" exists in CSAR \"{}\"...", directoryOrFile, this.CSAR.getCSARID());
+		CSARContentResource.LOG.debug("Checking if \"{}\" exists in CSAR \"{}\"...", directoryOrFile, CSAR.getCSARID());
 		
-		Set<AbstractDirectory> directories = this.CSAR.getDirectories();
+		Set<AbstractDirectory> directories = CSAR.getDirectories();
 		
 		for (AbstractDirectory directory : directories) {
 			if (directory.getName().equals(directoryOrFile)) {
-				CSARContentResource.LOG.debug("\"{}\" is a directory of CSAR \"{}\".", directoryOrFile, this.CSAR.getCSARID());
-				return new CSARDirectoryResource(directory, this.CSAR.getCSARID());
+				CSARContentResource.LOG.debug("\"{}\" is a directory of CSAR \"{}\".", directoryOrFile, CSAR.getCSARID());
+				return new CSARDirectoryResource(directory, CSAR.getCSARID());
 				
 			}
 		}
 		
-		Set<AbstractFile> files = this.CSAR.getFiles();
+		Set<AbstractFile> files = CSAR.getFiles();
 		
 		for (AbstractFile file : files) {
 			if (file.getName().equals(directoryOrFile)) {
-				CSARContentResource.LOG.debug("\"{}\" is a file of CSAR \"{}\".", directoryOrFile, this.CSAR.getCSARID());
-				return new CSARFileResource(file, this.CSAR.getCSARID());
+				CSARContentResource.LOG.debug("\"{}\" is a file of CSAR \"{}\".", directoryOrFile, CSAR.getCSARID());
+				return new CSARFileResource(file, CSAR.getCSARID());
 			}
 		}
 		
-		CSARContentResource.LOG.error("\"{}\" does not exist in CSAR \"{}\"!", directoryOrFile, this.CSAR.getCSARID());
+		CSARContentResource.LOG.error("\"{}\" does not exist in CSAR \"{}\"!", directoryOrFile, CSAR.getCSARID());
 		
 		return null;
 		
@@ -137,7 +138,7 @@ public class CSARContentResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response moveCSAR(String input) throws UserException, SystemException {
 		
-		if (this.CSAR == null) {
+		if (CSAR == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		
@@ -145,9 +146,9 @@ public class CSARContentResource {
 			
 			// try {
 			
-			FileRepositoryServiceHandler.getFileHandler().moveCSAR(this.CSAR.getCSARID());
+			FileRepositoryServiceHandler.getFileHandler().moveCSAR(CSAR.getCSARID());
 			
-			return Response.ok("Moving CSAR \"" + this.CSAR.getCSARID() + "\" was successful.").build();
+			return Response.ok("Moving CSAR \"" + CSAR.getCSARID() + "\" was successful.").build();
 			
 			// } catch (UserException exc) {
 			// CSARContentResource.LOG.warn("An User Exception occured.", exc);

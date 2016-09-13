@@ -154,6 +154,10 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
 	 * yet, thus, just returns itself.
 	 * 
+	 * TODO consider to deliver this output not under the path
+	 * "{PlanName}/PlanWithMinimalInput" but with other MIME type under
+	 * "{PlanName}"
+	 * 
 	 * @param uriInfo
 	 * @return Response
 	 */

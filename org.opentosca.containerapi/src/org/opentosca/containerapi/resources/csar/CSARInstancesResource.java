@@ -37,9 +37,11 @@ import org.slf4j.LoggerFactory;
  */
 public class CSARInstancesResource {
 	
+	
 	private static final Logger LOG = LoggerFactory.getLogger(CSARInstancesResource.class);
 	
 	private final CSARID csarID;
+	
 	
 	public CSARInstancesResource(CSARID csarID) {
 		this.csarID = csarID;
@@ -72,18 +74,14 @@ public class CSARInstancesResource {
 		
 		if (null != CSARInstanceManagementHandler.csarInstanceManagement.getInstancesOfCSAR(csarID)) {
 			for (CSARInstanceID id : CSARInstanceManagementHandler.csarInstanceManagement.getInstancesOfCSAR(csarID)) {
-				refs.getReference()
-				.add(new Reference(
-						Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(id.getInstanceID())),
-						XLinkConstants.SIMPLE, Integer.toString(id.getInstanceID())));
+				refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(id.getInstanceID())), XLinkConstants.SIMPLE, Integer.toString(id.getInstanceID())));
 			}
 		}
 		
 		CSARInstancesResource.LOG.debug("Number of References in Root: {}", refs.getReference().size());
 		
 		// selflink
-		refs.getReference()
-		.add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return Response.ok(refs.getXMLString()).build();
 	}
 	
@@ -102,8 +100,7 @@ public class CSARInstancesResource {
 	/**
 	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
 	 * 
-	 * @param planElement
-	 *            the BUILD PublicPlan
+	 * @param planElement the BUILD PublicPlan
 	 * @return Response
 	 */
 	@POST
@@ -132,8 +129,7 @@ public class CSARInstancesResource {
 		// plan.setPlanID(qname);
 		// }
 		
-		String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
-				.getNamespaceOfPlan(csarID, plan.getId().getLocalPart());
+		String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getNamespaceOfPlan(csarID, plan.getId().getLocalPart());
 		plan.setId(new QName(namespace, plan.getId().getLocalPart()));
 		
 		LOG.debug("PublicPlan to invoke: " + plan.getId());

@@ -82,7 +82,9 @@ public class CSARPlanInstances {
 			// refs.getXMLString());
 			URI uri = new URI(url);
 			LOG.trace("Redirect for correlation {}:\n{}", corr, uri);
-			return Response.seeOther(uri).build();//status(Response.Status.SEE_OTHER).header("", url).build();// entity(refs.getXMLString()).build();
+			return Response.seeOther(uri).build();// status(Response.Status.SEE_OTHER).header("",
+			// url).build();//
+			// entity(refs.getXMLString()).build();
 			// return
 			// Response.status(Response.Status.SEE_OTHER).entity(refs.getXMLString().replace("<?xml
 			// version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
