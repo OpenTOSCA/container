@@ -35,51 +35,53 @@ import com.predic8.wsdl.WSDLParser;
  * Management Bus-Plug-in for invoking a service with a SOAP message over HTTP.
  * <br>
  * <br>
- * 
+ *
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * The Plug-in gets needed information (like endpoint of the service or
  * operation to invoke) from the Management Bus and creates a SOAP message out
  * of it. If needed the Plug-in parses the WSDL of the service. The Plug-in
  * supports synchronous request-response communication, asynchronous
  * communication with callbacks and one-way invocation.
- * 
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  */
 public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPluginService {
 	
-	final private static Logger LOG = LoggerFactory.getLogger(ManagementBusPluginSoapHttpServiceImpl.class);
 	
+	final private static Logger LOG = LoggerFactory.getLogger(ManagementBusPluginSoapHttpServiceImpl.class);
+
 	// Supported types defined in messages.properties.
 	static final private String TYPES = Messages.SoapSIEnginePlugin_types;
-	
+
 	private static Map<String, Exchange> exchangeMap = Collections.synchronizedMap(new HashMap<String, Exchange>());
-	
+
 	final String CALLBACK = "callback";
 	final String REQUST_RESPONSE = "request-response";
 	final String REQUEST_ONLY = "request-only";
-	
+
+
 	@Override
 	public Exchange invoke(Exchange exchange) {
 		
 		String messagingPattern = null;
-		
+
 		Message message = exchange.getIn();
-		
+
 		Object params = message.getBody();
 		String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
 		String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 		Boolean hastOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
-		
+
 		if (!endpoint.endsWith("?wsdl")) {
 			
 			endpoint = endpoint.concat("?wsdl");
-			
+
 		}
-		
+
 		Map<String, Object> headers = new HashMap<String, Object>();
-		
+
 		// Self defined header should be part of the outgoing soap messages.
 		for (MBHeader header : MBHeader.values()) {
 			
@@ -87,29 +89,29 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 				headers.put(header.name(), message.getHeader(header.name()));
 			}
 		}
-		
+
 		headers.put("endpoint", endpoint.replace("?wsdl", ""));
-		
+
 		Document document = null;
-		
+
 		ManagementBusPluginSoapHttpServiceImpl.LOG.info("Creating invocation message.");
-		
+
 		if (params instanceof HashMap) {
 			
 			message.setHeader("ParamsMode", "HashMap");
-			
+
 			String rootElementNamespaceURI = null;
 			String rootElementName = null;
-			
+
 			@SuppressWarnings("unchecked")
 			HashMap<String, String> paramsMap = (HashMap<String, String>) params;
-			
+
 			WSDLParser parser = new WSDLParser();
-			
+
 			ManagementBusPluginSoapHttpServiceImpl.LOG.info("Parsing WSDL at: {}.", endpoint);
-			
+
 			Definitions wsdl;
-			
+
 			// If wsdl is not accessible, try again (max wait 5 min)
 			int count = 0;
 			int maxTries = 30;
@@ -123,8 +125,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 						ManagementBusPluginSoapHttpServiceImpl.LOG.error("Unable to access the wsdl at: {}.", endpoint);
 						throw e;
 					} else {
-						ManagementBusPluginSoapHttpServiceImpl.LOG
-						.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})", endpoint, count, maxTries);
+						ManagementBusPluginSoapHttpServiceImpl.LOG.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})", endpoint, count, maxTries);
 						try {
 							Thread.sleep(10000);
 						} catch (InterruptedException e1) {
@@ -133,185 +134,170 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 					}
 				}
 			}
-			
+
 			// Jump-Label to stop both loops at once
 			searchOperation: for (Binding bind : wsdl.getBindings()) {
 				
 				ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Binding: {}", bind);
-				
+
 				if (bind.getProtocol().toString().toLowerCase().contains("soap")) {
 					
 					for (BindingOperation op : bind.getOperations()) {
 						ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Operation: {} =? {}", op.getName(), operationName);
-						
+
 						if (op.getName().equals(operationName)) {
 							String portType = bind.getPortType().getName();
 							ManagementBusPluginSoapHttpServiceImpl.LOG.debug("PortType: {}", portType);
 							String rootElementWithPrefix = wsdl.getElementNameForOperation(operationName, portType);
 							com.predic8.schema.Element element = wsdl.getElementForOperation(operationName, portType);
 							rootElementName = element.getName();
-							rootElementNamespaceURI = (String) element
-									.getNamespace(rootElementWithPrefix.replace(":" + rootElementName, ""));
-							ManagementBusPluginSoapHttpServiceImpl.LOG.debug(
-									"Root ElementName: {} with NamespaceURI: {}", rootElementName,
-									rootElementNamespaceURI);
-							
+							rootElementNamespaceURI = (String) element.getNamespace(rootElementWithPrefix.replace(":" + rootElementName, ""));
+							ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Root ElementName: {} with NamespaceURI: {}", rootElementName, rootElementNamespaceURI);
+
 							// Check if request-response ,callback or
 							// request-only
 							if (op.getInput() != null) {
 								
 								if ((op.getOutput() == null) && hastOutputParams) {
-									messagingPattern = CALLBACK;
-									
+									messagingPattern = this.CALLBACK;
+
 									if (paramsMap.containsKey("MessageID")) {
 										paramsMap.put("MessageID", message.getMessageId());
 									} else {
 										headers.put("MessageID", message.getMessageId());
 									}
-									
+
 									if (paramsMap.containsKey("ReplyTo")) {
 										paramsMap.put("ReplyTo", AsyncRoute.CALLBACKADDRESS);
 									} else {
 										headers.put("ReplyTo", AsyncRoute.CALLBACKADDRESS);
 									}
-									
+
 								} else if ((op.getOutput() == null) && !hastOutputParams) {
-									messagingPattern = REQUEST_ONLY;
-									
+									messagingPattern = this.REQUEST_ONLY;
+
 								} else {
-									messagingPattern = REQUST_RESPONSE;
+									messagingPattern = this.REQUST_RESPONSE;
 								}
-								
+
 								break searchOperation;
 							}
 						}
 					}
 				}
 			}
-			
+
 			if (messagingPattern == null) {
 				ManagementBusPluginSoapHttpServiceImpl.LOG.error("No invokable operation found. Invocation aborted!");
 				return null;
 			}
-			
-			document = mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
-			
+
+			document = this.mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
+
 		}
-		
+
 		if (params instanceof Document) {
 			
 			document = (Document) params;
-			
-			messagingPattern = determineMP(message, operationName, hastOutputParams, endpoint);
-			
+
+			messagingPattern = this.determineMP(message, operationName, hastOutputParams, endpoint);
+
 		}
-		
+
 		if (messagingPattern == null) {
-			ManagementBusPluginSoapHttpServiceImpl.LOG
-			.error("Can't determine which kind of invocation is needed. Invocation aborted.");
+			ManagementBusPluginSoapHttpServiceImpl.LOG.error("Can't determine which kind of invocation is needed. Invocation aborted.");
 			return null;
 		}
-		
+
 		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Invoking the web service.");
-		
+
 		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
-		
+
 		ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
-		
+
 		Document response = null;
-		
+
 		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Messaging pattern: {}", messagingPattern);
-		
-		if (messagingPattern.equals(REQUST_RESPONSE)) {
+
+		if (messagingPattern.equals(this.REQUST_RESPONSE)) {
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Sync invocation.");
 			response = template.requestBodyAndHeaders("direct:Sync-WS-Invoke", document, headers, Document.class);
 		}
-		
-		else if (messagingPattern.equals(REQUEST_ONLY)) {
+
+		else if (messagingPattern.equals(this.REQUEST_ONLY)) {
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Request-only invocation.");
 			template.sendBodyAndHeaders("direct:RequestOnly-WS-Invoke", document, headers);
 			return null;
 		}
-		
-		else if (messagingPattern.equals(CALLBACK)) {
+
+		else if (messagingPattern.equals(this.CALLBACK)) {
 			
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Async invocation.");
-			
+
 			String messageID = message.getMessageId();
-			
+
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Storing exchange message with MessageID: {}", messageID);
-			
+
 			ManagementBusPluginSoapHttpServiceImpl.exchangeMap.put(messageID, exchange);
-			
+
 			template.sendBodyAndHeaders("direct:Async-WS-Invoke", document, headers);
-			
+
 			Exchange ex = null;
-			String messageIDToCheck = null;
-			
+
 			while (response == null) {
 				
-				synchronized (this) {
+				try {
 					
-					try {
-						
-						consumer.start();
-						ex = consumer.receive("direct:Async-WS-Callback");
-						consumer.stop();
-						
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					consumer.start();
+					ex = consumer.receive("direct:Async-WS-Callback" + messageID);
+					consumer.stop();
+
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				
+
 				Message mes = ex.getIn();
-				
-				messageIDToCheck = mes.getHeader("MessageID", String.class);
-				
-				ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Got Message with ID: {}", messageIDToCheck);
-				ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Stored MessageIDs: {}",
-						ManagementBusPluginSoapHttpServiceImpl.exchangeMap.keySet().toString());
-				
-				if (ManagementBusPluginSoapHttpServiceImpl.exchangeMap.containsKey(messageIDToCheck)) {
+
+				ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Got Message with ID: {}", messageID);
+				ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Stored MessageIDs: {}", ManagementBusPluginSoapHttpServiceImpl.exchangeMap.keySet().toString());
+
+				if (ManagementBusPluginSoapHttpServiceImpl.exchangeMap.containsKey(messageID)) {
 					ManagementBusPluginSoapHttpServiceImpl.LOG.debug("MessageID found");
-					exchange = ManagementBusPluginSoapHttpServiceImpl.exchangeMap.get(messageIDToCheck);
-					
+					exchange = ManagementBusPluginSoapHttpServiceImpl.exchangeMap.get(messageID);
+
 					response = mes.getBody(Document.class);
-					ManagementBusPluginSoapHttpServiceImpl.exchangeMap.remove(messageIDToCheck);
+					ManagementBusPluginSoapHttpServiceImpl.exchangeMap.remove(messageID);
 				}
-				
+
 			}
-			
+
 		}
-		
-		if ((exchange.getIn().getHeader("ParamsMode") != null)
-				&& exchange.getIn().getHeader("ParamsMode").equals("HashMap")) {
+
+		if ((exchange.getIn().getHeader("ParamsMode") != null) && exchange.getIn().getHeader("ParamsMode").equals("HashMap")) {
 			
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Transforming Document to HashMap...");
-			
+
 			HashMap<String, String> responseMap = MBUtils.docToMap(response, false);
-			
+
 			exchange.getIn().setBody(responseMap);
-			
+
 		} else {
 			exchange.getIn().setBody(response);
 		}
-		
-		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Returning exchange with MessageID: {}",
-				exchange.getIn().getHeader("MessageID"));
+
+		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Returning exchange with MessageID: {}", exchange.getIn().getMessageId());
 		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Returning body: {}", exchange.getIn().getBody().toString());
-		
+
 		return exchange;
 	}
-	
+
 	/**
 	 * Determine if the specified operation of the specified wsdl defines output
 	 * parameter.
-	 * 
-	 * @param endpoint
-	 *            of the wsdl to check.
-	 * @param operationName
-	 *            to check.
+	 *
+	 * @param endpoint of the wsdl to check.
+	 * @param operationName to check.
 	 * @return <code>true</code> if operation returns output params. Otherwise
 	 *         <code>false</code>. If operation can't be found <code>null</code>
 	 *         is returned.
@@ -319,9 +305,9 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 	private Boolean hasOutputDefinedInWSDL(String endpoint, String operationName) {
 		
 		WSDLParser parser = new WSDLParser();
-		
+
 		Definitions wsdl = parser.parse(endpoint.toString());
-		
+
 		for (Binding bind : wsdl.getBindings()) {
 			
 			if (bind.getProtocol().toString().toLowerCase().contains("soap")) {
@@ -332,7 +318,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 						
 						if (op.getOutput() == null) {
 							return false;
-							
+
 						} else {
 							return true;
 						}
@@ -342,15 +328,15 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Determines which kind of invocation is needed for this operation.
-	 * 
+	 *
 	 * @param message
 	 * @param operationName
 	 * @param hastOutputParams
 	 * @param endpoint
-	 * 
+	 *
 	 * @return messagingPattern as String.
 	 */
 	private String determineMP(Message message, String operationName, Boolean hastOutputParams, String endpoint) {
@@ -359,67 +345,65 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		if (message.getHeader(MBHeader.PLANID_QNAME.toString()) != null) {
 			
 			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Invoking a plan with document as input.");
-			
+
 			// Caller already knows if invocation is sync or async.
 			if (message.getHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString()) != null) {
 				if (!message.getHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), Boolean.class)) {
-					return CALLBACK;
+					return this.CALLBACK;
 				} else {
-					return REQUST_RESPONSE;
+					return this.REQUST_RESPONSE;
 				}
-				
+
 				// Plug-in needs to determine with wsdl.
 			} else if (operationName != null) {
 				
-				Boolean hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
-				
+				Boolean hasOutputDefinedInWSDL = this.hasOutputDefinedInWSDL(endpoint, operationName);
+
 				if (hasOutputDefinedInWSDL != null) {
 					if (hasOutputDefinedInWSDL) {
-						return REQUST_RESPONSE;
+						return this.REQUST_RESPONSE;
 					} else {
-						return CALLBACK;
+						return this.CALLBACK;
 					}
 				}
 			}
-			
+
 			// Operation of IA should be invoked
 		} else {
 			
-			ManagementBusPluginSoapHttpServiceImpl.LOG
-			.debug("Invoking an operation of an implementation artifact with document as input.");
-			
-			Boolean hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
-			
+			ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Invoking an operation of an implementation artifact with document as input.");
+
+			Boolean hasOutputDefinedInWSDL = this.hasOutputDefinedInWSDL(endpoint, operationName);
+
 			if (hasOutputDefinedInWSDL != null) {
 				
 				if (!hasOutputDefinedInWSDL && hastOutputParams) {
-					return CALLBACK;
-					
+					return this.CALLBACK;
+
 				} else if (!hasOutputDefinedInWSDL && !hastOutputParams) {
-					return REQUEST_ONLY;
-					
+					return this.REQUEST_ONLY;
+
 				} else {
-					return REQUST_RESPONSE;
+					return this.REQUST_RESPONSE;
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Transfers the paramsMap into a Document.
-	 * 
+	 *
 	 * @param rootElementNamespaceURI
 	 * @param rootElementName
 	 * @param paramsMap
-	 * 
+	 *
 	 * @return the created Document.
 	 */
-	private Document mapToDoc(String rootElementNamespaceURI, String rootElementName,
-			HashMap<String, String> paramsMap) {
+	private Document mapToDoc(String rootElementNamespaceURI, String rootElementName, HashMap<String, String> paramsMap) {
 		
 		Document document;
-		
+
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = null;
 		try {
@@ -428,23 +412,23 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 			ManagementBusPluginSoapHttpServiceImpl.LOG.error("Some error occured.");
 			e.printStackTrace();
 		}
-		
+
 		document = documentBuilder.newDocument();
-		
+
 		Element rootElement = document.createElementNS(rootElementNamespaceURI, rootElementName);
 		document.appendChild(rootElement);
-		
+
 		Element mapElement;
 		for (Entry<String, String> entry : paramsMap.entrySet()) {
 			mapElement = document.createElement(entry.getKey());
 			mapElement.setTextContent(entry.getValue());
 			rootElement.appendChild(mapElement);
-			
+
 		}
-		
+
 		return document;
 	}
-	
+
 	/**
 	 * @return the keys of the map containing stored messageIds and exchange
 	 *         objects.
@@ -452,13 +436,12 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 	public static Set<String> getMessageIDs() {
 		return ManagementBusPluginSoapHttpServiceImpl.exchangeMap.keySet();
 	}
-	
+
 	@Override
 	public List<String> getSupportedTypes() {
-		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Getting Types: {}.",
-				ManagementBusPluginSoapHttpServiceImpl.TYPES);
+		ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Getting Types: {}.", ManagementBusPluginSoapHttpServiceImpl.TYPES);
 		List<String> types = new ArrayList<String>();
-		
+
 		for (String type : ManagementBusPluginSoapHttpServiceImpl.TYPES.split("[,;]")) {
 			types.add(type.trim());
 		}
