@@ -16,6 +16,7 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TBoundaryDefinitions.Policies;
 import org.opentosca.model.tosca.TDefinitions;
 import org.opentosca.model.tosca.TExportedInterface;
+import org.opentosca.model.tosca.TExportedOperation;
 import org.opentosca.model.tosca.TPlan;
 import org.opentosca.model.tosca.TPolicy;
 import org.opentosca.model.tosca.extension.helpers.PlanTypes;
@@ -49,6 +50,7 @@ import org.w3c.dom.Node;
  */
 public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	
+	
 	// services
 	private static IXMLSerializerService xmlSerializerService;
 	
@@ -76,6 +78,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	private Map<CSARID, Map<String, String>> mapCSARIDToPlanNameToNamespace = new HashMap<CSARID, Map<String, String>>();
 	
 	private Map<CSARID, Map<QName, List<String>>> mapCSARIDToServiceTemplateQNameToNodeTemplateID = new HashMap<>();
+	
 	
 	public ToscaReferenceMapper() {
 		setup();
@@ -206,8 +209,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		if (!csarIDToPlanTypeToIntegerToPlan.get(csarID).containsKey(PlanTypes.BUILD)) {
 			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.BUILD, new LinkedHashMap<QName, TPlan>());
 			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.TERMINATION, new LinkedHashMap<QName, TPlan>());
-			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT,
-					new LinkedHashMap<QName, TPlan>());
+			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT, new LinkedHashMap<QName, TPlan>());
 			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.APPLICATION, new LinkedHashMap<QName, TPlan>());
 		}
 		
@@ -341,15 +343,13 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 				if (AvailableToscaElements.getElementName(node.getLocalName()).getElementClass() != null) {
 					// The name of the node implies that is marshalable into one
 					// of the JAXB classes of TOSCA.
-					return ToscaReferenceMapper.xmlSerializerService.getXmlSerializer().unmarshal(node,
-							AvailableToscaElements.getElementName(node.getLocalName()).getElementClass());
+					return ToscaReferenceMapper.xmlSerializerService.getXmlSerializer().unmarshal(node, AvailableToscaElements.getElementName(node.getLocalName()).getElementClass());
 				} else {
 					LOG.error("The reference is not a JAXB element.");
 				}
 				
 			} else {
-				LOG.error("Reference with the QName \"" + nodeID.toString() + "\" was not found for the CSAR \""
-						+ csarID + "\".");
+				LOG.error("Reference with the QName \"" + nodeID.toString() + "\" was not found for the CSAR \"" + csarID + "\".");
 			}
 		} else {
 			LOG.error("No references for the CSAR with the QName \"" + csarID.toString() + "\" found.");
@@ -386,8 +386,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		if (!csarIDToPlanTypeToIntegerToPlan.get(csarID).containsKey(PlanTypes.BUILD)) {
 			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.BUILD, new LinkedHashMap<QName, TPlan>());
 			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.TERMINATION, new LinkedHashMap<QName, TPlan>());
-			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT,
-					new LinkedHashMap<QName, TPlan>());
+			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.OTHERMANAGEMENT, new LinkedHashMap<QName, TPlan>());
 			csarIDToPlanTypeToIntegerToPlan.get(csarID).put(PlanTypes.APPLICATION, new LinkedHashMap<QName, TPlan>());
 		}
 		
@@ -414,10 +413,8 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	
 	@Override
 	public Boolean isPlanAsynchronous(CSARID csarID, QName planID) {
-		if ((null == csarIDToPlanIDToSynchronousBoolean.get(csarID))
-				|| (null == csarIDToPlanIDToSynchronousBoolean.get(csarID).get(planID))) {
-			LOG.error("There is no information stored about the plan " + planID + " of CSAR " + csarID
-					+ " is synchronous or asynchronous. Thus return null.");
+		if ((null == csarIDToPlanIDToSynchronousBoolean.get(csarID)) || (null == csarIDToPlanIDToSynchronousBoolean.get(csarID).get(planID))) {
+			LOG.error("There is no information stored about the plan " + planID + " of CSAR " + csarID + " is synchronous or asynchronous. Thus return null.");
 			return null;
 		} else {
 			return csarIDToPlanIDToSynchronousBoolean.get(csarID).get(planID);
@@ -451,8 +448,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 				if (referenceMap.get(csarID).get(ref) == null) {
 					builder.append("ERROR: There is no data stored for the reference \"" + ref + "\"." + ls);
 				} else {
-					string = ToscaReferenceMapper.xmlSerializerService.getXmlSerializer()
-							.docToString(referenceMap.get(csarID).get(ref), true);
+					string = ToscaReferenceMapper.xmlSerializerService.getXmlSerializer().docToString(referenceMap.get(csarID).get(ref), true);
 					string = string.replace(ls, "");
 					builder.append("       " + ref + " --> " + string + ls);
 				}
@@ -465,8 +461,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 					if (documentMap.get(csarID).get(ref) == null) {
 						builder.append("ERROR: There is no data stored for the reference \"" + ref + "\"." + ls);
 					} else {
-						string = ToscaReferenceMapper.xmlSerializerService.getXmlSerializer()
-								.docToString(documentMap.get(csarID).get(ref), true);
+						string = ToscaReferenceMapper.xmlSerializerService.getXmlSerializer().docToString(documentMap.get(csarID).get(ref), true);
 						string = string.replace(ls, "");
 						builder.append("       " + ref + " --> " + string + ls);
 					}
@@ -488,21 +483,17 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 			if (null != csarIDToServiceTemplateIDToPlanID.get(csarID)) {
 				for (QName serviceTemplateID : csarIDToServiceTemplateIDToPlanID.get(csarID).keySet()) {
 					for (QName planID : csarIDToServiceTemplateIDToPlanID.get(csarID).get(serviceTemplateID)) {
-						builder.append("       Plan \"" + planID + "\" is inside of ServiceTemplate \""
-								+ serviceTemplateID + "\"" + ls);
+						builder.append("       Plan \"" + planID + "\" is inside of ServiceTemplate \"" + serviceTemplateID + "\"" + ls);
 					}
 				}
 			} else {
 				builder.append("       nothing found ..." + ls);
 			}
 			
-			builder.append(
-					ls + "Print all stored informations about synchronous (false) and asynchronous (true) plans of CSAR \""
-							+ csarID + "\":" + ls);
+			builder.append(ls + "Print all stored informations about synchronous (false) and asynchronous (true) plans of CSAR \"" + csarID + "\":" + ls);
 			if (null != csarIDToPlanIDToSynchronousBoolean.get(csarID)) {
 				for (QName planID : csarIDToPlanIDToSynchronousBoolean.get(csarID).keySet()) {
-					builder.append("    Plan \"" + planID + "\" is asynchronous? "
-							+ csarIDToPlanIDToSynchronousBoolean.get(csarID).get(planID) + ls);
+					builder.append("    Plan \"" + planID + "\" is asynchronous? " + csarIDToPlanIDToSynchronousBoolean.get(csarID).get(planID) + ls);
 				}
 			}
 			
@@ -545,16 +536,14 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 			if (mapDefinitionsIDToLocationString.containsKey(csarID)) {
 				builder.append(ls + "Print map of TOSCA Definitions locations." + ls);
 				for (QName defID : mapDefinitionsIDToLocationString.get(csarID).keySet()) {
-					builder.append("   " + defID + " is stored at \""
-							+ mapDefinitionsIDToLocationString.get(csarID).get(defID).replace("\\", "/") + "\"" + ls);
+					builder.append("   " + defID + " is stored at \"" + mapDefinitionsIDToLocationString.get(csarID).get(defID).replace("\\", "/") + "\"" + ls);
 				}
 			}
 			
 			if (mapElementIDToDefinitionsID.containsKey(csarID)) {
 				builder.append(ls + "Print map of TOSCA element IDs to Definitions ID." + ls);
 				for (QName eleID : mapElementIDToDefinitionsID.get(csarID).keySet()) {
-					builder.append("   " + eleID + " is contained in Definitions \""
-							+ mapElementIDToDefinitionsID.get(csarID).get(eleID) + "\"" + ls);
+					builder.append("   " + eleID + " is contained in Definitions \"" + mapElementIDToDefinitionsID.get(csarID).get(eleID) + "\"" + ls);
 				}
 			}
 			
@@ -616,8 +605,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 			if (!referenceMap.containsKey(csarID)) {
 				referenceMap.put(csarID, new MapQNameNode());
 			}
-			referenceMap.get(csarID).put(reference,
-					ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(definitions));
+			referenceMap.get(csarID).put(reference, ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(definitions));
 			
 		} else {
 			LOG.error("An error has occured.");
@@ -628,12 +616,9 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	/**
 	 * This method stores a DOM document and its QName for a certain CSAR.
 	 * 
-	 * @param csarID
-	 *            ID of the CSAR in which the document is referenced.
-	 * @param documentID
-	 *            ID of the document.
-	 * @param doc
-	 *            DOM document which shall be stored.
+	 * @param csarID ID of the CSAR in which the document is referenced.
+	 * @param documentID ID of the document.
+	 * @param doc DOM document which shall be stored.
 	 * @return true means no error, false means one or more errors
 	 */
 	@Override
@@ -661,8 +646,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		}
 		
 		if (documentMap.get(csarID).containsKey(documentID)) {
-			LOG.debug("The reference with the QName \"" + documentID.toString() + "\" is already stored for the CSAR \""
-					+ csarID + "\".");
+			LOG.debug("The reference with the QName \"" + documentID.toString() + "\" is already stored for the CSAR \"" + csarID + "\".");
 		} else {
 			documentMap.get(csarID).put(documentID, doc);
 			LOG.debug("Storing of Document \"" + documentID.toString() + "\" completed.");
@@ -715,8 +699,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		if (null == csarIDToPlanIDToSynchronousBoolean.get(csarID).get(planID)) {
 			csarIDToPlanIDToSynchronousBoolean.get(csarID).put(planID, checkAsynchronous);
 		} else {
-			LOG.error("For the CSAR " + csarID + " and plan " + planID
-					+ " is already stored wheter it is a synchronous or an asynchronous plan.");
+			LOG.error("For the CSAR " + csarID + " and plan " + planID + " is already stored wheter it is a synchronous or an asynchronous plan.");
 		}
 	}
 	
@@ -744,8 +727,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 			csarMap = referenceMap.get(csarID);
 			if (csarMap.containsKey(nodeID)) {
 				// node is stored already
-				LOG.debug("The reference with the QName \"" + nodeID.toString() + "\" is already stored for the CSAR \""
-						+ csarID + "\".");
+				LOG.debug("The reference with the QName \"" + nodeID.toString() + "\" is already stored for the CSAR \"" + csarID + "\".");
 			} else {
 				// store this node
 				csarMap.put(nodeID, node);
@@ -937,13 +919,20 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	
 	@Override
 	public List<String> getBoundaryOperationsOfCSARInterface(CSARID csarID, String intName) {
+		// TODO
 		List<String> list = new ArrayList<String>();
 		
-		Map<QName, String> map = mapCSARIDToPlanIDToOperationName.get(csarID);
+		Map<QName, List<TExportedInterface>> stToIntfs = csarIDToExportedInterface.get(csarID);
 		
-		if (null != map) {
-			for (QName plan : map.keySet()) {
-				list.add(map.get(plan));
+		if (null != stToIntfs) {
+			for (QName serviceTemplate : stToIntfs.keySet()) {
+				for (TExportedInterface intf : stToIntfs.get(serviceTemplate)) {
+					if (intf.getName().equals(intName)) {
+						for (TExportedOperation op : intf.getOperation()) {
+							list.add(op.getName());
+						}
+					}
+				}
 			}
 		}
 		return list;
@@ -952,15 +941,31 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	@Override
 	public QName getBoundaryPlanOfCSARInterface(CSARID csarID, String intName, String opName) {
 		
-		Map<QName, String> map = mapCSARIDToPlanIDToOperationName.get(csarID);
+		Map<QName, List<TExportedInterface>> stToIntfs = csarIDToExportedInterface.get(csarID);
 		
-		if (null != map) {
-			for (QName plan : map.keySet()) {
-				if (map.get(plan).contains(opName)) {
-					return plan;
+		if (null != stToIntfs) {
+			for (QName serviceTemplate : stToIntfs.keySet()) {
+				for (TExportedInterface intf : stToIntfs.get(serviceTemplate)) {
+					if (intf.getName().equals(intName)) {
+						for (TExportedOperation op : intf.getOperation()) {
+							if (op.getName().equals(opName)) {
+								return new QName(serviceTemplate.getNamespaceURI(), ((TPlan) op.getPlan().getPlanRef()).getId());
+							}
+						}
+					}
 				}
 			}
 		}
+		
+		//		Map<QName, String> map = mapCSARIDToPlanIDToOperationName.get(csarID);
+		//		
+		//		if (null != map) {
+		//			for (QName plan : map.keySet()) {
+		//				if (map.get(plan).contains(opName)) {
+		//					return plan;
+		//				}
+		//			}
+		//		}
 		return null;
 	}
 	
@@ -982,21 +987,21 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	
 	@Override
 	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id) {
-		if (!mapCSARIDToServiceTemplateQNameToNodeTemplateID.containsKey(csarID)){
+		if (!mapCSARIDToServiceTemplateQNameToNodeTemplateID.containsKey(csarID)) {
 			mapCSARIDToServiceTemplateQNameToNodeTemplateID.put(csarID, new HashMap<QName, List<String>>());
 		}
 		Map<QName, List<String>> map = mapCSARIDToServiceTemplateQNameToNodeTemplateID.get(csarID);
-		if (!map.containsKey(serviceTemplateID)){
+		if (!map.containsKey(serviceTemplateID)) {
 			map.put(serviceTemplateID, new ArrayList<String>());
 		}
 		List<String> list = map.get(serviceTemplateID);
-		if(!list.contains(id)){
+		if (!list.contains(id)) {
 			list.add(id);
 		}
 	}
 	
 	@Override
-	public Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID){
+	public Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID) {
 		return mapCSARIDToServiceTemplateQNameToNodeTemplateID.get(csarID);
 	}
 }

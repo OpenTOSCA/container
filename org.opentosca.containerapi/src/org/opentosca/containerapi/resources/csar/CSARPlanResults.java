@@ -105,8 +105,9 @@ public class CSARPlanResults {
 				ret.addProperty(str, map.get(str));
 			}
 			json.append("}");
-			LOG.trace("Return json: {}", ret.toString());
-			return Response.ok("callback({\"json\":" + ret.toString() + "})").build();
+			String str = "{\"json\":" + ret.toString() + "}";
+			LOG.trace("Return: {}", str);
+			return Response.ok(str).build();
 		} else {
 			LOG.warn("Correlation not known for corr ", corr);
 			return Response.status(Response.Status.BAD_REQUEST).entity("<response>Given correlation is not known.</response>").build();
