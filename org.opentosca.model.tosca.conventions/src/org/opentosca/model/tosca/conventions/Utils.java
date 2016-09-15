@@ -209,5 +209,22 @@ public class Utils {
 		}
 		return check;
 	}
+
+	/**
+	 * Checks whether the given NodeType is a docker engine nodeType that can
+	 * be handled by the set of plugins used by the PlanBuilder.
+	 * 
+	 * @param nodeType
+	 *            a QName denoting some nodeType
+	 * @return a boolean. True if the given nodeType is a docker engine
+	 *         nodeType
+	 */
+	public static boolean isSupportedDockerEngineNodeType(QName nodeType) {
+		if (nodeType.equals(Types.dockerEngineNodeType)) {
+			return true;
+		}
+
+		return false;
+	}
 	
 }

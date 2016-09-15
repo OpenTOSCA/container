@@ -44,15 +44,18 @@ public class Plugin implements IPlanBuilderTypePlugin {
 
 		LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
-		// when the cloudprovider node arrives start handling
+		//  cloudprovider node is handled by doing nothing
 		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
+		
+		// docker engine node is handled by doing nothing
+		if (Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType().getId())) {
+			return true;
+		}
 
-		// requirement: nodeTemplates with these two nodeTypes are handled,
-		// by doing nothing
-		if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())
-				| Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
+		// when infrastructure node arrives start handling
+		if (Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
 			// check if this node is connected to a cloud provider node type, if
 			// true -> append code
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
@@ -65,6 +68,10 @@ public class Plugin implements IPlanBuilderTypePlugin {
 					} else {
 						return this.handler.handle(templateContext, nodeTemplate);
 					}
+				}else{
+					// if node is not connected to a cloud provider, it has to be connected
+					// to a docker engine
+					return this.handler.handleWithDockerEngineInterface(templateContext, nodeTemplate);
 				}
 			}
 			return true;
@@ -89,12 +96,15 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		// this plugin can handle all referenced nodeTypes
 		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
+		} else if(Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType().getId())){
+			return true;
 		} else if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			// checking if this vmNode is connected to a nodeTemplate of Type
-			// cloud provider (ec2, openstack), if not this plugin can't handle
+			// cloud provider (ec2, openstack) or docker engine, if not this plugin can't handle
 			// this node
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-				if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())) {
+				if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())
+						| Utils.isSupportedDockerEngineNodeType(relationshipTemplate.getTarget().getType().getId())) {
 					return true;
 				}
 			}
