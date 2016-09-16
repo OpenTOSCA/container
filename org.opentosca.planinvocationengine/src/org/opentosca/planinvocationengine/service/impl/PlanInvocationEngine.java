@@ -386,8 +386,14 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 				LOG.trace("History has for variable \"{}\" the value \"{}\"", param.getName(), responseStr);
 				
 				JsonParser parser = new JsonParser();
-				JsonObject json = (JsonObject) parser.parse(responseStr.substring(1, responseStr.length() - 1));
-				String value = json.get("value").getAsString();
+				String value = null;
+				try {
+					JsonObject json = (JsonObject) parser.parse(responseStr.substring(1, responseStr.length() - 1));
+					value = json.get("value").getAsString();
+				} catch (ClassCastException e) {
+					LOG.trace("value is null");
+					value = "";
+				}
 				LOG.debug("For variable \"{}\" the output value is \"{}\"", param.getName(), value);
 				param.setValue(value);
 				map.put(param.getName(), value);
