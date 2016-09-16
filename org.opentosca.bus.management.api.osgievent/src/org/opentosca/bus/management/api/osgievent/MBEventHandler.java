@@ -73,6 +73,7 @@ public class MBEventHandler implements EventHandler {
 		headers.put(MBHeader.CSARID.toString(), csarID);
 		headers.put(MBHeader.PLANID_QNAME.toString(), planID);
 		headers.put("OPERATION", "invokePlan");
+		headers.put("PlanLanguage", planLanguage);
 
 		if (async) {
 		    MBEventHandler.LOG.debug("Invocation is asynchronous.");
@@ -138,10 +139,104 @@ public class MBEventHandler implements EventHandler {
 
 		MBEventHandler.eventAdmin.postEvent(responseEvent);
 
-	    } 
+	    }
 
 	    // BPMN
 	    else if (planLanguage.startsWith("http://www.omg.org/spec/BPMN/2.0")) {
+		MBEventHandler.LOG.debug("Process a BPMN call.");
+
+		// Should be of type Document or HashMap<String, String>. Maybe
+		// better handle them with different topics.
+		Object message = event.getProperty("BODY");
+
+		// Needed if message is of type HashMap
+		String operationName = (String) event.getProperty("OPERATIONNAME");
+
+		// Optional parameter if message is of type HashMap. Not needed
+		// for
+		// Document.
+		String serviceInstanceID = (String) event.getProperty("SERVICEINSTANCEID");
+
+		// If set the invocation will be asynchronous. Otherwise
+		// synchronous.
+		String messageID = (String) event.getProperty("MESSAGEID");
+		boolean async = (boolean) event.getProperty("ASYNC");
+
+		Map<String, Object> headers = new HashMap<String, Object>();
+		headers.put(MBHeader.CSARID.toString(), csarID);
+		headers.put(MBHeader.PLANID_QNAME.toString(), planID);
+		headers.put("OPERATION", "invokePlan");
+		headers.put("PlanLanguage", planLanguage);
+
+		if (async) {
+		    MBEventHandler.LOG.debug("Invocation is asynchronous.");
+		    headers.put("MessageID", messageID);
+		} else {
+		    MBEventHandler.LOG.debug("Invocation is synchronous.");
+		}
+
+		if (message instanceof HashMap) {
+		    if (serviceInstanceID != null) {
+			URI serviceInstanceURI;
+			try {
+			    serviceInstanceURI = new URI(serviceInstanceID);
+			    headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
+			} catch (URISyntaxException e) {
+			    e.printStackTrace();
+			}
+		    } else {
+			LOG.warn("Service instance ID is null.");
+		    }
+
+		    if (operationName != null) {
+			headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
+		    } else {
+			LOG.warn("Operation name is null.");
+		    }
+		} else {
+		    LOG.warn("The message is no Hashmap.");
+		}
+
+		MBEventHandler.LOG.debug("Sending message {}", message);
+
+		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
+		ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
+
+		MBEventHandler.LOG.debug("Send request with correlation id {}.", messageID);
+
+		template.sendBodyAndHeaders("direct:invoke", ExchangePattern.InOnly, message, headers);
+
+		Object response = null;
+		String callbackMessageID = null;
+
+		synchronized (this) {
+
+		    try {
+
+			consumer.start();
+			Exchange exchange = consumer.receive("direct-vm:" + Activator.apiID);
+			response = exchange.getIn().getBody();
+			callbackMessageID = exchange.getIn().getMessageId();
+
+			consumer.stop();
+
+		    } catch (Exception e) {
+			MBEventHandler.LOG.error("Some error occured.");
+			e.printStackTrace();
+		    }
+		}
+
+		MBEventHandler.LOG.debug("Received response with correlation id {}.", callbackMessageID);
+
+		Map<String, Object> responseMap = new HashMap<String, Object>();
+		responseMap.put("RESPONSE", response);
+		responseMap.put("MESSAGEID", messageID);
+		responseMap.put("PLANLANGUAGE", planLanguage);
+		Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
+
+		MBEventHandler.LOG.debug("Posting response.");
+
+		MBEventHandler.eventAdmin.postEvent(responseEvent);
 
 	    }
 	}

@@ -4,6 +4,7 @@ import org.opentosca.csarinstancemanagement.service.ICSARInstanceManagementServi
 import org.opentosca.planinvocationengine.service.impl.correlation.CorrelationHandler;
 import org.opentosca.toscaengine.service.IToscaEngineService;
 import org.opentosca.toscaengine.service.IToscaReferenceMapper;
+import org.opentosca.toscaengine.xmlserializer.service.IXMLSerializerService;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceHandler {
 	
+	
 	public static IToscaEngineService toscaEngineService = null;
 	public static IToscaReferenceMapper toscaReferenceMapper = null;
+	public static IXMLSerializerService xmlSerializerService = null;
 	public static ICSARInstanceManagementService csarInstanceManagement = null;
 	
 	public static CorrelationHandler correlationHandler = new CorrelationHandler();
@@ -32,51 +35,66 @@ public class ServiceHandler {
 	
 	protected void bindEventAdmin(EventAdmin service) {
 		if (service == null) {
-			this.LOG.error("Service EventAdmin is null.");
+			LOG.error("Service EventAdmin is null.");
 		} else {
-			this.LOG.debug("Bind of the EventAdmin.");
+			LOG.debug("Bind of the EventAdmin.");
 			ServiceHandler.eventAdmin = service;
 		}
 	}
 	
 	protected void unbindEventAdmin(EventAdmin service) {
-		this.LOG.debug("Unbind of the EventAdmin.");
+		LOG.debug("Unbind of the EventAdmin.");
 		ServiceHandler.eventAdmin = null;
 	}
 	
 	protected void bindICSARInstanceManagementService(ICSARInstanceManagementService service) {
 		if (service == null) {
-			this.LOG.error("Service ICSARInstanceManagementService is null.");
+			LOG.error("Service ICSARInstanceManagementService is null.");
 		} else {
-			this.LOG.debug("Bind of the ICSARInstanceManagementService.");
+			LOG.debug("Bind of the ICSARInstanceManagementService.");
 			ServiceHandler.csarInstanceManagement = service;
 		}
 	}
 	
 	protected void unbindICSARInstanceManagementService(ICSARInstanceManagementService service) {
-		this.LOG.debug("Unbind of the ICSARInstanceManagementService.");
+		LOG.debug("Unbind of the ICSARInstanceManagementService.");
 		ServiceHandler.csarInstanceManagement = null;
 	}
 	
 	protected void bindtoscaEngineService(IToscaEngineService service) {
 		if (service == null) {
-			this.LOG.error("Service toscaEngineService is null.");
+			LOG.error("Service toscaEngineService is null.");
 		} else {
-			this.LOG.debug("Bind of the toscaEngineService.");
+			LOG.debug("Bind of the toscaEngineService.");
 			ServiceHandler.toscaEngineService = service;
 			
 			if (null != ServiceHandler.toscaEngineService.getToscaReferenceMapper()) {
 				ServiceHandler.toscaReferenceMapper = ServiceHandler.toscaEngineService.getToscaReferenceMapper();
 			} else {
-				this.LOG.error("The ToscaReferenceMapper is not ready yet.");
+				LOG.error("The ToscaReferenceMapper is not ready yet.");
 			}
 			
 		}
 	}
 	
 	protected void unbindtoscaEngineService(IToscaEngineService service) {
-		this.LOG.debug("Unbind of the toscaEngineService.");
+		LOG.debug("Unbind of the toscaEngineService.");
 		ServiceHandler.toscaEngineService = null;
+	}
+	
+	protected void bindIXMLSerializerService(IXMLSerializerService service) {
+		if (service == null) {
+			LOG.error("Service IXMLSerializerService is null.");
+		} else {
+			LOG.debug("Bind of the IXMLSerializerService.");
+			ServiceHandler.xmlSerializerService = service;
+			
+		}
+	}
+	
+	protected void unbindIXMLSerializerService(IXMLSerializerService service) {
+		LOG.debug("Unbind of the IXMLSerializerService.");
+		ServiceHandler.xmlSerializerService = null;
 	}
 	
 }

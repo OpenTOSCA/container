@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEngineService {
 	
+	
 	// stores PlanReferencePlugins
 	private Map<String, IPlanEnginePlanRefPluginService> refPluginsList = Collections.synchronizedMap(new HashMap<String, IPlanEnginePlanRefPluginService>());
 	// stores PlanModelPlugins
@@ -70,7 +71,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 		// XOR between PlanModel and PlanModelReference
 		if (plan.getPlanModel() != null) {
 			PlanEngineImpl.LOG.info("Searching PlanModelPlugin for plan {} ", plan.getId());
-			IPlanEnginePlanModelPluginService plugin = this.getModelPlugin(language);
+			IPlanEnginePlanModelPluginService plugin = getModelPlugin(language);
 			if (plugin != null) {
 				PlanEngineImpl.LOG.info("Found PlanModelPlugin for plan {} ", plan.getId());
 				planCheck = plugin.deployPlan(plan.getPlanModel(), csarId);
@@ -82,7 +83,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 			QName planId = new QName(targetNamespace, plan.getId());
 			PlanEngineImpl.LOG.debug("Created new management plan id " + planId);
 			PlanEngineImpl.LOG.info("Searching PlanReferencePlugin for plan {} written in language {}", plan.getId(), language);
-			IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
+			IPlanEnginePlanRefPluginService plugin = getRefPlugin(language);
 			if (plugin != null) {
 				PlanEngineImpl.LOG.info("Found PlanReferencePlugin for plan {} ", plan.getId());
 				planCheck = plugin.deployPlanReference(planId, plan.getPlanModelReference(), csarId);
@@ -105,7 +106,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 		
 		if (plan.getPlanModel() != null) {
 			PlanEngineImpl.LOG.info("Searching PlanModelPlugin for plan {} ", plan.getId());
-			IPlanEnginePlanModelPluginService plugin = this.getModelPlugin(language);
+			IPlanEnginePlanModelPluginService plugin = getModelPlugin(language);
 			if (plugin != null) {
 				PlanEngineImpl.LOG.info("Found PlanModelPlugin for plan {} ", plan.getId());
 				
@@ -118,7 +119,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 			QName planId = new QName(targetNamespace, plan.getId());
 			PlanEngineImpl.LOG.debug("Created new management plan id " + planId);
 			PlanEngineImpl.LOG.info("Searching PlanReferencePlugin for plan {} ", plan.getId());
-			IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
+			IPlanEnginePlanRefPluginService plugin = getRefPlugin(language);
 			if (plugin != null) {
 				PlanEngineImpl.LOG.info("Found PlanReferencePlugin for plan {} ", plan.getId());
 				planCheck = plugin.undeployPlanReference(planId, plan.getPlanModelReference(), csarId);
@@ -151,7 +152,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 		
 		for (TPlan plan : p) {
 			
-			if (!this.deployPlan(plan, namespace, csarId)) {
+			if (!deployPlan(plan, namespace, csarId)) {
 				nonDeployedPlans.add(plan);
 			}
 		}
@@ -191,7 +192,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 			// targetNamespace has to be taken of the Service Template or
 			// Definitions
 			
-			if (!this.undeployPlan(plan, namespace, csarId)) {
+			if (!undeployPlan(plan, namespace, csarId)) {
 				nonUndeployedPlans.add(plan);
 			}
 		}
@@ -215,12 +216,12 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	protected void bindPlanModelPlugin(IPlanEnginePlanModelPluginService planModelPlugin) {
 		if (planModelPlugin != null) {
 			PlanEngineImpl.LOG.debug("Registering PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
-			if (this.capabilityService != null) {
-				this.capabilityService.storeCapabilities(planModelPlugin.getCapabilties(), planModelPlugin.toString(), ProviderType.PLAN_PLUGIN);
+			if (capabilityService != null) {
+				capabilityService.storeCapabilities(planModelPlugin.getCapabilties(), planModelPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			} else {
 				PlanEngineImpl.LOG.debug("CapabilityService unavailable, couldn't store plugin capabilities, will do later");
 			}
-			this.modelPluginsList.put(planModelPlugin.getLanguageUsed(), planModelPlugin);
+			modelPluginsList.put(planModelPlugin.getLanguageUsed(), planModelPlugin);
 			PlanEngineImpl.LOG.debug("Registered PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
 		}
 	}
@@ -233,12 +234,12 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	protected void unbindPlanModelPlugin(IPlanEnginePlanModelPluginService planModelPlugin) {
 		if (planModelPlugin != null) {
 			PlanEngineImpl.LOG.debug("Unregistering PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
-			if (this.capabilityService != null) {
-				this.capabilityService.deleteCapabilities(planModelPlugin.toString());
+			if (capabilityService != null) {
+				capabilityService.deleteCapabilities(planModelPlugin.toString());
 			} else {
 				PlanEngineImpl.LOG.warn("CapabilityService unavailable, couldn't delete plugin capabilities");
 			}
-			this.modelPluginsList.remove(planModelPlugin.getLanguageUsed());
+			modelPluginsList.remove(planModelPlugin.getLanguageUsed());
 			PlanEngineImpl.LOG.debug("Unregistered PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
 		}
 	}
@@ -251,12 +252,12 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	protected void bindPlanReferencePlugin(IPlanEnginePlanRefPluginService planRefPlugin) {
 		if (planRefPlugin != null) {
 			PlanEngineImpl.LOG.debug("Registering PlanEnginePlanRef Plugin {} for language {}", planRefPlugin.toString(), planRefPlugin.getLanguageUsed());
-			if (this.capabilityService != null) {
-				this.capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(), ProviderType.PLAN_PLUGIN);
+			if (capabilityService != null) {
+				capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			} else {
 				PlanEngineImpl.LOG.debug("CapabilityService unavailable, couldn't store plugin capabilities, will do later");
 			}
-			this.refPluginsList.put(planRefPlugin.getLanguageUsed(), planRefPlugin);
+			refPluginsList.put(planRefPlugin.getLanguageUsed(), planRefPlugin);
 			PlanEngineImpl.LOG.debug("Registered PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
 		}
 	}
@@ -269,12 +270,12 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	protected void unbindPlanReferencePlugin(IPlanEnginePlanRefPluginService planRefPlugin) {
 		if (planRefPlugin != null) {
 			PlanEngineImpl.LOG.debug("Unregistered PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
-			if (this.capabilityService != null) {
-				this.capabilityService.deleteCapabilities(planRefPlugin.toString());
+			if (capabilityService != null) {
+				capabilityService.deleteCapabilities(planRefPlugin.toString());
 			} else {
 				PlanEngineImpl.LOG.warn("CapabilityService unavailable, couldn't delete plugin capabilities");
 			}
-			this.refPluginsList.remove(planRefPlugin.getLanguageUsed());
+			refPluginsList.remove(planRefPlugin.getLanguageUsed());
 			PlanEngineImpl.LOG.debug("Unregistered PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
 		}
 	}
@@ -286,7 +287,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	 * @return PlanEnginePlanModelPlugin if there is a plugin, else null
 	 */
 	private IPlanEnginePlanModelPluginService getModelPlugin(String language) {
-		return this.modelPluginsList.get(language);
+		return modelPluginsList.get(language);
 	}
 	
 	/**
@@ -296,7 +297,7 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	 * @return PlanEnginePlanRefPlugin if there is a plugin, else null
 	 */
 	private IPlanEnginePlanRefPluginService getRefPlugin(String language) {
-		return this.refPluginsList.get(language);
+		return refPluginsList.get(language);
 	}
 	
 	/**
@@ -310,16 +311,16 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 			if (this.capabilityService == null) {
 				this.capabilityService = capabilityService;
 			} else {
-				this.oldCapabilityService = capabilityService;
+				oldCapabilityService = capabilityService;
 				this.capabilityService = capabilityService;
 			}
 			
 			// storing capabilities of already registered plugins
-			for (IPlanEnginePlanModelPluginService planModelPlugin : this.modelPluginsList.values()) {
+			for (IPlanEnginePlanModelPluginService planModelPlugin : modelPluginsList.values()) {
 				this.capabilityService.storeCapabilities(planModelPlugin.getCapabilties(), planModelPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			}
 			
-			for (IPlanEnginePlanRefPluginService planRefPlugin : this.refPluginsList.values()) {
+			for (IPlanEnginePlanRefPluginService planRefPlugin : refPluginsList.values()) {
 				this.capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			}
 			
@@ -334,10 +335,10 @@ public class PlanEngineImpl implements org.opentosca.planengine.service.IPlanEng
 	 */
 	protected void unbindCoreCapabilityService(ICoreCapabilityService capabilityService) {
 		PlanEngineImpl.LOG.debug("Unregistering CapabilityService {}", capabilityService.toString());
-		if (this.oldCapabilityService == null) {
+		if (oldCapabilityService == null) {
 			this.capabilityService = null;
 		} else {
-			this.oldCapabilityService = null;
+			oldCapabilityService = null;
 		}
 		PlanEngineImpl.LOG.debug("Unregistered CapabilityService {}", capabilityService.toString());
 	}

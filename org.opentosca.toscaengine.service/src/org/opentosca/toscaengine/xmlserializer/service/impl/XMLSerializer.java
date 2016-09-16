@@ -285,10 +285,9 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 	@Override
 	public Object unmarshal(Node nodeToUnmarshal, Class<?> destinationClazz) {
 
-		this.LOG.debug("Start the unmarshalling of a DOM Node.");
-		this.LOG.debug("Node: " + nodeToUnmarshal.toString());
-		this.LOG.debug("DestinationClazz: " + destinationClazz.toString());
-		
+
+	LOG.trace("Start the unmarshalling of the node: " + nodeToUnmarshal.toString() + " to clazz: " + destinationClazz.toString());
+
 		try {
 			Unmarshaller u = this.createUnmarshaller();
 			JAXBElement<?> jaxbElement = u.unmarshal(nodeToUnmarshal, destinationClazz);

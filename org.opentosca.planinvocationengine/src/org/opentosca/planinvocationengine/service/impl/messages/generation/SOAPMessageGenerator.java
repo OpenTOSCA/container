@@ -13,7 +13,6 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.tosca.TParameter;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.settings.Settings;
 import org.osgi.service.event.Event;
@@ -31,96 +30,98 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class SOAPMessageGenerator implements EventHandler {
-
-    private Logger LOG = LoggerFactory.getLogger(SOAPMessageGenerator.class);
-
-    // FIXME callback address is not shared between siengine and
-    // planinvocationengine but has to
-    private static String callbackAddress = "http://localhost:8090/callback";
-
-    /**
-     * Creates a SOAP request message.
-     * 
-     * @param plan
-     * @param correlationID
-     * @return SOAPMessage
-     */
-    public SOAPMessage createRequest(CSARID csarID, QName messageID, List<TParameterDTO> params, String correlationID) {
-
-	LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
-
-	try {
-
-	    MessageFactory messageFactory = MessageFactory.newInstance();
-	    SOAPMessage soapMessage = messageFactory.createMessage();
-	    soapMessage.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
-
-	    SOAPPart soapPart = soapMessage.getSOAPPart();
-	    SOAPEnvelope envelope = soapPart.getEnvelope();
-
-	    envelope.addNamespaceDeclaration("env", "http://schemas.xmlsoap.org/soap/envelop/");
-	    envelope.setEncodingStyle("http://schemas.xmlsoap.org/soap/encoding/");
-
-	    SOAPBody soapBody = soapMessage.getSOAPBody();
-
-	    String messageName = messageID.getLocalPart();
-	    String messageNS = messageID.getNamespaceURI();
-	    LOG.trace("Message has name {} and namespace {}", messageName, messageNS);
-
-	    Name bodyName = envelope.createName(messageName, "custom", messageNS);
-	    SOAPBodyElement payload = soapBody.addBodyElement(bodyName);
-
-	    // put in the InputParameter details.
-	    for (TParameter para : params) {
-
-		org.opentosca.model.tosca.extension.transportextension.TParameterDTO castedPara = (org.opentosca.model.tosca.extension.transportextension.TParameterDTO) para;
-
-		if (para.getType().equalsIgnoreCase("correlation")) {
-		    LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
-		    Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-		    payload.addChildElement(elementName).addTextNode(correlationID);
-		    // para.setValue(correlationID);
-		} else if (para.getType().equalsIgnoreCase("callbackaddress")) {
-		    LOG.debug("Found CallbackAddress Element! Put in CallbackAddress \""
-			+ SOAPMessageGenerator.callbackAddress + "\".");
-		    Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-		    payload.addChildElement(elementName).addTextNode(SOAPMessageGenerator.callbackAddress);
-		    // para.setValue(SOAPMessageGenerator.callbackAddress);
-		} else if (para.getType().equalsIgnoreCase("csarName")) {
-		    LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
-		    Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-		    payload.addChildElement(elementName).addTextNode(csarID.toString());
-		    // para.setValue(csarID);
-		} else if (para.getType().equalsIgnoreCase("containerApiAddress")) {
-		    LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
-			+ Settings.CONTAINER_API + "\".");
-		    Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-		    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API);
-		    // para.setValue(Settings.CONTAINER_API);
-		} else {
-		    LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + castedPara.getValue() + "\".");
-		    Name elementName = envelope.createName(para.getName(), "tns", messageNS);
-		    payload.addChildElement(elementName).addTextNode(castedPara.getValue());
+	
+	
+	private Logger LOG = LoggerFactory.getLogger(SOAPMessageGenerator.class);
+	
+	// FIXME callback address is not shared between siengine and
+	// planinvocationengine but has to
+	private static String callbackAddress = "http://localhost:8090/callback";
+	
+	
+	/**
+	 * Creates a SOAP request message.
+	 * 
+	 * @param plan
+	 * @param correlationID
+	 * @return SOAPMessage
+	 */
+	public SOAPMessage createRequest(CSARID csarID, QName messageID, List<TParameterDTO> params, String correlationID) {
+		
+		LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
+		
+		try {
+			
+			MessageFactory messageFactory = MessageFactory.newInstance();
+			SOAPMessage soapMessage = messageFactory.createMessage();
+			soapMessage.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
+			
+			SOAPPart soapPart = soapMessage.getSOAPPart();
+			SOAPEnvelope envelope = soapPart.getEnvelope();
+			
+			envelope.addNamespaceDeclaration("env", "http://schemas.xmlsoap.org/soap/envelop/");
+			envelope.setEncodingStyle("http://schemas.xmlsoap.org/soap/encoding/");
+			
+			SOAPBody soapBody = soapMessage.getSOAPBody();
+			
+			String messageName = messageID.getLocalPart();
+			String messageNS = messageID.getNamespaceURI();
+			LOG.trace("Message has name {} and namespace {}", messageName, messageNS);
+			
+			Name bodyName = envelope.createName(messageName, "custom", messageNS);
+			SOAPBodyElement payload = soapBody.addBodyElement(bodyName);
+			
+			// put in the InputParameter details.
+			for (TParameterDTO para : params) {
+				
+				if (para.getType().equalsIgnoreCase("correlation")) {
+					LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
+					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
+					payload.addChildElement(elementName).addTextNode(correlationID);
+					// para.setValue(correlationID);
+				} else if (para.getType().equalsIgnoreCase("callbackaddress")) {
+					LOG.debug("Found CallbackAddress Element! Put in CallbackAddress \"" + SOAPMessageGenerator.callbackAddress + "\".");
+					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
+					payload.addChildElement(elementName).addTextNode(SOAPMessageGenerator.callbackAddress);
+					// para.setValue(SOAPMessageGenerator.callbackAddress);
+				} else if (para.getName().equalsIgnoreCase("csarName")) {
+					LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
+					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
+					payload.addChildElement(elementName).addTextNode(csarID.toString());
+					// para.setValue(csarID);
+				} else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
+					LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API + "\".");
+					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
+					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API);
+					// para.setValue(Settings.CONTAINER_API);
+				} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
+					LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
+					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
+					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_INSTANCEDATA_API);
+				} else {
+					LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
+					Name elementName = envelope.createName(para.getName(), "tns", messageNS);
+					payload.addChildElement(elementName).addTextNode(para.getValue());
+				}
+			}
+			
+			soapMessage.saveChanges();
+			
+			return soapMessage;
+			
+		} catch (SOAPException e) {
+			LOG.error(e.getLocalizedMessage());
 		}
-	    }
-
-	    soapMessage.saveChanges();
-
-	    return soapMessage;
-
-	} catch (SOAPException e) {
-	    LOG.error(e.getLocalizedMessage());
+		
+		return null;
 	}
-
-	return null;
-    }
-
-    /**
-     * Receives the CallbackAddress.
-     */
-    @Override
-    public void handleEvent(Event event) {
-	SOAPMessageGenerator.callbackAddress = (String) event.getProperty("callbackAddress");
-	LOG.debug("Recieved the current callback address: \"" + SOAPMessageGenerator.callbackAddress + "\".");
-    }
+	
+	/**
+	 * Receives the CallbackAddress.
+	 */
+	@Override
+	public void handleEvent(Event event) {
+		SOAPMessageGenerator.callbackAddress = (String) event.getProperty("callbackAddress");
+		LOG.debug("Recieved the current callback address: \"" + SOAPMessageGenerator.callbackAddress + "\".");
+	}
 }

@@ -20,9 +20,6 @@ import org.apache.camel.ProducerTemplate;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.plugins.rest.service.impl.model.ContentType;
 import org.opentosca.bus.management.plugins.rest.service.impl.model.DataAssign;
-import org.opentosca.bus.management.plugins.rest.service.impl.model.EndpointType;
-import org.opentosca.bus.management.plugins.rest.service.impl.model.MethodeType;
-import org.opentosca.bus.management.plugins.rest.service.impl.model.ParamsType;
 import org.opentosca.bus.management.plugins.rest.service.impl.model.DataAssign.Operations.Operation;
 import org.opentosca.bus.management.plugins.rest.service.impl.util.Messages;
 import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
@@ -37,6 +34,8 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.google.gson.JsonObject;
+
 /**
  * Management Bus-Plug-in for invoking a service over HTTP.<br>
  * <br>
@@ -45,16 +44,17 @@ import org.xml.sax.InputSource;
  * <br>
  * 
  * The Plug-in gets needed information (like endpoint of the service or
- * operation to invoke) from the Management Bus and creates a HTTP message out of it.
- * The Plug-in supports the transfer of parameters via queryString (both in the
- * URL and the body) and xml formatted in the body.
+ * operation to invoke) from the Management Bus and creates a HTTP message out
+ * of it. The Plug-in supports the transfer of parameters via queryString (both
+ * in the URL and the body) and xml formatted in the body.
  * 
  * 
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ * @author Christian Endres - christian.endres@iaas.informatik.uni-stuttgart.de
  * 
  */
 public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginService {
+	
 	
 	final private static Logger LOG = LoggerFactory.getLogger(ManagementBusPluginRestServiceImpl.class);
 	
@@ -80,17 +80,23 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 		Document specificContenet = message.getHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), Document.class);
 		
+		LOG.debug("Invoke REST call at {}.", endpoint);
+		
 		HashMap<String, String> paramsMap = null;
 		Document paramsDoc = null;
 		boolean isDoc = false;
 		
 		if (params instanceof HashMap) {
 			paramsMap = (HashMap<String, String>) params;
+			LOG.debug("params are hashmap: {}", mapToQueryString(paramsMap));
+			// for (String str : paramsMap.keySet()) {
+			// LOG.trace(" {}: {}", str, paramsMap.get(str));
+			// }
 		}
 		
-		else if (params instanceof Document) {
-			paramsDoc = (Document) params;
-			isDoc = true;
+		else {
+			LOG.error("Cannot map parameters to a map.");
+			return null;
 		}
 		
 		DataAssign dataAssign = null;
@@ -98,8 +104,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		if (specificContenet != null) {
 			
 			ManagementBusPluginRestServiceImpl.LOG.debug("Unmarshalling provided artifact specific content.");
-			
-			dataAssign = this.unmarshall(specificContenet);
+			dataAssign = unmarshall(specificContenet);
 		}
 		
 		Operation operation = null;
@@ -107,103 +112,63 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		if (dataAssign != null) {
 			
 			ManagementBusPluginRestServiceImpl.LOG.debug("Searching for correct operation.");
-			
-			operation = this.getOperation(dataAssign, operationName, interfaceName);
+			operation = getOperation(dataAssign, operationName, interfaceName);
 			
 		}
 		
 		Map<String, Object> headers = new HashMap<String, Object>();
 		headers.put(Exchange.HTTP_URI, endpoint);
-		headers.put(Exchange.HTTP_METHOD, this.METHOD);
+		headers.put(Exchange.HTTP_METHOD, METHOD);
+		headers.put(Exchange.CONTENT_TYPE, "application/json");
 		
 		Object body = null;
 		
-		// Invoking according to default values
-		if (operation == null) {
+		ContentType contentTypeParam = ContentType.JSON;
+		
+		ManagementBusPluginRestServiceImpl.LOG.debug("ParamsParam set: params into payload.");
+		
+		// ...as xml
+		if ((contentTypeParam != null) && !contentTypeParam.value().equalsIgnoreCase(CONTENTTYPE)) {
 			
-			ManagementBusPluginRestServiceImpl.LOG.debug("No specified operation found. Invoking with default values.");
+			ManagementBusPluginRestServiceImpl.LOG.debug("ContenttypeParam set: params into payload as {}.", contentTypeParam);
+			
+			body = mapToJSON(paramsMap);
+		}
+		// ...as urlencoded String
+		else {
+			
+			ManagementBusPluginRestServiceImpl.LOG.debug("Params into payload as urlencoded String.");
 			
 			if ((paramsDoc != null) || (paramsMap != null)) {
-				String queryString = this.getQueryString(paramsDoc, paramsMap);
-				headers.put(Exchange.HTTP_QUERY, queryString);
-			}
-			
-			// Invoking according to provided values
-		} else {
-			
-			ManagementBusPluginRestServiceImpl.LOG.debug("Specified operation found. Invoking with provided values.");
-			
-			EndpointType endpointParam = operation.getEndpoint();
-			ParamsType paramsParam = operation.getParams();
-			ContentType contentTypeParam = operation.getContentType();
-			MethodeType methodParam = operation.getMethode();
-			
-			// Endpoint-param set to yes
-			if ((endpointParam != null) && !endpointParam.value().equalsIgnoreCase(this.ENDPOINT)) {
-				
-				ManagementBusPluginRestServiceImpl.LOG.debug("EndpointParams set: OperationName / InterfaceName should be appended to the endpoint if set.");
-				
-				String httpPath = this.getHttpPath(operation);
-				headers.put(Exchange.HTTP_PATH, httpPath);
-			}
-			
-			// params in payload
-			if ((paramsParam != null) && !paramsParam.value().equalsIgnoreCase(this.PARAMS)) {
-				
-				ManagementBusPluginRestServiceImpl.LOG.debug("ParamsParam set: params into payload.");
-				
-				// ...as xml
-				if ((contentTypeParam != null) && !contentTypeParam.value().equalsIgnoreCase(this.CONTENTTYPE)) {
-					
-					ManagementBusPluginRestServiceImpl.LOG.debug("ContenttypeParam set: params into payload as xml.");
-					
-					if (paramsDoc != null) {
-						body = paramsDoc;
-						
-					} else if (paramsMap != null) {
-						body = this.mapToDoc(operationName, paramsMap);
-					}
-				}
-				// ...as urlencoded String
-				else {
-					
-					ManagementBusPluginRestServiceImpl.LOG.debug("Params into payload as urlencoded String.");
-					
-					if ((paramsDoc != null) || (paramsMap != null)) {
-						String queryString = this.getQueryString(paramsDoc, paramsMap);
-						body = queryString;
-					}
-					
-				}
-			}
-			// params as queryString
-			else {
-				
-				ManagementBusPluginRestServiceImpl.LOG.debug("Params as queryString.");
-				
-				if ((paramsDoc != null) || (paramsMap != null)) {
-					String queryString = this.getQueryString(paramsDoc, paramsMap);
-					headers.put(Exchange.HTTP_QUERY, queryString);
-				}
-				
-			}
-			
-			// GET as http-method
-			if ((methodParam != null) && !methodParam.value().equalsIgnoreCase(this.METHOD)) {
-				
-				ManagementBusPluginRestServiceImpl.LOG.debug("HTTP method set to GET.");
-				
-				headers.put(Exchange.HTTP_METHOD, "GET");
+				String queryString = getQueryString(paramsDoc, paramsMap);
+				body = queryString;
 			}
 			
 		}
 		
 		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
+		// the dummyhost uri is ignored, so this is ugly but intended
 		String responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
 		
-		exchange = this.createResponseExchange(exchange, responseString, operationName, isDoc);
+		LOG.info("Response of the REST call: " + responseString);
+		
+		exchange = createResponseExchange(exchange, responseString, operationName, isDoc);
 		
 		return exchange;
+	}
+	
+	private Object mapToJSON(HashMap<String, String> paramsMap) {
+		JsonObject vars = new JsonObject();
+		for (String key : paramsMap.keySet()) {
+			JsonObject details = new JsonObject();
+			details.addProperty("value", paramsMap.get(key));
+			details.addProperty("type", "String");
+			vars.add(key, details);
+		}
+		JsonObject variables = new JsonObject();
+		variables.add("variables", vars);
+		LOG.debug("JSON request body: {}", variables.toString());
+		return variables.toString();
 	}
 	
 	/**
@@ -219,11 +184,11 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		
 		if (paramsDoc != null) {
 			
-			paramsMap = this.docToMap(paramsDoc);
+			paramsMap = docToMap(paramsDoc);
 			
 		}
 		
-		String queryString = this.mapToQueryString(paramsMap);
+		String queryString = mapToQueryString(paramsMap);
 		
 		ManagementBusPluginRestServiceImpl.LOG.debug("Created queryString: {}", queryString);
 		
@@ -475,7 +440,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		
 		ManagementBusPluginRestServiceImpl.LOG.debug("Handling the response: {}.", responseString);
 		
-		Document responseDoc = this.stringToDoc(responseString);
+		Document responseDoc = stringToDoc(responseString);
 		HashMap<String, String> responseMap;
 		
 		// response was xml
@@ -491,7 +456,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 			} else {
 				
 				ManagementBusPluginRestServiceImpl.LOG.debug("Transfering xml response into a Hashmap...");
-				responseMap = this.docToMap(responseDoc);
+				responseMap = docToMap(responseDoc);
 				ManagementBusPluginRestServiceImpl.LOG.debug("Returning response as HashMap.");
 				exchange.getIn().setBody(responseMap);
 			}
@@ -499,7 +464,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		// response should be queryString
 		else {
 			
-			responseMap = this.queryStringToMap(responseString);
+			responseMap = queryStringToMap(responseString);
 			
 			if ((responseMap == null) || responseMap.isEmpty()) {
 				ManagementBusPluginRestServiceImpl.LOG.debug("Response isn't neihter xml nor queryString. Returning the reponse: {} as string.", responseString);
@@ -509,7 +474,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 			else if (isDoc) {
 				
 				ManagementBusPluginRestServiceImpl.LOG.debug("Transfering response into xml...");
-				responseDoc = this.mapToDoc(operationName, responseMap);
+				responseDoc = mapToDoc(operationName, responseMap);
 				
 				exchange.getIn().setBody(responseDoc);
 				

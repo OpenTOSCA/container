@@ -13,6 +13,7 @@ import org.osgi.framework.BundleContext;
 public class Settings implements BundleActivator {
 	
 	public final static String CONTAINER_API = "http://localhost:1337/containerapi";
+	public final static String CONTAINER_INSTANCEDATA_API = "http://localhost:1337/containerapi/instancedata";
 	
 	
 	// TODO: Use public static final variables instead, as in
