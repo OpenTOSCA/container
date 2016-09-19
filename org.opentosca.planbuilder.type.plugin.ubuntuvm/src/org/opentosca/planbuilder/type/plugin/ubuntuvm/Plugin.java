@@ -1,10 +1,10 @@
 package org.opentosca.planbuilder.type.plugin.ubuntuvm;
 
+import org.opentosca.model.tosca.conventions.Types;
+import org.opentosca.model.tosca.conventions.Utils;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.model.tosca.conventions.Utils;
-import org.opentosca.model.tosca.conventions.Types;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.ubuntuvm.handler.Handler;
 import org.slf4j.Logger;
@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class represents a generic plugin containing bpel logic to start a virtual machine
- * instance with the OpenTOSCA Container Invoker Service
+ * This class represents a generic plugin containing bpel logic to start a
+ * virtual machine instance with the OpenTOSCA Container Invoker Service
  * </p>
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
@@ -26,6 +26,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	private final static Logger LOG = LoggerFactory.getLogger(Plugin.class);
 
 	private Handler handler = new Handler();
+
 
 	@Override
 	public String getID() {
@@ -42,9 +43,9 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			return false;
 		}
 
-		LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
+		Plugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
-		//  cloudprovider node is handled by doing nothing
+		// cloudprovider node is handled by doing nothing
 		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
 		}
@@ -60,18 +61,13 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			// true -> append code
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 				if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
-					if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType)
-							| relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)) {
+					if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType) | relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)) {
 						// bit hacky now, but until the nodeType cleanup is
 						// finished this should be enough right now
 						return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
 					} else {
 						return this.handler.handle(templateContext, nodeTemplate);
 					}
-				}else{
-					// if node is not connected to a cloud provider, it has to be connected
-					// to a docker engine
-					return this.handler.handleWithDockerEngineInterface(templateContext, nodeTemplate);
 				}
 			}
 			return true;
@@ -96,15 +92,13 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		// this plugin can handle all referenced nodeTypes
 		if (Utils.isSupportedCloudProviderNodeType(nodeTemplate.getType().getId())) {
 			return true;
-		} else if(Utils.isSupportedDockerEngineNodeType(nodeTemplate.getType().getId())){
-			return true;
 		} else if (Utils.isSupportedVMNodeType(nodeTemplate.getType().getId())) {
 			// checking if this vmNode is connected to a nodeTemplate of Type
-			// cloud provider (ec2, openstack) or docker engine, if not this plugin can't handle
+			// cloud provider (ec2, openstack) or docker engine, if not this
+			// plugin can't handle
 			// this node
 			for (AbstractRelationshipTemplate relationshipTemplate : nodeTemplate.getOutgoingRelations()) {
-				if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId())
-						| Utils.isSupportedDockerEngineNodeType(relationshipTemplate.getTarget().getType().getId())) {
+				if (Utils.isSupportedCloudProviderNodeType(relationshipTemplate.getTarget().getType().getId()) | Utils.isSupportedDockerEngineNodeType(relationshipTemplate.getTarget().getType().getId())) {
 					return true;
 				}
 			}
@@ -151,9 +145,8 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * A NodeTemplate of type {http://opentosca.org/types/declarative}EC2 or
 	 * OpenStack
 	 * </p>
-	 * 
-	 * @param nodeTemplate
-	 *            any AbstractNodeTemplate
+	 *
+	 * @param nodeTemplate any AbstractNodeTemplate
 	 * @return true if the there exists a path from the given NodeTemplate to a
 	 *         Cloud Provider node, else false
 	 */
@@ -173,9 +166,8 @@ public class Plugin implements IPlanBuilderTypePlugin {
 	 * Checks whether the given NodeTemplate is connected to another node of
 	 * some Cloud Provider NodeType
 	 * </p>
-	 * 
-	 * @param nodeTemplate
-	 *            any AbstractNodeTemplate
+	 *
+	 * @param nodeTemplate any AbstractNodeTemplate
 	 * @return true iff connected to Cloud Provider Node
 	 */
 	private boolean checkIfConnectedToCloudProvider(AbstractNodeTemplate nodeTemplate) {
