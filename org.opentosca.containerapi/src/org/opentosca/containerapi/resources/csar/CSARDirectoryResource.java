@@ -48,6 +48,8 @@ public class CSARDirectoryResource {
 	private final AbstractDirectory CSAR_DIRECTORY;
 	private final CSARID CSAR_ID;
 	
+	UriInfo uriInfo;
+	
 	
 	/**
 	 * 
@@ -61,18 +63,24 @@ public class CSARDirectoryResource {
 		CSARDirectoryResource.LOG.info("Directory path: {}", csarDirectory.getPath());
 	}
 	
-	/**
-	 * Answers Get-Requests with media type Constants.Text_XML
-	 * 
-	 * @param uriInfo
-	 * @return
-	 */
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
+	}
+	
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	public References getReferences() {
 		
 		if (CSAR_DIRECTORY == null) {
-			return Response.status(Status.NOT_FOUND).build();
+			return null;
 		}
 		
 		References refs = new References();
@@ -91,7 +99,7 @@ public class CSARDirectoryResource {
 		
 		Reference self = new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
 		refs.getReference().add(self);
-		return Response.ok(refs.getXMLString()).build();
+		return refs;
 		
 	}
 	

@@ -51,6 +51,7 @@ public class CSARResource {
 	
 	// If csar is null, CSAR is not stored
 	private final CSARContent CSAR;
+	UriInfo uriInfo;
 	
 	
 	public CSARResource(CSARContent csar) {
@@ -59,13 +60,25 @@ public class CSARResource {
 		CSARResource.LOG.info("{} created: {}", this.getClass(), this);
 	}
 	
+	
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getRefs().getXMLString()).build();
+	}
+	
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getRefs().getJSONString()).build();
+	}
+	
+	public References getRefs() {
 		
 		if (CSAR == null) {
-			
-			return Response.status(404).build();
+			return null;
 		}
 		
 		References refs = new References();
@@ -84,7 +97,8 @@ public class CSARResource {
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+		
+		return refs;
 	}
 	
 	@Path("Content")

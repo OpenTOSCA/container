@@ -89,7 +89,25 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 	@GET
 	@Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_XML)
-	public JAXBElement<?> getPlan(@PathParam("PlanName") String plan) {
+	public JAXBElement<?> getPlanXML(@PathParam("PlanName") String plan) {
+		return getPlan(plan);
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Path("{PlanName}")
+	@Produces(ResourceConstants.TOSCA_JSON)
+	public JAXBElement<?> getPlanJSON(@PathParam("PlanName") String plan) {
+		return getPlan(plan);
+	}
+	
+	public JAXBElement<?> getPlan(String plan) {
 		LOG.trace("Return plan " + plan);
 		Map<PlanTypes, LinkedHashMap<QName, TPlan>> map = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarID);
 		
@@ -160,10 +178,7 @@ public class CSARBoundsInterfaceOperationTypePlanResource {
 		
 		List<TParameter> list = new ArrayList<>();
 		for (TParameter para : tPlan.getInputParameters().getInputParameter()) {
-			if (para.getType().equalsIgnoreCase("correlation") || 
-					para.getName().equalsIgnoreCase("csarName") || 
-					para.getName().equalsIgnoreCase("containerApiAddress") || 
-					para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
+			if (para.getType().equalsIgnoreCase("correlation") || para.getName().equalsIgnoreCase("csarName") || para.getName().equalsIgnoreCase("containerApiAddress") || para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
 				LOG.trace("Skipping parameter {}", para.getName());
 				// list.add(para);
 			} else {

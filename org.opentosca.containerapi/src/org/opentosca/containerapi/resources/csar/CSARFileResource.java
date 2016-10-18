@@ -1,7 +1,11 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 
 import javax.ws.rs.Consumes;
@@ -43,6 +47,8 @@ public class CSARFileResource {
 	private final AbstractFile CSAR_FILE;
 	private final CSARID CSAR_ID;
 	
+	UriInfo uriInfo;
+	
 	
 	/**
 	 * 
@@ -50,10 +56,42 @@ public class CSARFileResource {
 	 * @param resourceFile
 	 */
 	public CSARFileResource(AbstractFile csarFile, CSARID csarID) {
-		this.CSAR_FILE = csarFile;
-		this.CSAR_ID = csarID;
+		CSAR_FILE = csarFile;
+		CSAR_ID = csarID;
 		CSARFileResource.LOG.info("{} created: {}", this.getClass(), this);
 		CSARFileResource.LOG.info("File path: {}", csarFile.getPath());
+	}
+	
+	
+	@GET
+	@Produces(ResourceConstants.LINKED_XML)
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
+	}
+	
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		
+		String json = getAsJSONString(CSAR_FILE);
+		
+		if (null != json && !json.equals("")){
+			return Response.ok(json).build();
+		}
+		
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	public References getReferences() {
+		if (CSAR_FILE != null) {
+			References refs = new References();
+			Reference self = new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
+			refs.getReference().add(self);
+			return refs;
+		}
+		return null;
 	}
 	
 	/**
@@ -64,16 +102,16 @@ public class CSARFileResource {
 	@Produces(ResourceConstants.OCTET_STREAM)
 	public Response downloadFile() throws SystemException {
 		
-		if (this.CSAR_FILE != null) {
+		if (CSAR_FILE != null) {
 			
-			CSARFileResource.LOG.info("Attempt to download file: \"{}\"", this.CSAR_FILE.getPath());
+			CSARFileResource.LOG.info("Attempt to download file: \"{}\"", CSAR_FILE.getPath());
 			
 			InputStream inputStream;
 			// try {
-			inputStream = this.CSAR_FILE.getFileAsInputStream();
+			inputStream = CSAR_FILE.getFileAsInputStream();
 			// We add Content Disposition header, because file to download
 			// should have the correct file name.
-			return Response.ok(inputStream).header("Content-Disposition", "attachment; filename=\"" + this.CSAR_FILE.getName() + "\"").build();
+			return Response.ok(inputStream).header("Content-Disposition", "attachment; filename=\"" + CSAR_FILE.getName() + "\"").build();
 			// } catch (SystemException exc) {
 			// CSARFileResource.LOG.warn("An System Exception occured.", exc);
 			// }
@@ -83,6 +121,42 @@ public class CSARFileResource {
 		}
 		
 		return Response.status(Status.NOT_FOUND).build();
+		
+	}
+	
+	private String getAsJSONString(AbstractFile file) {
+		
+		try {
+			
+			CSARFileResource.LOG.trace("Attempt to download file: \"{}\"", file.getPath());
+			
+			InputStream inputStream = file.getFileAsInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8")); 
+			StringBuilder strBuilder = new StringBuilder();
+			
+			String inputStr;
+			do {
+				inputStr = reader.readLine();
+				if (null == inputStr){
+					break;
+				}
+				strBuilder.append(inputStr);
+			} while (true);
+			
+			reader.close();
+			
+			LOG.trace("Found a json file and parsed it, contents are:\n   {}", strBuilder.toString());
+			return strBuilder.toString();
+			
+		} catch (SystemException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "";
 		
 	}
 	
@@ -100,18 +174,18 @@ public class CSARFileResource {
 	@GET
 	@Produces(ResourceConstants.IMAGE)
 	public Response getImage() throws SystemException {
-		if (this.CSAR_FILE != null) {
+		if (CSAR_FILE != null) {
 			
-			CSARFileResource.LOG.info("Attempt to download image: \"{}\"", this.CSAR_FILE.getPath());
+			CSARFileResource.LOG.info("Attempt to download image: \"{}\"", CSAR_FILE.getPath());
 			
 			// Check if file is a (supported) image
-			if (this.CSAR_FILE.getName() != null) {
+			if (CSAR_FILE.getName() != null) {
 				// retrieve file extension
-				String ext = this.CSAR_FILE.getName().substring(this.CSAR_FILE.getName().lastIndexOf(".")+1);
+				String ext = CSAR_FILE.getName().substring(CSAR_FILE.getName().lastIndexOf(".")+1);
 				// known?
 				if (ResourceConstants.imageMediaTypes.containsKey(ext)) {
 					CSARFileResource.LOG.debug("Supported image file, *.{} maps to {}", ext, ResourceConstants.imageMediaTypes.get(ext));
-					InputStream inputStream = this.CSAR_FILE.getFileAsInputStream();
+					InputStream inputStream = CSAR_FILE.getFileAsInputStream();
 					// set matching media type and return
 					return Response.ok(inputStream, ResourceConstants.imageMediaTypes.get(ext)).build();
 				} else {
@@ -124,25 +198,6 @@ public class CSARFileResource {
 			}
 		}
 		
-		return Response.status(Status.NOT_FOUND).build();
-		
-	}
-
-	/**
-	 * Answers Get-Requests with media type Constants.Text_XML
-	 * 
-	 * @param uriInfo
-	 * @return
-	 */
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
-		if (this.CSAR_FILE != null) {
-			References refs = new References();
-			Reference self = new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
-			refs.getReference().add(self);
-			return Response.ok(refs.getXMLString()).build();
-		}
 		return Response.status(Status.NOT_FOUND).build();
 		
 	}
@@ -217,9 +272,9 @@ public class CSARFileResource {
 			
 			// try {
 			
-			FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(this.CSAR_ID, Paths.get(this.CSAR_FILE.getPath()));
+			FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(CSAR_ID, Paths.get(CSAR_FILE.getPath()));
 			
-			return Response.ok("Moving file \"" + this.CSAR_FILE.getPath() + "\" of CSAR \"" + this.CSAR_ID.toString() + "\" was successful.").build();
+			return Response.ok("Moving file \"" + CSAR_FILE.getPath() + "\" of CSAR \"" + CSAR_ID.toString() + "\" was successful.").build();
 			
 			// } catch (UserException exc) {
 			// CSARFileResource.LOG.warn("An User Exception occured.", exc);

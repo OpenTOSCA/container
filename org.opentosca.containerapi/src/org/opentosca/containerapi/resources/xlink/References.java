@@ -3,7 +3,12 @@ package org.opentosca.containerapi.resources.xlink;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 
 /**
  * Holds a list 'List<Reference>' and provides XML-representation.<br>
@@ -16,6 +21,8 @@ import com.google.gson.JsonObject;
  */
 public class References {
 	
+	
+	private static final Logger LOG = LoggerFactory.getLogger(References.class);
 	
 	protected List<Reference> reference;
 	
@@ -48,16 +55,25 @@ public class References {
 		return xml.toString();
 	}
 	
-	public String getJSONString() {
+	private JsonObject getJSON() {
 		
 		JsonObject json = new JsonObject();
-		JsonObject refs = new JsonObject();
+		JsonArray refs = new JsonArray();
 		
-		for (Reference ref : getReference()){
-			refs.add("Reference", ref.toJson());
+		for (Reference ref : getReference()) {
+			refs.add(ref.toJson());
 		}
 		json.add("References", refs);
 		
-		return json.getAsString();
+		return json;
+		
+	}
+	
+	public String getJSONString() {
+		
+		JsonObject json = getJSON();
+		LOG.trace(json.toString());
+		
+		return json.toString();
 	}
 }

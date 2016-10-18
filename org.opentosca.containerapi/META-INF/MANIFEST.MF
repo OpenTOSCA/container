@@ -5,6 +5,7 @@ Bundle-SymbolicName: org.opentosca.containerapi
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opentosca.containerapi.Activator
 Import-Package: com.google.gson;version="2.2.4",
+ com.google.gson.stream;version="2.2.4",
  com.sun.jersey.core.header;version="1.17.0",
  com.sun.jersey.multipart,
  com.sun.jersey.spi.container.servlet,

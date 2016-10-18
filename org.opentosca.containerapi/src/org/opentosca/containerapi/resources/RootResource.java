@@ -42,12 +42,27 @@ public class RootResource {
 	}
 	
 	@GET
-	@Produces(ResourceConstants.TOSCA_XML)
-	public Response getReferences() {
+	@Produces(ResourceConstants.LINKED_XML)
+	public Response getReferencesXML() {
+		
+		return Response.ok(getRefs().getXMLString()).build();
+		
+	}
+	
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON() {
+		
+		return Response.ok(getRefs().getJSONString()).build();
+		
+	}
+	
+	private References getRefs(){
+		
 		References refs = new References();
 		
 		refs.getReference();
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "CSARs"), XLinkConstants.SIMPLE, "CSARs"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "CSARs"), XLinkConstants.SIMPLE, "CSARs"));
 		
 		// refs.getReference().add(new
 		// Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
@@ -55,20 +70,19 @@ public class RootResource {
 		// refs.getReference().add(new
 		// Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
 		// "CSARFiles"), XLinkConstants.SIMPLE, "CSARFiles"));
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "CSARControl"), XLinkConstants.SIMPLE, "CSARControl"));
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "Credentials"), XLinkConstants.SIMPLE, "Credentials"));
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "StorageProviders"), XLinkConstants.SIMPLE, "StorageProviders"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "CSARControl"), XLinkConstants.SIMPLE, "CSARControl"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Credentials"), XLinkConstants.SIMPLE, "Credentials"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "StorageProviders"), XLinkConstants.SIMPLE, "StorageProviders"));
 		
 		// InstanceData API and PortabilityAPI
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "instancedata"), XLinkConstants.SIMPLE, "instancedata"));
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "portability"), XLinkConstants.SIMPLE, "portability"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "instancedata"), XLinkConstants.SIMPLE, "instancedata"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "portability"), XLinkConstants.SIMPLE, "portability"));
 		
 		RootResource.LOG.debug("Number of References in Root: {}", refs.getReference().size());
 		// selflink
 		
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		
-		return Response.ok(refs.getXMLString()).build();
-		
+		return refs;
 	}
 }

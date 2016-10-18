@@ -102,7 +102,24 @@ public class CSARPlansResource {
 	@GET
 	@Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_XML)
-	public TPlanDTO getPublicPlan(@PathParam("PlanName") String planName) {
+	public TPlanDTO getPublicPlanXML(@PathParam("PlanName") String planName) {
+		return getPublicPlan(planName);
+	}
+	
+	/**
+	 * Returns a PublicPlan for a given Index.
+	 * 
+	 * @param planName
+	 * @return the PublicPlan
+	 */
+	@GET
+	@Path("{PlanName}")
+	@Produces(ResourceConstants.TOSCA_JSON)
+	public TPlanDTO getPublicPlanJSON(@PathParam("PlanName") String planName) {
+		return getPublicPlan(planName);
+	}
+	
+	public TPlanDTO getPublicPlan(String planName){
 		
 		// PlanTypes type =
 		// PlanTypes.isPlanTypeEnumRepresentation(publicPlanType);

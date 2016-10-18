@@ -86,7 +86,17 @@ public class CSARsResource {
 	
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences() {
+	public Response getReferencesXML() {
+		return Response.ok(getRefs().getXMLString()).build();
+	}
+	
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON() {
+		return Response.ok(getRefs().getJSONString()).build();
+	}
+	
+	public References getRefs() {
 		References refs = new References();
 		for (CSARID csarID : fileHandler.getCSARIDs()) {
 			Reference ref = new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE, csarID.toString());
@@ -96,7 +106,7 @@ public class CSARsResource {
 			
 		}
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+		return refs;
 	}
 	
 	/**
