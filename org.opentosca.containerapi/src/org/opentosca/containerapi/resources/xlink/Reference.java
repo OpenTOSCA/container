@@ -1,13 +1,17 @@
 package org.opentosca.containerapi.resources.xlink;
 
+import com.google.gson.JsonObject;
+
 /**
  * Provides xml for XLink-References.<br>
  * Copyright 2012 IAAS University of Stuttgart <br>
  * <br>
  * 
  * @author Markus Fischer - fischema@studi.informatik.uni-stuttgart.de
+ * @author Christian Endres - christian.endres@iaas.uni-stuttgart.de
  */
 public class Reference {
+	
 	
 	private String absPath = null;
 	private String xtype = null;
@@ -19,23 +23,23 @@ public class Reference {
 	}
 	
 	public Reference(String xhref, String xtype, String xtitle) {
-		this.setXhref(xhref);
-		this.setXtitle(xtitle);
-		this.setXtype(xtype);
+		setXhref(xhref);
+		setXtitle(xtitle);
+		setXtype(xtype);
 	}
 	
 	public Reference(String xhref, String xtype, String xtitle, String absPath) {
-		this.setXhref(xhref);
-		this.setXtitle(xtitle);
-		this.setXtype(xtype);
-		this.setAbsPath(absPath);
+		setXhref(xhref);
+		setXtitle(xtitle);
+		setXtype(xtype);
+		setAbsPath(absPath);
 	}
 	
 	/**
 	 * @return the absPath
 	 */
 	public String getAbsPath() {
-		return this.absPath;
+		return absPath;
 	}
 	
 	/**
@@ -46,21 +50,21 @@ public class Reference {
 	}
 	
 	public String getXtype() {
-		if (this.xtype == null) {
+		if (xtype == null) {
 			return "";
 		}
-		return this.xtype;
+		return xtype;
 	}
 	
 	public void setXtype(String type) {
-		this.xtype = type;
+		xtype = type;
 	}
 	
 	public String getXhref() {
-		if (this.xhref == null) {
+		if (xhref == null) {
 			return "";
 		}
-		return this.xhref;
+		return xhref;
 	}
 	
 	public void setXhref(String xhref) {
@@ -68,10 +72,10 @@ public class Reference {
 	}
 	
 	public String getXtitle() {
-		if (this.xtitle == null) {
+		if (xtitle == null) {
 			return "";
 		}
-		return this.xtitle;
+		return xtitle;
 	}
 	
 	public void setXtitle(String xtitle) {
@@ -84,28 +88,38 @@ public class Reference {
 		xml.append(XLinkConstants.REFERENCE);
 		xml.append(" ");
 		
-		if (this.getAbsPath() != null) {
+		if (getAbsPath() != null) {
 			xml.append(XLinkConstants.ABSPATH);
 			xml.append("=\"");
-			xml.append(this.getAbsPath());
+			xml.append(getAbsPath());
 			xml.append("\" ");
 		}
 		
 		xml.append(XLinkConstants.XTYPE);
 		xml.append("=\"");
-		xml.append(this.getXtype());
+		xml.append(getXtype());
 		xml.append("\" ");
 		xml.append(XLinkConstants.XHREF);
 		xml.append("=\"");
-		xml.append(this.getXhref());
+		xml.append(getXhref());
 		xml.append("\" ");
 		xml.append(XLinkConstants.XTITLE);
 		xml.append("=\"");
-		xml.append(this.getXtitle());
+		xml.append(getXtitle());
 		xml.append("\" ");
 		xml.append("/>");
 		return xml.toString();
 		
+	}
+	
+	public JsonObject toJson() {
+		
+		JsonObject ref = new JsonObject();
+		ref.addProperty("type", getXtype());
+		ref.addProperty("href", getXhref());
+		ref.addProperty("title", getXtitle());
+		
+		return ref;
 	}
 	
 }

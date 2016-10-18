@@ -3,15 +3,19 @@ package org.opentosca.containerapi.resources.xlink;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.JsonObject;
+
 /**
  * Holds a list 'List<Reference>' and provides XML-representation.<br>
  * Copyright 2012 IAAS University of Stuttgart <br>
  * <br>
  * 
  * @author Markus Fischer - fischema@studi.informatik.uni-stuttgart.de
+ * @author Christian Endres - christian.endres@iaas.uni-stuttgart.de
  * 
  */
 public class References {
+	
 	
 	protected List<Reference> reference;
 	
@@ -20,10 +24,10 @@ public class References {
 	}
 	
 	public List<Reference> getReference() {
-		if (this.reference == null) {
-			this.reference = new ArrayList<Reference>();
+		if (reference == null) {
+			reference = new ArrayList<Reference>();
 		}
-		return this.reference;
+		return reference;
 	}
 	
 	public String getXMLString() {
@@ -35,12 +39,25 @@ public class References {
 		xml.append(" ");
 		xml.append(">");
 		
-		for (Reference ref : this.getReference()) {
+		for (Reference ref : getReference()) {
 			xml.append(ref.toXml());
 		}
 		
 		xml.append("</References>");
 		
 		return xml.toString();
+	}
+	
+	public String getJSONString() {
+		
+		JsonObject json = new JsonObject();
+		JsonObject refs = new JsonObject();
+		
+		for (Reference ref : getReference()){
+			refs.add("Reference", ref.toJson());
+		}
+		json.add("References", refs);
+		
+		return json.getAsString();
 	}
 }
