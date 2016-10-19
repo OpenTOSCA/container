@@ -25,6 +25,8 @@ public class CSARBoundsResource {
 	
 	private CSARID csarID;
 	
+	UriInfo uriInfo;
+	
 	
 	public CSARBoundsResource(CSARID csarid) {
 		
@@ -38,6 +40,7 @@ public class CSARBoundsResource {
 		LOG.debug("Public Plans for requested CSAR: {}", csarID.getFileName());
 	}
 	
+	
 	/**
 	 * Builds the references of the Boundary Definitions of a CSAR.
 	 * 
@@ -46,10 +49,28 @@ public class CSARBoundsResource {
 	 */
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
+	}
+	
+	/**
+	 * Builds the references of the Boundary Definitions of a CSAR.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	private References getReferences() {
 		
 		if (csarID == null) {
-			return Response.status(404).build();
+			return null;
 		}
 		
 		LOG.trace("Return Boundary Definitions for CSAR {}.", csarID);
@@ -65,7 +86,7 @@ public class CSARBoundsResource {
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+		return refs;
 	}
 	
 	/**

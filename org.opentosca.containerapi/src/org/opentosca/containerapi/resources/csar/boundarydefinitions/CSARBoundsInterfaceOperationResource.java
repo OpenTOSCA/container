@@ -1,7 +1,5 @@
 package org.opentosca.containerapi.resources.csar.boundarydefinitions;
 
-import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -26,12 +24,16 @@ public class CSARBoundsInterfaceOperationResource {
 	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceOperationResource.class);
 	CSARID csarID;
 	String intName;
+	String opName;
+	
+	UriInfo uriInfo;
 	
 	
-	public CSARBoundsInterfaceOperationResource(CSARID csarID, String intName) {
+	public CSARBoundsInterfaceOperationResource(CSARID csarID, String intName, String op) {
 		
 		this.csarID = csarID;
 		this.intName = intName;
+		opName = op;
 		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {
 			LOG.error("The ToscaEngineService is not alive.");
@@ -46,19 +48,35 @@ public class CSARBoundsInterfaceOperationResource {
 	 */
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
+	}
+	
+	/**
+	 * Builds the references of the Boundary Definitions of a CSAR.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	private References getReferences() {
 		
 		References refs = new References();
 		
-		List<String> ops = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryOperationsOfCSARInterface(csarID, intName);
-		
-		for (String op : ops) {
-			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), op), XLinkConstants.SIMPLE, op));
-		}
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "NodeOperation"), XLinkConstants.SIMPLE, "NodeOperation"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "RelationshipOperation"), XLinkConstants.SIMPLE, "RelationshipOperation"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Plan"), XLinkConstants.SIMPLE, "Plan"));
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+		return refs;
 	}
 	
 	/**
@@ -68,8 +86,92 @@ public class CSARBoundsInterfaceOperationResource {
 	 * @return the PublicPlan
 	 */
 	@Path("{OperationName}")
-	public CSARBoundsInterfaceOperationTypeResource getPublicPlan(@PathParam("OperationName") String op) {
-		return new CSARBoundsInterfaceOperationTypeResource(csarID, intName, op);
+	public CSARBoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
+		return new CSARBoundsInterfaceOperationResource(csarID, intName, op);
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Path("NodeOperation")
+	@Produces(ResourceConstants.LINKED_XML)
+	public Response getNodeOperationXML(@Context UriInfo uriInfo) {
+		
+		References refs = new References();
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		return Response.ok(refs.getXMLString()).build();
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Path("NodeOperation")
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getNodeOperationJSON(@Context UriInfo uriInfo) {
+		
+		References refs = new References();
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		return Response.ok(refs.getJSONString()).build();
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Path("RelationshipOperation")
+	@Produces(ResourceConstants.LINKED_XML)
+	public Response getRelationshipOperationXML(@Context UriInfo uriInfo) {
+		
+		References refs = new References();
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		return Response.ok(refs.getXMLString()).build();
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Path("RelationshipOperation")
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getRelationshipOperationJSON(@Context UriInfo uriInfo) {
+		
+		References refs = new References();
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		return Response.ok(refs.getJSONString()).build();
+	}
+	
+	/**
+	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
+	 * yet, thus, just returns itself.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@Path("Plan")
+	public CSARBoundsInterfaceOperationPlanResource getPlan(@Context UriInfo uriInfo) {
+		return new CSARBoundsInterfaceOperationPlanResource(csarID, intName, opName);
 	}
 	
 }

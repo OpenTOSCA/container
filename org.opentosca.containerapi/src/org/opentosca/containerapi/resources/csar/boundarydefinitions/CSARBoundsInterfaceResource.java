@@ -1,7 +1,5 @@
 package org.opentosca.containerapi.resources.csar.boundarydefinitions;
 
-import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,23 +18,24 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CSARBoundsInterfacesResource {
+public class CSARBoundsInterfaceResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfacesResource.class);
-	CSARID csarID = null;
+	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceResource.class);
+	CSARID csarID;
+	String intName;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsInterfacesResource(CSARID csarID) {
+	public CSARBoundsInterfaceResource(CSARID csarID, String intName) {
 		this.csarID = csarID;
+		this.intName = intName;
 		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {
 			LOG.error("The ToscaEngineService is not alive.");
 		}
 	}
-	
 	
 	/**
 	 * Builds the references of the Boundary Definitions of a CSAR.
@@ -68,13 +67,7 @@ public class CSARBoundsInterfacesResource {
 		
 		References refs = new References();
 		
-		List<String> interfaces = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryInterfacesOfCSAR(csarID);
-		
-		if (null != interfaces) {
-			for (String intf : interfaces) {
-				refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), intf), XLinkConstants.SIMPLE, intf));
-			}
-		}
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Operations"), XLinkConstants.SIMPLE, "Operations"));
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
@@ -87,9 +80,9 @@ public class CSARBoundsInterfacesResource {
 	 * @param planName
 	 * @return the PublicPlan
 	 */
-	@Path("{InterfaceName}")
-	public CSARBoundsInterfaceResource getPublicPlan(@PathParam("InterfaceName") String intName) {
-		return new CSARBoundsInterfaceResource(csarID, intName);
+	@Path("Operations")
+	public CSARBoundsInterfaceOperationsResource getPublicPlan(@PathParam("InterfaceName") String intName) {
+		return new CSARBoundsInterfaceOperationsResource(csarID, intName);
 	}
 	
 }

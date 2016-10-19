@@ -1,5 +1,7 @@
 package org.opentosca.containerapi.resources.csar.boundarydefinitions;
 
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -25,8 +27,11 @@ public class CSARBoundsInterfaceOperationsResource {
 	CSARID csarID;
 	String intName;
 	
+	UriInfo uriInfo;
+	
 	
 	public CSARBoundsInterfaceOperationsResource(CSARID csarID, String intName) {
+		
 		this.csarID = csarID;
 		this.intName = intName;
 		
@@ -43,26 +48,48 @@ public class CSARBoundsInterfaceOperationsResource {
 	 */
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
-		
-		References refs = new References();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Operations"), XLinkConstants.SIMPLE, "Operations"));
-		
-		// selflink
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
 	}
 	
 	/**
-	 * Returns the Interface Operations for a given Interface name.
+	 * Builds the references of the Boundary Definitions of a CSAR.
+	 * 
+	 * @param uriInfo
+	 * @return Response
+	 */
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	private References getReferences() {
+		
+		References refs = new References();
+		
+		List<String> ops = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryOperationsOfCSARInterface(csarID, intName);
+		
+		for (String op : ops) {
+			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), op), XLinkConstants.SIMPLE, op));
+		}
+		
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		return refs;
+	}
+	
+	/**
+	 * Returns a PublicPlan for a given Index.
 	 * 
 	 * @param planName
 	 * @return the PublicPlan
 	 */
-	@Path("Operations")
-	public CSARBoundsInterfaceOperationResource getPublicPlan(@PathParam("InterfaceName") String intName) {
-		return new CSARBoundsInterfaceOperationResource(csarID, intName);
+	@Path("{OperationName}")
+	public CSARBoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
+		return new CSARBoundsInterfaceOperationResource(csarID, intName, op);
 	}
 	
 }
