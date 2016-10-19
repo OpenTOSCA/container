@@ -59,6 +59,9 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		// DockerContainer
 		
 		// check mandatory properties
+		if(nodeTemplate.getProperties() == null){
+			return false;
+		}
 		Element propertyElement = nodeTemplate.getProperties().getDOMElement();
 		NodeList childNodeList = propertyElement.getChildNodes();
 		
