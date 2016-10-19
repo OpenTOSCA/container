@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.boundarydefinitions;
 
 import java.util.List;
 

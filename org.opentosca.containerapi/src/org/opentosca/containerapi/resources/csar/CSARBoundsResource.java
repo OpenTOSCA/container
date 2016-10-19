@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
+import org.opentosca.containerapi.resources.csar.boundarydefinitions.CSARBoundsInterfacesResource;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
 import org.opentosca.containerapi.resources.xlink.Reference;
