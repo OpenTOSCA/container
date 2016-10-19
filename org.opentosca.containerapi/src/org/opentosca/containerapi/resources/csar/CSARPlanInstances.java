@@ -98,7 +98,7 @@ public class CSARPlanInstances {
 			return Response.seeOther(uri).build();
 		} else if (null != CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csar.getCSARID()) && CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csar.getCSARID()).contains(corr)) {
 			LOG.trace("Pending for correlation {}", corr);
-			return Response.ok("{\"result\":{\"status\":\"PENDING\"}}", MediaType.APPLICATION_XML).build();
+			return Response.ok("{\"result\":{\"status\":\"PENDING\"}}", MediaType.APPLICATION_JSON).build();
 		} else {
 			LOG.warn("Correlation not known for corr ", corr);
 			return Response.status(Response.Status.BAD_REQUEST).entity("<response>Given correlation is not known.</response>").build();

@@ -22,6 +22,7 @@ public final class ResourceConstants {
 	public static final String LINKED_JSON = MediaType.APPLICATION_JSON;
 	public static final String TOSCA_XML = MediaType.APPLICATION_XML;
 	public static final String TOSCA_JSON = MediaType.APPLICATION_JSON;
+	public static final String APPLICATION_JSON = MediaType.APPLICATION_JSON;
 	public static final String OCTET_STREAM = MediaType.APPLICATION_OCTET_STREAM;
 	public static final String IMAGE = "image/*";
 	

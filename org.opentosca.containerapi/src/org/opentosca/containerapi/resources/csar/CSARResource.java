@@ -60,7 +60,6 @@ public class CSARResource {
 		CSARResource.LOG.info("{} created: {}", this.getClass(), this);
 	}
 	
-	
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferencesXML(@Context UriInfo uriInfo) {
@@ -85,6 +84,7 @@ public class CSARResource {
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Content"), XLinkConstants.SIMPLE, "Content"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "BoundaryDefinitions"), XLinkConstants.SIMPLE, "BoundaryDefinitions"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "MetaData"), XLinkConstants.SIMPLE, "MetaData"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "TopologyPicture"), XLinkConstants.SIMPLE, "TopologyPicture"));
 		
 		// TODO both following links (PlanInstances, PlanResults) have to be
@@ -145,6 +145,19 @@ public class CSARResource {
 			
 		}
 		return Response.status(Status.NOT_FOUND).type(MediaType.TEXT_PLAIN).entity("No Topology Picture exists in CSAR \"" + CSAR.getCSARID() + "\".").build();
+	}
+	
+	@GET
+	@Path("MetaData")
+	@Produces(ResourceConstants.APPLICATION_JSON)
+	public Response getMetaDataJSON() throws SystemException {
+		// /containerapi/CSARs/MongoDB_On_VSphere.csar/Content/SELFSERVICE-Metadata/data.json
+		
+		CSARDirectoryResource dir = (CSARDirectoryResource) new CSARContentResource(CSAR).getDirectoryOrFile("SELFSERVICE-Metadata");
+		CSARFileResource file = (CSARFileResource) dir.getDirectoryOrFile("data.json");
+		LOG.trace("Metadata file is of class: {}", file.getClass());
+		
+		return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(file.getAsJSONString()).build();//.type(MediaType.TEXT_PLAIN).entity("No Topology Picture exists in CSAR \"" + CSAR.getCSARID() + "\".").build();
 	}
 	
 	/**

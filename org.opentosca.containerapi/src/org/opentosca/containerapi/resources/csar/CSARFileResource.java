@@ -75,7 +75,7 @@ public class CSARFileResource {
 	public Response getReferencesJSON(@Context UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
 		
-		String json = getAsJSONString(CSAR_FILE);
+		String json = getAsJSONString();
 		
 		if (null != json && !json.equals("")){
 			return Response.ok(json).build();
@@ -124,13 +124,13 @@ public class CSARFileResource {
 		
 	}
 	
-	private String getAsJSONString(AbstractFile file) {
+	protected String getAsJSONString() {
 		
 		try {
 			
-			CSARFileResource.LOG.trace("Attempt to download file: \"{}\"", file.getPath());
+			CSARFileResource.LOG.trace("Attempt to download file: \"{}\"", CSAR_FILE.getPath());
 			
-			InputStream inputStream = file.getFileAsInputStream();
+			InputStream inputStream = CSAR_FILE.getFileAsInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8")); 
 			StringBuilder strBuilder = new StringBuilder();
 			
