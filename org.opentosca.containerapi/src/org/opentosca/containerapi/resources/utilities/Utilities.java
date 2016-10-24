@@ -1,5 +1,7 @@
 package org.opentosca.containerapi.resources.utilities;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -7,9 +9,14 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * Utilities. Provides static methods for the ContainerApi<br>
@@ -81,13 +88,22 @@ public class Utilities {
 		}
 	}
 	
+	public static boolean areNotNull(Object... objs) {
+		for (Object obj : objs) {
+			if (obj == null) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	/**
 	 * This method checks all given string if they are <code>null</code> or
 	 * empty and returns yes if at <b>least one</b> String is null or empty
-	 * 
+	 *
 	 * This method is perfectly fitted for checking all required parameters of a
 	 * request at once (jersey doesn't support @required for parameters)
-	 * 
+	 *
 	 * @param strings
 	 * @return false - if all given Strings are initialized and not
 	 *         <code>""</code> true - if at least one given string is
@@ -101,5 +117,12 @@ public class Utilities {
 		}
 		return false;
 		
+	}
+	
+	public static Document fileToDom(File file) throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(file);
+		return doc;
 	}
 }

@@ -78,6 +78,7 @@ public class RootResource {
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "instancedata"), XLinkConstants.SIMPLE, "instancedata"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "portability"), XLinkConstants.SIMPLE, "portability"));
 		
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "SmartServices"), XLinkConstants.SIMPLE, "SmartServices"));
 		RootResource.LOG.debug("Number of References in Root: {}", refs.getReference().size());
 		// selflink
 		
