@@ -46,12 +46,12 @@ public class JerseyApplication extends Application {
 	// });
 	// return singletons;
 	// };
-
+	
 	@Override
 	public Set<Class<?>> getClasses() {
-
+		
 		Set<Class<?>> s = new HashSet<Class<?>>();
-
+		
 		// add all root resources
 		s.add(RootResource.class);
 		s.add(CSARControl.class);
@@ -62,11 +62,18 @@ public class JerseyApplication extends Application {
 		s.add(PortabilityRoot.class);
 		
 		s.add(SmartServicesResource.class);
-
+		
 		// add all exception mappers
 		s.add(SystemExceptionMapper.class);
 		s.add(UserExceptionMapper.class);
-
+		
+		// add json mapper, no functionality yet, needs additional dependencies
+		s.add(JSONMapper.class);
+		
 		return s;
+	}
+	
+	
+	public class JSONMapper {
 	}
 }

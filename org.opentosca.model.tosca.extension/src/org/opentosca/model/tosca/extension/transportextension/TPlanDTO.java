@@ -119,6 +119,9 @@ public class TPlanDTO {
 	 * 
 	 */
 	public TPlanDTO.OutputParameters getOutputParameters() {
+		if (null == outputParameters){
+			outputParameters = new TPlanDTO.OutputParameters();
+		}
 		return outputParameters;
 	}
 	

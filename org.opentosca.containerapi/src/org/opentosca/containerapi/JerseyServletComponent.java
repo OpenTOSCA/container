@@ -1,5 +1,7 @@
 package org.opentosca.containerapi;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.eclipse.equinox.http.servlet.ExtendedHttpService;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
@@ -19,13 +21,28 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
  */
 public class JerseyServletComponent {
 	
+	
 	private static final Logger LOG = LoggerFactory.getLogger(JerseyServletComponent.class);
 	
 	
 	protected void bindHttpService(ExtendedHttpService httpService) {
 		JerseyServletComponent.LOG.debug("Binding HTTP Service");
 		try {
-			httpService.registerServlet(ResourceConstants.ROOT, new ServletContainer(new JerseyApplication()), null, null);
+			
+			
+			JerseyApplication app = new JerseyApplication();
+			ServletContainer container = new ServletContainer(app);
+			
+			// this is for supporting json, but unfortunately we need further
+			// bundles in the target platform ...
+			// <init-param>
+			// <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			// <param-value>true</param-value>
+			// </init-param>
+			Dictionary<String, String> initParams = new Hashtable<String, String>();
+			initParams.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
+			
+			httpService.registerServlet(ResourceConstants.ROOT, container, initParams, null);
 			httpService.registerFilter("/", new CorsFilter(), null, null);
 			
 		} catch (Exception ex) {
