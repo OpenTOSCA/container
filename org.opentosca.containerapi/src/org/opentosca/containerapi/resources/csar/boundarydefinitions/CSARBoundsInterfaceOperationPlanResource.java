@@ -110,8 +110,7 @@ public class CSARBoundsInterfaceOperationPlanResource {
 	}
 	
 	/**
-	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
-	 * yet, thus, just returns itself.
+	 * Returns the  Plan.
 	 * 
 	 * @param uriInfo
 	 * @return Response

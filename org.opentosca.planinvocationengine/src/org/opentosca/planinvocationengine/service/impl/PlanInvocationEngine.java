@@ -192,7 +192,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		
 		// send the message to the service bus
 		Event event = new Event("org_opentosca_plans/requests", eventValues);
-		LOG.debug("Send event with parameters for invocation.");
+		LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
 		ServiceHandler.eventAdmin.postEvent(event);
 		
 		return correlationID;
@@ -269,6 +269,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		String correlationID = (String) eve.getProperty("MESSAGEID");
 		String planLanguage = (String) eve.getProperty("PLANLANGUAGE");
 		LOG.trace("The correlation ID is {} and plan language is {}", correlationID, planLanguage);
+		
+		ServiceHandler.correlationHandler.removeCorrelation(correlationID);
 		
 		PlanInvocationEvent event;
 		
