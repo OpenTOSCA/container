@@ -42,6 +42,8 @@ public class CSARInstancesResource {
 	
 	private final CSARID csarID;
 	
+	UriInfo uriInfo;
+	
 	
 	public CSARInstancesResource(CSARID csarID) {
 		this.csarID = csarID;
@@ -61,11 +63,29 @@ public class CSARInstancesResource {
 	 */
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
+	}
+	
+	/**
+	 * Produces the JSON which shows the CSAR instances.
+	 * 
+	 * @param uriInfo
+	 * @return The response with the legal PublicPlanTypes.
+	 */
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	public References getReferences() {
 		
 		if (csarID == null) {
 			CSARInstancesResource.LOG.debug("The CSAR does not exist.");
-			return Response.status(404).build();
+			return null;
 		}
 		
 		CSARInstancesResource.LOG.debug("Return available instances for CSAR {}.", csarID);
@@ -82,7 +102,7 @@ public class CSARInstancesResource {
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+		return refs;
 	}
 	
 	/**
@@ -139,7 +159,7 @@ public class CSARInstancesResource {
 		// TODO return correlation ID
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
 		
-		return Response.ok("invoked").build();
+		return Response.ok(correlationID).build();
 		
 	}
 	

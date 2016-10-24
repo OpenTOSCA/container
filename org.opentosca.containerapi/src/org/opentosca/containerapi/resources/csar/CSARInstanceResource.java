@@ -38,6 +38,8 @@ public class CSARInstanceResource {
 	private final CSARID csarID;
 	private final int instanceID;
 	
+	UriInfo uriInfo;
+	
 	
 	public CSARInstanceResource(CSARID csarID, String instanceID) {
 		if (null == csarID) {
@@ -67,21 +69,40 @@ public class CSARInstanceResource {
 	 */
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferences(@Context UriInfo uriInfo) {
+	public Response getReferencesXML(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getXMLString()).build();
+	}
+	
+	/**
+	 * Produces the JSON which lists the links to the History and the active
+	 * plans.
+	 * 
+	 * @param uriInfo
+	 * @return The response with the legal PublicPlanTypes.
+	 */
+	@GET
+	@Produces(ResourceConstants.LINKED_JSON)
+	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+		this.uriInfo = uriInfo;
+		return Response.ok(getReferences().getJSONString()).build();
+	}
+	
+	public References getReferences() {
 		
 		CSARInstanceResource.LOG.debug("Access the CSAR instance at " + uriInfo.getAbsolutePath().toString());
 		
 		if (csarID == null) {
 			CSARInstanceResource.LOG.debug("The CSAR does not exist.");
-			return Response.status(404).build();
+			return null;
 		}
 		
 		// selflink
 		References refs = new References();
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "activePublicPlans"), XLinkConstants.SIMPLE, "history"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "history"), XLinkConstants.SIMPLE, "history"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "ActivePlans"), XLinkConstants.SIMPLE, "history"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "History"), XLinkConstants.SIMPLE, "history"));
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+		return refs;
 	}
 	
 	/**
@@ -116,7 +137,7 @@ public class CSARInstanceResource {
 	 * 
 	 * @return the History representation
 	 */
-	@Path("history")
+	@Path("History")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceHistory() {
 		CSARInstanceResource.LOG.debug("Access history");
@@ -128,7 +149,7 @@ public class CSARInstanceResource {
 	 * 
 	 * @return active plans representation
 	 */
-	@Path("activePublicPlans")
+	@Path("ActivePlans")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceActivePublicPlans() {
 		CSARInstanceResource.LOG.debug("Access active PublicPlans");
