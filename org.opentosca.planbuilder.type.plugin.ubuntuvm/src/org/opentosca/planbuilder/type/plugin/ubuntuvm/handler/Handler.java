@@ -46,6 +46,9 @@ public class Handler {
 			"HypervisorUserName", "HypervisorEndpoint", "VMImageID", "VMType", "HypervisorTenantID", "VMUserPassword",
 			"VMPublicKey", "VMKeyPairName" };
 	
+	// mandatory params for the local hypervisor node
+	private final static String[] localCreateVMInstanceExternalInputParams = {"HypervisorEndpoint", "VMPublicKey", "VMPrivateKey", "HostNetworkAdapterName"};
+
 	/**
 	 * Provisions a Docker Ubuntu Container on a DockerEngine
 	 *
@@ -829,6 +832,230 @@ public class Handler {
 		}
 
 		return null;
+	}
+
+	public boolean handleWithLocalCloudProviderInterface(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+		// we need a cloud provider node
+		AbstractNodeTemplate cloudProviderNodeTemplate = this.findCloudProviderNode(nodeTemplate);
+		if (cloudProviderNodeTemplate == null) {
+			return false;
+		}
+
+		// and an OS node (check for ssh service..)
+		AbstractNodeTemplate ubuntuNodeTemplate = this.findUbuntuNode(nodeTemplate);
+		Variable ubuntuAMIIdVar = null;
+
+		if (ubuntuNodeTemplate == null) {
+			Handler.LOG.error("Couldn't find Ubuntu Node");
+			return false;
+		}
+
+		// here either the ubuntu connected to the provider this handler is
+		// working on hasn't a version in the ID (ubuntu version must be written
+		// in AMIId property then) or something went really wrong
+		if (this.isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType().getId())) {
+			// we'll set a global variable with the necessary ubuntu image
+			// ubuntuAMIIdVar =
+			// context.createGlobalStringVariable("ubuntu_AMIId",
+			// "ubuntu-13.10-server-cloudimg-amd64");
+			ubuntuAMIIdVar = context.createGlobalStringVariable("ubuntu_AMIId", this.createUbuntuImageStringFromNodeType(ubuntuNodeTemplate.getType().getId()));
+		}
+
+		Handler.LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type " + ubuntuNodeTemplate.getType().getId().toString());
+
+		Variable instanceIdPropWrapper = null;
+
+		for (String instanceIdName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
+			// find InstanceId Property inside ubuntu nodeTemplate
+
+			instanceIdPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, instanceIdName);
+			if (instanceIdPropWrapper == null) {
+				instanceIdPropWrapper = context.getPropertyVariable(instanceIdName, true);
+			} else {
+				break;
+			}
+		}
+
+		if (instanceIdPropWrapper == null) {
+			Handler.LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
+			return false;
+		}
+
+		// find ServerIp Property inside ubuntu nodeTemplate
+		Variable serverIpPropWrapper = null;
+		for (String vmIpName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+			serverIpPropWrapper = context.getPropertyVariable(ubuntuNodeTemplate, vmIpName);
+			if (serverIpPropWrapper == null) {
+				serverIpPropWrapper = context.getPropertyVariable(vmIpName, true);
+			} else {
+				break;
+			}
+		}
+
+		if (serverIpPropWrapper == null) {
+			Handler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
+			return false;
+		}
+
+		// find sshUser and sshKey
+		Variable sshUserVariable = null;
+		for (String userName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+			sshUserVariable = context.getPropertyVariable(ubuntuNodeTemplate, userName);
+			if (sshUserVariable == null) {
+				sshUserVariable = context.getPropertyVariable(userName, true);
+			} else {
+				break;
+			}
+		}
+
+		// if the variable is null now -> the property isn't set properly
+		if (sshUserVariable == null) {
+			return false;
+		} else {
+			if (Utils.isVariableValueEmpty(sshUserVariable, context)) {
+				// the property isn't set in the topology template -> we set it
+				// null here so it will be handled as an external parameter
+				Handler.LOG.debug("Adding sshUser field to plan input");
+				// add the new property name (not sshUser)
+				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
+				// add an assign from input to internal property variable
+				context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME, sshUserVariable);
+
+			}
+		}
+
+		Variable sshKeyVariable = null;
+
+		for (String passwordName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+			sshKeyVariable = context.getPropertyVariable(ubuntuNodeTemplate, passwordName);
+			if (sshKeyVariable == null) {
+				sshKeyVariable = context.getPropertyVariable(passwordName, true);
+			} else {
+				break;
+			}
+		}
+
+		// if variable null now -> the property isn't set according to schema
+		if (sshKeyVariable == null) {
+			return false;
+		} else {
+			if (Utils.isVariableValueEmpty(sshKeyVariable, context)) {
+				// see sshUserVariable..
+				Handler.LOG.debug("Adding sshKey field to plan input");
+				context.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+				context.addAssignFromInput2VariableToMainAssign(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD, sshKeyVariable);
+			}
+		}
+
+		// adds field into plan input message to give the plan it's own address
+		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
+		// 2.x can't give that at runtime (bug)
+		Handler.LOG.debug("Adding plan callback address field to plan input");
+		context.addStringValueToPlanRequest("planCallbackAddress_invoker");
+
+		// add csarEntryPoint to plan input message
+		Handler.LOG.debug("Adding csarEntryPoint field to plan input");
+		context.addStringValueToPlanRequest("csarEntrypoint");
+
+		Map<String, Variable> createEC2InternalExternalPropsInput = new HashMap<String, Variable>();
+
+		/*
+		 * In the following part we take the know property names and try to
+		 * match them unto the topology. If we found one property and it's set
+		 * with a value it will be used without any problems. If the property is
+		 * found but not set we will set an input param and take the value from
+		 * planinput. Everything else aborts this method
+		 */
+
+		// set external parameters
+		for (String externalParameter : Handler.localCreateVMInstanceExternalInputParams) {
+			// find the variable for the inputparam
+
+			Variable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
+			if (variable == null) {
+				variable = context.getPropertyVariable(externalParameter, true);
+			}
+
+			// if we use ubuntu image version etc. from the nodeType not some
+			// property/parameter
+			if (externalParameter.equals("VMImageID") && (ubuntuAMIIdVar != null)) {
+				createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
+				continue;
+			}
+			
+			if ((variable == null) & externalParameter.equals("HostNetworkAdapterName")) {
+				// the IA shall determine the hardware adapter in this case
+				continue;
+			}
+
+			// if the variable is still null, something was not specified
+			// properly
+			if (variable == null) {
+				Handler.LOG.warn("Didn't find  property variable for parameter " + externalParameter);
+				return false;
+			} else {
+				Handler.LOG.debug("Found property variable " + externalParameter);
+			}
+
+			if (Utils.isVariableValueEmpty(variable, context)) {
+				Handler.LOG.debug("Variable value is empty, adding to plan input");
+
+				// add the new property name to input
+				context.addStringValueToPlanRequest(externalParameter);
+				// add an assign from input to internal property variable
+				context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
+
+				createEC2InternalExternalPropsInput.put(externalParameter, variable);
+
+			} else {
+				createEC2InternalExternalPropsInput.put(externalParameter, variable);
+			}
+
+		}
+
+		// generate var with random value for the correlation id
+		// Variable ec2CorrelationIdVar =
+		// context.generateVariableWithRandomValue();
+		// createEC2InternalExternalPropsInput.put("CorrelationId",
+		// ec2CorrelationIdVar);
+
+		/* setup output mappings */
+		Map<String, Variable> createEC2InternalExternalPropsOutput = new HashMap<String, Variable>();
+
+		// with this the invoker plugin should write the value of
+		// getPublicDNSReturn into the InstanceId Property of the Ubuntu
+		// Node
+		createEC2InternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMINSTANCEID, instanceIdPropWrapper);
+		createEC2InternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP, serverIpPropWrapper);
+
+		// generate plan input message element for the plan address, this is
+		// needed as BPS 2.1.2 fails at returning addresses appropiate for
+		// callback
+		// TODO maybe do a check with BPS Connector for BPS version, because
+		// since vers. 3 retrieving the address of the plan works
+		context.addStringValueToPlanRequest("planCallbackAddress_invoker");
+
+		// we'll add the logic to VM Nodes Prov phase, as we need proper updates
+		// of properties at the InstanceDataAPI
+
+		this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, "planCallbackAddress_invoker", createEC2InternalExternalPropsInput, createEC2InternalExternalPropsOutput, false);
+
+		/*
+		 * Check whether the SSH port is open on the VM. Doing this here removes
+		 * the necessity for the other plugins to wait for SSH to be up
+		 */
+		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
+		Map<String, Variable> startRequestOutputParams = new HashMap<String, Variable>();
+
+		startRequestInputParams.put("VMIP", serverIpPropWrapper);
+		startRequestInputParams.put("VMUserName", sshUserVariable);
+		startRequestInputParams.put("VMPrivateKey", sshKeyVariable);
+
+		startRequestOutputParams.put("WaitResult", context.createGlobalStringVariable("WaitResultDummy", ""));
+
+		this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams, false);
+
+		return true;
 	}
 
 }

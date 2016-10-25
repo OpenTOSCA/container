@@ -38,6 +38,8 @@ public class Types {
 	// remote host nodeType for nodes not managed by opentosca
 	public final static QName remoteHostNodeType = new QName("http://opentosca.org/nodetypes", "RemoteHost");
 
+	// local linux hypervisor nodeType
+	public final static QName localHypervisor = new QName("http://opentosca.org/nodetypes", "Libvirt-Qemu-KVM");
 	// relationship types
 	public final static QName connectsToRelationType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
 	public final static QName dependsOnRelationType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");

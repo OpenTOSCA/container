@@ -65,6 +65,8 @@ public class Plugin implements IPlanBuilderTypePlugin {
 						// bit hacky now, but until the nodeType cleanup is
 						// finished this should be enough right now
 						return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);
+					} else if (relation.getTarget().getType().getId().equals(Types.localHypervisor)) {
+						return this.handler.handleWithLocalCloudProviderInterface(templateContext, nodeTemplate);
 					} else {
 						return this.handler.handle(templateContext, nodeTemplate);
 					}

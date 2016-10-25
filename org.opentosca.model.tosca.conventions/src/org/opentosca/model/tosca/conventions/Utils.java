@@ -96,7 +96,7 @@ public class Utils {
 	 *         nodeType
 	 */
 	public static boolean isSupportedCloudProviderNodeType(QName nodeType) {
-		if (nodeType.equals(Types.ec2NodeType) | nodeType.equals(Types.openStackNodeType) | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)) {
+		if (nodeType.equals(Types.ec2NodeType) | nodeType.equals(Types.openStackNodeType) | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType) | nodeType.equals(Types.localHypervisor)) {
 			return true;
 		}
 		
