@@ -181,7 +181,29 @@ public class CSARInstancesResource {
 	 */
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
-	public Response postManagementPlanJSON(String json) {
+	@Produces(ResourceConstants.APPLICATION_JSON)
+	public Response postBUILDJSONReturnJSON(String json){
+		String corr = postManagementPlanJSON(json);
+		JsonObject ret = new JsonObject();
+		ret.addProperty("CorrelationID", corr);
+		return Response.ok(ret.toString()).build();
+	}
+	
+	/**
+	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * 
+	 * @param planElement the BUILD PublicPlan
+	 * @return Response
+	 */
+	@POST
+	@Consumes(ResourceConstants.TEXT_PLAIN)
+	@Produces(ResourceConstants.TOSCA_XML)
+	public Response postBUILDJSONReturnXML(String json){
+		
+		return Response.ok(postManagementPlanJSON(json)).build();
+	}
+	
+	public String postManagementPlanJSON(String json) {
 		
 		CSARInstancesResource.LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
@@ -242,7 +264,9 @@ public class CSARInstancesResource {
 		
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
 		
-		return Response.ok(correlationID).build();
+		LOG.debug("Return correlation ID of running plan: " + correlationID);
+		
+		return correlationID;
 		
 	}
 	
