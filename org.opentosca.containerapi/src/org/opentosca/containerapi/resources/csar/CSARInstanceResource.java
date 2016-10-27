@@ -216,12 +216,13 @@ public class CSARInstanceResource {
 		Iterator<JsonElement> iterator = array.iterator();
 		while (iterator.hasNext()) {
 			TParameterDTO para = new TParameterDTO();
-			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Type").toString()));
+			JsonObject tmp = iterator.next().getAsJsonObject();
+			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
+			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
+			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
 			// if a parameter value is not set, just add "" as value
-			if (null != iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value")) {
-				para.setValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value").toString()));
+			if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
+				para.setValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
 			} else {
 				para.setValue("");
 			}
@@ -231,9 +232,10 @@ public class CSARInstanceResource {
 		iterator = array.iterator();
 		while (iterator.hasNext()) {
 			TParameterDTO para = new TParameterDTO();
-			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Type").toString()));
+			JsonObject tmp = iterator.next().getAsJsonObject();
+			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
+			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
+			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
 			plan.getOutputParameters().getOutputParameter().add(para);
 		}
 		
