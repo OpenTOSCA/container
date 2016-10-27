@@ -45,6 +45,7 @@ import com.google.gson.JsonParser;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
+@Path("Instances")
 public class CSARInstancesResource {
 	
 	
@@ -182,10 +183,10 @@ public class CSARInstancesResource {
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.APPLICATION_JSON)
-	public Response postBUILDJSONReturnJSON(String json) {
-		String corr = postManagementPlanJSON(json);
+	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) {
+		String planURL = postManagementPlanJSON(uriInfo, json);
 		JsonObject ret = new JsonObject();
-		ret.addProperty("CorrelationID", corr);
+		ret.addProperty("PlanURL", planURL);
 		return Response.ok(ret.toString()).build();
 	}
 	
@@ -198,12 +199,12 @@ public class CSARInstancesResource {
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.TOSCA_XML)
-	public Response postBUILDJSONReturnXML(String json) {
+	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) {
 		
-		return Response.ok(postManagementPlanJSON(json)).build();
+		return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
 	}
 	
-	public String postManagementPlanJSON(String json) {
+	public String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
 		CSARInstancesResource.LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
@@ -270,10 +271,12 @@ public class CSARInstancesResource {
 		CSARInstancesResource.LOG.debug("Post of the PublicPlan " + plan.getId());
 		
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
+		int csarInstanceID = IOpenToscaControlServiceHandler.getOpenToscaControlService().getCSARInstanceIDForCorrelationID(correlationID);
+		LOG.debug("Return correlation ID of running plan: " + correlationID + " for csar instance " + csarInstanceID);
 		
-		LOG.debug("Return correlation ID of running plan: " + correlationID);
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + csarInstanceID + "/ActivePlans/" + correlationID;
 		
-		return correlationID;
+		return url;
 		
 	}
 	

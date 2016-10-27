@@ -147,4 +147,6 @@ public interface IOpenToscaControlService {
 	 */
 	public TPlanDTO getActivePlanOfInstance(CSARInstanceID csarInstanceID, String correlationID);
 	
+	int getCSARInstanceIDForCorrelationID(String correlationID);
+	
 }

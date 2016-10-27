@@ -111,8 +111,8 @@ public class CSARInstanceResource {
 		
 		// selflink
 		References refs = new References();
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "ActivePlans"), XLinkConstants.SIMPLE, "history"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "History"), XLinkConstants.SIMPLE, "history"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "ActivePlans"), XLinkConstants.SIMPLE, "ActivePlans"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "History"), XLinkConstants.SIMPLE, "History"));
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
