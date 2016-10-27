@@ -153,7 +153,7 @@ public class CSARInstanceResource {
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.APPLICATION_JSON)
-	public Response postBUILDJSONReturnJSON(String json){
+	public Response postBUILDJSONReturnJSON(String json) {
 		String corr = postManagementPlanJSON(json);
 		JsonObject ret = new JsonObject();
 		ret.addProperty("CorrelationID", corr);
@@ -169,7 +169,7 @@ public class CSARInstanceResource {
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.TOSCA_XML)
-	public Response postBUILDJSONReturnXML(String json){
+	public Response postBUILDJSONReturnXML(String json) {
 		
 		return Response.ok(postManagementPlanJSON(json)).build();
 	}
@@ -219,7 +219,12 @@ public class CSARInstanceResource {
 			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Name").toString()));
 			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Required").toString())));
 			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Type").toString()));
-			para.setValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value").toString()));
+			// if a parameter value is not set, just add "" as value
+			if (null != iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value")) {
+				para.setValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value").toString()));
+			} else {
+				para.setValue("");
+			}
 			plan.getInputParameters().getInputParameter().add(para);
 		}
 		array = object.get("OutputParameters").getAsJsonArray();
