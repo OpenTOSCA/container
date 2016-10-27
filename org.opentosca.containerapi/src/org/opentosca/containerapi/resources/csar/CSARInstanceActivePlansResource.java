@@ -1,13 +1,18 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.opentosca.containerapi.osgi.servicegetter.CSARInstanceManagementHandler;
 import org.opentosca.containerapi.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
@@ -16,14 +21,9 @@ import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
-import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
-import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.opentoscacontrol.service.IOpenToscaControlService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 /**
  * This resource represents the active PublicPlans for a CSAR-Instance.
@@ -105,74 +105,88 @@ public class CSARInstanceActivePlansResource {
 	 * @param correlationID
 	 * @return the PublicPlan for the CorrelationID
 	 */
-	@GET
-	@Path("{CorrelationID}")
-	@Produces(ResourceConstants.TOSCA_XML)
-	public TPlanDTO getInstance(@PathParam("CorrelationID") String correlationID) {
-		CSARInstanceActivePlansResource.LOG.debug("Return plan for correlation " + correlationID);
-		IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
-		
-		return control.getActivePlanOfInstance(new CSARInstanceID(csarID, instanceID), correlationID);
-	}
+	//	@GET
+	//	@Path("{CorrelationID}")
+	//	@Produces(ResourceConstants.TOSCA_XML)
+	//	public TPlanDTO getInstance(@PathParam("CorrelationID") String correlationID) {
+	//		CSARInstanceActivePlansResource.LOG.debug("Return plan for correlation " + correlationID);
+	//		IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
+	//		
+	//		return control.getActivePlanOfInstance(new CSARInstanceID(csarID, instanceID), correlationID);
+	//	}
 	
 	/**
 	 * Returns the plan information from history.
 	 * 
 	 * @param uriInfo
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@GET
 	@Path("{CorrelationID}")
 	@Produces(ResourceConstants.TOSCA_JSON)
-	public Response getPlanJSON(@PathParam("CorrelationID") String correlationID) {
+	public Response getPlanJSON(@Context UriInfo uriInfo, @PathParam("CorrelationID") String correlationID) throws URISyntaxException {
 		
-		CSARInstanceActivePlansResource.LOG.debug("Return plan for correlation " + correlationID);
-		TPlanDTO plan = IOpenToscaControlServiceHandler.getOpenToscaControlService().getActivePlanOfInstance(new CSARInstanceID(csarID, instanceID), correlationID);
-		
-		JsonObject json = new JsonObject();
-		json.addProperty("ID", plan.getId().toString());
-		json.addProperty("Name", plan.getName());
-		json.addProperty("PlanType", plan.getPlanType());
-		json.addProperty("PlanLanguage", plan.getPlanLanguage());
-		
-		JsonArray input = new JsonArray();
-		try {
-			for (TParameterDTO param : plan.getInputParameters().getInputParameter()) {
-				JsonObject paramObj = new JsonObject();
-				JsonObject paramDetails = new JsonObject();
-				paramDetails.addProperty("Name", param.getName());
-				paramDetails.addProperty("Type", param.getType());
-				paramDetails.addProperty("Value", param.getValue());
-				paramDetails.addProperty("Required", param.getRequired().value());
-				paramObj.add("InputParameter", paramDetails);
-				input.add(paramObj);
-			}
-		} catch (NullPointerException e) {
+		if (null != CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(csarID) && CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(csarID).contains(correlationID)) {
+			String url = Utilities.buildURI(uriInfo.getBaseUri().toString(), "CSARs/" + csarID.getFileName() + "/PlanResults/" + correlationID);
+			URI uri = new URI(url);
+			LOG.trace("Redirect for correlation {}:\n{}", correlationID, uri);
+			return Response.seeOther(uri).build();
+		} else if (null != CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csarID) && CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csarID).contains(correlationID)) {
+			LOG.trace("Pending for correlation {}", correlationID);
+			return Response.ok("{\"result\":{\"status\":\"PENDING\"}}", MediaType.APPLICATION_JSON).build();
+		} else {
+			LOG.warn("Correlation not known for corr ", correlationID);
+			return Response.status(Response.Status.BAD_REQUEST).entity("{\"result\":\"Given correlation is not known\"}").build();
 		}
-		json.add("InputParameters", input);
 		
-		JsonArray output = new JsonArray();
-		try {
-			for (TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
-				JsonObject paramObj = new JsonObject();
-				JsonObject paramDetails = new JsonObject();
-				paramDetails.addProperty("Name", param.getName());
-				paramDetails.addProperty("Type", param.getType());
-				paramDetails.addProperty("Value", param.getValue());
-				paramDetails.addProperty("Required", param.getRequired().value());
-				paramObj.add("OutputParameter", paramDetails);
-				output.add(paramObj);
-			}
-		} catch (NullPointerException e) {
-		}
-		json.add("OutputParameters", output);
-		
-		JsonObject planModelReference = new JsonObject();
-		// planModelReference.addProperty("Reference",
-		// event.getPlanModelReference().getReference());
-		json.add("PlanModelReference", planModelReference);
-		
-		return Response.ok(json.toString()).build();
+		//		CSARInstanceActivePlansResource.LOG.debug("Return plan for correlation " + correlationID);
+		//		TPlanDTO plan = IOpenToscaControlServiceHandler.getOpenToscaControlService().getActivePlanOfInstance(new CSARInstanceID(csarID, instanceID), correlationID);
+		//		
+		//		JsonObject json = new JsonObject();
+		//		json.addProperty("ID", plan.getId().toString());
+		//		json.addProperty("Name", plan.getName());
+		//		json.addProperty("PlanType", plan.getPlanType());
+		//		json.addProperty("PlanLanguage", plan.getPlanLanguage());
+		//		
+		//		JsonArray input = new JsonArray();
+		//		try {
+		//			for (TParameterDTO param : plan.getInputParameters().getInputParameter()) {
+		//				JsonObject paramObj = new JsonObject();
+		//				JsonObject paramDetails = new JsonObject();
+		//				paramDetails.addProperty("Name", param.getName());
+		//				paramDetails.addProperty("Type", param.getType());
+		//				paramDetails.addProperty("Value", param.getValue());
+		//				paramDetails.addProperty("Required", param.getRequired().value());
+		//				paramObj.add("InputParameter", paramDetails);
+		//				input.add(paramObj);
+		//			}
+		//		} catch (NullPointerException e) {
+		//		}
+		//		json.add("InputParameters", input);
+		//		
+		//		JsonArray output = new JsonArray();
+		//		try {
+		//			for (TParameterDTO param : plan.getOutputParameters().getOutputParameter()) {
+		//				JsonObject paramObj = new JsonObject();
+		//				JsonObject paramDetails = new JsonObject();
+		//				paramDetails.addProperty("Name", param.getName());
+		//				paramDetails.addProperty("Type", param.getType());
+		//				paramDetails.addProperty("Value", param.getValue());
+		//				paramDetails.addProperty("Required", param.getRequired().value());
+		//				paramObj.add("OutputParameter", paramDetails);
+		//				output.add(paramObj);
+		//			}
+		//		} catch (NullPointerException e) {
+		//		}
+		//		json.add("OutputParameters", output);
+		//		
+		//		JsonObject planModelReference = new JsonObject();
+		//		// planModelReference.addProperty("Reference",
+		//		// event.getPlanModelReference().getReference());
+		//		json.add("PlanModelReference", planModelReference);
+		//		
+		//		return Response.ok(json.toString()).build();
 	}
 	
 }

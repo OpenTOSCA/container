@@ -248,7 +248,9 @@ public class CSARInstanceResource {
 		
 		LOG.debug("Return correlation ID of running plan: " + correlationID);
 		
-		return correlationID;
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + instanceID + "/ActivePlans/" + correlationID;
+		
+		return url;
 		
 	}
 	

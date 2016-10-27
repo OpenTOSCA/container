@@ -2,7 +2,6 @@ package org.opentosca.containerapi.resources.csar;
 
 import java.util.Map;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -89,7 +88,6 @@ public class CSARPlanResults {
 	
 	@GET
 	@Path("{corr}")
-	@Consumes(ResourceConstants.TOSCA_XML)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStatusOfPlanJSON(@PathParam("corr") String corr) {
 		
