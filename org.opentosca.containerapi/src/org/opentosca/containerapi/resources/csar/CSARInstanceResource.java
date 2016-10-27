@@ -153,8 +153,8 @@ public class CSARInstanceResource {
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.APPLICATION_JSON)
-	public Response postBUILDJSONReturnJSON(String json) {
-		String corr = postManagementPlanJSON(json);
+	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) {
+		String corr = postManagementPlanJSON(uriInfo, json);
 		JsonObject ret = new JsonObject();
 		ret.addProperty("CorrelationID", corr);
 		return Response.ok(ret.toString()).build();
@@ -169,9 +169,9 @@ public class CSARInstanceResource {
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.TOSCA_XML)
-	public Response postBUILDJSONReturnXML(String json) {
+	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) {
 		
-		return Response.ok(postManagementPlanJSON(json)).build();
+		return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
 	}
 	
 	/**
@@ -180,7 +180,7 @@ public class CSARInstanceResource {
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
 	 */
-	public String postManagementPlanJSON(String json) {
+	public String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
 		LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
