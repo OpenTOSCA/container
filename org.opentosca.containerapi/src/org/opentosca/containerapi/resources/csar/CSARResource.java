@@ -89,8 +89,8 @@ public class CSARResource {
 		
 		// TODO both following links (PlanInstances, PlanResults) have to be
 		// replaced as soon as the instance data api is merged into here
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
+		//		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
+		//		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Instances"), XLinkConstants.SIMPLE, "Instances"));
 		CSARResource.LOG.info("Number of References in Root: {}", refs.getReference().size());
@@ -205,17 +205,17 @@ public class CSARResource {
 		
 	}
 	
-	@Path("PlanInstances")
-	public CSARPlanInstances getPlanInstances() {
-		return new CSARPlanInstances(CSAR);
-		
-	}
-	
-	@Path("PlanResults")
-	public CSARPlanResults getPlanResults() {
-		return new CSARPlanResults(CSAR);
-		
-	}
+	//	@Path("PlanInstances")
+	//	public CSARPlanInstances getPlanInstances() {
+	//		return new CSARInstanceActivePlansResource(CSAR);
+	//		
+	//	}
+	//	
+	//	@Path("PlanResults")
+	//	public CSARInstancePlanHistoryResource getPlanResults() {
+	//		return new CSARInstancePlanHistoryResource(CSAR);
+	//		
+	//	}
 	
 	@DELETE
 	@Produces("text/plain")

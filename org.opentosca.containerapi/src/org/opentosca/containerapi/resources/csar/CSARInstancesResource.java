@@ -274,7 +274,7 @@ public class CSARInstancesResource {
 		int csarInstanceID = IOpenToscaControlServiceHandler.getOpenToscaControlService().getCSARInstanceIDForCorrelationID(correlationID);
 		LOG.debug("Return correlation ID of running plan: " + correlationID + " for csar instance " + csarInstanceID);
 		
-		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + csarInstanceID + "/ActivePlans/" + correlationID;
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + csarInstanceID + "/PlanInstances/" + correlationID;
 		
 		return url;
 		

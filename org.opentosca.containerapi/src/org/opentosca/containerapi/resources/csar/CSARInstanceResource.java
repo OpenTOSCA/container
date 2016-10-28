@@ -111,8 +111,8 @@ public class CSARInstanceResource {
 		
 		// selflink
 		References refs = new References();
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "ActivePlans"), XLinkConstants.SIMPLE, "ActivePlans"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "History"), XLinkConstants.SIMPLE, "History"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
@@ -259,7 +259,7 @@ public class CSARInstanceResource {
 	 * 
 	 * @return the History representation
 	 */
-	@Path("History")
+	@Path("PlanResults")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceHistory() {
 		CSARInstanceResource.LOG.debug("Access history");
@@ -271,7 +271,7 @@ public class CSARInstanceResource {
 	 * 
 	 * @return active plans representation
 	 */
-	@Path("ActivePlans")
+	@Path("PlanInstances")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceActivePublicPlans() {
 		CSARInstanceResource.LOG.debug("Access active PublicPlans");
