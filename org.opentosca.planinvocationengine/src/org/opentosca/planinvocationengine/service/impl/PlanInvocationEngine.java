@@ -220,7 +220,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		for (TParameterDTO para : inputParameter) {
 			LOG.trace("Put in the parameter {} with value \"{}\".", para.getName(), para.getValue());
 			
-			if (para.getType().equalsIgnoreCase("correlation")) {
+			if (para.getName().equalsIgnoreCase("CorrelationID")) {
 				LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
 				map.put(para.getName(), correlationID);
 			} else if (para.getName().equalsIgnoreCase("csarName")) {
