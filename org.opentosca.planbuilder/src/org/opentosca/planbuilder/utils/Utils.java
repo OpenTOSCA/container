@@ -40,9 +40,9 @@ import org.xml.sax.SAXException;
  *
  */
 public class Utils {
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(Utils.class);
-
+	
 	// these are the baseTypes of the PlanBuilder -> TODO refactor into some
 	// kind of baseType-Configuration
 	public static final QName TOSCABASETYPE_CONNECTSTO = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
@@ -51,13 +51,13 @@ public class Utils {
 	public static final QName TOSCABASETYPE_DEPENDSON = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
 	public static final QName TOSCABASETYPE_SERVER = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
 	public static final QName TOSCABASETYPE_OS = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
-
+	
 	// this is a BRUTAL hack for the new nodetypes
 	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
 	public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
 	public final static QName externalResourceNodeType = new QName("http://opentosca.org/nodetypes", "ExternalResource");
-
-
+	
+	
 	public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(AbstractNodeTemplate nodeTemplate, AbstractNodeTypeImplementation nodeImpl) {
 		Set<AbstractDeploymentArtifact> effectiveDAs = new HashSet<AbstractDeploymentArtifact>();
 		effectiveDAs.addAll(nodeTemplate.getDeploymentArtifacts());
@@ -66,10 +66,10 @@ public class Utils {
 				effectiveDAs.add(da);
 			}
 		}
-
+		
 		return effectiveDAs;
 	}
-
+	
 	/**
 	 * Looks for a childelement with an attribute with the given name and value
 	 *
@@ -92,7 +92,7 @@ public class Utils {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns a ordered list of QNames. The order represents the inheritance of
 	 * NodeTypes defining the given NodeType. E.g. NodeType "someNodeType"
@@ -108,15 +108,15 @@ public class Utils {
 		Utils.LOG.debug("Beginning calculating NodeType Hierarchy for: " + nodeType.getId().toString());
 		List<QName> typeHierarchy = new ArrayList<QName>();
 		typeHierarchy.add(nodeType.getId());
-
+		
 		boolean wasNotNull = true;
 		// changed from search with qname to search with abstract classes and
 		// typeref
 		AbstractNodeType lastFoundNodeType = nodeType;
 		while (wasNotNull) {
-
+			
 			AbstractNodeType referencedNodeType = lastFoundNodeType.getTypeRef();
-
+			
 			if (referencedNodeType == null) {
 				wasNotNull = false;
 			} else {
@@ -125,10 +125,10 @@ public class Utils {
 				lastFoundNodeType = referencedNodeType;
 			}
 		}
-
+		
 		return typeHierarchy;
 	}
-
+	
 	/**
 	 * Returns a ordered list of QNames. The order represents the inheritance of
 	 * RelationshipTypes defining the given RelationshipType. E.g. Relationship
@@ -145,7 +145,7 @@ public class Utils {
 	public static List<QName> getRelationshipTypeHierarchy(AbstractRelationshipType relationshipType) {
 		List<QName> typeHierarchy = new ArrayList<QName>();
 		typeHierarchy.add(relationshipType.getId());
-
+		
 		boolean wasNotNull = true;
 		AbstractRelationshipType lastFoundRelationshipType = relationshipType;
 		while (wasNotNull) {
@@ -159,7 +159,7 @@ public class Utils {
 		}
 		return typeHierarchy;
 	}
-
+	
 	/**
 	 * Returns the baseType of the given NodeTemplate
 	 *
@@ -180,7 +180,7 @@ public class Utils {
 		// FIXME: when there are no basetypes we're screwed
 		return typeHierarchy.get(typeHierarchy.size() - 1);
 	}
-
+	
 	/**
 	 * Returns the baseType of the given RelationshipTemplate
 	 *
@@ -206,7 +206,7 @@ public class Utils {
 		// FIXME: when there are no basetypes we're screwed
 		return typeHierarchy.get(typeHierarchy.size() - 1);
 	}
-
+	
 	/**
 	 * Calculates all Infrastructure Nodes of all Infrastructure Paths
 	 * originating from the given NodeTemplate
@@ -219,7 +219,7 @@ public class Utils {
 	 */
 	public static void getInfrastructureNodes(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> infrastructureNodes) {
 		Utils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + Utils.getNodeBaseType(nodeTemplate));
-
+		
 		if (org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(Utils.getNodeBaseType(nodeTemplate)) || org.opentosca.model.tosca.conventions.Utils.isSupportedCloudProviderNodeType(Utils.getNodeBaseType(nodeTemplate))) {
 			Utils.LOG.debug("Found infrastructure node: " + nodeTemplate.getId());
 			infrastructureNodes.add(nodeTemplate);
@@ -233,7 +233,7 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(infrastructureNodes);
 	}
-
+	
 	/**
 	 * Adds InfrastructureNodes of the given RelaitonshipTemplate to the given
 	 * List of NodeTemplates
@@ -246,15 +246,15 @@ public class Utils {
 	 *            SourceInterface or TargetInterface
 	 */
 	public static void getInfrastructureNodes(AbstractRelationshipTemplate relationshipTemplate, List<AbstractNodeTemplate> infrastructureNodes, boolean forSource) {
-
+		
 		if (forSource) {
 			Utils.getInfrastructureNodes(relationshipTemplate.getSource(), infrastructureNodes);
 		} else {
 			Utils.getInfrastructureNodes(relationshipTemplate.getTarget(), infrastructureNodes);
 		}
-
+		
 	}
-
+	
 	/**
 	 * Removes duplicates from the given List
 	 *
@@ -275,9 +275,9 @@ public class Utils {
 		}
 		nodeTemplates.clear();
 		nodeTemplates.addAll(list);
-
+		
 	}
-
+	
 	/**
 	 * Removes duplicates from the given List
 	 *
@@ -299,7 +299,7 @@ public class Utils {
 		relationshipTemplates.clear();
 		relationshipTemplates.addAll(list);
 	}
-
+	
 	/**
 	 * Adds the InfrastructureEdges of the given NodeTemplate to the given List
 	 *
@@ -308,11 +308,11 @@ public class Utils {
 	 *            the InfrastructureEdges to
 	 */
 	public static void getInfrastructureEdges(AbstractNodeTemplate nodeTemplate, List<AbstractRelationshipTemplate> infrastructureEdges) {
-
+		
 		// fetch all infrastructureNodes
 		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
 		Utils.getInfrastructureNodes(nodeTemplate, infraNodes);
-
+		
 		// check all outgoing edges on those nodes, if they are infrastructure
 		// edges
 		for (AbstractNodeTemplate infraNode : infraNodes) {
@@ -324,7 +324,7 @@ public class Utils {
 		}
 		Utils.cleanDuplicates(infrastructureEdges);
 	}
-
+	
 	/**
 	 * Returns all NodeTemplates from the given RelationshipTemplate going along
 	 * all occuring Relationships using the Target
@@ -346,7 +346,7 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-
+	
 	/**
 	 * Returns all NodeTemplates from the given NodeTemplate going along the
 	 * path of relation following the target interfaces
@@ -367,7 +367,7 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-
+	
 	/**
 	 * Adds the InfrastructureEdges of the given RelationshipTemplate to the
 	 * given List
@@ -385,7 +385,7 @@ public class Utils {
 			Utils.getInfrastructureEdges(relationshipTemplate.getTarget(), infraEdges);
 		}
 	}
-
+	
 	/**
 	 * Returns true if the given QName type denotes to a RelationshipType in the
 	 * type hierarchy of the given RelationshipTemplate
@@ -405,7 +405,7 @@ public class Utils {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Returns true if the given QName type denotes to a NodeType in the type
 	 * hierarchy of the given NodeTemplate
@@ -428,7 +428,7 @@ public class Utils {
 	
 	/**
 	 * Transforms the given string to a DOM node
-	 * 
+	 *
 	 * @param xmlString the xml to transform as String
 	 * @return a DOM Node representing the given string
 	 * @throws ParserConfigurationException
@@ -446,7 +446,7 @@ public class Utils {
 		Document doc = docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-
+	
 	/**
 	 * Checks whether the property of the given variable is empty in the
 	 * TopologyTemplate
@@ -458,6 +458,16 @@ public class Utils {
 	 *         topology template property
 	 */
 	public static boolean isVariableValueEmpty(Variable variable, TemplatePlanContext context) {
+		String content = Utils.getVariableContent(variable, context);
+		
+		if ((content == null) || content.isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static String getVariableContent(Variable variable, TemplatePlanContext context) {
 		// check whether the property is empty --> external parameter
 		for (AbstractNodeTemplate node : context.getNodeTemplates()) {
 			if (node.getId().equals(variable.getTemplateId())) {
@@ -472,32 +482,26 @@ public class Utils {
 					}
 					if (variable.getName().contains(child.getLocalName())) {
 						// check if content is empty
-						if (children.item(i).getTextContent().isEmpty()) {
-							// is empty
-							return true;
-						}
+						return children.item(i).getTextContent();
 					}
 				}
 			}
 		}
-
+		
 		for (AbstractRelationshipTemplate relation : context.getRelationshipTemplates()) {
 			if (relation.getId().equals(variable.getTemplateId())) {
 				NodeList children = relation.getProperties().getDOMElement().getChildNodes();
 				for (int i = 0; i < children.getLength(); i++) {
 					if (variable.getName().contains(children.item(i).getLocalName())) {
 						// check if content is empty
-						if (children.item(i).getTextContent().isEmpty()) {
-							// is empty
-							return true;
-						}
+						return children.item(i).getTextContent();
 					}
 				}
 			}
 		}
-		return false;
+		return null;
 	}
-
+	
 	public static void getNodesFromNodeToSource(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> nodes) {
 		nodes.add(nodeTemplate);
 		for (AbstractRelationshipTemplate ingoingTemplate : nodeTemplate.getIngoingRelations()) {
@@ -511,7 +515,7 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-
+	
 	private static void getNodesFromRelationToSources(AbstractRelationshipTemplate ingoingTemplate, List<AbstractNodeTemplate> nodes) {
 		AbstractNodeTemplate nodeTemplate = ingoingTemplate.getSource();
 		nodes.add(nodeTemplate);

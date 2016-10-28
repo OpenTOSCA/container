@@ -65,21 +65,12 @@ public class EmptyPropertyToInputInitializer {
 						}
 
 						if (!matched) {
-							// add to input
-							context.addStringValueToPlanRequest(propLocalName);
-
-							// add copy from input local element to property
-							// variable
-							String bpelCopy = this.generateCopyFromInputToVariableAsString(this.createLocalNameXpathQuery(propLocalName), this.createBPELVariableXpathQuery(var.getName()));
-							try {
-								Node bpelCopyNode = Utils.string2dom(bpelCopy);
-								this.appendToInitSequence(bpelCopyNode, buildPlan);
-							} catch (ParserConfigurationException | SAXException
-									| IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-
+							this.addToPlanInput(buildPlan, propLocalName, var, context);
+						}
+					} else {
+						String content = Utils.getVariableContent(var, context);
+						if (content.startsWith("get_input")) {
+							this.addToPlanInput(buildPlan, propLocalName, var, context);
 						}
 					}
 				}
@@ -87,7 +78,23 @@ public class EmptyPropertyToInputInitializer {
 		}
 
 	}
-	
+
+	private void addToPlanInput(BuildPlan buildPlan, String propLocalName, Variable var, TemplatePlanContext context) {
+		// add to input
+		context.addStringValueToPlanRequest(propLocalName);
+
+		// add copy from input local element to property
+		// variable
+		String bpelCopy = this.generateCopyFromInputToVariableAsString(this.createLocalNameXpathQuery(propLocalName), this.createBPELVariableXpathQuery(var.getName()));
+		try {
+			Node bpelCopyNode = Utils.string2dom(bpelCopy);
+			this.appendToInitSequence(bpelCopyNode, buildPlan);
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Appends the given node the the main sequence of the buildPlan this
 	 * context belongs to
