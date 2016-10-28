@@ -70,7 +70,12 @@ public class EmptyPropertyToInputInitializer {
 					} else {
 						String content = Utils.getVariableContent(var, context);
 						if (content.startsWith("get_input")) {
-							this.addToPlanInput(buildPlan, propLocalName, var, context);
+							if (content.contains("get_input:")) {
+								content = content.replace("get_input:", "");
+								this.addToPlanInput(buildPlan, content, var, context);
+							} else {
+								this.addToPlanInput(buildPlan, propLocalName, var, context);
+							}
 						}
 					}
 				}
@@ -79,6 +84,15 @@ public class EmptyPropertyToInputInitializer {
 
 	}
 
+	/**
+	 * Adds an element to the plan input with the given namen and assign at
+	 * runtime the value to the given variable
+	 *
+	 * @param buildPlan the plan to add the logic to
+	 * @param propLocalName the name of the element added to the input
+	 * @param var the variable to assign the value to
+	 * @param context a context for the manipulation
+	 */
 	private void addToPlanInput(BuildPlan buildPlan, String propLocalName, Variable var, TemplatePlanContext context) {
 		// add to input
 		context.addStringValueToPlanRequest(propLocalName);
