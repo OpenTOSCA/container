@@ -1,5 +1,7 @@
 package org.opentosca.planinvocationengine.service.impl.messages.parsing;
 
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
@@ -23,7 +25,9 @@ import org.w3c.dom.NodeList;
  */
 public class ResponseParser {
 	
+	
 	private final Logger LOG = LoggerFactory.getLogger(ResponseParser.class);
+	
 	
 	/**
 	 * Parses the response and returns the CorrelationID of the Response.
@@ -32,8 +36,7 @@ public class ResponseParser {
 	 * remove the CorrelationID from the active plans list, and checks for
 	 * faults.
 	 * 
-	 * @param body
-	 *            of the response
+	 * @param body of the response
 	 * @return CorrelationID
 	 */
 	public String parseSOAPBody(CSARID csarID, QName planID, String correlationID, Document body) {
@@ -44,19 +47,14 @@ public class ResponseParser {
 		CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
 		
 		// store the PublicPlan to the history
-		ServiceHandler.csarInstanceManagement.storePublicPlanToHistory(correlationID,
-				new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
-						ServiceHandler.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
-						ServiceHandler.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-						ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
-						// !!!
-						false, // not active anymore
-						false));
+		ServiceHandler.csarInstanceManagement.storePublicPlanToHistory(correlationID, new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(), ServiceHandler.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID), ServiceHandler.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID), ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+				// !!!
+				false, // not active anymore
+				false));
 		// delete correlation as running plan
 		ServiceHandler.correlationHandler.removeCorrelation(csarID, correlationID);
 		
-		LOG.info("Found correlation \"" + correlationID + "\" for Plan \"." + planID + "\" with type \""
-				+ plan.getPlanType() + "\".");
+		LOG.info("Found correlation \"" + correlationID + "\" for Plan \"." + planID + "\" with type \"" + plan.getPlanType() + "\".");
 		
 		if (null == plan.getOutputParameters()) {
 			LOG.error("There are no output parameters set in Plan {} for CSAR {}.", planID, csarID);
@@ -109,6 +107,50 @@ public class ResponseParser {
 		// // }
 		// }
 		// return null;
+	}
+	
+	/**
+	 * Parses the response and returns the CorrelationID of the Response.
+	 * 
+	 * This method parses the response, stores the PublicPlan to the History,
+	 * remove the CorrelationID from the active plans list, and checks for
+	 * faults.
+	 * 
+	 * @param body
+	 *            of the response
+	 * @return CorrelationID
+	 */
+	public String parseSOAPBody(CSARID csarID, QName planID, String correlationID, Map<String,String> outputParas) {
+		
+		LOG.debug("Parse a new response.");
+		
+		TPlanDTO plan = ServiceHandler.correlationHandler.getPublicPlanForCorrelation(correlationID);
+		CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+		
+		// store the PublicPlan to the history
+		ServiceHandler.csarInstanceManagement.storePublicPlanToHistory(correlationID,
+				new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
+						ServiceHandler.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
+						ServiceHandler.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
+						ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+						// !!!
+						false, // not active anymore
+						false));
+		// delete correlation as running plan
+		ServiceHandler.correlationHandler.removeCorrelation(csarID, correlationID);
+		
+		LOG.info("Found correlation \"" + correlationID + "\" for Plan \"." + planID + "\" with type \""
+				+ plan.getPlanType() + "\".");
+		
+		if (null == plan.getOutputParameters()) {
+			LOG.error("There are no output parameters set in Plan {} for CSAR {}.", planID, csarID);
+			return null;
+		}
+		for (TParameterDTO para : plan.getOutputParameters().getOutputParameter()) {
+			para.setValue(outputParas.get(plan.getId().getLocalPart()));
+		}
+		
+		return correlationID;
 	}
 	
 	public String parseRESTResponse(CSARID csarID, QName planID, String correlationID, Object responseBody) {

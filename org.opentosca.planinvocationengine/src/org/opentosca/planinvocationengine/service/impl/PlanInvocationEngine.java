@@ -232,7 +232,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 			} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
 				LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
 				map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_API);
-			} else if (para.getName().equalsIgnoreCase("csarEntrypoint")){
+			} else if (para.getName().equalsIgnoreCase("csarEntrypoint")) {
 				LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API + "/" + csarID + "\".");
 				map.put(para.getName(), Settings.CONTAINER_API + "/CSARs/" + csarID);
 			} else {
@@ -270,31 +270,43 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	public void handleEvent(Event eve) {
 		
 		String correlationID = (String) eve.getProperty("MESSAGEID");
-		String planLanguage = (String) eve.getProperty("PLANLANGUAGE");
+		PlanInvocationEvent event = ServiceHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
+		String planLanguage = event.getPlanLanguage();
 		LOG.trace("The correlation ID is {} and plan language is {}", correlationID, planLanguage);
-		
-		ServiceHandler.correlationHandler.removeCorrelation(correlationID);
-		
-		PlanInvocationEvent event;
 		
 		// TODO the concrete handling and parsing shall be in the plugin?!
 		if (planLanguage.startsWith(nsBPEL)) {
 			
-			org.w3c.dom.Document responseBody = (org.w3c.dom.Document) eve.getProperty("RESPONSE");
+			@SuppressWarnings("unchecked")
+			Map<String, String> map = (Map<String, String>) eve.getProperty("RESPONSE");
 			
-			LOG.debug("Received an event with a SOAP response body " + responseBody.getChildNodes().item(0).getLocalName());
+			LOG.debug("Received an event with a SOAP response");
 			
-			event = ServiceHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
 			CSARID csarID = new CSARID(event.getCSARID());
 			
 			// parse the body
-			correlationID = responseParser.parseSOAPBody(csarID, event.getPlanID(), correlationID, responseBody);
+			//			correlationID = responseParser.parseSOAPBody(csarID, event.getPlanID(), correlationID, map);
 			
 			// if plan is not null
 			if (null == correlationID) {
 				LOG.error("The parsing of the response failed!");
 				return;
 			}
+			
+			LOG.trace("Print the plan output:");
+			for (String key: map.keySet()){
+				LOG.trace("   " + key + ": " + map.get(key));
+			}
+			
+			for (TParameterDTO param : event.getOutputParameter()) {
+				
+				LOG.debug("For variable \"{}\" the output value is \"{}\"", param.getName(), map.get(param.getName()));
+				param.setValue(map.get(param.getName()));
+				//				map.put(param.getName(), value);
+			}
+			
+			ServiceHandler.csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);
+			ServiceHandler.csarInstanceManagement.setCorrelationAsFinished(csarID, correlationID);
 			
 			// save
 			CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
@@ -425,6 +437,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 			LOG.error("The returned response cannot be matched to a supported plan language!");
 			return;
 		}
+		
+		ServiceHandler.correlationHandler.removeCorrelation(correlationID);
 	}
 	
 	/**
