@@ -118,6 +118,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 					// param.setType(temp.getType());
 					found = true;
 					planEvent.getInputParameter().add(dto);
+					String value = dto.getValue();
+					value = value.replace("\\r", "\r");
+					value = value.replace("\r", "");
+					value = value.replace("\\n", "\n");
+					dto.setValue(value);
 					LOG.trace("Found input param {} with value {}", param.getName(), param.getValue());
 				}
 			}
