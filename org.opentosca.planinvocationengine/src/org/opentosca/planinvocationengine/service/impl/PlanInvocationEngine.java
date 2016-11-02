@@ -232,6 +232,9 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 			} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
 				LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
 				map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_API);
+			} else if (para.getName().equalsIgnoreCase("csarEntrypoint")){
+				LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API + "/" + csarID + "\".");
+				map.put(para.getName(), Settings.CONTAINER_API + "/CSARs/" + csarID);
 			} else {
 				if (para.getName() == null || null == para.getValue() || para.getValue().equals("")) {
 					LOG.debug("The parameter \"" + para.getName() + "\" has an empty value, thus search in the properties.");

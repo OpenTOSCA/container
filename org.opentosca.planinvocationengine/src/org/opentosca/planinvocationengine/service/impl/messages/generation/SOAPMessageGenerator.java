@@ -74,7 +74,7 @@ public class SOAPMessageGenerator implements EventHandler {
 			// put in the InputParameter details.
 			for (TParameterDTO para : params) {
 				
-				if (para.getType().equalsIgnoreCase("correlation")) {
+				if (para.getType().equalsIgnoreCase("correlation") || para.getName().equalsIgnoreCase("CorrelationID")) {
 					LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(correlationID);
@@ -98,7 +98,11 @@ public class SOAPMessageGenerator implements EventHandler {
 					LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_INSTANCEDATA_API);
-				} else {
+				} else if (para.getName().equalsIgnoreCase("csarEntrypoint")){
+					LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API + "/" + csarID + "\".");
+					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
+					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API + "/" + csarID);
+				}else {
 					LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
 					Name elementName = envelope.createName(para.getName(), "tns", messageNS);
 					payload.addChildElement(elementName).addTextNode(para.getValue());
