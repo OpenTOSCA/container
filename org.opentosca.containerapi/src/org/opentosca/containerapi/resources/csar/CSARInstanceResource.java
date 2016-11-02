@@ -160,10 +160,9 @@ public class CSARInstanceResource {
 	@Produces(ResourceConstants.APPLICATION_JSON)
 	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) throws URISyntaxException {
 		String url = postManagementPlanJSON(uriInfo, json);
-		//		JsonObject ret = new JsonObject();
-		//		ret.addProperty("CorrelationID", corr);
-		//		return Response.ok(ret.toString()).build();
-		return Response.created(new URI(url)).build();
+		JsonObject ret = new JsonObject();
+		ret.addProperty("PlanURL", url);
+		return Response.created(new URI(url)).entity(ret.toString()).build();
 	}
 	
 	/**

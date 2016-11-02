@@ -190,7 +190,7 @@ public class CSARInstancesResource {
 		String planURL = postManagementPlanJSON(uriInfo, json);
 		JsonObject ret = new JsonObject();
 		ret.addProperty("PlanURL", planURL);
-		return Response.created(new URI(planURL)).build();
+		return Response.created(new URI(planURL)).entity(ret.toString()).build();
 	}
 	
 	/**
