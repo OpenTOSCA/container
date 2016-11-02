@@ -1,5 +1,7 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
@@ -179,15 +181,16 @@ public class CSARInstancesResource {
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.APPLICATION_JSON)
-	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) {
+	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) throws URISyntaxException {
 		String planURL = postManagementPlanJSON(uriInfo, json);
 		JsonObject ret = new JsonObject();
 		ret.addProperty("PlanURL", planURL);
-		return Response.ok(ret.toString()).build();
+		return Response.created(new URI(planURL)).build();
 	}
 	
 	/**
@@ -195,16 +198,19 @@ public class CSARInstancesResource {
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.TOSCA_XML)
-	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) {
+	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) throws URISyntaxException {
 		
-		return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+		String url = postManagementPlanJSON(uriInfo, json);
+		
+		return Response.created(new URI(url)).build();
 	}
 	
-	public String postManagementPlanJSON(UriInfo uriInfo, String json) {
+	private String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
 		CSARInstancesResource.LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		

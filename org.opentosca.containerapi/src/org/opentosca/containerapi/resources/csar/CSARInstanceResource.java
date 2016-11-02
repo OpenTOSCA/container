@@ -1,5 +1,7 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
@@ -122,10 +124,11 @@ public class CSARInstanceResource {
 	 * 
 	 * @param transferElement
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TOSCA_XML)
-	public Response postManagementPlan(JAXBElement<TPlanDTO> transferElement) {
+	public Response postManagementPlan(JAXBElement<TPlanDTO> transferElement) throws URISyntaxException {
 		
 		CSARInstanceResource.LOG.debug("Received a management request to invoke the plan for Instance " + instanceID + " of CSAR " + csarID);
 		
@@ -140,8 +143,9 @@ public class CSARInstanceResource {
 		
 		// TODO return correlation ID
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, instanceID, plan);
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + instanceID + "/ActivePlans/" + correlationID;
 		
-		return Response.ok(correlationID).build();
+		return Response.created(new URI(url)).build();
 	}
 	
 	/**
@@ -149,15 +153,17 @@ public class CSARInstanceResource {
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.APPLICATION_JSON)
-	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) {
-		String corr = postManagementPlanJSON(uriInfo, json);
-		JsonObject ret = new JsonObject();
-		ret.addProperty("CorrelationID", corr);
-		return Response.ok(ret.toString()).build();
+	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) throws URISyntaxException {
+		String url = postManagementPlanJSON(uriInfo, json);
+		//		JsonObject ret = new JsonObject();
+		//		ret.addProperty("CorrelationID", corr);
+		//		return Response.ok(ret.toString()).build();
+		return Response.created(new URI(url)).build();
 	}
 	
 	/**
@@ -165,13 +171,16 @@ public class CSARInstanceResource {
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.TOSCA_XML)
-	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) {
+	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) throws URISyntaxException {
 		
-		return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+		String url = postManagementPlanJSON(uriInfo, json);
+		//		return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+		return Response.created(new URI(url)).build();
 	}
 	
 	/**
@@ -180,7 +189,7 @@ public class CSARInstanceResource {
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
 	 */
-	public String postManagementPlanJSON(UriInfo uriInfo, String json) {
+	private String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
 		LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
