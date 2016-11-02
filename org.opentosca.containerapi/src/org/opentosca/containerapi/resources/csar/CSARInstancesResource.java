@@ -285,5 +285,4 @@ public class CSARInstancesResource {
 		return url;
 		
 	}
-	
 }
