@@ -13,6 +13,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.core.model.csar.id.CSARID;
+import org.opentosca.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.opentosca.model.tosca.TCapability;
 import org.opentosca.model.tosca.TExportedInterface;
 import org.opentosca.model.tosca.TNodeTemplate;
@@ -702,5 +703,9 @@ public class ReferenceMapper {
 	
 	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id) {
 		ToscaEngineServiceImpl.toscaReferenceMapper.storeNodeTemplateIDForServiceTemplateAndCSAR(csarID, serviceTemplateID, id);
+	}
+	
+	public void storeServiceTemplateBoundsProperties(CSARID csarID, QName serviceTemplateID, String propertiesContent, PropertyMappings propertyMappings) {
+		ToscaEngineServiceImpl.toscaReferenceMapper.storeServiceTemplateBoundsPropertiesInformation(csarID, serviceTemplateID, propertiesContent, propertyMappings);
 	}
 }

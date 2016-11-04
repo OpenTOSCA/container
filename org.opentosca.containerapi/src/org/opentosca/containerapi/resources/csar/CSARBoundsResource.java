@@ -9,6 +9,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.csar.boundarydefinitions.CSARBoundsInterfacesResource;
+import org.opentosca.containerapi.resources.csar.boundarydefinitions.CSARBoundsProperties;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
 import org.opentosca.containerapi.resources.xlink.Reference;
@@ -39,7 +40,6 @@ public class CSARBoundsResource {
 		LOG.info("{} created: {}", this.getClass(), this);
 		LOG.debug("Public Plans for requested CSAR: {}", csarID.getFileName());
 	}
-	
 	
 	/**
 	 * Builds the references of the Boundary Definitions of a CSAR.
@@ -90,27 +90,14 @@ public class CSARBoundsResource {
 	}
 	
 	/**
-	 * Returns the Boundary Definitions Properties. TODO not yet implemented
-	 * yet, thus, just returns itself.
-	 * 
+	 * Returns the Boundary Definitions Properties. 	 * 
 	 * @param uriInfo
 	 * @return Response
 	 */
-	@GET
+	
 	@Path("Properties")
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getProperties(@Context UriInfo uriInfo) {
-		
-		if (csarID == null) {
-			return Response.status(404).build();
-		}
-		
-		LOG.trace("Return Boundary Definitions for CSAR {}.", csarID);
-		
-		References refs = new References();
-		// selflink
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
+	public CSARBoundsProperties getProperties(@Context UriInfo uriInfo){
+		return new CSARBoundsProperties(csarID);
 	}
 	
 	/**

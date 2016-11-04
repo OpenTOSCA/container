@@ -1,10 +1,7 @@
 package org.opentosca.toscaengine.xmlserializer.service.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.List;
 
@@ -20,12 +17,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
@@ -54,13 +45,13 @@ import org.xml.sax.SAXException;
  * 
  */
 public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
-
+	
 	private JAXBContext jaxbContext;
 	private SchemaFactory schemaFactory;
 	private Schema schema = null;
 	private ValidationEventCollector validationEventCollector;
 	private boolean validationActive = false;
-
+	
 	private Marshaller marshaller;
 	// This marshaller is for internal marshalling of data which is validated
 	// during the initial import process. This data is validated, therefore
@@ -68,13 +59,13 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 	// sometimes it is causing problems to serialize internal data with
 	// validation.
 	private Marshaller marshallerWithoutValidation;
-
+	
 	private DocumentBuilderFactory documentBuilderFactory;
 	private DocumentBuilder documentBuilder;
-
+	
 	// logger
 	private Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
-
+	
 	/**
 	 * Constructor for XML serialization of TOSCA Definitions. Instances are
 	 * created via the org.opentosca.core.xmlserializer.SerializerFactory.
@@ -87,209 +78,209 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 	 *            instantiated.
 	 */
 	public XMLSerializer(Class<?> context, File schemaFile) {
-
-		this.LOG.debug(
+		
+		LOG.debug(
 				"Start the initiation of the JAXB objects for context \"" + context.getPackage().getName() + "\".");
-
+		
 		try {
-
+			
 			// setup of the Serializer
-			this.jaxbContext = JAXBContext.newInstance(context.getPackage().getName());
-
-			this.validationEventCollector = new ValidationEventCollector();
-
-			this.marshaller = this.jaxbContext.createMarshaller();
-			this.marshaller.setEventHandler(this.validationEventCollector);
-
-			this.marshallerWithoutValidation = this.jaxbContext.createMarshaller();
-			this.marshallerWithoutValidation.setEventHandler(this.validationEventCollector);
-
-			this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
-			this.documentBuilderFactory.setNamespaceAware(true);
-
+			jaxbContext = JAXBContext.newInstance(context.getPackage().getName());
+			
+			validationEventCollector = new ValidationEventCollector();
+			
+			marshaller = jaxbContext.createMarshaller();
+			marshaller.setEventHandler(validationEventCollector);
+			
+			marshallerWithoutValidation = jaxbContext.createMarshaller();
+			marshallerWithoutValidation.setEventHandler(validationEventCollector);
+			
+			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			documentBuilderFactory.setNamespaceAware(true);
+			
 			// if the Schema object is null no validation is set
 			if (schemaFile != null) {
-				this.LOG.info("There is a given Schema at \"" + schemaFile.toString() + "\".");
-				this.schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-				this.schema = this.schemaFactory.newSchema(schemaFile);
-
+				LOG.info("There is a given Schema at \"" + schemaFile.toString() + "\".");
+				schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+				schema = schemaFactory.newSchema(schemaFile);
+				
 				// set the validation
-				this.LOG.debug("Activate validation for serialization to JAXB classes.");
-				this.setValidation(true);
-				this.documentBuilderFactory.setSchema(this.schema);
-
+				LOG.debug("Activate validation for serialization to JAXB classes.");
+				setValidation(true);
+				documentBuilderFactory.setSchema(schema);
+				
 			} else {
-				this.LOG.info("Initialize without a Schema.");
+				LOG.info("Initialize without a Schema.");
 			}
-
-			this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
-
+			
+			documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			
 		} catch (JAXBException e) {
-			this.LOG.error(e.getMessage());
+			LOG.error(e.getMessage());
 		} catch (SAXException e) {
-			this.LOG.error(e.getMessage());
+			LOG.error(e.getMessage());
 		} catch (ParserConfigurationException e) {
-			this.LOG.error(e.getMessage());
+			LOG.error(e.getMessage());
 		}
-
-		this.LOG.debug("Initialization of the JAXB objects completed.");
+		
+		LOG.debug("Initialization of the JAXB objects completed.");
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Node marshalToNode(Object objToMarshal) {
-
-		this.LOG.debug("JAXBElement " + objToMarshal.getClass().getName() + " shall be unmarshalled to a DOM Node!");
-
+		
+		LOG.debug("JAXBElement " + objToMarshal.getClass().getName() + " shall be unmarshalled to a DOM Node!");
+		
 		// Check if the given object is in the same package as the JAXB Element
 		// Definitions. This is done to reduce the amount of classes passing
 		// this if which would cause a JAXB failure.
 		if (Definitions.class.getPackage().equals(objToMarshal.getClass().getPackage())) {
-
-			JAXBElement<?> elementToMarshal = this.createJAXBElement(objToMarshal);
-
-			this.LOG.debug("The JAXBElement \"" + elementToMarshal.getName() + "\" seems to be a legal element.");
+			
+			JAXBElement<?> elementToMarshal = createJAXBElement(objToMarshal);
+			
+			LOG.debug("The JAXBElement \"" + elementToMarshal.getName() + "\" seems to be a legal element.");
 			try {
-
-				Document result = this.documentBuilder.newDocument();
-				this.marshallerWithoutValidation.marshal(elementToMarshal, result);
-
+				
+				Document result = documentBuilder.newDocument();
+				marshallerWithoutValidation.marshal(elementToMarshal, result);
+				
 				return result.getFirstChild();
-
+				
 			} catch (JAXBException e) {
 			} finally {
-				this.printErrorsWhileSerialization();
+				printErrorsWhileSerialization();
 			}
 		} else {
-			this.LOG.error("The Object can not be marshalled because it is not a JAXBElement of TOSCA.");
+			LOG.error("The Object can not be marshalled because it is not a JAXBElement of TOSCA.");
 		}
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Document marshalToDocument(Definitions definitions) {
-
-		this.LOG.debug("Marshal the Definitions \"" + definitions.getId() + "\".");
-
+		
+		LOG.debug("Marshal the Definitions \"" + definitions.getId() + "\".");
+		
 		Document result = null;
 		try {
-
-			result = this.documentBuilder.newDocument();
-			this.marshaller.marshal(definitions, result);
-
+			
+			result = documentBuilder.newDocument();
+			marshaller.marshal(definitions, result);
+			
 			return result;
-
+			
 		} catch (JAXBException e) {
 		} finally {
-			this.printErrorsWhileSerialization();
+			printErrorsWhileSerialization();
 		}
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String marshalToString(Object objToMarshal) {
-
+		
 		StringWriter writer = new StringWriter();
-
+		
 		// Check if the given object is in the same package as the JAXB Element
 		// Definitions. This is done to reduce the amount of classes passing
 		// this if which would cause a JAXB failure.
 		if (Definitions.class.getPackage().equals(objToMarshal.getClass().getPackage())) {
-
-			JAXBElement<?> elementToMarshal = this.createJAXBElement(objToMarshal);
-
-			this.LOG.debug("The JAXBElement \"" + elementToMarshal.getName() + "\" seems to be a legal element.");
+			
+			JAXBElement<?> elementToMarshal = createJAXBElement(objToMarshal);
+			
+			LOG.debug("The JAXBElement \"" + elementToMarshal.getName() + "\" seems to be a legal element.");
 			try {
-
-				this.marshallerWithoutValidation.marshal(elementToMarshal, writer);
+				
+				marshallerWithoutValidation.marshal(elementToMarshal, writer);
 				return writer.toString();
-
+				
 			} catch (JAXBException e) {
 			} finally {
-				this.printErrorsWhileSerialization();
+				printErrorsWhileSerialization();
 			}
 		} else {
-			this.LOG.error("The Object can not be marshalled because it is not a JAXBElement of TOSCA.");
+			LOG.error("The Object can not be marshalled because it is not a JAXBElement of TOSCA.");
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Definitions unmarshal(File fileToUnmarshal) {
-
-		this.LOG.debug("Start the unmarshalling of file \"" + fileToUnmarshal.toString() + "\".");
+		
+		LOG.debug("Start the unmarshalling of file \"" + fileToUnmarshal.toString() + "\".");
 		try {
 			// return the unmarshaled data
-			return (Definitions) this.createUnmarshaller().unmarshal(fileToUnmarshal);
-
+			return (Definitions) createUnmarshaller().unmarshal(fileToUnmarshal);
+			
 		} catch (JAXBException e) {
 		} finally {
-			this.printErrorsWhileSerialization();
+			printErrorsWhileSerialization();
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Definitions unmarshal(InputStream streamToUnmarshal) {
-
-		this.LOG.debug("Start the unmarshalling of an InputStream.");
+		
+		LOG.debug("Start the unmarshalling of an InputStream.");
 		try {
 			// return the unmarshaled data
-			return (Definitions) this.createUnmarshaller().unmarshal(streamToUnmarshal);
-
+			return (Definitions) createUnmarshaller().unmarshal(streamToUnmarshal);
+			
 		} catch (JAXBException e) {
 		} finally {
-			this.printErrorsWhileSerialization();
+			printErrorsWhileSerialization();
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Definitions unmarshal(Document doc) {
-
-		this.LOG.debug("Start the unmarshalling of a DOM Document.");
-		this.LOG.trace(this.docToString(doc.getFirstChild(), true));
+		
+		LOG.debug("Start the unmarshalling of a DOM Document.");
+		LOG.trace(docToString(doc.getFirstChild(), true));
 		try {
-			return (Definitions) this.createUnmarshaller().unmarshal(doc.getFirstChild());
+			return (Definitions) createUnmarshaller().unmarshal(doc.getFirstChild());
 		} catch (JAXBException e) {
 		} finally {
-			this.printErrorsWhileSerialization();
+			printErrorsWhileSerialization();
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Object unmarshal(Node nodeToUnmarshal, Class<?> destinationClazz) {
-
-
-	LOG.trace("Start the unmarshalling of the node: " + nodeToUnmarshal.toString() + " to clazz: " + destinationClazz.toString());
-
+		
+		
+		LOG.trace("Start the unmarshalling of the node: " + nodeToUnmarshal.toString() + " to clazz: " + destinationClazz.toString());
+		
 		try {
-			Unmarshaller u = this.createUnmarshaller();
+			Unmarshaller u = createUnmarshaller();
 			JAXBElement<?> jaxbElement = u.unmarshal(nodeToUnmarshal, destinationClazz);
 			if (jaxbElement != null) {
 				return jaxbElement.getValue();
@@ -297,12 +288,12 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		} finally {
-			this.printErrorsWhileSerialization();
+			printErrorsWhileSerialization();
 		}
-
+		
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -313,7 +304,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 		// Definitions. This is done to reduce the amount of classes passing
 		// this if which would cause a JAXB failure.
 		if (Definitions.class.getPackage().equals(obj.getClass().getPackage())) {
-
+			
 			// get the name of the element
 			String elementName = obj.getClass().getSimpleName();
 			if (elementName.equals("IToscaModelFactory") || elementName.equals("ObjectFactory")
@@ -327,48 +318,48 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 				if (!elementName.equals("Definitions") && Character.isUpperCase(elementName.charAt(1))) {
 					elementName = elementName.substring(1);
 				}
-
+				
 				return new JAXBElement(new QName("http://docs.oasis-open.org/tosca/ns/2011/12", elementName),
 						obj.getClass(), obj);
 			}
 		}
-		this.LOG.error("The Object can not be marshalled because it is not a JAXBElement of TOSCA.");
+		LOG.error("The Object can not be marshalled because it is not a JAXBElement of TOSCA.");
 		return null;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Document elementIntoDocument(Element element) {
-
-		Document returnDoc = this.documentBuilder.newDocument();
-
+		
+		Document returnDoc = documentBuilder.newDocument();
+		
 		Node node = returnDoc.importNode(element, true);
-
+		
 		if (node == null) {
 			// return null for easier checking of an error.
 			// if the return is not null, an empty but valid document without
 			// content would be returned.
 			return null;
 		}
-
+		
 		returnDoc.appendChild(node);
-
+		
 		return returnDoc;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Document elementsIntoDocument(List<Element> elements, String rootElementName) {
-
-		Document returnDoc = this.documentBuilder.newDocument();
-
+		
+		Document returnDoc = documentBuilder.newDocument();
+		
 		Element root = returnDoc.createElement(rootElementName);
 		returnDoc.appendChild(root);
-
+		
 		for (Element element : elements) {
 			Node node = returnDoc.importNode(element, true);
 			if (node == null) {
@@ -381,52 +372,52 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 			}
 			root.appendChild(node);
 		}
-
+		
 		return returnDoc;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void setValidation(Boolean bool) {
-
+		
 		/*
 		 * if true give the Schema to the marshaller and unmarshaller if false
 		 * delete the reference to the Schema
 		 */
-		this.validationActive = bool;
-		if (this.validationActive == true) {
-			this.marshaller.setSchema(this.schema);
+		validationActive = bool;
+		if (validationActive == true) {
+			marshaller.setSchema(schema);
 		} else {
-			this.marshaller.setSchema(null);
+			marshaller.setSchema(null);
 		}
 	}
-
+	
 	/**
 	 * Method for printing errors stored in the validationEventCollector. For
 	 * each error the logger gets one error message.
 	 */
 	private void printErrorsWhileSerialization() {
 		// print the errors occurred
-		if ((this.validationEventCollector != null) && this.validationEventCollector.hasEvents()) {
-			this.LOG.error("One or more errors occured while marshalling.");
-			for (final ValidationEvent event : this.validationEventCollector.getEvents()) {
-				this.LOG.error("XML processing error: {} \n at {}", event.getMessage(), event.getLocator());
+		if ((validationEventCollector != null) && validationEventCollector.hasEvents()) {
+			LOG.error("One or more errors occured while marshalling.");
+			for (final ValidationEvent event : validationEventCollector.getEvents()) {
+				LOG.error("XML processing error: {} \n at {}", event.getMessage(), event.getLocator());
 			}
 		}
-		this.validationEventCollector.reset();
+		validationEventCollector.reset();
 	}
-
+	
 	private Unmarshaller createUnmarshaller() {
 		try {
 			Unmarshaller u;
-			u = this.jaxbContext.createUnmarshaller();
+			u = jaxbContext.createUnmarshaller();
 			
-			if(this.validationActive){
-				u.setSchema(this.schema);
+			if(validationActive){
+				u.setSchema(schema);
 			}
-			u.setEventHandler(this.validationEventCollector);
+			u.setEventHandler(validationEventCollector);
 			return u;
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block

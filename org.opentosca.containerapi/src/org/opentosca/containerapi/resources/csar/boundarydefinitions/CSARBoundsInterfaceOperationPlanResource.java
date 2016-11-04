@@ -105,7 +105,7 @@ public class CSARBoundsInterfaceOperationPlanResource {
 	@GET
 	@Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_XML)
-	public JAXBElement<?> getPlanXML(@PathParam("PlanName") String planName) {
+	public JAXBElement getPlanXML(@PathParam("PlanName") String planName) {
 		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(getPlan(planName));
 	}
 	
