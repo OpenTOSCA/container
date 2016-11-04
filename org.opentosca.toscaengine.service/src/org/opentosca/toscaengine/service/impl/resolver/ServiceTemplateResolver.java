@@ -15,7 +15,6 @@ import org.opentosca.model.tosca.TNodeTemplate;
 import org.opentosca.model.tosca.TPlan;
 import org.opentosca.model.tosca.TPlans;
 import org.opentosca.model.tosca.TPolicy;
-import org.opentosca.model.tosca.TPropertyMapping;
 import org.opentosca.model.tosca.TRelationshipTemplate;
 import org.opentosca.model.tosca.TRequirement;
 import org.opentosca.model.tosca.TServiceTemplate;
@@ -151,9 +150,9 @@ public class ServiceTemplateResolver extends GenericResolver {
 				String propertiesContent = ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToString(boundaryDefinitions.getProperties());
 				PropertyMappings propertyMappings = boundaryDefinitions.getProperties().getPropertyMappings();
 				
-				for (TPropertyMapping mapping : propertyMappings.getPropertyMapping()){
-					LOG.debug("mapping: " + mapping.getTargetObjectRef().toString());
-				}
+				//				for (TPropertyMapping mapping : propertyMappings.getPropertyMapping()){
+				//					LOG.debug("mapping: " + mapping.getTargetObjectRef().toString());
+				//				}
 				
 				referenceMapper.storeServiceTemplateBoundsProperties(csarID,
 						serviceTemplateID, propertiesContent, propertyMappings);
