@@ -36,13 +36,26 @@ import org.opentosca.model.instancedata.ServiceInstance;
  */
 public class ServiceInstanceListResource {
 	
+	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getServiceInstances(
-			@Context UriInfo uriInfo,
-			@QueryParam("serviceInstanceID") String serviceInstanceID,
-			@QueryParam("serviceTemplateName") String serviceTemplateName,
-			@QueryParam("serviceTemplateID") String serviceTemplateID) {
+	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID) {
+		
+		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID);
+		
+		return Response.ok(refs).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID) {
+		
+		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID);
+		
+		return Response.ok(refs.toJSON()).build();
+	}
+	
+	public ServiceInstanceList getRefs(UriInfo uriInfo, String serviceInstanceID, String serviceTemplateName, String serviceTemplateID) {
 		
 		URI serviceInstanceIdURI = null;
 		QName serviceTemplateIDQName = null;
@@ -68,13 +81,13 @@ public class ServiceInstanceListResource {
 			for (ServiceInstance serviceInstance : serviceInstances) {
 				URI urlToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, serviceInstance.getDBId());
 				
-				//build simpleXLink with the internalID as LinkText
-				//TODO: is the id the correct linkText?
+				// build simpleXLink with the internalID as LinkText
+				// TODO: is the id the correct linkText?
 				links.add(new SimpleXLink(urlToServiceInstance, serviceInstance.getDBId() + ""));
 			}
 			
 			ServiceInstanceList sil = new ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
-			return Response.ok(sil).build();
+			return sil;
 		} catch (Exception e) {
 			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
@@ -83,12 +96,8 @@ public class ServiceInstanceListResource {
 	
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
-	public Response createServiceInstance(
-			@QueryParam("csarID") String csarID,
-			@QueryParam("serviceTemplateID") QName serviceTemplateID,
-			@Context UriInfo uriInfo
-			) {
-		//null and empty checks for csarID and serviceTemplateID
+	public Response createServiceInstance(@QueryParam("csarID") String csarID, @QueryParam("serviceTemplateID") QName serviceTemplateID, @Context UriInfo uriInfo) {
+		// null and empty checks for csarID and serviceTemplateID
 		if (serviceTemplateID == null || Utilities.areEmpty(csarID, serviceTemplateID.toString())) {
 			throw new GenericRestException(Status.BAD_REQUEST, "Missing one of the required parameters: csarID, serviceTemplateID");
 		}
@@ -98,7 +107,8 @@ public class ServiceInstanceListResource {
 		try {
 			ServiceInstance createServiceInstance = service.createServiceInstance(csarIDcsarID, serviceTemplateID);
 			
-			//create xlink with the link to the newly created serviceInstance, the link text is the internal serviceInstanceID
+			// create xlink with the link to the newly created serviceInstance,
+			// the link text is the internal serviceInstanceID
 			SimpleXLink response = new SimpleXLink(LinkBuilder.linkToServiceInstance(uriInfo, createServiceInstance.getDBId()), createServiceInstance.getServiceInstanceID().toString());
 			return Response.ok(response).build();
 		} catch (Exception e) {
@@ -106,12 +116,10 @@ public class ServiceInstanceListResource {
 			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 		
-		
 	}
 	
 	@Path("{" + Constants.ServiceInstanceListResource_getServiceInstance_PARAM + "}")
-	public Object getServiceInstance(
-			@PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) int id) {
+	public Object getServiceInstance(@PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) int id) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		ExistenceChecker.checkServiceInstanceWithException(id, service);
 		return new ServiceInstanceResource(id);

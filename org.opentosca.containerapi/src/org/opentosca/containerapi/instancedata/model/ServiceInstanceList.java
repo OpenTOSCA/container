@@ -7,18 +7,23 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 /**
  * 
  * @author Marcus Eisele <marcus.eisele@gmail.com>
  *
  */
 @XmlRootElement(name = "ServiceInstanceList")
-@XmlType(propOrder = { "selfLink", "links" })
+@XmlType(propOrder = {"selfLink", "links"})
 public class ServiceInstanceList {
+	
 	
 	List<SimpleXLink> links;
 	
 	private SimpleXLink selfLink;
+	
 	
 	public ServiceInstanceList() {
 		
@@ -46,6 +51,23 @@ public class ServiceInstanceList {
 	
 	public void setLinks(List<SimpleXLink> links) {
 		this.links = links;
+	}
+	
+	public String toJSON() {
+		
+		JsonObject ret = new JsonObject();
+		JsonArray refs = new JsonArray();
+		
+		for (SimpleXLink ref : links) {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("type", ref.getType());
+			obj.addProperty("href", ref.getHref());
+			obj.addProperty("title", ref.getTitle());
+			refs.add(obj);
+		}
+		ret.add("References", refs);
+		
+		return ret.toString();
 	}
 	
 }

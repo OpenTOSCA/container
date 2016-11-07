@@ -61,10 +61,10 @@ public class CSARInstancesResource {
 	public CSARInstancesResource(CSARID csarID) {
 		this.csarID = csarID;
 		if (null == csarID) {
-			CSARInstancesResource.LOG.debug("{} created: {}", this.getClass(), "but the CSAR does not exist");
+			CSARInstancesResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
 		} else {
-			CSARInstancesResource.LOG.debug("{} created: {}", this.getClass(), csarID);
-			CSARInstancesResource.LOG.debug("CSAR Instance list for requested CSAR: {}", this.csarID.getFileName());
+			CSARInstancesResource.LOG.trace("{} created: {}", this.getClass(), csarID);
+			CSARInstancesResource.LOG.trace("CSAR Instance list for requested CSAR: {}", this.csarID.getFileName());
 		}
 	}
 	

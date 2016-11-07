@@ -30,9 +30,9 @@ public class CSARIDToInstanceToCorrelation {
 	 */
 	public CSARInstanceID storeNewCSARInstance(CSARID csarID) {
 		
-		int highest = -1;
+		int highest = 0;
 		
-		for (CSARInstanceID id : this.getInstanceMap(csarID).keySet()) {
+		for (CSARInstanceID id : getInstanceMap(csarID).keySet()) {
 			if (highest < id.getInstanceID()) {
 				highest = id.getInstanceID();
 			}
@@ -40,7 +40,7 @@ public class CSARIDToInstanceToCorrelation {
 		
 		CSARInstanceID instance = new CSARInstanceID(csarID, highest + 1);
 		
-		this.getInstanceMap(csarID).put(instance, new ArrayList<String>());
+		getInstanceMap(csarID).put(instance, new ArrayList<String>());
 		
 		return instance;
 	}
@@ -54,7 +54,7 @@ public class CSARIDToInstanceToCorrelation {
 	 */
 	public void storeNewCorrelationForInstance(CSARID csarID, CSARInstanceID instanceID, String correlationID) {
 		
-		List<String> list = this.getCorrelationList(csarID, instanceID);
+		List<String> list = getCorrelationList(csarID, instanceID);
 		if (null != list) {
 			list.add(correlationID);
 		}
@@ -64,7 +64,7 @@ public class CSARIDToInstanceToCorrelation {
 		
 		List<CSARInstanceID> returnList = new ArrayList<CSARInstanceID>();
 		
-		for (CSARInstanceID id : this.getInstanceMap(csarID).keySet()) {
+		for (CSARInstanceID id : getInstanceMap(csarID).keySet()) {
 			returnList.add(id);
 		}
 		
@@ -79,10 +79,10 @@ public class CSARIDToInstanceToCorrelation {
 	 * @return the map
 	 */
 	private Map<CSARInstanceID, List<String>> getInstanceMap(CSARID csarID) {
-		if (!this.storageMap.containsKey(csarID)) {
-			this.storageMap.put(csarID, new HashMap<CSARInstanceID, List<String>>());
+		if (!storageMap.containsKey(csarID)) {
+			storageMap.put(csarID, new HashMap<CSARInstanceID, List<String>>());
 		}
-		return this.storageMap.get(csarID);
+		return storageMap.get(csarID);
 	}
 	
 	/**
@@ -92,11 +92,11 @@ public class CSARIDToInstanceToCorrelation {
 	 * @return the map
 	 */
 	public List<String> getCorrelationList(CSARID csarID, CSARInstanceID instanceID) {
-		if (null == this.getInstanceMap(csarID)) {
-			this.storageMap.put(csarID, new HashMap<CSARInstanceID, List<String>>());
-			this.storageMap.get(csarID).put(instanceID, new ArrayList<String>());
+		if (null == getInstanceMap(csarID)) {
+			storageMap.put(csarID, new HashMap<CSARInstanceID, List<String>>());
+			storageMap.get(csarID).put(instanceID, new ArrayList<String>());
 		}
-		return this.storageMap.get(csarID).get(instanceID);
+		return storageMap.get(csarID).get(instanceID);
 	}
 	
 	@Override
@@ -106,11 +106,11 @@ public class CSARIDToInstanceToCorrelation {
 		String ls = System.getProperty("line.separator");
 		
 		builder.append("Currently stored informations for instances and correlations:" + ls);
-		for (CSARID csarID : this.storageMap.keySet()) {
+		for (CSARID csarID : storageMap.keySet()) {
 			builder.append("CSAR \"" + csarID + "\":" + ls + "   ");
-			for (CSARInstanceID instanceID : this.storageMap.get(csarID).keySet()) {
+			for (CSARInstanceID instanceID : storageMap.get(csarID).keySet()) {
 				builder.append("InstanceID \"" + instanceID + "\" with correlations: ");
-				for (String correlation : this.getCorrelationList(csarID, instanceID)) {
+				for (String correlation : getCorrelationList(csarID, instanceID)) {
 					builder.append(correlation + ", ");
 				}
 				builder.append(ls);
@@ -125,7 +125,7 @@ public class CSARIDToInstanceToCorrelation {
 		
 		List<CSARID> returnList = new ArrayList<CSARID>();
 		
-		for (CSARID csarID : this.storageMap.keySet()) {
+		for (CSARID csarID : storageMap.keySet()) {
 			returnList.add(csarID);
 		}
 		
@@ -133,12 +133,12 @@ public class CSARIDToInstanceToCorrelation {
 	}
 	
 	public boolean deleteCSAR(CSARID csarID) {
-		return null != this.storageMap.remove(csarID);
+		return null != storageMap.remove(csarID);
 	}
 	
 	public boolean deleteInstanceOfCSAR(CSARID csarID, CSARInstanceID instanceID) {
-		if (this.storageMap.containsKey(csarID)) {
-			return null != this.storageMap.get(csarID).remove(instanceID);
+		if (storageMap.containsKey(csarID)) {
+			return null != storageMap.get(csarID).remove(instanceID);
 		}
 		return false;
 	}

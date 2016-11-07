@@ -24,25 +24,39 @@ import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 @Path("/instancedata")
 public class InstanceDataRoot {
 	
+	
 	@Context
 	UriInfo uriInfo;
 	@Context
 	Request request;
 	
+	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response doGet() {
+	public Response doGetXML() {
 		
-		List<SimpleXLink> links = new LinkedList<SimpleXLink>();
-		links.add(LinkBuilder.selfLink(uriInfo));
-		links.add(new SimpleXLink(LinkBuilder.linkToNodeInstanceList(uriInfo),
-				"Node Instances"));
-		links.add(new SimpleXLink(LinkBuilder.linkToServiceInstanceList(uriInfo),
-				"Service Instances"));
-		
-		InstanceDataEntry idr = new InstanceDataEntry(links);
+		InstanceDataEntry idr = getRefs();
 		
 		return Response.ok(idr).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response doGetJSON() {
+		
+		InstanceDataEntry idr = getRefs();
+		
+		return Response.ok(idr.toJSON()).build();
+	}
+	
+	private InstanceDataEntry getRefs() {
+		List<SimpleXLink> links = new LinkedList<SimpleXLink>();
+		links.add(LinkBuilder.selfLink(uriInfo));
+		links.add(new SimpleXLink(LinkBuilder.linkToNodeInstanceList(uriInfo), "Node Instances"));
+		links.add(new SimpleXLink(LinkBuilder.linkToServiceInstanceList(uriInfo), "Service Instances"));
+		
+		InstanceDataEntry idr = new InstanceDataEntry(links);
+		return idr;
 	}
 	
 	@Path("/nodeInstances")

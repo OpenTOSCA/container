@@ -18,25 +18,48 @@ import org.opentosca.instancedata.service.IInstanceDataService;
 import org.opentosca.instancedata.service.ReferenceNotFoundException;
 import org.opentosca.model.instancedata.IdConverter;
 
+import com.google.gson.JsonObject;
+
 /**
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
 public class NodeInstanceStateResource {
 	
+	
 	private int nodeInstanceID;
 	
+	
 	public NodeInstanceStateResource(int id) {
-		this.nodeInstanceID = id;
+		nodeInstanceID = id;
 	}
 	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	public Object getState() {
+	public Response doGetXML() {
+		
+		String idr = getState();
+		
+		return Response.ok(idr).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response doGetJSON() {
+		
+		String idr = getState();
+		
+		JsonObject json = new JsonObject();
+		json.addProperty("state", idr);
+		
+		return Response.ok(json.toString()).build();
+	}
+	
+	public String getState() {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		
 		try {
-			QName state = service.getState(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID));
+			QName state = service.getState(IdConverter.nodeInstanceIDtoURI(nodeInstanceID));
 			if (state != null) {
 				return state.toString();
 			} else {
@@ -50,8 +73,7 @@ public class NodeInstanceStateResource {
 	@PUT
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_XML)
-	public Response setState(@Context UriInfo uriInfo,
-			String state) {
+	public Response setState(@Context UriInfo uriInfo, String state) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		
 		QName stateQName = null;
