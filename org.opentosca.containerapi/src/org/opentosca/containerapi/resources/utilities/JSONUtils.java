@@ -15,7 +15,7 @@ public class JSONUtils {
 	
 	public JsonObject xmlToGenericJsonObject(NodeList nodes) {
 		JsonObject ret = new JsonObject();
-		ret.add("request", xmlToJsonArray(nodes));
+		ret.add("payload", xmlToJsonArray(nodes));
 		return ret;
 	}
 	
