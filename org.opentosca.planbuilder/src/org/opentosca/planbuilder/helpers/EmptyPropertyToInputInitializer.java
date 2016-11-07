@@ -28,30 +28,30 @@ import org.xml.sax.SAXException;
  *
  */
 public class EmptyPropertyToInputInitializer {
-
+	
 	public void initializeEmptyPropertiesAsInputParam(BuildPlan buildPlan, PropertyMap propMap) {
-
+		
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 				List<AbstractNodeTemplate> hostingNodes = new ArrayList<AbstractNodeTemplate>();
 				Utils.getNodesFromNodeToSink(nodeTemplate, hostingNodes);
-
+				
 				TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, buildPlan.getServiceTemplate());
-
+				
 				if (propMap.getPropertyMappingMap(nodeTemplate.getId()) == null) {
 					// nodeTemplate doesn't have props defined
 					continue;
 				}
-
+				
 				for (String propLocalName : propMap.getPropertyMappingMap(nodeTemplate.getId()).keySet()) {
 					Variable var = context.getPropertyVariable(nodeTemplate, propLocalName);
-
+					
 					if (Utils.isVariableValueEmpty(var, context)) {
 						// if the property is empty we have to check against the
 						// hostingNodes' operations outputparams
 						boolean matched = false;
-
+						
 						for (AbstractNodeTemplate hostingNode : hostingNodes) {
 							for (AbstractInterface iface : hostingNode.getType().getInterfaces()) {
 								for (AbstractOperation op : iface.getOperations()) {
@@ -63,7 +63,7 @@ public class EmptyPropertyToInputInitializer {
 								}
 							}
 						}
-
+						
 						if (!matched) {
 							this.addToPlanInput(buildPlan, propLocalName, var, context);
 						}
@@ -71,7 +71,7 @@ public class EmptyPropertyToInputInitializer {
 						String content = Utils.getVariableContent(var, context);
 						if (content.startsWith("get_input")) {
 							if (content.contains("get_input:")) {
-								content = content.replace("get_input:", "");
+								content = content.replace("get_input:", "").trim();
 								this.addToPlanInput(buildPlan, content, var, context);
 							} else {
 								this.addToPlanInput(buildPlan, propLocalName, var, context);
@@ -81,9 +81,9 @@ public class EmptyPropertyToInputInitializer {
 				}
 			}
 		}
-
+		
 	}
-
+	
 	/**
 	 * Adds an element to the plan input with the given namen and assign at
 	 * runtime the value to the given variable
@@ -96,7 +96,7 @@ public class EmptyPropertyToInputInitializer {
 	private void addToPlanInput(BuildPlan buildPlan, String propLocalName, Variable var, TemplatePlanContext context) {
 		// add to input
 		context.addStringValueToPlanRequest(propLocalName);
-
+		
 		// add copy from input local element to property
 		// variable
 		String bpelCopy = this.generateCopyFromInputToVariableAsString(this.createLocalNameXpathQuery(propLocalName), this.createBPELVariableXpathQuery(var.getName()));
@@ -108,7 +108,7 @@ public class EmptyPropertyToInputInitializer {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Appends the given node the the main sequence of the buildPlan this
 	 * context belongs to
@@ -117,25 +117,25 @@ public class EmptyPropertyToInputInitializer {
 	 * @return true if adding the node to the main sequence was successfull
 	 */
 	private boolean appendToInitSequence(Node node, BuildPlan buildPlan) {
-
+		
 		Element flowElement = buildPlan.getBpelMainFlowElement();
-
+		
 		Node mainSequenceNode = flowElement.getParentNode();
-
+		
 		Node importedNode = mainSequenceNode.getOwnerDocument().importNode(node, true);
 		mainSequenceNode.insertBefore(importedNode, flowElement);
-
+		
 		return true;
 	}
-
+	
 	private String createLocalNameXpathQuery(String localName) {
 		return "//*[local-name()='" + localName + "']";
 	}
-
+	
 	private String createBPELVariableXpathQuery(String variableName) {
 		return "$" + variableName;
 	}
-
+	
 	/**
 	 * Generates a bpel copy element that queries from the plan input message to
 	 * some xpath query
@@ -146,15 +146,15 @@ public class EmptyPropertyToInputInitializer {
 	 */
 	private String generateCopyFromInputToVariableAsString(String inputQuery, String variableQuery) {
 		String copyString = "<bpel:assign xmlns:bpel=\"" + BuildPlan.bpelNamespace + "\"><bpel:copy>";
-
+		
 		copyString += "<bpel:from variable=\"input\" part=\"payload\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[" + inputQuery + "]]></bpel:query></bpel:from>";
-
+		
 		copyString += "<bpel:to expressionLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[";
 		copyString += variableQuery + "]]></bpel:to>";
-
+		
 		copyString += "</bpel:copy></bpel:assign>";
-
+		
 		return copyString;
 	}
-
+	
 }
