@@ -68,8 +68,8 @@ public class CSARInstanceResource {
 			} else {
 				this.csarID = csarID;
 				this.instanceID = Integer.parseInt(instanceID);
-				CSARInstanceResource.LOG.debug("{} created: {}", this.getClass(), csarID);
-				CSARInstanceResource.LOG.debug("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
+				CSARInstanceResource.LOG.trace("{} created: {}", this.getClass(), csarID);
+				CSARInstanceResource.LOG.trace("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
 			}
 		}
 	}
@@ -282,7 +282,7 @@ public class CSARInstanceResource {
 	@Path("PlanInstances")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceActivePublicPlans() {
-		CSARInstanceResource.LOG.debug("Access active PublicPlans");
+		CSARInstanceResource.LOG.trace("Access active PublicPlans");
 		return new CSARInstanceActivePlansResource(csarID, instanceID);
 	}
 }

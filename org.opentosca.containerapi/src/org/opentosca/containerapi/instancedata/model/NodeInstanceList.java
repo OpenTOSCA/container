@@ -7,6 +7,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 /**
  * 
  * @author Florian Haupt <florian.haupt@iaas.uni-stuttgart.de>
@@ -47,6 +50,23 @@ public class NodeInstanceList {
 	
 	public void setLinks(List<SimpleXLink> links) {
 		this.links = links;
+	}
+	
+	public String toJSON() {
+		
+		JsonObject ret = new JsonObject();
+		JsonArray refs = new JsonArray();
+		
+		for (SimpleXLink ref : links) {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("type", ref.getType());
+			obj.addProperty("href", ref.getHref());
+			obj.addProperty("title", ref.getTitle());
+			refs.add(obj);
+		}
+		ret.add("References", refs);
+		
+		return ret.toString();
 	}
 	
 }

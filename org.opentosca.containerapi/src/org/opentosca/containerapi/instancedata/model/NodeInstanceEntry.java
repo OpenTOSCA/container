@@ -12,6 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.model.instancedata.NodeInstance;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 /**
  * 
  * @author Marcus Eisele <marcus.eisele@gmail.com>
@@ -19,6 +22,7 @@ import org.opentosca.model.instancedata.NodeInstance;
  */
 @XmlRootElement(name = "NodeInstance")
 public class NodeInstanceEntry {
+	
 	
 	private URI nodeInstanceID;
 	private String nodeTemplateID;
@@ -34,16 +38,17 @@ public class NodeInstanceEntry {
 	}
 	
 	public NodeInstanceEntry(NodeInstance ni, List<SimpleXLink> links) {
-		this.nodeInstanceID = ni.getNodeInstanceID();
-		this.nodeTemplateID = ni.getNodeTemplateID().toString();
-		this.nodeTemplateName = ni.getNodeTemplateName();
-		this.created = ni.getCreated();
-		this.serviceInstanceID = ni.getServiceInstance().getServiceInstanceID();
+		nodeInstanceID = ni.getNodeInstanceID();
+		nodeTemplateID = ni.getNodeTemplateID().toString();
+		nodeTemplateName = ni.getNodeTemplateName();
+		created = ni.getCreated();
+		serviceInstanceID = ni.getServiceInstance().getServiceInstanceID();
 		
-		//TODO: change this behavior when the requirement for multiple nodeTypes arises
+		// TODO: change this behavior when the requirement for multiple
+		// nodeTypes arises
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(ni.getNodeType().toString());
-		this.nodeType = list;
+		nodeType = list;
 		this.links = links;
 	}
 	
@@ -59,12 +64,12 @@ public class NodeInstanceEntry {
 	
 	@XmlAttribute(name = "nodeTemplateID", required = true)
 	public String getNodeTemplateID() {
-		return this.nodeTemplateID;
+		return nodeTemplateID;
 	}
 	
 	@XmlAttribute(name = "nodeTemplateName")
 	public String getNodeTemplateName() {
-		return this.nodeTemplateName;
+		return nodeTemplateName;
 	}
 	
 	@XmlAttribute(name = "created-at")
@@ -80,6 +85,23 @@ public class NodeInstanceEntry {
 	@XmlElement(name = "NodeType")
 	public List<String> getNodeType() {
 		return nodeType;
+	}
+	
+	public String toJSON() {
+		
+		JsonObject ret = new JsonObject();
+		JsonArray refs = new JsonArray();
+		
+		for (SimpleXLink ref : links) {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("type", ref.getType());
+			obj.addProperty("href", ref.getHref());
+			obj.addProperty("title", ref.getTitle());
+			refs.add(obj);
+		}
+		ret.add("References", refs);
+		
+		return ret.toString();
 	}
 	
 }
