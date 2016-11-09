@@ -245,27 +245,28 @@ public class PlanBuilder implements IPlanBuilder {
 					ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
 					if (chain == null) {
 						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
-						continue;
+					} else {
+						PlanBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+						chain.executeIAProvisioning(context);
+						chain.executeDAProvisioning(context);
+						chain.executeOperationProvisioning(context, this.opNames);
 					}
-					chain.executeIAProvisioning(context);
-					chain.executeDAProvisioning(context);
-					chain.executeOperationProvisioning(context, this.opNames);
 				} else {
 					PlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
 					plugin.handle(context);
 				}
-
+				
 				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
 					if (postPhasePlugin.canHandle(nodeTemplate)) {
 						postPhasePlugin.handle(context, nodeTemplate);
 					}
 				}
-
+				
 			} else {
 				// handling relationshiptemplate
 				AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
 				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
-
+				
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken here!
@@ -274,14 +275,14 @@ public class PlanBuilder implements IPlanBuilder {
 					PlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
 					ProvisioningChain sourceChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, true);
 					ProvisioningChain targetChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, false);
-
+					
 					// first execute provisioning on target, then on source
 					if (targetChain != null) {
 						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						targetChain.executeIAProvisioning(context);
 						targetChain.executeOperationProvisioning(context, this.opNames);
 					}
-
+					
 					if (sourceChain != null) {
 						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						sourceChain.executeIAProvisioning(context);
@@ -291,7 +292,7 @@ public class PlanBuilder implements IPlanBuilder {
 					PlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
 					this.handleWithGenericPlugin(context, relationshipTemplate);
 				}
-
+				
 				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
 					if (postPhasePlugin.canHandle(relationshipTemplate)) {
 						postPhasePlugin.handle(context, relationshipTemplate);
@@ -300,7 +301,7 @@ public class PlanBuilder implements IPlanBuilder {
 			}
 		}
 	}
-
+	
 	/**
 	 * <p>
 	 * Checks whether there is any generic plugin, that can handle the given

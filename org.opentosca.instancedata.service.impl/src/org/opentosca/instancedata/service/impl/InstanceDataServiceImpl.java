@@ -230,6 +230,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		
 		ServiceInstance serviceInstance = serviceInstances.get(0);
 		
+		this.updateServiceInstanceProperties(serviceInstance);
+
 		return serviceInstance.getProperties();
 	}
 	
@@ -438,6 +440,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 				// the referenced entity
 				
 				NodeInstance nodeInstance = this.getNodeInstanceFromMappingObject(serviceInstance, mapping.getTargetObjectRef());
+				
+				if (nodeInstance == null) {
+					continue;
+				}
+				
 				Document nodeProperties = nodeInstance.getProperties();
 				if (nodeProperties == null) {
 					// skip it, the mapping is invalid
@@ -568,9 +575,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	
 	private NodeInstance getNodeInstanceFromMappingObject(ServiceInstance serviceInstance, Object obj) {
 		if (obj instanceof TNodeTemplate) {
+			
 			TNodeTemplate template = (TNodeTemplate) obj;
 			
-			List<NodeInstance> nodeInstances = serviceInstance.getNodeInstances();
+			// service.getNodeInstances(null, null, null,
+			// serviceInstanceIDtoURI);
+
+			List<NodeInstance> nodeInstances = this.getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID());
+			
+			if (nodeInstances == null) {
+				return null;
+			}
 			
 			for (NodeInstance nodeInstance : nodeInstances) {
 				if (nodeInstance.getNodeTemplateID().getLocalPart().equals(template.getId())) {
