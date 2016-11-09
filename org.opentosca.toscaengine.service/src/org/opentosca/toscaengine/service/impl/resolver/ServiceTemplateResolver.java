@@ -5,6 +5,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.Definitions;
 import org.opentosca.model.tosca.TBoundaryDefinitions;
+import org.opentosca.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.opentosca.model.tosca.TCapability;
 import org.opentosca.model.tosca.TDeploymentArtifact;
 import org.opentosca.model.tosca.TEntityTemplate;
@@ -41,6 +42,7 @@ import org.w3c.dom.Document;
  * 
  */
 public class ServiceTemplateResolver extends GenericResolver {
+	
 	
 	private Logger LOG = LoggerFactory.getLogger(ServiceTemplateResolver.class);
 	
@@ -144,6 +146,16 @@ public class ServiceTemplateResolver extends GenericResolver {
 			TBoundaryDefinitions boundaryDefinitions = serviceTemplate.getBoundaryDefinitions();
 			
 			if (boundaryDefinitions.getProperties() != null) {
+				
+				String propertiesContent = ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToString(boundaryDefinitions.getProperties());
+				PropertyMappings propertyMappings = boundaryDefinitions.getProperties().getPropertyMappings();
+				
+				//				for (TPropertyMapping mapping : propertyMappings.getPropertyMapping()){
+				//					LOG.debug("mapping: " + mapping.getTargetObjectRef().toString());
+				//				}
+				
+				referenceMapper.storeServiceTemplateBoundsProperties(csarID,
+						serviceTemplateID, propertiesContent, propertyMappings);
 				
 				if (boundaryDefinitions.getProperties().getPropertyMappings() != null) {
 					

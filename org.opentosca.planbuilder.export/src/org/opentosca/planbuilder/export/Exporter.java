@@ -174,7 +174,7 @@ public class Exporter extends AbstractExporter {
 						
 						boolean alreadySpecified = false;
 						for (TExportedOperation op : exportedIface.getOperation()) {
-							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD) & op.getName().equals("instantiate")) {
+							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
 								alreadySpecified = true;
 							} else if (buildPlan.getType().equals(BuildPlan.PlanType.TERMINATE) & op.getName().equals("terminate")) {
 								alreadySpecified = true;
@@ -184,7 +184,7 @@ public class Exporter extends AbstractExporter {
 						if (!alreadySpecified) {
 							TExportedOperation op = this.toscaFactory.createTExportedOperation();
 							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD)) {
-								op.setName("instantiate");
+								op.setName("initiate");
 							} else if (buildPlan.getType().equals(BuildPlan.PlanType.TERMINATE)) {
 								op.setName("terminate");
 							}

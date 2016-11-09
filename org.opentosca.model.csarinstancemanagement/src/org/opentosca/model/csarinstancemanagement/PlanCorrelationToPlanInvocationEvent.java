@@ -16,40 +16,40 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class PlanCorrelationToPlanInvocationEvent {
-
-    private Logger LOG = LoggerFactory.getLogger(PlanCorrelationToPlanInvocationEvent.class);
-
-    // map of CorrelationID to PlanInvocationEvent
-    // TODO make persistent
-    private Map<String, PlanInvocationEvent> storageMap = new HashMap<String, PlanInvocationEvent>();
-
-
-    public PlanInvocationEvent getPlan(String planCorrelation) {
-	return storageMap.get(planCorrelation);
-    }
-
-    public void storePlan(String planCorrelation, PlanInvocationEvent planInvocationEvent) {
-	if (!storageMap.containsKey(planCorrelation)) {
-	    storageMap.put(planCorrelation, planInvocationEvent);
-	    return;
+	
+	private Logger LOG = LoggerFactory.getLogger(PlanCorrelationToPlanInvocationEvent.class);
+	
+	// map of CorrelationID to PlanInvocationEvent
+	// TODO make persistent
+	private Map<String, PlanInvocationEvent> storageMap = new HashMap<String, PlanInvocationEvent>();
+	
+	
+	public PlanInvocationEvent getPlan(String planCorrelation) {
+		return storageMap.get(planCorrelation);
 	}
-	LOG.warn("The correlation was stored before. Therefore the passed PlanInvocationEvent was not stored again.");
-    }
-
-    @Override
-    public String toString() {
-	StringBuilder builder = new StringBuilder();
-
-	String ls = System.getProperty("line.separator");
-
-	builder.append("Currently stored informations for instances and correlations:" + ls);
-	for (String correlation : storageMap.keySet()) {
-	    builder.append("Correlation \"" + correlation + "\":" + ls + "   ");
-	    builder.append(storageMap.get(correlation).toString());
-	    builder.append(ls + ls);
+	
+	public void storePlan(String planCorrelation, PlanInvocationEvent planInvocationEvent) {
+		//	if (!storageMap.containsKey(planCorrelation)) {
+		storageMap.put(planCorrelation, planInvocationEvent);
+		//	    return;
+		//	}
+		//	LOG.warn("The correlation was stored before. Therefore the passed PlanInvocationEvent was not stored again.");
 	}
-
-	return builder.toString();
-    }
-
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		String ls = System.getProperty("line.separator");
+		
+		builder.append("Currently stored informations for instances and correlations:" + ls);
+		for (String correlation : storageMap.keySet()) {
+			builder.append("Correlation \"" + correlation + "\":" + ls + "   ");
+			builder.append(storageMap.get(correlation).toString());
+			builder.append(ls + ls);
+		}
+		
+		return builder.toString();
+	}
+	
 }

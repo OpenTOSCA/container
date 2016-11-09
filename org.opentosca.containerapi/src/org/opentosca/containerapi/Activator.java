@@ -14,40 +14,41 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Activator implements BundleActivator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
-    private static BundleContext context;
-
-
-    public static BundleContext getContext() {
-	return Activator.context;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
-     * )
-     */
-    @Override
-    public void start(BundleContext bundleContext) throws Exception {
-	Activator.context = bundleContext;
-	Activator.LOG.debug("ContainerApi started");
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
-    @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	Activator.context = null;
-	Activator.LOG.debug("ContainerApi stopped");
-
-    }
-
+	
+	
+	private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
+	private static BundleContext context;
+	
+	
+	public static BundleContext getContext() {
+		return Activator.context;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
+	 * )
+	 */
+	@Override
+	public void start(BundleContext bundleContext) throws Exception {
+		Activator.context = bundleContext;
+		Activator.LOG.debug("ContainerApi started");
+		
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 */
+	@Override
+	public void stop(BundleContext bundleContext) throws Exception {
+		Activator.context = null;
+		Activator.LOG.debug("ContainerApi stopped");
+		
+	}
+	
 }

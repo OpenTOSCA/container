@@ -1,5 +1,7 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
@@ -45,6 +47,7 @@ import com.google.gson.JsonParser;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
+@Path("Instances")
 public class CSARInstancesResource {
 	
 	
@@ -58,10 +61,10 @@ public class CSARInstancesResource {
 	public CSARInstancesResource(CSARID csarID) {
 		this.csarID = csarID;
 		if (null == csarID) {
-			CSARInstancesResource.LOG.debug("{} created: {}", this.getClass(), "but the CSAR does not exist");
+			CSARInstancesResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
 		} else {
-			CSARInstancesResource.LOG.debug("{} created: {}", this.getClass(), csarID);
-			CSARInstancesResource.LOG.debug("CSAR Instance list for requested CSAR: {}", this.csarID.getFileName());
+			CSARInstancesResource.LOG.trace("{} created: {}", this.getClass(), csarID);
+			CSARInstancesResource.LOG.trace("CSAR Instance list for requested CSAR: {}", this.csarID.getFileName());
 		}
 	}
 	
@@ -178,10 +181,36 @@ public class CSARInstancesResource {
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TEXT_PLAIN)
-	public Response postManagementPlanJSON(String json) {
+	@Produces(ResourceConstants.APPLICATION_JSON)
+	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) throws URISyntaxException {
+		String planURL = postManagementPlanJSON(uriInfo, json);
+		JsonObject ret = new JsonObject();
+		ret.addProperty("PlanURL", planURL);
+		return Response.created(new URI(planURL)).entity(ret.toString()).build();
+	}
+	
+	/**
+	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * 
+	 * @param planElement the BUILD PublicPlan
+	 * @return Response
+	 * @throws URISyntaxException 
+	 */
+	@POST
+	@Consumes(ResourceConstants.TEXT_PLAIN)
+	@Produces(ResourceConstants.TOSCA_XML)
+	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) throws URISyntaxException {
+		
+		String url = postManagementPlanJSON(uriInfo, json);
+		
+		return Response.created(new URI(url)).build();
+	}
+	
+	private String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
 		CSARInstancesResource.LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
@@ -217,19 +246,26 @@ public class CSARInstancesResource {
 		Iterator<JsonElement> iterator = array.iterator();
 		while (iterator.hasNext()) {
 			TParameterDTO para = new TParameterDTO();
-			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Type").toString()));
-			para.setValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value").toString()));
+			JsonObject tmp = iterator.next().getAsJsonObject();
+			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
+			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
+			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
+			// if a parameter value is not set, just add "" as value
+			if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
+				para.setValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
+			} else {
+				para.setValue("");
+			}
 			plan.getInputParameters().getInputParameter().add(para);
 		}
 		array = object.get("OutputParameters").getAsJsonArray();
 		iterator = array.iterator();
 		while (iterator.hasNext()) {
 			TParameterDTO para = new TParameterDTO();
-			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Type").toString()));
+			JsonObject tmp = iterator.next().getAsJsonObject();
+			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
+			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
+			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
 			plan.getOutputParameters().getOutputParameter().add(para);
 		}
 		
@@ -241,10 +277,12 @@ public class CSARInstancesResource {
 		CSARInstancesResource.LOG.debug("Post of the PublicPlan " + plan.getId());
 		
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
+		int csarInstanceID = IOpenToscaControlServiceHandler.getOpenToscaControlService().getCSARInstanceIDForCorrelationID(correlationID);
+		LOG.debug("Return correlation ID of running plan: " + correlationID + " for csar instance " + csarInstanceID);
 		
-		return Response.ok(correlationID).build();
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + csarInstanceID + "/PlanInstances/" + correlationID;
+		
+		return url;
 		
 	}
-	
-	
 }

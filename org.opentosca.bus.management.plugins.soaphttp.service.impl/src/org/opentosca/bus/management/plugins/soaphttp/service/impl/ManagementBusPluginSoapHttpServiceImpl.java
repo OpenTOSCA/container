@@ -73,6 +73,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
 		String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 		Boolean hastOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
+		String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
 
 		if (!endpoint.endsWith("?wsdl")) {
 			
@@ -160,6 +161,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 								
 								if ((op.getOutput() == null) && hastOutputParams) {
 									messagingPattern = this.CALLBACK;
+									String callbackAddress = AsyncRoute.CALLBACKADDRESS;
 
 									if (paramsMap.containsKey("MessageID")) {
 										paramsMap.put("MessageID", message.getMessageId());
@@ -168,9 +170,14 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 									}
 
 									if (paramsMap.containsKey("ReplyTo")) {
-										paramsMap.put("ReplyTo", AsyncRoute.CALLBACKADDRESS);
+										paramsMap.put("ReplyTo", callbackAddress);
 									} else {
-										headers.put("ReplyTo", AsyncRoute.CALLBACKADDRESS);
+										headers.put("ReplyTo", callbackAddress);
+									}
+									if (paramsMap.containsKey("planCallbackAddress_invoker")) {
+										paramsMap.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID + "InvokerService/");
+									} else {
+										headers.put("planCallbackAddress_invoker", "http://localhost:9763/services/" + csarID + "InvokerService/");
 									}
 
 								} else if ((op.getOutput() == null) && !hastOutputParams) {

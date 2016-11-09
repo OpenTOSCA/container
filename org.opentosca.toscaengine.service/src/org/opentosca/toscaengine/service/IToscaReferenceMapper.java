@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TBoundaryDefinitions.Policies;
+import org.opentosca.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.opentosca.model.tosca.TDefinitions;
 import org.opentosca.model.tosca.TExportedInterface;
 import org.opentosca.model.tosca.TPlan;
@@ -344,8 +345,18 @@ public interface IToscaReferenceMapper {
 	
 	public void storeNamespaceOfPlan(CSARID csarID, String planID, String namespace);
 	
-	void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id);
+	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id);
 	
-	Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID);
+	public Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID);
+	
+	public void storeServiceTemplateBoundsPropertiesInformation(CSARID csarID, QName serviceTemplateID, String propertiesContent, PropertyMappings propertyMappings);
+	
+	public String getServiceTemplateBoundsPropertiesContent(CSARID csarID, QName serviceTemplateID);
+	
+	public PropertyMappings getServiceTemplateBoundsPropertyMappings(CSARID csarID, QName serviceTemplateID);
+	
+	public List<String> getServiceTemplateBoundsPropertiesContent(CSARID csarID);
+	
+	public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(CSARID csarID);
 	
 }

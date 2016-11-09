@@ -23,14 +23,18 @@ import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.NodeInstance;
 
 /**
- * This class manages access to a specific nodeInstance. It also checks the existance of the nodeInstance with the given ID (also for all children resources before passing the request along)
+ * This class manages access to a specific nodeInstance. It also checks the
+ * existance of the nodeInstance with the given ID (also for all children
+ * resources before passing the request along)
  * 
  * @author Florian Haupt <florian.haupt@iaas.uni-stuttgart.de>
  *
  */
 public class NodeInstanceResource {
 	
+	
 	private int id;
+	
 	
 	public NodeInstanceResource(int id) {
 		this.id = id;
@@ -38,12 +42,29 @@ public class NodeInstanceResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getData(@Context UriInfo uriInfo) {
+	public Response doGetXML(@Context UriInfo uriInfo) {
+		
+		NodeInstanceEntry idr = getRefs(uriInfo);
+		
+		return Response.ok(idr).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response doGetJSON(@Context UriInfo uriInfo) {
+		
+		NodeInstanceEntry idr = getRefs(uriInfo);
+		
+		return Response.ok(idr.toJSON()).build();
+	}
+	
+	public NodeInstanceEntry getRefs(UriInfo uriInfo) {
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		List<NodeInstance> nodeInstances = service.getNodeInstances(IdConverter.nodeInstanceIDtoURI(id), null, null, null);
 		
-		//existence of instance is already checked before invoking this class and its methods
+		// existence of instance is already checked before invoking this class
+		// and its methods
 		NodeInstance nodeInstance = nodeInstances.get(0);
 		
 		QName nodeTypeQName = nodeInstance.getNodeType();
@@ -52,28 +73,25 @@ public class NodeInstanceResource {
 		
 		List<SimpleXLink> links = new LinkedList<SimpleXLink>();
 		links.add(LinkBuilder.selfLink(uriInfo));
-
+		
 		URI serviceInstanceID = nodeInstance.getServiceInstance().getServiceInstanceID();
 		URI linkToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, IdConverter.serviceInstanceUriToID(serviceInstanceID));
-
-		links.add(new SimpleXLink(linkToServiceInstance,
-				"ServiceInstance"));
-		//properties link
+		
+		links.add(new SimpleXLink(linkToServiceInstance, "ServiceInstance"));
+		// properties link
 		URI linkToProperties = LinkBuilder.linkToNodeInstanceProperties(uriInfo, id);
-		links.add(new SimpleXLink(linkToProperties,
-				"Properties"));
-		//state link
-		links.add(new SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo, id),
-				"State"));
+		links.add(new SimpleXLink(linkToProperties, "Properties"));
+		// state link
+		links.add(new SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo, id), "State"));
 		NodeInstanceEntry nie = new NodeInstanceEntry(nodeInstance, links);
 		
-		return Response.ok(nie).build();
+		return nie;
 	}
 	
 	@DELETE
 	public Response deleteNodeInstance() {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		service.deleteNodeInstance(IdConverter.nodeInstanceIDtoURI(this.id));
+		service.deleteNodeInstance(IdConverter.nodeInstanceIDtoURI(id));
 		return Response.noContent().build();
 		
 	}

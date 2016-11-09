@@ -36,16 +36,29 @@ import org.opentosca.model.instancedata.NodeInstance;
  */
 public class NodeInstanceListResource {
 	
+	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getNodeInstances(
-			@Context UriInfo uriInfo,
-			@QueryParam("nodeInstanceID") String nodeInstanceID,
-			@QueryParam("nodeTemplateID") String nodeTemplateID,
-			@QueryParam("serviceInstanceID") String serviceInstanceID,
-			@QueryParam("nodeTemplateName") String nodeTemplateName) {
+	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("nodeInstanceID") String nodeInstanceID, @QueryParam("nodeTemplateID") String nodeTemplateID, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("nodeTemplateName") String nodeTemplateName) {
 		
-		//these parameters are not required and cant therefore be generally checked against null
+		NodeInstanceList idr = getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
+		
+		return Response.ok(idr).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("nodeInstanceID") String nodeInstanceID, @QueryParam("nodeTemplateID") String nodeTemplateID, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("nodeTemplateName") String nodeTemplateName) {
+		
+		NodeInstanceList idr = getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
+		
+		return Response.ok(idr.toJSON()).build();
+	}
+	
+	public NodeInstanceList getRefs(UriInfo uriInfo, String nodeInstanceID, String nodeTemplateID, String serviceInstanceID, String nodeTemplateName) {
+		
+		// these parameters are not required and cant therefore be generally
+		// checked against null
 		
 		URI nodeInstanceIdURI = null;
 		URI serviceInstanceIdURI = null;
@@ -77,18 +90,17 @@ public class NodeInstanceListResource {
 			List<NodeInstance> result = service.getNodeInstances(nodeInstanceIdURI, nodeTemplateIDQName, nodeTemplateName, serviceInstanceIdURI);
 			List<SimpleXLink> links = new LinkedList<SimpleXLink>();
 			
-			//add links to nodeInstances
+			// add links to nodeInstances
 			for (NodeInstance nodeInstance : result) {
-				URI uriToNodeInstance = LinkBuilder.linkToNodeInstance(uriInfo,
-						nodeInstance.getId());
-				//build simpleXLink with the internalID as LinkText
-				//TODO: is the id the correct linkText?
+				URI uriToNodeInstance = LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId());
+				// build simpleXLink with the internalID as LinkText
+				// TODO: is the id the correct linkText?
 				links.add(new SimpleXLink(uriToNodeInstance, nodeInstance.getId() + ""));
 			}
 			
 			NodeInstanceList nil = new NodeInstanceList(LinkBuilder.selfLink(uriInfo), links);
 			
-			return Response.ok(nil).build();
+			return nil;
 		} catch (Exception e) {
 			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, "Internal Server Error: " + e.getMessage());
 		}
@@ -96,10 +108,7 @@ public class NodeInstanceListResource {
 	
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
-	public Response createNodeInstance(
-			@QueryParam("nodeTemplateID") String nodeTemplateID,
-			@QueryParam("serviceInstanceID") String serviceInstanceID,
-			@Context UriInfo uriInfo) {
+	public Response createNodeInstance(@QueryParam("nodeTemplateID") String nodeTemplateID, @QueryParam("serviceInstanceID") String serviceInstanceID, @Context UriInfo uriInfo) {
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		
@@ -130,9 +139,7 @@ public class NodeInstanceListResource {
 	}
 	
 	@Path("/{" + Constants.NodeInstanceListResource_getNodeInstance_PARAM + "}")
-	public Object getNodeInstance(
-			@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM) int id,
-			@Context UriInfo uriInfo) {
+	public Object getNodeInstance(@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM) int id, @Context UriInfo uriInfo) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		ExistenceChecker.checkNodeInstanceWithException(id, service);
 		return new NodeInstanceResource(id);

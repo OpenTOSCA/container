@@ -3,7 +3,6 @@ package org.opentosca.containerapi.resources.csar;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -65,9 +64,42 @@ public class CSARPlanInstances {
 		return Response.ok(refs.getXMLString()).build();
 	}
 	
+	// @GET
+	// @Path("{corr}")
+	// @Consumes(ResourceConstants.TOSCA_XML)
+	// @Produces(MediaType.APPLICATION_XML)
+	// public Response getStatusOfPlanXML(@PathParam("corr") String corr) throws
+	// URISyntaxException {
+	//
+	// if (null !=
+	// CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(csar.getCSARID())
+	// &&
+	// CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(csar.getCSARID()).contains(corr))
+	// {
+	// String url = Utilities.buildURI("http://localhost:1337/containerapi",
+	// "/CSARs/" + csar.getCSARID() + "/PlanResults/" + corr);
+	// URI uri = new URI(url);
+	// LOG.trace("Redirect for correlation {}:\n{}", corr, uri);
+	// return Response.seeOther(uri).build();//
+	// status(Response.Status.SEE_OTHER).header("",
+	// } else if (null !=
+	// CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csar.getCSARID())
+	// &&
+	// CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csar.getCSARID()).contains(corr))
+	// {
+	// LOG.trace("Pending for correlation {}", corr);
+	// return Response.ok("<response><status>PENDING</status></response>",
+	// MediaType.APPLICATION_XML).build();
+	// } else {
+	// LOG.warn("Correlation not known for corr ", corr);
+	// return
+	// Response.status(Response.Status.BAD_REQUEST).entity("<response>Given
+	// correlation is not known.</response>").build();
+	// }
+	// }
+	
 	//	@GET
 	//	@Path("{corr}")
-	//	@Consumes(ResourceConstants.TOSCA_XML)
 	//	@Produces(MediaType.APPLICATION_XML)
 	//	public Response getStatusOfPlanXML(@PathParam("corr") String corr) throws URISyntaxException {
 	//		
@@ -75,10 +107,10 @@ public class CSARPlanInstances {
 	//			String url = Utilities.buildURI("http://localhost:1337/containerapi", "/CSARs/" + csar.getCSARID() + "/PlanResults/" + corr);
 	//			URI uri = new URI(url);
 	//			LOG.trace("Redirect for correlation {}:\n{}", corr, uri);
-	//			return Response.seeOther(uri).build();// status(Response.Status.SEE_OTHER).header("",
+	//			return Response.seeOther(uri).build();
 	//		} else if (null != CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csar.getCSARID()) && CSARInstanceManagementHandler.csarInstanceManagement.getActiveCorrelations(csar.getCSARID()).contains(corr)) {
 	//			LOG.trace("Pending for correlation {}", corr);
-	//			return Response.ok("<response><status>PENDING</status></response>", MediaType.APPLICATION_XML).build();
+	//			return Response.ok("{\"result\":{\"status\":\"PENDING\"}}", MediaType.APPLICATION_JSON).build();
 	//		} else {
 	//			LOG.warn("Correlation not known for corr ", corr);
 	//			return Response.status(Response.Status.BAD_REQUEST).entity("<response>Given correlation is not known.</response>").build();
@@ -87,7 +119,6 @@ public class CSARPlanInstances {
 	
 	@GET
 	@Path("{corr}")
-	@Consumes(ResourceConstants.TOSCA_XML)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStatusOfPlanJSON(@PathParam("corr") String corr) throws URISyntaxException {
 		

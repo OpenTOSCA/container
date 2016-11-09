@@ -12,6 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.model.instancedata.ServiceInstance;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 /**
  * 
  * @author Marcus Eisele <marcus.eisele@gmail.com>
@@ -40,11 +43,11 @@ public class ServiceInstanceEntry {
 	 */
 	public ServiceInstanceEntry(ServiceInstance si, List<SimpleXLink> links, NodeInstanceList nodeInstanceList) {
 		super();
-		this.serviceInstanceID = si.getServiceInstanceID();
-		this.csarID = si.getCSAR_ID().toString();
-		this.serviceTemplateID = si.getServiceTemplateID().toString();
-		this.serviceTemplateName = si.getServiceTemplateName();
-		this.created = si.getCreated();
+		serviceInstanceID = si.getServiceInstanceID();
+		csarID = si.getCSAR_ID().toString();
+		serviceTemplateID = si.getServiceTemplateID().toString();
+		serviceTemplateName = si.getServiceTemplateName();
+		created = si.getCreated();
 		
 		this.links = links;
 		this.nodeInstanceList = nodeInstanceList.getLinks();
@@ -88,6 +91,23 @@ public class ServiceInstanceEntry {
 	@XmlElement(name = "nodeInstance")
 	public List<SimpleXLink> getNodeInstanceList() {
 		return nodeInstanceList;
+	}
+	
+	public String toJSON() {
+		
+		JsonObject ret = new JsonObject();
+		JsonArray refs = new JsonArray();
+		
+		for (SimpleXLink ref : links) {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("type", ref.getType());
+			obj.addProperty("href", ref.getHref());
+			obj.addProperty("title", ref.getTitle());
+			refs.add(obj);
+		}
+		ret.add("References", refs);
+		
+		return ret.toString();
 	}
 	
 }

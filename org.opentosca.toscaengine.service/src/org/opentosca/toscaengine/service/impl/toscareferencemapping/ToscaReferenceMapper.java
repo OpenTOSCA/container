@@ -14,6 +14,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TBoundaryDefinitions.Policies;
+import org.opentosca.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.opentosca.model.tosca.TDefinitions;
 import org.opentosca.model.tosca.TExportedInterface;
 import org.opentosca.model.tosca.TExportedOperation;
@@ -78,6 +79,9 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	private Map<CSARID, Map<String, String>> mapCSARIDToPlanNameToNamespace = new HashMap<CSARID, Map<String, String>>();
 	
 	private Map<CSARID, Map<QName, List<String>>> mapCSARIDToServiceTemplateQNameToNodeTemplateID = new HashMap<>();
+	
+	private Map<CSARID, Map<QName, String>> serviceTemplatePropertiesContent = new HashMap<CSARID, Map<QName, String>>();
+	private Map<CSARID, Map<QName, PropertyMappings>> serviceTemplatePropertyMappings = new HashMap<CSARID, Map<QName, PropertyMappings>>();
 	
 	
 	public ToscaReferenceMapper() {
@@ -957,15 +961,16 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 			}
 		}
 		
-		//		Map<QName, String> map = mapCSARIDToPlanIDToOperationName.get(csarID);
-		//		
-		//		if (null != map) {
-		//			for (QName plan : map.keySet()) {
-		//				if (map.get(plan).contains(opName)) {
-		//					return plan;
-		//				}
-		//			}
-		//		}
+		// Map<QName, String> map =
+		// mapCSARIDToPlanIDToOperationName.get(csarID);
+		//
+		// if (null != map) {
+		// for (QName plan : map.keySet()) {
+		// if (map.get(plan).contains(opName)) {
+		// return plan;
+		// }
+		// }
+		// }
 		return null;
 	}
 	
@@ -1003,5 +1008,45 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	@Override
 	public Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID) {
 		return mapCSARIDToServiceTemplateQNameToNodeTemplateID.get(csarID);
+	}
+	
+	@Override
+	public void storeServiceTemplateBoundsPropertiesInformation(CSARID csarID, QName serviceTemplateID, String propertiesContent, PropertyMappings propertyMappings) {
+		if (null == serviceTemplatePropertiesContent.get(csarID)) {
+			serviceTemplatePropertiesContent.put(csarID, new HashMap<QName, String>());
+		}
+		serviceTemplatePropertiesContent.get(csarID).put(serviceTemplateID, propertiesContent);
+		if (null == serviceTemplatePropertyMappings.get(csarID)) {
+			serviceTemplatePropertyMappings.put(csarID, new HashMap<QName, PropertyMappings>());
+		}
+		serviceTemplatePropertyMappings.get(csarID).put(serviceTemplateID, propertyMappings);
+	}
+	
+	@Override
+	public String getServiceTemplateBoundsPropertiesContent(CSARID csarID, QName serviceTemplateID) {
+		return serviceTemplatePropertiesContent.get(csarID).get(serviceTemplateID);
+	}
+	
+	@Override
+	public List<String> getServiceTemplateBoundsPropertiesContent(CSARID csarID) {
+		List<String> ret = new ArrayList<String>();
+		for (QName st : serviceTemplatePropertiesContent.get(csarID).keySet()) {
+			ret.add(serviceTemplatePropertiesContent.get(csarID).get(st));
+		}
+		return ret;
+	}
+	
+	@Override
+	public PropertyMappings getServiceTemplateBoundsPropertyMappings(CSARID csarID, QName serviceTemplateID) {
+		return serviceTemplatePropertyMappings.get(csarID).get(serviceTemplateID);
+	}
+	
+	@Override
+	public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(CSARID csarID) {
+		List<PropertyMappings> ret = new ArrayList<PropertyMappings>();
+		for (QName st : serviceTemplatePropertyMappings.get(csarID).keySet()) {
+			ret.add(serviceTemplatePropertyMappings.get(csarID).get(st));
+		}
+		return ret;
 	}
 }

@@ -1,5 +1,7 @@
 package org.opentosca.containerapi.resources.csar;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
@@ -66,8 +68,8 @@ public class CSARInstanceResource {
 			} else {
 				this.csarID = csarID;
 				this.instanceID = Integer.parseInt(instanceID);
-				CSARInstanceResource.LOG.debug("{} created: {}", this.getClass(), csarID);
-				CSARInstanceResource.LOG.debug("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
+				CSARInstanceResource.LOG.trace("{} created: {}", this.getClass(), csarID);
+				CSARInstanceResource.LOG.trace("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
 			}
 		}
 	}
@@ -111,8 +113,8 @@ public class CSARInstanceResource {
 		
 		// selflink
 		References refs = new References();
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "ActivePlans"), XLinkConstants.SIMPLE, "history"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "History"), XLinkConstants.SIMPLE, "history"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
@@ -122,10 +124,11 @@ public class CSARInstanceResource {
 	 * 
 	 * @param transferElement
 	 * @return Response
+	 * @throws URISyntaxException 
 	 */
 	@POST
 	@Consumes(ResourceConstants.TOSCA_XML)
-	public Response postManagementPlan(JAXBElement<TPlanDTO> transferElement) {
+	public Response postManagementPlan(JAXBElement<TPlanDTO> transferElement) throws URISyntaxException {
 		
 		CSARInstanceResource.LOG.debug("Received a management request to invoke the plan for Instance " + instanceID + " of CSAR " + csarID);
 		
@@ -140,8 +143,43 @@ public class CSARInstanceResource {
 		
 		// TODO return correlation ID
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, instanceID, plan);
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + instanceID + "/ActivePlans/" + correlationID;
 		
-		return Response.ok(correlationID).build();
+		return Response.created(new URI(url)).build();
+	}
+	
+	/**
+	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * 
+	 * @param planElement the BUILD PublicPlan
+	 * @return Response
+	 * @throws URISyntaxException 
+	 */
+	@POST
+	@Consumes(ResourceConstants.TEXT_PLAIN)
+	@Produces(ResourceConstants.APPLICATION_JSON)
+	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) throws URISyntaxException {
+		String url = postManagementPlanJSON(uriInfo, json);
+		JsonObject ret = new JsonObject();
+		ret.addProperty("PlanURL", url);
+		return Response.created(new URI(url)).entity(ret.toString()).build();
+	}
+	
+	/**
+	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * 
+	 * @param planElement the BUILD PublicPlan
+	 * @return Response
+	 * @throws URISyntaxException 
+	 */
+	@POST
+	@Consumes(ResourceConstants.TEXT_PLAIN)
+	@Produces(ResourceConstants.TOSCA_XML)
+	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) throws URISyntaxException {
+		
+		String url = postManagementPlanJSON(uriInfo, json);
+		//		return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+		return Response.created(new URI(url)).build();
 	}
 	
 	/**
@@ -150,9 +188,7 @@ public class CSARInstanceResource {
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
 	 */
-	@POST
-	@Consumes(ResourceConstants.TEXT_PLAIN)
-	public Response postManagementPlanJSON(String json) {
+	private String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
 		LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
@@ -188,19 +224,26 @@ public class CSARInstanceResource {
 		Iterator<JsonElement> iterator = array.iterator();
 		while (iterator.hasNext()) {
 			TParameterDTO para = new TParameterDTO();
-			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Type").toString()));
-			para.setValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("InputParameter").getAsJsonObject().get("Value").toString()));
+			JsonObject tmp = iterator.next().getAsJsonObject();
+			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
+			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
+			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
+			// if a parameter value is not set, just add "" as value
+			if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
+				para.setValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
+			} else {
+				para.setValue("");
+			}
 			plan.getInputParameters().getInputParameter().add(para);
 		}
 		array = object.get("OutputParameters").getAsJsonArray();
 		iterator = array.iterator();
 		while (iterator.hasNext()) {
 			TParameterDTO para = new TParameterDTO();
-			para.setName(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(iterator.next().getAsJsonObject().get("OutputParameter").getAsJsonObject().get("Type").toString()));
+			JsonObject tmp = iterator.next().getAsJsonObject();
+			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
+			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
+			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
 			plan.getOutputParameters().getOutputParameter().add(para);
 		}
 		
@@ -211,7 +254,11 @@ public class CSARInstanceResource {
 		
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
 		
-		return Response.ok(correlationID).build();
+		LOG.debug("Return correlation ID of running plan: " + correlationID);
+		
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarID.getFileName() + "/Instances/" + instanceID + "/ActivePlans/" + correlationID;
+		
+		return url;
 		
 	}
 	
@@ -220,7 +267,7 @@ public class CSARInstanceResource {
 	 * 
 	 * @return the History representation
 	 */
-	@Path("History")
+	@Path("PlanResults")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceHistory() {
 		CSARInstanceResource.LOG.debug("Access history");
@@ -232,10 +279,10 @@ public class CSARInstanceResource {
 	 * 
 	 * @return active plans representation
 	 */
-	@Path("ActivePlans")
+	@Path("PlanInstances")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceActivePublicPlans() {
-		CSARInstanceResource.LOG.debug("Access active PublicPlans");
+		CSARInstanceResource.LOG.trace("Access active PublicPlans");
 		return new CSARInstanceActivePlansResource(csarID, instanceID);
 	}
 }
