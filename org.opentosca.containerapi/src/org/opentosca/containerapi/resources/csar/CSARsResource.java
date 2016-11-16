@@ -300,9 +300,10 @@ public class CSARsResource {
 						
 					}
 					
+					String path = Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString());
 					JsonObject retObj = new JsonObject();
-					retObj.addProperty("csarPath", Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()));
-					return Response.created(URI.create(retObj.toString())).build();
+					retObj.addProperty("csarPath", path);
+					return Response.created(URI.create(path)).entity(retObj.toString()).build();
 				}
 			}
 		} catch (FileNotFoundException e) {
