@@ -154,28 +154,34 @@ public class CSARsResource {
 	@Consumes(ResourceConstants.APPLICATION_JSON)
 	public Response uploadCSARAdminUI(String json) throws MalformedURLException {
 		
+		LOG.debug("Received payload for uploading CSAR:\\n   {}", json);
+		
 		JsonParser parser = new JsonParser();
 		JsonObject jsonObj = (JsonObject) parser.parse(json);
-		String urlStr1 = jsonObj.get("URL").toString();
-		urlStr1 = urlStr1.substring(1, urlStr1.length()-1);
-		URL url = new URL(urlStr1);
+		String urlStr = jsonObj.get("URL").toString();
+		urlStr = urlStr.substring(1, urlStr.length() - 1);
 		
-		if ((null == url) || url.equals("")) {
-			CSARsResource.LOG.error("The url is null or empty.");
-			return Response.serverError().build();
-		}
+		// if ((null == url) || url.equals("")) {
+		// CSARsResource.LOG.error("The url is null or empty.");
+		// return Response.serverError().build();
+		// }
 		
 		String fileName = "";
+		URL url = null;
 		try {
 			
 			// http://ds/joomla/images/a%25.txt to
 			// http://ds/joomla/images/a%2525.txt
 			
-			String urlStr = url.toExternalForm();
-			urlStr = urlStr.substring(0, urlStr.lastIndexOf("/") + 1) + Utilities.encodeURIPath((urlStr.substring(urlStr.lastIndexOf("/") + 1)));
+			// String urlStr = url.toExternalForm();
+			// urlStr = urlStr.substring(0, urlStr.lastIndexOf("/") + 1) +
+			// Utilities.encodeURIPath((urlStr.substring(urlStr.lastIndexOf("/")
+			// + 1)));
 			url = new URL(urlStr);
+			LOG.trace("\n{}\n{}", urlStr, url);
 			
 			fileName = CSARsResource.createXMLidAsString(url.toExternalForm().substring(url.toExternalForm().lastIndexOf("/") + 1));
+			fileName = fileName.replace("?", ".");
 			
 			CSARsResource.LOG.debug("Recieved URL " + urlStr);
 			// } catch (UnsupportedEncodingException e1) {
