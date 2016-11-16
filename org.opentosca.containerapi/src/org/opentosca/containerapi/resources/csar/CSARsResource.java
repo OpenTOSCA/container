@@ -152,6 +152,7 @@ public class CSARsResource {
 	
 	@POST
 	@Consumes(ResourceConstants.APPLICATION_JSON)
+	@Produces(ResourceConstants.APPLICATION_JSON)
 	public Response uploadCSARAdminUI(String json) throws MalformedURLException {
 		
 		LOG.debug("Received payload for uploading CSAR:\\n   {}", json);
@@ -221,6 +222,7 @@ public class CSARsResource {
 	 */
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(ResourceConstants.APPLICATION_JSON)
 	public Response uploadCSARAdminUI(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail) {
 		CSARsResource.LOG.info("Try to upload a new CSAR.");
 		
@@ -297,7 +299,10 @@ public class CSARsResource {
 						}
 						
 					}
-					return Response.created(URI.create(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()))).build();
+					
+					JsonObject retObj = new JsonObject();
+					retObj.addProperty("csarPath", Utilities.buildURI(uriInfo.getAbsolutePath().toString(), csarID.toString()));
+					return Response.created(URI.create(retObj.toString())).build();
 				}
 			}
 		} catch (FileNotFoundException e) {
