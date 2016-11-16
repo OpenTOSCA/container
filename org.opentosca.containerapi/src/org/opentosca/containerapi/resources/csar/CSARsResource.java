@@ -20,7 +20,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
@@ -50,6 +49,8 @@ import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
@@ -150,7 +151,14 @@ public class CSARsResource {
 	}
 	
 	@POST
-	public Response uploadCSARAdminUI(@QueryParam("url") URL url) {
+	@Consumes(ResourceConstants.APPLICATION_JSON)
+	public Response uploadCSARAdminUI(String json) throws MalformedURLException {
+		
+		JsonParser parser = new JsonParser();
+		JsonObject jsonObj = (JsonObject) parser.parse(json);
+		String urlStr1 = jsonObj.get("URL").toString();
+		urlStr1 = urlStr1.substring(1, urlStr1.length()-1);
+		URL url = new URL(urlStr1);
 		
 		if ((null == url) || url.equals("")) {
 			CSARsResource.LOG.error("The url is null or empty.");
