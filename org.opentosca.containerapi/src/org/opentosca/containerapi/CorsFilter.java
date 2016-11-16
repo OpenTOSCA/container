@@ -21,7 +21,7 @@ public class CorsFilter implements Filter {
 		
 		if (req.getHeader("Origin") != null) {
 			res.addHeader("Access-Control-Allow-Origin", "*");
-			res.addHeader("Access-Control-Expose-Headers", "X-Cache-Date");
+			res.addHeader("Access-Control-Expose-Headers", "Origin, Content-Type, X-Cache-Date, Location");
 		}
 		
 		if ("OPTIONS".equals(req.getMethod())) {
