@@ -222,17 +222,20 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 		
 		List<String> errors = new ArrayList<String>();
 		
-		if (!OpenToscaControlServiceImpl.instanceManagement.getInstancesOfCSAR(csarID).isEmpty()) {
-			// There are instances, thus deletion is not legal.
-			LOG.error("CSAR \"{}\" has instances.", csarID);
-			errors.add("CSAR has instances.");
-			return errors;
-		}
+		// TODO following code should be active again
+		//		if (!OpenToscaControlServiceImpl.instanceManagement.getInstancesOfCSAR(csarID).isEmpty()) {
+		//			// There are instances, thus deletion is not legal.
+		//			LOG.error("CSAR \"{}\" has instances.", csarID);
+		//			errors.add("CSAR has instances.");
+		//			return errors;
+		//		}
 		
-		if (!OpenToscaControlServiceImpl.iAEngine.undeployImplementationArtifacts(csarID)) {
-			LOG.warn("It was not possible to delete all ImplementationArtifacts of the CSAR \"" + csarID + ".");
-			// errors.add("Could not undeploy all ImplementationArtifacts.");
-		}
+		
+		// TODO following code should be active again
+		//		if (!OpenToscaControlServiceImpl.iAEngine.undeployImplementationArtifacts(csarID)) {
+		//			LOG.warn("It was not possible to delete all ImplementationArtifacts of the CSAR \"" + csarID + ".");
+		//			// errors.add("Could not undeploy all ImplementationArtifacts.");
+		//		}
 		
 		// Delete operation is legal, thus continue.
 		if (!OpenToscaControlServiceImpl.toscaEngine.clearCSARContent(csarID)) {
