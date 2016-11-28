@@ -439,6 +439,7 @@
       <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.wsdloperation" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.apachewebserver" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="4" />

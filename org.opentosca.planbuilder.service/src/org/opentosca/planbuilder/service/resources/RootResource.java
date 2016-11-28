@@ -54,7 +54,7 @@ import org.opentosca.util.http.service.IHTTPService;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-@Path("")
+@Path("planbuilder")
 public class RootResource {
 	
 	@Context

@@ -104,6 +104,7 @@ public class TaskWorkerRunnable implements Runnable {
 				return;
 			}
 			
+			fileName = fileName.replace(".csar", "") + ".planbuilder" + System.currentTimeMillis() + ".csar";
 			// generate plan (assumption: the send csar contains only one
 			// topologytemplate => only one buildPlan will be generated
 			LOG.debug("Storing CSAR");

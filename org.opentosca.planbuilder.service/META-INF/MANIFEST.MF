@@ -32,3 +32,4 @@ Import-Package: com.sun.jersey.spi.container.servlet;version="1.17.1",
 Bundle-Activator: org.opentosca.planbuilder.service.Activator
 Service-Component: OSGI-INF/HTTPcomponent.xml,OSGI-INF/OpenTOSCAHTTPcomponent.xml,
  OSGI-INF/OpenTOSCACoreFilecomponent.xml
+Export-Package: org.opentosca.planbuilder.service.resources

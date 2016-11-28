@@ -63,6 +63,7 @@ public class JerseyApplication extends Application {
 		
 		s.add(SmartServicesResource.class);
 		
+		s.add(org.opentosca.planbuilder.service.resources.RootResource.class);
 		// add all exception mappers
 		s.add(SystemExceptionMapper.class);
 		s.add(UserExceptionMapper.class);
