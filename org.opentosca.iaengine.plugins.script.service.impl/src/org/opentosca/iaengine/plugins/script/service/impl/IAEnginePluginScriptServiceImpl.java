@@ -19,24 +19,25 @@ import org.w3c.dom.Document;
 /**
  * IAEnginePlugin for Scripts.<br>
  * <br>
- * 
+ *
  * Copyright 2012 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * Since scripts dont have to be deployed, this plugin just ensure that
  * script-IAs won't be marked as failed.
- * 
- * 
- * 
+ *
+ *
+ *
  * @see ICoreFileService
- * 
- * 
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
- * 
- * 
+ *
+ *
+ *
  */
 public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
+	
 	
 	// In messages.properties defined plugin-type and capabilities .
 	static final private String TYPES = Messages.ScriptIAEnginePlugin_types;
@@ -46,7 +47,7 @@ public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
 	
 	
 	@Override
-	public URI deployImplementationArtifact(CSARID csarID, QName artifactType, Document artifactContent, Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts, List<String> requiredFeatures) {
+	public URI deployImplementationArtifact(CSARID csarID, QName nodeTypeImplementationID, QName artifactType, Document artifactContent, Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts, List<String> requiredFeatures) {
 		
 		// Maybe some checks can be done here. (ScriptLanguage supported?,
 		// Script defined?, Script contained in csar file?, SI-Script-Plugin
@@ -92,7 +93,7 @@ public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
 	@Override
 	public boolean undeployImplementationArtifact(String iaName, QName nodeTypeImpl, CSARID csarID, URI path) {
 		// TODO
-		return false;
+		return true;
 	}
 	
 }

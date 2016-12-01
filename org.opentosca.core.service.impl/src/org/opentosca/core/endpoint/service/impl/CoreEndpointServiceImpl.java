@@ -14,17 +14,18 @@ import org.opentosca.core.model.endpoint.wsdl.WSDLEndpoint;
 
 /**
  * {@inheritDoc}
- * 
+ *
  * This implementation currently acts as a Proxy to the Internal Endpoint
  * service. It can in future be used to modify the incoming parameters to fit
  * another backend interface/implementation
- * 
+ *
  * @see ICoreInternalEndpointService
- * 
+ *
  * @author Matthias Fetzer - fetzerms@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class CoreEndpointServiceImpl implements ICoreEndpointService {
+	
 	
 	// Internal Endpoint service.
 	private ICoreInternalEndpointService endpointService;
@@ -127,6 +128,16 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
 	@Override
 	public List<WSDLEndpoint> getWSDLEndpointsForCSARID(CSARID csarId) {
 		return this.endpointService.getWSDLEndpointsForCSARID(csarId);
+	}
+	
+	@Override
+	public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(QName nodeTypeImpl, String iaName) {
+		return this.endpointService.getWSDLEndpointsForNTImplAndIAName(nodeTypeImpl, iaName);
+	}
+	
+	@Override
+	public List<WSDLEndpoint> getWSDLEndpoints() {
+		return this.endpointService.getWSDLEndpoints();
 	}
 	
 	@Override
