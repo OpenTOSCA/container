@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * RootResource at Uri: host/containerapi
- * 
+ *
  * Copyright 2012 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Markus Fischer - fischema@studi.informatik.uni-stuttgart.de
  * @author Rene Trefft - trefftre@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 @Path("")
 public class RootResource {
@@ -45,7 +45,7 @@ public class RootResource {
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferencesXML() {
 		
-		return Response.ok(getRefs().getXMLString()).build();
+		return Response.ok(this.getRefs().getXMLString()).build();
 		
 	}
 	
@@ -53,16 +53,16 @@ public class RootResource {
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON() {
 		
-		return Response.ok(getRefs().getJSONString()).build();
+		return Response.ok(this.getRefs().getJSONString()).build();
 		
 	}
 	
-	private References getRefs(){
+	private References getRefs() {
 		
 		References refs = new References();
 		
 		refs.getReference();
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "CSARs"), XLinkConstants.SIMPLE, "CSARs"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "CSARs"), XLinkConstants.SIMPLE, "CSARs"));
 		
 		// refs.getReference().add(new
 		// Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
@@ -70,20 +70,22 @@ public class RootResource {
 		// refs.getReference().add(new
 		// Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
 		// "CSARFiles"), XLinkConstants.SIMPLE, "CSARFiles"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "CSARControl"), XLinkConstants.SIMPLE, "CSARControl"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Credentials"), XLinkConstants.SIMPLE, "Credentials"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "StorageProviders"), XLinkConstants.SIMPLE, "StorageProviders"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "CSARControl"), XLinkConstants.SIMPLE, "CSARControl"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "Credentials"), XLinkConstants.SIMPLE, "Credentials"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "StorageProviders"), XLinkConstants.SIMPLE, "StorageProviders"));
 		
 		// InstanceData API and PortabilityAPI
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "instancedata"), XLinkConstants.SIMPLE, "instancedata"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "portability"), XLinkConstants.SIMPLE, "portability"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "instancedata"), XLinkConstants.SIMPLE, "instancedata"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "portability"), XLinkConstants.SIMPLE, "portability"));
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "SmartServices"), XLinkConstants.SIMPLE, "SmartServices"));
 		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "planbuilder"), XLinkConstants.SIMPLE, "planbuilder"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "marketplace"), XLinkConstants.SIMPLE, "marketplace"));
+
 		RootResource.LOG.debug("Number of References in Root: {}", refs.getReference().size());
 		// selflink
 		
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		
 		return refs;
 	}

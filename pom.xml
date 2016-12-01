@@ -151,6 +151,7 @@
   <module>org.opentosca.util.http.service</module>
   <module>org.opentosca.util.http.service.impl</module>
   <module>org.opentosca.util.jpa.converters</module>
+  <module>org.opentosca.wineryconnector</module>
 </modules>
 <build>
   <plugins>
