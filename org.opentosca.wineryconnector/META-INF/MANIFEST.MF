@@ -14,4 +14,6 @@ Import-Package: org.apache.http;version="4.2.1",
  org.apache.http.impl.client;version="4.2.0",
  org.apache.http.message;version="4.2.1",
  org.apache.http.util;version="4.2.1",
+ org.codehaus.jackson;version="1.6.0",
+ org.codehaus.jackson.map;version="1.6.0",
  org.opentosca.settings
