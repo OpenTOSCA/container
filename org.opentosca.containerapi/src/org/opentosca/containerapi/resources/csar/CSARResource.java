@@ -17,6 +17,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.containerapi.osgi.servicegetter.FileRepositoryServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.IOpenToscaControlServiceHandler;
+import org.opentosca.containerapi.resources.csar.content.ContentResource;
+import org.opentosca.containerapi.resources.csar.content.DirectoryResource;
+import org.opentosca.containerapi.resources.csar.content.FileResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.ServiceTemplatesResource;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
 import org.opentosca.containerapi.resources.xlink.Reference;
@@ -40,14 +44,14 @@ import org.slf4j.LoggerFactory;
  * <br />
  * 
  * @author Rene Trefft - trefftre@studi.informatik.uni-stuttgart.de
- * @author endrescn@fachschaft.informatik.uni-stuttgart.de
+ * @author christian.endres@iaas.uni-stuttgart.de
  * 
  * 
  */
 public class CSARResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARContentResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ContentResource.class);
 	
 	// If csar is null, CSAR is not stored
 	private final CSARContent CSAR;
@@ -83,16 +87,26 @@ public class CSARResource {
 		References refs = new References();
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Content"), XLinkConstants.SIMPLE, "Content"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "BoundaryDefinitions"), XLinkConstants.SIMPLE, "BoundaryDefinitions"));
+		// refs.getReference().add(new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// "BoundaryDefinitions"), XLinkConstants.SIMPLE,
+		// "BoundaryDefinitions"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "MetaData"), XLinkConstants.SIMPLE, "MetaData"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "ServiceTemplates"), XLinkConstants.SIMPLE, "ServiceTemplates"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "TopologyPicture"), XLinkConstants.SIMPLE, "TopologyPicture"));
 		
 		// TODO both following links (PlanInstances, PlanResults) have to be
 		// replaced as soon as the instance data api is merged into here
-		//		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
-		//		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
+		// refs.getReference().add(new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
+		// refs.getReference().add(new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// "PlanResults"), XLinkConstants.SIMPLE, "PlanResults"));
 		
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Instances"), XLinkConstants.SIMPLE, "Instances"));
+		// refs.getReference().add(new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// "Instances"), XLinkConstants.SIMPLE, "Instances"));
 		CSARResource.LOG.info("Number of References in Root: {}", refs.getReference().size());
 		
 		// selflink
@@ -102,25 +116,25 @@ public class CSARResource {
 	}
 	
 	@Path("Content")
-	public CSARContentResource getContent() {
-		return new CSARContentResource(CSAR);
+	public ContentResource getContent() {
+		return new ContentResource(CSAR);
 		
 	}
 	
-	@Path("BoundaryDefinitions")
-	public CSARBoundsResource getBoundaryDefs() {
-		return new CSARBoundsResource(CSAR.getCSARID());
-	}
+	// @Path("BoundaryDefinitions")
+	// public BoundsResource getBoundaryDefs() {
+	// return new BoundsResource(CSAR.getCSARID());
+	// }
 	
 	// @Path("Plans")
 	// public CSARPlansResource getPuplicPlans() {
 	// return new CSARPlansResource(CSAR.getCSARID());
 	// }
 	
-	@Path("Instances")
-	public CSARInstancesResource getInstances() {
-		return new CSARInstancesResource(CSAR.getCSARID());
-	}
+	// @Path("Instances")
+	// public InstancesResource getInstances() {
+	// return new InstancesResource(CSAR.getCSARID());
+	// }
 	
 	// "image/*" will be preferred over "text/xml" when requesting an image.
 	// This is a fix for Webkit Browsers who are too dumb for content
@@ -153,11 +167,27 @@ public class CSARResource {
 	public Response getMetaDataJSON() throws SystemException {
 		// /containerapi/CSARs/MongoDB_On_VSphere.csar/Content/SELFSERVICE-Metadata/data.json
 		
-		CSARDirectoryResource dir = (CSARDirectoryResource) new CSARContentResource(CSAR).getDirectoryOrFile("SELFSERVICE-Metadata");
-		CSARFileResource file = (CSARFileResource) dir.getDirectoryOrFile("data.json");
+		DirectoryResource dir = (DirectoryResource) new ContentResource(CSAR).getDirectoryOrFile("SELFSERVICE-Metadata");
+		FileResource file = (FileResource) dir.getDirectoryOrFile("data.json");
 		LOG.trace("Metadata file is of class: {}", file.getClass());
 		
-		return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(file.getAsJSONString()).build();//.type(MediaType.TEXT_PLAIN).entity("No Topology Picture exists in CSAR \"" + CSAR.getCSARID() + "\".").build();
+		return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(file.getAsJSONString()).build();// .type(MediaType.TEXT_PLAIN).entity("No
+		// Topology
+		// Picture
+		// exists
+		// in
+		// CSAR
+		// \""
+		// +
+		// CSAR.getCSARID()
+		// +
+		// "\".").build();
+	}
+	
+	@Path("ServiceTemplates")
+	public ServiceTemplatesResource getServiceTemplates() {
+		
+		return new ServiceTemplatesResource(CSAR);
 	}
 	
 	/**
@@ -193,29 +223,7 @@ public class CSARResource {
 		// download should have the correct file name.
 		return Response.ok("CSAR \"" + csarID + "\" was successfully exported to \"" + csarFile + "\".").entity(csarFileInputStream).header("Content-Disposition", "attachment; filename=\"" + csarID.getFileName() + "\"").build();
 		
-		// } catch (SystemException exc) {
-		// CSARResource.LOG.warn("A System Exception occured.", exc);
-		// } catch (UserException exc) {
-		// CSARResource.LOG.warn("An User Exception occured.", exc);
-		// } catch (IOException exc) {
-		// CSARResource.LOG.warn("An IO Exception occured.", exc);
-		// }
-		
-		// return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		
 	}
-	
-	//	@Path("PlanInstances")
-	//	public CSARPlanInstances getPlanInstances() {
-	//		return new CSARInstanceActivePlansResource(CSAR);
-	//		
-	//	}
-	//	
-	//	@Path("PlanResults")
-	//	public CSARInstancePlanHistoryResource getPlanResults() {
-	//		return new CSARInstancePlanHistoryResource(CSAR);
-	//		
-	//	}
 	
 	@DELETE
 	@Produces("text/plain")

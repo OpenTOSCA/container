@@ -1,5 +1,7 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.content;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -23,7 +25,6 @@ import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.file.service.ICoreFileService;
 import org.opentosca.core.model.artifact.directory.AbstractDirectory;
 import org.opentosca.core.model.artifact.file.AbstractFile;
-import org.opentosca.core.model.csar.CSARContent;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.exceptions.SystemException;
 import org.opentosca.exceptions.UserException;
@@ -31,36 +32,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Resource represents the root of a CSAR.
+ * Resource represents a directory of a CSAR.<br />
+ * <br />
+ * Copyright 2013 IAAS University of Stuttgart<br />
+ * <br />
  * 
- * Copyright 2013 IAAS University of Stuttgart <br>
- * <br>
- * 
- * @author Markus Fischer - fischema@studi.informatik.uni-stuttgart.de
  * @author Rene Trefft - rene.trefft@developers.opentosca.org
  * 
  */
-public class CSARContentResource {
+public class DirectoryResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARContentResource.class);
-	// If the CSAR is null, CSAR does not exist in the Container
-	private final CSARContent CSAR;
+	private static Logger LOG = LoggerFactory.getLogger(DirectoryResource.class);
+	
+	private final AbstractDirectory CSAR_DIRECTORY;
+	private final CSARID CSAR_ID;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARContentResource(CSARContent csar) {
-		CSAR = csar;
-		CSARContentResource.LOG.debug("{} created: {}", this.getClass(), this);
-		
-		if (csar != null) {
-			CSARContentResource.LOG.debug("Accessing content of CSAR \"{}\".", csar.getCSARID());
-		} else {
-			CSARContentResource.LOG.error("Requested CSAR is not stored!");
-			System.out.println(csar);
-		}
-		
+	/**
+	 * 
+	 * 
+	 * @param resourceFile
+	 */
+	public DirectoryResource(AbstractDirectory csarDirectory, CSARID csarID) {
+		CSAR_DIRECTORY = csarDirectory;
+		CSAR_ID = csarID;
+		DirectoryResource.LOG.info("{} created: {}", this.getClass(), this);
+		DirectoryResource.LOG.info("Directory path: {}", csarDirectory.getPath());
 	}
 	
 	@GET
@@ -79,25 +79,26 @@ public class CSARContentResource {
 	
 	public References getReferences() {
 		
-		if (CSAR == null) {
-			CSARContentResource.LOG.info("CSAR is not stored.");
+		if (CSAR_DIRECTORY == null) {
 			return null;
 		}
 		
 		References refs = new References();
 		
-		Set<AbstractDirectory> directories = CSAR.getDirectories();
+		// References refs = new References();
+		
+		Set<AbstractDirectory> directories = CSAR_DIRECTORY.getDirectories();
 		for (AbstractDirectory directory : directories) {
 			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), directory.getName()), XLinkConstants.SIMPLE, directory.getName()));
 		}
 		
-		Set<AbstractFile> files = CSAR.getFiles();
+		Set<AbstractFile> files = CSAR_DIRECTORY.getFiles();
 		for (AbstractFile file : files) {
 			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), file.getName()), XLinkConstants.SIMPLE, file.getName()));
 		}
 		
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
+		Reference self = new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
+		refs.getReference().add(self);
 		return refs;
 		
 	}
@@ -105,70 +106,66 @@ public class CSARContentResource {
 	@Path("{directoryOrFile}")
 	public Object getDirectoryOrFile(@PathParam("directoryOrFile") String directoryOrFile) {
 		
-		CSARContentResource.LOG.debug("Checking if \"{}\" exists in CSAR \"{}\"...", directoryOrFile, CSAR.getCSARID());
+		DirectoryResource.LOG.debug("Checking if \"{}\" exists in directory \"{}\" of CSAR \"{}\"...", directoryOrFile, CSAR_DIRECTORY.getPath(), CSAR_ID);
 		
-		Set<AbstractDirectory> directories = CSAR.getDirectories();
+		Set<AbstractDirectory> directories = CSAR_DIRECTORY.getDirectories();
 		
 		for (AbstractDirectory directory : directories) {
 			if (directory.getName().equals(directoryOrFile)) {
-				CSARContentResource.LOG.debug("\"{}\" is a directory of CSAR \"{}\".", directoryOrFile, CSAR.getCSARID());
-				return new CSARDirectoryResource(directory, CSAR.getCSARID());
-				
+				DirectoryResource.LOG.debug("\"{}\" is a directory in directory \"{}\" of CSAR \"{}\".", directoryOrFile, CSAR_DIRECTORY.getPath(), CSAR_ID);
+				return new DirectoryResource(directory, CSAR_ID);
 			}
 		}
 		
-		Set<AbstractFile> files = CSAR.getFiles();
+		Set<AbstractFile> files = CSAR_DIRECTORY.getFiles();
 		
 		for (AbstractFile file : files) {
 			if (file.getName().equals(directoryOrFile)) {
-				CSARContentResource.LOG.debug("\"{}\" is a file of CSAR \"{}\".", directoryOrFile, CSAR.getCSARID());
-				return new CSARFileResource(file, CSAR.getCSARID());
+				DirectoryResource.LOG.debug("\"{}\" is a file in directory \"{}\" of CSAR \"{}\".", directoryOrFile, CSAR_DIRECTORY.getPath(), CSAR_ID);
+				return new FileResource(file, CSAR_ID);
 			}
 		}
 		
-		CSARContentResource.LOG.error("\"{}\" does not exist in CSAR \"{}\"!", directoryOrFile, CSAR.getCSARID());
-		
+		DirectoryResource.LOG.warn("\"{}\" does not exist in directory \"{}\" of CSAR \"{}\".", directoryOrFile, CSAR_DIRECTORY.getPath(), CSAR_ID);
 		return null;
 		
 	}
 	
 	/**
-	 * Moves this CSAR to the active / default storage provider if {@code move}
-	 * is passed in {@code input} (body of a POST message).
+	 * Moves this directory of a CSAR to the active / default storage provider
+	 * if {@code move} is passed in {@code input} (body of a POST message).
 	 * 
 	 * @param input
-	 * @return 200 (OK) - CSAR was moved successful.<br />
+	 * @return 200 (OK) - directory was moved successful.<br />
 	 *         400 (bad request) - {@code move} was not passed.<br />
-	 *         404 (not found) - CSAR is not stored.<br />
-	 *         500 (internal server error) - moving CSAR failed.
+	 *         500 (internal server error) - moving directory failed.
 	 * @throws SystemException
 	 * @throws UserException
 	 * 
-	 * @see ICoreFileService#moveCSAR(CSARID)
+	 * 
+	 * @see ICoreFileService#moveFileOrDirectoryOfCSAR(CSARID, File)
 	 */
 	@POST
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response moveCSAR(String input) throws UserException, SystemException {
-		
-		if (CSAR == null) {
-			return Response.status(Status.NOT_FOUND).build();
-		}
+	public Response moveDirectoryOfCSAR(String input) throws UserException, SystemException {
 		
 		if (input.equalsIgnoreCase("move")) {
 			
 			// try {
 			
-			FileRepositoryServiceHandler.getFileHandler().moveCSAR(CSAR.getCSARID());
+			FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(CSAR_ID, Paths.get(CSAR_DIRECTORY.getPath()));
 			
-			return Response.ok("Moving CSAR \"" + CSAR.getCSARID() + "\" was successful.").build();
+			return Response.ok("Moving directory \"" + CSAR_DIRECTORY.getPath() + "\" of CSAR \"" + CSAR_ID.toString() + "\" was successful.").build();
 			
 			// } catch (UserException exc) {
-			// CSARContentResource.LOG.warn("An User Exception occured.", exc);
+			// CSARDirectoryResource.LOG.warn("An User Exception occured.",
+			// exc);
 			// } catch (SystemException exc) {
-			// CSARContentResource.LOG.warn("A System Exception occured.", exc);
+			// CSARDirectoryResource.LOG.warn("An System Exception occured.",
+			// exc);
 			// }
-			
+			//
 			// return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			
 		}
@@ -176,5 +173,4 @@ public class CSARContentResource {
 		return Response.status(Status.BAD_REQUEST).build();
 		
 	}
-	
 }

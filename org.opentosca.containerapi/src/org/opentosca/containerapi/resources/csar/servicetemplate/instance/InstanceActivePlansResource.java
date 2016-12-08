@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.servicetemplate.instance;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
-public class CSARInstanceActivePlansResource {
+public class InstanceActivePlansResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARInstanceActivePlansResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InstanceActivePlansResource.class);
 	
 	private final CSARID csarID;
 	private final int instanceID;
@@ -44,7 +44,7 @@ public class CSARInstanceActivePlansResource {
 	UriInfo uriInfo;
 	
 	
-	public CSARInstanceActivePlansResource(CSARID csarID, int instanceID) {
+	public InstanceActivePlansResource(CSARID csarID, int instanceID) {
 		this.csarID = csarID;
 		this.instanceID = instanceID;
 	}
@@ -79,10 +79,10 @@ public class CSARInstanceActivePlansResource {
 	
 	public References getReferences() {
 		
-		CSARInstanceActivePlansResource.LOG.debug("Access active plans at " + uriInfo.getAbsolutePath().toString());
+		InstanceActivePlansResource.LOG.debug("Access active plans at " + uriInfo.getAbsolutePath().toString());
 		
 		if (csarID == null) {
-			CSARInstanceActivePlansResource.LOG.debug("The CSAR does not exist.");
+			InstanceActivePlansResource.LOG.debug("The CSAR does not exist.");
 			return null;
 		}
 		

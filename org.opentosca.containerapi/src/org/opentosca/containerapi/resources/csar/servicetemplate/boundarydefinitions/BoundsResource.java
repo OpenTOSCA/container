@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -6,10 +6,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
-import org.opentosca.containerapi.resources.csar.boundarydefinitions.CSARBoundsInterfacesResource;
-import org.opentosca.containerapi.resources.csar.boundarydefinitions.CSARBoundsProperties;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
 import org.opentosca.containerapi.resources.xlink.Reference;
@@ -19,19 +18,29 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CSARBoundsResource {
+/**
+ * 
+ * Copyright 2016 IAAS University of Stuttgart <br>
+ * <br>
+ * 
+ * @author christian.endres@iaas.uni-stuttgart.de
+ *
+ */
+public class BoundsResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BoundsResource.class);
 	
 	private CSARID csarID;
+	private QName serviceTemplateID;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsResource(CSARID csarid) {
+	public BoundsResource(CSARID csarid, QName serviceTemplateID) {
 		
 		csarID = csarid;
+		this.serviceTemplateID = serviceTemplateID;
 		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {
 			LOG.error("The ToscaEngineService is not alive.");
@@ -96,8 +105,8 @@ public class CSARBoundsResource {
 	 */
 	
 	@Path("Properties")
-	public CSARBoundsProperties getProperties(@Context UriInfo uriInfo){
-		return new CSARBoundsProperties(csarID);
+	public BoundsProperties getProperties(@Context UriInfo uriInfo){
+		return new BoundsProperties(csarID, serviceTemplateID);
 	}
 	
 	/**
@@ -203,8 +212,8 @@ public class CSARBoundsResource {
 	 * @return the PublicPlan
 	 */
 	@Path("Interfaces")
-	public CSARBoundsInterfacesResource getInterfaces(@Context UriInfo uriInfo) {
-		return new CSARBoundsInterfacesResource(csarID);
+	public BoundsInterfacesResource getInterfaces(@Context UriInfo uriInfo) {
+		return new BoundsInterfacesResource(csarID, serviceTemplateID);
 	}
 	
 }

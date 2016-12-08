@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.servicetemplate.instance;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -43,10 +43,10 @@ import com.google.gson.JsonParser;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
-public class CSARInstanceResource {
+public class InstanceResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARInstancesResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InstancesResource.class);
 	
 	// If the csarID is null, there is no CSAR file stored in the Container
 	private final CSARID csarID;
@@ -55,21 +55,21 @@ public class CSARInstanceResource {
 	UriInfo uriInfo;
 	
 	
-	public CSARInstanceResource(CSARID csarID, String instanceID) {
+	public InstanceResource(CSARID csarID, String instanceID) {
 		if (null == csarID) {
 			this.csarID = null;
 			this.instanceID = -1;
-			CSARInstanceResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
+			InstanceResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
 		} else {
 			if ((null == instanceID) || instanceID.equals("")) {
-				CSARInstanceResource.LOG.error("CSAR Instance " + instanceID + " does not exit for requested CSAR: {}", csarID.getFileName());
+				InstanceResource.LOG.error("CSAR Instance " + instanceID + " does not exit for requested CSAR: {}", csarID.getFileName());
 				this.csarID = null;
 				this.instanceID = -1;
 			} else {
 				this.csarID = csarID;
 				this.instanceID = Integer.parseInt(instanceID);
-				CSARInstanceResource.LOG.trace("{} created: {}", this.getClass(), csarID);
-				CSARInstanceResource.LOG.trace("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
+				InstanceResource.LOG.trace("{} created: {}", this.getClass(), csarID);
+				InstanceResource.LOG.trace("CSAR Instance " + instanceID + " for requested CSAR: {}", this.csarID.getFileName());
 			}
 		}
 	}
@@ -104,10 +104,10 @@ public class CSARInstanceResource {
 	
 	public References getReferences() {
 		
-		CSARInstanceResource.LOG.debug("Access the CSAR instance at " + uriInfo.getAbsolutePath().toString());
+		InstanceResource.LOG.debug("Access the CSAR instance at " + uriInfo.getAbsolutePath().toString());
 		
 		if (csarID == null) {
-			CSARInstanceResource.LOG.debug("The CSAR does not exist.");
+			InstanceResource.LOG.debug("The CSAR does not exist.");
 			return null;
 		}
 		
@@ -130,7 +130,7 @@ public class CSARInstanceResource {
 	@Consumes(ResourceConstants.TOSCA_XML)
 	public Response postManagementPlan(JAXBElement<TPlanDTO> transferElement) throws URISyntaxException {
 		
-		CSARInstanceResource.LOG.debug("Received a management request to invoke the plan for Instance " + instanceID + " of CSAR " + csarID);
+		InstanceResource.LOG.debug("Received a management request to invoke the plan for Instance " + instanceID + " of CSAR " + csarID);
 		
 		TPlanDTO plan = transferElement.getValue();
 		// QName id = plan.getId();
@@ -139,7 +139,7 @@ public class CSARInstanceResource {
 		// plan.setPlanID(qname);
 		// plan.setInternalInstanceInternalID(instanceID);
 		
-		CSARInstanceResource.LOG.debug("Post of the PublicPlan " + plan.getId());
+		InstanceResource.LOG.debug("Post of the PublicPlan " + plan.getId());
 		
 		// TODO return correlation ID
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, instanceID, plan);
@@ -270,8 +270,8 @@ public class CSARInstanceResource {
 	@Path("PlanResults")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceHistory() {
-		CSARInstanceResource.LOG.debug("Access history");
-		return new CSARInstancePlanHistoryResource(csarID, instanceID);
+		InstanceResource.LOG.debug("Access history");
+		return new InstancePlanHistoryResource(csarID, instanceID);
 	}
 	
 	/**
@@ -282,7 +282,7 @@ public class CSARInstanceResource {
 	@Path("PlanInstances")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstanceActivePublicPlans() {
-		CSARInstanceResource.LOG.trace("Access active PublicPlans");
-		return new CSARInstanceActivePlansResource(csarID, instanceID);
+		InstanceResource.LOG.trace("Access active PublicPlans");
+		return new InstanceActivePlansResource(csarID, instanceID);
 	}
 }

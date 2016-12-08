@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.boundarydefinitions;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,10 +18,10 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CSARBoundsInterfaceOperationResource {
+public class BoundsInterfaceOperationResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceOperationResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfaceOperationResource.class);
 	CSARID csarID;
 	String intName;
 	String opName;
@@ -29,7 +29,7 @@ public class CSARBoundsInterfaceOperationResource {
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsInterfaceOperationResource(CSARID csarID, String intName, String op) {
+	public BoundsInterfaceOperationResource(CSARID csarID, String intName, String op) {
 		
 		this.csarID = csarID;
 		this.intName = intName;
@@ -86,8 +86,8 @@ public class CSARBoundsInterfaceOperationResource {
 	 * @return the PublicPlan
 	 */
 	@Path("{OperationName}")
-	public CSARBoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
-		return new CSARBoundsInterfaceOperationResource(csarID, intName, op);
+	public BoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
+		return new BoundsInterfaceOperationResource(csarID, intName, op);
 	}
 	
 	/**
@@ -170,8 +170,8 @@ public class CSARBoundsInterfaceOperationResource {
 	 * @return Response
 	 */
 	@Path("Plan")
-	public CSARBoundsInterfaceOperationPlanResource getPlan(@Context UriInfo uriInfo) {
-		return new CSARBoundsInterfaceOperationPlanResource(csarID, intName, opName);
+	public BoundsInterfaceOperationPlanResource getPlan(@Context UriInfo uriInfo) {
+		return new BoundsInterfaceOperationPlanResource(csarID, intName, opName);
 	}
 	
 }

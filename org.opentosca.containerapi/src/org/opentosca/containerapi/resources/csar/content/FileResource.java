@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.content;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
  * @author Rene Trefft - rene.trefft@developers.opentosca.org
  * 
  */
-public class CSARFileResource {
+public class FileResource {
 	
-	private static Logger LOG = LoggerFactory.getLogger(CSARFileResource.class);
+	private static Logger LOG = LoggerFactory.getLogger(FileResource.class);
 	
 	private final AbstractFile CSAR_FILE;
 	private final CSARID CSAR_ID;
@@ -55,11 +55,11 @@ public class CSARFileResource {
 	 * 
 	 * @param resourceFile
 	 */
-	public CSARFileResource(AbstractFile csarFile, CSARID csarID) {
+	public FileResource(AbstractFile csarFile, CSARID csarID) {
 		CSAR_FILE = csarFile;
 		CSAR_ID = csarID;
-		CSARFileResource.LOG.info("{} created: {}", this.getClass(), this);
-		CSARFileResource.LOG.info("File path: {}", csarFile.getPath());
+		FileResource.LOG.info("{} created: {}", this.getClass(), this);
+		FileResource.LOG.info("File path: {}", csarFile.getPath());
 	}
 	
 	
@@ -104,7 +104,7 @@ public class CSARFileResource {
 		
 		if (CSAR_FILE != null) {
 			
-			CSARFileResource.LOG.info("Attempt to download file: \"{}\"", CSAR_FILE.getPath());
+			FileResource.LOG.info("Attempt to download file: \"{}\"", CSAR_FILE.getPath());
 			
 			InputStream inputStream;
 			// try {
@@ -124,11 +124,11 @@ public class CSARFileResource {
 		
 	}
 	
-	protected String getAsJSONString() {
+	public String getAsJSONString() {
 		
 		try {
 			
-			CSARFileResource.LOG.trace("Attempt to download file: \"{}\"", CSAR_FILE.getPath());
+			FileResource.LOG.trace("Attempt to download file: \"{}\"", CSAR_FILE.getPath());
 			
 			InputStream inputStream = CSAR_FILE.getFileAsInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8")); 
@@ -176,7 +176,7 @@ public class CSARFileResource {
 	public Response getImage() throws SystemException {
 		if (CSAR_FILE != null) {
 			
-			CSARFileResource.LOG.info("Attempt to download image: \"{}\"", CSAR_FILE.getPath());
+			FileResource.LOG.info("Attempt to download image: \"{}\"", CSAR_FILE.getPath());
 			
 			// Check if file is a (supported) image
 			if (CSAR_FILE.getName() != null) {
@@ -184,7 +184,7 @@ public class CSARFileResource {
 				String ext = CSAR_FILE.getName().substring(CSAR_FILE.getName().lastIndexOf(".")+1);
 				// known?
 				if (ResourceConstants.imageMediaTypes.containsKey(ext)) {
-					CSARFileResource.LOG.debug("Supported image file, *.{} maps to {}", ext, ResourceConstants.imageMediaTypes.get(ext));
+					FileResource.LOG.debug("Supported image file, *.{} maps to {}", ext, ResourceConstants.imageMediaTypes.get(ext));
 					InputStream inputStream = CSAR_FILE.getFileAsInputStream();
 					// set matching media type and return
 					return Response.ok(inputStream, ResourceConstants.imageMediaTypes.get(ext)).build();

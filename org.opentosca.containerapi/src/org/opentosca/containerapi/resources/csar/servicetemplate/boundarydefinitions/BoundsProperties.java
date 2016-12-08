@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.boundarydefinitions;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,16 +34,16 @@ import org.xml.sax.SAXException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class CSARBoundsProperties {
+public class BoundsProperties {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfacesResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfacesResource.class);
 	CSARID csarID = null;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsProperties(CSARID csarID) {
+	public BoundsProperties(CSARID csarID, QName serviceTemplateID) {
 		this.csarID = csarID;
 		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {

@@ -1,13 +1,10 @@
-package org.opentosca.containerapi.resources.csar.boundarydefinitions;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
@@ -15,10 +12,6 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
-import org.opentosca.containerapi.resources.utilities.Utilities;
-import org.opentosca.containerapi.resources.xlink.Reference;
-import org.opentosca.containerapi.resources.xlink.References;
-import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TParameter;
 import org.opentosca.model.tosca.TPlan;
@@ -30,10 +23,10 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class CSARBoundsInterfaceOperationPlanResource {
+public class BoundsInterfaceOperationPlanResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceOperationPlanResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfaceOperationPlanResource.class);
 	CSARID csarID;
 	String intName;
 	String opName;
@@ -41,7 +34,7 @@ public class CSARBoundsInterfaceOperationPlanResource {
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsInterfaceOperationPlanResource(CSARID csarID, String intName, String opName) {
+	public BoundsInterfaceOperationPlanResource(CSARID csarID, String intName, String opName) {
 		
 		this.csarID = csarID;
 		this.intName = intName;
@@ -52,48 +45,48 @@ public class CSARBoundsInterfaceOperationPlanResource {
 		}
 	}
 	
-	/**
-	 * Builds the references of the Boundary Definitions of a CSAR.
-	 * 
-	 * @param uriInfo
-	 * @return Response
-	 */
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(getReferences().getXMLString()).build();
-	}
-	
-	/**
-	 * Builds the references of the Boundary Definitions of a CSAR.
-	 * 
-	 * @param uriInfo
-	 * @return Response
-	 */
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(getReferences().getJSONString()).build();
-	}
-	
-	private References getReferences() {
-		
-		References refs = new References();
-		
-		String plan = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), plan), XLinkConstants.SIMPLE, plan));
-		// refs.getReference().add(new
-		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-		// plan + "/PlanWithMinimalInput"), XLinkConstants.SIMPLE,
-		// "PlanWithMinimalInput"));
-		
-		// selflink
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return refs;
-	}
+	//	/**
+	//	 * Builds the references of the Boundary Definitions of a CSAR.
+	//	 * 
+	//	 * @param uriInfo
+	//	 * @return Response
+	//	 */
+	//	@GET
+	//	@Produces(ResourceConstants.LINKED_XML)
+	//	public Response getReferencesXML(@Context UriInfo uriInfo) {
+	//		this.uriInfo = uriInfo;
+	//		return Response.ok(getReferences().getXMLString()).build();
+	//	}
+	//	
+	//	/**
+	//	 * Builds the references of the Boundary Definitions of a CSAR.
+	//	 * 
+	//	 * @param uriInfo
+	//	 * @return Response
+	//	 */
+	//	@GET
+	//	@Produces(ResourceConstants.LINKED_JSON)
+	//	public Response getReferencesJSON(@Context UriInfo uriInfo) {
+	//		this.uriInfo = uriInfo;
+	//		return Response.ok(getReferences().getJSONString()).build();
+	//	}
+	//	
+	//	private References getReferences() {
+	//		
+	//		References refs = new References();
+	//		
+	//		String plan = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
+	//		
+	//		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), plan), XLinkConstants.SIMPLE, plan));
+	//		// refs.getReference().add(new
+	//		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+	//		// plan + "/PlanWithMinimalInput"), XLinkConstants.SIMPLE,
+	//		// "PlanWithMinimalInput"));
+	//		
+	//		// selflink
+	//		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+	//		return refs;
+	//	}
 	
 	/**
 	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
@@ -103,9 +96,10 @@ public class CSARBoundsInterfaceOperationPlanResource {
 	 * @return Response
 	 */
 	@GET
-	@Path("{PlanName}")
+	//	@Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_XML)
-	public JAXBElement getPlanXML(@PathParam("PlanName") String planName) {
+	public JAXBElement getPlanXML() {
+		String planName = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
 		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(getPlan(planName));
 	}
 	
@@ -116,9 +110,11 @@ public class CSARBoundsInterfaceOperationPlanResource {
 	 * @return Response
 	 */
 	@GET
-	@Path("{PlanName}")
+	//	@Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_JSON)
-	public Response getPlanJSON(@PathParam("PlanName") String planName) {
+	public Response getPlanJSON() {
+		
+		String planName = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
 		
 		TPlan plan = getPlan(planName);
 		

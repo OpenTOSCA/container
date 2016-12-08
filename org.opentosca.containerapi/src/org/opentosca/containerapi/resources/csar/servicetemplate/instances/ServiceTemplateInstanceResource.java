@@ -1,10 +1,9 @@
-package org.opentosca.containerapi.instancedata;
+package org.opentosca.containerapi.resources.csar.servicetemplate.instances;
 
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -13,11 +12,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.model.NodeInstanceList;
 import org.opentosca.containerapi.instancedata.model.ServiceInstanceEntry;
 import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
+import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.instancedata.service.IInstanceDataService;
 import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.NodeInstance;
@@ -28,13 +30,17 @@ import org.opentosca.model.instancedata.ServiceInstance;
  * @author Marcus Eisele <marcus.eisele@gmail.com>
  *
  */
-public class ServiceInstanceResource {
+public class ServiceTemplateInstanceResource {
 	
 	
+	private final CSARID csarId;
+	private final QName serviceTemplateID;
 	private int id;
 	
 	
-	public ServiceInstanceResource(int id) {
+	public ServiceTemplateInstanceResource(CSARID csarId, QName serviceTemplateID, int id) {
+		this.csarId = csarId;
+		this.serviceTemplateID = serviceTemplateID;
 		this.id = id;
 	}
 	
@@ -100,16 +106,16 @@ public class ServiceInstanceResource {
 		}
 	}
 	
-	@DELETE
-	public Response deleteServiceInstance() {
-		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		service.deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(id));
-		return Response.noContent().build();
-	}
+	//	@DELETE
+	//	public Response deleteServiceInstance() {
+	//		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+	//		service.deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(id));
+	//		return Response.noContent().build();
+	//	}
 	
 	@Path("/properties")
 	public Object getProperties() {
-		return new ServiceInstancePropertiesResource(id);
+		return new ServiceTemplateInstancePropertiesResource(csarId, serviceTemplateID, id);
 	}
 	
 }

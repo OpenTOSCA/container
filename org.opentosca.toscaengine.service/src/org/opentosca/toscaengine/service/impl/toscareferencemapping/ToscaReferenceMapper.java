@@ -73,8 +73,8 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	private Map<CSARID, Map<QName, QName>> mapElementIDToDefinitionsID = new HashMap<CSARID, Map<QName, QName>>();
 	private Map<CSARID, Map<QName, QName>> mapCSARIDToPlanIDToInputMessageID = new HashMap<CSARID, Map<QName, QName>>();
 	
-	private Map<CSARID, Map<QName, String>> mapCSARIDToPlanIDToInterfaceName = new HashMap<CSARID, Map<QName, String>>();
-	private Map<CSARID, Map<QName, String>> mapCSARIDToPlanIDToOperationName = new HashMap<CSARID, Map<QName, String>>();
+	private Map<CSARID, Map<QName, Map<QName, String>>> mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName = new HashMap<CSARID, Map<QName, Map<QName, String>>>();
+	private Map<CSARID, Map<QName, Map<QName, String>>> mapCSARIDToServiceTemplateIdToPlanIDToOperationName = new HashMap<CSARID, Map<QName, Map<QName, String>>>();
 	
 	private Map<CSARID, Map<String, String>> mapCSARIDToPlanNameToNamespace = new HashMap<CSARID, Map<String, String>>();
 	
@@ -82,6 +82,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	
 	private Map<CSARID, Map<QName, String>> serviceTemplatePropertiesContent = new HashMap<CSARID, Map<QName, String>>();
 	private Map<CSARID, Map<QName, PropertyMappings>> serviceTemplatePropertyMappings = new HashMap<CSARID, Map<QName, PropertyMappings>>();
+	
 	
 	
 	public ToscaReferenceMapper() {
@@ -857,33 +858,63 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	}
 	
 	@Override
-	public void storeInterfaceNameForPlan(CSARID csarID, QName planID, String name) {
-		if (null == mapCSARIDToPlanIDToInterfaceName.get(csarID)) {
-			mapCSARIDToPlanIDToInterfaceName.put(csarID, new HashMap<QName, String>());
+	public void storeInterfaceNameForPlan(CSARID csarID, QName serviceTemplateID, QName planID, String name) {
+		if (null == mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID)) {
+			mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.put(csarID, new HashMap<QName, Map<QName, String>>());
 		}
-		mapCSARIDToPlanIDToInterfaceName.get(csarID).put(planID, name);
+		if (null == mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).get(serviceTemplateID)) {
+			mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).put(serviceTemplateID, new HashMap<QName, String>());
+		}
+		mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).get(serviceTemplateID).put(planID, name);
 	}
 	
-	@Override
-	public void storeOperationNameForPlan(CSARID csarID, QName planID, String interfaceName, String operationName) {
-		if (null == mapCSARIDToPlanIDToOperationName.get(csarID)) {
-			mapCSARIDToPlanIDToOperationName.put(csarID, new HashMap<QName, String>());
-		}
-		mapCSARIDToPlanIDToOperationName.get(csarID).put(planID, operationName);
-	}
+	// @Override
+	// public void storeOperationNameForPlan(CSARID csarID, QName
+	// serviceTemplateID, QName planID, String interfaceName, String
+	// operationName) {
+	// if (null ==
+	// mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID)) {
+	// mapCSARIDToServiceTemplateIdToPlanIDToOperationName.put(csarID, new
+	// HashMap<QName, Map<QName, String>>());
+	// }
+	// if (null ==
+	// mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(serviceTemplateID))
+	// {
+	// mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).put(serviceTemplateID,
+	// new HashMap<QName, String>());
+	// }
+	// mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(serviceTemplateID).put(planID,
+	// operationName);
+	// }
 	
 	@Override
 	public String getIntferaceNameOfPlan(CSARID csarID, QName planID) {
-		if (null != mapCSARIDToPlanIDToInterfaceName.get(csarID)) {
-			return mapCSARIDToPlanIDToInterfaceName.get(csarID).get(planID);
+		if (null != mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID)) {
+			for (QName stid : mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).keySet()) {
+				if (mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).get(stid).containsKey(planID)) {
+					return mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).get(stid).get(planID);
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public String getIntferaceNameOfPlan(CSARID csarID, QName serviceTemplateID, QName planID) {
+		if (null != mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID)) {
+			return mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).get(serviceTemplateID).get(planID);
 		}
 		return null;
 	}
 	
 	@Override
 	public String getOperationNameOfPlan(CSARID csarID, QName planID) {
-		if (null != mapCSARIDToPlanIDToOperationName.get(csarID)) {
-			return mapCSARIDToPlanIDToOperationName.get(csarID).get(planID);
+		if (null != mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID)) {
+			for (QName st : mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).keySet()) {
+				if (mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(st).containsKey(planID)) {
+					return mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(st).get(planID);
+				}
+			}
 		}
 		return null;
 	}
@@ -892,12 +923,14 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	public List<String> getBoundaryInterfacesOfCSAR(CSARID csarID) {
 		List<String> list = new ArrayList<String>();
 		
-		Map<QName, String> map = mapCSARIDToPlanIDToInterfaceName.get(csarID);
+		Map<QName, Map<QName, String>> map = mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID);
 		
 		if (null != map) {
-			for (QName plan : map.keySet()) {
-				if (!list.contains(map.get(plan))) {
-					list.add(map.get(plan));
+			for (QName serviceTemplate : map.keySet()) {
+				for (QName plan : map.get(serviceTemplate).keySet()) {
+					if (!list.contains(map.get(serviceTemplate).get(plan))) {
+						list.add(map.get(serviceTemplate).get(plan));
+					}
 				}
 			}
 		}
@@ -906,39 +939,60 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	}
 	
 	@Override
-	public void setBoundaryInterfaceForCSARIDPlan(CSARID csarID, QName planID, String ifaceName) {
-		if (!mapCSARIDToPlanIDToInterfaceName.containsKey(csarID)) {
-			mapCSARIDToPlanIDToInterfaceName.put(csarID, new HashMap<QName, String>());
-		}
-		mapCSARIDToPlanIDToInterfaceName.get(csarID).put(planID, ifaceName);
-	}
-	
-	@Override
-	public void setBoundaryOperationForCSARIDPlan(CSARID csarID, QName planName, String opName) {
-		if (!mapCSARIDToPlanIDToOperationName.containsKey(csarID)) {
-			mapCSARIDToPlanIDToOperationName.put(csarID, new HashMap<QName, String>());
-		}
-		mapCSARIDToPlanIDToOperationName.get(csarID).put(planName, opName);
-	}
-	
-	@Override
-	public List<String> getBoundaryOperationsOfCSARInterface(CSARID csarID, String intName) {
-		// TODO
+	public List<String> getBoundaryInterfacesOfServiceTemplate(CSARID csarID, QName serviceTemplateID) {
 		List<String> list = new ArrayList<String>();
 		
-		Map<QName, List<TExportedInterface>> stToIntfs = csarIDToExportedInterface.get(csarID);
+		Map<QName, Map<QName, String>> map = mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID);
 		
-		if (null != stToIntfs) {
-			for (QName serviceTemplate : stToIntfs.keySet()) {
-				for (TExportedInterface intf : stToIntfs.get(serviceTemplate)) {
-					if (intf.getName().equals(intName)) {
-						for (TExportedOperation op : intf.getOperation()) {
-							list.add(op.getName());
+		if (null != map) {
+			for (QName serviceTemplate : map.keySet()) {
+				if (serviceTemplate.equals(serviceTemplateID)) {
+					for (QName plan : map.get(serviceTemplate).keySet()) {
+						if (!list.contains(map.get(serviceTemplate).get(plan))) {
+							list.add(map.get(serviceTemplate).get(plan));
 						}
 					}
 				}
 			}
 		}
+		
+		return list;
+	}
+	
+	@Override
+	public void setBoundaryInterfaceForCSARIDPlan(CSARID csarID, QName serviceTemplateID, QName planID, String ifaceName) {
+		if (!mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.containsKey(csarID)) {
+			mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.put(csarID, new HashMap<QName, Map<QName, String>>());
+		}
+		if (!mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).containsKey(serviceTemplateID)) {
+			mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).put(serviceTemplateID, new HashMap<QName, String>());
+		}
+		mapCsarIdToServiceTemplateIdToPlanIdToInterfaceName.get(csarID).get(serviceTemplateID).put(planID, ifaceName);
+	}
+	
+	@Override
+	public void setBoundaryOperationForCSARIDPlan(CSARID csarID, QName serviceTemplateID, QName planName, String opName) {
+		if (null == mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID)) {
+			mapCSARIDToServiceTemplateIdToPlanIDToOperationName.put(csarID, new HashMap<QName, Map<QName, String>>());
+		}
+		if (null == mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(serviceTemplateID)) {
+			mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).put(serviceTemplateID, new HashMap<QName, String>());
+		}
+		mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(serviceTemplateID).put(planName, opName);
+	}
+	
+	@Override
+	public List<String> getBoundaryOperationsOfCSARInterface(CSARID csarID, QName serviceTemplateID, String intName) {
+		List<String> list = new ArrayList<String>();
+		
+		if (mapCSARIDToServiceTemplateIdToPlanIDToOperationName.containsKey(csarID)) {
+			if (mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).containsKey(serviceTemplateID)) {
+				for (QName planID : mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(serviceTemplateID).keySet()){
+					list.add(mapCSARIDToServiceTemplateIdToPlanIDToOperationName.get(csarID).get(serviceTemplateID).get(planID));
+				}
+			}
+		}
+		
 		return list;
 	}
 	

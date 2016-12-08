@@ -12,6 +12,8 @@ import org.opentosca.containerapi.instancedata.utilities.Constants;
 import org.opentosca.containerapi.portability.PortabilityRoot;
 import org.opentosca.containerapi.resources.csar.CSARResource;
 import org.opentosca.containerapi.resources.csar.CSARsResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstancesResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstanceResource;
 
 /**
  * 
@@ -67,7 +69,7 @@ public class LinkBuilder {
 		Map<String, String> paramMap = new HashMap<String, String>();
 		paramMap.put(Constants.ServiceInstanceListResource_getServiceInstance_PARAM, Integer.toString(id));
 		return UriBuilder.fromUri(linkToServiceInstanceList(uriInfo))
-				.path(ServiceInstanceListResource.class, "getServiceInstance").buildFromMap(paramMap);
+				.path(ServiceTemplateInstancesResource.class, "getServiceInstance").buildFromMap(paramMap);
 	}
 
 	public static URI linkToFile(UriInfo uriInfo, String csarID, String relativePath) {
@@ -85,7 +87,7 @@ public class LinkBuilder {
 
 	public static URI linkToServiceInstanceProperties(UriInfo uriInfo, int serviceInstanceID) {
 		return UriBuilder.fromUri(linkToServiceInstance(uriInfo, serviceInstanceID))
-				.path(ServiceInstanceResource.class, "getProperties").build(new Object[0]);
+				.path(ServiceTemplateInstanceResource.class, "getProperties").build(new Object[0]);
 	}
 
 	public static URI linkToNodeInstanceProperties(UriInfo uriInfo, int nodeInstanceID) {

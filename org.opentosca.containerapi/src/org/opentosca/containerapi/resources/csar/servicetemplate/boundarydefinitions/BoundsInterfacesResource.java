@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.boundarydefinitions;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
@@ -20,17 +21,19 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CSARBoundsInterfacesResource {
+public class BoundsInterfacesResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfacesResource.class);
-	CSARID csarID = null;
+	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfacesResource.class);
+	private CSARID csarID = null;
+	private QName serviceTemplateID = null;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsInterfacesResource(CSARID csarID) {
+	public BoundsInterfacesResource(CSARID csarID, QName serviceTemplateID) {
 		this.csarID = csarID;
+		this.serviceTemplateID = serviceTemplateID;
 		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {
 			LOG.error("The ToscaEngineService is not alive.");
@@ -88,8 +91,8 @@ public class CSARBoundsInterfacesResource {
 	 * @return the PublicPlan
 	 */
 	@Path("{InterfaceName}")
-	public CSARBoundsInterfaceResource getPublicPlan(@PathParam("InterfaceName") String intName) {
-		return new CSARBoundsInterfaceResource(csarID, intName);
+	public BoundsInterfaceResource getPublicPlan(@PathParam("InterfaceName") String intName) {
+		return new BoundsInterfaceResource(csarID, serviceTemplateID, intName);
 	}
 	
 }

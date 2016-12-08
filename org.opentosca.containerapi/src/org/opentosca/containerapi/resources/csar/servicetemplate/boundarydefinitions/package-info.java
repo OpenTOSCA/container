@@ -8,4 +8,4 @@
  * @author Christian Endres
  *
  */
-package org.opentosca.containerapi.resources.csar.boundarydefinitions;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;

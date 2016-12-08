@@ -1,4 +1,6 @@
-package org.opentosca.containerapi.resources.csar.boundarydefinitions;
+package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
+
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -7,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
@@ -18,19 +21,22 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CSARBoundsInterfaceResource {
+public class BoundsInterfaceOperationsResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARBoundsInterfaceResource.class);
-	CSARID csarID;
-	String intName;
+	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfaceOperationsResource.class);
+	private CSARID csarID;
+	private QName serviceTemplateID;
+	private String intName;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARBoundsInterfaceResource(CSARID csarID, String intName) {
+	public BoundsInterfaceOperationsResource(CSARID csarID, QName serviceTemplateID, String intName) {
+		
 		this.csarID = csarID;
 		this.intName = intName;
+		this.serviceTemplateID = serviceTemplateID;
 		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {
 			LOG.error("The ToscaEngineService is not alive.");
@@ -67,7 +73,13 @@ public class CSARBoundsInterfaceResource {
 		
 		References refs = new References();
 		
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Operations"), XLinkConstants.SIMPLE, "Operations"));
+		LOG.debug("Find operations for ST {} and Intf {}", serviceTemplateID, intName);
+		
+		List<String> ops = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryOperationsOfCSARInterface(csarID, serviceTemplateID, intName);
+		
+		for (String op : ops) {
+			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), op), XLinkConstants.SIMPLE, op));
+		}
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
@@ -75,14 +87,14 @@ public class CSARBoundsInterfaceResource {
 	}
 	
 	/**
-	 * Returns the Interface Operations for a given Interface name.
+	 * Returns a PublicPlan for a given Index.
 	 * 
 	 * @param planName
 	 * @return the PublicPlan
 	 */
-	@Path("Operations")
-	public CSARBoundsInterfaceOperationsResource getPublicPlan(@PathParam("InterfaceName") String intName) {
-		return new CSARBoundsInterfaceOperationsResource(csarID, intName);
+	@Path("{OperationName}")
+	public BoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
+		return new BoundsInterfaceOperationResource(csarID, intName, op);
 	}
 	
 }

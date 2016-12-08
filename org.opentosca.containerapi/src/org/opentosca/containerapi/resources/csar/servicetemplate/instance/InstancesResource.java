@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.servicetemplate.instance;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -48,23 +48,23 @@ import com.google.gson.JsonParser;
  * 
  */
 @Path("Instances")
-public class CSARInstancesResource {
+public class InstancesResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARInstancesResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InstancesResource.class);
 	
 	private final CSARID csarID;
 	
 	UriInfo uriInfo;
 	
 	
-	public CSARInstancesResource(CSARID csarID) {
+	public InstancesResource(CSARID csarID) {
 		this.csarID = csarID;
 		if (null == csarID) {
-			CSARInstancesResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
+			InstancesResource.LOG.error("{} created: {}", this.getClass(), "but the CSAR does not exist");
 		} else {
-			CSARInstancesResource.LOG.trace("{} created: {}", this.getClass(), csarID);
-			CSARInstancesResource.LOG.trace("CSAR Instance list for requested CSAR: {}", this.csarID.getFileName());
+			InstancesResource.LOG.trace("{} created: {}", this.getClass(), csarID);
+			InstancesResource.LOG.trace("CSAR Instance list for requested CSAR: {}", this.csarID.getFileName());
 		}
 	}
 	
@@ -97,11 +97,11 @@ public class CSARInstancesResource {
 	public References getReferences() {
 		
 		if (csarID == null) {
-			CSARInstancesResource.LOG.debug("The CSAR does not exist.");
+			InstancesResource.LOG.debug("The CSAR does not exist.");
 			return null;
 		}
 		
-		CSARInstancesResource.LOG.debug("Return available instances for CSAR {}.", csarID);
+		InstancesResource.LOG.debug("Return available instances for CSAR {}.", csarID);
 		
 		References refs = new References();
 		
@@ -111,7 +111,7 @@ public class CSARInstancesResource {
 			}
 		}
 		
-		CSARInstancesResource.LOG.debug("Number of References in Root: {}", refs.getReference().size());
+		InstancesResource.LOG.debug("Number of References in Root: {}", refs.getReference().size());
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
@@ -127,7 +127,7 @@ public class CSARInstancesResource {
 	@Path("{instanceID}")
 	@Produces(ResourceConstants.LINKED_XML)
 	public Object getInstance(@PathParam("instanceID") String instanceID) {
-		return new CSARInstanceResource(csarID, instanceID);
+		return new InstanceResource(csarID, instanceID);
 	}
 	
 	/**
@@ -140,7 +140,7 @@ public class CSARInstancesResource {
 	@Consumes(ResourceConstants.TOSCA_XML)
 	public Response postManagementPlan(JAXBElement<TPlanDTO> planElement) {
 		
-		CSARInstancesResource.LOG.debug("Received a build plan for CSAR " + csarID);
+		InstancesResource.LOG.debug("Received a build plan for CSAR " + csarID);
 		
 		TPlanDTO plan = planElement.getValue();
 		
@@ -167,7 +167,7 @@ public class CSARInstancesResource {
 		
 		LOG.debug("PublicPlan to invoke: " + plan.getId());
 		
-		CSARInstancesResource.LOG.debug("Post of the PublicPlan " + plan.getId());
+		InstancesResource.LOG.debug("Post of the PublicPlan " + plan.getId());
 		
 		// TODO return correlation ID
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
@@ -212,7 +212,7 @@ public class CSARInstancesResource {
 	
 	private String postManagementPlanJSON(UriInfo uriInfo, String json) {
 		
-		CSARInstancesResource.LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
+		InstancesResource.LOG.debug("Received a build plan for CSAR " + csarID + "\npassed entity:\n   " + json);
 		
 		JsonParser parser = new JsonParser();
 		JsonObject object = parser.parse(json).getAsJsonObject();
@@ -274,7 +274,7 @@ public class CSARInstancesResource {
 		
 		LOG.debug("Plan to invoke: " + plan.getId());
 		
-		CSARInstancesResource.LOG.debug("Post of the PublicPlan " + plan.getId());
+		InstancesResource.LOG.debug("Post of the PublicPlan " + plan.getId());
 		
 		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarID, -1, plan);
 		int csarInstanceID = IOpenToscaControlServiceHandler.getOpenToscaControlService().getCSARInstanceIDForCorrelationID(correlationID);

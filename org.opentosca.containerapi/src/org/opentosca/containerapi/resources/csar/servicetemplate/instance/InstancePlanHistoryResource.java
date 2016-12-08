@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar;
+package org.opentosca.containerapi.resources.csar.servicetemplate.instance;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,10 +33,10 @@ import com.google.gson.JsonObject;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
-public class CSARInstancePlanHistoryResource {
+public class InstancePlanHistoryResource {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CSARInstancePlanHistoryResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InstancePlanHistoryResource.class);
 	
 	private final CSARID csarID;
 	private final int instanceID;
@@ -44,7 +44,7 @@ public class CSARInstancePlanHistoryResource {
 	UriInfo uriInfo;
 	
 	
-	public CSARInstancePlanHistoryResource(CSARID csarID, int instanceID) {
+	public InstancePlanHistoryResource(CSARID csarID, int instanceID) {
 		this.csarID = csarID;
 		this.instanceID = instanceID;
 	}
@@ -79,10 +79,10 @@ public class CSARInstancePlanHistoryResource {
 	
 	public References getReferences() {
 		
-		CSARInstancePlanHistoryResource.LOG.debug("Access the plan history at " + uriInfo.getAbsolutePath().toString());
+		InstancePlanHistoryResource.LOG.debug("Access the plan history at " + uriInfo.getAbsolutePath().toString());
 		
 		if (csarID == null) {
-			CSARInstancePlanHistoryResource.LOG.debug("The CSAR does not exist.");
+			InstancePlanHistoryResource.LOG.debug("The CSAR does not exist.");
 			return null;
 		}
 		
@@ -109,7 +109,7 @@ public class CSARInstancePlanHistoryResource {
 	@Path("{CorrelationID}")
 	@Produces(ResourceConstants.TOSCA_XML)
 	public PlanInvocationEvent getInstance(@PathParam("CorrelationID") String correlationID) {
-		CSARInstancePlanHistoryResource.LOG.debug("Return plan for correlation " + correlationID);
+		InstancePlanHistoryResource.LOG.debug("Return plan for correlation " + correlationID);
 		return CSARInstanceManagementHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
 	}
 	
@@ -124,7 +124,7 @@ public class CSARInstancePlanHistoryResource {
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public Response getPlanJSON(@PathParam("CorrelationID") String correlationID) {
 		
-		CSARInstancePlanHistoryResource.LOG.debug("Return plan for correlation " + correlationID);
+		InstancePlanHistoryResource.LOG.debug("Return plan for correlation " + correlationID);
 		PlanInvocationEvent event = CSARInstanceManagementHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
 		
 		JsonObject json = new JsonObject();

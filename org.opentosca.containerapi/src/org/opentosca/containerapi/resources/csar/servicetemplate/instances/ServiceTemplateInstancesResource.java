@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.instancedata;
+package org.opentosca.containerapi.resources.csar.servicetemplate.instances;
 
 import java.net.URI;
 import java.util.LinkedList;
@@ -17,6 +17,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.instancedata.ExistenceChecker;
+import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.exception.GenericRestException;
 import org.opentosca.containerapi.instancedata.model.ServiceInstanceList;
 import org.opentosca.containerapi.instancedata.model.SimpleXLink;
@@ -27,6 +29,8 @@ import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.instancedata.service.IInstanceDataService;
 import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.ServiceInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -34,8 +38,16 @@ import org.opentosca.model.instancedata.ServiceInstance;
  * @author Marcus Eisele <marcus.eisele@gmail.com>
  *
  */
-public class ServiceInstanceListResource {
+public class ServiceTemplateInstancesResource {
 	
+	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstancesResource.class);
+	private final CSARID csarId;
+	private final QName serviceTemplateID;
+	
+	public ServiceTemplateInstancesResource(CSARID csarid, QName serviceTemplateID) {
+		csarId = csarid;
+		this.serviceTemplateID = serviceTemplateID;
+	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
@@ -58,7 +70,6 @@ public class ServiceInstanceListResource {
 	public ServiceInstanceList getRefs(UriInfo uriInfo, String serviceInstanceID, String serviceTemplateName, String serviceTemplateID) {
 		
 		URI serviceInstanceIdURI = null;
-		QName serviceTemplateIDQName = null;
 		try {
 			if (serviceInstanceID != null) {
 				serviceInstanceIdURI = new URI(serviceInstanceID);
@@ -66,16 +77,13 @@ public class ServiceInstanceListResource {
 					throw new Exception("Error converting serviceInstanceID: invalid format!");
 				}
 			}
-			if (serviceTemplateID != null) {
-				serviceTemplateIDQName = QName.valueOf(serviceTemplateID);
-			}
 		} catch (Exception e1) {
 			throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due to bad variable content: " + e1.getMessage());
 		}
 		
 		try {
 			IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-			List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIdURI, serviceTemplateName, serviceTemplateIDQName);
+			List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIdURI, serviceTemplateName, this.serviceTemplateID);
 			
 			List<SimpleXLink> links = new LinkedList<SimpleXLink>();
 			for (ServiceInstance serviceInstance : serviceInstances) {
@@ -122,6 +130,6 @@ public class ServiceInstanceListResource {
 	public Object getServiceInstance(@PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) int id) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		ExistenceChecker.checkServiceInstanceWithException(id, service);
-		return new ServiceInstanceResource(id);
+		return new ServiceTemplateInstanceResource(csarId, serviceTemplateID, id);
 	}
 }

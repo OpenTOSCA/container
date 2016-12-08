@@ -52,21 +52,21 @@ public class InstanceDataRoot {
 	private InstanceDataEntry getRefs() {
 		List<SimpleXLink> links = new LinkedList<SimpleXLink>();
 		links.add(LinkBuilder.selfLink(uriInfo));
-		links.add(new SimpleXLink(LinkBuilder.linkToNodeInstanceList(uriInfo), "Node Instances"));
-		links.add(new SimpleXLink(LinkBuilder.linkToServiceInstanceList(uriInfo), "Service Instances"));
+		//		links.add(new SimpleXLink(LinkBuilder.linkToNodeInstanceList(uriInfo), "Node Instances"));
+		//		links.add(new SimpleXLink(LinkBuilder.linkToServiceInstanceList(uriInfo), "Service Instances"));
 		
 		InstanceDataEntry idr = new InstanceDataEntry(links);
 		return idr;
 	}
 	
-	@Path("/nodeInstances")
-	public Object getNodeInstances() {
-		return new NodeInstanceListResource();
-	}
+	//	@Path("/nodeInstances")
+	//	public Object getNodeInstances() {
+	//		return new NodeInstanceListResource();
+	//	}
 	
-	@Path("/serviceInstances")
-	public Object getServiceInstances() {
-		return new ServiceInstanceListResource();
-	}
+	//	@Path("/serviceInstances")
+	//	public Object getServiceInstances() {
+	//		return new ServiceInstanceListResource();
+	//	}
 	
 }
