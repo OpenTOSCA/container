@@ -159,6 +159,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		}
 		ServiceHandler.csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID, correlationID);
 		ServiceHandler.csarInstanceManagement.setCorrelationAsActive(csarID, correlationID);
+		ServiceHandler.csarInstanceManagement.correlateCorrelationIdToPlan(correlationID, planEvent);
 		
 		Map<String, Object> eventValues = new Hashtable<String, Object>();
 		eventValues.put("CSARID", csarID);

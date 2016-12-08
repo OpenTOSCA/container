@@ -115,8 +115,9 @@ public class ExportedInterfacesConsolidation {
 						
 						QName planID = new QName(toscaReferenceMapper.getNamespaceOfPlan(csarID, toscaPlan.getId()), toscaPlan.getId());
 						
-						toscaReferenceMapper.setBoundaryInterfaceForCSARIDPlan(csarID, serviceTemplateID, planID, iface.getName());
-						toscaReferenceMapper.setBoundaryOperationForCSARIDPlan(csarID, serviceTemplateID, planID, operation.getName());
+						//						toscaReferenceMapper.setBoundaryInterfaceForCSARIDPlan(csarID, serviceTemplateID, planID, iface.getName());
+						//						toscaReferenceMapper.setBoundaryOperationForCSARIDPlan(csarID, serviceTemplateID, planID, operation.getName());
+						toscaReferenceMapper.storeServiceTemplateBoundsPlan(csarID, serviceTemplateID, iface.getName(), operation.getName(), planID);
 						
 						mapTypeToPlan.get(PlanTypes.isPlanTypeURI(toscaPlan.getPlanType())).put(planID, toscaPlan);
 						

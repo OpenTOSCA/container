@@ -35,6 +35,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	private Map<CSARID, List<String>> mapCSARIDToActivePlanCorrelation = new HashMap<CSARID, List<String>>();
 	private Map<CSARID, List<String>> mapCSARIDToFinishedPlanCorrelation = new HashMap<CSARID, List<String>>();
 	private Map<String, Map<String, String>> mapCorrelationIDToOutputList = new HashMap<String, Map<String, String>>();
+	private Map<String, PlanInvocationEvent> mapCorrelationIdToPlanEvent = new HashMap<String, PlanInvocationEvent>();
 	
 	
 	@Override
@@ -180,5 +181,15 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 			mapCorrelationIDToOutputList.put(correlationID, new HashMap<String, String>());
 		}
 		return mapCorrelationIDToOutputList.get(correlationID);
+	}
+	
+	@Override
+	public void correlateCorrelationIdToPlan(String correlationID, PlanInvocationEvent planEvent) {
+		mapCorrelationIdToPlanEvent.put(correlationID, planEvent);
+	}
+	
+	@Override
+	public PlanInvocationEvent getPlanForCorrelationId(String correlationId){
+		return mapCorrelationIdToPlanEvent.get(correlationId);
 	}
 }

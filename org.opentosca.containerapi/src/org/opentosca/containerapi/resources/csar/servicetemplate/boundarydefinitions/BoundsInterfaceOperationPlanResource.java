@@ -1,10 +1,13 @@
 package org.opentosca.containerapi.resources.csar.servicetemplate.boundarydefinitions;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
@@ -12,6 +15,9 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
+import org.opentosca.containerapi.resources.utilities.Utilities;
+import org.opentosca.containerapi.resources.xlink.Reference;
+import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.tosca.TParameter;
 import org.opentosca.model.tosca.TPlan;
@@ -28,15 +34,17 @@ public class BoundsInterfaceOperationPlanResource {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfaceOperationPlanResource.class);
 	CSARID csarID;
+	QName serviceTemplateID;
 	String intName;
 	String opName;
 	
 	UriInfo uriInfo;
 	
 	
-	public BoundsInterfaceOperationPlanResource(CSARID csarID, String intName, String opName) {
+	public BoundsInterfaceOperationPlanResource(CSARID csarID, QName serviceTemplateID, String intName, String opName) {
 		
 		this.csarID = csarID;
+		this.serviceTemplateID = serviceTemplateID;
 		this.intName = intName;
 		this.opName = opName;
 		
@@ -45,84 +53,82 @@ public class BoundsInterfaceOperationPlanResource {
 		}
 	}
 	
-	//	/**
-	//	 * Builds the references of the Boundary Definitions of a CSAR.
-	//	 * 
-	//	 * @param uriInfo
-	//	 * @return Response
-	//	 */
-	//	@GET
-	//	@Produces(ResourceConstants.LINKED_XML)
-	//	public Response getReferencesXML(@Context UriInfo uriInfo) {
-	//		this.uriInfo = uriInfo;
-	//		return Response.ok(getReferences().getXMLString()).build();
-	//	}
-	//	
-	//	/**
-	//	 * Builds the references of the Boundary Definitions of a CSAR.
-	//	 * 
-	//	 * @param uriInfo
-	//	 * @return Response
-	//	 */
-	//	@GET
-	//	@Produces(ResourceConstants.LINKED_JSON)
-	//	public Response getReferencesJSON(@Context UriInfo uriInfo) {
-	//		this.uriInfo = uriInfo;
-	//		return Response.ok(getReferences().getJSONString()).build();
-	//	}
-	//	
-	//	private References getReferences() {
-	//		
-	//		References refs = new References();
-	//		
-	//		String plan = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
-	//		
-	//		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), plan), XLinkConstants.SIMPLE, plan));
-	//		// refs.getReference().add(new
-	//		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-	//		// plan + "/PlanWithMinimalInput"), XLinkConstants.SIMPLE,
-	//		// "PlanWithMinimalInput"));
-	//		
-	//		// selflink
-	//		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-	//		return refs;
-	//	}
-	
 	/**
 	 * Returns the Boundary Definitions Node Operation. TODO not yet implemented
 	 * yet, thus, just returns itself.
 	 * 
 	 * @param uriInfo
 	 * @return Response
+	 * @throws UnsupportedEncodingException
 	 */
 	@GET
-	//	@Path("{PlanName}")
+	// @Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_XML)
-	public JAXBElement getPlanXML() {
+	public JAXBElement getPlanXML(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		String planName = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
-		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(getPlan(planName));
+		
+		TPlan plan = getPlan(planName);
+		
+		// if
+		// (plan.getPlanType().startsWith("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"))
+		// {
+		// plan.getAny().add(new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// getPostPath(uriInfo, true)), XLinkConstants.REFERENCE,
+		// "PlanPostURL").toXml());
+		// } else {
+		// plan.getAny().add((new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// getPostPath(uriInfo, false)), XLinkConstants.REFERENCE,
+		// "PlanPostURL").toXml()));
+		// }
+		
+		return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(plan);
+	}
+	
+	private String getPostPath(boolean isBuildPlan) throws UnsupportedEncodingException {
+		
+		String path = "CSARs/" + csarID.getFileName() + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/Instances/";
+		
+		if (!isBuildPlan) {
+			path = path + "{instanceId}";
+		}
+		
+		LOG.debug("POST URL: {}", path);
+		
+		return path;
 	}
 	
 	/**
-	 * Returns the  Plan.
+	 * Returns the Plan.
 	 * 
 	 * @param uriInfo
 	 * @return Response
+	 * @throws UnsupportedEncodingException
 	 */
 	@GET
-	//	@Path("{PlanName}")
+	// @Path("{PlanName}")
 	@Produces(ResourceConstants.TOSCA_JSON)
-	public Response getPlanJSON() {
+	public Response getPlanJSON(@Context UriInfo uriInfo) throws UnsupportedEncodingException {
 		
 		String planName = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryPlanOfCSARInterface(csarID, intName, opName).getLocalPart();
 		
 		TPlan plan = getPlan(planName);
 		
 		JsonObject json = new JsonObject();
-		json.addProperty("ID", plan.getId());
-		json.addProperty("Name", plan.getName());
-		json.addProperty("PlanType", plan.getPlanType());
-		json.addProperty("PlanLanguage", plan.getPlanLanguage());
+		
+		if (plan.getPlanType().startsWith("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")) {
+			json.add("Reference", new Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(), getPostPath(true)), XLinkConstants.REFERENCE, "PlanPostURL").toJson());
+		} else {
+			json.add("Reference", new Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(), getPostPath(false)), XLinkConstants.REFERENCE, "PlanPostURL").toJson());
+		}
+		
+		JsonObject planJson = new JsonObject();
+		json.add("Plan", planJson);
+		planJson.addProperty("ID", plan.getId());
+		planJson.addProperty("Name", plan.getName());
+		planJson.addProperty("PlanType", plan.getPlanType());
+		planJson.addProperty("PlanLanguage", plan.getPlanLanguage());
 		
 		JsonArray input = new JsonArray();
 		try {
@@ -137,7 +143,7 @@ public class BoundsInterfaceOperationPlanResource {
 			}
 		} catch (NullPointerException e) {
 		}
-		json.add("InputParameters", input);
+		planJson.add("InputParameters", input);
 		
 		JsonArray output = new JsonArray();
 		try {
@@ -152,11 +158,11 @@ public class BoundsInterfaceOperationPlanResource {
 			}
 		} catch (NullPointerException e) {
 		}
-		json.add("OutputParameters", output);
+		planJson.add("OutputParameters", output);
 		
 		JsonObject planModelReference = new JsonObject();
 		planModelReference.addProperty("Reference", plan.getPlanModelReference().getReference());
-		json.add("PlanModelReference", planModelReference);
+		planJson.add("PlanModelReference", planModelReference);
 		
 		return Response.ok(json.toString()).build();
 	}

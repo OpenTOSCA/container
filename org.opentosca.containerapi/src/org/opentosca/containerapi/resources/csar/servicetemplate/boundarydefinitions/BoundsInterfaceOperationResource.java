@@ -7,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
@@ -23,15 +24,17 @@ public class BoundsInterfaceOperationResource {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfaceOperationResource.class);
 	CSARID csarID;
+	QName serviceTemplateID;
 	String intName;
 	String opName;
 	
 	UriInfo uriInfo;
 	
 	
-	public BoundsInterfaceOperationResource(CSARID csarID, String intName, String op) {
+	public BoundsInterfaceOperationResource(CSARID csarID, QName serviceTemplateID, String intName, String op) {
 		
 		this.csarID = csarID;
+		this.serviceTemplateID = serviceTemplateID;
 		this.intName = intName;
 		opName = op;
 		
@@ -87,7 +90,7 @@ public class BoundsInterfaceOperationResource {
 	 */
 	@Path("{OperationName}")
 	public BoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
-		return new BoundsInterfaceOperationResource(csarID, intName, op);
+		return new BoundsInterfaceOperationResource(csarID, serviceTemplateID, intName, op);
 	}
 	
 	/**
@@ -171,7 +174,7 @@ public class BoundsInterfaceOperationResource {
 	 */
 	@Path("Plan")
 	public BoundsInterfaceOperationPlanResource getPlan(@Context UriInfo uriInfo) {
-		return new BoundsInterfaceOperationPlanResource(csarID, intName, opName);
+		return new BoundsInterfaceOperationPlanResource(csarID, serviceTemplateID, intName, opName);
 	}
 	
 }

@@ -91,4 +91,8 @@ public interface ICSARInstanceManagementService {
 	List<String> getActiveCorrelations(CSARID csarID);
 	
 	List<String> getFinishedCorrelations(CSARID csarID);
+	
+	public void correlateCorrelationIdToPlan(String correlationID, PlanInvocationEvent planEvent);
+	
+	PlanInvocationEvent getPlanForCorrelationId(String correlationId);
 }

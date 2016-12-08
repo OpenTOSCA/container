@@ -94,7 +94,7 @@ public class BoundsInterfaceOperationsResource {
 	 */
 	@Path("{OperationName}")
 	public BoundsInterfaceOperationResource getPublicPlan(@PathParam("OperationName") String op) {
-		return new BoundsInterfaceOperationResource(csarID, intName, op);
+		return new BoundsInterfaceOperationResource(csarID, serviceTemplateID, intName, op);
 	}
 	
 }

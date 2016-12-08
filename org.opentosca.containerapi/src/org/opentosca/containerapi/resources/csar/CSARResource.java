@@ -126,10 +126,10 @@ public class CSARResource {
 	// return new BoundsResource(CSAR.getCSARID());
 	// }
 	
-	// @Path("Plans")
-	// public CSARPlansResource getPuplicPlans() {
-	// return new CSARPlansResource(CSAR.getCSARID());
-	// }
+	//	@Path("Plans")
+	//	public CSARPlansResource getPuplicPlans() {
+	//		return new CSARPlansResource(CSAR.getCSARID());
+	//	}
 	
 	// @Path("Instances")
 	// public InstancesResource getInstances() {

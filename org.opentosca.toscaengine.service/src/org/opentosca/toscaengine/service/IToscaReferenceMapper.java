@@ -284,8 +284,6 @@ public interface IToscaReferenceMapper {
 	 */
 	public QName getPlanInputMessageID(CSARID csarID, QName planID);
 	
-	public void storeInterfaceNameForPlan(CSARID csarID, QName serviceTemplateID, QName planID, String interfaceName);
-	
 	// public void storeOperationNameForPlan(CSARID csarID, QName
 	// serviceTemplateID, QName planID, String interfaceName, String
 	// operationName);
@@ -304,9 +302,7 @@ public interface IToscaReferenceMapper {
 	
 	public QName getBoundaryPlanOfCSARInterface(CSARID csarID, String intName, String opName);
 	
-	public void setBoundaryOperationForCSARIDPlan(CSARID csarID, QName serviceTemplateID, QName planID, String opName);
 	
-	public void setBoundaryInterfaceForCSARIDPlan(CSARID csarID, QName serviceTemplateID, QName planID, String ifaceName);
 	
 	public String getNamespaceOfPlan(CSARID csarID, String planID);
 	
@@ -325,5 +321,11 @@ public interface IToscaReferenceMapper {
 	public List<String> getServiceTemplateBoundsPropertiesContent(CSARID csarID);
 	
 	public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(CSARID csarID);
+	
+	void storeServiceTemplateBoundsPlan(CSARID csarID, QName serviceTemplateID, String interfaceName, String opName, QName planID);
+	
+	//	public void storeInterfaceNameForPlan(CSARID csarID, QName serviceTemplateID, QName planID, String interfaceName);
+	//	public void setBoundaryInterfaceForCSARIDPlan(CSARID csarID, QName serviceTemplateID, QName planID, String ifaceName);
+	//	public void setBoundaryOperationForCSARIDPlan(CSARID csarID, QName serviceTemplateID, QName planID, String opName);
 	
 }
