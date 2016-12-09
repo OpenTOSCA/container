@@ -69,18 +69,18 @@ public class ServiceTemplateInstancesResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
+	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
 		
-		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID, buildPlanCorrId);
+		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID.toString(), buildPlanCorrId);
 		
 		return Response.ok(refs).build();
 	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
+	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
 		
-		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID, buildPlanCorrId);
+		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID.toString(), buildPlanCorrId);
 		
 		return Response.ok(refs.toJSON()).build();
 	}
@@ -102,7 +102,7 @@ public class ServiceTemplateInstancesResource {
 		try {
 			
 			List<SimpleXLink> links = new LinkedList<SimpleXLink>();
-			if (null == buildPlanCorrId || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowCorrelationId(buildPlanCorrId)) {
+			if (null == buildPlanCorrId || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowsCorrelationId(buildPlanCorrId)) {
 				IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 				List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIdURI, serviceTemplateName, this.serviceTemplateID);
 				

@@ -21,7 +21,7 @@ public class BuildCorrelationToInstanceMapping {
 		return correlationIdToServiceTemplateInstanceId.get(corrId);
 	}
 	
-	public boolean knowCorrelationId(String buildPlanCorrId) {
+	public boolean knowsCorrelationId(String buildPlanCorrId) {
 		return correlationIdToServiceTemplateInstanceId.containsKey(buildPlanCorrId);
 	}
 	
