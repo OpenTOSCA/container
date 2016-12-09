@@ -15,6 +15,8 @@ import org.opentosca.containerapi.resources.csar.CSARsResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.ServiceTemplateResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstanceResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstancesResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.node.instances.NodeTemplateInstanceListResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.node.instances.NodeTemplateInstanceResource;
 
 /**
  * 
@@ -63,7 +65,7 @@ public class LinkBuilder {
 		Map<String, String> paramMap = new HashMap<String, String>();
 		paramMap.put(Constants.NodeInstanceListResource_getNodeInstance_PARAM, Integer.toString(id));
 		return UriBuilder.fromUri(linkToNodeInstanceList(uriInfo))
-				.path(NodeInstanceListResource.class, "getNodeInstance").buildFromMap(paramMap);
+				.path(NodeTemplateInstanceListResource.class, "getNodeInstance").buildFromMap(paramMap);
 	}
 	
 	public static URI linkToServiceInstance(UriInfo uriInfo, int id) {
@@ -93,11 +95,11 @@ public class LinkBuilder {
 	
 	public static URI linkToNodeInstanceProperties(UriInfo uriInfo, int nodeInstanceID) {
 		return UriBuilder.fromUri(linkToNodeInstance(uriInfo, nodeInstanceID))
-				.path(NodeInstanceResource.class, "getProperties").build(new Object[0]);
+				.path(NodeTemplateInstanceResource.class, "getProperties").build(new Object[0]);
 	}
 	
 	public static URI linkToNodeInstanceState(UriInfo uriInfo, int nodeInstanceID) {
 		return UriBuilder.fromUri(linkToNodeInstance(uriInfo, nodeInstanceID))
-				.path(NodeInstanceResource.class, "getState").build(new Object[0]);
+				.path(NodeTemplateInstanceResource.class, "getState").build(new Object[0]);
 	}
 }

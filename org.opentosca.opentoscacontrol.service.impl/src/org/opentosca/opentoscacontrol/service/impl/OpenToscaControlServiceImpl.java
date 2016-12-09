@@ -19,7 +19,7 @@ import org.opentosca.csarinstancemanagement.service.ICSARInstanceManagementServi
 import org.opentosca.exceptions.SystemException;
 import org.opentosca.exceptions.UserException;
 import org.opentosca.iaengine.service.IIAEngineService;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.TPlan;
 import org.opentosca.model.tosca.TPlans;
 import org.opentosca.model.tosca.TServiceTemplate;
@@ -279,7 +279,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> getActiveCorrelationsOfInstance(CSARInstanceID csarInstanceID) {
+	public List<String> getCorrelationsOfServiceTemplateInstance(ServiceTemplateInstanceID csarInstanceID) {
 		return OpenToscaControlServiceImpl.planInvocationEngine.getActiveCorrelationsOfInstance(csarInstanceID);
 	}
 	
@@ -287,7 +287,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public TPlanDTO getActivePlanOfInstance(CSARInstanceID csarInstanceID, String correlationID) {
+	public TPlanDTO getActivePlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID) {
 		return OpenToscaControlServiceImpl.planInvocationEngine.getActivePublicPlanOfInstance(csarInstanceID, correlationID);
 	}
 	

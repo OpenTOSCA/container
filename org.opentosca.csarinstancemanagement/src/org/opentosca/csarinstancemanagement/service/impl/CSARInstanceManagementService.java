@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.csarinstancemanagement.service.ICSARInstanceManagementService;
 import org.opentosca.model.csarinstancemanagement.CSARIDToInstanceToCorrelation;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
 import org.opentosca.model.csarinstancemanagement.PlanCorrelationToPlanInvocationEvent;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  * 
  */
+@Deprecated
 public class CSARInstanceManagementService implements ICSARInstanceManagementService {
 	
 	
@@ -30,7 +33,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	private final CSARIDToInstanceToCorrelation instanceStorage = new CSARIDToInstanceToCorrelation();
 	private final PlanCorrelationToPlanInvocationEvent planHistory = new PlanCorrelationToPlanInvocationEvent();
 	
-	private Map<String, CSARInstanceID> mapCorrelationIDToCSARInstance = new HashMap<String, CSARInstanceID>();
+	private Map<String, ServiceTemplateInstanceID> mapCorrelationIDToCSARInstance = new HashMap<String, ServiceTemplateInstanceID>();
 	
 	private Map<CSARID, List<String>> mapCSARIDToActivePlanCorrelation = new HashMap<CSARID, List<String>>();
 	private Map<CSARID, List<String>> mapCSARIDToFinishedPlanCorrelation = new HashMap<CSARID, List<String>>();
@@ -78,7 +81,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<CSARInstanceID> getInstancesOfCSAR(CSARID csarID) {
+	public List<ServiceTemplateInstanceID> getInstancesOfCSAR(CSARID csarID) {
 		
 		LOG.debug("Return the current list of instances for CSAR \"" + csarID + "\".");
 		return instanceStorage.getInstancesOfCSAR(csarID);
@@ -88,10 +91,10 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	 * {@inheritDoc}
 	 */
 	@Override
-	public CSARInstanceID createNewInstance(CSARID csarID) {
+	public ServiceTemplateInstanceID createNewInstance(CSARID csarID, QName serviceTemplateId) {
 		
 		LOG.info("Create a new instance for CSAR \"" + csarID + "\".");
-		CSARInstanceID id = instanceStorage.storeNewCSARInstance(csarID);
+		ServiceTemplateInstanceID id = instanceStorage.storeNewCSARInstance(csarID, serviceTemplateId);
 		
 		return id;
 		
@@ -101,7 +104,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void storeCorrelationForAnInstance(CSARID csarID, CSARInstanceID instanceID, String correlationID) {
+	public void storeCorrelationForAnInstance(CSARID csarID, ServiceTemplateInstanceID instanceID, String correlationID) {
 		LOG.info("Store correlation {} for CSAR \"" + csarID + "\" instance {}.", correlationID, instanceID);
 		instanceStorage.storeNewCorrelationForInstance(csarID, instanceID, correlationID);
 		LOG.debug(toString());
@@ -111,7 +114,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean deleteInstance(CSARID csarID, CSARInstanceID instanceID) {
+	public boolean deleteInstance(CSARID csarID, ServiceTemplateInstanceID instanceID) {
 		LOG.debug("Delete instance {} of CSAR {}.", instanceID.toString(), csarID);
 		LOG.debug(toString());
 		return instanceStorage.deleteInstanceOfCSAR(csarID, instanceID);
@@ -139,7 +142,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> getCorrelationsOfInstance(CSARID csarID, CSARInstanceID instanceID) {
+	public List<String> getCorrelationsOfInstance(CSARID csarID, ServiceTemplateInstanceID instanceID) {
 		return instanceStorage.getCorrelationList(csarID, instanceID);
 	}
 	
@@ -154,7 +157,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 		builder.append("Print stored data in the CSARInstanceManager: " + ls);
 		for (CSARID csarID : instanceStorage.getCSARList()) {
 			builder.append("Instances of CSAR " + csarID + ls);
-			for (CSARInstanceID instanceID : instanceStorage.getInstancesOfCSAR(csarID)) {
+			for (ServiceTemplateInstanceID instanceID : instanceStorage.getInstancesOfCSAR(csarID)) {
 				builder.append("   " + instanceID + ls);
 				for (String correlationID : instanceStorage.getCorrelationList(csarID, instanceID)) {
 					builder.append("      " + correlationID + " " + getPlanFromHistory(correlationID).getPlanCorrelationID() + ls);
@@ -166,12 +169,12 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	}
 	
 	@Override
-	public CSARInstanceID getInstanceForCorrelation(String correlationID) {
+	public ServiceTemplateInstanceID getInstanceForCorrelation(String correlationID) {
 		return mapCorrelationIDToCSARInstance.get(correlationID);
 	}
 	
 	@Override
-	public void correlateCSARInstanceWithPlanInstance(CSARInstanceID instanceID, String correlationID) {
+	public void correlateCSARInstanceWithPlanInstance(ServiceTemplateInstanceID instanceID, String correlationID) {
 		mapCorrelationIDToCSARInstance.put(correlationID, instanceID);
 	}
 	
@@ -189,7 +192,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 	}
 	
 	@Override
-	public PlanInvocationEvent getPlanForCorrelationId(String correlationId){
+	public PlanInvocationEvent getPlanForCorrelationId(String correlationId) {
 		return mapCorrelationIdToPlanEvent.get(correlationId);
 	}
 }

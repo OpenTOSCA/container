@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEvent;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.slf4j.Logger;
@@ -29,7 +31,8 @@ public class CorrelationHandler {
 	
 	// TODO make persistent, fix JPA
 	// CSARID to CorrelationID to Invocation Event
-	private Map<CSARID, Map<String, PlanInvocationEvent>> mapCorrelationToPublicPlan = new HashMap<CSARID, Map<String, PlanInvocationEvent>>();
+	private Map<CSARID, Map<QName, Map<Integer, Map<String, PlanInvocationEvent>>>> mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan = new HashMap<CSARID, Map<QName, Map<Integer, Map<String, PlanInvocationEvent>>>>();
+	private Map<String, Integer> mapCorrIdToFakedServiceTemplateInstanceId = new HashMap<>();
 	
 	private final Logger LOG = LoggerFactory.getLogger(CorrelationHandler.class);
 	
@@ -37,10 +40,14 @@ public class CorrelationHandler {
 	/**
 	 * Synchronized method for creating a new CorrelationID for a PublicPlan.
 	 * 
+	 * @param csarInstanceID
+	 * @param serviceTemplateId
+	 * @param b
+	 * 
 	 * @param publicPlan
 	 * @return CorrelationID
 	 */
-	public synchronized String getNewCorrelationID(CSARID csarID, PlanInvocationEvent event) {
+	public synchronized String getNewCorrelationID(CSARID csarID, QName serviceTemplateId, int serviceTemplateInstanceId, PlanInvocationEvent event, boolean isBuildPlan) {
 		
 		long time = System.currentTimeMillis();
 		
@@ -56,14 +63,32 @@ public class CorrelationHandler {
 		}
 		
 		// put together the CorrelationID
-		String cID = lastMilli + "-" + lastCounter;
+		String corrID = lastMilli + "-" + lastCounter;
 		
-		if (!mapCorrelationToPublicPlan.containsKey(csarID)) {
-			mapCorrelationToPublicPlan.put(csarID, new HashMap<String, PlanInvocationEvent>());
+		if (!mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.containsKey(csarID)) {
+			mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.put(csarID, new HashMap<QName, Map<Integer, Map<String, PlanInvocationEvent>>>());
 		}
-		mapCorrelationToPublicPlan.get(csarID).put(cID, event);
+		if (!mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).containsKey(serviceTemplateId)) {
+			mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).put(serviceTemplateId, new HashMap<Integer, Map<String, PlanInvocationEvent>>());
+		}
+		if (!mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).containsKey(serviceTemplateInstanceId)) {
+			mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).put(serviceTemplateInstanceId, new HashMap<String, PlanInvocationEvent>());
+		}
+		mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).get(serviceTemplateInstanceId).put(corrID, event);
 		
-		return cID;
+		if (isBuildPlan) {
+			mapCorrIdToFakedServiceTemplateInstanceId.put(corrID, serviceTemplateInstanceId);
+		}
+		
+		return corrID;
+	}
+	
+	public synchronized void correlateBuildPlanCorrToServiceTemplateInstanceId(CSARID csarID, QName serviceTemplateId, String corrId, int correctSTInstanceId) {
+		
+		int falseSTInstanceId = mapCorrIdToFakedServiceTemplateInstanceId.get(corrId);
+		
+		Map<String, PlanInvocationEvent> map = mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).remove(falseSTInstanceId);
+		mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).put(correctSTInstanceId, map);
 	}
 	
 	/**
@@ -73,21 +98,26 @@ public class CorrelationHandler {
 	 * @return PublicPlan
 	 */
 	public TPlanDTO getPublicPlanForCorrelation(String correlationID) {
-		for (CSARID csarID : mapCorrelationToPublicPlan.keySet()) {
-			if (mapCorrelationToPublicPlan.get(csarID).containsKey(correlationID)) {
-				
-				PlanInvocationEvent event = mapCorrelationToPublicPlan.get(csarID).get(correlationID);
-				TPlanDTO plan = new TPlanDTO();
-				plan.setId(event.getPlanID());
-				plan.setName(event.getPlanName());
-				plan.setPlanLanguage(event.getPlanLanguage());
-				plan.setPlanType(event.getPlanType());
-				plan.setInputParameters(new TPlanDTO.InputParameters());
-				plan.getInputParameters().getInputParameter().addAll(event.getInputParameter());
-				plan.setOutputParameters(new TPlanDTO.OutputParameters());
-				plan.getOutputParameters().getOutputParameter().addAll(event.getOutputParameter());
-				
-				return plan;
+		for (CSARID csarID : mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.keySet()) {
+			for (QName serviceTemplateId : mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).keySet()) {
+				for (Integer serviceTemplateInstanceId : mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).keySet()) {
+					
+					if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).get(serviceTemplateInstanceId).containsKey(correlationID)) {
+						
+						PlanInvocationEvent event = mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(serviceTemplateId).get(serviceTemplateInstanceId).get(correlationID);
+						TPlanDTO plan = new TPlanDTO();
+						plan.setId(event.getPlanID());
+						plan.setName(event.getPlanName());
+						plan.setPlanLanguage(event.getPlanLanguage());
+						plan.setPlanType(event.getPlanType());
+						plan.setInputParameters(new TPlanDTO.InputParameters());
+						plan.getInputParameters().getInputParameter().addAll(event.getInputParameter());
+						plan.setOutputParameters(new TPlanDTO.OutputParameters());
+						plan.getOutputParameters().getOutputParameter().addAll(event.getOutputParameter());
+						
+						return plan;
+					}
+				}
 			}
 		}
 		
@@ -103,22 +133,27 @@ public class CorrelationHandler {
 	 * @param correlationID
 	 * @return PublicPlan
 	 */
-	public TPlanDTO getPlanDTOForCorrelation(CSARInstanceID instanceID, String correlationID) {
-		if (mapCorrelationToPublicPlan.containsKey(instanceID.getOwner())) {
-			if (mapCorrelationToPublicPlan.get(instanceID.getOwner()).containsKey(correlationID)) {
-				
-				PlanInvocationEvent event = mapCorrelationToPublicPlan.get(instanceID.getOwner()).get(correlationID);
-				TPlanDTO plan = new TPlanDTO();
-				plan.setId(event.getPlanID());
-				plan.setName(event.getPlanName());
-				plan.setPlanLanguage(event.getPlanLanguage());
-				plan.setPlanType(event.getPlanType());
-				plan.setInputParameters(new TPlanDTO.InputParameters());
-				plan.getInputParameters().getInputParameter().addAll(event.getInputParameter());
-				plan.setOutputParameters(new TPlanDTO.OutputParameters());
-				plan.getOutputParameters().getOutputParameter().addAll(event.getOutputParameter());
-				
-				return plan;
+	public TPlanDTO getPlanDTOForCorrelation(ServiceTemplateInstanceID instanceID, String correlationID) {
+		
+		if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.containsKey(instanceID.getCsarId())) {
+			if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(instanceID.getCsarId()).containsKey(instanceID.getServiceTemplateId())) {
+				if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(instanceID.getCsarId()).get(instanceID.getServiceTemplateId()).containsKey(instanceID.getInstanceID())) {
+					if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(instanceID.getCsarId()).get(instanceID.getServiceTemplateId()).get(instanceID.getInstanceID()).containsKey(correlationID)) {
+						
+						PlanInvocationEvent event = mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(instanceID.getCsarId()).get(instanceID.getServiceTemplateId()).get(instanceID.getInstanceID()).get(correlationID);
+						TPlanDTO plan = new TPlanDTO();
+						plan.setId(event.getPlanID());
+						plan.setName(event.getPlanName());
+						plan.setPlanLanguage(event.getPlanLanguage());
+						plan.setPlanType(event.getPlanType());
+						plan.setInputParameters(new TPlanDTO.InputParameters());
+						plan.getInputParameters().getInputParameter().addAll(event.getInputParameter());
+						plan.setOutputParameters(new TPlanDTO.OutputParameters());
+						plan.getOutputParameters().getOutputParameter().addAll(event.getOutputParameter());
+						
+						return plan;
+					}
+				}
 			}
 		}
 		
@@ -134,7 +169,7 @@ public class CorrelationHandler {
 	 * @param correlationID
 	 */
 	public void removeCorrelation(CSARID csarid, String correlationID) {
-		mapCorrelationToPublicPlan.get(csarid).remove(correlationID);
+		mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarid).remove(correlationID);
 	}
 	
 	/**
@@ -144,9 +179,9 @@ public class CorrelationHandler {
 	 * @param correlationID
 	 */
 	public void removeCorrelation(String correlationID) {
-		for (CSARID csarID : mapCorrelationToPublicPlan.keySet()) {
-			if (mapCorrelationToPublicPlan.get(csarID).containsKey(correlationID)) {
-				mapCorrelationToPublicPlan.get(csarID).remove(correlationID);
+		for (CSARID csarID : mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.keySet()) {
+			if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).containsKey(correlationID)) {
+				mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).remove(correlationID);
 			}
 		}
 	}
@@ -157,19 +192,21 @@ public class CorrelationHandler {
 	 * @param instanceID
 	 * @return list of CorrelationIDs
 	 */
-	public List<String> getActiveCorrelationsOfInstance(CSARInstanceID instanceID) {
+	public List<String> getActiveCorrelationsOfInstance(ServiceTemplateInstanceID instanceID) {
 		List<String> list = new ArrayList<String>();
 		
-		CSARID csarID = instanceID.getOwner();
+		CSARID csarID = instanceID.getCsarId();
+		QName stQName = instanceID.getServiceTemplateId();
+		int stInstanceId = instanceID.getInstanceID();
 		// int internalID = instanceID.getInternalID();
 		
-		if (mapCorrelationToPublicPlan.containsKey(csarID)) {
-			for (String correlation : mapCorrelationToPublicPlan.get(csarID).keySet()) {
-				// TPlan plan =
-				// mapCorrelationToPublicPlan.get(csarID).get(correlation);
-				// if (plan.getInternalInstanceInternalID() == internalID) {
-				list.add(correlation);
-				// }
+		if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.containsKey(csarID)) {
+			if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).containsKey(stQName)) {
+				if (mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(stQName).containsKey(stInstanceId)) {
+					for (String corr : mapCsarIdToServiceTemplateIdToSTInstanceIdToCorrelationToPublicPlan.get(csarID).get(stQName).get(stInstanceId).keySet()) {
+						list.add(corr);
+					}
+				}
 			}
 		}
 		

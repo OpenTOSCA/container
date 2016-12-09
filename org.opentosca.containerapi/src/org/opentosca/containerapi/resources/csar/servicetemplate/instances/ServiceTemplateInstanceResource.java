@@ -5,8 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -20,21 +18,17 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.containerapi.instancedata.LinkBuilder;
-import org.opentosca.containerapi.instancedata.model.NodeInstanceList;
-import org.opentosca.containerapi.instancedata.model.ServiceInstanceEntry;
-import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 import org.opentosca.containerapi.osgi.servicegetter.IOpenToscaControlServiceHandler;
-import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.plans.PlanInstances;
+import org.opentosca.containerapi.resources.csar.servicetemplate.node.instances.NodeTemplateInstancesResource;
 import org.opentosca.containerapi.resources.utilities.JSONUtils;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
+import org.opentosca.containerapi.resources.utilities.Utilities;
+import org.opentosca.containerapi.resources.xlink.Reference;
+import org.opentosca.containerapi.resources.xlink.References;
+import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.instancedata.service.IInstanceDataService;
-import org.opentosca.model.instancedata.IdConverter;
-import org.opentosca.model.instancedata.NodeInstance;
-import org.opentosca.model.instancedata.ServiceInstance;
 import org.opentosca.model.tosca.TBoolean;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
@@ -71,62 +65,82 @@ public class ServiceTemplateInstanceResource {
 	@Produces(MediaType.APPLICATION_XML)
 	public Response doGetXML(@Context UriInfo uriInfo) {
 		
-		ServiceInstanceEntry idr = getRefs(uriInfo);
+		References idr = getRefs(uriInfo);
 		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 		
-		return Response.ok(idr).build();
+		return Response.ok(idr.getXMLString()).build();
 	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doGetJSON(@Context UriInfo uriInfo) {
 		
-		ServiceInstanceEntry idr = getRefs(uriInfo);
+		References idr = getRefs(uriInfo);
 		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 		
-		return Response.ok(idr.toJSON()).build();
+		return Response.ok(idr.getJSONString()).build();
 	}
 	
-	public ServiceInstanceEntry getRefs(UriInfo uriInfo) {
-		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		URI serviceInstanceIDtoURI = IdConverter.serviceInstanceIDtoURI(serviceTemplateInstanceId);
+	public References getRefs(UriInfo uriInfo) {
 		
-		try {
-			// self link is only link at the moment in the main list
-			List<SimpleXLink> serviceInstanceLinks = new LinkedList<SimpleXLink>();
-			serviceInstanceLinks.add(LinkBuilder.selfLink(uriInfo));
-			
-			// its ensured that this serviceInstance exists
-			List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIDtoURI, null, null);
-			ServiceInstance serviceInstance = serviceInstances.get(0);
-			
-			// extract values
-			
-			// build nodeInstanceList
-			List<NodeInstance> result = service.getNodeInstances(null, null, null, serviceInstanceIDtoURI);
-			List<SimpleXLink> nodeInstanceLinks = new LinkedList<SimpleXLink>();
-			
-			for (NodeInstance nodeInstance : result) {
-				URI uriToNodeInstance = LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId());
-				// build simpleXLink with the nodeInstanceID as LinkText
-				nodeInstanceLinks.add(new SimpleXLink(uriToNodeInstance, nodeInstance.getNodeInstanceID().toString()));
-			}
-			// we dont want a self link because the InstanceList is part of
-			// another list already containing a self link
-			NodeInstanceList nil = new NodeInstanceList(null, nodeInstanceLinks);
-			
-			ServiceInstanceEntry sie = new ServiceInstanceEntry(serviceInstance, serviceInstanceLinks, nil);
-			
-			return sie;
-		} catch (Exception e) {
-			return null;
-		}
+		References refs = new References();
+		
+		//		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+		//		URI serviceInstanceIDtoURI = IdConverter.serviceInstanceIDtoURI(serviceTemplateInstanceId);
+		
+		//		try {
+		//			// self link is only link at the moment in the main list
+		//			List<SimpleXLink> serviceInstanceLinks = new LinkedList<SimpleXLink>();
+		//			serviceInstanceLinks.add(LinkBuilder.selfLink(uriInfo));
+		//			
+		//			// its ensured that this serviceInstance exists
+		//			List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIDtoURI, null, null);
+		//			ServiceInstance serviceInstance = serviceInstances.get(0);
+		//			
+		//			// extract values
+		//			
+		//			// build nodeInstanceList
+		//			List<NodeInstance> nodeInstances = service.getNodeInstances(null, null, null, serviceInstanceIDtoURI);
+		//			List<SimpleXLink> nodeInstanceLinks = new LinkedList<SimpleXLink>();
+		//			
+		//			for (NodeInstance nodeInstance : nodeInstances) {
+		//				
+		//				// URI uriToNodeInstance =
+		//				// LinkBuilder.linkToNodeInstance(uriInfo,
+		//				// nodeInstance.getId());
+		//				// // build simpleXLink with the nodeInstanceID as LinkText
+		//				// nodeInstanceLinks.add(new SimpleXLink(uriToNodeInstance, nodeInstance.getNodeInstanceID().toString()));
+		//				
+		//				QName nodeId = nodeInstance.getNodeTemplateID();
+		//				String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/NodeTemplates/" + URLEncoder.encode(nodeId.toString(), "UTF-8");
+		//				refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(), nodeUrl), XLinkConstants.REFERENCE, URLEncoder.encode(nodeId.getLocalPart(), "UTF-8")));
+		//				log.debug("build node reference {}", nodeUrl);
+		//			}
+		//			// we dont want a self link because the InstanceList is part of
+		//			// another list already containing a self link
+		//			NodeInstanceList nil = new NodeInstanceList(null, nodeInstanceLinks);
+		//			
+		//			ServiceInstanceEntry sie = new ServiceInstanceEntry(serviceInstance, serviceInstanceLinks, nil);
+		
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "NodeTemplates"), XLinkConstants.SIMPLE, "NodeTemplates"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Properties"), XLinkConstants.SIMPLE, "Properties"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "State"), XLinkConstants.SIMPLE, "State"));
+		
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		
+		return refs;
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// return null;
+		// }
 	}
 	
 	// @DELETE
@@ -150,6 +164,11 @@ public class ServiceTemplateInstanceResource {
 	@Path("/PlanInstances")
 	public Object getPlanInstances() {
 		return new PlanInstances(csarId, serviceTemplateID, serviceTemplateInstanceId);
+	}
+	
+	@Path("/NodeTemplates")
+	public Object getNodeInstances() {
+		return new NodeTemplateInstancesResource(csarId, serviceTemplateID, serviceTemplateInstanceId);
 	}
 	
 	/**

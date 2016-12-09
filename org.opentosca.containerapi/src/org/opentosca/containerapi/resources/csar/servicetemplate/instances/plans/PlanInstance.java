@@ -68,6 +68,8 @@ public class PlanInstance {
 	
 	public References getReferences(){
 		
+		LOG.debug("return plan instance of corr {}", correlationID);
+		
 		References refs = new References();
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Logs"), XLinkConstants.SIMPLE, "Logs"));

@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.instancedata;
+package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
 
 import java.net.URI;
 import java.util.LinkedList;
@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -17,10 +15,10 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.exception.GenericRestException;
 import org.opentosca.containerapi.instancedata.model.NodeInstanceList;
 import org.opentosca.containerapi.instancedata.model.SimpleXLink;
-import org.opentosca.containerapi.instancedata.utilities.Constants;
 import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
 import org.opentosca.containerapi.resources.utilities.Utilities;
 import org.opentosca.instancedata.service.IInstanceDataService;
@@ -29,12 +27,13 @@ import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.NodeInstance;
 
 /**
+ * TODO delete this class
  * 
  * @author Florian Haupt <florian.haupt@iaas.uni-stuttgart.de>
  * @author Marcus Eisele <marcus.eisele@gmail.com>
  *
  */
-public class NodeInstanceListResource {
+public class NodeTemplateInstanceListResource {
 	
 	
 	@GET
@@ -138,11 +137,11 @@ public class NodeInstanceListResource {
 		}
 	}
 	
-	@Path("/{" + Constants.NodeInstanceListResource_getNodeInstance_PARAM + "}")
-	public Object getNodeInstance(@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM) int id, @Context UriInfo uriInfo) {
-		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		ExistenceChecker.checkNodeInstanceWithException(id, service);
-		return new NodeInstanceResource(id);
-	}
+	//	@Path("/{" + Constants.NodeInstanceListResource_getNodeInstance_PARAM + "}")
+	//	public Object getNodeInstance(@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM) int id, @Context UriInfo uriInfo) {
+	//		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+	//		ExistenceChecker.checkNodeInstanceWithException(id, service);
+	//		return new NodeTemplateInstanceResource(id);
+	//	}
 	
 }

@@ -9,7 +9,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 
 /**
@@ -126,7 +126,7 @@ public interface IOpenToscaControlService {
 	 * @param csarInstanceID
 	 * @return list of active PublicPlans
 	 */
-	public List<String> getActiveCorrelationsOfInstance(CSARInstanceID csarInstanceID);
+	public List<String> getCorrelationsOfServiceTemplateInstance(ServiceTemplateInstanceID csarInstanceID);
 	
 	/**
 	 * Returns a specific active PublicPlan of a CSARInstance
@@ -135,7 +135,7 @@ public interface IOpenToscaControlService {
 	 * @param correlationID
 	 * @return the Plan
 	 */
-	public TPlanDTO getActivePlanOfInstance(CSARInstanceID csarInstanceID, String correlationID);
+	public TPlanDTO getActivePlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
 	
 	int getCSARInstanceIDForCorrelationID(String correlationID);
 	

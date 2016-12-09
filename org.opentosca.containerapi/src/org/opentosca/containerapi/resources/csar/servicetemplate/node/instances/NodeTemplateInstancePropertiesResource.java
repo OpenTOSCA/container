@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.instancedata;
+package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.exception.GenericRestException;
 import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
@@ -30,13 +31,13 @@ import org.w3c.dom.Document;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
-public class NodeInstancePropertiesResource {
+public class NodeTemplateInstancePropertiesResource {
 	
 	
 	private int nodeInstanceID;
 	
 	
-	public NodeInstancePropertiesResource(int id) {
+	public NodeTemplateInstancePropertiesResource(int id) {
 		nodeInstanceID = id;
 	}
 	

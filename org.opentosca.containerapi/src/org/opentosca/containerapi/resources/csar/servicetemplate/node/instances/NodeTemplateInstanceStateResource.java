@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.instancedata;
+package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.exception.GenericRestException;
 import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
@@ -24,13 +25,13 @@ import com.google.gson.JsonObject;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
-public class NodeInstanceStateResource {
+public class NodeTemplateInstanceStateResource {
 	
 	
 	private int nodeInstanceID;
 	
 	
-	public NodeInstanceStateResource(int id) {
+	public NodeTemplateInstanceStateResource(int id) {
 		nodeInstanceID = id;
 	}
 	

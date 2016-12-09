@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEvent;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
@@ -44,7 +44,7 @@ public class ResponseParser {
 		LOG.debug("Parse a new response.");
 		
 		TPlanDTO plan = ServiceHandler.correlationHandler.getPublicPlanForCorrelation(correlationID);
-		CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+		ServiceTemplateInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
 		
 		// store the PublicPlan to the history
 		ServiceHandler.csarInstanceManagement.storePublicPlanToHistory(correlationID, new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(), ServiceHandler.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID), ServiceHandler.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID), ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
@@ -125,7 +125,7 @@ public class ResponseParser {
 		LOG.debug("Parse a new response.");
 		
 		TPlanDTO plan = ServiceHandler.correlationHandler.getPublicPlanForCorrelation(correlationID);
-		CSARInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
+		ServiceTemplateInstanceID instanceID = ServiceHandler.csarInstanceManagement.getInstanceForCorrelation(correlationID);
 		
 		// store the PublicPlan to the history
 		ServiceHandler.csarInstanceManagement.storePublicPlanToHistory(correlationID,

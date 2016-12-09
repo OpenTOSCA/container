@@ -18,7 +18,7 @@ import org.opentosca.containerapi.resources.xlink.Reference;
 import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.opentoscacontrol.service.IOpenToscaControlService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class PlanInstances {
 	
 	public References getReferences() {
 		
-		PlanInstances.LOG.debug("Access active plans at " + uriInfo.getAbsolutePath().toString());
+		PlanInstances.LOG.debug("Access plan instance list at " + uriInfo.getAbsolutePath().toString());
 		
 		if (csarID == null) {
 			PlanInstances.LOG.debug("The CSAR does not exist.");
@@ -90,7 +90,7 @@ public class PlanInstances {
 		
 		IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
 		
-		for (String correlation : control.getActiveCorrelationsOfInstance(new CSARInstanceID(csarID, serviceTemplateInstanceId))) {
+		for (String correlation : control.getCorrelationsOfServiceTemplateInstance(new ServiceTemplateInstanceID(csarID, serviceTemplateID, serviceTemplateInstanceId))) {
 			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), correlation), XLinkConstants.SIMPLE, correlation));
 		}
 		
@@ -106,10 +106,10 @@ public class PlanInstances {
 	 * @return Response
 	 * @throws URISyntaxException
 	 */
-	@GET
 	@Path("{CorrelationID}")
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public PlanInstance getPlanJSON(@Context UriInfo uriInfo, @PathParam("CorrelationID") String correlationID) throws URISyntaxException {
+		LOG.debug("get plan of corr {}", correlationID);
 		return new PlanInstance(csarID, serviceTemplateID, serviceTemplateInstanceId, correlationID);
 	}
 	

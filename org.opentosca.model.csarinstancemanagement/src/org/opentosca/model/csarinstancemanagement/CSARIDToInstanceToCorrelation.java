@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.core.model.csar.id.CSARID;
 
 /**
@@ -19,7 +21,7 @@ public class CSARIDToInstanceToCorrelation {
 	
 	// map of CSARID to CSARInstanceID to list of CorrelationIDs
 	// TODO make persistent
-	private final Map<CSARID, Map<CSARInstanceID, List<String>>> storageMap = new HashMap<CSARID, Map<CSARInstanceID, List<String>>>();
+	private final Map<CSARID, Map<ServiceTemplateInstanceID, List<String>>> storageMap = new HashMap<CSARID, Map<ServiceTemplateInstanceID, List<String>>>();
 	
 	
 	/**
@@ -28,17 +30,17 @@ public class CSARIDToInstanceToCorrelation {
 	 * @param csarID the CSARID
 	 * @param instanceID the InstanceID
 	 */
-	public CSARInstanceID storeNewCSARInstance(CSARID csarID) {
+	public ServiceTemplateInstanceID storeNewCSARInstance(CSARID csarID, QName serviceTemplateId) {
 		
 		int highest = 0;
 		
-		for (CSARInstanceID id : getInstanceMap(csarID).keySet()) {
+		for (ServiceTemplateInstanceID id : getInstanceMap(csarID).keySet()) {
 			if (highest < id.getInstanceID()) {
 				highest = id.getInstanceID();
 			}
 		}
 		
-		CSARInstanceID instance = new CSARInstanceID(csarID, highest + 1);
+		ServiceTemplateInstanceID instance = new ServiceTemplateInstanceID(csarID, serviceTemplateId, highest + 1);
 		
 		getInstanceMap(csarID).put(instance, new ArrayList<String>());
 		
@@ -52,7 +54,7 @@ public class CSARIDToInstanceToCorrelation {
 	 * @param instanceID the InstanceID
 	 * @param correlationID the CorrelationID
 	 */
-	public void storeNewCorrelationForInstance(CSARID csarID, CSARInstanceID instanceID, String correlationID) {
+	public void storeNewCorrelationForInstance(CSARID csarID, ServiceTemplateInstanceID instanceID, String correlationID) {
 		
 		List<String> list = getCorrelationList(csarID, instanceID);
 		if (null != list) {
@@ -60,11 +62,11 @@ public class CSARIDToInstanceToCorrelation {
 		}
 	}
 	
-	public List<CSARInstanceID> getInstancesOfCSAR(CSARID csarID) {
+	public List<ServiceTemplateInstanceID> getInstancesOfCSAR(CSARID csarID) {
 		
-		List<CSARInstanceID> returnList = new ArrayList<CSARInstanceID>();
+		List<ServiceTemplateInstanceID> returnList = new ArrayList<ServiceTemplateInstanceID>();
 		
-		for (CSARInstanceID id : getInstanceMap(csarID).keySet()) {
+		for (ServiceTemplateInstanceID id : getInstanceMap(csarID).keySet()) {
 			returnList.add(id);
 		}
 		
@@ -78,9 +80,9 @@ public class CSARIDToInstanceToCorrelation {
 	 * @param csarID
 	 * @return the map
 	 */
-	private Map<CSARInstanceID, List<String>> getInstanceMap(CSARID csarID) {
+	private Map<ServiceTemplateInstanceID, List<String>> getInstanceMap(CSARID csarID) {
 		if (!storageMap.containsKey(csarID)) {
-			storageMap.put(csarID, new HashMap<CSARInstanceID, List<String>>());
+			storageMap.put(csarID, new HashMap<ServiceTemplateInstanceID, List<String>>());
 		}
 		return storageMap.get(csarID);
 	}
@@ -91,9 +93,9 @@ public class CSARIDToInstanceToCorrelation {
 	 * @param csarID
 	 * @return the map
 	 */
-	public List<String> getCorrelationList(CSARID csarID, CSARInstanceID instanceID) {
+	public List<String> getCorrelationList(CSARID csarID, ServiceTemplateInstanceID instanceID) {
 		if (null == getInstanceMap(csarID)) {
-			storageMap.put(csarID, new HashMap<CSARInstanceID, List<String>>());
+			storageMap.put(csarID, new HashMap<ServiceTemplateInstanceID, List<String>>());
 			storageMap.get(csarID).put(instanceID, new ArrayList<String>());
 		}
 		return storageMap.get(csarID).get(instanceID);
@@ -108,7 +110,7 @@ public class CSARIDToInstanceToCorrelation {
 		builder.append("Currently stored informations for instances and correlations:" + ls);
 		for (CSARID csarID : storageMap.keySet()) {
 			builder.append("CSAR \"" + csarID + "\":" + ls + "   ");
-			for (CSARInstanceID instanceID : storageMap.get(csarID).keySet()) {
+			for (ServiceTemplateInstanceID instanceID : storageMap.get(csarID).keySet()) {
 				builder.append("InstanceID \"" + instanceID + "\" with correlations: ");
 				for (String correlation : getCorrelationList(csarID, instanceID)) {
 					builder.append(correlation + ", ");
@@ -136,7 +138,7 @@ public class CSARIDToInstanceToCorrelation {
 		return null != storageMap.remove(csarID);
 	}
 	
-	public boolean deleteInstanceOfCSAR(CSARID csarID, CSARInstanceID instanceID) {
+	public boolean deleteInstanceOfCSAR(CSARID csarID, ServiceTemplateInstanceID instanceID) {
 		if (storageMap.containsKey(csarID)) {
 			return null != storageMap.get(csarID).remove(instanceID);
 		}

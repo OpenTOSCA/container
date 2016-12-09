@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 
 /**
@@ -35,6 +35,8 @@ public interface IPlanInvocationEngine {
 	 */
 	public String invokePlan(CSARID csarID, QName serviceTemplateId, int csarInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
 	
+	public void correctCorrelationToServiceTemplateInstanceIdMapping(CSARID csarID, QName serviceTemplateId, String corrId, int correctSTInstanceId);
+	
 	/**
 	 * Returns a list of CorrelationIDs of activce PublicPlans of a
 	 * CSARInstance.
@@ -42,7 +44,7 @@ public interface IPlanInvocationEngine {
 	 * @param csarInstanceID
 	 * @return list of CorrelationIDs of active PublicPlans
 	 */
-	public List<String> getActiveCorrelationsOfInstance(CSARInstanceID csarInstanceID);
+	public List<String> getActiveCorrelationsOfInstance(ServiceTemplateInstanceID csarInstanceID);
 	
 	/**
 	 * Returns a specific active PublicPlan.
@@ -51,6 +53,6 @@ public interface IPlanInvocationEngine {
 	 * @param correlationID
 	 * @return PublicPlan
 	 */
-	public TPlanDTO getActivePublicPlanOfInstance(CSARInstanceID csarInstanceID, String correlationID);
+	public TPlanDTO getActivePublicPlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
 	
 }

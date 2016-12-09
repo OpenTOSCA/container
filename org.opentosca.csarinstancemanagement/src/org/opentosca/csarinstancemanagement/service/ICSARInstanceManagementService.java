@@ -3,8 +3,10 @@ package org.opentosca.csarinstancemanagement.service;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
+import org.opentosca.model.csarinstancemanagement.ServiceTemplateInstanceID;
 import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEvent;
 
 /**
@@ -23,7 +25,7 @@ public interface ICSARInstanceManagementService {
 	 * @param csarID the CSAR ID
 	 * @return List of ICSARInstanceID or empty list
 	 */
-	public List<CSARInstanceID> getInstancesOfCSAR(CSARID csarID);
+	public List<ServiceTemplateInstanceID> getInstancesOfCSAR(CSARID csarID);
 	
 	/**
 	 * Creates a new instance for a certain CSAR.
@@ -31,7 +33,7 @@ public interface ICSARInstanceManagementService {
 	 * @param csarID the certain CSAR
 	 * @return the ID of the new instance
 	 */
-	public CSARInstanceID createNewInstance(CSARID csarID);
+	public ServiceTemplateInstanceID createNewInstance(CSARID csarID, QName serviceTemplateId);
 	
 	/**
 	 * Deletes a CSARInstance
@@ -41,7 +43,7 @@ public interface ICSARInstanceManagementService {
 	 * 
 	 * @return boolean for success
 	 */
-	public boolean deleteInstance(CSARID csarID, CSARInstanceID instanceID);
+	public boolean deleteInstance(CSARID csarID, ServiceTemplateInstanceID instanceID);
 	
 	/**
 	 * Stores a PublicPlan to History.
@@ -66,7 +68,7 @@ public interface ICSARInstanceManagementService {
 	 * @param instanceID
 	 * @param correlationID
 	 */
-	public void storeCorrelationForAnInstance(CSARID csarID, CSARInstanceID instanceID, String correlationID);
+	public void storeCorrelationForAnInstance(CSARID csarID, ServiceTemplateInstanceID instanceID, String correlationID);
 	
 	/**
 	 * Returns all CorrelationIDs of PublicPlans mapped to a specific
@@ -76,11 +78,11 @@ public interface ICSARInstanceManagementService {
 	 * @param instanceID
 	 * @return list of CorrelationIDs
 	 */
-	public List<String> getCorrelationsOfInstance(CSARID csarID, CSARInstanceID instanceID);
+	public List<String> getCorrelationsOfInstance(CSARID csarID, ServiceTemplateInstanceID instanceID);
 	
-	public CSARInstanceID getInstanceForCorrelation(String correlationID);
+	public ServiceTemplateInstanceID getInstanceForCorrelation(String correlationID);
 	
-	public void correlateCSARInstanceWithPlanInstance(CSARInstanceID instanceID, String correlationID);
+	public void correlateCSARInstanceWithPlanInstance(ServiceTemplateInstanceID instanceID, String correlationID);
 	
 	public Map<String, String> getOutputForCorrelation(String correlationID);
 	

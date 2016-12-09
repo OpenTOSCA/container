@@ -10,13 +10,11 @@ import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.containerapi.osgi.servicegetter.CSARInstanceManagementHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
-import org.opentosca.containerapi.resources.utilities.Utilities;
 import org.opentosca.containerapi.resources.xlink.Reference;
 import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.csarinstancemanagement.service.ICSARInstanceManagementService;
-import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
 import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEvent;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.slf4j.Logger;
@@ -90,9 +88,12 @@ public class InstancePlanHistoryResource {
 		
 		ICSARInstanceManagementService manager = CSARInstanceManagementHandler.csarInstanceManagement;
 		
-		for (String correlation : manager.getCorrelationsOfInstance(csarID, new CSARInstanceID(csarID, instanceID))) {
-			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), correlation), XLinkConstants.SIMPLE, correlation));
-		}
+		// for (String correlation : manager.getCorrelationsOfInstance(csarID,
+		// new ServiceTemplateInstanceID(csarID, instanceID))) {
+		// refs.getReference().add(new
+		// Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
+		// correlation), XLinkConstants.SIMPLE, correlation));
+		// }
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
