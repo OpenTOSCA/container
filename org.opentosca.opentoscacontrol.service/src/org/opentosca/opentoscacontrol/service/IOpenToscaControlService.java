@@ -1,5 +1,6 @@
 package org.opentosca.opentoscacontrol.service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 
@@ -26,12 +27,12 @@ import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
  */
 public interface IOpenToscaControlService {
 	
+	
 	/**
 	 * This method invokes the processing of the TOSCA content of a certain
 	 * CSAR.
 	 * 
-	 * @param csarID
-	 *            ID which uniquely identifies a CSAR file.
+	 * @param csarID ID which uniquely identifies a CSAR file.
 	 * @return Returns true for success, false for one or more errors.
 	 */
 	public Boolean invokeTOSCAProcessing(CSARID csarID);
@@ -39,10 +40,8 @@ public interface IOpenToscaControlService {
 	/**
 	 * Invoke the deployment of ImplementationArtifacts.
 	 * 
-	 * @param csarID
-	 *            ID which uniquely identifies a CSAR file.
-	 * @param serviceTemplateID
-	 *            ID of the ServiceTemplate to deploy.
+	 * @param csarID ID which uniquely identifies a CSAR file.
+	 * @param serviceTemplateID ID of the ServiceTemplate to deploy.
 	 * @return Returns true for success, false for one or more errors.
 	 */
 	public Boolean invokeIADeployment(CSARID csarID, QName serviceTemplateID);
@@ -50,10 +49,8 @@ public interface IOpenToscaControlService {
 	/**
 	 * Invoke the deployment of the Plans.
 	 * 
-	 * @param csarID
-	 *            ID which uniquely identifies a CSAR file.
-	 * @param serviceTemplateID
-	 *            ID of the ServiceTemplate to deploy.
+	 * @param csarID ID which uniquely identifies a CSAR file.
+	 * @param serviceTemplateID ID of the ServiceTemplate to deploy.
 	 * @return Returns true for success, false for one or more errors.
 	 */
 	public Boolean invokePlanDeployment(CSARID csarID, QName serviceTemplateID);
@@ -69,8 +66,7 @@ public interface IOpenToscaControlService {
 	 * This method deletes the stored contents of a certain CSAR inside of the
 	 * container.
 	 * 
-	 * @param csarID
-	 *            the ID of the CSAR which shall be deleted.
+	 * @param csarID the ID of the CSAR which shall be deleted.
 	 * @return List of errors, if list is empty, no error occured
 	 */
 	public List<String> deleteCSAR(CSARID csarID);
@@ -78,8 +74,7 @@ public interface IOpenToscaControlService {
 	/**
 	 * This method returns a list of the QNames contained in a specific CSAR.
 	 * 
-	 * @param csarID
-	 *            the ID of the specific CSAR.
+	 * @param csarID the ID of the specific CSAR.
 	 * @return A list of the QName of ServiceTemplates if there are some
 	 *         contained in the given CSAR. An empty list of none are contained.
 	 *         Null if there is an error.
@@ -90,8 +85,7 @@ public interface IOpenToscaControlService {
 	 * Returns a Set of executable operations on a currently running deployment
 	 * process of a CSAR.
 	 * 
-	 * @param csarID
-	 *            ID which uniquely identifies a CSAR file.
+	 * @param csarID ID which uniquely identifies a CSAR file.
 	 * @return Set of executable operations.
 	 */
 	public Set<DeploymentProcessOperation> getExecutableDeploymentProcessOperations(CSARID csarID);
@@ -99,8 +93,7 @@ public interface IOpenToscaControlService {
 	/**
 	 * Sets the deployment state of a CSAR to STORED.
 	 * 
-	 * @param csarID
-	 *            ID which uniquely identifies a CSAR file.
+	 * @param csarID ID which uniquely identifies a CSAR file.
 	 * @return Returns true, if setting was successful, otherwise false.
 	 */
 	public Boolean setDeploymentProcessStateStored(CSARID csarID);
@@ -108,8 +101,7 @@ public interface IOpenToscaControlService {
 	/**
 	 * Returns the current state of a deployment process of a CSAR.
 	 * 
-	 * @param csarID
-	 *            ID which uniquely identifies a CSAR file.
+	 * @param csarID ID which uniquely identifies a CSAR file.
 	 * @return Returns true for success, false for one or more errors.
 	 */
 	public DeploymentProcessState getDeploymentProcessState(CSARID csarID);
@@ -118,17 +110,15 @@ public interface IOpenToscaControlService {
 	 * Invokes the a process described due the parameter PublicPlan for the
 	 * given CSAR.
 	 * 
-	 * @param csarID
-	 *            the ID of the CSAR
+	 * @param csarID the ID of the CSAR
 	 * 
-	 * @param csarInstanceID
-	 *            the instance id, or -1 if the plan is a build plan
-	 * @param plan
-	 *            which containes the data which with the process is invoked
+	 * @param csarInstanceID the instance id, or -1 if the plan is a build plan
+	 * @param plan which containes the data which with the process is invoked
 	 *            (including the message values).
 	 * @return
+	 * @throws UnsupportedEncodingException 
 	 */
-	public String invokePlanInvocation(CSARID csarID, int csarInstanceID, TPlanDTO plan);
+	public String invokePlanInvocation(CSARID csarID, QName serviceTemplateId, int csarInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
 	
 	/**
 	 * Returns a list of Strings for active PublicPlans of a CSARInstance.

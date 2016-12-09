@@ -1,5 +1,7 @@
 package org.opentosca.planinvocationengine.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -60,9 +62,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * @throws UnsupportedEncodingException
 	 */
 	@Override
-	public String invokePlan(CSARID csarID, int csarInstanceID, TPlanDTO givenPlan) {
+	public String invokePlan(CSARID csarID, QName serviceTemplateId, int csarInstanceID, TPlanDTO givenPlan) throws UnsupportedEncodingException {
 		
 		// refill information that might not be sent
 		TPlan storedPlan = ServiceHandler.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
@@ -169,7 +173,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		
 		LOG.debug("complete the list of parameters {}", givenPlan.getId());
 		
-		Map<String, String> message = createRequest(csarID, ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
+		Map<String, String> message = createRequest(csarID, serviceTemplateId, ServiceHandler.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()), planEvent.getInputParameter(), correlationID);
 		
 		if (null == message) {
 			LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(), givenPlan.getPlanLanguage());
@@ -204,7 +208,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		return correlationID;
 	}
 	
-	public Map<String, String> createRequest(CSARID csarID, QName planInputMessageID, List<TParameterDTO> inputParameter, String correlationID) {
+	public Map<String, String> createRequest(CSARID csarID, QName serviceTemplateID, QName planInputMessageID, List<TParameterDTO> inputParameter, String correlationID) throws UnsupportedEncodingException {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		List<Document> docs = new ArrayList<Document>();
@@ -237,7 +241,11 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 				map.put(para.getName(), Settings.CONTAINER_API);
 			} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
 				LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
-				map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_API);
+				String str = Settings.CONTAINER_INSTANCEDATA_API;
+				str = str.replace("{csarid}", csarID.getFileName());
+				str = str.replace("{servicetemplateid}", URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8"));
+				LOG.debug("instance api: {}", str);
+				map.put(para.getName(), str);
 			} else if (para.getName().equalsIgnoreCase("csarEntrypoint")) {
 				LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API + "/" + csarID + "\".");
 				map.put(para.getName(), Settings.CONTAINER_API + "/CSARs/" + csarID);
@@ -291,7 +299,8 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 			CSARID csarID = new CSARID(event.getCSARID());
 			
 			// parse the body
-			//			correlationID = responseParser.parseSOAPBody(csarID, event.getPlanID(), correlationID, map);
+			// correlationID = responseParser.parseSOAPBody(csarID,
+			// event.getPlanID(), correlationID, map);
 			
 			// if plan is not null
 			if (null == correlationID) {
@@ -300,7 +309,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 			}
 			
 			LOG.trace("Print the plan output:");
-			for (String key: map.keySet()){
+			for (String key : map.keySet()) {
 				LOG.trace("   " + key + ": " + map.get(key));
 			}
 			
@@ -308,7 +317,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 				
 				LOG.debug("For variable \"{}\" the output value is \"{}\"", param.getName(), map.get(param.getName()));
 				param.setValue(map.get(param.getName()));
-				//				map.put(param.getName(), value);
+				// map.put(param.getName(), value);
 			}
 			
 			ServiceHandler.csarInstanceManagement.getOutputForCorrelation(correlationID).putAll(map);

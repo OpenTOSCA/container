@@ -13,8 +13,8 @@ import org.osgi.framework.BundleContext;
 public class Settings implements BundleActivator {
 	
 	public final static String CONTAINER_API = "http://localhost:1337/containerapi";
-	public final static String CONTAINER_INSTANCEDATA_API = "http://localhost:1337/containerapi/instancedata";
-
+	public final static String CONTAINER_INSTANCEDATA_API = "http://localhost:1337/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+	
 	// TODO: Use public static final variables instead, as in
 	// StaticTOSCANamespaces. The problems with the current approach is: (i)
 	// Full-text search to find usage instead of Java Reference Search. (ii) It
@@ -52,7 +52,7 @@ public class Settings implements BundleActivator {
 		} else {
 			openTOSCAPath = System.getProperty("openTOSCAPath") + File.separator + "openTOSCA";
 		}
-
+		
 		// contains data of OpenTOSCA that should be stored temporarily
 		Settings.setSetting("temp", openTOSCAPath + File.separator + "Temp");
 		
@@ -70,7 +70,7 @@ public class Settings implements BundleActivator {
 		} else {
 			Settings.setSetting("openTOSCAWineryPath", System.getProperty("openTOSCAWineryPath"));
 		}
-
+		
 		// URI of the ContainerAPI
 		Settings.setSetting("containerUri", Settings.CONTAINER_API);
 		

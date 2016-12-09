@@ -69,23 +69,23 @@ public class ServiceTemplateInstancesResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID) {
+	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
 		
-		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID);
+		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID, buildPlanCorrId);
 		
 		return Response.ok(refs).build();
 	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID) {
+	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("serviceTemplateID") String serviceTemplateID, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
 		
-		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID);
+		ServiceInstanceList refs = getRefs(uriInfo, serviceInstanceID, serviceTemplateName, serviceTemplateID, buildPlanCorrId);
 		
 		return Response.ok(refs.toJSON()).build();
 	}
 	
-	public ServiceInstanceList getRefs(UriInfo uriInfo, String serviceInstanceID, String serviceTemplateName, String serviceTemplateID) {
+	public ServiceInstanceList getRefs(UriInfo uriInfo, String serviceInstanceID, String serviceTemplateName, String serviceTemplateID, String buildPlanCorrId) {
 		
 		URI serviceInstanceIdURI = null;
 		try {
@@ -100,16 +100,27 @@ public class ServiceTemplateInstancesResource {
 		}
 		
 		try {
-			IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-			List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIdURI, serviceTemplateName, this.serviceTemplateID);
 			
 			List<SimpleXLink> links = new LinkedList<SimpleXLink>();
-			for (ServiceInstance serviceInstance : serviceInstances) {
-				URI urlToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, serviceInstance.getDBId());
+			if (null == buildPlanCorrId || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowCorrelationId(buildPlanCorrId)) {
+				IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+				List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIdURI, serviceTemplateName, this.serviceTemplateID);
+				
+				for (ServiceInstance serviceInstance : serviceInstances) {
+					URI urlToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, serviceInstance.getDBId());
+					
+					// build simpleXLink with the internalID as LinkText
+					// TODO: is the id the correct linkText?
+					links.add(new SimpleXLink(urlToServiceInstance, serviceInstance.getDBId() + ""));
+				}
+			} else {
+				
+				int instanceId = BuildCorrelationToInstanceMapping.instance.getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
+				URI urlToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
 				
 				// build simpleXLink with the internalID as LinkText
 				// TODO: is the id the correct linkText?
-				links.add(new SimpleXLink(urlToServiceInstance, serviceInstance.getDBId() + ""));
+				links.add(new SimpleXLink(urlToServiceInstance, instanceId + ""));
 			}
 			
 			ServiceInstanceList sil = new ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
@@ -123,15 +134,27 @@ public class ServiceTemplateInstancesResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
 	@Produces(MediaType.APPLICATION_XML)
-	public Response createServiceInstance(@Context UriInfo uriInfo) {
+	public Response createServiceInstance(@Context UriInfo uriInfo, String xml) {
+		
+		log.debug("Create a instance of {} {}", csarId, serviceTemplateID);
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			ServiceInstance createServiceInstance = service.createServiceInstance(csarId, serviceTemplateID);
+			
+			ServiceInstance createdServiceInstance = service.createServiceInstance(csarId, serviceTemplateID);
 			
 			// create xlink with the link to the newly created serviceInstance,
 			// the link text is the internal serviceInstanceID
-			SimpleXLink response = new SimpleXLink(LinkBuilder.linkToServiceInstance(uriInfo, createServiceInstance.getDBId()), createServiceInstance.getServiceInstanceID().toString());
+			
+			String corr = xml.substring(xml.indexOf(">") + 1, xml.indexOf("</"));
+			
+			int id = createdServiceInstance.getDBId();
+			String instanceURL = createdServiceInstance.getServiceInstanceID().toString();
+			log.debug(corr + " : " + id + " - " + instanceURL);
+			
+			BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr, id);
+			
+			SimpleXLink response = new SimpleXLink(LinkBuilder.linkToServiceInstance(uriInfo, id), instanceURL);
 			return Response.ok(response).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -148,7 +171,7 @@ public class ServiceTemplateInstancesResource {
 	}
 	
 	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * POST for BUILD plans which have no CSAR-Instance-ID yet.
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
@@ -166,7 +189,7 @@ public class ServiceTemplateInstancesResource {
 	}
 	
 	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * POST for BUILD plans which have no CSAR-Instance-ID yet.
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
@@ -184,7 +207,7 @@ public class ServiceTemplateInstancesResource {
 	}
 	
 	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+	 * POST for BUILD plans which have no CSAR-Instance-ID yet.
 	 * 
 	 * @param planElement the BUILD PublicPlan
 	 * @return Response
@@ -238,11 +261,11 @@ public class ServiceTemplateInstancesResource {
 		
 		log.debug("Post of the Plan " + plan.getId());
 		
-		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarId, -1, plan);
+		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarId, serviceTemplateID, -1, plan);
 		
 		log.debug("Return correlation ID of running plan: " + correlationID);
 		
-		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarId.getFileName() + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/ServiceTemplateInstances?PlanCorrelationID=" + correlationID;
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarId.getFileName() + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/Instances?BuildPlanCorrelationId=" + correlationID;
 		
 		return url;
 		

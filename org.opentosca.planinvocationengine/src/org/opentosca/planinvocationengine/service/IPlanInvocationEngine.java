@@ -1,6 +1,9 @@
 package org.opentosca.planinvocationengine.service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.csarinstancemanagement.CSARInstanceID;
@@ -18,6 +21,7 @@ import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
  */
 public interface IPlanInvocationEngine {
 	
+	
 	/**
 	 * Invoke a PublicPlan for a CSAR. If this PublicPlan is of Type
 	 * OTHERMANAGEMENT or TERMINATION, the information about the CSARInstance is
@@ -27,8 +31,9 @@ public interface IPlanInvocationEngine {
 	 * @param instance ID of a CSAR instance
 	 * @param publicPlan
 	 * @return boolean about success
+	 * @throws UnsupportedEncodingException 
 	 */
-	public String invokePlan(CSARID csarID, int csarInstanceID, TPlanDTO plan);
+	public String invokePlan(CSARID csarID, QName serviceTemplateId, int csarInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
 	
 	/**
 	 * Returns a list of CorrelationIDs of activce PublicPlans of a

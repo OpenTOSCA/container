@@ -53,6 +53,7 @@ import com.google.gson.JsonParser;
  */
 public class ServiceTemplateInstanceResource {
 	
+	
 	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
 	
 	private final CSARID csarId;
@@ -242,7 +243,7 @@ public class ServiceTemplateInstanceResource {
 		
 		log.debug("Post of the Plan " + plan.getId());
 		
-		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarId, serviceTemplateInstanceId, plan);
+		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarId, serviceTemplateID, serviceTemplateInstanceId, plan);
 		
 		log.debug("Return correlation ID of running plan: " + correlationID);
 		

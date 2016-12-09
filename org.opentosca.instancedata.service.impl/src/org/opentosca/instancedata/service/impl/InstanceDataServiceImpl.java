@@ -60,6 +60,7 @@ import org.w3c.dom.NodeList;
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public class InstanceDataServiceImpl implements IInstanceDataService {
 	
+	
 	final private static Logger LOG = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
 	
 	private static IToscaEngineService toscaEngineService;
@@ -72,7 +73,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	@Override
 	@WebMethod(exclude = true)
 	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName, QName serviceTemplateID) {
-		return this.siDAO.getServiceInstances(serviceInstanceID, serviceTemplateName, serviceTemplateID);
+		return siDAO.getServiceInstances(serviceInstanceID, serviceTemplateName, serviceTemplateID);
 	}
 	
 	@Override
@@ -95,11 +96,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		ServiceInstance serviceInstance = new ServiceInstance(csarID, serviceTemplateID, serviceTemplateName);
 		
 		// construct initial properties of serviceTemplate
-		Document properties = this.createServiceInstancePropertiesFromServiceTemplate(csarID, serviceTemplateID);
+		Document properties = createServiceInstancePropertiesFromServiceTemplate(csarID, serviceTemplateID);
 		
 		serviceInstance.setProperties(properties);
 		
-		this.siDAO.storeServiceInstance(serviceInstance);
+		siDAO.storeServiceInstance(serviceInstance);
 		// store serviceInstance so we can use nodeInstanceDAO to create
 		// nodeInstances (they need an existing object because its working in
 		// another transaction)
@@ -116,7 +117,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 			// create "instanceCount".min instances
 			for (int i = 0; i < instanceCount.min; i++) {
 				// new nodeInstance
-				this.createNodeInstance(qName, serviceInstance.getServiceInstanceID());
+				createNodeInstance(qName, serviceInstance.getServiceInstanceID());
 			}
 		}
 		// create associated nodeInstances
@@ -128,26 +129,26 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	@WebMethod(exclude = true)
 	public void deleteServiceInstance(URI serviceInstanceID) {
 		
-		List<ServiceInstance> serviceInstances = this.siDAO.getServiceInstances(serviceInstanceID, null, null);
+		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(serviceInstanceID, null, null);
 		
 		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
 			InstanceDataServiceImpl.LOG.warn(String.format("Failed to delete ServiceInstance: '%s' - could not be retrieved", serviceInstanceID));
 			return;
 		}
-		this.siDAO.deleteServiceInstance(serviceInstances.get(0));
+		siDAO.deleteServiceInstance(serviceInstances.get(0));
 	}
 	
 	@Override
 	@WebMethod(exclude = true)
 	public List<NodeInstance> getNodeInstances(URI nodeInstanceID, QName nodeTemplateID, String nodeTemplateName, URI serviceInstanceID) {
-		return this.niDAO.getNodeInstances(serviceInstanceID, nodeTemplateID, nodeTemplateName, nodeInstanceID);
+		return niDAO.getNodeInstances(serviceInstanceID, nodeTemplateID, nodeTemplateName, nodeInstanceID);
 	}
 	
 	@Override
 	@WebMethod(exclude = true)
 	public NodeInstance createNodeInstance(QName nodeTemplateID, URI serviceInstanceID) throws ReferenceNotFoundException {
 		
-		List<ServiceInstance> serviceInstances = this.siDAO.getServiceInstances(serviceInstanceID, null, null);
+		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(serviceInstanceID, null, null);
 		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
 			String msg = String.format("Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved", serviceInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
@@ -175,27 +176,27 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		NodeInstance nodeInstance = new NodeInstance(nodeTemplateID, nodeTemplateName, nodeTypeOfNodeTemplate, serviceInstance);
 		// set default properties
 		nodeInstance.setProperties(propertiesOfNodeTemplate);
-		this.niDAO.saveNodeInstance(nodeInstance);
+		niDAO.saveNodeInstance(nodeInstance);
 		return nodeInstance;
 	}
 	
 	@Override
 	@WebMethod(exclude = true)
 	public void deleteNodeInstance(URI nodeInstanceID) {
-		List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			InstanceDataServiceImpl.LOG.warn(String.format("Failed to delete NodeInstance: '%s' - could not be retrieved", nodeInstanceID));
 			return;
 		}
-		this.niDAO.deleteNodeInstance(nodeInstances.get(0));
+		niDAO.deleteNodeInstance(nodeInstances.get(0));
 		
 	}
 	
 	@Override
 	@WebMethod(exclude = true)
 	public QName getState(URI nodeInstanceID) throws ReferenceNotFoundException {
-		List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			String msg = String.format("Failed to get State of NodeInstance: '%s' - does it exist?", nodeInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
@@ -207,20 +208,20 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	@Override
 	@WebMethod(exclude = true)
 	public void setState(URI nodeInstanceID, QName state) throws ReferenceNotFoundException {
-		List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?", nodeInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
 			throw new ReferenceNotFoundException(msg);
 		}
-		this.niDAO.setState(nodeInstances.get(0), state);
+		niDAO.setState(nodeInstances.get(0), state);
 	}
 	
 	@Override
 	@WebMethod(exclude = true)
 	public Document getServiceInstanceProperties(URI serviceInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException {
-		List<ServiceInstance> serviceInstances = this.getServiceInstances(serviceInstanceID, null, null);
+		List<ServiceInstance> serviceInstances = getServiceInstances(serviceInstanceID, null, null);
 		
 		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
 			String msg = String.format("Failed to retrieve ServiceInstance: '%s'", serviceInstanceID);
@@ -230,8 +231,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		
 		ServiceInstance serviceInstance = serviceInstances.get(0);
 		
-		this.updateServiceInstanceProperties(serviceInstance);
-
+		updateServiceInstanceProperties(serviceInstance);
+		
 		return serviceInstance.getProperties();
 	}
 	
@@ -240,7 +241,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	// TODO: should it return a empty document when there aren't any properties
 	// for the nodeinstance?
 	public Document getNodeInstanceProperties(URI nodeInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException {
-		List<NodeInstance> nodeInstances = this.getNodeInstances(nodeInstanceID, null, null, null);
+		List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
 		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			String msg = String.format("Failed to retrieve NodeInstance: '%s'", nodeInstanceID);
@@ -326,16 +327,16 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	@WebMethod(exclude = true)
 	public void setNodeInstanceProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException {
 		
-		List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			InstanceDataServiceImpl.LOG.warn(String.format("Failed to set Properties of NodeInstance: '%s' - does it exist?", nodeInstanceID));
 			return;
 		}
 		
-		this.niDAO.setProperties(nodeInstances.get(0), properties);
+		niDAO.setProperties(nodeInstances.get(0), properties);
 		
-		this.updateServiceInstanceProperties(nodeInstances.get(0).getServiceInstance());
+		updateServiceInstanceProperties(nodeInstances.get(0).getServiceInstance());
 		return;
 		
 	}
@@ -417,7 +418,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		// cycle through mappings and update accordingly
 		for (TPropertyMapping mapping : boundaryDefs.getProperties().getPropertyMappings().getPropertyMapping()) {
 			String serviceTemplatePropertyQuery = mapping.getServiceTemplatePropertyRef();
-			List<Element> serviceTemplatePropertyElements = this.queryElementList(properties, serviceTemplatePropertyQuery);
+			List<Element> serviceTemplatePropertyElements = queryElementList(properties, serviceTemplatePropertyQuery);
 			
 			// fetch element from serviceTemplateProperties
 			
@@ -427,11 +428,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 			}
 			
 			// check whether the targetRef is concat query
-			if (this.isConcatQuery(mapping.getTargetPropertyRef())) {
+			if (isConcatQuery(mapping.getTargetPropertyRef())) {
 				// this query needs possibly multiple properties from different
 				// nodeInstances
 				
-				String propertyValue = this.generatePropertyValueFromConcatQuery(mapping.getTargetPropertyRef(), this.getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID()));
+				String propertyValue = generatePropertyValueFromConcatQuery(mapping.getTargetPropertyRef(), getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID()));
 				
 				serviceTemplatePropertyElements.get(0).setTextContent(propertyValue);
 				
@@ -439,7 +440,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 				// this query only fetches a SINGLE element on the properties of
 				// the referenced entity
 				
-				NodeInstance nodeInstance = this.getNodeInstanceFromMappingObject(serviceInstance, mapping.getTargetObjectRef());
+				NodeInstance nodeInstance = getNodeInstanceFromMappingObject(serviceInstance, mapping.getTargetObjectRef());
 				
 				if (nodeInstance == null) {
 					continue;
@@ -453,7 +454,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 				Element nodePropertiesRoot = (Element) nodeProperties.getFirstChild();
 				String nodeTemplatePropertyQuery = mapping.getTargetPropertyRef();
 				
-				List<Element> nodePropertyElements = this.queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
+				List<Element> nodePropertyElements = queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
 				
 				if (nodePropertyElements.size() != 1) {
 					// skip this property, we expect only one
@@ -467,7 +468,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		}
 		
 		serviceInstance.setProperties(properties.getOwnerDocument());
-		this.siDAO.storeServiceInstance(serviceInstance);
+		siDAO.storeServiceInstance(serviceInstance);
 	}
 	
 	private String generatePropertyValueFromConcatQuery(String targetPropertyRef, List<NodeInstance> nodeInstance) {
@@ -508,7 +509,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 				String nodeTemplateName = queryParts[0];
 				String propertyName = queryParts[2];
 				
-				String propValue = this.fetchPropertyValueFromNodeInstance(this.getNodeInstanceWithName(nodeInstance, nodeTemplateName), propertyName);
+				String propValue = fetchPropertyValueFromNodeInstance(getNodeInstanceWithName(nodeInstance, nodeTemplateName), propertyName);
 				
 				augmentedFunctionParts.add("'" + propValue + "'");
 			}
@@ -556,7 +557,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		List<Element> elements = new ArrayList<>();
 		try {
 			XPath xPath = XPathFactory.newInstance().newXPath();
-
+			
 			NodeList nodes = (NodeList) xPath.evaluate(xpathQuery, node, XPathConstants.NODESET);
 			
 			for (int index = 0; index < nodes.getLength(); index++) {
@@ -580,8 +581,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 			
 			// service.getNodeInstances(null, null, null,
 			// serviceInstanceIDtoURI);
-
-			List<NodeInstance> nodeInstances = this.getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID());
+			
+			List<NodeInstance> nodeInstances = getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID());
 			
 			if (nodeInstances == null) {
 				return null;
@@ -635,6 +636,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		Element propertiesElement = null;
 		
 		if ((boundaryDefs != null) && (boundaryDefs.getProperties() != null)) {
+			
+			LOG.debug("Properties found in Bounds for ST {}", serviceTemplateId);
+			
 			// Document emptyDoc = InstanceDataServiceImpl.emptyDocument();
 			//
 			// Element createElementNS =
@@ -668,7 +672,26 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 			//
 			// propertiesElement = (Element) emptyDoc.getFirstChild();
 			propertiesElement = (Element) boundaryDefs.getProperties().getAny();
+			
+			if (null == propertiesElement || null == propertiesElement.getOwnerDocument()) {
+				
+				LOG.debug("null pointer ahead!");
+				
+				// LOG.debug("No Properties found in Bounds for ST {} thus
+				// create blank ones", serviceTemplateId);
+				// Document emptyDoc = InstanceDataServiceImpl.emptyDocument();
+				// Element createElementNS =
+				// emptyDoc.createElementNS("http://docs.oasis-open.org/tosca/ns/2011/12",
+				// "Properties");
+				// createElementNS.setAttribute("xmlns:tosca",
+				// "http://docs.oasis-open.org/tosca/ns/2011/12");
+				// createElementNS.setPrefix("tosca");
+				// emptyDoc.appendChild(createElementNS);
+				// propertiesElement = (Element) emptyDoc.getFirstChild();
+			}
 		} else {
+			
+			LOG.debug("No Properties found in Bounds for ST {} thus create blank ones", serviceTemplateId);
 			Document emptyDoc = InstanceDataServiceImpl.emptyDocument();
 			Element createElementNS = emptyDoc.createElementNS("http://docs.oasis-open.org/tosca/ns/2011/12", "Properties");
 			createElementNS.setAttribute("xmlns:tosca", "http://docs.oasis-open.org/tosca/ns/2011/12");
@@ -684,7 +707,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	@Override
 	@WebMethod(exclude = true)
 	public void setServiceInstanceProperties(URI serviceInstanceID, Document properties) throws ReferenceNotFoundException {
-		List<ServiceInstance> serviceInstances = this.getServiceInstances(serviceInstanceID, null, null);
+		List<ServiceInstance> serviceInstances = getServiceInstances(serviceInstanceID, null, null);
 		
 		if (serviceInstances.size() != 1) {
 			throw new ReferenceNotFoundException("Couldn't find serviceInstance");
@@ -694,9 +717,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		
 		serviceInstance.setProperties(properties);
 		
-		this.siDAO.storeServiceInstance(serviceInstance);
+		siDAO.storeServiceInstance(serviceInstance);
 		
-		this.updateServiceInstanceProperties(serviceInstance);
+		updateServiceInstanceProperties(serviceInstance);
 	}
 	
 }
