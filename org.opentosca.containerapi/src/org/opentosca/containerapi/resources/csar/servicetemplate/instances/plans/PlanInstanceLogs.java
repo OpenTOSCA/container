@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.containerapi.osgi.servicegetter.PlanInvocationEngineHandler;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class PlanInstanceLogs {
 		StringBuilder builder = new StringBuilder();
 		builder.append("<logs>");
 		
-		Map<String, String> msgs = PlanLogHandler.instance.getLogsOfPlanInstance(correlationID);
+		Map<String, String> msgs = PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().getLogsOfPlanInstance(correlationID);
 		for (String millis : msgs.keySet()) {
 			builder.append("<LogEntry>");
 			builder.append("<Millis>");
@@ -96,7 +97,7 @@ public class PlanInstanceLogs {
 		JsonArray logs = new JsonArray();
 		json.add("PlanLogs", logs);
 		
-		Map<String, String> msgs = PlanLogHandler.instance.getLogsOfPlanInstance(correlationID);
+		Map<String, String> msgs = PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().getLogsOfPlanInstance(correlationID);
 		for (String millis : msgs.keySet()) {
 			JsonObject entry = new JsonObject();
 			entry.addProperty("Millisecods", millis);
@@ -113,7 +114,7 @@ public class PlanInstanceLogs {
 		
 		String logEntry = xml.substring(5, xml.length() - 6);
 		
-		PlanLogHandler.instance.log(correlationID, logEntry);
+		PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().log(correlationID, logEntry);
 		
 		return Response.ok().build();
 	}

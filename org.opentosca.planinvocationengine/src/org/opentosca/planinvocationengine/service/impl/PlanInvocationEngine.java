@@ -20,9 +20,11 @@ import org.opentosca.model.tosca.extension.planinvocationevent.PlanInvocationEve
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
+import org.opentosca.planinvocationengine.service.IPlanLogHandler;
 import org.opentosca.planinvocationengine.service.impl.messages.generation.RESTMessageGenerator;
 import org.opentosca.planinvocationengine.service.impl.messages.generation.SOAPMessageGenerator;
 import org.opentosca.planinvocationengine.service.impl.messages.parsing.ResponseParser;
+import org.opentosca.planinvocationengine.service.impl.planlogs.PlanLogHandler;
 import org.opentosca.settings.Settings;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -492,5 +494,10 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	@Override
 	public TPlanDTO getActivePublicPlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID) {
 		return ServiceHandler.correlationHandler.getPlanDTOForCorrelation(csarInstanceID, correlationID);
+	}
+	
+	@Override
+	public IPlanLogHandler getPlanLogHandler() {
+		return PlanLogHandler.instance;
 	}
 }

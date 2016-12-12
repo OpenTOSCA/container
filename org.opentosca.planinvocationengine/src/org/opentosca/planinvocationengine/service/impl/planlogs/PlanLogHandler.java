@@ -1,13 +1,15 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.instances.plans;
+package org.opentosca.planinvocationengine.service.impl.planlogs;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class PlanLogHandler {
+import org.opentosca.planinvocationengine.service.IPlanLogHandler;
+
+public class PlanLogHandler implements IPlanLogHandler {
 	
 	
-	public static PlanLogHandler instance = new PlanLogHandler();
+	public static IPlanLogHandler instance = new PlanLogHandler();
 	
 	private Map<String, Map<String, String>> corrToLog = new HashMap<String, Map<String, String>>();
 	
@@ -15,6 +17,7 @@ public class PlanLogHandler {
 	private PlanLogHandler() {
 	}
 	
+	@Override
 	public void log(String corrId, String logMsg) {
 		if (!corrToLog.containsKey(corrId)) {
 			corrToLog.put(corrId, new HashMap<String, String>());
@@ -22,6 +25,7 @@ public class PlanLogHandler {
 		corrToLog.get(corrId).put(Long.toString(System.currentTimeMillis()), logMsg);
 	}
 	
+	@Override
 	public Map<String, String> getLogsOfPlanInstance(String corrId) {
 		if (corrToLog.containsKey(corrId)) {
 			TreeMap<String, String> sorted = new TreeMap<>(corrToLog.get(corrId));

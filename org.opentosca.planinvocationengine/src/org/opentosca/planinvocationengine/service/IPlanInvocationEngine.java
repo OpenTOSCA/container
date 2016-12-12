@@ -55,4 +55,6 @@ public interface IPlanInvocationEngine {
 	 */
 	public TPlanDTO getActivePublicPlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
 	
+	public IPlanLogHandler getPlanLogHandler();
+	
 }

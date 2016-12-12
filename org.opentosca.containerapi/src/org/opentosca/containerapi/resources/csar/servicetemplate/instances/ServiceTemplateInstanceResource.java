@@ -271,5 +271,4 @@ public class ServiceTemplateInstanceResource {
 		return url;
 		
 	}
-	
 }
