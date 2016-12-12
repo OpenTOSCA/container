@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class PlanInstanceMetaData {
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(PlanInstanceLogs.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PlanInstanceMetaData.class);
 	
 	private final CSARID csarID;
 	private final QName serviceTemplateID;

@@ -1,7 +1,6 @@
 package org.opentosca.containerapi.resources.csar.servicetemplate.instances.plans;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
@@ -53,7 +52,6 @@ public class PlanInstanceOutput  {
 	 * @return Response
 	 */
 	@GET
-	@Path("{CorrelationID}")
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public Response getPlanJSON() {
 		

@@ -85,28 +85,24 @@ public class PlanInstance {
 		return refs;
 	}
 	
-	@GET
 	@Path("State")
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public PlanInstanceState getPlanState(@Context UriInfo uriInfo) throws URISyntaxException {
 		return new PlanInstanceState(csarID, serviceTemplateID, serviceTemplateInstanceId, correlationID);
 	}
 	
-	@GET
 	@Path("Output")
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public PlanInstanceOutput getPlanOutput(@Context UriInfo uriInfo) throws URISyntaxException {
 		return new PlanInstanceOutput(csarID, serviceTemplateID, serviceTemplateInstanceId, correlationID);
 	}
 	
-	@GET
 	@Path("Logs")
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public PlanInstanceLogs getPlanLogs(@Context UriInfo uriInfo) throws URISyntaxException {
 		return new PlanInstanceLogs(csarID, serviceTemplateID, serviceTemplateInstanceId, correlationID);
 	}
 	
-	@GET
 	@Path("MetaData")
 	@Produces(ResourceConstants.TOSCA_JSON)
 	public PlanInstanceMetaData getPlanMetaData(@Context UriInfo uriInfo) throws URISyntaxException {

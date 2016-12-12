@@ -1,6 +1,12 @@
 package org.opentosca.containerapi.resources.csar.servicetemplate.instances.plans;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.util.Map;
+
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -8,12 +14,12 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
-import org.opentosca.containerapi.resources.xlink.Reference;
-import org.opentosca.containerapi.resources.xlink.References;
-import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * 
@@ -55,8 +61,23 @@ public class PlanInstanceLogs {
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferencesXML(@Context UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(getReferences().getXMLString()).build();
+		StringBuilder builder = new StringBuilder();
+		builder.append("<logs>");
+		
+		Map<String, String> msgs = PlanLogHandler.instance.getLogsOfPlanInstance(correlationID);
+		for (String millis : msgs.keySet()) {
+			builder.append("<LogEntry>");
+			builder.append("<Millis>");
+			builder.append(millis);
+			builder.append("</Millis>");
+			builder.append("<Entry>");
+			builder.append(msgs.get(millis));
+			builder.append("</Entry>");
+			builder.append("</LogEntry>");
+		}
+		
+		builder.append("</logs>");
+		return Response.ok(builder.toString()).build();
 	}
 	
 	/**
@@ -70,16 +91,30 @@ public class PlanInstanceLogs {
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON(@Context UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
-		return Response.ok(getReferences().getJSONString()).build();
+		
+		JsonObject json = new JsonObject();
+		JsonArray logs = new JsonArray();
+		json.add("PlanLogs", logs);
+		
+		Map<String, String> msgs = PlanLogHandler.instance.getLogsOfPlanInstance(correlationID);
+		for (String millis : msgs.keySet()) {
+			JsonObject entry = new JsonObject();
+			entry.addProperty("Millisecods", millis);
+			entry.addProperty("Entry", msgs.get(millis));
+			logs.add(entry);
+		}
+		return Response.ok(json.toString()).build();
 	}
 	
-	public References getReferences() {
+	@POST
+	@Consumes(ResourceConstants.TOSCA_XML)
+	@Produces(ResourceConstants.TOSCA_XML)
+	public Response postLogEntry(@Context UriInfo uriInfo, String xml) throws URISyntaxException, UnsupportedEncodingException {
 		
-		References refs = new References();
+		String logEntry = xml.substring(5, xml.length() - 6);
 		
-		// selflink
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return refs;
+		PlanLogHandler.instance.log(correlationID, logEntry);
+		
+		return Response.ok().build();
 	}
-	
 }
