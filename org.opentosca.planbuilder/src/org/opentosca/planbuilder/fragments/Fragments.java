@@ -46,6 +46,26 @@ public class Fragments {
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	}
+	
+	public String createBPEL4RESTLightPlanInstanceLOGsPOST(String urlVarName, String requestVarName, String correlationIdVarName) throws IOException {
+		// BPEL4RESTLightPOST_PlanInstance_Logs.xml
+		// <!-- $urlVarName, $requestVar, $correlationId -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml");
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("$urlVarName", urlVarName);
+		template = template.replace("$requestVar", requestVarName);
+		template = template.replace("$correlationId", correlationIdVarName);
+		return template;
+	}
+
+	public Node createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(String urlVarName, String requestVarName, String correlationIdVarName) throws IOException, SAXException {
+		String templateString = this.createBPEL4RESTLightPlanInstanceLOGsPOST(urlVarName, requestVarName, correlationIdVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
 
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the

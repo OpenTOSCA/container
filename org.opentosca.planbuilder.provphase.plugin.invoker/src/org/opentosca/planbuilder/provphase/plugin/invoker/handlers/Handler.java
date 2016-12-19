@@ -15,18 +15,17 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.model.tosca.conventions.Interfaces;
+import org.opentosca.model.tosca.conventions.Properties;
+import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.model.plan.BuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
-import org.opentosca.model.tosca.conventions.Interfaces;
-import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
-import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
-import org.opentosca.planbuilder.utils.Utils;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +41,9 @@ public class Handler {
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
 
+	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
+
+
 	public Handler() {
 		try {
 			this.resHandler = new ResourceHandler();
@@ -53,19 +55,56 @@ public class Handler {
 		}
 	}
 
-	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia)
-			throws IOException {
+	private void appendLOGActivity(TemplatePlanContext context, String operation) {
+		String logMessageVarName = null;
+		String logMessageContent = null;
+		if (context.getNodeTemplate() != null) {
+			logMessageVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId() + "_" + operation + "_" + System.currentTimeMillis();
+			logMessageContent = "<log>Executing operation " + operation + " of NodeTemplate " + context.getNodeTemplate().getId() + "</log>";
+		} else {
+			logMessageVarName = "instanceDataLogMsg_" + context.getRelationshipTemplate().getId() + (operation != null ? "_" + operation : "") + "_" + System.currentTimeMillis();
+			logMessageContent = "<log>Executing " + (operation != null ? "operation " + operation + " of " : "") + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "</log>";
+		}
+
+		// create variable
+		logMessageVarName = context.createGlobalStringVariable(logMessageVarName, logMessageContent).getName();
+		Variable correlationIdVar = context.generateVariableWithRandomValue();
+		String serviceInstanceURLVar = null;
+		for (String varName : context.getMainVariableNames()) {
+			if (varName.contains(Handler.ServiceInstanceVarKeyword)) {
+				serviceInstanceURLVar = varName;
+			}
+		}
+
+		try {
+			Node assignInputToVar = new Fragments().generateAssignFromInputMessageToStringVariableAsNode("CorrelationID", correlationIdVar.getName());
+			Node logPOSTNode = new Fragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(serviceInstanceURLVar, logMessageVarName, correlationIdVar.getName());
+			assignInputToVar = context.importNode(assignInputToVar);
+			logPOSTNode = context.importNode(logPOSTNode);
+
+			context.getProvisioningPhaseElement().appendChild(assignInputToVar);
+			context.getProvisioningPhaseElement().appendChild(logPOSTNode);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) throws IOException {
 		// register wsdls and xsd
-		QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(),
-				this.resHandler.getServiceInvokerWSDLFile());
-		QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(),
-				this.resHandler.getServiceInvokerWSDLFile());
+		QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), this.resHandler.getServiceInvokerWSDLFile());
+		QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), this.resHandler.getServiceInvokerWSDLFile());
 
 		// atleast the xsd should be imported now in the plan
-		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(),
-				this.resHandler.getServiceInvokerXSDFile());
-		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(),
-				this.resHandler.getServiceInvokerXSDFile());
+		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), this.resHandler.getServiceInvokerXSDFile());
+		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), this.resHandler.getServiceInvokerXSDFile());
 
 		QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncRequestMessageType());
 		String InputMessagePartName = this.resHandler.getServiceInvokerAsyncRequestMessagePart();
@@ -74,18 +113,15 @@ public class Handler {
 
 		// generate partnerlink from the two porttypes
 		String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
-		context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-				invokerPortType);
+		context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee", invokerPortType);
 		String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
 
 		context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
 
 		// register request and response message
-		String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request"
-				+ context.getIdForNames();
+		String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
 		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
-		String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
-				+ "Response" + context.getIdForNames();
+		String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart() + "Response" + context.getIdForNames();
 		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
 
 		// setup a correlation set for the messages
@@ -179,18 +215,14 @@ public class Handler {
 
 		// add request message assign to prov phase scope
 		try {
-			Node assignNode = this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId,
-					serviceTemplateId, serviceInstanceIdVarName, operationName,
-					String.valueOf(System.currentTimeMillis()), requestVariableName, InputMessagePartName,
-					interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
+			Node assignNode = this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId, serviceInstanceIdVarName, operationName, String.valueOf(System.currentTimeMillis()), requestVariableName, InputMessagePartName, interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
 			assignNode = context.importNode(assignNode);
 
 			Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
 			addressingCopyInit = context.importNode(addressingCopyInit);
 			assignNode.appendChild(addressingCopyInit);
 
-			Node addressingCopyNode = this.resHandler.generateAddressingCopyAsNode(partnerLinkName,
-					requestVariableName);
+			Node addressingCopyNode = this.resHandler.generateAddressingCopyAsNode(partnerLinkName, requestVariableName);
 			addressingCopyNode = context.importNode(addressingCopyNode);
 			assignNode.appendChild(addressingCopyNode);
 
@@ -199,14 +231,14 @@ public class Handler {
 			// for the invoker PortType (callback etc.). This is needed as WSO2
 			// BPS
 			// 2.x can't give that at runtime (bug)
-			LOG.debug("Adding plan callback address field to plan input");
+			Handler.LOG.debug("Adding plan callback address field to plan input");
 			context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
 			/*
 			 * Will be needed when we start to switch to a new bpel engine
 			 * String callbackAddressVarName =
 			 * this.inputHasCallbackAddressDefined(context);
-			 * 
+			 *
 			 * if (callbackAddressVarName == null) { // if the plan doesn't have
 			 * an input message for the address of // the plan itself (for
 			 * callback/bps2.1.2) we get the address at // runtime Node
@@ -218,8 +250,7 @@ public class Handler {
 			 * is provided in the input message
 			 */
 
-			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
-					InputMessagePartName, "ReplyTo");
+			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName, InputMessagePartName, "ReplyTo");
 			replyToCopy = context.importNode(replyToCopy);
 			assignNode.appendChild(replyToCopy);
 
@@ -228,12 +259,13 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate DOM node for the request message assign element", e);
 			return false;
 		}
+		
+		this.appendLOGActivity(context, operation.getName());
 
 		// invoke service invoker
 		// add invoke
 		try {
-			Node invokeNode = this.resHandler.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName,
-					"invokeOperationAsync", invokerPortType, requestVariableName);
+			Node invokeNode = this.resHandler.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName, "invokeOperationAsync", invokerPortType, requestVariableName);
 			Handler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
 			invokeNode = context.importNode(invokeNode);
 
@@ -252,8 +284,7 @@ public class Handler {
 
 		// add receive for service invoker callback
 		try {
-			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName,
-					"callback", invokerCallbackPortType, responseVariableName);
+			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName, "callback", invokerCallbackPortType, responseVariableName);
 			receiveNode = context.importNode(receiveNode);
 
 			Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
@@ -273,9 +304,7 @@ public class Handler {
 		// add assign for response
 		try {
 
-			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
-					OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
-					OutputMessageId, context.getPlanResponseMessageName(), "payload");
+			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName, OutputMessageId, context.getPlanResponseMessageName(), "payload");
 			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
 			responseAssignNode = context.importNode(responseAssignNode);
 			context.getProvisioningPhaseElement().appendChild(responseAssignNode);
@@ -290,20 +319,14 @@ public class Handler {
 		return true;
 	}
 
-	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName,
-			String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput,
-			Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) throws IOException {
+	public boolean handle(TemplatePlanContext context, String templateId, boolean isNodeTemplate, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) throws IOException {
 		// register wsdls and xsd
-		QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(),
-				this.resHandler.getServiceInvokerWSDLFile());
-		QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(),
-				this.resHandler.getServiceInvokerWSDLFile());
+		QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), this.resHandler.getServiceInvokerWSDLFile());
+		QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), this.resHandler.getServiceInvokerWSDLFile());
 
 		// atleast the xsd should be imported now in the plan
-		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(),
-				this.resHandler.getServiceInvokerXSDFile());
-		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(),
-				this.resHandler.getServiceInvokerXSDFile());
+		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), this.resHandler.getServiceInvokerXSDFile());
+		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), this.resHandler.getServiceInvokerXSDFile());
 
 		QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncRequestMessageType());
 		String InputMessagePartName = this.resHandler.getServiceInvokerAsyncRequestMessagePart();
@@ -312,18 +335,15 @@ public class Handler {
 
 		// generate partnerlink from the two porttypes
 		String partnerLinkTypeName = invokerPortType.getLocalPart() + "PLT" + context.getIdForNames();
-		context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee",
-				invokerPortType);
+		context.addPartnerLinkType(partnerLinkTypeName, "Requester", invokerCallbackPortType, "Requestee", invokerPortType);
 		String partnerLinkName = invokerPortType.getLocalPart() + "PL" + context.getIdForNames();
 
 		context.addPartnerLinkToTemplateScope(partnerLinkName, partnerLinkTypeName, "Requester", "Requestee", true);
 
 		// register request and response message
-		String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request"
-				+ context.getIdForNames();
+		String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
 		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
-		String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart()
-				+ "Response" + context.getIdForNames();
+		String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart() + "Response" + context.getIdForNames();
 		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
 
 		// setup a correlation set for the messages
@@ -371,36 +391,32 @@ public class Handler {
 
 		// add request message assign to prov phase scope
 		try {
-			Node assignNode = this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(
-					context.getCSARFileName(), context.getServiceTemplateId(), serviceInstanceIdVarName, operationName,
-					String.valueOf(System.currentTimeMillis()), requestVariableName, InputMessagePartName,
-					interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
+			Node assignNode = this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(), context.getServiceTemplateId(), serviceInstanceIdVarName, operationName, String.valueOf(System.currentTimeMillis()), requestVariableName, InputMessagePartName, interfaceName, isNodeTemplate, templateId, internalExternalPropsInput);
 			assignNode = context.importNode(assignNode);
 
 			Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
 			addressingCopyInit = context.importNode(addressingCopyInit);
 			assignNode.appendChild(addressingCopyInit);
 
-			Node addressingCopyNode = this.resHandler.generateAddressingCopyAsNode(partnerLinkName,
-					requestVariableName);
+			Node addressingCopyNode = this.resHandler.generateAddressingCopyAsNode(partnerLinkName, requestVariableName);
 			addressingCopyNode = context.importNode(addressingCopyNode);
 			assignNode.appendChild(addressingCopyNode);
 
-//			if (callbackAddressVarName == null) {
-				// if the plan doesn't have an input message for the address of
-				// the plan itself (for callback/bps2.1.2) we get the address at
-				// runtime
-				Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName,
-						InputMessagePartName, "ReplyTo");
-				replyToCopy = context.importNode(replyToCopy);
-				assignNode.appendChild(replyToCopy);
-//			} else {
-//				// else the address is provided in the input message
-//				Node replyToCopy = this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
-//						InputMessagePartName, callbackAddressVarName, "ReplyTo");
-//				replyToCopy = context.importNode(replyToCopy);
-//				assignNode.appendChild(replyToCopy);
-//			}
+			// if (callbackAddressVarName == null) {
+			// if the plan doesn't have an input message for the address of
+			// the plan itself (for callback/bps2.1.2) we get the address at
+			// runtime
+			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName, InputMessagePartName, "ReplyTo");
+			replyToCopy = context.importNode(replyToCopy);
+			assignNode.appendChild(replyToCopy);
+			// } else {
+			// // else the address is provided in the input message
+			// Node replyToCopy =
+			// this.resHandler.generateCopyFromExternalParamToInvokerNode(requestVariableName,
+			// InputMessagePartName, callbackAddressVarName, "ReplyTo");
+			// replyToCopy = context.importNode(replyToCopy);
+			// assignNode.appendChild(replyToCopy);
+			// }
 
 			if (appendToPrePhase) {
 				context.getPrePhaseElement().appendChild(assignNode);
@@ -413,11 +429,11 @@ public class Handler {
 			return false;
 		}
 
+		this.appendLOGActivity(context, operationName);
 		// invoke service invoker
 		// add invoke
 		try {
-			Node invokeNode = this.resHandler.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName,
-					"invokeOperationAsync", invokerPortType, requestVariableName);
+			Node invokeNode = this.resHandler.generateInvokeAsNode("invoke_" + requestVariableName, partnerLinkName, "invokeOperationAsync", invokerPortType, requestVariableName);
 			Handler.LOG.debug("Trying to ImportNode: " + invokeNode.toString());
 			invokeNode = context.importNode(invokeNode);
 
@@ -441,8 +457,7 @@ public class Handler {
 
 		// add receive for service invoker callback
 		try {
-			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName,
-					"callback", invokerCallbackPortType, responseVariableName);
+			Node receiveNode = this.resHandler.generateReceiveAsNode("receive_" + responseVariableName, partnerLinkName, "callback", invokerCallbackPortType, responseVariableName);
 			receiveNode = context.importNode(receiveNode);
 
 			Node correlationSetsNode = this.resHandler.generateCorrelationSetsAsNode(correlationSetName, false);
@@ -467,9 +482,7 @@ public class Handler {
 		// add assign for response
 		try {
 
-			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName,
-					OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName,
-					OutputMessageId, context.getPlanResponseMessageName(), "payload");
+			Node responseAssignNode = this.resHandler.generateResponseAssignAsNode(responseVariableName, OutputMessagePartName, internalExternalPropsOutput, "assign_" + responseVariableName, OutputMessageId, context.getPlanResponseMessageName(), "payload");
 			Handler.LOG.debug("Trying to ImportNode: " + responseAssignNode.toString());
 			responseAssignNode = context.importNode(responseAssignNode);
 
@@ -490,9 +503,7 @@ public class Handler {
 		return true;
 	}
 
-	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName,
-			String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput,
-			Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) throws IOException {
+	public boolean handle(TemplatePlanContext context, String operationName, String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput, Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) throws IOException {
 
 		// fetch "meta"-data for invoker message (e.g. csarid, nodetemplate
 		// id..)
@@ -504,14 +515,11 @@ public class Handler {
 			templateId = context.getRelationshipTemplate().getId();
 			isNodeTemplate = false;
 		}
-		return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName,
-				internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
+		return this.handle(context, templateId, isNodeTemplate, operationName, interfaceName, callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
 	}
 
-	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext,
-			Variable serverIp, Variable sshUser, Variable sshKey, String templateId, boolean appendToPrePhase)
-			throws IOException {
-		LOG.debug("Handling DA " + ref.getReference());
+	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, TemplatePlanContext templateContext, Variable serverIp, Variable sshUser, Variable sshKey, String templateId, boolean appendToPrePhase) throws IOException {
+		Handler.LOG.debug("Handling DA " + ref.getReference());
 		/*
 		 * Contruct all needed data (paths, url, scripts)
 		 */
@@ -529,13 +537,10 @@ public class Handler {
 		 * upload
 		 */
 
-		Variable containerAPIAbsoluteURIVar = templateContext.createGlobalStringVariable(containerAPIAbsoluteURIVarName,
-				"");
+		Variable containerAPIAbsoluteURIVar = templateContext.createGlobalStringVariable(containerAPIAbsoluteURIVarName, "");
 
 		try {
-			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode(
-					"assign" + templateContext.getIdForNames(), containerAPIAbsoluteURIXPathQuery,
-					containerAPIAbsoluteURIVar.getName());
+			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(), containerAPIAbsoluteURIXPathQuery, containerAPIAbsoluteURIVar.getName());
 			assignNode = templateContext.importNode(assignNode);
 
 			if (appendToPrePhase) {
@@ -544,10 +549,10 @@ public class Handler {
 				templateContext.getProvisioningPhaseElement().appendChild(assignNode);
 			}
 		} catch (IOException e) {
-			LOG.error("Couldn't read internal file", e);
+			Handler.LOG.error("Couldn't read internal file", e);
 			return false;
 		} catch (SAXException e) {
-			LOG.error("Couldn't parse internal xml file");
+			Handler.LOG.error("Couldn't parse internal xml file");
 			return false;
 		}
 
@@ -558,8 +563,7 @@ public class Handler {
 		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
 
 		String mkdirScriptVarName = "mkdirScript" + templateContext.getIdForNames();
-		Variable mkdirScriptVar = templateContext.createGlobalStringVariable(mkdirScriptVarName,
-				ubuntuFolderPathScript);
+		Variable mkdirScriptVar = templateContext.createGlobalStringVariable(mkdirScriptVarName, ubuntuFolderPathScript);
 
 		// quick and dirty hack to check if we're using old or new properties
 		String cleanName = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
@@ -571,9 +575,7 @@ public class Handler {
 			runScriptRequestInputParams.put("sshKey", sshKey);
 			runScriptRequestInputParams.put("sshUser", sshUser);
 			runScriptRequestInputParams.put("script", mkdirScriptVar);
-			this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
-					"planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
-					appendToPrePhase);
+			this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -582,9 +584,7 @@ public class Handler {
 			runScriptRequestInputParams.put("VMUserName", sshUser);
 			runScriptRequestInputParams.put("VMPrivateKey", sshKey);
 			runScriptRequestInputParams.put("Script", mkdirScriptVar);
-			this.handle(templateContext, templateId, true, "runScript",
-					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-					runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
+			this.handle(templateContext, templateId, true, "runScript", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
 			break;
 
@@ -608,9 +608,7 @@ public class Handler {
 			transferFileRequestInputParams.put("sshKey", sshKey);
 			transferFileRequestInputParams.put("targetAbsolutePath", ubuntuFilePathVar);
 			transferFileRequestInputParams.put("sourceURLorLocalAbsolutePath", containerAPIAbsoluteURIVar);
-			this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu",
-					"planCallbackAddress_invoker", transferFileRequestInputParams, new HashMap<String, Variable>(),
-					appendToPrePhase);
+			this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu", "planCallbackAddress_invoker", transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
@@ -619,9 +617,7 @@ public class Handler {
 			transferFileRequestInputParams.put("VMPrivateKey", sshKey);
 			transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
 			transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
-			this.handle(templateContext, templateId, true, "transferFile",
-					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-					transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
+			this.handle(templateContext, templateId, true, "transferFile", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker", transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
 			break;
 		default:
@@ -634,8 +630,7 @@ public class Handler {
 	/**
 	 * Removes trailing slashes
 	 *
-	 * @param ref
-	 *            a path
+	 * @param ref a path
 	 * @return a String without trailing slashes
 	 */
 	private String fileReferenceToFolder(String ref) {
@@ -654,14 +649,12 @@ public class Handler {
 	 * Returns an XPath Query which contructs a valid String, to GET a File from
 	 * the openTOSCA API
 	 *
-	 * @param artifactPath
-	 *            a path inside an ArtifactTemplate
+	 * @param artifactPath a path inside an ArtifactTemplate
 	 * @return a String containing an XPath query
 	 */
 	public String createXPathQueryForURLRemoteFilePath(String artifactPath) {
 		Handler.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-		String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/"
-				+ artifactPath + "'))";
+		String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
 		return filePath;
 	}
 
@@ -669,22 +662,16 @@ public class Handler {
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName
-	 *            the name of the BPEL assign
-	 * @param xpath2Query
-	 *            the csarEntryPoint XPath query
-	 * @param stringVarName
-	 *            the variable to load the queries results into
+	 * @param assignName the name of the BPEL assign
+	 * @param xpath2Query the csarEntryPoint XPath query
+	 * @param stringVarName the variable to load the queries results into
 	 * @return a String containing a BPEL Assign element
-	 * @throws IOException
-	 *             is thrown when reading the BPEL fragment form the resources
-	 *             fails
+	 * @throws IOException is thrown when reading the BPEL fragment form the
+	 *             resources fails
 	 */
-	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query,
-			String stringVarName) throws IOException {
+	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query, String stringVarName) throws IOException {
 		// <!-- {AssignName},{xpath2query}, {stringVarName} -->
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("assignStringVarWithXpath2Query.xml");
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
 		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelFragmentFile);
 		template = template.replace("{AssignName}", assignName);
@@ -697,22 +684,16 @@ public class Handler {
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName
-	 *            the name of the BPEL assign
-	 * @param csarEntryXpathQuery
-	 *            the csarEntryPoint XPath query
-	 * @param stringVarName
-	 *            the variable to load the queries results into
+	 * @param assignName the name of the BPEL assign
+	 * @param csarEntryXpathQuery the csarEntryPoint XPath query
+	 * @param stringVarName the variable to load the queries results into
 	 * @return a DOM Node representing a BPEL assign element
-	 * @throws IOException
-	 *             is thrown when loading internal bpel fragments fails
-	 * @throws SAXException
-	 *             is thrown when parsing internal format into DOM fails
+	 * @throws IOException is thrown when loading internal bpel fragments fails
+	 * @throws SAXException is thrown when parsing internal format into DOM
+	 *             fails
 	 */
-	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query,
-			String stringVarName) throws IOException, SAXException {
-		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query,
-				stringVarName);
+	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query, String stringVarName) throws IOException, SAXException {
+		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);

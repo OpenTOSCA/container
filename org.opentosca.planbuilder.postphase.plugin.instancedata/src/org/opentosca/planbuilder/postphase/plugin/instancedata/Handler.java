@@ -30,13 +30,13 @@ import org.xml.sax.SAXException;
  *
  */
 public class Handler {
-
+	
 	private Fragments fragments;
-
+	
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
-
-
+	
+	
 	public Handler() {
 		try {
 			this.fragments = new Fragments();
@@ -44,11 +44,11 @@ public class Handler {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public boolean handle(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
 		return false;
 	}
-
+	
 	/**
 	 * Appends BPEL Code that updates InstanceData for the given NodeTemplate.
 	 * Needs initialization code on the global level in the plan. This will be
@@ -59,35 +59,7 @@ public class Handler {
 	 * @return true iff appending all BPEL code was successful
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
-		/*
-		 * Example of a HTTP Request we want to send:
-		 *
-		 *
-		 * PUT: http://localhost:1337/containerapi/instancedata/nodeInstances/2/
-		 * properties
-		 *
-		 * Body: <?xml version="1.0" encoding="UTF-8"
-		 * standalone="no"?><ns2:UbuntuProperties
-		 * xmlns:ns2="http://www.example.com/tosca/ubuntu"
-		 * xmlns="http://www.example.com/tosca/ubuntu"
-		 * xmlns:ns1="http://opentosca.org/self-service"
-		 * xmlns:tosca="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:tst=
-		 * "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaSpecificTypes"
-		 * xmlns
-		 * :winery="http://www.opentosca.org/winery/extensions/tosca/2013/02/12"
-		 * >
-		 * <Address>ec2-54-74-146-235.eu-west-1.compute.amazonaws.com</Address>
-		 * <SSHUser>ec2-user-01</SSHUser> <SSHPrivateKey>someKey</SSHPrivateKey>
-		 * </ns2:UbuntuProperties>
-		 */
-
-		/*
-		 * Here we will generate bpel code which instantiates a service instance
-		 * at the openTOSCA instancedata API. we add it to the main sequence
-		 * element of the build plan so that each TemplateBuildPlan can handle
-		 * it's own property update
-		 */
-
+		
 		// check whether main sequence already contains service instance calls
 		// to container API
 		List<String> mainVarNames = context.getMainVariableNames();
@@ -102,30 +74,30 @@ public class Handler {
 				instanceDataUrlVarName = varName;
 			}
 		}
-
+		
 		// if at least one is null we need to init the whole
-
+		
 		if (instanceDataUrlVarName == null) {
 			return false;
 		}
-
+		
 		if (serviceInstanceVarName == null) {
 			return false;
 		}
-
+		
 		String restCallResponseVarName = "bpel4restlightVarResponse" + context.getIdForNames();
 		QName restCallResponseDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
 		if (!context.addVariable(restCallResponseVarName, BuildPlan.VariableType.TYPE, restCallResponseDeclId)) {
 			return false;
 		}
-
+		
 		QName typeId = null;
 		if (context.isNodeTemplate()) {
 			typeId = context.getNodeTemplate().getType().getId();
 		} else {
 			typeId = context.getRelationshipTemplate().getType();
 		}
-
+		
 		/*
 		 * append bpel code to find the right nodeInstanceResponse
 		 */
@@ -142,14 +114,14 @@ public class Handler {
 			e.printStackTrace();
 			return false;
 		}
-
+		
 		// generate String var for nodeInstance URL
 		String nodeInstanceURLVarName = "nodeInstanceURLbpel4restlightVarResponse" + context.getIdForNames();
 		QName nodeInstanceURLDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
 		if (!context.addVariable(nodeInstanceURLVarName, BuildPlan.VariableType.TYPE, nodeInstanceURLDeclId)) {
 			return false;
 		}
-
+		
 		// fetch the nodeinstance URL from the restCallResponse
 		try {
 			Node assignFromNodeInstancesResponseToURLVar = this.fragments.generateAssignFromNodeInstanceResponseToStringVarAsNode(nodeInstanceURLVarName, restCallResponseVarName);
@@ -162,9 +134,9 @@ public class Handler {
 			e1.printStackTrace();
 			return false;
 		}
-
+		
 		// make a GET on the nodeInstance properties
-
+		
 		try {
 			Node nodeInstancePropsGETNode = this.fragments.generateNodeInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
 			nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
@@ -176,7 +148,7 @@ public class Handler {
 			e1.printStackTrace();
 			return false;
 		}
-
+		
 		// assign the values from the property variables into REST/HTTP
 		// Request
 		// and send
@@ -198,7 +170,7 @@ public class Handler {
 			e.printStackTrace();
 			return false;
 		}
-
+		
 		// generate BPEL4RESTLight PUT request to update the instance data
 		try {
 			Node bpel4restPUTNode = this.fragments.generateNodeInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName, nodeInstanceURLVarName);
@@ -214,7 +186,7 @@ public class Handler {
 		// }
 		return true;
 	}
-
+	
 	/**
 	 * <p>
 	 * This method is initializing a Map from BpelVariableName to a DomElement
@@ -229,12 +201,12 @@ public class Handler {
 	 */
 	private Map<String, Node> buildMappingsFromVarNameToDomElement(TemplatePlanContext context, AbstractProperties properties) {
 		Element propRootElement = properties.getDOMElement();
-
+		
 		Map<String, Node> mapping = new HashMap<String, Node>();
-
+		
 		// get list of child elements
 		NodeList childList = propRootElement.getChildNodes();
-
+		
 		for (int i = 0; i < childList.getLength(); i++) {
 			Node child = childList.item(i);
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
@@ -242,7 +214,7 @@ public class Handler {
 				String propVarName = context.getVarNameOfTemplateProperty(propertyName);
 				mapping.put(propVarName, child);
 			}
-
+			
 		}
 		return mapping;
 	}

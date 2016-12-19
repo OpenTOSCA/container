@@ -23,39 +23,38 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * 
+ *
  * TODO implement
- * 
+ *
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author christian.endres@iaas.uni-stuttgart.de
  *
  */
 public class PlanInstanceLogs {
 	
-	
 	private static final Logger LOG = LoggerFactory.getLogger(PlanInstanceLogs.class);
-	
+
 	private final CSARID csarID;
 	private final QName serviceTemplateID;
 	private final int serviceTemplateInstanceId;
 	private final String correlationID;
-	
+
 	private UriInfo uriInfo;
-	
-	
+
+
 	public PlanInstanceLogs(CSARID csarID, QName serviceTemplateID, int serviceTemplateInstanceId, String correlationID) {
 		this.csarID = csarID;
 		this.serviceTemplateID = serviceTemplateID;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
 		this.correlationID = correlationID;
 	}
-	
+
 	/**
 	 * Produces the xml which lists the CorrelationIDs of the active
 	 * PublicPlans.
-	 * 
+	 *
 	 * @param uriInfo
 	 * @return The response with the legal PublicPlanTypes.
 	 */
@@ -64,8 +63,8 @@ public class PlanInstanceLogs {
 	public Response getReferencesXML(@Context UriInfo uriInfo) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("<logs>");
-		
-		Map<String, String> msgs = PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().getLogsOfPlanInstance(correlationID);
+
+		Map<String, String> msgs = PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().getLogsOfPlanInstance(this.correlationID);
 		for (String millis : msgs.keySet()) {
 			builder.append("<LogEntry>");
 			builder.append("<Millis>");
@@ -76,15 +75,15 @@ public class PlanInstanceLogs {
 			builder.append("</Entry>");
 			builder.append("</LogEntry>");
 		}
-		
+
 		builder.append("</logs>");
 		return Response.ok(builder.toString()).build();
 	}
-	
+
 	/**
 	 * Produces the JSON which lists the links to the History and the active
 	 * plans.
-	 * 
+	 *
 	 * @param uriInfo
 	 * @return The response with the legal PublicPlanTypes.
 	 */
@@ -92,30 +91,31 @@ public class PlanInstanceLogs {
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON(@Context UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
-		
+
 		JsonObject json = new JsonObject();
 		JsonArray logs = new JsonArray();
-		json.add("PlanLogs", logs);
-		
-		Map<String, String> msgs = PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().getLogsOfPlanInstance(correlationID);
+
+		Map<String, String> msgs = PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().getLogsOfPlanInstance(this.correlationID);
 		for (String millis : msgs.keySet()) {
 			JsonObject entry = new JsonObject();
 			entry.addProperty("Millisecods", millis);
 			entry.addProperty("Entry", msgs.get(millis));
 			logs.add(entry);
 		}
+
+		json.add("PlanLogs", logs);
 		return Response.ok(json.toString()).build();
 	}
-	
+
 	@POST
 	@Consumes(ResourceConstants.TOSCA_XML)
 	@Produces(ResourceConstants.TOSCA_XML)
 	public Response postLogEntry(@Context UriInfo uriInfo, String xml) throws URISyntaxException, UnsupportedEncodingException {
-		
+
 		String logEntry = xml.substring(5, xml.length() - 6);
-		
-		PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().log(correlationID, logEntry);
-		
+
+		PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().log(this.correlationID, logEntry);
+
 		return Response.ok().build();
 	}
 }

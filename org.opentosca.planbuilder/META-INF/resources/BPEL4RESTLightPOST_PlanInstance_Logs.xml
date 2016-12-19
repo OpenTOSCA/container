@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpel:extensionActivity xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
+    <!-- $urlVarName, $requestVar, $correlationId -->
+	<bpel4RestLight:POST uri="$bpelvar[$urlVarName]/PlanInstances/$bpelvar[$correlationId]/Logs" request="$requestVar"></bpel4RestLight:POST>
+</bpel:extensionActivity>

@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.exception.GenericRestException;
 import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
@@ -27,41 +26,40 @@ import org.w3c.dom.Document;
 
 /**
  * Properties
- * 
+ *
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
 public class NodeTemplateInstancePropertiesResource {
 	
-	
 	private int nodeInstanceID;
-	
-	
+
+
 	public NodeTemplateInstancePropertiesResource(int id) {
-		nodeInstanceID = id;
+		this.nodeInstanceID = id;
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	public Response doGetXML(@QueryParam("property") List<String> propertiesList) {
-		
-		Document idr = getProperties(propertiesList);
-		
+
+		Document idr = this.getProperties(propertiesList);
+
 		return Response.ok(idr).build();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doGetJSON(@QueryParam("property") List<String> propertiesList) {
-		
-		Document idr = getProperties(propertiesList);
-		
+
+		Document idr = this.getProperties(propertiesList);
+
 		return Response.ok(new JSONUtils().xmlToGenericJsonObject(idr.getChildNodes()).toString()).build();
 	}
-	
+
 	public Document getProperties(List<String> propertiesList) {
 		List<QName> qnameList = new ArrayList<QName>();
-		
+
 		// convert all String in propertyList to qnames
 		try {
 			if (propertiesList != null) {
@@ -72,29 +70,29 @@ public class NodeTemplateInstancePropertiesResource {
 		} catch (Exception e) {
 			throw new GenericRestException(Status.BAD_REQUEST, "error converting one of the properties-parameters: " + e.getMessage());
 		}
-		
+
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			Document properties = service.getNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), qnameList);
+			Document properties = service.getNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), qnameList);
 			return properties;
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
 		}
 	}
-	
+
 	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Consumes(MediaType.APPLICATION_XML)
 	public Response setProperties(@Context UriInfo uriInfo, Document xml) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			service.setNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), xml);
+			service.setNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), xml);
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
 		}
-		SimpleXLink xLink = new SimpleXLink(LinkBuilder.linkToNodeInstanceProperties(uriInfo, nodeInstanceID), "NodeInstance: " + nodeInstanceID + " Properties");
+		SimpleXLink xLink = new SimpleXLink(uriInfo.getAbsolutePath(), "NodeInstance: " + this.nodeInstanceID + " Properties");
 		return Response.ok(xLink).build();
-		
+
 	}
-	
+
 }
