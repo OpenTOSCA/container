@@ -38,6 +38,13 @@ public class ToscaEngineProxy {
 			return false;
 		}
 		
+		for(QName serviceTemplateId : serviceTemplateIDsContainedInCSAR){
+			if(serviceTemplateID.equals(serviceTemplateId)){
+				return true;
+			}
+		}
+		
+		
 		return serviceTemplateIDsContainedInCSAR.contains(serviceTemplateID);
 		
 	}

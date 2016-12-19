@@ -520,6 +520,59 @@ public class Fragments {
 	 * @param serviceTemplateId the id of the serviceTemplate
 	 * @param responseVariableName a name of an anyType variable to save the
 	 *            response into
+	 * @return a String containing a BPEL4RESTLight POST extension activity
+	 * @throws IOException is thrown when reading internal files fail
+	 */
+	public String generateBPEL4RESTLightServiceInstancePOST(String instanceDataAPIUrlVariableName, String csarId, QName serviceTemplateId, String requestVariableName, String responseVariableName) throws IOException {
+		// tags in xml snippet: $InstanceDataURLVar, $CSARName,
+		// $serviceTemplateId, $ResponseVarName
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI_WithBody.xml");
+		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
+
+		bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
+		bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
+		bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
+		bpel4RestString = bpel4RestString.replace("$RequestVarName", requestVariableName);
+		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
+
+		return bpel4RestString;
+	}
+	
+	/**
+	 * Generates a BPEL POST at the given InstanceDataAPI with the given
+	 * ServiceTemplate id to create a Service Instance
+	 *
+	 * @param instanceDataAPIUrlVariableName the name of the variable holding
+	 *            the address to the instanceDataAPI
+	 * @param csarId the name of the csar the serviceTemplate belongs to
+	 * @param serviceTemplateId the id of the serviceTemplate
+	 * @param requestVariableName a name of an anyType variable to take the
+	 *            request content from
+	 * @param responseVariableName a name of an anyType variable to save the
+	 *            response into
+	 * @return a Node containing a BPEL4RESTLight POST extension activity
+	 * @throws IOException is thrown when reading internal files fail
+	 * @throws SAXException is thrown when parsing internal files fail
+	 */
+	public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(String instanceDataAPIUrlVariableName, String csarId, QName serviceTemplateId, String requestVariableName, String responseVariableName) throws IOException, SAXException {
+		String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId, requestVariableName, responseVariableName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+	/**
+	 * Generates a BPEL POST at the given InstanceDataAPI with the given
+	 * ServiceTemplate id to create a Service Instance
+	 *
+	 * @param instanceDataAPIUrlVariableName the name of the variable holding
+	 *            the address to the instanceDataAPI
+	 * @param csarId the name of the csar the serviceTemplate belongs to
+	 * @param serviceTemplateId the id of the serviceTemplate
+	 * @param responseVariableName a name of an anyType variable to save the
+	 *            response into
 	 * @return a Node containing a BPEL4RESTLight POST extension activity
 	 * @throws IOException is thrown when reading internal files fail
 	 * @throws SAXException is thrown when parsing internal files fail

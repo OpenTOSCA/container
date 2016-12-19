@@ -25,9 +25,9 @@ import org.xml.sax.SAXException;
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Handler {
 
@@ -35,6 +35,7 @@ public class Handler {
 
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
+
 
 	public Handler() {
 		try {
@@ -52,21 +53,19 @@ public class Handler {
 	 * Appends BPEL Code that updates InstanceData for the given NodeTemplate.
 	 * Needs initialization code on the global level in the plan. This will be
 	 * checked and appended if needed.
-	 * 
-	 * @param context
-	 *            the TemplateContext of the NodeTemplate
-	 * @param nodeTemplate
-	 *            the NodeTemplate to handle
+	 *
+	 * @param context the TemplateContext of the NodeTemplate
+	 * @param nodeTemplate the NodeTemplate to handle
 	 * @return true iff appending all BPEL code was successful
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
 		/*
 		 * Example of a HTTP Request we want to send:
-		 * 
-		 * 
+		 *
+		 *
 		 * PUT: http://localhost:1337/containerapi/instancedata/nodeInstances/2/
 		 * properties
-		 * 
+		 *
 		 * Body: <?xml version="1.0" encoding="UTF-8"
 		 * standalone="no"?><ns2:UbuntuProperties
 		 * xmlns:ns2="http://www.example.com/tosca/ubuntu"
@@ -115,26 +114,23 @@ public class Handler {
 		}
 
 		String restCallResponseVarName = "bpel4restlightVarResponse" + context.getIdForNames();
-		QName restCallResponseDeclId = context
-				.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
+		QName restCallResponseDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
 		if (!context.addVariable(restCallResponseVarName, BuildPlan.VariableType.TYPE, restCallResponseDeclId)) {
 			return false;
 		}
 
-		QName templateId = null;
+		QName typeId = null;
 		if (context.isNodeTemplate()) {
-			templateId = new QName(context.getServiceTemplateId().getNamespaceURI(), context.getNodeTemplate().getId());
+			typeId = context.getNodeTemplate().getType().getId();
 		} else {
-			templateId = new QName(context.getServiceTemplateId().getNamespaceURI(),
-					context.getRelationshipTemplate().getId());
+			typeId = context.getRelationshipTemplate().getType();
 		}
 
 		/*
 		 * append bpel code to find the right nodeInstanceResponse
 		 */
 		try {
-			Node bpelRESTLightGETNode = this.fragments.generateNodeInstancesQueryGETasNode(instanceDataUrlVarName,
-					restCallResponseVarName, templateId, context.isNodeTemplate(), serviceInstanceVarName);
+			Node bpelRESTLightGETNode = this.fragments.generateNodeInstancesQueryGETasNode(serviceInstanceVarName, restCallResponseVarName, typeId);
 			bpelRESTLightGETNode = context.importNode(bpelRESTLightGETNode);
 			context.getPostPhaseElement().appendChild(bpelRESTLightGETNode);
 		} catch (IOException e) {
@@ -149,17 +145,14 @@ public class Handler {
 
 		// generate String var for nodeInstance URL
 		String nodeInstanceURLVarName = "nodeInstanceURLbpel4restlightVarResponse" + context.getIdForNames();
-		QName nodeInstanceURLDeclId = context
-				.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+		QName nodeInstanceURLDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
 		if (!context.addVariable(nodeInstanceURLVarName, BuildPlan.VariableType.TYPE, nodeInstanceURLDeclId)) {
 			return false;
 		}
 
 		// fetch the nodeinstance URL from the restCallResponse
 		try {
-			Node assignFromNodeInstancesResponseToURLVar = this.fragments
-					.generateAssignFromNodeInstanceResponseToStringVarAsNode(nodeInstanceURLVarName,
-							restCallResponseVarName);
+			Node assignFromNodeInstancesResponseToURLVar = this.fragments.generateAssignFromNodeInstanceResponseToStringVarAsNode(nodeInstanceURLVarName, restCallResponseVarName);
 			assignFromNodeInstancesResponseToURLVar = context.importNode(assignFromNodeInstancesResponseToURLVar);
 			context.getPostPhaseElement().appendChild(assignFromNodeInstancesResponseToURLVar);
 		} catch (IOException e1) {
@@ -173,8 +166,7 @@ public class Handler {
 		// make a GET on the nodeInstance properties
 
 		try {
-			Node nodeInstancePropsGETNode = this.fragments
-					.generateNodeInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
+			Node nodeInstancePropsGETNode = this.fragments.generateNodeInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
 			nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
 			context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
 		} catch (SAXException e1) {
@@ -189,16 +181,14 @@ public class Handler {
 		// Request
 		// and send
 		// first build a mapping from property variable names to dom element
-		Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
-				nodeTemplate.getProperties());
+		Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
 		try {
 			// then generate an assign to have code that writes the runtime
 			// values into the instance data db.
 			// we use the restCallResponseVarName from the GET before, as it
 			// has
 			// proper format
-			Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-					propertyVarNameToDOMMapping);
+			Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName, propertyVarNameToDOMMapping);
 			assignNode = context.importNode(assignNode);
 			context.getPostPhaseElement().appendChild(assignNode);
 		} catch (SAXException e) {
@@ -211,8 +201,7 @@ public class Handler {
 
 		// generate BPEL4RESTLight PUT request to update the instance data
 		try {
-			Node bpel4restPUTNode = this.fragments.generateNodeInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-					nodeInstanceURLVarName);
+			Node bpel4restPUTNode = this.fragments.generateNodeInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName, nodeInstanceURLVarName);
 			bpel4restPUTNode = context.importNode(bpel4restPUTNode);
 			context.getPostPhaseElement().appendChild(bpel4restPUTNode);
 		} catch (IOException e) {
@@ -231,17 +220,14 @@ public class Handler {
 	 * This method is initializing a Map from BpelVariableName to a DomElement
 	 * of the given Properties and Context.
 	 * </p>
-	 * 
-	 * @param context
-	 *            TemplatePlanContext
-	 * @param properties
-	 *            AbstractProperties with proper DOM Element
+	 *
+	 * @param context TemplatePlanContext
+	 * @param properties AbstractProperties with proper DOM Element
 	 * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if
 	 *         the mapping is not complete, e.g. some bpel variable was not
 	 *         found or the properties weren't parsed right.
 	 */
-	private Map<String, Node> buildMappingsFromVarNameToDomElement(TemplatePlanContext context,
-			AbstractProperties properties) {
+	private Map<String, Node> buildMappingsFromVarNameToDomElement(TemplatePlanContext context, AbstractProperties properties) {
 		Element propRootElement = properties.getDOMElement();
 
 		Map<String, Node> mapping = new HashMap<String, Node>();
