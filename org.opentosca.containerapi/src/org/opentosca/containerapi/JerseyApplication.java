@@ -68,6 +68,8 @@ public class JerseyApplication extends Application {
 
 		s.add(MarketplaceRootResource.class);
 
+		s.add(PackagerResource.class);
+		
 		// add all exception mappers
 		s.add(SystemExceptionMapper.class);
 		s.add(UserExceptionMapper.class);
