@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,7 +29,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.eclipse.winery.common.Util;
 import org.opentosca.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,7 @@ public class WineryConnector {
 
 		String localPart = this.getLastPathFragment(location);
 		String namespaceDblEnc = this.getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
-		String namespace = Util.URLdecode(Util.URLdecode(namespaceDblEnc));
+		String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
 
 		return new QName(namespace, localPart);
 	}
@@ -181,7 +182,8 @@ public class WineryConnector {
 
 				HttpGet serviceTemplateTagsGET = new HttpGet();
 				serviceTemplateTagsGET.setHeader("Accept", "application/json");
-				serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/" + Util.URLencode(Util.URLencode(serviceTemplateId.getNamespaceURI())) + "/" + serviceTemplateId.getLocalPart() + "/tags"));
+				
+				serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/" + URLEncoder.encode(URLEncoder.encode((serviceTemplateId.getNamespaceURI())) + "/" + serviceTemplateId.getLocalPart() + "/tags")));
 				HttpResponse serviceTemplateTagsGETResp = this.client.execute(serviceTemplateTagsGET);
 				String tagsJsonResponse = EntityUtils.toString(serviceTemplateTagsGETResp.getEntity());
 
