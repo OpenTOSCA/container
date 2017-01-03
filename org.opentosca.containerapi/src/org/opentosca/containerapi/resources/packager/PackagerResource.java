@@ -32,6 +32,7 @@ import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.wineryconnector.WineryConnector;
 
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
@@ -45,43 +46,50 @@ import com.sun.jersey.multipart.FormDataParam;
  */
 @Path("/packager")
 public class PackagerResource {
-
+	
 	@Context
 	UriInfo uriInfo;
-
+	
 	private WineryConnector connector = new WineryConnector();
-
-
+	
+	
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferencesXML() {
 		return Response.ok(this.getRefs().getXMLString()).build();
 	}
-
+	
 	@GET
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON() {
 		return Response.ok(this.getRefs().getJSONString()).build();
 	}
-
+	
 	public References getRefs() {
 		References refs = new References();
-
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "packages"), XLinkConstants.SIMPLE, "servicetemplates"));
+		
+		if (this.connector.isWineryRepositoryAvailable()) {
+			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "packages"), XLinkConstants.SIMPLE, "servicetemplates"));
+		}
 		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
-
+	
 	@Path("/packages")
 	public PackagerPackagesResource getPackages() {
 		return new PackagerPackagesResource();
 	}
-
+	
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response createFromArtefact(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail, @FormDataParam("file") FormDataBodyPart body, @FormDataParam("artefactType") QName artifactType, @FormDataParam("nodeTypes") Set<QName> nodeTypes, @FormDataParam("infrastructureNodeType") QName infrastructureNodeType, @FormDataParam("tags") Set<String> tags, @Context UriInfo uriInfo) throws IllegalArgumentException, JAXBException, IOException {
-		File tempFile = this.inputStream2File(uploadedInputStream, fileDetail.getFileName());
 
+		if (this.connector.isWineryRepositoryAvailable()) {
+			return Response.status(Status.SERVICE_UNAVAILABLE).build();
+		}
+
+		File tempFile = this.inputStream2File(uploadedInputStream, fileDetail.getFileName());
+		
 		try {
 			QName xaasServiceTemplate = this.connector.createServiceTemplateFromXaaSPackage(tempFile, artifactType, nodeTypes, infrastructureNodeType, this.createTagMapFromTagSet(tags));
 			String redirectUrl = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "servicetemplates/" + Utilities.URLencode(xaasServiceTemplate.toString())).replace("packager", "marketplace");
@@ -91,7 +99,7 @@ public class PackagerResource {
 		}
 		return Response.serverError().build();
 	}
-
+	
 	private Map<String, String> createTagMapFromTagSet(Set<String> tags) {
 		Map<String, String> tagMap = new HashMap<String, String>();
 		
@@ -107,24 +115,24 @@ public class PackagerResource {
 		
 		return tagMap;
 	}
-
+	
 	private File inputStream2File(InputStream is, String fileName) {
 		OutputStream out = null;
 		File tempFile = null;
 		try {
 			;
-
+			
 			tempFile = new File(Files.createTempDirectory("XaaSPackager").toFile(), fileName);
 			tempFile.createNewFile();
 			out = new FileOutputStream(tempFile);
-
+			
 			int read = 0;
 			byte[] bytes = new byte[1024];
-
+			
 			while ((read = is.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
-
+			
 			is.close();
 			out.close();
 		} catch (FileNotFoundException e) {
@@ -134,8 +142,8 @@ public class PackagerResource {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		return tempFile;
 	}
-
+	
 }
