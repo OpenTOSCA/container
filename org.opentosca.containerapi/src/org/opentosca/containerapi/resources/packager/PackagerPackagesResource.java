@@ -1,6 +1,5 @@
 package org.opentosca.containerapi.resources.packager;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,43 +25,45 @@ import org.opentosca.wineryconnector.WineryConnector;
  *
  */
 public class PackagerPackagesResource {
-	
+
 	@Context
 	UriInfo uriInfo;
-	
+
 	private WineryConnector connector = new WineryConnector();
-	
+
 	private static final List<String> tags = new ArrayList<String>();
-	
-	
+
+
 	public PackagerPackagesResource() {
 		PackagerPackagesResource.tags.add("xaasPackageDeploymentArtefact");
 		PackagerPackagesResource.tags.add("xaasPackageNode");
 		PackagerPackagesResource.tags.add("xaasPackageArtefactType");
 	}
-	
+
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferencesXML(@Context UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getRefs().getXMLString()).build();
 	}
-	
+
 	@GET
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON(@Context UriInfo uriInfo) {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getRefs().getJSONString()).build();
 	}
-	
+
 	public References getRefs() {
 		References refs = new References();
-		
-		for (QName xaasPackageServiceTemplateId : this.connector.getServiceTemplates(PackagerPackagesResource.tags)) {
-			String uri = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), URLEncoder.encode(xaasPackageServiceTemplateId.toString())).replace("packager/packages", "marketplace/servicetemplates");
-			refs.getReference().add(new Reference(uri, XLinkConstants.SIMPLE, xaasPackageServiceTemplateId.toString()));
+
+		if (this.connector.isWineryRepositoryAvailable()) {
+			for (QName xaasPackageServiceTemplateId : this.connector.getServiceTemplates(PackagerPackagesResource.tags)) {
+				String uri = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), Utilities.URLencode(xaasPackageServiceTemplateId.toString())).replace("packager/packages", "marketplace/servicetemplates");
+				refs.getReference().add(new Reference(uri, XLinkConstants.SIMPLE, xaasPackageServiceTemplateId.toString()));
+			}
 		}
-		
+
 		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
