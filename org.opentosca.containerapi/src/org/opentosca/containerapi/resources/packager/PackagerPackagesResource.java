@@ -33,8 +33,7 @@ public class PackagerPackagesResource {
 
 	private static final List<String> tags = new ArrayList<String>();
 
-
-	public PackagerPackagesResource() {
+	static {
 		PackagerPackagesResource.tags.add("xaasPackageDeploymentArtefact");
 		PackagerPackagesResource.tags.add("xaasPackageNode");
 		PackagerPackagesResource.tags.add("xaasPackageArtefactType");

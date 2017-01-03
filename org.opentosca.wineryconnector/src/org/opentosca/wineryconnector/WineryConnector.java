@@ -44,9 +44,8 @@ public class WineryConnector {
 
 	final private static Logger LOG = LoggerFactory.getLogger(WineryConnector.class);
 
-	DefaultHttpClient client = new DefaultHttpClient();
+	private DefaultHttpClient client = new DefaultHttpClient();;
 	String wineryPath;
-
 
 	public WineryConnector() {
 		this.wineryPath = Settings.getSetting("openTOSCAWineryPath");
@@ -55,14 +54,18 @@ public class WineryConnector {
 		}
 	}
 
+	
+
 	public boolean isWineryRepositoryAvailable() {
 
 		HttpGet get = new HttpGet();
 		get.setHeader("Accept", "application/json");
+
 		try {
 			get.setURI(new URI(this.wineryPath + "servicetemplates"));
 			HttpResponse resp = this.client.execute(get);
 
+			EntityUtils.consume(resp.getEntity());
 			if (resp.getStatusLine().getStatusCode() < 400) {
 				return true;
 			}
@@ -84,7 +87,8 @@ public class WineryConnector {
 		return this.wineryPath;
 	}
 
-	public QName createServiceTemplateFromXaaSPackage(File file, QName artifactType, Set<QName> nodeTypes, QName infrastructureNodeType, Map<String, String> tags) throws URISyntaxException, IOException {
+	public QName createServiceTemplateFromXaaSPackage(File file, QName artifactType, Set<QName> nodeTypes,
+			QName infrastructureNodeType, Map<String, String> tags) throws URISyntaxException, IOException {
 		MultipartEntity entity = new MultipartEntity();
 
 		// file
@@ -112,7 +116,8 @@ public class WineryConnector {
 		// infrastructureNodeType
 		if (infrastructureNodeType != null) {
 			ContentBody infrastructureNodeTypeBody = new StringBody(infrastructureNodeType.toString());
-			FormBodyPart infrastructureNodeTypePart = new FormBodyPart("infrastructureNodeType", infrastructureNodeTypeBody);
+			FormBodyPart infrastructureNodeTypePart = new FormBodyPart("infrastructureNodeType",
+					infrastructureNodeTypeBody);
 			entity.addPart(infrastructureNodeTypePart);
 		}
 
@@ -177,13 +182,16 @@ public class WineryConnector {
 		ObjectMapper mapper = new ObjectMapper();
 
 		for (QName serviceTemplateId : this.getServiceTemplates()) {
-			WineryConnector.LOG.debug("Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate " + serviceTemplateId);
+			WineryConnector.LOG.debug(
+					"Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate " + serviceTemplateId);
 			try {
 
 				HttpGet serviceTemplateTagsGET = new HttpGet();
 				serviceTemplateTagsGET.setHeader("Accept", "application/json");
-				
-				serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/" + URLEncoder.encode(URLEncoder.encode((serviceTemplateId.getNamespaceURI())) + "/" + serviceTemplateId.getLocalPart() + "/tags")));
+
+				serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/"
+						+ URLEncoder.encode(URLEncoder.encode((serviceTemplateId.getNamespaceURI()))) + "/"
+								+ serviceTemplateId.getLocalPart() + "/tags"));
 				HttpResponse serviceTemplateTagsGETResp = this.client.execute(serviceTemplateTagsGET);
 				String tagsJsonResponse = EntityUtils.toString(serviceTemplateTagsGETResp.getEntity());
 
@@ -198,7 +206,8 @@ public class WineryConnector {
 
 						HttpGet serviceTemplateTagGET = new HttpGet();
 						serviceTemplateTagGET.setHeader("Accept", "application/json");
-						serviceTemplateTagGET.setURI(new URI(serviceTemplateTagsGET.getURI().toString() + "/" + key.getTextValue()));
+						serviceTemplateTagGET
+								.setURI(new URI(serviceTemplateTagsGET.getURI().toString() + "/" + key.getTextValue()));
 						HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
 						String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
 

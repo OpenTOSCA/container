@@ -84,7 +84,7 @@ public class PackagerResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response createFromArtefact(@FormDataParam("file") InputStream uploadedInputStream, @FormDataParam("file") FormDataContentDisposition fileDetail, @FormDataParam("file") FormDataBodyPart body, @FormDataParam("artefactType") QName artifactType, @FormDataParam("nodeTypes") Set<QName> nodeTypes, @FormDataParam("infrastructureNodeType") QName infrastructureNodeType, @FormDataParam("tags") Set<String> tags, @Context UriInfo uriInfo) throws IllegalArgumentException, JAXBException, IOException {
 
-		if (this.connector.isWineryRepositoryAvailable()) {
+		if (!this.connector.isWineryRepositoryAvailable()) {
 			return Response.status(Status.SERVICE_UNAVAILABLE).build();
 		}
 
