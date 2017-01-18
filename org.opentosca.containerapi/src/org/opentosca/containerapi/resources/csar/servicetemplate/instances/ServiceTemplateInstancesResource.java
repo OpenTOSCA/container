@@ -106,66 +106,66 @@ public class ServiceTemplateInstancesResource {
 		// to bad variable content: " + e1.getMessage());
 		// }
 		
-		try {
+		//		try {
+		
+		References refs = new References();
+		
+		// get all instance ids
+		if (null == buildPlanCorrId || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowsCorrelationId(buildPlanCorrId)) {
 			
-			References refs = new References();
+			IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 			
-			// get all instance ids
-			if (null == buildPlanCorrId || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowsCorrelationId(buildPlanCorrId)) {
+			List<ServiceInstance> serviceInstances = service.getServiceInstancesWithDetails(csarId, serviceTemplateID, null);
+			// List<ServiceInstance> serviceInstances =
+			// service.getServiceInstances(serviceInstanceIdURI,
+			// serviceTemplateName, serviceTemplateIDQName);
+			log.debug("Returning all known Service Template instance IDs ({}).", serviceInstances.size());
+			
+			for (ServiceInstance serviceInstance : serviceInstances) {
 				
-				IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-				
-				List<ServiceInstance> serviceInstances = service.getServiceInstances(null, null, null);
-				// List<ServiceInstance> serviceInstances =
-				// service.getServiceInstances(serviceInstanceIdURI,
-				// serviceTemplateName, serviceTemplateIDQName);
-				log.debug("Returning all known Service Template instance IDs ({}).", serviceInstances.size());
-				
-				for (ServiceInstance serviceInstance : serviceInstances) {
+				log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"", serviceInstance.getServiceTemplateID().getNamespaceURI(), serviceInstance.getServiceTemplateID().getLocalPart(), serviceTemplateID.getNamespaceURI(), serviceTemplateID.getLocalPart());
+				if (serviceInstance.getServiceTemplateID().equals(serviceTemplateID)) {
 					
-					log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"", serviceInstance.getServiceTemplateID().getNamespaceURI(), serviceInstance.getServiceTemplateID().getLocalPart(), serviceTemplateID.getNamespaceURI(), serviceTemplateID.getLocalPart());
-					if (serviceInstance.getServiceTemplateID().equals(serviceTemplateID)) {
-						
-						int instanceId = serviceInstance.getDBId();
-						refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
-					}
-					// URI urlToServiceInstance =
-					// LinkBuilder.linkToServiceInstance(uriInfo,
-					// serviceInstance.getDBId());
-					//
-					// // build simpleXLink with the internalID as LinkText
-					// // TODO: is the id the correct linkText?
-					// links.add(new SimpleXLink(urlToServiceInstance,
-					// serviceInstance.getDBId() + ""));
+					int instanceId = serviceInstance.getDBId();
+					refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
 				}
-			}
-			// get instance id of plan correlation only
-			else {
-				
-				int instanceId = BuildCorrelationToInstanceMapping.instance.getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
-				refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
-				
-				log.debug("Returning only the Service Template instance ID for correlation {} ({}).", buildPlanCorrId, instanceId);
-				
 				// URI urlToServiceInstance =
-				// LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
+				// LinkBuilder.linkToServiceInstance(uriInfo,
+				// serviceInstance.getDBId());
 				//
 				// // build simpleXLink with the internalID as LinkText
 				// // TODO: is the id the correct linkText?
-				// links.add(new SimpleXLink(urlToServiceInstance, instanceId +
-				// ""));
-				
+				// links.add(new SimpleXLink(urlToServiceInstance,
+				// serviceInstance.getDBId() + ""));
 			}
-			
-			// selflink
-			refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-			
-			// ServiceInstanceList sil = new
-			// ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
-			return refs;
-		} catch (Exception e) {
-			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
+		// get instance id of plan correlation only
+		else {
+			
+			int instanceId = BuildCorrelationToInstanceMapping.instance.getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
+			refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
+			
+			log.debug("Returning only the Service Template instance ID for correlation {} ({}).", buildPlanCorrId, instanceId);
+			
+			// URI urlToServiceInstance =
+			// LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
+			//
+			// // build simpleXLink with the internalID as LinkText
+			// // TODO: is the id the correct linkText?
+			// links.add(new SimpleXLink(urlToServiceInstance, instanceId +
+			// ""));
+			
+		}
+		
+		// selflink
+		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+		
+		// ServiceInstanceList sil = new
+		// ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
+		return refs;
+		//		} catch (Exception e) {
+		//			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
+		//		}
 		
 	}
 	
@@ -188,10 +188,13 @@ public class ServiceTemplateInstancesResource {
 			
 			int serviceTemplateInstanceId = createdServiceInstance.getDBId();
 			String instanceURL = createdServiceInstance.getServiceInstanceID().toString();
-			log.debug(corr + " : " + serviceTemplateInstanceId + " - " + instanceURL);
+			log.debug(corr + " : " + corr + " - " + instanceURL);
 			
-			BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr, serviceTemplateInstanceId);
-			PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(csarId, serviceTemplateID, corr, serviceTemplateInstanceId);
+			// correlate true Service Template instance id with temporary one
+			{
+				BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr, serviceTemplateInstanceId);
+				PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(csarId, serviceTemplateID, corr, serviceTemplateInstanceId);
+			}
 			
 			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
 			

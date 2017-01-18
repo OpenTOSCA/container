@@ -15,8 +15,8 @@ import org.opentosca.containerapi.resources.csar.CSARsResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.ServiceTemplateResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstanceResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstancesResource;
-import org.opentosca.containerapi.resources.csar.servicetemplate.node.instances.NodeTemplateInstanceListResource;
-import org.opentosca.containerapi.resources.csar.servicetemplate.node.instances.NodeTemplateInstanceResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances.NodeTemplateInstanceListResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances.NodeTemplateInstanceResource;
 
 /**
  * 

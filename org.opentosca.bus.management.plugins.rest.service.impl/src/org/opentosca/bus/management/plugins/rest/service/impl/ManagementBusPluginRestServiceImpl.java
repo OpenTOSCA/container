@@ -149,18 +149,34 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 		// the dummyhost uri is ignored, so this is ugly but intended
 		
+		// deployment of plan may be not finished at this point, thus, poll for
+		// successful invocation
 		String responseString = null;
-		try {
-			responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
-		} catch (Exception e) {
-			LOG.trace("There was an error, thus wait one second and retry. This responds to an issue of Camunda not always finding the plan ...");
+		long maxWaitTime = 5000;
+		long startMillis = System.currentTimeMillis();
+		do {
+			
+			try {
+				responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
+			} catch (Exception e) {
+			}
+			LOG.trace(responseString);
+			
+			if (null != responseString) {
+				break;
+			} else if (System.currentTimeMillis() - startMillis > maxWaitTime) {
+				String str = "Wait time exceeded, stop waiting for response of operation.";
+				LOG.error(str + "\n" + responseString);
+			} else {
+				LOG.trace("Waiting for being able to invoke Camunda BPMN plan for at most " + (maxWaitTime - System.currentTimeMillis() + startMillis) / 1000 + " seconds.");
+			}
+			
 			try {
 				Thread.sleep(1000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
-		}
+		} while (null == responseString);
 		
 		LOG.info("Response of the REST call: " + responseString);
 		

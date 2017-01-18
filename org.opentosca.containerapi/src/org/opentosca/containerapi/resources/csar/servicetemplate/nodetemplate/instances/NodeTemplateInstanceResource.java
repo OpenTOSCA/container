@@ -1,8 +1,7 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,13 +47,15 @@ public class NodeTemplateInstanceResource {
 	private final CSARID csarId;
 	private final QName serviceTemplateID;
 	private final int serviceTemplateInstanceId;
+	private final QName nodeTemplateID;
 	private final int nodeTemplateInstanceId;
 	
 	
-	public NodeTemplateInstanceResource(CSARID csarId, QName serviceTemplateID, int serviceTemplateInstanceId, int id) {
+	public NodeTemplateInstanceResource(CSARID csarId, QName serviceTemplateID, int serviceTemplateInstanceId, QName nodeTemplateID, int id) {
 		this.csarId = csarId;
 		this.serviceTemplateID = serviceTemplateID;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+		this.nodeTemplateID = nodeTemplateID;
 		nodeTemplateInstanceId = id;
 	}
 	
@@ -96,10 +97,15 @@ public class NodeTemplateInstanceResource {
 		links.add(LinkBuilder.selfLink(uriInfo));
 		
 		URI serviceInstanceID = nodeInstance.getServiceInstance().getServiceInstanceID();
-		URI linkToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, IdConverter.serviceInstanceUriToID(serviceInstanceID));
+		//		URI linkToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, IdConverter.serviceInstanceUriToID(serviceInstanceID));
 		
-		String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/Instances/" + serviceTemplateInstanceId;
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(), nodeUrl), XLinkConstants.REFERENCE, "ParentServiceTemplateInstance"));
+		// String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" +
+		// URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") +
+		// "/Instances/" + serviceTemplateInstanceId;
+		// refs.getReference().add(new
+		// Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(),
+		// nodeUrl), XLinkConstants.REFERENCE,
+		// "ParentServiceTemplateInstance"));
 		
 		// links.add(new SimpleXLink(linkToServiceInstance, "ServiceInstance"));
 		// // properties link

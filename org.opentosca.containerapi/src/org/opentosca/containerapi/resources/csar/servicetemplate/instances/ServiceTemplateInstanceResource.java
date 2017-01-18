@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -19,9 +20,10 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.opentosca.containerapi.osgi.servicegetter.IOpenToscaControlServiceHandler;
+import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.plans.PlanInstances;
-import org.opentosca.containerapi.resources.csar.servicetemplate.node.instances.NodeTemplateInstancesResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.NodeTemplatesResource;
 import org.opentosca.containerapi.resources.utilities.JSONUtils;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
@@ -29,6 +31,8 @@ import org.opentosca.containerapi.resources.xlink.Reference;
 import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
+import org.opentosca.instancedata.service.IInstanceDataService;
+import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.tosca.TBoolean;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
@@ -91,43 +95,6 @@ public class ServiceTemplateInstanceResource {
 		
 		References refs = new References();
 		
-		//		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		//		URI serviceInstanceIDtoURI = IdConverter.serviceInstanceIDtoURI(serviceTemplateInstanceId);
-		
-		//		try {
-		//			// self link is only link at the moment in the main list
-		//			List<SimpleXLink> serviceInstanceLinks = new LinkedList<SimpleXLink>();
-		//			serviceInstanceLinks.add(LinkBuilder.selfLink(uriInfo));
-		//			
-		//			// its ensured that this serviceInstance exists
-		//			List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIDtoURI, null, null);
-		//			ServiceInstance serviceInstance = serviceInstances.get(0);
-		//			
-		//			// extract values
-		//			
-		//			// build nodeInstanceList
-		//			List<NodeInstance> nodeInstances = service.getNodeInstances(null, null, null, serviceInstanceIDtoURI);
-		//			List<SimpleXLink> nodeInstanceLinks = new LinkedList<SimpleXLink>();
-		//			
-		//			for (NodeInstance nodeInstance : nodeInstances) {
-		//				
-		//				// URI uriToNodeInstance =
-		//				// LinkBuilder.linkToNodeInstance(uriInfo,
-		//				// nodeInstance.getId());
-		//				// // build simpleXLink with the nodeInstanceID as LinkText
-		//				// nodeInstanceLinks.add(new SimpleXLink(uriToNodeInstance, nodeInstance.getNodeInstanceID().toString()));
-		//				
-		//				QName nodeId = nodeInstance.getNodeTemplateID();
-		//				String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/NodeTemplates/" + URLEncoder.encode(nodeId.toString(), "UTF-8");
-		//				refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(), nodeUrl), XLinkConstants.REFERENCE, URLEncoder.encode(nodeId.getLocalPart(), "UTF-8")));
-		//				log.debug("build node reference {}", nodeUrl);
-		//			}
-		//			// we dont want a self link because the InstanceList is part of
-		//			// another list already containing a self link
-		//			NodeInstanceList nil = new NodeInstanceList(null, nodeInstanceLinks);
-		//			
-		//			ServiceInstanceEntry sie = new ServiceInstanceEntry(serviceInstance, serviceInstanceLinks, nil);
-		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "NodeTemplates"), XLinkConstants.SIMPLE, "NodeTemplates"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Properties"), XLinkConstants.SIMPLE, "Properties"));
@@ -143,13 +110,17 @@ public class ServiceTemplateInstanceResource {
 		// }
 	}
 	
-	// @DELETE
-	// public Response deleteServiceInstance() {
-	// IInstanceDataService service =
-	// InstanceDataServiceHandler.getInstanceDataService();
-	// service.deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(id));
-	// return Response.noContent().build();
-	// }
+	@DELETE
+	public Response deleteServiceInstance() {
+		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+		service.deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(serviceTemplateInstanceId));
+		return Response.noContent().build();
+	}
+	
+	@Path("NodeTemplates")
+	public Object getNodeTemplates() {
+		return new NodeTemplatesResource(csarId, serviceTemplateID, serviceTemplateInstanceId);
+	}
 	
 	@Path("/Properties")
 	public Object getProperties() {
@@ -166,10 +137,11 @@ public class ServiceTemplateInstanceResource {
 		return new PlanInstances(csarId, serviceTemplateID, serviceTemplateInstanceId);
 	}
 	
-	@Path("/NodeTemplates")
-	public Object getNodeInstances() {
-		return new NodeTemplateInstancesResource(csarId, serviceTemplateID, serviceTemplateInstanceId);
-	}
+	// @Path("/NodeTemplates")
+	// public Object getNodeInstances() {
+	// return new NodeTemplateInstancesResource(csarId, serviceTemplateID,
+	// serviceTemplateInstanceId);
+	// }
 	
 	/**
 	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.

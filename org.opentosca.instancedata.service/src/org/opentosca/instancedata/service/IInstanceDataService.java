@@ -18,8 +18,9 @@ import org.w3c.dom.Document;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  * 
- * The interface specifies methods to manage instances of ServiceTemplates (=ServiceInstances)
- * and NodeTemplates (NodeInstances) and properties of NodeInstances
+ * The interface specifies methods to manage instances of ServiceTemplates
+ * (=ServiceInstances) and NodeTemplates (NodeInstances) and properties of
+ * NodeInstances
  * 
  * 
  * 
@@ -28,7 +29,7 @@ import org.w3c.dom.Document;
  */
 public interface IInstanceDataService {
 	
-	//TODO: remove deprecated methods!
+	// TODO: remove deprecated methods!
 	
 	/**
 	 * Sets a property.
@@ -72,15 +73,13 @@ public interface IInstanceDataService {
 	 * @param ServiceTemplateID
 	 * @return the new generated ServiceInstance
 	 */
-	public ServiceInstance createServiceInstance(CSARID csarID,
-			QName serviceTemplateID) throws ReferenceNotFoundException;
+	public ServiceInstance createServiceInstance(CSARID csarID, QName serviceTemplateID) throws ReferenceNotFoundException;
 	
 	/**
 	 * Deletes the serviceInstance represnted by the given
 	 * <code>serviceInstanceID</code>
 	 * 
-	 * @param serviceInstanceID
-	 *            - of the instance which will be deleted
+	 * @param serviceInstanceID - of the instance which will be deleted
 	 */
 	public void deleteServiceInstance(URI serviceInstanceID);
 	
@@ -90,12 +89,10 @@ public interface IInstanceDataService {
 	 * 
 	 * @see serviceInstance
 	 * @TODO: additional parameters in JDOC
-	 * @param serviceInstanceID
-	 *            : ID to identify the serviceInstance
+	 * @param serviceInstanceID : ID to identify the serviceInstance
 	 * @return List containing all corresponding ServiceInstances
 	 */
-	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID,
-			String serviceTemplateName, QName serviceTemplateID);
+	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName, QName serviceTemplateID);
 	
 	/**
 	 * Create a <code>NodeInstance</code>of the specified nodeTemplate of the
@@ -105,8 +102,7 @@ public interface IInstanceDataService {
 	 * @param serviceInstanceID
 	 * @return the new generated NodeInstance
 	 */
-	public NodeInstance createNodeInstance(QName nodeTemplateID,
-			URI serviceInstanceID) throws ReferenceNotFoundException;
+	public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceInstanceID, QName nodeTemplateID) throws ReferenceNotFoundException;
 	
 	/**
 	 * Deletes the specified NodeInstance
@@ -116,8 +112,9 @@ public interface IInstanceDataService {
 	public void deleteNodeInstance(URI nodeInstanceID);
 	
 	/**
-	 * returns all NodeInstances matching the given parameters the parameters are ANDed therefore a nodeInstance has to
-	 * match all parameters to be returned
+	 * returns all NodeInstances matching the given parameters the parameters
+	 * are ANDed therefore a nodeInstance has to match all parameters to be
+	 * returned
 	 * 
 	 * @param nodeInstanceID
 	 * @param nodeTemplateID
@@ -125,9 +122,7 @@ public interface IInstanceDataService {
 	 * @param serviceInstanceID
 	 * @return all matching nodeInstances
 	 */
-	public List<NodeInstance> getNodeInstances(URI nodeInstanceID,
-			QName nodeTemplateID, String nodeTemplateName,
-			URI serviceInstanceID);
+	public List<NodeInstance> getNodeInstances(URI nodeInstanceID, QName nodeTemplateID, String nodeTemplateName, URI serviceInstanceID);
 	
 	/**
 	 * returns the state of the NodeInstance specified by
@@ -135,8 +130,7 @@ public interface IInstanceDataService {
 	 * 
 	 * @param nodeInstanceID
 	 * @return State
-	 * @throws ReferenceNotFoundException
-	 *             if nodeInstanceID doesn't exist
+	 * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
 	 */
 	public QName getState(URI nodeInstanceID) throws ReferenceNotFoundException;
 	
@@ -145,16 +139,18 @@ public interface IInstanceDataService {
 	 * 
 	 * @param nodeInstanceID
 	 * @param state
-	 * @throws ReferenceNotFoundException
-	 *             if nodeInstanceID doesn't exist
+	 * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
 	 */
 	public void setState(URI nodeInstanceID, QName state) throws ReferenceNotFoundException;
 	
 	/**
-	 * returns a DOM structure containing all properties specified in the propertiesList
+	 * returns a DOM structure containing all properties specified in the
+	 * propertiesList
 	 * <ul>
-	 * <li>if propertiesList is <code>empty</code> all properties are returned</li>
-	 * <li>if propertiesList is <code>null</code> no properties are returned</li>
+	 * <li>if propertiesList is <code>empty</code> all properties are returned
+	 * </li>
+	 * <li>if propertiesList is <code>null</code> no properties are returned
+	 * </li>
 	 * </ul>
 	 * 
 	 * @param serviceInstanceID
@@ -165,10 +161,13 @@ public interface IInstanceDataService {
 	public Document getServiceInstanceProperties(URI serviceInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException;
 	
 	/**
-	 * returns a DOM structure containing all properties specified in the propertiesList
+	 * returns a DOM structure containing all properties specified in the
+	 * propertiesList
 	 * <ul>
-	 * <li>if propertiesList is <code>empty</code> all properties are returned</li>
-	 * <li>if propertiesList is <code>null</code> no properties are returned</li>
+	 * <li>if propertiesList is <code>empty</code> all properties are returned
+	 * </li>
+	 * <li>if propertiesList is <code>null</code> no properties are returned
+	 * </li>
 	 * </ul>
 	 * 
 	 * @param nodeInstanceID
@@ -181,4 +180,8 @@ public interface IInstanceDataService {
 	public void setNodeInstanceProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException;
 	
 	public void setServiceInstanceProperties(URI serviceInstanceID, Document properties) throws ReferenceNotFoundException;
+	
+	public NodeInstance createNodeInstance(QName nodeTemplateIDQName, URI serviceInstanceIdURI) throws ReferenceNotFoundException;
+	
+	public List<ServiceInstance> getServiceInstancesWithDetails(CSARID csarId, QName serviceTemplateId, Integer serviceTemplateInstanceID);
 }

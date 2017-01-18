@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -32,7 +31,6 @@ import org.opentosca.model.tosca.TNodeTemplate;
 import org.opentosca.model.tosca.TPropertyMapping;
 import org.opentosca.toscaengine.service.IToscaEngineService;
 import org.opentosca.toscaengine.service.NodeTemplateInstanceCounts;
-import org.opentosca.toscaengine.service.NodeTemplateInstanceCounts.InstanceCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -63,7 +61,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	
 	final private static Logger LOG = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
 	
-	private static IToscaEngineService toscaEngineService;
+	public static IToscaEngineService toscaEngineService;
 	
 	// used for persistence
 	private final ServiceInstanceDAO siDAO = new ServiceInstanceDAO();
@@ -74,6 +72,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	@WebMethod(exclude = true)
 	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName, QName serviceTemplateID) {
 		return siDAO.getServiceInstances(serviceInstanceID, serviceTemplateName, serviceTemplateID);
+	}
+	@Override
+	@WebMethod(exclude = true)
+	public List<ServiceInstance> getServiceInstancesWithDetails(CSARID csarId, QName serviceTemplateId, Integer serviceTemplateInstanceID) {
+		return siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
 	}
 	
 	@Override
@@ -108,18 +111,21 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		// transaction? and have duplicate code? need to fetch nodeTemplateName
 		// from toscaEngine f.ex.?
 		
-		HashMap<QName, InstanceCount> occurenceInformationMap = instanceCounts.getOccurenceInformationMap();
-		Set<QName> qNamesOfNodeTemplates = occurenceInformationMap.keySet();
-		// create for each nodeTemplate the minimum amount of instances
-		// specified
-		for (QName qName : qNamesOfNodeTemplates) {
-			InstanceCount instanceCount = occurenceInformationMap.get(qName);
-			// create "instanceCount".min instances
-			for (int i = 0; i < instanceCount.min; i++) {
-				// new nodeInstance
-				createNodeInstance(qName, serviceInstance.getServiceInstanceID());
-			}
-		}
+		// this creates required Node Templates of a Service Template, but this
+		// functionality is out dated
+		// HashMap<QName, InstanceCount> occurenceInformationMap =
+		// instanceCounts.getOccurenceInformationMap();
+		// Set<QName> qNamesOfNodeTemplates = occurenceInformationMap.keySet();
+		// // create for each nodeTemplate the minimum amount of instances
+		// // specified
+		// for (QName qName : qNamesOfNodeTemplates) {
+		// InstanceCount instanceCount = occurenceInformationMap.get(qName);
+		// // create "instanceCount".min instances
+		// for (int i = 0; i < instanceCount.min; i++) {
+		// // new nodeInstance
+		// createNodeInstance(qName, serviceInstance.getServiceInstanceID());
+		// }
+		// }
 		// create associated nodeInstances
 		
 		return serviceInstance;
@@ -146,9 +152,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	
 	@Override
 	@WebMethod(exclude = true)
-	public NodeInstance createNodeInstance(QName nodeTemplateID, URI serviceInstanceID) throws ReferenceNotFoundException {
+	public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceInstanceID, QName nodeTemplateID) throws ReferenceNotFoundException {
 		
-		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(serviceInstanceID, null, null);
+		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(csarId, serviceTemplateId, serviceInstanceID);
 		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
 			String msg = String.format("Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved", serviceInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
@@ -178,6 +184,16 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		nodeInstance.setProperties(propertiesOfNodeTemplate);
 		niDAO.saveNodeInstance(nodeInstance);
 		return nodeInstance;
+	}
+	
+	/**
+	 * Yes, this method throws always an exception. Why? Do not use the method!
+	 */
+	@Deprecated
+	@Override
+	public NodeInstance createNodeInstance(QName nodeTemplateIDQName, URI serviceInstanceIdURI) throws ReferenceNotFoundException {
+		throw new ReferenceNotFoundException("DO NOT USE THIS METHOD!!!");
+		// return null;
 	}
 	
 	@Override
@@ -721,5 +737,4 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		
 		updateServiceInstanceProperties(serviceInstance);
 	}
-	
 }

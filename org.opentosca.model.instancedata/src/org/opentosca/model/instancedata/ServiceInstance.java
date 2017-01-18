@@ -1,7 +1,9 @@
 package org.opentosca.model.instancedata;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
@@ -105,9 +107,9 @@ public class ServiceInstance {
 		this.csarID = csarID;
 		// needed to persist the object
 		csarID_DB = csarID.getFileName();
-		
 		setServiceTemplateID(serviceTemplateID);
 		this.serviceTemplateName = serviceTemplateName;
+		
 		created = new Date();
 		properties = null;
 	}
@@ -151,9 +153,14 @@ public class ServiceInstance {
 	@PostPersist
 	private void setIDs() {
 		try {
-			serviceInstanceID = new URI(Settings.CONTAINER_API + IdConverter.serviceInstancePath + id);
+			// old: serviceInstanceID = new URI(Settings.CONTAINER_API +
+			// IdConverter.serviceInstancePath + id);
+			// http://localhost:1337/containerapi/CSARs/BPMNLAMPStack.csar/ServiceTemplates/%257Bhttp%253A%252F%252Fopentosca.org%252FBPMN%257DBPMNLAMPStack/Instances/1/
+			serviceInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + csarID + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(serviceTemplateID.toString(), "UTF-8"), "UTF-8") + "/Instances/" + id);
 			csarID = new CSARID(csarID_DB);
 		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}

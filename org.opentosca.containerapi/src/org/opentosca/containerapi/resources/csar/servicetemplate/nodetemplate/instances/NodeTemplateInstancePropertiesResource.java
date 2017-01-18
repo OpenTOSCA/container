@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,33 +33,33 @@ import org.w3c.dom.Document;
 public class NodeTemplateInstancePropertiesResource {
 	
 	private int nodeInstanceID;
-
-
+	
+	
 	public NodeTemplateInstancePropertiesResource(int id) {
-		this.nodeInstanceID = id;
+		nodeInstanceID = id;
 	}
-
+	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	public Response doGetXML(@QueryParam("property") List<String> propertiesList) {
-
-		Document idr = this.getProperties(propertiesList);
-
+		
+		Document idr = getProperties(propertiesList);
+		
 		return Response.ok(idr).build();
 	}
-
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doGetJSON(@QueryParam("property") List<String> propertiesList) {
-
-		Document idr = this.getProperties(propertiesList);
-
+		
+		Document idr = getProperties(propertiesList);
+		
 		return Response.ok(new JSONUtils().xmlToGenericJsonObject(idr.getChildNodes()).toString()).build();
 	}
-
+	
 	public Document getProperties(List<String> propertiesList) {
 		List<QName> qnameList = new ArrayList<QName>();
-
+		
 		// convert all String in propertyList to qnames
 		try {
 			if (propertiesList != null) {
@@ -70,29 +70,29 @@ public class NodeTemplateInstancePropertiesResource {
 		} catch (Exception e) {
 			throw new GenericRestException(Status.BAD_REQUEST, "error converting one of the properties-parameters: " + e.getMessage());
 		}
-
+		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			Document properties = service.getNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), qnameList);
+			Document properties = service.getNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), qnameList);
 			return properties;
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
 		}
 	}
-
+	
 	@PUT
 	@Produces(MediaType.APPLICATION_XML)
 	@Consumes(MediaType.APPLICATION_XML)
 	public Response setProperties(@Context UriInfo uriInfo, Document xml) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
-			service.setNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), xml);
+			service.setNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), xml);
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
 		}
-		SimpleXLink xLink = new SimpleXLink(uriInfo.getAbsolutePath(), "NodeInstance: " + this.nodeInstanceID + " Properties");
+		SimpleXLink xLink = new SimpleXLink(uriInfo.getAbsolutePath(), "NodeInstance: " + nodeInstanceID + " Properties");
 		return Response.ok(xLink).build();
-
+		
 	}
-
+	
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import javax.persistence.Query;
 import javax.xml.namespace.QName;
 
+import org.opentosca.core.model.csar.id.CSARID;
+import org.opentosca.instancedata.service.impl.InstanceDataServiceImpl;
 import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.ServiceInstance;
 import org.slf4j.Logger;
@@ -42,7 +44,8 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		if (null == em) {
 			System.out.println("EM is null");
 		}
-		if (null == em.getTransaction()) {
+		if (null == em.getTransaction()) { // FIXME sometimes null pointer
+			// exception
 			System.out.println("EM transaction is null");
 		}
 		
@@ -89,6 +92,36 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
 		return queryResults;
 		
+	}
+	
+	public List<ServiceInstance> getServiceInstances(CSARID csarId, QName serviceTemplateId, Integer serviceTemplateInstanceID) {
+		
+		init();
+		
+		LOG.debug("Try to get Service Template instance objects from persistence for CSAR \"{}\" Service Template \"{}\" Instance Id \"{}\"", csarId, serviceTemplateId, serviceTemplateInstanceID);
+		
+		Query getServiceInstancesQuery = em.createNamedQuery(ServiceInstance.getServiceInstances);
+		
+		String serviceTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, serviceTemplateId);
+		
+		// Set Parameters for the Query
+		// getServiceInstancesQuery.setParameter("param", param);
+		getServiceInstancesQuery.setParameter("id", serviceTemplateInstanceID);
+		getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
+		getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId.toString());
+		
+		// getServiceInstancesQuery.setParameter("serviceTemplateID",
+		// serviceTemplateID);
+		// getServiceInstancesQuery.setParameter("serviceTemplateNamespace",
+		// serviceTemplateNamespace);
+		// Get Query-Results (ServiceInstances) and add them to the result list.
+		@SuppressWarnings("unchecked")
+		// Result can only be a ServiceInstance
+		List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
+		
+		LOG.debug("Found {} instance objects for Service Template instance of CSAR \"{}\" Service Template \"{}\" Instance Id \"{}\"", queryResults.size(), csarId, serviceTemplateId, serviceTemplateInstanceID);
+		
+		return queryResults;
 	}
 	
 }

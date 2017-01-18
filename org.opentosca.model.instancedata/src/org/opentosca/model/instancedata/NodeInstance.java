@@ -1,7 +1,9 @@
 package org.opentosca.model.instancedata;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -38,7 +40,7 @@ import org.w3c.dom.Document;
 @NamedQueries({
 	@NamedQuery(name = NodeInstance.getNodeInstances, query = NodeInstance.getNodeInstancesQuery) })
 public class NodeInstance {
-
+	
 	// Query to retrieve NodeInstances identified by some parameters
 	public final static String getNodeInstances = "NodeInstance.getNodeInstancesQuery";
 	protected final static String getNodeInstancesQuery = "select n from NodeInstance n where"
@@ -46,49 +48,49 @@ public class NodeInstance {
 			+ " n.nodeTemplateName = COALESCE(:nodeTemplateName, n.nodeTemplateName) AND"
 			+ " n.serviceInstance.id = COALESCE(:internalServiceInstanceID, n.serviceInstance.id) AND"
 			+ " n.nodeTemplateID = COALESCE(:nodeTemplateID, n.nodeTemplateID)";
-
+	
 	// the internal ID (Database) of the NodeInstance
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
+	
 	// the external ID (used in all contexts BUT in the Database)
 	// it is separated because there is no need to save BOTH into the DB!
 	@Transient
 	private URI nodeInstanceID;
-
+	
 	@Convert("QNameConverter")
 	private QName nodeTemplateID;
-
+	
 	// the name of the corresponding NodeTemplate
 	private String nodeTemplateName;
-
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	// the creation date of a nodeInstance
 	private Date created;
-
+	
 	// foreign key relationship to serviceInstance
 	@ManyToOne
 	@JoinColumn(name = "serviceInstance")
 	ServiceInstance serviceInstance;
-
+	
 	@Column(name = "properties", columnDefinition = "VARCHAR(4096)")
 	@Convert("DOMDocumentConverter")
 	Document properties;
-
+	
 	// "TOSCA"State
 	@Convert("QNameConverter")
 	private QName state;
-
+	
 	//nodeType of the nodeTemplate which this nodeInstance depends on
 	@Convert("QNameConverter")
 	private QName nodeType;
-
+	
 	// This empty constructor is required by JPA
 	@SuppressWarnings("unused")
 	private NodeInstance() {
 	}
-
+	
 	/**
 	 * Creates a new instance of a NodeTemplate. ID and creation date will be
 	 * set automatically.
@@ -105,55 +107,55 @@ public class NodeInstance {
 		this.nodeTemplateID = nodeTemplateID;
 		this.nodeTemplateName = nodeTemplateName;
 		this.serviceInstance = serviceInstance;
-		this.created = new Date();
-		this.properties = null;
-		this.nodeType = nodeTypeOfNodeTemplate;
+		created = new Date();
+		properties = null;
+		nodeType = nodeTypeOfNodeTemplate;
 	}
-
+	
 	public QName getNodeType() {
-		return this.nodeType;
+		return nodeType;
 	}
-
+	
 	public String getNodeTemplateName() {
-		return this.nodeTemplateName;
+		return nodeTemplateName;
 	}
-
+	
 	public int getId() {
-		return this.id;
+		return id;
 	}
-
+	
 	public URI getNodeInstanceID() {
-		return this.nodeInstanceID;
+		return nodeInstanceID;
 	}
-
+	
 	public QName getNodeTemplateID() {
-		return this.nodeTemplateID;
+		return nodeTemplateID;
 	}
-
+	
 	public Date getCreated() {
-		return this.created;
+		return created;
 	}
-
+	
 	public QName getState() {
 		return state;
 	}
-
+	
 	public void setState(QName state) {
 		this.state = state;
 	}
-
+	
 	public void setProperties(Document props) {
-		this.properties = props;
+		properties = props;
 	}
-
+	
 	public Document getProperties() {
-		return this.properties;
+		return properties;
 	}
-
+	
 	public ServiceInstance getServiceInstance() {
 		return serviceInstance;
 	}
-
+	
 	/**
 	 * The ID persisted in the database is "only" an integer. To the outside, we
 	 * need the ID to be an URI. To avoid storing two IDs in the database we
@@ -165,14 +167,15 @@ public class NodeInstance {
 	@PostPersist
 	private void setNodeInstanceID() {
 		try {
-			this.nodeInstanceID = new URI(
-					Settings.CONTAINER_API + IdConverter.nodeInstancePath + this.id);
+			nodeInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + serviceInstance.getCSAR_ID() + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8") + "/Instances/" + id + "/NodeTemplates/" + nodeTemplateName + "/Instances/" + id);
+			
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -182,5 +185,5 @@ public class NodeInstance {
 	public String toString() {
 		return "NodeInstance [id=" + id + ", nodeInstanceID=" + nodeInstanceID + ", nodeTemplateID=" + nodeTemplateID + ", nodeTemplateName=" + nodeTemplateName + ", created=" + created + ", serviceInstance=" + serviceInstance + ", properties=" + properties + "]";
 	}
-
+	
 }

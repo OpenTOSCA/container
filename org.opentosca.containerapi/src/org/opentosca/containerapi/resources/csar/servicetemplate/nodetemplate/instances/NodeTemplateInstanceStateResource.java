@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

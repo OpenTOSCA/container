@@ -1,7 +1,6 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +9,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -58,19 +56,21 @@ public class NodeTemplateInstancesResource {
 	private final CSARID csarId;
 	private final QName serviceTemplateID;
 	private final int serviceTemplateInstanceId;
+	private final QName nodeTemplateID;
 	
 	
-	public NodeTemplateInstancesResource(CSARID csarId, QName serviceTemplateID, int serviceTemplateInstanceId) {
+	public NodeTemplateInstancesResource(CSARID csarId, QName serviceTemplateID, int serviceTemplateInstanceId, QName nodeTemplateID) {
 		this.csarId = csarId;
 		this.serviceTemplateID = serviceTemplateID;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+		this.nodeTemplateID = nodeTemplateID;
 	}
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("nodeInstanceID") String nodeInstanceID, @QueryParam("nodeTemplateID") String nodeTemplateID, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("nodeTemplateName") String nodeTemplateName) {
+	public Response doGetXML(@Context UriInfo uriInfo) {
 		
-		References idr = getRefs(uriInfo, nodeInstanceID, nodeTemplateID, nodeTemplateName);
+		References idr = getRefs(uriInfo);
 		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -81,9 +81,9 @@ public class NodeTemplateInstancesResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("nodeInstanceID") String nodeInstanceID, @QueryParam("nodeTemplateID") String nodeTemplateID, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("nodeTemplateName") String nodeTemplateName) {
+	public Response doGetJSON(@Context UriInfo uriInfo) {
 		
-		References idr = getRefs(uriInfo, nodeInstanceID, nodeTemplateID, nodeTemplateName);
+		References idr = getRefs(uriInfo);
 		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -92,7 +92,7 @@ public class NodeTemplateInstancesResource {
 		return Response.ok(idr.getJSONString()).build();
 	}
 	
-	public References getRefs(UriInfo uriInfo, String givenNodeInstanceID, String nodeTemplateID, String nodeTemplateName) {
+	public References getRefs(UriInfo uriInfo) {
 		References refs = new References();
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
@@ -113,8 +113,6 @@ public class NodeTemplateInstancesResource {
 			List<NodeInstance> nodeInstances = service.getNodeInstances(null, null, null, serviceInstanceIDtoURI);
 			List<SimpleXLink> nodeInstanceLinks = new LinkedList<SimpleXLink>();
 			
-			log.debug("List all Node Template instances. Given filter values: node instance id {}; node template id {}; node template name {}", givenNodeInstanceID, nodeTemplateID, nodeTemplateName);
-			
 			for (NodeInstance nodeInstance : nodeInstances) {
 				// URI uriToNodeInstance =
 				// LinkBuilder.linkToNodeInstance(uriInfo,
@@ -130,10 +128,20 @@ public class NodeTemplateInstancesResource {
 				// "/Instances/" + serviceTemplateInstanceId + "/NodeTemplates/"
 				// + nodeInstanceId;
 				
-				if ((null != givenNodeInstanceID && givenNodeInstanceID.equals(Integer.toString(nodeInstanceId))) || (null != nodeTemplateID && (nodeTemplateID.toString().equalsIgnoreCase(nodeId.toString()) || nodeTemplateID.toString().equalsIgnoreCase(nodeId.getLocalPart()))) || (null == givenNodeInstanceID && null == nodeTemplateID)) {
-					String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/Instances/" + serviceTemplateInstanceId + "/NodeTemplates/" + nodeInstanceId;
-					refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(), nodeUrl), XLinkConstants.REFERENCE, URLEncoder.encode(nodeId.getLocalPart(), "UTF-8")));
-					log.debug("build node reference {}", nodeUrl);
+				if (nodeTemplateID.toString().equalsIgnoreCase(nodeId.toString()) || nodeTemplateID.toString().equalsIgnoreCase(nodeId.getLocalPart())) {
+					Reference ref = new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), String.valueOf(nodeInstanceId)), XLinkConstants.SIMPLE, String.valueOf(nodeInstanceId));
+					refs.getReference().add(ref);
+					// String nodeUrl = "/CSARs/" + csarId +
+					// "/ServiceTemplates/" +
+					// URLEncoder.encode(serviceTemplateID.toString(), "UTF-8")
+					// + "/Instances/" + serviceTemplateInstanceId +
+					// "/NodeTemplates/" + nodeTemplateID.getLocalPart() +
+					// "Instances" + nodeInstanceId;
+					// refs.getReference().add(new
+					// Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(),
+					// nodeUrl), XLinkConstants.REFERENCE,
+					// URLEncoder.encode(nodeId.getLocalPart(), "UTF-8")));
+					log.debug("build node reference {}", ref.getXhref());
 				} else {
 					log.debug("Skipped node instance {} of node template id {}", nodeInstanceId, nodeId);
 				}
@@ -184,30 +192,32 @@ public class NodeTemplateInstancesResource {
 	
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
-	public Response createNodeInstance(@QueryParam("nodeTemplateID") String nodeTemplateID, @QueryParam("serviceInstanceID") String serviceInstanceID, @Context UriInfo uriInfo) {
+	public Response createNodeInstance(@Context UriInfo uriInfo) {
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+		//		ServiceInstance serviceInstanceIdURI = service.getservi
 		
-		if (Utilities.areEmpty(nodeTemplateID, serviceInstanceID)) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Missing one of the required parameters: nodeTemplateID, serviceInstanceID");
-		}
+		// if (Utilities.areEmpty(nodeTemplateID, serviceTemplateInstanceId)) {
+		// throw new GenericRestException(Status.BAD_REQUEST, "Missing one of
+		// the required parameters: nodeTemplateID, serviceInstanceID");
+		// }
 		
-		URI serviceInstanceIdURI = null;
-		QName nodeTemplateIDQName = null;
+		//		URI serviceInstanceIdURI = null;
+		//		try {
+		//			
+		//			serviceInstanceIdURI = new ServiceInstance(csarId, nodeTemplateID, nodeTemplateID.getLocalPart(), serviceTemplateInstanceId).getServiceInstanceID();
+		//			if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
+		//				throw new Exception("Error converting serviceInstanceID: invalid format!");
+		//			}
+		//			
+		//		} catch (Exception e1) {
+		//			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
+		//		}
+		
 		try {
-			serviceInstanceIdURI = new URI(serviceInstanceID);
-			if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-				throw new Exception("Error converting serviceInstanceID: invalid format!");
-			}
-			nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
-			
-		} catch (Exception e1) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
-		}
-		
-		try {
-			NodeInstance nodeInstance = service.createNodeInstance(nodeTemplateIDQName, serviceInstanceIdURI);
-			SimpleXLink response = new SimpleXLink(LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId()), nodeInstance.getNodeInstanceID().toString());
+			NodeInstance nodeInstance = service.createNodeInstance(csarId, serviceTemplateID, serviceTemplateInstanceId, nodeTemplateID);
+			//			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
+			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + nodeInstance.getId(), "simple");
 			return Response.ok(response).build();
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
@@ -219,6 +229,6 @@ public class NodeTemplateInstancesResource {
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		ExistenceChecker.checkNodeInstanceWithException(nodeTemplateInstanceId, service);
-		return new NodeTemplateInstanceResource(csarId, serviceTemplateID, serviceTemplateInstanceId, nodeTemplateInstanceId);
+		return new NodeTemplateInstanceResource(csarId, serviceTemplateID, serviceTemplateInstanceId, nodeTemplateID, nodeTemplateInstanceId);
 	}
 }

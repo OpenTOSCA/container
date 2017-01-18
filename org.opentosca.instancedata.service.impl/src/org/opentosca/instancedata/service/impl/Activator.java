@@ -1,9 +1,9 @@
 package org.opentosca.instancedata.service.impl;
 
-import javax.xml.ws.Endpoint;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Activator of the (demo) InstanceDatService.<br>
@@ -21,6 +21,9 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator implements BundleActivator {
 	
+	
+	private final static Logger LOG = LoggerFactory.getLogger(Activator.class);
+	
 	static BundleContext context;
 	
 	
@@ -33,9 +36,16 @@ public class Activator implements BundleActivator {
 	 */
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		
+		LOG.trace("Starting Activator start");
+		
 		Activator.context = bundleContext;
 		
-		Endpoint.publish("http://localhost:8082/InstanceDataService", new InstanceDataServiceImpl());
+		LOG.trace("Bundle Context set.");
+		
+		//		Endpoint.publish("http://localhost:8082/InstanceDataService", new InstanceDataServiceImpl());
+		
+		LOG.trace("Endpoint published.");
 	}
 	
 	/*

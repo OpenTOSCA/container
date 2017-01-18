@@ -8,4 +8,4 @@
  * @author christian.endres@iaas.uni-stuttgart.de
  *
  */
-package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;

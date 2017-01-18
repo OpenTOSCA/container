@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.node.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;
 
 import java.net.URI;
 import java.util.LinkedList;
