@@ -44,7 +44,7 @@ public class ServiceTemplateResource {
 		String namespace = serviceTemplateID.substring(1, serviceTemplateID.indexOf("}"));
 		String localName = serviceTemplateID.substring(serviceTemplateID.indexOf("}") + 1);
 		this.serviceTemplateID = new QName(namespace, localName);
-		log.info("{} created: {}", this.getClass(), this);
+		log.info("{} created: \"{}\":\"{}\"; out of \"{}\"", this.getClass(), this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart(), serviceTemplateID);
 	}
 	
 	@GET
@@ -85,6 +85,7 @@ public class ServiceTemplateResource {
 	
 	@Path("Instances")
 	public ServiceTemplateInstancesResource getInstances() {
+		log.debug("Create ST instances list resource for {}", serviceTemplateID);
 		return new ServiceTemplateInstancesResource(csarContent.getCSARID(), serviceTemplateID);
 	}
 }

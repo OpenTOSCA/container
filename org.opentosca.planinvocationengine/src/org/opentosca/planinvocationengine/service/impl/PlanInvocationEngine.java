@@ -21,8 +21,6 @@ import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
 import org.opentosca.model.tosca.extension.transportextension.TPlanDTO;
 import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
 import org.opentosca.planinvocationengine.service.IPlanLogHandler;
-import org.opentosca.planinvocationengine.service.impl.messages.generation.RESTMessageGenerator;
-import org.opentosca.planinvocationengine.service.impl.messages.generation.SOAPMessageGenerator;
 import org.opentosca.planinvocationengine.service.impl.messages.parsing.ResponseParser;
 import org.opentosca.planinvocationengine.service.impl.planlogs.PlanLogHandler;
 import org.opentosca.settings.Settings;
@@ -52,9 +50,7 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler {
 	
 	
-	private final SOAPMessageGenerator soapInvokeMessageGenerator = new SOAPMessageGenerator();
 	private final ResponseParser responseParser = new ResponseParser();
-	private final RESTMessageGenerator restInvokeMessageGenerator = new RESTMessageGenerator();
 	
 	private final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
 	
@@ -257,9 +253,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 			if (para.getName().equalsIgnoreCase("CorrelationID")) {
 				LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
 				map.put(para.getName(), correlationID);
-			} else if (para.getName().equalsIgnoreCase("csarName")) {
-				LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
+			} else if (para.getName().equalsIgnoreCase("csarID")) {
+				LOG.debug("Found csarID Element! Put in csarID \"" + csarID + "\".");
 				map.put(para.getName(), csarID.toString());
+			} else if (para.getName().equalsIgnoreCase("serviceTemplateID")) {
+				LOG.debug("Found serviceTemplateID Element! Put in serviceTemplateID \"" + serviceTemplateID + "\".");
+				map.put(para.getName(), serviceTemplateID.toString());
 			} else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
 				LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API + "\".");
 				map.put(para.getName(), Settings.CONTAINER_API);

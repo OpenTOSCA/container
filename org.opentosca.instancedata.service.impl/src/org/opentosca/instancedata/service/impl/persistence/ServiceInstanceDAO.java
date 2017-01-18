@@ -22,44 +22,47 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceInstanceDAO extends AbstractDAO {
 	
+	
 	// Logging
-	private final static Logger LOG = LoggerFactory
-			.getLogger(ServiceInstanceDAO.class);
+	private final static Logger LOG = LoggerFactory.getLogger(ServiceInstanceDAO.class);
+	
 	
 	public void deleteServiceInstance(ServiceInstance si) {
-		this.init();
-		this.em.getTransaction().begin();
-		this.em.remove(si);
-		this.em.getTransaction().commit();
-		ServiceInstanceDAO.LOG.debug("Deleted ServiceInstance with ID: "
-				+ si.getServiceInstanceID());
-		
+		init();
+		em.getTransaction().begin();
+		em.remove(si);
+		em.getTransaction().commit();
+		ServiceInstanceDAO.LOG.debug("Deleted ServiceInstance with ID: " + si.getServiceInstanceID());
 		
 	}
 	
 	public void storeServiceInstance(ServiceInstance serviceInstance) {
-		this.init();
+		init();
 		
-		this.em.getTransaction().begin();
-		this.em.persist(serviceInstance);
-		this.em.getTransaction().commit();
-		ServiceInstanceDAO.LOG.debug("Stored ServiceInstance: "
-				+ serviceInstance.getServiceTemplateName() + " successful!");
+		if (null == em) {
+			System.out.println("EM is null");
+		}
+		if (null == em.getTransaction()) {
+			System.out.println("EM transaction is null");
+		}
+		
+		em.getTransaction().begin();
+		em.persist(serviceInstance);
+		em.getTransaction().commit();
+		ServiceInstanceDAO.LOG.debug("Stored ServiceInstance for Service Template: " + serviceInstance.getServiceTemplateID().getNamespaceURI() + " : " + serviceInstance.getServiceTemplateID().getLocalPart() + " successful!");
 		
 	}
 	
-	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID,
-			String serviceTemplateName, QName serviceTemplateID) {
-		this.init();
+	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName, QName serviceTemplateID) {
+		init();
 		
 		/**
 		 * Create Query to retrieve ServiceInstances
 		 * 
 		 * @see ServiceInstance#getServiceInstances
 		 */
-		Query getServiceInstancesQuery = this.em
-				.createNamedQuery(ServiceInstance.getServiceInstances);
-
+		Query getServiceInstancesQuery = em.createNamedQuery(ServiceInstance.getServiceInstances);
+		
 		Integer internalID = null;
 		if (serviceInstanceID != null) {
 			internalID = IdConverter.serviceInstanceUriToID(serviceInstanceID);
@@ -73,10 +76,8 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		// Set Parameters for the Query
 		// getServiceInstancesQuery.setParameter("param", param);
 		getServiceInstancesQuery.setParameter("id", internalID);
-		getServiceInstancesQuery.setParameter("serviceTemplateName",
-				serviceTemplateName);
-		getServiceInstancesQuery.setParameter("serviceTemplateID",
-				serviceTemplateID_String);
+		getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
+		getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateID_String);
 		
 		// getServiceInstancesQuery.setParameter("serviceTemplateID",
 		// serviceTemplateID);
@@ -85,8 +86,7 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		// Get Query-Results (ServiceInstances) and add them to the result list.
 		@SuppressWarnings("unchecked")
 		// Result can only be a ServiceInstance
-		List<ServiceInstance> queryResults = getServiceInstancesQuery
-		.getResultList();
+		List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
 		return queryResults;
 		
 	}

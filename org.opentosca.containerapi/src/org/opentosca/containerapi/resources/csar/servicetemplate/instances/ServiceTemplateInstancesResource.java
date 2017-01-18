@@ -37,7 +37,6 @@ import org.opentosca.containerapi.resources.xlink.References;
 import org.opentosca.containerapi.resources.xlink.XLinkConstants;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.instancedata.service.IInstanceDataService;
-import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.ServiceInstance;
 import org.opentosca.model.tosca.TBoolean;
 import org.opentosca.model.tosca.extension.transportextension.TParameterDTO;
@@ -57,62 +56,79 @@ import com.google.gson.JsonParser;
  *
  */
 public class ServiceTemplateInstancesResource {
-
+	
 	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstancesResource.class);
 	private final CSARID csarId;
 	private final QName serviceTemplateID;
 	
 	
 	public ServiceTemplateInstancesResource(CSARID csarid, QName serviceTemplateID) {
-		this.csarId = csarid;
+		csarId = csarid;
 		this.serviceTemplateID = serviceTemplateID;
+		log.debug("Created \"{}\":\"{}\";", serviceTemplateID.getNamespaceURI(), serviceTemplateID.getLocalPart());
 	}
 	
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
+	public Response doGetXML(@Context UriInfo uriInfo, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
 		
-		References refs = this.getRefs(uriInfo, serviceInstanceID, serviceTemplateName, this.serviceTemplateID.toString(), buildPlanCorrId);
+		References refs = getRefs(uriInfo, buildPlanCorrId);
 		
 		return Response.ok(refs.getXMLString()).build();
 	}
 	
 	@GET
 	@Produces(ResourceConstants.LINKED_JSON)
-	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("serviceInstanceID") String serviceInstanceID, @QueryParam("serviceTemplateName") String serviceTemplateName, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
+	public Response doGetJSON(@Context UriInfo uriInfo, @QueryParam("BuildPlanCorrelationId") String buildPlanCorrId) {
 		
-		References refs = this.getRefs(uriInfo, serviceInstanceID, serviceTemplateName, this.serviceTemplateID.toString(), buildPlanCorrId);
+		References refs = getRefs(uriInfo, buildPlanCorrId);
 		
 		return Response.ok(refs.getJSONString()).build();
 	}
 	
-	public References getRefs(UriInfo uriInfo, String serviceInstanceID, String serviceTemplateName, String serviceTemplateID, String buildPlanCorrId) {
+	public References getRefs(UriInfo uriInfo, String buildPlanCorrId) {
 		
-		URI serviceInstanceIdURI = null;
-		try {
-			if (serviceInstanceID != null) {
-				serviceInstanceIdURI = new URI(serviceInstanceID);
-				if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-					throw new Exception("Error converting serviceInstanceID: invalid format!");
-				}
-			}
-		} catch (Exception e1) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due to bad variable content: " + e1.getMessage());
-		}
+		// URI serviceInstanceIdURI = null;
+		// QName serviceTemplateIDQName = null;
+		// try {
+		// if (serviceInstanceID != null) {
+		// serviceInstanceIdURI = new URI(serviceInstanceID);
+		// if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
+		// throw new Exception("Error converting serviceInstanceID: invalid
+		// format!");
+		// }
+		// }
+		// if (serviceTemplateID != null) {
+		// serviceTemplateIDQName = QName.valueOf(serviceTemplateID);
+		// }
+		// } catch (Exception e1) {
+		// throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due
+		// to bad variable content: " + e1.getMessage());
+		// }
 		
 		try {
 			
 			References refs = new References();
 			
-			if ((null == buildPlanCorrId) || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowsCorrelationId(buildPlanCorrId)) {
+			// get all instance ids
+			if (null == buildPlanCorrId || buildPlanCorrId.equals("") || !BuildCorrelationToInstanceMapping.instance.knowsCorrelationId(buildPlanCorrId)) {
+				
 				IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-				List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIdURI, serviceTemplateName, this.serviceTemplateID);
+				
+				List<ServiceInstance> serviceInstances = service.getServiceInstances(null, null, null);
+				// List<ServiceInstance> serviceInstances =
+				// service.getServiceInstances(serviceInstanceIdURI,
+				// serviceTemplateName, serviceTemplateIDQName);
+				log.debug("Returning all known Service Template instance IDs ({}).", serviceInstances.size());
 				
 				for (ServiceInstance serviceInstance : serviceInstances) {
 					
-					int instanceId = serviceInstance.getDBId();
-					refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
-					
+					log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"", serviceInstance.getServiceTemplateID().getNamespaceURI(), serviceInstance.getServiceTemplateID().getLocalPart(), serviceTemplateID.getNamespaceURI(), serviceTemplateID.getLocalPart());
+					if (serviceInstance.getServiceTemplateID().equals(serviceTemplateID)) {
+						
+						int instanceId = serviceInstance.getDBId();
+						refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
+					}
 					// URI urlToServiceInstance =
 					// LinkBuilder.linkToServiceInstance(uriInfo,
 					// serviceInstance.getDBId());
@@ -122,10 +138,14 @@ public class ServiceTemplateInstancesResource {
 					// links.add(new SimpleXLink(urlToServiceInstance,
 					// serviceInstance.getDBId() + ""));
 				}
-			} else {
+			}
+			// get instance id of plan correlation only
+			else {
 				
 				int instanceId = BuildCorrelationToInstanceMapping.instance.getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
 				refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
+				
+				log.debug("Returning only the Service Template instance ID for correlation {} ({}).", buildPlanCorrId, instanceId);
 				
 				// URI urlToServiceInstance =
 				// LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
@@ -154,13 +174,12 @@ public class ServiceTemplateInstancesResource {
 	@Produces(MediaType.APPLICATION_XML)
 	public Response createServiceInstance(@Context UriInfo uriInfo, String xml) {
 		
-		this.log.debug("Create a instance of {} {}", this.csarId, this.serviceTemplateID);
-		this.log.debug("Received the following request body: {} ", xml);
+		log.debug("Create a instance of CSAR = \"{}\" Service Template = \"{}\"", csarId, serviceTemplateID);
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		try {
 			
-			ServiceInstance createdServiceInstance = service.createServiceInstance(this.csarId, this.serviceTemplateID);
+			ServiceInstance createdServiceInstance = service.createServiceInstance(csarId, serviceTemplateID);
 			
 			// create xlink with the link to the newly created serviceInstance,
 			// the link text is the internal serviceInstanceID
@@ -169,14 +188,14 @@ public class ServiceTemplateInstancesResource {
 			
 			int serviceTemplateInstanceId = createdServiceInstance.getDBId();
 			String instanceURL = createdServiceInstance.getServiceInstanceID().toString();
-			this.log.debug(corr + " : " + serviceTemplateInstanceId + " - " + instanceURL);
+			log.debug(corr + " : " + serviceTemplateInstanceId + " - " + instanceURL);
 			
 			BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr, serviceTemplateInstanceId);
-			PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(this.csarId, this.serviceTemplateID, corr, serviceTemplateInstanceId);
+			PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(csarId, serviceTemplateID, corr, serviceTemplateInstanceId);
 			
-			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + serviceTemplateInstanceId, "simple");
+			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
 			
-			this.log.debug("Returning following link: " + response.getHref());
+			log.debug("Returning following link: " + response.getHref());
 			return Response.ok(response).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -189,7 +208,7 @@ public class ServiceTemplateInstancesResource {
 	public Object getServiceInstance(@PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) int id) {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		ExistenceChecker.checkServiceInstanceWithException(id, service);
-		return new ServiceTemplateInstanceResource(this.csarId, this.serviceTemplateID, id);
+		return new ServiceTemplateInstanceResource(csarId, serviceTemplateID, id);
 	}
 	
 	/**
@@ -204,7 +223,7 @@ public class ServiceTemplateInstancesResource {
 	@Consumes(ResourceConstants.TEXT_PLAIN)
 	@Produces(ResourceConstants.APPLICATION_JSON)
 	public Response postBUILDJSONReturnJSON(@Context UriInfo uriInfo, String json) throws URISyntaxException, UnsupportedEncodingException {
-		String url = this.postManagementPlanJSON(uriInfo, json);
+		String url = postManagementPlanJSON(uriInfo, json);
 		JsonObject ret = new JsonObject();
 		ret.addProperty("PlanURL", url);
 		return Response.created(new URI(url)).entity(ret.toString()).build();
@@ -223,7 +242,7 @@ public class ServiceTemplateInstancesResource {
 	@Produces(ResourceConstants.TOSCA_XML)
 	public Response postBUILDJSONReturnXML(@Context UriInfo uriInfo, String json) throws URISyntaxException, UnsupportedEncodingException {
 		
-		String url = this.postManagementPlanJSON(uriInfo, json);
+		String url = postManagementPlanJSON(uriInfo, json);
 		// return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
 		return Response.created(new URI(url)).build();
 	}
@@ -237,16 +256,14 @@ public class ServiceTemplateInstancesResource {
 	 */
 	private String postManagementPlanJSON(UriInfo uriInfo, String json) throws UnsupportedEncodingException {
 		
-		this.log.debug("Received a build plan for CSAR " + this.csarId + "\npassed entity:\n   " + json);
+		log.debug("Received a build plan for CSAR " + csarId + "\npassed entity:\n   " + json);
 		
-		JsonParser parser = new JsonParser();
-		JsonObject jsonObject = parser.parse(json).getAsJsonObject();
+		JsonParser parser = new JsonParser();		
+		JsonObject object = parser.parse(json).getAsJsonObject();
 		
-		JsonObject object = jsonObject.getAsJsonObject("Plan");
+		log.debug(object.toString());
 		
-		this.log.debug(object.toString());
-		
-		this.log.trace(JSONUtils.withoutQuotationMarks(object.get("ID").toString()));
+		log.trace(JSONUtils.withoutQuotationMarks(object.get("ID").toString()));
 		
 		TPlanDTO plan = new TPlanDTO();
 		
@@ -282,16 +299,16 @@ public class ServiceTemplateInstancesResource {
 			plan.getOutputParameters().getOutputParameter().add(para);
 		}
 		
-		String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getNamespaceOfPlan(this.csarId, plan.getId().getLocalPart());
+		String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getNamespaceOfPlan(csarId, plan.getId().getLocalPart());
 		plan.setId(new QName(namespace, plan.getId().getLocalPart()));
 		
-		this.log.debug("Post of the Plan " + plan.getId());
+		log.debug("Post of the Plan " + plan.getId());
 		
-		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
+		String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(csarId, serviceTemplateID, -1, plan);
 		
-		this.log.debug("Return correlation ID of running plan: " + correlationID);
+		log.debug("Return correlation ID of running plan: " + correlationID);
 		
-		String url = uriInfo.getBaseUri().toString() + "CSARs/" + this.csarId.getFileName() + "/ServiceTemplates/" + URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8") + "/Instances?BuildPlanCorrelationId=" + correlationID;
+		String url = uriInfo.getBaseUri().toString() + "CSARs/" + csarId.getFileName() + "/ServiceTemplates/" + URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") + "/Instances?BuildPlanCorrelationId=" + correlationID;
 		
 		return url;
 		

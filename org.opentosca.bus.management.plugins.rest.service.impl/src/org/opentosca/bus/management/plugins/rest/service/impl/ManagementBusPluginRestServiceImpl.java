@@ -148,7 +148,19 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 		
 		ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 		// the dummyhost uri is ignored, so this is ugly but intended
-		String responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
+		
+		String responseString = null;
+		try {
+			responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
+		} catch (Exception e) {
+			LOG.trace("There was an error, thus wait one second and retry. This responds to an issue of Camunda not always finding the plan ...");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
+		}
 		
 		LOG.info("Response of the REST call: " + responseString);
 		

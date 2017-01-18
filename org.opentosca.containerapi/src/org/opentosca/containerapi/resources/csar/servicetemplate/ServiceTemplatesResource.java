@@ -112,6 +112,7 @@ public class ServiceTemplatesResource {
 	
 	@Path("{qname}")
 	public ServiceTemplateResource getServiceTemplate(@PathParam("qname") String qname) throws UnsupportedEncodingException {
+		log.debug("Create Service Template resource for {}", qname);
 		return new ServiceTemplateResource(csarContent, URLDecoder.decode(qname, "UTF-8"));
 	}
 }
