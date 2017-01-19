@@ -164,7 +164,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 		WSDLEndpoint point = new WSDLEndpoint();
 		point.setCSARId(csarId);
 		point.setPlanId(planId);
-		point.setIaName(planName);
+		// point.setIaName(planName);
 		point.setURI(endpointURI);
 		
 		endpointService.storeWSDLEndpoint(point);
