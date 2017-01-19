@@ -73,6 +73,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName, QName serviceTemplateID) {
 		return siDAO.getServiceInstances(serviceInstanceID, serviceTemplateName, serviceTemplateID);
 	}
+	
 	@Override
 	@WebMethod(exclude = true)
 	public List<ServiceInstance> getServiceInstancesWithDetails(CSARID csarId, QName serviceTemplateId, Integer serviceTemplateInstanceID) {
@@ -152,32 +153,34 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	
 	@Override
 	@WebMethod(exclude = true)
-	public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceInstanceID, QName nodeTemplateID) throws ReferenceNotFoundException {
+	public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceTemplateInstanceID, QName nodeTemplateID) throws ReferenceNotFoundException {
 		
-		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(csarId, serviceTemplateId, serviceInstanceID);
+		LOG.debug("Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance \"{}\"", nodeTemplateID.getNamespaceURI(), nodeTemplateID.getLocalPart(), csarId, serviceTemplateId, serviceTemplateInstanceID);
+		
+		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
 		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
-			String msg = String.format("Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved", serviceInstanceID);
+			String msg = String.format("Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved", serviceTemplateInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
 			throw new ReferenceNotFoundException(msg);
 		}
 		ServiceInstance serviceInstance = serviceInstances.get(0);
 		
 		// check if nodeTemplate exists
-		if (!InstanceDataServiceImpl.toscaEngineService.doesNodeTemplateExist(serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID.getLocalPart())) {
+		if (!InstanceDataServiceImpl.toscaEngineService.doesNodeTemplateExist(csarId, serviceTemplateId, nodeTemplateID.getLocalPart())) {
 			String msg = String.format("Failed to create NodeInstance: NodeTemplate: csar: %s serviceTemplateID: %s , nodeTemplateID: '%s' - could not be retrieved / does not exists", serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID);
 			InstanceDataServiceImpl.LOG.warn(msg);
 			throw new ReferenceNotFoundException(msg);
 		}
 		
-		String nodeTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(serviceInstance.getCSAR_ID(), nodeTemplateID);
+		String nodeTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, nodeTemplateID);
 		
 		// use localparts because serviceInstance QName namespace HAS to be the
 		// same as the namespace of the nodeInstance
-		QName nodeTypeOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getNodeTypeOfNodeTemplate(serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID.getLocalPart());
+		QName nodeTypeOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateId, nodeTemplateID.getLocalPart());
 		
 		// use localparts because serviceInstance QName namespace HAS to be the
 		// same as the namespace of the nodeInstance
-		Document propertiesOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getPropertiesOfNodeTemplate(serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID.getLocalPart().toString());
+		Document propertiesOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getPropertiesOfNodeTemplate(csarId, serviceTemplateId, nodeTemplateID.getLocalPart().toString());
 		
 		NodeInstance nodeInstance = new NodeInstance(nodeTemplateID, nodeTemplateName, nodeTypeOfNodeTemplate, serviceInstance);
 		// set default properties

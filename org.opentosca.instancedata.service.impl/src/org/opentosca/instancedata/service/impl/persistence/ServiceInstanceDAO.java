@@ -44,9 +44,18 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		if (null == em) {
 			System.out.println("EM is null");
 		}
-		if (null == em.getTransaction()) { // FIXME sometimes null pointer
-			// exception
-			System.out.println("EM transaction is null");
+		try {
+			if (null == em.getTransaction()) { // FIXME sometimes null pointer
+				// exception
+				System.out.println("EM transaction is null");
+			}
+		} catch (NullPointerException e) {
+			// maybe it works a second later ... yes, i am serious
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
 		
 		em.getTransaction().begin();
