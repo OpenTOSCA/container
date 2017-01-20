@@ -72,7 +72,7 @@ public class NodeInstance {
 	@JoinColumn(name = "serviceInstance")
 	ServiceInstance serviceInstance;
 
-	@Column(name = "properties", columnDefinition = "VARCHAR(4096)")
+	@Column(name = "properties", columnDefinition = "VARCHAR(8192)")
 	@Convert("DOMDocumentConverter")
 	Document properties;
 
