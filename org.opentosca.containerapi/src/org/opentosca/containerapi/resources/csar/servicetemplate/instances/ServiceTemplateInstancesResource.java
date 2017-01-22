@@ -171,7 +171,7 @@ public class ServiceTemplateInstancesResource {
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
-	@Produces(MediaType.APPLICATION_XML)
+	@Produces({ MediaType.APPLICATION_XML, MediaType.TEXT_XML })
 	public Response createServiceInstance(@Context UriInfo uriInfo, String xml) {
 		
 		log.debug("Create a instance of CSAR = \"{}\" Service Template = \"{}\"", csarId, serviceTemplateID);

@@ -1,14 +1,9 @@
-/**
- *
- */
 package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -45,43 +40,15 @@ public class Plugin implements IPlanBuilderPostPhasePlugin {
 	
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate) {
-		return this.checkProperties(nodeTemplate.getProperties());
+		// we can handle nodes
+		return true;
 	}
 	
 	@Override
 	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate) {
-		return this.checkProperties(relationshipTemplate.getProperties());
+		// we can't handle relations
+		return false;
 	}
 	
-	/**
-	 * <p>
-	 * Checks the given AbstractProperties against following criteria:
-	 * Nullpointer-Check for properties itself and its given DOM Element,
-	 * followed by whether the dom element has any child elements (if not, we
-	 * have no properties/bpel-variables defined)
-	 * </p>
-	 * 
-	 * @param properties AbstractProperties of an AbstractNodeTemplate or
-	 *            AbstractRelationshipTemplate
-	 * @return true iff properties and properties.getDomElement() != null and
-	 *         DomElement.hasChildNodes() == true
-	 */
-	private boolean checkProperties(AbstractProperties properties) {
-		if (properties == null) {
-			return false;
-		}
-		
-		if (properties.getDOMElement() == null) {
-			return false;
-		}
-		
-		Element propertiesRootElement = properties.getDOMElement();
-		
-		if (!propertiesRootElement.hasChildNodes()) {
-			return false;
-		}
-		
-		return true;
-	}
 	
 }

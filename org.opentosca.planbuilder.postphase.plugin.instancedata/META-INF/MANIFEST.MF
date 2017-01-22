@@ -7,6 +7,7 @@ Bundle-Activator: org.opentosca.planbuilder.postphase.plugin.instancedata.Activa
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.commons.io;version="2.4.0",
  org.eclipse.core.runtime;version="3.4.0",
+ org.opentosca.planbuilder.fragments,
  org.opentosca.planbuilder.model.plan,
  org.opentosca.planbuilder.model.tosca,
  org.opentosca.planbuilder.plugins,
