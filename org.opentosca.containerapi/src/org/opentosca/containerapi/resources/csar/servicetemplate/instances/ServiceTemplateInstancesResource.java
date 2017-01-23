@@ -57,6 +57,7 @@ import com.google.gson.JsonParser;
  */
 public class ServiceTemplateInstancesResource {
 	
+	
 	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstancesResource.class);
 	private final CSARID csarId;
 	private final QName serviceTemplateID;
@@ -106,7 +107,7 @@ public class ServiceTemplateInstancesResource {
 		// to bad variable content: " + e1.getMessage());
 		// }
 		
-		//		try {
+		// try {
 		
 		References refs = new References();
 		
@@ -163,15 +164,16 @@ public class ServiceTemplateInstancesResource {
 		// ServiceInstanceList sil = new
 		// ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
 		return refs;
-		//		} catch (Exception e) {
-		//			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
-		//		}
+		// } catch (Exception e) {
+		// throw new GenericRestException(Status.INTERNAL_SERVER_ERROR,
+		// e.getMessage());
+		// }
 		
 	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
-	@Produces({ MediaType.APPLICATION_XML, MediaType.TEXT_XML })
+	@Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
 	public Response createServiceInstance(@Context UriInfo uriInfo, String xml) {
 		
 		log.debug("Create a instance of CSAR = \"{}\" Service Template = \"{}\"", csarId, serviceTemplateID);
@@ -196,7 +198,7 @@ public class ServiceTemplateInstancesResource {
 				PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(csarId, serviceTemplateID, corr, serviceTemplateInstanceId);
 			}
 			
-			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + serviceTemplateInstanceId, "simple");
+			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
 			
 			log.debug("Returning following link: " + response.getHref());
 			return Response.ok(response).build();
@@ -261,7 +263,7 @@ public class ServiceTemplateInstancesResource {
 		
 		log.debug("Received a build plan for CSAR " + csarId + "\npassed entity:\n   " + json);
 		
-		JsonParser parser = new JsonParser();		
+		JsonParser parser = new JsonParser();
 		JsonObject object = parser.parse(json).getAsJsonObject();
 		
 		log.debug(object.toString());
