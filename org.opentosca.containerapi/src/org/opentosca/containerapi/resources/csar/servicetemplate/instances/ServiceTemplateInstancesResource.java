@@ -196,7 +196,7 @@ public class ServiceTemplateInstancesResource {
 				PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(csarId, serviceTemplateID, corr, serviceTemplateInstanceId);
 			}
 			
-			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
+			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + serviceTemplateInstanceId, "simple");
 			
 			log.debug("Returning following link: " + response.getHref());
 			return Response.ok(response).build();
