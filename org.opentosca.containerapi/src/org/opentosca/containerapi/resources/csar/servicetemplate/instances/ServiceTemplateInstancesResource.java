@@ -194,10 +194,15 @@ public class ServiceTemplateInstancesResource {
 			{
 				BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr, serviceTemplateInstanceId);
 				PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(csarId, serviceTemplateID, corr, serviceTemplateInstanceId);
+			String redirectUrl = uriInfo.getAbsolutePath().toString();
+			SimpleXLink response = null;
+			if (redirectUrl.endsWith("/")) {
+				response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + serviceTemplateInstanceId, "simple");
+			} else {
+				response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId,
+						"simple");
 			}
-			
-			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
-			
+
 			log.debug("Returning following link: " + response.getHref());
 			return Response.ok(response).build();
 		} catch (Exception e) {
