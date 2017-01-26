@@ -11,9 +11,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.containerapi.instancedata.LinkBuilder;
 import org.opentosca.containerapi.instancedata.exception.GenericRestException;
-import org.opentosca.containerapi.instancedata.model.SimpleXLink;
 import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
 import org.opentosca.instancedata.service.IInstanceDataService;
 import org.opentosca.instancedata.service.ReferenceNotFoundException;
@@ -87,8 +85,9 @@ public class NodeTemplateInstanceStateResource {
 		
 		try {
 			service.setState(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), stateQName);
-			SimpleXLink xLink = new SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo, nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
-			return Response.ok(xLink).build();
+			
+			//			SimpleXLink xLink = new SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo, nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
+			return Response.ok().build();
 		} catch (ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + nodeInstanceID + " doesn't exist");
 		}
