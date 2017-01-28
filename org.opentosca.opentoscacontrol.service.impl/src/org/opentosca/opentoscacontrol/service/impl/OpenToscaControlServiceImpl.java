@@ -198,7 +198,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 		LOG.info("Invoke Plan Invocation!");
 		
 		String correlationID = OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID, serviceTemplateId, csarInstanceID, plan);
-		if (null == correlationID) {
+		if (null != correlationID) {
 			LOG.info("The Plan Invocation was successfull!!!");
 		} else {
 			LOG.error("The Plan Invocation was not successfull!!!");

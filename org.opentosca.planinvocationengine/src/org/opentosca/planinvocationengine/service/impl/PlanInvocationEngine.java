@@ -204,7 +204,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		eventValues.put("BODY", message);
 		
 		if (null == ServiceHandler.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
-			LOG.error(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
+			LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
 			eventValues.put("ASYNC", true);
 		} else if (ServiceHandler.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
 			eventValues.put("ASYNC", true);
