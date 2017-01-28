@@ -140,7 +140,22 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 		URI endpointURI = null;
 		try {
 			planName = toscaEngineService.getPlanName(csarId, planId);
-			endpointURI = searchForEndpoint(planName);
+			int retries = 100;
+			
+			for (int iteration = retries; iteration > 0; iteration--) {
+				endpointURI = searchForEndpoint(planName);
+				
+				if (null == endpointURI) {
+					try {
+						LOG.debug("Endpoint not set yet, Camunda might be still processing it.");
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					break;
+				}
+			}
 			LOG.debug("Endpoint URI is {}", endpointURI.getPath());
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
@@ -227,7 +242,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 		}
 		
 		if (planID.equals("")) {
-			LOG.error("No endpoint found for plan {}!", planName);
+			LOG.warn("No endpoint found for plan {}!", planName);
 			return null;
 		}
 		

@@ -60,6 +60,8 @@ import org.w3c.dom.NodeList;
 public class ManagementBusServiceImpl implements IManagementBusService {
 	
 	
+	private static String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
+	
 	private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 	
 	
@@ -318,7 +320,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 		String planLanguage = message.getHeader("PlanLanguage", String.class);
 		ManagementBusServiceImpl.LOG.debug("plan language is: {}", planLanguage);
 		
-		if (planLanguage.startsWith("http://www.omg.org/spec/BPMN/2.0")) {
+		if (planLanguage.startsWith(BPMNNS)) {
 			URI endpoint = WSDLendpoint.getURI();
 			ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
 			
