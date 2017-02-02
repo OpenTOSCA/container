@@ -55,7 +55,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 	private final Logger LOG = LoggerFactory.getLogger(PlanInvocationEngine.class);
 	
 	private static String nsBPEL = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
-	private static String nsBPMN = "http://www.omg.org/spec/BPMN/2.0";
+	private static String nsBPMN = "http://www.omg.org/spec/BPMN";
 	
 	
 	/**
