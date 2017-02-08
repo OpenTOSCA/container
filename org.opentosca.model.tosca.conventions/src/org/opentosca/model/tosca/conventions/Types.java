@@ -27,7 +27,7 @@ public class Types {
 	public final static QName vmWareVsphere55NodeType = new QName("http://opentosca.org/nodetypes", "VSphere_5.5");
 	
 	// docker nodeTypes
-	public final static QName dockerEngineNodeType = new QName("http://opentosca.org/NodeTypes","DockerEngine");
+	public final static QName dockerEngineNodeType = new QName("http://opentosca.org/nodetypes","DockerEngine");
 	
 	// virtual machine nodeTypes
 	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
