@@ -22,8 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginService {
-	
-	
+
 	private static final String TYPES = "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact, {http://toscafy.github.io/artifacttypes}any2api";
 	private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose, http://www.any2api.org, http://github.com/any2api";
 	private static final Logger LOG = LoggerFactory.getLogger(IAEnginePluginDockerComposeServiceImpl.class);
@@ -445,7 +444,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 	}
 
 	private static void any2apiGen(String apispecPath, String outputPath, String endpointKind) throws Exception {
-		String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER, "run", "--rm", "-v", IAEnginePluginDockerComposeServiceImpl.TEMP_DIR + ":" + IAEnginePluginDockerComposeServiceImpl.TEMP_DIR, "any2api/cli", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath};
+		String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER, "run", "--rm", "-v", IAEnginePluginDockerComposeServiceImpl.TEMP_DIR + ":" + IAEnginePluginDockerComposeServiceImpl.TEMP_DIR, "any2api/cli:legacy", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath};
 		IAEnginePluginDockerComposeServiceImpl.execCmd(cmd, apispecPath);
 	}
 
