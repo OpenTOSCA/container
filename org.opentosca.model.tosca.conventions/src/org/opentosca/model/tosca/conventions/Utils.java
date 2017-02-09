@@ -220,7 +220,7 @@ public class Utils {
 	 *         nodeType
 	 */
 	public static boolean isSupportedDockerEngineNodeType(QName nodeType) {
-		if (nodeType.equals(Types.dockerEngineNodeType)) {
+		if (nodeType.equals(Types.dockerEngineNodeType) | nodeType.equals(Types.dockerEngineNodeTypeAlt)) {
 			return true;
 		}
 
