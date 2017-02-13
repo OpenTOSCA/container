@@ -138,48 +138,48 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 					ToscaEngineServiceImpl.LOG.error("The NodeTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + nodeTemplate.getId() + "does not specify a NodeType.");
 				}
 			} else
+			
+			// search inside of a RelationshipTemplate
+			if (entity instanceof TRelationshipTemplate) {
+				TRelationshipTemplate relationshipTemplate = (TRelationshipTemplate) entity;
 				
-				// search inside of a RelationshipTemplate
-				if (entity instanceof TRelationshipTemplate) {
-					TRelationshipTemplate relationshipTemplate = (TRelationshipTemplate) entity;
-					
-					// SourceElement
-					if ((relationshipTemplate.getSourceElement() != null) && (relationshipTemplate.getSourceElement().getRef() != null)) {
-						if (relationshipTemplate.getTargetElement().getRef() instanceof TNodeTemplate) {
-							nodeTemplate = (TNodeTemplate) relationshipTemplate.getTargetElement().getRef();
-							if (nodeTemplate.getType() != null) {
-								if (!nodeTypeQNames.contains(nodeTemplate.getType())) {
-									nodeTypeQNames.add(nodeTemplate.getType());
-								}
-							} else {
-								ToscaEngineServiceImpl.LOG.error("The NodeTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + nodeTemplate.getId() + "does not specify a NodeType.");
-								
+				// SourceElement
+				if ((relationshipTemplate.getSourceElement() != null) && (relationshipTemplate.getSourceElement().getRef() != null)) {
+					if (relationshipTemplate.getTargetElement().getRef() instanceof TNodeTemplate) {
+						nodeTemplate = (TNodeTemplate) relationshipTemplate.getTargetElement().getRef();
+						if (nodeTemplate.getType() != null) {
+							if (!nodeTypeQNames.contains(nodeTemplate.getType())) {
+								nodeTypeQNames.add(nodeTemplate.getType());
 							}
 						} else {
+							ToscaEngineServiceImpl.LOG.error("The NodeTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + nodeTemplate.getId() + "does not specify a NodeType.");
 							
-							ToscaEngineServiceImpl.LOG.debug("The QName \"" + relationshipTemplate.getTargetElement().getRef() + "\" points to a Requirement.");
 						}
 					} else {
-						ToscaEngineServiceImpl.LOG.error("The RelationshipTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + relationshipTemplate.getId() + "does not specify a SourceElement.");
+						
+						ToscaEngineServiceImpl.LOG.debug("The QName \"" + relationshipTemplate.getTargetElement().getRef() + "\" points to a Requirement.");
 					}
-					
-					// TargetElement
-					if ((relationshipTemplate.getTargetElement() != null) && (relationshipTemplate.getTargetElement().getRef() != null)) {
-						if (relationshipTemplate.getTargetElement().getRef() instanceof TNodeTemplate) {
-							nodeTemplate = new TNodeTemplate();
-							nodeTemplate = (TNodeTemplate) relationshipTemplate.getTargetElement().getRef();
-							if (nodeTemplate.getType() != null) {
-								if (!nodeTypeQNames.contains(nodeTemplate.getType())) {
-									nodeTypeQNames.add(nodeTemplate.getType());
-								}
-							} else {
-								ToscaEngineServiceImpl.LOG.error("The NodeTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + nodeTemplate.getId() + "does not specify a NodeType.");
-							}
-						}
-					} else {
-						ToscaEngineServiceImpl.LOG.error("The RelationshipTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + relationshipTemplate.getId() + "does not specify a TargetElement.");
-					}
+				} else {
+					ToscaEngineServiceImpl.LOG.error("The RelationshipTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + relationshipTemplate.getId() + "does not specify a SourceElement.");
 				}
+				
+				// TargetElement
+				if ((relationshipTemplate.getTargetElement() != null) && (relationshipTemplate.getTargetElement().getRef() != null)) {
+					if (relationshipTemplate.getTargetElement().getRef() instanceof TNodeTemplate) {
+						nodeTemplate = new TNodeTemplate();
+						nodeTemplate = (TNodeTemplate) relationshipTemplate.getTargetElement().getRef();
+						if (nodeTemplate.getType() != null) {
+							if (!nodeTypeQNames.contains(nodeTemplate.getType())) {
+								nodeTypeQNames.add(nodeTemplate.getType());
+							}
+						} else {
+							ToscaEngineServiceImpl.LOG.error("The NodeTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + nodeTemplate.getId() + "does not specify a NodeType.");
+						}
+					}
+				} else {
+					ToscaEngineServiceImpl.LOG.error("The RelationshipTemplate \"" + serviceTemplate.getTargetNamespace() + ":" + relationshipTemplate.getId() + "does not specify a TargetElement.");
+				}
+			}
 		}
 		
 		return nodeTypeQNames;
@@ -191,22 +191,25 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 	@Override
 	public boolean hasOperationOfANodeTypeSpecifiedInputParams(CSARID csarID, QName nodeTypeID, String interfaceName, String operationName) {
 		
-		TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeID);
-		
-		if (nodeType.getInterfaces() != null) {
+		for (QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
 			
-			for (TInterface iface : nodeType.getInterfaces().getInterface()) {
+			TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeHierarchyMember);
+			
+			if (nodeType.getInterfaces() != null) {
 				
-				for (TOperation operation : iface.getOperation()) {
+				for (TInterface iface : nodeType.getInterfaces().getInterface()) {
 					
-					if (operation.getName().equals(operationName) && (iface.getName().equals(interfaceName) || (interfaceName == null))) {
+					for (TOperation operation : iface.getOperation()) {
 						
-						if ((operation.getInputParameters() != null) && (operation.getInputParameters().getInputParameter() != null)) {
+						if (operation.getName().equals(operationName) && (iface.getName().equals(interfaceName) || (interfaceName == null))) {
 							
-							return !operation.getInputParameters().getInputParameter().isEmpty();
+							if ((operation.getInputParameters() != null) && (operation.getInputParameters().getInputParameter() != null)) {
+								
+								return !operation.getInputParameters().getInputParameter().isEmpty();
+								
+							}
 							
 						}
-						
 					}
 				}
 			}
@@ -270,22 +273,25 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 	@Override
 	public boolean hasOperationOfANodeTypeSpecifiedOutputParams(CSARID csarID, QName nodeTypeID, String interfaceName, String operationName) {
 		
-		TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeID);
-		
-		if (nodeType.getInterfaces() != null) {
+		for (QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
 			
-			for (TInterface iface : nodeType.getInterfaces().getInterface()) {
+			TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeHierarchyMember);
+			
+			if (nodeType.getInterfaces() != null) {
 				
-				for (TOperation operation : iface.getOperation()) {
+				for (TInterface iface : nodeType.getInterfaces().getInterface()) {
 					
-					if (operation.getName().equals(operationName) && (iface.getName().equals(interfaceName) || (interfaceName == null))) {
+					for (TOperation operation : iface.getOperation()) {
 						
-						if ((operation.getOutputParameters() != null) && (operation.getOutputParameters().getOutputParameter() != null)) {
+						if (operation.getName().equals(operationName) && (iface.getName().equals(interfaceName) || (interfaceName == null))) {
 							
-							return !operation.getOutputParameters().getOutputParameter().isEmpty();
+							if ((operation.getOutputParameters() != null) && (operation.getOutputParameters().getOutputParameter() != null)) {
+								
+								return !operation.getOutputParameters().getOutputParameter().isEmpty();
+								
+							}
 							
 						}
-						
 					}
 				}
 			}
@@ -349,23 +355,26 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 	@Override
 	public boolean doesInterfaceOfNodeTypeContainOperation(CSARID csarID, QName nodeTypeID, String interfaceName, String operationName) {
 		
-		TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeID);
-		
-		if (nodeType.getInterfaces() != null) {
+		for (QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
 			
-			for (TInterface iface : nodeType.getInterfaces().getInterface()) {
+			TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeHierarchyMember);
+			
+			if (nodeType.getInterfaces() != null) {
 				
-				if (iface.getName().equals(interfaceName)) {
+				for (TInterface iface : nodeType.getInterfaces().getInterface()) {
 					
-					for (TOperation operation : iface.getOperation()) {
+					if (iface.getName().equals(interfaceName)) {
 						
-						if (operation.getName().equals(operationName)) {
+						for (TOperation operation : iface.getOperation()) {
 							
-							return true;
+							if (operation.getName().equals(operationName)) {
+								
+								return true;
+							}
 						}
 					}
+					
 				}
-				
 			}
 		}
 		return false;
@@ -455,25 +464,29 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 		// search in all Definitions inside a certain CSAR
 		for (TDefinitions definitions : ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
 			
-			// search for NodeTypeImplementations
-			for (TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-				if (entity instanceof TNodeTypeImplementation) {
-					
-					// if the Implementation is for the given NodeType, remember
-					// it
-					TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) entity;
-					
-					if (nodeTypeImplementation.getNodeType().equals(nodeTypeID)) {
+			for (QName nodeTypeHierachyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
+				
+				// search for NodeTypeImplementations
+				for (TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+					if (entity instanceof TNodeTypeImplementation) {
 						
-						// remember it
-						String targetNamespace;
-						if ((nodeTypeImplementation.getTargetNamespace() != null) && !nodeTypeImplementation.getTargetNamespace().equals("")) {
-							targetNamespace = nodeTypeImplementation.getTargetNamespace();
-						} else {
-							targetNamespace = definitions.getTargetNamespace();
+						// if the Implementation is for the given NodeType,
+						// remember
+						// it
+						TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) entity;
+						
+						if (nodeTypeImplementation.getNodeType().equals(nodeTypeHierachyMember)) {
+							
+							// remember it
+							String targetNamespace;
+							if ((nodeTypeImplementation.getTargetNamespace() != null) && !nodeTypeImplementation.getTargetNamespace().equals("")) {
+								targetNamespace = nodeTypeImplementation.getTargetNamespace();
+							} else {
+								targetNamespace = definitions.getTargetNamespace();
+							}
+							listOfNodeTypeImplementationQNames.add(new QName(targetNamespace, nodeTypeImplementation.getName()));
+							
 						}
-						listOfNodeTypeImplementationQNames.add(new QName(targetNamespace, nodeTypeImplementation.getName()));
-						
 					}
 				}
 			}
@@ -530,13 +543,16 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 		// return list
 		List<String> listOfNames = new ArrayList<String>();
 		
-		// get the NodeTypeImplementation
-		TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeImplementationID);
-		
-		// if there are ImplementationArtifacts, get the names
-		if (nodeTypeImplementation.getImplementationArtifacts() != null) {
-			for (TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts().getImplementationArtifact()) {
-				listOfNames.add(implArt.getName());
+		for (QName nodeTypeImplHierarchyMember : this.getNodeTypeImplementationTypeHierarchy(csarID, nodeTypeImplementationID)) {
+			
+			// get the NodeTypeImplementation
+			TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeImplHierarchyMember);
+			
+			// if there are ImplementationArtifacts, get the names
+			if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+				for (TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts().getImplementationArtifact()) {
+					listOfNames.add(implArt.getName());
+				}
 			}
 		}
 		
@@ -867,20 +883,23 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 	@Override
 	public Node getInputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName, String operationName) {
 		
-		TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeID);
-		
-		if (nodeType.getInterfaces() != null) {
+		for (QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
 			
-			for (TInterface iface : nodeType.getInterfaces().getInterface()) {
+			TNodeType nodeType = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeHierarchyMember);
+			
+			if (nodeType.getInterfaces() != null) {
 				
-				for (TOperation operation : iface.getOperation()) {
+				for (TInterface iface : nodeType.getInterfaces().getInterface()) {
 					
-					if (operation.getName().equals(operationName) && (iface.getName().equals(interfaceName) || (interfaceName == null))) {
+					for (TOperation operation : iface.getOperation()) {
 						
-						if ((operation.getInputParameters() != null) && (operation.getInputParameters().getInputParameter() != null)) {
+						if (operation.getName().equals(operationName) && (iface.getName().equals(interfaceName) || (interfaceName == null))) {
 							
-							return ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(operation.getInputParameters());
-							
+							if ((operation.getInputParameters() != null) && (operation.getInputParameters().getInputParameter() != null)) {
+								
+								return ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(operation.getInputParameters());
+								
+							}
 						}
 					}
 				}
@@ -2176,7 +2195,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 	@Override
 	public List<String> getNodeTemplatesOfServiceTemplate(CSARID csarID, QName serviceTemplate) {
 		Map<QName, List<String>> map = toscaReferenceMapper.getServiceTemplatesAndNodeTemplatesInCSAR(csarID);
-		if (null != map){
+		if (null != map) {
 			return map.get(serviceTemplate);
 		}
 		return new ArrayList<String>();
@@ -2190,5 +2209,32 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 		return serviceTemplate.getBoundaryDefinitions();
 	}
 	
+	@Override
+	public List<QName> getNodeTypeHierachy(CSARID csarID, QName nodeType) {
+		List<QName> qnames = new ArrayList<QName>();
+		TNodeType nodeTypeElement = (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeType);
+		
+		qnames.add(nodeType);
+		
+		if (nodeTypeElement.getDerivedFrom() != null && nodeTypeElement.getDerivedFrom().getTypeRef() != null) {
+			qnames.addAll(this.getNodeTypeHierachy(csarID, nodeTypeElement.getDerivedFrom().getTypeRef()));
+		}
+		
+		return qnames;
+	}
+	
+	@Override
+	public List<QName> getNodeTypeImplementationTypeHierarchy(CSARID csarID, QName nodeTypeImplementationId) {
+		List<QName> qnames = new ArrayList<QName>();
+		TNodeTypeImplementation nodeTypeImplElement = (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, nodeTypeImplementationId);
+		
+		qnames.add(nodeTypeImplementationId);
+		
+		if (nodeTypeImplElement.getDerivedFrom() != null && nodeTypeImplElement.getDerivedFrom().getNodeTypeImplementationRef() != null) {
+			qnames.addAll(this.getNodeTypeImplementationTypeHierarchy(csarID, nodeTypeImplElement.getDerivedFrom().getNodeTypeImplementationRef()));
+		}
+		
+		return qnames;
+	}
 	
 }

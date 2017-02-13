@@ -60,20 +60,19 @@ import org.w3c.dom.NodeList;
 
 public class IAEngineServiceImpl implements IIAEngineService {
 	
-	
 	// HashMap that stores available plug-ins. First parameter of type String is
 	// used as key value.
 	private final Map<String, IIAEnginePluginService> pluginServices = Collections.synchronizedMap(new HashMap<String, IIAEnginePluginService>());
 	private final List<String> failedIAList = new ArrayList<String>();
 	private final List<IIAEnginePluginService> cachedPluginsList = new ArrayList<IIAEnginePluginService>();
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(IAEngineServiceImpl.class);
-
+	
 	private ICoreEndpointService endpointService, oldEndpointService;
 	private ICoreCapabilityService capabilityService, oldCapabilityService;
 	private IToscaEngineService toscaEngineService, oldToscaEngineService;
-
-
+	
+	
 	@Override
 	/**
 	 * {@inheritDoc}
@@ -85,7 +84,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		this.deployServiceTemplate(csarID, serviceTemplateID);
 		return this.failedIAList;
 	}
-
+	
 	/**
 	 * @param csarID
 	 * @param serviceTemplateID
@@ -93,17 +92,17 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	private void deployServiceTemplate(CSARID csarID, QName serviceTemplateID) {
 		
 		IAEngineServiceImpl.LOG.debug("Deploying ServiceTemplate: {} of CSAR: {} ...", serviceTemplateID, csarID.getFileName());
-
+		
 		List<QName> nodeTypeIDs = this.toscaEngineService.getReferencedNodeTypesOfAServiceTemplate(csarID, serviceTemplateID);
-
+		
 		for (QName nodeTypeID : nodeTypeIDs) {
 			
 			this.deployNodeType(csarID, nodeTypeID);
-
+			
 		}
-
+		
 	}
-
+	
 	/**
 	 * @param csarID
 	 * @param nodeTypeID
@@ -111,17 +110,20 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	private void deployNodeType(CSARID csarID, QName nodeTypeID) {
 		
 		IAEngineServiceImpl.LOG.debug("Deploying NodeType: {} of CSAR: {} ...", nodeTypeID, csarID.getFileName());
-
-		List<QName> nodeTypeImplementationIDs = this.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeID);
-
-		for (QName nodeTypeImplementationID : nodeTypeImplementationIDs) {
+		
+		for (QName nodeTypeHierarchyMember : this.toscaEngineService.getNodeTypeHierachy(csarID, nodeTypeID)) {
 			
-			this.deployNodeTypeImplementation(csarID, nodeTypeImplementationID);
-
+			List<QName> nodeTypeImplementationIDs = this.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeHierarchyMember);
+			
+			for (QName nodeTypeImplementationID : nodeTypeImplementationIDs) {
+				
+				this.deployNodeTypeImplementation(csarID, nodeTypeImplementationID);
+				
+			}
 		}
-
+		
 	}
-
+	
 	/**
 	 * @param csarID
 	 * @param nodeTypeImplementationID
@@ -129,19 +131,22 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	private void deployNodeTypeImplementation(CSARID csarID, QName nodeTypeImplementationID) {
 		
 		IAEngineServiceImpl.LOG.debug("Deploying NodeTypeImplementation: {} of CSAR: {} ...", nodeTypeImplementationID, csarID.getFileName());
-
-		List<String> requiredFeatures = this.toscaEngineService.getRequiredContainerFeaturesOfANodeTypeImplementation(csarID, nodeTypeImplementationID);
-
-		requiredFeatures = IAEngineCapabilityChecker.removeConAndPlanCaps(this.capabilityService, requiredFeatures);
-
-		List<String> implementationArtifactNames = this.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(csarID, nodeTypeImplementationID);
-
-		for (String implementationArtifactName : implementationArtifactNames) {
-			this.deployImplementationArtifact(csarID, nodeTypeImplementationID, implementationArtifactName, requiredFeatures);
+		
+		for (QName nodeTypeImplHierarchyMember : this.toscaEngineService.getNodeTypeImplementationTypeHierarchy(csarID, nodeTypeImplementationID)) {
+			
+			List<String> requiredFeatures = this.toscaEngineService.getRequiredContainerFeaturesOfANodeTypeImplementation(csarID, nodeTypeImplHierarchyMember);
+			
+			requiredFeatures = IAEngineCapabilityChecker.removeConAndPlanCaps(this.capabilityService, requiredFeatures);
+			
+			List<String> implementationArtifactNames = this.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(csarID, nodeTypeImplHierarchyMember);
+			
+			for (String implementationArtifactName : implementationArtifactNames) {
+				this.deployImplementationArtifact(csarID, nodeTypeImplHierarchyMember, implementationArtifactName, requiredFeatures);
+			}
 		}
-
+		
 	}
-
+	
 	/**
 	 * @param csarID
 	 * @param nodeTypeImplementationID
@@ -151,55 +156,55 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	private void deployImplementationArtifact(CSARID csarID, QName nodeTypeImplementationID, String implementationArtifactName, List<String> requiredFeatures) {
 		
 		IAEngineServiceImpl.LOG.debug("Deploying ImplementationArtifact: {} of NodeTypeImplementation: {} of CSAR: " + csarID.getFileName() + " ...", implementationArtifactName, nodeTypeImplementationID);
-
+		
 		Document properties = null;
 		List<TPropertyConstraint> propertyConstraints = null;
 		List<AbstractArtifact> artifacts = null;
-
+		
 		QName artifactType = this.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID, nodeTypeImplementationID, implementationArtifactName);
 		QName artifactRef = this.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(csarID, nodeTypeImplementationID, implementationArtifactName);
 		Document artifactSpecificContent = this.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID, nodeTypeImplementationID, implementationArtifactName);
-
+		
 		if (artifactRef != null) {
 			properties = this.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID, artifactRef);
 			propertyConstraints = this.toscaEngineService.getPropertyConstraintsOfAArtifactTemplate(csarID, artifactRef);
-
+			
 			artifacts = this.toscaEngineService.getArtifactsOfAArtifactTemplate(csarID, artifactRef);
-
+			
 		}
-
+		
 		List<WSDLEndpoint> endpoints = this.endpointService.getWSDLEndpointsForNTImplAndIAName(nodeTypeImplementationID, implementationArtifactName);
-
+		
 		URI serviceURI = null;
-
+		
 		// IA already deployed
 		if ((endpoints != null) && (endpoints.size() > 0)) {
 			
 			IAEngineServiceImpl.LOG.debug("ImplementationArtifact: {} of NodeTypeImplementation: {} of CSAR: " + csarID.getFileName() + " is already deployed!", implementationArtifactName, nodeTypeImplementationID);
-
+			
 			serviceURI = endpoints.get(0).getURI();
-
+			
 		} else {
 			serviceURI = this.deployThroughPlugin(csarID, nodeTypeImplementationID, artifactType, artifactSpecificContent, properties, propertyConstraints, artifacts, requiredFeatures);
 		}
-
+		
 		if (serviceURI != null) {
 			
 			QName portType;
 			// Maybe should be located somewhere else.
 			portType = this.getPortType(properties);
-
+			
 			WSDLEndpoint endpoint = new WSDLEndpoint(serviceURI, portType, csarID, null, nodeTypeImplementationID, implementationArtifactName);
 			this.endpointService.storeWSDLEndpoint(endpoint);
 			IAEngineServiceImpl.LOG.info("ImplementationArtifact: {} of NodeTypeImplementation: {} of CSAR: " + csarID.getFileName() + " successfully deployed!", implementationArtifactName, nodeTypeImplementationID);
-
+			
 		} else {
 			this.failedIAList.add(implementationArtifactName);
 			IAEngineServiceImpl.LOG.warn("Deployment of ImplementationArtifact {} failed!", implementationArtifactName);
 		}
-
+		
 	}
-
+	
 	/**
 	 * Calls a registered plug-in to deploy a ImplementationArtifact.
 	 *
@@ -215,32 +220,32 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	private URI deployThroughPlugin(CSARID csarID, QName nodeTypeImplementationID, QName artifactType, Document artifactSpecificContent, Document properties, List<TPropertyConstraint> propertyConstraints, List<AbstractArtifact> artifacts, List<String> requiredFeatures) {
 		URI serviceEndpoint = null;
 		IIAEnginePluginService plugin;
-
+		
 		IAEngineServiceImpl.LOG.info("Searching for plugin supporting artifactType: {} ...", artifactType.toString());
-
+		
 		synchronized (this.pluginServices) {
 			plugin = this.pluginServices.get(artifactType.toString());
 		}
-
+		
 		if (plugin != null) {
 			
 			IAEngineServiceImpl.LOG.info("Plugin for artifactType: {} found: {}.", artifactType.toString(), plugin.toString());
-
+			
 			if (IAEngineCapabilityChecker.capabilitiesAreMet(requiredFeatures, plugin)) {
 				
 				serviceEndpoint = plugin.deployImplementationArtifact(csarID, nodeTypeImplementationID, artifactType, artifactSpecificContent, properties, propertyConstraints, artifacts, requiredFeatures);
-
+				
 			} else {
 				IAEngineServiceImpl.LOG.warn("Required Features are not met! Deployment aborted.");
 			}
-
+			
 		} else {
 			IAEngineServiceImpl.LOG.warn("No matching Plug-in for type {} could be found! Deployment aborted.", artifactType.toString());
 		}
-
+		
 		return serviceEndpoint;
 	}
-
+	
 	@Override
 	/**
 	 * {@inheritDoc}
@@ -249,56 +254,56 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	public boolean undeployImplementationArtifacts(CSARID csarID) {
 		
 		IAEngineServiceImpl.LOG.debug("Undeploying all ImplementationArtifacts of CSAR: {} ...", csarID.getFileName());
-
+		
 		IIAEnginePluginService plugin;
 		boolean allUndeployed = true;
-
+		
 		IAEngineServiceImpl.LOG.debug("Getting all stored endpoints of CSAR: {} ...", csarID.getFileName());
 		List<WSDLEndpoint> csarEndpoints = this.endpointService.getWSDLEndpointsForCSARID(csarID);
-
+		
 		for (WSDLEndpoint endpoint : csarEndpoints) {
 			String iaName = endpoint.getIaName();
 			QName nodeTypeImpl = endpoint.getNodeTypeImplementation();
 			URI path = endpoint.getURI();
-
+			
 			if (iaName != null) {
 				IAEngineServiceImpl.LOG.debug("- IA: {} ...", iaName);
-
+				
 				List<WSDLEndpoint> endpoints = this.endpointService.getWSDLEndpointsForNTImplAndIAName(nodeTypeImpl, iaName);
-
+				
 				// IA is used in multiple CSARs: just delete db entry, but do
 				// not undeploy IA
 				if ((endpoints != null) && (endpoints.size() > 1)) {
 					
 					this.endpointService.removeWSDLEndpoint(csarID, endpoint);
 					IAEngineServiceImpl.LOG.debug("IA: {} was not undeployed because it is used in other CSARs too. Only its DB entry was removed.", iaName);
-
+					
 				} else {
 					
 					IAEngineServiceImpl.LOG.debug("Trying to undeploy IA: {} ...", iaName);
-
+					
 					if (iaName != null) {
 						
 						QName artifactType = this.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID, nodeTypeImpl, iaName);
-
+						
 						synchronized (this.pluginServices) {
 							plugin = this.pluginServices.get(artifactType.toString());
 						}
-
+						
 						if (plugin != null) {
 							
 							boolean wasUndeployed = plugin.undeployImplementationArtifact(iaName, nodeTypeImpl, csarID, path);
-
+							
 							if (wasUndeployed) {
 								
 								this.endpointService.removeWSDLEndpoint(csarID, endpoint);
 								IAEngineServiceImpl.LOG.debug("Undeploying of IA: {} was successful!", iaName);
-
+								
 							} else {
 								IAEngineServiceImpl.LOG.debug("Undeploying of IA: {} failed!", iaName);
 								allUndeployed = false;
 							}
-
+							
 						} else {
 							IAEngineServiceImpl.LOG.warn("No matching plugin found for ArtifactType: {}!", artifactType);
 							allUndeployed = false;
@@ -307,10 +312,10 @@ public class IAEngineServiceImpl implements IIAEngineService {
 				}
 			}
 		}
-
+		
 		return allUndeployed;
 	}
-
+	
 	/**
 	 * Checks if a PortType was specified in the Tosca.xml and returns it if so.
 	 *
@@ -323,11 +328,11 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		if (properties != null) {
 			
 			NodeList list = properties.getFirstChild().getChildNodes();
-
+			
 			for (int i = 0; i < list.getLength(); i++) {
 				
 				Node propNode = list.item(i);
-
+				
 				if (this.containsPortType(propNode)) {
 					QName portType = this.getPortType(propNode);
 					IAEngineServiceImpl.LOG.info("PortType found: {}", portType.toString());
@@ -338,7 +343,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		IAEngineServiceImpl.LOG.debug("No PortType found!");
 		return null;
 	}
-
+	
 	/**
 	 * Checks if the Node contains a PortType. A PortType has to be specified
 	 * with <tt>{@literal <}namespace:PortType{@literal >}...
@@ -349,13 +354,13 @@ public class IAEngineServiceImpl implements IIAEngineService {
 	 */
 	private boolean containsPortType(Node currentNode) {
 		String localName = currentNode.getLocalName();
-
+		
 		if (localName != null) {
 			return localName.equals("PortType") || localName.equals("soapPortType");
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Gets PortType informations defined in current Node and creates a the
 	 * PortType out of it.
@@ -367,7 +372,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		QName portType = QName.valueOf(currentNode.getTextContent().trim());
 		return portType;
 	}
-
+	
 	/**
 	 * Bind PluginService and store it in local HashMap.
 	 *
@@ -377,12 +382,12 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		if (plugin != null) {
 			
 			List<String> types = plugin.getSupportedTypes();
-
+			
 			for (String type : types) {
 				this.pluginServices.put(type, plugin);
 				IAEngineServiceImpl.LOG.debug("Bound IA-Plugin: {} for Type: {}", plugin.toString(), type);
 			}
-
+			
 			// Store plugin capabilities or cache plugin if Capability Service
 			// is not yet available.
 			if (this.capabilityService != null) {
@@ -390,13 +395,13 @@ public class IAEngineServiceImpl implements IIAEngineService {
 			} else {
 				this.cachedPluginsList.add(plugin);
 			}
-
+			
 			IAEngineServiceImpl.LOG.debug("Bind Plugin Service: {} bound.", plugin.toString());
 		} else {
 			IAEngineServiceImpl.LOG.error("Bind Plugin Service: Supplied parameter is null!");
 		}
 	}
-
+	
 	/**
 	 * Unbind PluginService.
 	 *
@@ -406,7 +411,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		if (plugin != null) {
 			
 			List<String> types = plugin.getSupportedTypes();
-
+			
 			for (String type : types) {
 				Object deletedObject = this.pluginServices.remove(type);
 				if (deletedObject != null) {
@@ -415,16 +420,16 @@ public class IAEngineServiceImpl implements IIAEngineService {
 					IAEngineServiceImpl.LOG.debug("IA-Plug-in {} could not be unbound, because it is not bound!", plugin.toString());
 				}
 			}
-
+			
 			if (this.capabilityService != null) {
 				this.capabilityService.deleteCapabilities(plugin.toString());
 			}
-
+			
 		} else {
 			IAEngineServiceImpl.LOG.error("Unbind Plugin Service: Supplied parameter is null!");
 		}
 	}
-
+	
 	/**
 	 * Bind EndpointService.
 	 *
@@ -438,14 +443,14 @@ public class IAEngineServiceImpl implements IIAEngineService {
 				this.oldEndpointService = endpointService;
 				this.endpointService = endpointService;
 			}
-
+			
 			IAEngineServiceImpl.LOG.debug("Bind Endpoint Service: {} bound.", endpointService.toString());
 		} else {
 			IAEngineServiceImpl.LOG.error("Bind Endpoint Service: Supplied parameter is null!");
 		}
-
+		
 	}
-
+	
 	/**
 	 * Unbind EndpointService.
 	 *
@@ -457,10 +462,10 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		} else {
 			this.oldEndpointService = null;
 		}
-
+		
 		IAEngineServiceImpl.LOG.debug("Unbind Endpoint Service unbound.");
 	}
-
+	
 	/**
 	 * Bind CapabilityService.
 	 *
@@ -474,18 +479,18 @@ public class IAEngineServiceImpl implements IIAEngineService {
 				this.oldCapabilityService = capabilityService;
 				this.capabilityService = capabilityService;
 			}
-
+			
 			for (IIAEnginePluginService plugin : this.cachedPluginsList) {
 				this.capabilityService.storeCapabilities(plugin.getCapabilties(), plugin.toString(), ProviderType.IA_PLUGIN);
 			}
 			this.cachedPluginsList.clear();
-
+			
 			IAEngineServiceImpl.LOG.debug("Bind CapabilityService: {} bound.", capabilityService.toString());
 		} else {
 			IAEngineServiceImpl.LOG.error("Bind CapabilityService: Supplied parameter is null!");
 		}
 	}
-
+	
 	/**
 	 * Unbind CapabilityService.
 	 *
@@ -497,10 +502,10 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		} else {
 			this.oldCapabilityService = null;
 		}
-
+		
 		IAEngineServiceImpl.LOG.debug("Unbind CapabilityService unbound.");
 	}
-
+	
 	/**
 	 * Bind ToscaService
 	 *
@@ -514,13 +519,13 @@ public class IAEngineServiceImpl implements IIAEngineService {
 				this.oldToscaEngineService = toscaEngineService;
 				this.toscaEngineService = toscaEngineService;
 			}
-
+			
 			IAEngineServiceImpl.LOG.debug("Bind ToscaService: {} bound.", toscaEngineService.toString());
 		} else {
 			IAEngineServiceImpl.LOG.error("Bind ToscaService: Supplied parameter is null!");
 		}
 	}
-
+	
 	/**
 	 * Unbind ToscaService
 	 *
@@ -532,7 +537,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 		} else {
 			this.oldToscaEngineService = null;
 		}
-
+		
 		IAEngineServiceImpl.LOG.debug("Unbind ToscaService unbound.");
 	}
 }

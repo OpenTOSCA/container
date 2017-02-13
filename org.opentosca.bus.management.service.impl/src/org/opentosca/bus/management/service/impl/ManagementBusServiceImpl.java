@@ -59,7 +59,6 @@ import org.w3c.dom.NodeList;
 
 public class ManagementBusServiceImpl implements IManagementBusService {
 	
-	
 	private static String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
@@ -579,6 +578,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 				
 				HashMap<String, String> propertiesMap = MBUtils.getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID.trim(), serviceInstanceID);
 				
+				ManagementBusServiceImpl.LOG.debug("Found following properties: ");
+				
+				for(String key : propertiesMap.keySet()){
+					ManagementBusServiceImpl.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
+				}
+				
 				if (propertiesMap != null) {
 					
 					List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
@@ -623,6 +628,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 							if (prop != null) {
 								inputParams.put(expectedParam, prop);
 							}
+							
+						} else {
+							
+							for(String propName : propertiesMap.keySet()){
+								if(expectedParam.equals(propName)){
+									inputParams.put(expectedParam, propertiesMap.get(propName));
+								}
+							}
+							
 							
 						}
 						
@@ -731,8 +745,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 	 */
 	private List<String> getExpectedInputParams(CSARID csarID, QName nodeTypeID, String interfaceName, String operationName) {
 		
+		ManagementBusServiceImpl.LOG.debug("Fetching expected input params of " + operationName + " in interface " + interfaceName);
 		List<String> inputParams = new ArrayList<String>();
 		
+		ManagementBusServiceImpl.LOG.debug("Checking for params with NodeType " + nodeTypeID);
 		if (ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID, interfaceName, operationName)) {
 			
 			Node definedInputParameters = ServiceHandler.toscaEngineService.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID, interfaceName, operationName);
@@ -754,6 +770,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 					}
 				}
 			}
+			// found operation and its potential params -> exit loop
+			
 		}
 		return inputParams;
 	}

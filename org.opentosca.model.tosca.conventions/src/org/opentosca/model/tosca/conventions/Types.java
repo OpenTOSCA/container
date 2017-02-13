@@ -29,6 +29,8 @@ public class Types {
 	// docker nodeTypes
 	public final static QName dockerEngineNodeType = new QName("http://opentosca.org/nodetypes","DockerEngine");
 	
+	public final static QName dockerContainerNodeType = new QName("http://opentosca.org/nodetypes","DockerContainer");
+	
 	// docker nodeTypes (old)
 	public final static QName dockerEngineNodeTypeAlt = new QName("http://opentosca.org/NodeTypes","DockerEngine");
 	

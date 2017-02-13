@@ -45,6 +45,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 
 	private final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
 	private final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
+	private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artefacttypes",
+			"DockerContainerArtefact");
 
 	private Handler handler = new Handler();
 
@@ -64,8 +66,14 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		QName type = deploymentArtifact.getArtifactType();
 		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: "
 				+ infrastructureNodeType.getId().toString() + " can be handled");
+		
+		for(QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)){
+			if(this.isSupportedDeploymentPair(type, nodeType, true)){
+				return true;
+			}
+		}
 
-		return this.isSupportedDeploymentPair(type, infrastructureNodeType.getId(), true);
+		return false;
 	}
 
 	@Override
@@ -74,7 +82,13 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: "
 				+ infrastructureNodeType.getId().toString() + " can be handled");
 
-		return this.isSupportedDeploymentPair(type, infrastructureNodeType.getId(), false);
+		for(QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)){
+			if(this.isSupportedDeploymentPair(type, nodeType, false)){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
@@ -135,6 +149,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		if (this.configurationArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
+		
+		if (this.dockerContainerArtefactType.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
 
 		// we can deploy only on ubuntu nodes
 		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
@@ -167,6 +185,11 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractDeploymentArtifact da,
 			AbstractNodeTemplate nodeTemplate) {
+		
+		if(da.getArtifactType().equals(this.dockerContainerArtefactType)){
+			return true;
+		}
+		
 		return this.handler.handle(context, da, nodeTemplate);
 	}
 
