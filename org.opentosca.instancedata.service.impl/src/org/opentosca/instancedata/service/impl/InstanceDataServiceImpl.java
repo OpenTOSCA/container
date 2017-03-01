@@ -58,7 +58,6 @@ import org.w3c.dom.NodeList;
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public class InstanceDataServiceImpl implements IInstanceDataService {
 	
-	
 	final private static Logger LOG = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
 	
 	public static IToscaEngineService toscaEngineService;
@@ -528,9 +527,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 				String nodeTemplateName = queryParts[0];
 				String propertyName = queryParts[2];
 				
-				String propValue = fetchPropertyValueFromNodeInstance(getNodeInstanceWithName(nodeInstance, nodeTemplateName), propertyName);
-				
-				augmentedFunctionParts.add("'" + propValue + "'");
+				if (getNodeInstanceWithName(nodeInstance, nodeTemplateName) != null) {
+					
+					String propValue = fetchPropertyValueFromNodeInstance(getNodeInstanceWithName(nodeInstance, nodeTemplateName), propertyName);
+					
+					augmentedFunctionParts.add("'" + propValue + "'");
+				}
 			}
 		}
 		
@@ -558,6 +560,10 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	}
 	
 	private String fetchPropertyValueFromNodeInstance(NodeInstance nodeInstance, String propertyLocalName) {
+		
+		if (nodeInstance.getProperties() == null) {
+			return null;
+		}
 		
 		NodeList childNodes = nodeInstance.getProperties().getFirstChild().getChildNodes();
 		
