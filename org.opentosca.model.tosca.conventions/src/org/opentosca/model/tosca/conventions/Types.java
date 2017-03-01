@@ -37,6 +37,8 @@ public class Types {
 	// virtual machine nodeTypes
 	public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
 	
+	public final static QName ubuntu1404ServerVmNodeType2 = new QName("http://opentosca.org/NodeTypes", "Ubuntu-14.04-VM");
+	
 	// raspbian nodeTypes
 	public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
 
