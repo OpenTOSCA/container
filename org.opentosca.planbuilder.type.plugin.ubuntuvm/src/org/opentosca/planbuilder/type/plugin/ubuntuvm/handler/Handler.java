@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Handler {
 
+
 	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
 
 	private Plugin invokerOpPlugin = new Plugin();
@@ -49,10 +50,12 @@ public class Handler {
 	// mandatory params for the local hypervisor node
 	private final static String[] localCreateVMInstanceExternalInputParams = {"HypervisorEndpoint", "VMPublicKey", "VMPrivateKey", "HostNetworkAdapterName"};
 
+
 	/**
 	 * Provisions a Docker Ubuntu Container on a DockerEngine
 	 *
 	 * @param context
+
 	 *            a TemplatePlanContext for a DockerEngine or Ubuntu Node
 	 * @param nodeTemplate
 	 *            the NodeTemplate on which the fragments are used
@@ -249,6 +252,7 @@ public class Handler {
 
 		// and an OS node (check for ssh service..)
 		AbstractNodeTemplate ubuntuNodeTemplate = this.findUbuntuNode(nodeTemplate);
+
 		Variable ubuntuAMIIdVar = null;
 
 		if (ubuntuNodeTemplate == null) {
@@ -259,7 +263,8 @@ public class Handler {
 		// here either the ubuntu connected to the provider this handler is
 		// working on hasn't a version in the ID (ubuntu version must be written
 		// in AMIId property then) or something went really wrong
-		if (this.isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType().getId())) {
+		if (this.isUbuntuNodeTypeWithImplicitImage(ubuntuNodeTemplate.getType()
+				.getId())) {
 			// we'll set a global variable with the necessary ubuntu image
 			// ubuntuAMIIdVar =
 			// context.createGlobalStringVariable("ubuntu_AMIId",
@@ -286,7 +291,8 @@ public class Handler {
 		}
 
 		if (instanceIdPropWrapper == null) {
-			Handler.LOG.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
+			Handler.LOG
+					.warn("Ubuntu Node doesn't have InstanceId property, altough it has the proper NodeType");
 			return false;
 		}
 
@@ -303,7 +309,8 @@ public class Handler {
 		}
 
 		if (serverIpPropWrapper == null) {
-			Handler.LOG.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
+			Handler.LOG
+					.warn("Ubuntu Node doesn't have ServerIp property, altough it has the proper NodeType");
 			return false;
 		}
 
@@ -336,6 +343,7 @@ public class Handler {
 			}
 		}
 
+
 		Variable sshKeyVariable = null;
 
 		for (String passwordName : org.opentosca.model.tosca.conventions.Utils
@@ -361,6 +369,7 @@ public class Handler {
 			}
 		}
 
+
 		// adds field into plan input message to give the plan it's own address
 		// for the invoker PortType (callback etc.). This is needed as WSO2 BPS
 		// 2.x can't give that at runtime (bug)
@@ -381,9 +390,11 @@ public class Handler {
 		 * planinput. Everything else aborts this method
 		 */
 
+
 		// set external parameters
 		for (String externalParameter : Handler.createVMInstanceExternalInputParams) {
 			// find the variable for the inputparam
+
 
 			Variable variable = context.getPropertyVariable(ubuntuNodeTemplate, externalParameter);
 			if (variable == null) {
@@ -394,16 +405,20 @@ public class Handler {
 			// property/parameter
 			if (externalParameter.equals("VMImageID") && ubuntuAMIIdVar != null) {
 				createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
+
 				continue;
 			}
 
 			// if the variable is still null, something was not specified
 			// properly
 			if (variable == null) {
-				Handler.LOG.warn("Didn't find  property variable for parameter " + externalParameter);
+				Handler.LOG
+						.warn("Didn't find  property variable for parameter "
+								+ externalParameter);
 				return false;
 			} else {
-				Handler.LOG.debug("Found property variable " + externalParameter);
+				Handler.LOG.debug("Found property variable "
+						+ externalParameter);
 			}
 
 			if (Utils.isVariableValueEmpty(variable, context)) {
@@ -415,9 +430,9 @@ public class Handler {
 				context.addAssignFromInput2VariableToMainAssign(externalParameter, variable);
 
 				createEC2InternalExternalPropsInput.put(externalParameter, variable);
-
 			} else {
-				createEC2InternalExternalPropsInput.put(externalParameter, variable);
+				createEC2InternalExternalPropsInput.put(externalParameter,
+						variable);
 			}
 
 		}
@@ -449,6 +464,7 @@ public class Handler {
 		// we'll add the logic to VM Nodes Prov phase, as we need proper updates
 		// of properties at the InstanceDataAPI
 
+
 		this.invokerOpPlugin.handle(context, cloudProviderNodeTemplate.getId(), true,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, "planCallbackAddress_invoker",
@@ -459,6 +475,7 @@ public class Handler {
 		 * the necessity for the other plugins to wait for SSH to be up
 		 */
 		Map<String, Variable> startRequestInputParams = new HashMap<String, Variable>();
+
 		Map<String, Variable> startRequestOutputParams = new HashMap<String, Variable>();
 
 		startRequestInputParams.put("VMIP", serverIpPropWrapper);
@@ -471,6 +488,7 @@ public class Handler {
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
 				Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
 				startRequestInputParams, startRequestOutputParams, false);
+
 
 		return true;
 	}
@@ -732,6 +750,7 @@ public class Handler {
 			return null;
 		}
 
+
 		if (!rightDashSplit[1].equals("Server") & !rightDashSplit[1].equals("VM")) {
 			return null;
 		}
@@ -750,6 +769,7 @@ public class Handler {
 			if (minorVersString.length() != 2) {
 				minorVersString = "0" + minorVersString;
 			}
+
 		} catch (NumberFormatException e) {
 			return null;
 		}
@@ -758,7 +778,9 @@ public class Handler {
 		// context.createGlobalStringVariable("ubuntu_AMIId","ubuntu-13.10-server-cloudimg-amd64");
 		// new QName("http://opentosca.org/types/declarative",
 		// "Ubuntu-13.10-Server");
+
 		String ubuntuAMIId = "ubuntu-" + majorVers + "." + minorVersString + "-server-cloudimg-amd64";
+
 		return ubuntuAMIId;
 	}
 
@@ -788,6 +810,7 @@ public class Handler {
 			for (AbstractRelationshipTemplate relationTemplate2 : relationTemplate.getSource().getIngoingRelations()) {
 				if (org.opentosca.model.tosca.conventions.Utils
 						.isSupportedInfrastructureNodeType(relationTemplate2.getSource().getType().getId())) {
+
 					return relationTemplate2.getSource();
 				}
 			}
