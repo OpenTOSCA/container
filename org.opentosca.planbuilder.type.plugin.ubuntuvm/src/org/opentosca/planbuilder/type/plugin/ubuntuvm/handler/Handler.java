@@ -702,7 +702,7 @@ public class Handler {
 		}
 
 		// hack because of the openstack migration
-		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType)) {
+		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)) {
 			return "ubuntu-14.04-trusty-server-cloudimg";
 		}
 

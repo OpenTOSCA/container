@@ -314,7 +314,7 @@ public class ServiceTemplateResolver extends GenericResolver {
 			referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(id, plan);
 			ToscaEngineServiceImpl.toscaReferenceMapper.storePlanIDForCSARAndServiceTemplate(csarID, serviceTemplateID, id);
 			ToscaEngineServiceImpl.toscaReferenceMapper.storeContainingDefinitionsID(csarID, id, definitionsID);
-			ToscaEngineServiceImpl.toscaReferenceMapper.storeNamespaceOfPlan(csarID, plan.getId(), definitionsID.getNamespaceURI());
+			ToscaEngineServiceImpl.toscaReferenceMapper.storeNamespaceOfPlan(csarID, plan.getId(), serviceTemplateID.getNamespaceURI());
 		}
 		
 		return false;

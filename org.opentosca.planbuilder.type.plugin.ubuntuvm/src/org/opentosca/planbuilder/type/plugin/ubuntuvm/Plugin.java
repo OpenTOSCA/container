@@ -61,7 +61,7 @@ public class Plugin implements IPlanBuilderTypePlugin {
 			// true -> append code
 			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 				if (Utils.isSupportedCloudProviderNodeType(relation.getTarget().getType().getId())) {
-					if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType) | relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType)) {
+					if (relation.getTarget().getType().getId().equals(Types.openStackLiberty12NodeType) | relation.getTarget().getType().getId().equals(Types.vmWareVsphere55NodeType) | relation.getTarget().getType().getId().equals(Types.amazonEc2NodeType)) {
 						// bit hacky now, but until the nodeType cleanup is
 						// finished this should be enough right now
 						return this.handler.handleWithCloudProviderInterface(templateContext, nodeTemplate);

@@ -101,9 +101,8 @@ public class Utils {
 	 *         nodeType
 	 */
 	public static boolean isSupportedCloudProviderNodeType(QName nodeType) {
-		if (nodeType.equals(Types.ec2NodeType) | nodeType.equals(Types.openStackNodeType)
-				| nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType)
-				| nodeType.equals(Types.localHypervisor)) {
+
+		if (nodeType.equals(Types.amazonEc2NodeType) | nodeType.equals(Types.openStackNodeType) | nodeType.equals(Types.openStackLiberty12NodeType) | nodeType.equals(Types.vmWareVsphere55NodeType) |nodeType.equals(Types.localHypervisor)) {
 			return true;
 		}
 
@@ -150,7 +149,7 @@ public class Utils {
 		}
 
 		// code for new namespace http://opentosca.org/NodeTypes
-		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType)) {
+		if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)) {
 			return true;
 		}
 
