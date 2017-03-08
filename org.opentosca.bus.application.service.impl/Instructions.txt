@@ -1,0 +1,21 @@
+Using the OpenTOSCA Service Bus
+
+The OpenTOSCA Container + Service Bus can be found at: https://github.com/OpenTOSCA/container
+Instructions on how to setup the whole OpenTOSCA Ecosystem can be found at: http://install.opentosca.org/
+
+The TOSCA Interface Compiler can be found at: https://github.com/zimmerml/OTServiceBus
+The TOSCA Interface Compiler allows generating proxies and code-skeletons for java as well as for python, based on the TOSCA-defined application interfaces. The proxy enables the communication with the service bus. The code-skeleton eases the implementation of the particular component.
+
+In addition, a generic stub for java as well as python components can be found at: https://github.com/zimmerml/OTServiceBus
+The stub enables the service bus to communicate with the component that should be invoked.
+
+Steps to follow for developing the component that should be invoked:
+	1.)	Modelling of the application component and their operations using TOSCA and the proposed application interface extension
+	2.)	Generation of a code-skeleton of the previously modelled application component
+	3.)	Manual completion of the generated code-skeleton and injection of the stub
+	4.)	Provision of the component using the OpenTOSCA Container
+
+Steps to follow for developing the component that should invoke the other component using the service bus:
+	1.)	Generation of a proxy, based on the TOSCA-defined application interfaces of the other component
+	2.)	Programming against the previously generated proxy
+	3.)	Provision of the component using the OpenTOSCA Container
