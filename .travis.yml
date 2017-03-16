@@ -10,6 +10,7 @@ dist: trusty
 
 script:
   - mvn package --fail-at-end
+#  - mvn versioneye:update
 
 #upload codecov report
 after_script:

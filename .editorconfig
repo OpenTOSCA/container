@@ -12,5 +12,8 @@ end_of_line = lf
 [bower.json]
 indent_style = space
 
+[pom.xml]
+indent_style = space
+
 [.travis.yml]
 end_of_line = lf
