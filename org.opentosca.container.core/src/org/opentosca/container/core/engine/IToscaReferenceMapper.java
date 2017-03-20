@@ -345,15 +345,15 @@ public interface IToscaReferenceMapper {
 
 	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id);
 
-	public void storeRelationshipTemplateIDForServiceTemplateANdCSAR(CSARID csarId, QName serviceTemplateID, String id);
+	
+	public void storeRelationshipTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateId, String id);
 
 	public Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID);
 
-	public Map<QName, List<String>> getServiceTemplate2RelationshipTemplateMap(CSARID csarID);
-
-	public void storeServiceTemplateBoundsPropertiesInformation(CSARID csarID, QName serviceTemplateID,
-			String propertiesContent, PropertyMappings propertyMappings);
-
+	public Map<QName, List<String>> getServiceTemplatesAndRelationshipTemplatesInCSAR(CSARID csarID);
+	
+	public void storeServiceTemplateBoundsPropertiesInformation(CSARID csarID, QName serviceTemplateID, String propertiesContent, PropertyMappings propertyMappings);
+	
 	public String getServiceTemplateBoundsPropertiesContent(CSARID csarID, QName serviceTemplateID);
 
 	public PropertyMappings getServiceTemplateBoundsPropertyMappings(CSARID csarID, QName serviceTemplateID);
@@ -363,6 +363,8 @@ public interface IToscaReferenceMapper {
 	public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(CSARID csarID);
 
 	void storeServiceTemplateBoundsPlan(CSARID csarID, QName serviceTemplateID, String interfaceName, String opName, QName planID);
+
+
 	
 	List<TPropertyMapping> getPropertyMappings(CSARID id, QName serviceTemplate);
 

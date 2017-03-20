@@ -45,7 +45,6 @@ public interface IToscaEngineService {
 	 * This method resolves the ServiceTemplates of the passed CSAR and stores
 	 * the contained references and their counterpart inside the
 	 * ToscaImportMapper.
-	 *
 	 * @param csarID CSAR ID in which the ServiceTemplate is stored.
 	 * @return true for success, false for one or more errors
 	 */
@@ -54,7 +53,6 @@ public interface IToscaEngineService {
 	/**
 	 * Returns all Node Types (including the given) inside the type hierarchy of
 	 * the given Node Type
-	 *
 	 * @param csarID the CSAR to look in
 	 * @param nodeType the QName of a Node Type
 	 * @return a List of QNames denoting all Node Types inside the type
@@ -67,7 +65,6 @@ public interface IToscaEngineService {
 	 * referenced NodeTypes. It returns a list of QNames which point to
 	 * NodeTypes referenced by NodeTemplates via derivation or target by
 	 * RelationshipTemplates via NodeTemplates.
-	 *
 	 * @param csarID of the CSAR containing the ServiceTemplate.
 	 * @param serviceTemplateID of the ServiceTemplate.
 	 * @return List of QNames which point to NodeTypes or a empty list if no
@@ -78,7 +75,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method checks if input parameter are specified for a given interface
 	 * and operation of a NodeType.
-	 *
 	 * @param csarID of the CSAR containing the NodeType.
 	 * @param nodeTypeID of the NodeType to check.
 	 * @param InterfaceName of the NodeType to check.
@@ -91,7 +87,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method checks if input parameter are specified for a given interface
 	 * and operation of a RelationshipType.
-	 *
 	 * @param csarID of the CSAR containing the NodeType.
 	 * @param relationshipTypeID of the RelationshipType to check.
 	 * @param InterfaceName of the RelationshipType to check.
@@ -104,7 +99,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method checks if output parameter are specified for a given
 	 * interface and operation of a NodeType.
-	 *
 	 * @param csarID of the CSAR containing the NodeType.
 	 * @param nodeTypeID of the NodeType to check.
 	 * @param InterfaceName of the NodeType to check.
@@ -117,7 +111,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method checks if output parameter are specified for a given
 	 * interface and operation of a RelationshipType.
-	 *
 	 * @param csarID of the CSAR containing the NodeType.
 	 * @param relationshipTypeID of the RelationshipType to check.
 	 * @param InterfaceName of the RelationshipType to check.
@@ -129,7 +122,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * Checks if specified operations is bound to sourceNode.
-	 *
 	 * @param csarID of the CSAR containing the NodeType.
 	 * @param relationshipTypeID of the RelationshipType to check.
 	 * @param InterfaceName of the RelationshipType to check.
@@ -142,7 +134,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method checks if the specified interface of a NodeType contains the
 	 * specified operation.
-	 *
 	 * @param csarID of the CSAR containing the NodeType.
 	 * @param nodeTypeID of the NodeType to check.
 	 * @param InterfaceName of the NodeType to check.
@@ -155,7 +146,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method checks if the specified interface of a RelationshipType
 	 * contains the specified operation.
-	 *
 	 * @param csarID of the CSAR containing the RelationshipType.
 	 * @param relationshipTypeID of the RelationshipType to check.
 	 * @param InterfaceName of the RelationshipType to check.
@@ -168,7 +158,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method searches all NodeTypeImplementations for a certain NodeType
 	 * inside of a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeID of the NodeTypeImplementation.
 	 * @return List of QNames pointing to the NodeTypeImplementations or empty
@@ -179,7 +168,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method searches all NodeTypeImplementations for a certain NodeType
 	 * inside of a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param relationshipTypeID of the RelationshipTypeImplementation.
 	 * @return List of QNames pointing to the RelationshipTypeImplementations or
@@ -190,7 +178,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns a list of the names of ImplementationArtifacts of a
 	 * given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact names.
@@ -202,7 +189,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns a list of the names of ImplementationArtifacts of a
 	 * given RelationshipTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param relationshipTypeImplementationID of the NodeTypeImplementation
 	 *            containing the ImplementationArtifact names.
@@ -214,7 +200,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns a list of Strings of the RequiredContainerFeatures of
 	 * a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the RequiredContainerFeatures.
@@ -226,7 +211,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the ArtifactType of a given ImplementationArtifact of
 	 * a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact.
@@ -238,7 +222,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the ArtifactType of a given ImplementationArtifact of
 	 * a given RelationshipTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the RelationshipTypeImplementation.
 	 * @param relationshipTypeImplementationID of the
 	 *            RelationshipTypeImplementation containing the
@@ -251,7 +234,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the ArtifactTemplate of a given
 	 * ImplementationArtifact of a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact.
@@ -264,7 +246,6 @@ public interface IToscaEngineService {
 	 * This method returns the ArtifactTemplate of a given
 	 * ImplementationArtifact of a given RelationshipTypeImplementation in a
 	 * given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the RelationshipTypeImplementation.
 	 * @param relationshipTypeImplementationID of the
 	 *            RelationshipTypeImplementation containing the
@@ -277,7 +258,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the Node of the specified reference within the
 	 * specified scarID.
-	 *
 	 * @param csarID of the CSAR.
 	 * @param reference of which the xml should be returned.
 	 * @return Node of the reference.
@@ -288,7 +268,6 @@ public interface IToscaEngineService {
 	 * This method returns a node containing the InputParameter of Elements of
 	 * the specified operation of the specified interface of the specified
 	 * nodeType within the specified scarID.
-	 *
 	 * @param csarID of the CSAR.
 	 * @param nodeTypeID of the operation.
 	 * @param interfaceName of the operation.
@@ -301,7 +280,6 @@ public interface IToscaEngineService {
 	 * This method returns a node containing the OutputParameter of Elements of
 	 * the specified operation of the specified interface of the specified
 	 * nodeType within the specified scarID.
-	 *
 	 * @param csarID of the CSAR.
 	 * @param nodeTypeID of the operation.
 	 * @param interfaceName of the operation.
@@ -314,7 +292,6 @@ public interface IToscaEngineService {
 	 * This method returns a node containing the InputParameter of Elements of
 	 * the specified operation of the specified interface of the specified
 	 * Relationship within the specified scarID.
-	 *
 	 * @param csarID of the CSAR.
 	 * @param relationshipTypeID of the operation.
 	 * @param interfaceName of the operation.
@@ -327,7 +304,6 @@ public interface IToscaEngineService {
 	 * This method returns a node containing the OutputParameter of Elements of
 	 * the specified operation of the specified interface of the specified
 	 * Relationship within the specified scarID.
-	 *
 	 * @param csarID of the CSAR.
 	 * @param relationshipTypeID of the operation.
 	 * @param interfaceName of the operation.
@@ -339,7 +315,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the specific content of a given
 	 * ImplementationArtifact of a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact.
@@ -353,7 +328,6 @@ public interface IToscaEngineService {
 	 * This method returns the specific content of a given
 	 * ImplementationArtifact of a given RelationshipTypeImplementation in a
 	 * given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the RelationshipTypeImplementation.
 	 * @param relationshipTypeImplementationID of the
 	 *            RelationshipTypeImplementation containing the
@@ -367,7 +341,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the implemented interface of a given
 	 * ImplementationArtifact of a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact.
@@ -381,7 +354,6 @@ public interface IToscaEngineService {
 	 * This method returns the implemented interface of a given
 	 * ImplementationArtifact of a given RelationshipTypeImplementation in a
 	 * given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the RelationshipTypeImplementation.
 	 * @param relationshipTypeImplementationID of the
 	 *            RelationshipTypeImplementation containing the
@@ -395,7 +367,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the implemented operation of a given
 	 * ImplementationArtifact of a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact.
@@ -409,7 +380,6 @@ public interface IToscaEngineService {
 	 * This method returns the implemented operation of a given
 	 * ImplementationArtifact of a given RelationshipTypeImplementation in a
 	 * given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the RelationshipTypeImplementation.
 	 * @param relationshipTypeImplementationID of the
 	 *            RelationshipTypeImplementation containing the
@@ -423,7 +393,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the ArtiactSpecificContent of a deploymentArtifact of
 	 * a given NodeTypeImplementation or NodeTemplate in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param reference the QName reference to a NodeTemplate or
 	 *            NodeTypeImplementation.
@@ -436,7 +405,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the content of the Properties Element of an
 	 * ArtifactTemplate.
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param artifactTemplateID of the requested ArtifactTemplate.
 	 * @return Document which represents the Properties content or null in case
@@ -447,7 +415,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the List of PropertyConstraints of a
 	 * ArtifactTemplate.
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param artifactTemplateID of the requested ArtifactTemplate.
 	 * @return Document which represents the PropertyConstraints or an empty
@@ -457,7 +424,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * This method returns a list of artifacts of a given ArtifactTemplate.
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param artifactTemplateID of the requested ArtifactTemplate.
 	 * @return List of artifacts or empty list if there are no artifact
@@ -469,7 +435,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the QName of the NodeType which is the type of the
 	 * NodeTemplate defined by the parameters.
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param serviceTemplateID of the ServiceTemplate containing the
 	 *            NodeTemplate.
@@ -479,24 +444,10 @@ public interface IToscaEngineService {
 	 */
 	public QName getNodeTypeOfNodeTemplate(CSARID csarID, QName serviceTemplateID, String nodeTemplateID);
 	
-	// /**
-	// * This method returns the QName of the NodeType which is the type of the
-	// * NodeTemplate defined by the parameters.
-	// *
-	// *
-	// * @param csarID
-	// * of the CSAR containing the ArtifactTemplate.
-	// * @param nodeTemplateID
-	// * a QName value of the NodeTemplate.
-	// * @return of the NodeType or null in case of an error
-	// */
-	// public QName getNodeTypeOfNodeTemplate(CSARID csarID, QName
-	// nodeTemplateID);
-	//
+
 	/**
 	 * This method returns the QName of the NodeType which is the type of the
 	 * NodeTemplate defined by the parameters.
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param serviceTemplateID of the ServiceTemplate containing the
 	 *            NodeTemplate.
@@ -509,7 +460,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the Document which contains the default Properties of
 	 * the NodeTemplate defined by the parameter
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param serviceTemplateID of the ServiceTemplate containing the
 	 *            NodeTemplate.
@@ -523,10 +473,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns a Document which contains the PropertiesDefinition of
 	 * the NodeType defined by the parameter
-	 *
-	 * @param csarID of the CSAR containing the ArtifactTemplate.
-	 * @param nodeTypeID containing the PropertiesDefinition
-	 *
 	 * @return Document containing the PropertiesDefinition (may be empty) or
 	 *         null in case of an error
 	 */
@@ -535,7 +481,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the Document which contains the default Properties of
 	 * the RelationshipTemplate defined by the parameter
-	 *
 	 * @param csarID of the CSAR containing the ArtifactTemplate.
 	 * @param serviceTemplateID of the ServiceTemplate containing the
 	 *            RelationshipTemplate.
@@ -548,7 +493,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * Returns the the resolved artifacts.
-	 *
 	 * @param csarID of the CSAR containing the NodeTemplate.
 	 * @param nodeTemplateID QName of the nodeTemplate (ID)
 	 * @return Resolved Artifacts containing all resolvedArtifacts
@@ -557,7 +501,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * Returns the the resolved artifacts.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID QName of the nodeTypeImplementation (ID)
 	 * @return Resolved Artifacts containing all resolvedArtifacts
@@ -566,7 +509,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * Returns the the resolved artifacts.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param relationshipTypeImplementationID QName of the
 	 *            relationshipTypeImplementation (ID)
@@ -577,7 +519,6 @@ public interface IToscaEngineService {
 	/**
 	 * This function deletes the content about a certain CSAR, identified due
 	 * the CSARID given as a parameter.
-	 *
 	 * @param csarID the ID of a CSAR which stored informations shall be
 	 *            deleted.
 	 * @return true for success, false for one or more errors
@@ -587,7 +528,6 @@ public interface IToscaEngineService {
 	/**
 	 * This function tries to invoke the <code>getName()</code> method of the
 	 * jaxb-class belonging to the reference
-	 *
 	 * @param csarID of the CSAR containing the reference
 	 * @param reference the qualifiedName of the reference of which the name
 	 *            attribute should be retrieved
@@ -602,7 +542,6 @@ public interface IToscaEngineService {
 	/**
 	 * This function retrieves the min and maxInstances of the nodeTemplates in
 	 * the specified serviceTemplate
-	 *
 	 * @param csarID of the CSAR containing the nodeTemplate
 	 * @param serviceTemplateID of the serviceTemplate
 	 * @return minInstances and maxInstances values of the nodeTemplates in the
@@ -612,7 +551,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * checks if a nodeTemplate exits.
-	 *
 	 * @param csarID csarID of the CSAR containing the reference
 	 * @param serviceTemplateID of the ServiceTemplate containing the
 	 *            NodeTemplate.
@@ -669,7 +607,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * This method returns the abstract artifact of a plan reference.
-	 *
 	 * @param csar CSAR in which the plan is
 	 * @param planId reference to the TOSCA Plan element
 	 * @return the abstract artifact or null in case of an error
@@ -678,7 +615,6 @@ public interface IToscaEngineService {
 	
 	/**
 	 * Returns the name of a Plan element.
-	 *
 	 * @param csarID the ID of the CSAR
 	 * @param planId the ID of the Plan element
 	 * @return the String of the name attribute inside the Plan element
@@ -710,7 +646,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns a list of the names of DeploymentArtifacts of a given
 	 * NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the ImplementationArtifact names.
@@ -722,7 +657,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the ArtifactTemplate of a given DeploymentArtifact of
 	 * a given NodeTypeImplementation in a given CSAR.
-	 *
 	 * @param csarID of the CSAR containing the NodeTypeImplementation.
 	 * @param nodeTypeImplementationID of the NodeTypeImplementation containing
 	 *            the DeploymentArtifact.
@@ -734,7 +668,6 @@ public interface IToscaEngineService {
 	/**
 	 * This method returns the IDs of the derived Node Type Implementation
 	 * hierarchy given through the DerivedFrom property.
-	 *
 	 * @param nodeTypeImplementationId a QName of a Node Type Implementation
 	 * @return a List of QName with at least the Node Type Implementation Id
 	 *         given as input
@@ -764,12 +697,10 @@ public interface IToscaEngineService {
 	 * Returns the List of Relationship Template IDs in a Service Template.
 	 * 
 	 * @param csarID
-	 *            the Id of the CSAR to look for the Service Template
 	 * @param serviceTemplate
-	 *            the ID of the target Service Template
-	 * @return a List of Relationship Template IDs as Strings
+	 * @return List of Relationship Template IDs
 	 */
-	public List<String> getRelationshipTemplatesOfServiceTemplate(CSARID csarID, QName serviceTemplate);
+	public List<String> getRelationshipTemplatesOfServiceTemplate(CSARID csarId, QName serviceTemplate);
 
 	/**
 	 * Returns the BoundaryDefinitions of the referenced ServiceTemplate
@@ -780,4 +711,50 @@ public interface IToscaEngineService {
 	 */
 	public TBoundaryDefinitions getBoundaryDefinitionsOfServiceTemplate(CSARID csarId, QName serviceTemplateId);
 	
+	/**
+	 * Returns the id's of capabilities defined within the referenced
+	 * nodeTemplateId
+	 * 
+	 * @param csarId the id of the CSAR to look in
+	 * @param serviceTemplateId the id of the Service Template inside the CSAR
+	 * @param nodeTemplateId the id of the Node Template to get its capabilities
+	 * @return a List of QNames denoting Capabilities of the given Node Template
+	 */
+	public List<QName> getNodeTemplateCapabilities(CSARID csarId, QName serviceTemplateId, String nodeTemplateId);
+	
+	/**
+	 * Returns the id's of requirements defined within the referenced
+	 * nodeTemplateId
+	 * 
+	 * @param csarId the id of the CSAR to look in
+	 * @param serviceTemplateId the id of the Service Template inside the CSAR
+	 * @param nodeTemplateId the id of the Node Template to get its requirements
+	 * @return a List of QNames denoting Requirements of the given Node Template
+	 */
+	public List<QName> getNodeTemplateRequirements(CSARID csarId, QName serviceTemplateId, String nodeTemplateId);
+	
+	/**
+	 * Returns the id of the referenced target Relationship Template
+	 * 
+	 * @param csarId the id of the CSAR to look in
+	 * @param serviceTemplateId the id of the Service Template inside the CSAR
+	 * @param relationshipTemplateId the id of the Relationship Template to get
+	 *            its capabilities
+	 * @return a QName denoting the entity on the target of the given
+	 *         Relationship Template
+	 */
+	public QName getRelationshipTemplateTarget(CSARID csarId, QName serviceTemplateId, String relationshipTemplateId);
+	
+	/**
+	 * Returns the id of the referenced source of this Relationship l3Template
+	 * 
+	 * @param csarId the id of the CSAR to look in
+	 * @param serviceTemplateId the id of the Service Template inside the CSAR
+	 * @param relationshipTemplateId the id of the Relationship Template to get
+	 *            its requirements
+	 * @return a QName denoting the entity on the source of the given
+	 *         Relationship Template
+	 */
+	public QName getRelationshipTemplateSource(CSARID csarId, QName serviceTemplateId, String relationshipTemplateId);
+
 }
