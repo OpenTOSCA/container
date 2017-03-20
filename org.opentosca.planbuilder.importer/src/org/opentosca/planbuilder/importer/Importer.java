@@ -31,7 +31,11 @@ import org.slf4j.LoggerFactory;
 public class Importer extends AbstractImporter {
 	
 	final private static Logger LOG = LoggerFactory.getLogger(Importer.class);
+<<<<<<< HEAD
 	private final CSARHandler handler = new CSARHandler();
+=======
+	private CSARHandler handler = new CSARHandler();
+>>>>>>> adds reqcap support into planbuilder model
 	
 	
 	/**
@@ -56,6 +60,27 @@ public class Importer extends AbstractImporter {
 		return new ArrayList<TOSCAPlan>();
 	}
 	
+<<<<<<< HEAD
+=======
+	/**
+	 * Returns a TOSCA Definitions object which contains the
+	 * Entry-ServiceTemplate
+	 * 
+	 * @param csarId an ID of a CSAR
+	 * @return an AbstractDefinitions object
+	 */
+	public AbstractDefinitions getMainDefinitions(CSARID csarId) {
+		try {
+			return this.createContext(this.handler.getCSARContentForID(csarId));
+		} catch (UserException e) {
+			Importer.LOG.error("Some error within input", e);
+		} catch (SystemException e) {
+			Importer.LOG.error("Some internal error", e);
+		}
+		return null;
+	}
+	
+>>>>>>> adds reqcap support into planbuilder model
 	/**
 	 * Creates an AbstractDefinitions Object of the given CSARContent
 	 *

@@ -114,6 +114,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 						TopologyTemplateImpl.LOG.debug("Requirement-Type: {}", requirement.getType().toString());
 						if (requirement.getName().equals(source.getName()) && requirement.getId().equals(source.getId()) && requirement.getType().equals(source.getType())) {
 							temp.setSource(nodeTemplate);
+							temp.setSourceRequirement(requirement);
 						}
 					}
 					for (AbstractCapability capability : nodeTemplate.getCapabilities()) {
@@ -122,6 +123,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 						TopologyTemplateImpl.LOG.debug("Capability-Type: {}", capability.getType().toString());
 						if (capability.getName().equals(target.getName()) && capability.getId().equals(target.getId()) && capability.getType().equals(target.getType())) {
 							temp.setTarget(nodeTemplate);
+							temp.setTargetCapability(capability);
 						}
 					}
 				}
