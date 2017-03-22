@@ -334,6 +334,7 @@
       <plugin id="org.eclipse.equinox.http.servlet" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.preferences" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.registry" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.equinox.util" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.jetty.client" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.jetty.continuation" autoStart="true" startLevel="4" />
@@ -367,7 +368,7 @@
       <plugin id="org.opentosca.bus.application.plugin.jsonhttp.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.application.plugin.service" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.application.service" autoStart="true" startLevel="4" />
-      <plugin id="org.opentosca.bus.application.service.impl" autoStart="true" startLevel="4" />
+      <plugin id="org.opentosca.bus.application.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management" autoStart="true" startLevel="4" />
       <plugin id="org.opentosca.bus.management.api.osgievent" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.resthttp" autoStart="true" startLevel="5" />
@@ -477,6 +478,8 @@
       <plugin id="slf4j.api" autoStart="true" startLevel="4" />
       <plugin id="soa-model-core-1.2.2" autoStart="true" startLevel="4" />
       <plugin id="sts" autoStart="true" startLevel="4" />
+      <property name="org.opentosca.container.hostname" value="localhost" />
+      <property name="org.opentosca.container.port" value="1337" />
    </configurations>
 
 </product>

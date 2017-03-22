@@ -98,7 +98,7 @@ will be sent to the Lilith event viewer.
 		<appender-ref ref="SOCKET-ALL" />
 	</root>
 	
-	<logger name="org.apache.camel" level="WARN" />
+	<logger name="org.apache.camel" level="INFO" />
 	<logger name="org.eclipse.jetty" level="WARN" />
 	<logger name="org.mortbay" level="WARN" />
 

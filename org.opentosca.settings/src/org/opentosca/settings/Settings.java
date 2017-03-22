@@ -5,33 +5,40 @@ import java.util.Properties;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Global OpenTOSCA Settings.
  *
  */
 public class Settings implements BundleActivator {
-	
-	public final static String CONTAINER_API = "http://localhost:1337/containerapi";
-	public final static String CONTAINER_INSTANCEDATA_API = "http://localhost:1337/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+
+	public final static String OPENTOSCA_CONTAINER_HOSTNAME = System.getProperty("org.opentosca.container.hostname", "localhost");
+	public final static String OPENTOSCA_CONTAINER_PORT = System.getProperty("org.opentosca.container.port", "1337");
+
+	public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
+	public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+
+	private static Logger logger = LoggerFactory.getLogger(Settings.class);
 	
 	// TODO: Use public static final variables instead, as in
 	// StaticTOSCANamespaces. The problems with the current approach is: (i)
 	// Full-text search to find usage instead of Java Reference Search. (ii) It
 	// is possible to references non-existing settings, which is not possible
 	// with static variables which are checked on compile time.
-	
+
 	private static Properties settings = new Properties();
 	private static BundleContext context;
-	
+
 	// Container Capabilities
 	private final static String containerCapabilities = "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
-	
-	
+
+
 	static BundleContext getContext() {
 		return Settings.context;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -42,6 +49,9 @@ public class Settings implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Settings.context = bundleContext;
+		
+		Settings.logger.info("org.opentosca.container.hostname={}", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+		Settings.logger.info("org.opentosca.container.port={}", Settings.OPENTOSCA_CONTAINER_PORT);
 		
 		// /////////////////// PATHS ///////////////////
 		
@@ -66,7 +76,7 @@ public class Settings implements BundleActivator {
 		// /////////////////// URLS ///////////////////
 		
 		if (System.getProperty("openTOSCAWineryPath") == null) {
-			Settings.setSetting("openTOSCAWineryPath", "http://localhost:8080/winery");
+			Settings.setSetting("openTOSCAWineryPath", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8080/winery");
 		} else {
 			Settings.setSetting("openTOSCAWineryPath", System.getProperty("openTOSCAWineryPath"));
 		}
@@ -75,7 +85,7 @@ public class Settings implements BundleActivator {
 		Settings.setSetting("containerUri", Settings.CONTAINER_API);
 		
 		// URI of the DataInstanceAPI
-		Settings.setSetting("datainstanceUri", "http://localhost:1337/datainstance");
+		Settings.setSetting("datainstanceUri", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/datainstance");
 		
 		// /////////////////// CSAR ///////////////////
 		
@@ -99,7 +109,7 @@ public class Settings implements BundleActivator {
 		// Container Capabilities
 		Settings.setSetting("containerCapabilities", Settings.containerCapabilities);
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -110,7 +120,7 @@ public class Settings implements BundleActivator {
 	public void stop(BundleContext bundleContext) throws Exception {
 		Settings.context = null;
 	}
-	
+
 	/**
 	 * @param setting - name of the setting
 	 * @return the value of setting with name <code>setting</code>
@@ -118,7 +128,7 @@ public class Settings implements BundleActivator {
 	public static String getSetting(String setting) {
 		return Settings.settings.getProperty(setting);
 	}
-	
+
 	/**
 	 * Stores a setting.
 	 *
@@ -128,5 +138,4 @@ public class Settings implements BundleActivator {
 	public static void setSetting(String setting, String value) {
 		Settings.settings.setProperty(setting, value);
 	}
-	
 }
