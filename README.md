@@ -1,4 +1,4 @@
-# OpenTOSCA container - TOSCA runtime
+# OpenTOSCA Container - TOSCA Runtime
 
 [![Build Status](https://travis-ci.org/OpenTOSCA/container.svg?branch=master)](https://travis-ci.org/OpenTOSCA/container)
 
@@ -7,20 +7,20 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
 ## Build
 
-- Run "mvn package" inside the root folder. 
-- When the build is finished you can find the built archives under org.opentosca.container.product/target/products
+1. Run `mvn package` inside the root folder.
+2. When completed, the built product can be found in `org.opentosca.container.product/target/products`.
 
 
 ## Setup in Eclipse
 
-- After checkout/pull do "Import existing Maven Projects.." on the root dir ./container and select all found projects.
-- When Eclipse asks to install the Tycho Configurators, hit Yes/Okay/Install (Be sure that m2e and it's repositories are know to your eclipse)
-- under project ../org.opentosca.container.targetplatform open the *.target file "org.opentosca.container.targetplatform.target" and click "Set as Target Platform", this may take a while
-- To start the container: open the *.product file org.opentosca.container.product.product under ../org.opentosca.container.product and hit Run/Debug in the right corner in the newly opened window
+- After checkout, import the project to Eclipse (on the root directory) and select all found projects.
+- When Eclipse asks to install the Tycho Configurators, hit Yes/Okay/Install (be sure that `m2e` and it's repositories are known to your Eclipse).
+- Then, in project `org.opentosca.container.targetplatform` open the file `org.opentosca.container.targetplatform.target` and click `Set as Target Platform`.
+- To start the container, in project `org.opentosca.container.product` open the `*.product` file and run the application.
 
 
-## Build & run using Docker
+## Build & Run Using Docker
 
-Dockerfiles and docker-compose.yml available, see [opentosca-dockerfiles](https://github.com/jojow/opentosca-dockerfiles).
+Dockerfiles and Docker Compose configuration is available, see [opentosca-dockerfiles](https://github.com/OpenTOSCA/opentosca-dockerfiles).
 
-Prebuilt Docker images availabe on [Docker Hub](https://hub.docker.com/r/opentosca).
+There are also pre-built Docker images availabe on [Docker Hub](https://hub.docker.com/r/opentosca).
