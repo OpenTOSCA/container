@@ -10,28 +10,31 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-
+	
 	private static BundleContext context;
-
+	
+	
 	static BundleContext getContext() {
-		return context;
+		return Activator.context;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
 	 * BundleContext)
 	 */
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		deleteOpenTOSCADir();
-	}
 
+		// TODO: (Michael W.): Do we really need this in a separate bundle?
+		// deleteOpenTOSCADir();
+	}
+	
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
@@ -39,9 +42,9 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
 	}
-
+	
 	private void deleteOpenTOSCADir() {
-
+		
 		Path path = Paths.get(System.getProperty("java.io.tmpdir") + File.separator + "openTOSCA");
 		System.out.println("This is the start-up clean-up, thus, delete the temporary directory: " + path);
 		try {
@@ -55,5 +58,5 @@ public class Activator implements BundleActivator {
 			e.printStackTrace();
 		}
 	}
-
+	
 }
