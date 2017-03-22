@@ -1,6 +1,9 @@
+### IntelliJ ###
 *.iml
-.idea/
+.idea
 
+### Visual Studio Code ###
+.vscode
 
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij,windows,linux,macos
 
