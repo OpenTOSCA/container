@@ -15,6 +15,7 @@ import org.opentosca.containerapi.resources.marketplace.MarketplaceRootResource;
 import org.opentosca.containerapi.resources.packager.PackagerResource;
 import org.opentosca.containerapi.resources.smartservices.SmartServicesResource;
 import org.opentosca.containerapi.resources.storageproviders.StorageProvidersResource;
+import org.opentosca.exceptions.NotFoundExceptionMapper;
 import org.opentosca.exceptions.SystemExceptionMapper;
 import org.opentosca.exceptions.UserExceptionMapper;
 
@@ -52,7 +53,7 @@ public class JerseyApplication extends Application {
 	@Override
 	public Set<Class<?>> getClasses() {
 		
-		Set<Class<?>> s = new HashSet<Class<?>>();
+		Set<Class<?>> s = new HashSet<>();
 		
 		// add all root resources
 		s.add(RootResource.class);
@@ -74,6 +75,7 @@ public class JerseyApplication extends Application {
 		// add all exception mappers
 		s.add(SystemExceptionMapper.class);
 		s.add(UserExceptionMapper.class);
+		s.add(NotFoundExceptionMapper.class);
 		
 		// add json mapper, no functionality yet, needs additional dependencies
 		s.add(JSONMapper.class);

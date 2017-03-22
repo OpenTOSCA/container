@@ -17,6 +17,7 @@ import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.opentosca.core.model.csar.CSARContent;
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.core.model.csar.toscametafile.TOSCAMetaFile;
+import org.opentosca.exceptions.NotFoundException;
 import org.opentosca.exceptions.UserException;
 import org.opentosca.settings.Settings;
 import org.slf4j.Logger;
@@ -27,9 +28,9 @@ import org.slf4j.LoggerFactory;
  * <br />
  * Copyright 2013 IAAS University of Stuttgart<br />
  * <br />
- * 
+ *
  * @author Rene Trefft - rene.trefft@developers.opentosca.org
- * 
+ *
  */
 public class CSARMetaDataJPAStore {
 	
@@ -38,7 +39,7 @@ public class CSARMetaDataJPAStore {
 	/**
 	 * JDBC-URL to the OpenTOSCA database. It will be created if it does not
 	 * exist yet.
-	 * 
+	 *
 	 * @see org.opentosca.settings.Settings
 	 */
 	private final String DB_URL = "jdbc:derby:" + Settings.getSetting("databaseLocation") + ";create=true";
@@ -57,7 +58,7 @@ public class CSARMetaDataJPAStore {
 	 */
 	private void initJPA() {
 		if (this.em == null) {
-			Map<String, String> properties = new HashMap<String, String>();
+			Map<String, String> properties = new HashMap<>();
 			properties.put(PersistenceUnitProperties.JDBC_URL, this.DB_URL);
 			this.emf = Persistence.createEntityManagerFactory("CSARContent", properties);
 			this.em = this.emf.createEntityManager();
@@ -78,7 +79,7 @@ public class CSARMetaDataJPAStore {
 	
 	/**
 	 * Persists the meta data of CSAR {@code csarID}.
-	 * 
+	 *
 	 * @param csarID of the CSAR.
 	 * @param directories - all directories of the CSAR relative to CSAR root.
 	 * @param fileToStorageProviderIDMap - file to storage provider ID mapping
@@ -130,7 +131,7 @@ public class CSARMetaDataJPAStore {
 	
 	/**
 	 * Retrieves the meta data of CSAR {@code csarID}.
-	 * 
+	 *
 	 * @param csarID of CSAR.
 	 * @return {@link CSARContent} that gives access to all files and
 	 *         directories and the TOSCA meta file of the CSAR.
@@ -138,19 +139,20 @@ public class CSARMetaDataJPAStore {
 	 */
 	public CSARContent getCSARMetaData(CSARID csarID) throws UserException {
 		
+		this.initJPA();
+		
 		CSARMetaDataJPAStore.LOG.debug("Retrieving meta data of CSAR \"{}\"...", csarID);
 		
-		if (!isCSARMetaDataStored(csarID)) {
-			throw new UserException("Meta data of CSAR \"" + csarID.toString() + "\" were not found.");
-		}
-		
-		this.initJPA();
 		CSARContent csar = this.em.find(CSARContent.class, csarID);
+		
+		if (csar == null) {
+			CSARMetaDataJPAStore.LOG.debug("Meta data of CSAR \"{}\" were not found.", csarID);
+			throw new NotFoundException();
+		}
 		
 		CSARMetaDataJPAStore.LOG.debug("Meta data of CSAR \"{}\" were retrieved.", csarID);
 		
 		return csar;
-		
 	}
 	
 	/**
@@ -165,13 +167,13 @@ public class CSARMetaDataJPAStore {
 		@SuppressWarnings("unchecked")
 		List<CSARID> csarIDs = getCSARIDsQuery.getResultList();
 		CSARMetaDataJPAStore.LOG.trace("{} CSAR ID(s) was / were found.", csarIDs.size());
-		return new HashSet<CSARID>(csarIDs);
+		return new HashSet<>(csarIDs);
 		
 	}
 	
 	/**
 	 * Deletes the meta data of CSAR {@code csarID}.
-	 * 
+	 *
 	 * @param csarID of CSAR.
 	 * @throws UserException if meta data of CSAR {@code csarID} were not found.
 	 */
@@ -195,7 +197,7 @@ public class CSARMetaDataJPAStore {
 	 * Persists / updates the storage provider ID of file
 	 * {@code fileRelToCSARRoot} in CSAR {@code csarID} to
 	 * {@code storageProviderID}.
-	 * 
+	 *
 	 * @param csarID of CSAR.
 	 * @param fileRelToCSARRoot - file relative to CSAR root.
 	 * @param storageProviderID of storage provider to set for file
@@ -258,7 +260,7 @@ public class CSARMetaDataJPAStore {
 			throw new UserException("Meta data of CSAR \"" + csarID + "\" were not found.");
 		}
 		
-		Map<Path, String> fileToStorageProviderIDMap = new HashMap<Path, String>();
+		Map<Path, String> fileToStorageProviderIDMap = new HashMap<>();
 		
 		for (Object[] fileToStorageProviderIDEntry : fileToStorageProviderIDEntries) {
 			Path file = (Path) fileToStorageProviderIDEntry[0];
@@ -298,7 +300,7 @@ public class CSARMetaDataJPAStore {
 			throw new UserException("Meta data of CSAR \"" + csarID + "\" were not found.");
 		}
 		
-		Set<Path> directories = new HashSet<Path>();
+		Set<Path> directories = new HashSet<>();
 		
 		for (String directoryAsString : directoriesAsString) {
 			directories.add(Paths.get(directoryAsString));
