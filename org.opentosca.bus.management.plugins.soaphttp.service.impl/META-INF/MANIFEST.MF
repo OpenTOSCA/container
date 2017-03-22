@@ -25,6 +25,7 @@ Import-Package: com.predic8.schema;version="1.2.2",
  org.opentosca.bus.management.header,
  org.opentosca.bus.management.plugins.service,
  org.opentosca.bus.management.utils,
+ org.opentosca.settings,
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.5"
 Service-Component: OSGI-INF/ManagementBusPluginSoapHttpServiceImpl - component.xml

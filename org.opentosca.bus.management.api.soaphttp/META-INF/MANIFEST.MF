@@ -18,6 +18,7 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.opentosca.core.endpoint.service,
  org.opentosca.core.model.csar.id,
  org.opentosca.core.model.endpoint.wsdl,
+ org.opentosca.settings,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
 Bundle-Activator: org.opentosca.bus.management.api.soaphttp.Activator

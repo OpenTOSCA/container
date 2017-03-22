@@ -23,32 +23,29 @@ import org.slf4j.LoggerFactory;
 /**
  * The SOAPMessageGenerator generates request messages for PublicPlans. Also it
  * receives the CallbackAddress due OSGI events by the mock-up Servicebus.
- * 
+ *
  * Copyright 2013 Christian Endres
- * 
+ *
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class SOAPMessageGenerator implements EventHandler {
-	
-	
+
 	private Logger LOG = LoggerFactory.getLogger(SOAPMessageGenerator.class);
 	
-	// FIXME callback address is not shared between siengine and
-	// planinvocationengine but has to
-	private static String callbackAddress = "http://localhost:8090/callback";
+	private static String callbackAddress = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8090/callback";
 	
 	
 	/**
 	 * Creates a SOAP request message.
-	 * 
+	 *
 	 * @param plan
 	 * @param correlationID
 	 * @return SOAPMessage
 	 */
 	public SOAPMessage createRequest(CSARID csarID, QName messageID, List<TParameterDTO> params, String correlationID) {
 		
-		LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
+		this.LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
 		
 		try {
 			
@@ -66,7 +63,7 @@ public class SOAPMessageGenerator implements EventHandler {
 			
 			String messageName = messageID.getLocalPart();
 			String messageNS = messageID.getNamespaceURI();
-			LOG.trace("Message has name {} and namespace {}", messageName, messageNS);
+			this.LOG.trace("Message has name {} and namespace {}", messageName, messageNS);
 			
 			Name bodyName = envelope.createName(messageName, "custom", messageNS);
 			SOAPBodyElement payload = soapBody.addBodyElement(bodyName);
@@ -75,35 +72,35 @@ public class SOAPMessageGenerator implements EventHandler {
 			for (TParameterDTO para : params) {
 				
 				if (para.getType().equalsIgnoreCase("correlation") || para.getName().equalsIgnoreCase("CorrelationID")) {
-					LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
+					this.LOG.debug("Found Correlation Element! Put in CorrelationID \"" + correlationID + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(correlationID);
 					// para.setValue(correlationID);
 				} else if (para.getType().equalsIgnoreCase("callbackaddress")) {
-					LOG.debug("Found CallbackAddress Element! Put in CallbackAddress \"" + SOAPMessageGenerator.callbackAddress + "\".");
+					this.LOG.debug("Found CallbackAddress Element! Put in CallbackAddress \"" + SOAPMessageGenerator.callbackAddress + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(SOAPMessageGenerator.callbackAddress);
 					// para.setValue(SOAPMessageGenerator.callbackAddress);
 				} else if (para.getName().equalsIgnoreCase("csarName")) {
-					LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
+					this.LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(csarID.toString());
 					// para.setValue(csarID);
 				} else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
-					LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API + "\".");
+					this.LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API);
 					// para.setValue(Settings.CONTAINER_API);
 				} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
-					LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
+					this.LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_INSTANCEDATA_API);
-				} else if (para.getName().equalsIgnoreCase("csarEntrypoint")){
-					LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API + "/" + csarID + "\".");
+				} else if (para.getName().equalsIgnoreCase("csarEntrypoint")) {
+					this.LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API + "/" + csarID + "\".");
 					Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
 					payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API + "/" + csarID);
-				}else {
-					LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
+				} else {
+					this.LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
 					Name elementName = envelope.createName(para.getName(), "tns", messageNS);
 					payload.addChildElement(elementName).addTextNode(para.getValue());
 				}
@@ -114,7 +111,7 @@ public class SOAPMessageGenerator implements EventHandler {
 			return soapMessage;
 			
 		} catch (SOAPException e) {
-			LOG.error(e.getLocalizedMessage());
+			this.LOG.error(e.getLocalizedMessage());
 		}
 		
 		return null;
@@ -126,6 +123,6 @@ public class SOAPMessageGenerator implements EventHandler {
 	@Override
 	public void handleEvent(Event event) {
 		SOAPMessageGenerator.callbackAddress = (String) event.getProperty("callbackAddress");
-		LOG.debug("Recieved the current callback address: \"" + SOAPMessageGenerator.callbackAddress + "\".");
+		this.LOG.debug("Recieved the current callback address: \"" + SOAPMessageGenerator.callbackAddress + "\".");
 	}
 }

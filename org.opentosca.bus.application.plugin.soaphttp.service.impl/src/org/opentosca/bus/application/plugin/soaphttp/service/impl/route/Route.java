@@ -6,6 +6,7 @@ import org.opentosca.bus.application.plugin.soaphttp.service.impl.processor.Asyn
 import org.opentosca.bus.application.plugin.soaphttp.service.impl.processor.CallbackProcessor;
 import org.opentosca.bus.application.plugin.soaphttp.service.impl.processor.HeaderProcessor;
 import org.opentosca.bus.application.plugin.soaphttp.service.impl.processor.RequestProcessor;
+import org.opentosca.settings.Settings;
 
 /**
  * Route of the Application Bus-SOAP/HTTP-Plugin.<br>
@@ -24,7 +25,7 @@ import org.opentosca.bus.application.plugin.soaphttp.service.impl.processor.Requ
 public class Route extends RouteBuilder {
 	
 	
-	public final static String CALLBACKADDRESS = "http://0.0.0.0:8099/callback";
+	public final static String CALLBACKADDRESS = "http://"+ Settings.OPENTOSCA_CONTAINER_HOSTNAME +":8099/callback";
 
 
 	@Override

@@ -13,6 +13,7 @@ import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.settings.Settings;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -27,7 +28,7 @@ import org.opentosca.bus.management.header.MBHeader;
  */
 public class InvocationRoute extends RouteBuilder {
 
-	private static final String HOST = "http://0.0.0.0";
+	private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
 	private static final String PORT = "8086";
 	static final String BASE_ENDPOINT = HOST + ":" + PORT;
 

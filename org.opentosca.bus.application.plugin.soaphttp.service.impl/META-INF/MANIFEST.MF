@@ -24,6 +24,7 @@ Import-Package: com.predic8.schema;version="1.2.2",
  org.eclipse.osgi.util;version="1.1.0",
  org.opentosca.bus.application.model.constants,
  org.opentosca.bus.application.plugin.service,
+ org.opentosca.settings,
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.5"
 Service-Component: OSGI-INF/ApplicationBusPluginSoapHttpServiceImpl - component.xml
