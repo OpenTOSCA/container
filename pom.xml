@@ -21,10 +21,13 @@
     <module>org.opentosca.container.application</module>
     <module>org.opentosca.container.feature</module>
     <module>org.opentosca.container.product</module>
-    <module>org.opentosca.core.common</module>
-    <module>org.opentosca.core.model</module>
     
     
+
+
+    <module>org.opentosca.core</module>
+    <module>org.opentosca.core.impl</module>
+    <module>org.opentosca.core.tosca</module>
   </modules>
 
   <build>
