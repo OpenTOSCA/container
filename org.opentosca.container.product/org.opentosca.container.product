@@ -257,55 +257,11 @@
    </features>
 
    <configurations>
-      <plugin id="ch.qos.logback.classic" autoStart="true" startLevel="0" />
-      <plugin id="ch.qos.logback.core" autoStart="true" startLevel="0" />
-      <plugin id="com.eclipsesource.jaxrs.jersey-min" autoStart="true" startLevel="0" />
-      <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.core.jackson-annotations" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.core.jackson-core" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.core.jackson-databind" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" autoStart="true" startLevel="0" />
-      <plugin id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations" autoStart="true" startLevel="0" />
-      <plugin id="javax.servlet" autoStart="true" startLevel="0" />
-      <plugin id="javax.xml" autoStart="true" startLevel="0" />
-      <plugin id="org.apache.felix.gogo.command" autoStart="true" startLevel="0" />
-      <plugin id="org.apache.felix.gogo.runtime" autoStart="true" startLevel="0" />
-      <plugin id="org.apache.felix.gogo.shell" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.core.contenttype" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.core.jobs" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.equinox.cm" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.console" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.equinox.http.servlet" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.equinox.preferences" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.equinox.registry" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-      <plugin id="org.eclipse.equinox.util" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.continuation" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.http" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.io" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.security" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.server" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.servlet" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.jetty.util" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.osgi" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.osgi.services" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.osgi.util" autoStart="true" startLevel="0" />
-      <plugin id="org.glassfish.jersey.bundles.repackaged.jersey-guava" autoStart="true" startLevel="0" />
-      <plugin id="org.glassfish.jersey.ext.entityfiltering" autoStart="true" startLevel="0" />
-      <plugin id="org.glassfish.jersey.media.jersey-media-json-jackson" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.container.application" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.api" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.apis.jcl" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.apis.log4j" autoStart="true" startLevel="0" />
-      <plugin id="org.slf4j.bridge.jul" autoStart="true" startLevel="0" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="36">
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="41">
 <locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
+<unit id="org.eclipse.platform.ide" version="4.6.3.M20170301-0400"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.6"/>
+</location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="org.glassfish.jersey.ext.entityfiltering" version="2.22.1.v20161103-0227"/>
 <unit id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="2.5.0.v201504151636"/>
@@ -15,7 +20,6 @@
 <unit id="org.glassfish.jersey.media.jersey-media-json-jackson" version="2.22.1.v20161117-2005"/>
 <unit id="org.slf4j.ext" version="1.7.10.v20170224-1220"/>
 <unit id="ch.qos.logback.slf4j" version="1.1.2.v20160301-0943"/>
-<unit id="com.google.guava" version="21.0.0.v20170206-1425"/>
 <unit id="com.google.inject.assistedinject" version="3.0.0.v201402270930"/>
 <unit id="org.slf4j.bridge.jul" version="1.7.10.v20160208-0839"/>
 <unit id="org.slf4j.api" version="1.7.10.v20170224-1220"/>
@@ -34,26 +38,25 @@
 <repository location="http://download.eclipse.org/tools/orbit/R-builds/R20170307180635/repository"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
-<unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
-<unit id="jclouds-core" version="1.6.3"/>
-<unit id="com.springsource.util.osgi" version="2.0.0.RELEASE"/>
-<unit id="jclouds-blobstore" version="1.6.3"/>
-<unit id="jclouds-slf4j" version="1.6.3"/>
-<repository location="http://update-site.opentosca.org"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="com.eclipsesource.jaxrs.connector.feature.feature.group" version="5.3.1.201602281253"/>
 <repository location="http://hstaudacher.github.io/osgi-jax-rs-connector"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.persistence.sdk.feature.group" version="2.6.4.v20160829-44060b6"/>
-<repository location="http://download.eclipse.org/rt/eclipselink/updates/"/>
+<unit id="org.eclipse.persistence.sdk.feature.group" version="2.6.3.v20160428-59c81c5"/>
+<unit id="org.eclipse.persistence.jpa.feature.group" version="2.6.3.v20160428-59c81c5"/>
+<unit id="org.eclipse.persistence.dbws.feature.group" version="2.6.3.v20160428-59c81c5"/>
+<repository location="http://download.eclipse.org/rt/eclipselink/updates/2.6.3.v20160428-59c81c5"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
-<unit id="org.eclipse.platform.ide" version="4.6.3.M20170301-0400"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.6"/>
+<unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
+<unit id="com.springsource.util.osgi" version="2.0.0.RELEASE"/>
+<unit id="rocoto" version="6.2.0"/>
+<unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
+<unit id="jclouds-core" version="1.6.3"/>
+<unit id="com.google.guava" version="14.0.1"/>
+<unit id="jclouds-blobstore" version="1.6.3"/>
+<unit id="jclouds-slf4j" version="1.6.3"/>
+<repository location="http://update-site.opentosca.org"/>
 </location>
 </locations>
 </target>
