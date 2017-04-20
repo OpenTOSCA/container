@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.util.fileaccess.service.impl.FileAccessServiceImpl">
-   <implementation class="org.opentosca.util.fileaccess.service.impl.FileAccessServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.util.fileaccess.service.IFileAccessService"/>
-   </service>
-</scr:component>

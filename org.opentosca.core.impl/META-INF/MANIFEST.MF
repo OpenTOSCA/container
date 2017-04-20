@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Core Default Implementation
+Bundle-SymbolicName: org.opentosca.core.impl
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Service-Component: OSGI-INF/ICoreEndpointServiceImpl_component.xml, OSGI-INF/CoreFileServiceImpl_component.xml, OSGI-INF/ICoreModelRepositoryService_component.xml, OSGI-INF/CoreDeploymentTrackerServiceImpl_component.xml, OSGI-INF/CoreCapabilityServiceImpl_component.xml,
+ OSGI-INF/CoreCredentialsServiceImpl_component.xml, OSGI-INF/FileAccessServiceImpl_component.xml
+Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.core.runtime;version="3.5.0",
+ org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.10"
+Require-Bundle: org.opentosca.core;bundle-version="1.0.0",
+ org.opentosca.core.tosca;bundle-version="1.0.0"

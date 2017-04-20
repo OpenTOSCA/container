@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="33">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.persistence.sdk.feature.group" version="2.6.4.v20160829-44060b6"/>
+<repository location="http://download.eclipse.org/rt/eclipselink/updates"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.6"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.glassfish.jersey.ext.entityfiltering" version="2.22.1.v20161103-0227"/>
+<unit id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="2.5.0.v201504151636"/>
+<unit id="com.google.inject" version="3.0.0.v201605172100"/>
+<unit id="org.slf4j.apis.jcl" version="1.7.10.v20160208-0839"/>
+<unit id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base" version="2.5.0.v201504171603"/>
+<unit id="org.slf4j.apis.log4j" version="1.7.10.v20160208-0839"/>
+<unit id="com.google.inject.multibindings" version="3.0.0.v201605172100"/>
+<unit id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations" version="2.5.0.v201504151636"/>
+<unit id="org.glassfish.jersey.core.jersey-common" version="2.22.1.v20161103-1916"/>
+<unit id="org.glassfish.jersey.containers.servlet.core" version="2.22.1.v20161103-0227"/>
+<unit id="org.glassfish.jersey.media.jersey-media-json-jackson" version="2.22.1.v20161117-2005"/>
+<unit id="org.slf4j.ext" version="1.7.10.v20170224-1220"/>
+<unit id="ch.qos.logback.slf4j" version="1.1.2.v20160301-0943"/>
+<unit id="com.google.guava" version="21.0.0.v20170206-1425"/>
+<unit id="com.google.inject.assistedinject" version="3.0.0.v201402270930"/>
+<unit id="org.slf4j.bridge.jul" version="1.7.10.v20160208-0839"/>
+<unit id="org.slf4j.api" version="1.7.10.v20170224-1220"/>
+<unit id="ch.qos.logback.core" version="1.1.2.v20160208-0839"/>
+<unit id="com.fasterxml.jackson.core.jackson-annotations" version="2.5.0.v201504151636"/>
+<unit id="org.apache.commons.logging" version="1.1.1.v201101211721"/>
+<unit id="org.glassfish.jersey.bundles.repackaged.jersey-guava" version="2.22.1.v20161103-1916"/>
+<unit id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" version="2.5.0.v201504171603"/>
+<unit id="com.fasterxml.jackson.datatype.jackson-datatype-guava" version="2.5.0.v201504151636"/>
+<unit id="org.glassfish.jersey.core.jersey-client" version="2.22.1.v20161103-1916"/>
+<unit id="org.glassfish.jersey.core.jersey-server" version="2.22.1.v20161103-1916"/>
+<unit id="ch.qos.logback.classic" version="1.1.2.v20160208-0839"/>
+<unit id="com.fasterxml.jackson.core.jackson-databind" version="2.5.0.v201504151636"/>
+<unit id="org.glassfish.jersey.containers.servlet" version="2.22.1.v20161103-0227"/>
+<unit id="com.fasterxml.jackson.core.jackson-core" version="2.5.0.v201504151636"/>
+<repository location="http://download.eclipse.org/tools/orbit/R-builds/R20170307180635/repository"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="com.eclipsesource.jaxrs.connector.feature.feature.group" version="5.3.1.201602281253"/>
+<repository location="http://hstaudacher.github.io/osgi-jax-rs-connector"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
+<unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
+<unit id="jclouds-core" version="1.6.3"/>
+<unit id="com.springsource.util.osgi" version="2.0.0.RELEASE"/>
+<unit id="jclouds-blobstore" version="1.6.3"/>
+<unit id="jclouds-slf4j" version="1.6.3"/>
+<repository location="http://update-site.opentosca.org"/>
+</location>
+</locations>
+</target>

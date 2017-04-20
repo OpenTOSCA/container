@@ -1,0 +1,22 @@
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+  <persistence-unit name="org.opentosca.core.model">
+    <class>org.opentosca.core.model.credentials.Credentials</class>
+    <class>org.opentosca.core.model.csar.CSARContent</class>
+    <class>org.opentosca.core.model.deployment.ia.IADeploymentInfo</class>
+    <class>org.opentosca.core.model.deployment.plan.PlanDeploymentInfo</class>
+    <class>org.opentosca.core.model.deployment.process.DeploymentProcessInfo</class>
+    <class>org.opentosca.core.model.endpoint.wsdl.WSDLEndpoint</class>
+    <class>org.opentosca.core.model.endpoint.rest.RESTEndpoint</class>
+    <properties>
+      <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:derby:opentosca;create=true" />
+      <property name="eclipselink.target-database" value="Derby" />
+      <property name="eclipselink.jdbc.read-connections.min" value="1" />
+      <property name="eclipselink.jdbc.write-connections.min" value="1" />
+      <property name="eclipselink.jdbc.batch-writing" value="JDBC" />
+      <property name="eclipselink.ddl-generation" value="create-tables" />
+      <property name="eclipselink.ddl-generation.output-mode" value="database" />
+    </properties>
+  </persistence-unit>
+</persistence>
