@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ToscaEngineServiceImpl">
-   <implementation class="org.opentosca.core.engine.impl.ToscaEngineServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.core.engine.IToscaEngineService"/>
-   </service>
-</scr:component>

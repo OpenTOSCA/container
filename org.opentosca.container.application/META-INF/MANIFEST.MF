@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Container Application
+Bundle-Name: OpenTOSCA Container Application
 Bundle-SymbolicName: org.opentosca.container.application;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opentosca.container.application.Activator

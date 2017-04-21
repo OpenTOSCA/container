@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="StorageProviderManager">
+   <implementation class="org.opentosca.container.core.impl.service.internal.file.StorageProviderManager"/>
+   <reference bind="bindCoreInternalFileStorageProviderService" cardinality="0..n" interface="org.opentosca.container.core.service.internal.ICoreInternalFileStorageProviderService" name="ICoreInternalFileStorageProviderService" policy="dynamic" unbind="unbindCoreInternalFileStorageProviderService"/>
+</scr:component>

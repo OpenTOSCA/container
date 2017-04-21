@@ -13,22 +13,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <modules>
-    <module>target-definition</module>
-    <module>org.opentosca.config.logging</module>
-    
-    
-    <module>org.opentosca.container.application</module>
-    <module>org.opentosca.container.feature</module>
-    <module>org.opentosca.container.product</module>
-    
-    
-
-
-    <module>org.opentosca.core</module>
-    <module>org.opentosca.core.impl</module>
-    <module>org.opentosca.core.tosca</module>
-  </modules>
 
   <build>
     <plugins>
@@ -105,4 +89,16 @@
     </plugins>
   </build>
 
+  <modules>
+    <module>org.opentosca.container.application</module>
+    <module>org.opentosca.container.config.logging</module>
+    <module>org.opentosca.container.connector.bps</module>
+    <module>org.opentosca.container.connector.winery</module>
+    <module>org.opentosca.container.core</module>
+    <module>org.opentosca.container.core.impl</module>
+    <module>org.opentosca.container.core.tosca</module>
+    <module>org.opentosca.container.feature</module>
+    <module>org.opentosca.container.product</module>
+    <module>target-definition</module>
+  </modules>
 </project>
