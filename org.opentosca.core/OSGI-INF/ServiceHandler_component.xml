@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ServiceHandler">
+   <implementation class="org.opentosca.core.engine.impl.ServiceHandler"/>
+   <reference bind="bindICoreFileService" cardinality="1..1" interface="org.opentosca.core.service.ICoreFileService" name="ICoreFileService" policy="static" unbind="unbindICoreFileService"/>
+   <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.core.engine.xml.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
+   <reference bind="bindIFileAccessService" cardinality="1..1" interface="org.opentosca.core.service.IFileAccessService" name="IFileAccessService" policy="static" unbind="unbindIFileAccessService"/>
+</scr:component>

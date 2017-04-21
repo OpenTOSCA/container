@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CSARUnpacker">
+   <implementation class="org.opentosca.core.impl.service.internal.file.csar.CSARUnpacker"/>
+   <reference bind="bindFileAccessService" cardinality="1..1" interface="org.opentosca.core.service.IFileAccessService" name="IFileAccessService" policy="dynamic" unbind="unbindFileAccessService"/>
+</scr:component>

@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.opentosca.core.impl
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Service-Component: 
- OSGI-INF/CoreCapabilityServiceImpl_component.xml, 
+ OSGI-INF/CoreCapabilityServiceImpl_component.xml,
  OSGI-INF/CoreCredentialsServiceImpl_component.xml, 
  OSGI-INF/CoreDeploymentTrackerServiceImpl_component.xml, 
  OSGI-INF/CoreEndpointServiceImpl_component.xml, 
@@ -13,7 +13,12 @@ Service-Component:
  OSGI-INF/CoreModelRepositoryServiceImpl_component.xml, 
  OSGI-INF/FileAccessServiceImpl_component.xml
 Bundle-ActivationPolicy: lazy
-Import-Package: org.osgi.framework;version="1.8.0",
+Import-Package: javax.persistence;version="2.1.1",
+ org.apache.derby.jdbc;version="10.11.1.1",
+ org.eclipse.persistence.config;version="2.6.3",
+ org.jclouds.filesystem.reference;version="1.6.3",
+ org.jclouds.osgi;version="1.6.3",
+ org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.10"
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  org.opentosca.core;bundle-version="1.0.0",

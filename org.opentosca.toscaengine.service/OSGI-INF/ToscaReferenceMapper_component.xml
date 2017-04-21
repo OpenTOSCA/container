@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.toscaengine.service.impl.toscareferencemapping.ToscaReferenceMapper">
-   <implementation class="org.opentosca.toscaengine.service.impl.toscareferencemapping.ToscaReferenceMapper"/>
-   <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.toscaengine.xmlserializer.service.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
-</scr:component>
