@@ -1,4 +1,4 @@
-package org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances;
+package org.opentosca.containerapi.resources.csar.servicetemplate.relationshiptemplate.instances;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,14 +23,14 @@ import com.google.gson.JsonObject;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
-public class NodeTemplateInstanceStateResource {
+public class RelationshipTemplateInstanceStateResource {
 	
 	
-	private int nodeInstanceID;
+	private int relationInstanceID;
 	
 	
-	public NodeTemplateInstanceStateResource(int id) {
-		nodeInstanceID = id;
+	public RelationshipTemplateInstanceStateResource(int id) {
+		relationInstanceID = id;
 	}
 	
 	@GET
@@ -58,14 +58,14 @@ public class NodeTemplateInstanceStateResource {
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		
 		try {
-			QName state = service.getNodeInstanceState(IdConverter.nodeInstanceIDtoURI(nodeInstanceID));
+			QName state = service.getRelationInstanceState(IdConverter.relationInstanceIDtoURI(relationInstanceID));
 			if (state != null) {
 				return state.toString();
 			} else {
 				return null;
 			}
 		} catch (ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + nodeInstanceID + " doesn't exist");
+			throw new GenericRestException(Status.NOT_FOUND, "Specified relationInstance with id: " + relationInstanceID + " doesn't exist");
 		}
 	}
 	
@@ -84,12 +84,12 @@ public class NodeTemplateInstanceStateResource {
 		}
 		
 		try {
-			service.setNodeInstanceState(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), stateQName);
+			service.setRelationInstanceState(IdConverter.relationInstanceIDtoURI(relationInstanceID), stateQName);
 			
 			//			SimpleXLink xLink = new SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo, nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
 			return Response.ok().build();
 		} catch (ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + nodeInstanceID + " doesn't exist");
+			throw new GenericRestException(Status.NOT_FOUND, "Specified relationInstance with id: " + relationInstanceID + " doesn't exist");
 		}
 		
 	}

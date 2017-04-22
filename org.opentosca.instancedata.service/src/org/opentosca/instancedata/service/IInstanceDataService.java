@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.core.model.csar.id.CSARID;
 import org.opentosca.model.instancedata.NodeInstance;
+import org.opentosca.model.instancedata.RelationInstance;
 import org.opentosca.model.instancedata.ServiceInstance;
 import org.w3c.dom.Document;
 
@@ -105,11 +106,33 @@ public interface IInstanceDataService {
 	public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceInstanceID, QName nodeTemplateID) throws ReferenceNotFoundException;
 	
 	/**
+	 * Create a <code>RelationInstance</code>of the specified Relationship
+	 * Template of the given serviceInstanceID
+	 * 
+	 * @param csarId the Id of the CSAR the Relationship Template should belong
+	 *            to
+	 * @param serviceTemplateId the Service Template ID the Relationship
+	 *            Template should belong to
+	 * @param serviceTemplateInstanceID the Instance ID of the Service Template
+	 * @param relationshipTemplateID the ID of the Relationship Template
+	 * @return a new RelationInstance Object
+	 * @throws ReferenceNotFoundException
+	 */
+	public RelationInstance createRelationInstance(CSARID csarId, QName serviceTemplateId, int serviceTemplateInstanceID, QName relationshipTemplateID) throws ReferenceNotFoundException;
+	
+	/**
 	 * Deletes the specified NodeInstance
 	 * 
 	 * @param nodeInstanceID
 	 */
 	public void deleteNodeInstance(URI nodeInstanceID);
+	
+	/**
+	 * Deletes the specified RelationInstance
+	 * 
+	 * @param relationInstanceID the RelationInstance Id as URI
+	 */
+	public void deleteRelationInstance(URI relationInstanceID);
 	
 	/**
 	 * returns all NodeInstances matching the given parameters the parameters
@@ -125,6 +148,19 @@ public interface IInstanceDataService {
 	public List<NodeInstance> getNodeInstances(URI nodeInstanceID, QName nodeTemplateID, String nodeTemplateName, URI serviceInstanceID);
 	
 	/**
+	 * returns all RelationInstances matching the given parameters the
+	 * parameters are ANDed therefore a relationInstance has to match all
+	 * parameters to be returned
+	 * 
+	 * @param relationInstanceID the relationInstanceId
+	 * @param relationshipTemplateID
+	 * @param relationshipTemplateName
+	 * @param serviceInstanceID
+	 * @return all matching nodeInstances
+	 */
+	public List<RelationInstance> getRelationInstances(URI relationInstanceID, QName relationshipTemplateID, String relationshipTemplateName, URI serviceInstanceID);
+	
+	/**
 	 * returns the state of the NodeInstance specified by
 	 * <code>nodeInstanceID</code>
 	 * 
@@ -132,7 +168,7 @@ public interface IInstanceDataService {
 	 * @return State
 	 * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
 	 */
-	public QName getState(URI nodeInstanceID) throws ReferenceNotFoundException;
+	public QName getNodeInstanceState(URI nodeInstanceID) throws ReferenceNotFoundException;
 	
 	/**
 	 * Sets the state of the specified nodeInstanceID
@@ -141,7 +177,7 @@ public interface IInstanceDataService {
 	 * @param state
 	 * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
 	 */
-	public void setState(URI nodeInstanceID, QName state) throws ReferenceNotFoundException;
+	public void setNodeInstanceState(URI nodeInstanceID, QName state) throws ReferenceNotFoundException;
 	
 	/**
 	 * returns a DOM structure containing all properties specified in the
@@ -184,4 +220,13 @@ public interface IInstanceDataService {
 	public NodeInstance createNodeInstance(QName nodeTemplateIDQName, URI serviceInstanceIdURI) throws ReferenceNotFoundException;
 	
 	public List<ServiceInstance> getServiceInstancesWithDetails(CSARID csarId, QName serviceTemplateId, Integer serviceTemplateInstanceID);
+
+	public QName getRelationInstanceState(URI relationInstanceID) throws ReferenceNotFoundException;
+
+	public void setRelationInstanceState(URI relationInstanceID, QName state) throws ReferenceNotFoundException;
+
+	public void setRelationInstanceProperties(URI relationInstanceID, Document properties) throws ReferenceNotFoundException;
+
+	public Document getRelationInstanceProperties(URI relationInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException;
+	
 }

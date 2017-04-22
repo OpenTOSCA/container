@@ -4,6 +4,7 @@
 	<persistence-unit name="InstanceData">
 		<class>org.opentosca.model.instancedata.ServiceInstance</class>
 		<class>org.opentosca.model.instancedata.NodeInstance</class>
+		<class>org.opentosca.model.instancedata.RelationInstance</class>
 		<properties>
 			<!-- Embedded Derby Login -->
 			<property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />

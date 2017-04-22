@@ -701,6 +701,10 @@ public class ReferenceMapper {
 		return false;
 	}
 	
+	public void storeRelationshipTemplateIDForServiceTemplateAndCSAR(CSARID csarId, QName serviceTemplateID, String id){
+		ToscaEngineServiceImpl.toscaReferenceMapper.storeRelationshipTemplateIDForServiceTemplateANdCSAR(csarId, serviceTemplateID, id);
+	}
+	
 	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id) {
 		ToscaEngineServiceImpl.toscaReferenceMapper.storeNodeTemplateIDForServiceTemplateAndCSAR(csarID, serviceTemplateID, id);
 	}

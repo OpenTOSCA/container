@@ -10,64 +10,85 @@ import java.net.URISyntaxException;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  */
 public class IdConverter {
-	
-	
+
 	// TODO refactor to match new API
-	
+
 	public final static String containerApiRoot = "/containerapi";
 	public final static String nodeInstancePath = "/instancedata/nodeInstances/";
+	public final static String relationInstancePath = "/instancedata/relationInstances/";
 	public final static String serviceInstancePath = "/instancedata/serviceInstances/";
-	
+
 	public static Integer nodeInstanceUriToID(URI nodeInstanceID) {
 		String path = nodeInstanceID.getPath();
-		
+
 		if (path.contains(nodeInstancePath) && path.contains(containerApiRoot)) {
 			path = path.replace(containerApiRoot, "");
 			path = path.replace(nodeInstancePath, "");
 		}
-		
+
 		try {
 			return Integer.parseInt(path);
 		} catch (NumberFormatException e) {
 			return null;
 		}
-		
+
 	}
-	
+
+	public static Integer relationInstanceUriToID(URI relationInstanceID) {
+		String path = relationInstanceID.getPath();
+
+		if (path.contains(relationInstancePath) && path.contains(containerApiRoot)) {
+			path = path.replace(containerApiRoot, "");
+			path = path.replace(relationInstancePath, "");
+		}
+
+		try {
+			return Integer.parseInt(path);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+
+	}
+
 	public static Integer serviceInstanceUriToID(URI serviceInstanceID) {
 		String path = serviceInstanceID.getPath();
-		
-		if (path.contains(containerApiRoot)
-				&& path.contains(serviceInstancePath)) {
+
+		if (path.contains(containerApiRoot) && path.contains(serviceInstancePath)) {
 			path = path.replace(containerApiRoot, "");
 			path = path.replace(serviceInstancePath, "");
 		}
-		
+
 		try {
 			return Integer.parseInt(path);
 		} catch (NumberFormatException e) {
 			return null;
 		}
 	}
-	
+
+	public static URI relationInstanceIDtoURI(int id) {
+		try {
+			return new URI(containerApiRoot + relationInstancePath + id);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+
 	public static URI nodeInstanceIDtoURI(int id) {
-		
 		try {
 			return new URI(containerApiRoot + nodeInstancePath + id);
 		} catch (URISyntaxException e) {
 			return null;
 		}
 	}
-	
+
 	public static URI serviceInstanceIDtoURI(int id) {
-		
 		try {
 			return new URI(containerApiRoot + serviceInstancePath + id);
 		} catch (URISyntaxException e) {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Checks if <code>uri</code> is a valid serviceInstanceID-URI in the
 	 * context of the InstanceDataAPI this means that it has one of the
@@ -89,15 +110,15 @@ public class IdConverter {
 		if (uri == null) {
 			return false;
 		}
-		
+
 		Integer serviceInstanceUriToID = serviceInstanceUriToID(uri);
 		if (serviceInstanceUriToID != null) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Checks if <code>uri</code> is a valid nodeInstanceID-URI in the context
 	 * of the InstanceDataAPI this means that it has one of the following
@@ -119,13 +140,26 @@ public class IdConverter {
 		if (uri == null) {
 			return false;
 		}
-		
+
 		Integer nodeInstanceUriToID = nodeInstanceUriToID(uri);
 		if (nodeInstanceUriToID != null) {
 			return true;
 		}
-		
+
 		return false;
 	}
 	
+	public static boolean isValidRelationInstanceID(URI uri) {
+		if (uri == null) {
+			return false;
+		}
+
+		Integer relationInstanceUriToID = relationInstanceUriToID(uri);
+		if (relationInstanceUriToID != null) {
+			return true;
+		}
+
+		return false;
+	}
+
 }

@@ -24,6 +24,7 @@ import org.opentosca.containerapi.osgi.servicegetter.InstanceDataServiceHandler;
 import org.opentosca.containerapi.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.plans.PlanInstances;
 import org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.NodeTemplatesResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.relationshiptemplate.RelationshipTemplatesResource;
 import org.opentosca.containerapi.resources.utilities.JSONUtils;
 import org.opentosca.containerapi.resources.utilities.ResourceConstants;
 import org.opentosca.containerapi.resources.utilities.Utilities;
@@ -96,6 +97,7 @@ public class ServiceTemplateInstanceResource {
 		References refs = new References();
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "NodeTemplates"), XLinkConstants.SIMPLE, "NodeTemplates"));
+		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "RelationshipTemplates"), XLinkConstants.SIMPLE, "RelationshipTemplates"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Properties"), XLinkConstants.SIMPLE, "Properties"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "State"), XLinkConstants.SIMPLE, "State"));
@@ -120,6 +122,11 @@ public class ServiceTemplateInstanceResource {
 	@Path("NodeTemplates")
 	public Object getNodeTemplates() {
 		return new NodeTemplatesResource(csarId, serviceTemplateID, serviceTemplateInstanceId);
+	}
+	
+	@Path("RelationshipTemplates")
+	public Object getRelationshipTemplates() {
+		return new RelationshipTemplatesResource(csarId, serviceTemplateID, serviceTemplateInstanceId);
 	}
 	
 	@Path("/Properties")

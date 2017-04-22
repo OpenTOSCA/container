@@ -9,6 +9,7 @@ import org.opentosca.containerapi.instancedata.exception.GenericRestException;
 import org.opentosca.instancedata.service.IInstanceDataService;
 import org.opentosca.model.instancedata.IdConverter;
 import org.opentosca.model.instancedata.NodeInstance;
+import org.opentosca.model.instancedata.RelationInstance;
 import org.opentosca.model.instancedata.ServiceInstance;
 
 /**
@@ -60,6 +61,18 @@ public class ExistenceChecker {
 			return nodeInstances.get(0);
 		} else {
 			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + nodeInstanceID + " doesn't exist");
+		}
+		
+	}
+	
+	public static RelationInstance checkRelationInstanceWithException(int relationInstanceID, IInstanceDataService service) throws GenericRestException {
+		List<RelationInstance> relationInstances = service.getRelationInstances(IdConverter.relationInstanceIDtoURI(relationInstanceID), null, null, null);
+		//check if only one instance was returned - we dont verify because we assume the get Method returns the correct one!
+		//we got really bad problems if this wouldnt work anyway
+		if (relationInstances != null && relationInstances.size() == 1 && relationInstances.get(0) != null) {
+			return relationInstances.get(0);
+		} else {
+			throw new GenericRestException(Status.NOT_FOUND, "Specified relationInstance with id: " + relationInstanceID + " doesn't exist");
 		}
 		
 	}

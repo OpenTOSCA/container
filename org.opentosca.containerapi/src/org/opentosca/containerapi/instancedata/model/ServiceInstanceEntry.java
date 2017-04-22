@@ -31,6 +31,7 @@ public class ServiceInstanceEntry {
 	private List<SimpleXLink> links = new LinkedList<SimpleXLink>();
 	
 	private List<SimpleXLink> nodeInstanceList = new LinkedList<SimpleXLink>();
+	private List<SimpleXLink> relationInstanceList = new LinkedList<SimpleXLink>();
 	
 	/**
 	 * @param serviceInstanceID
@@ -51,6 +52,18 @@ public class ServiceInstanceEntry {
 		
 		this.links = links;
 		this.nodeInstanceList = nodeInstanceList.getLinks();
+	}
+	
+	public ServiceInstanceEntry(ServiceInstance si, List<SimpleXLink> links, RelationInstanceList relationInstanceList) {
+		super();
+		serviceInstanceID = si.getServiceInstanceID();
+		csarID = si.getCSAR_ID().toString();
+		serviceTemplateID = si.getServiceTemplateID().toString();
+		serviceTemplateName = si.getServiceTemplateName();
+		created = si.getCreated();
+		
+		this.links = links;
+		this.relationInstanceList = relationInstanceList.getLinks();
 	}
 	
 	protected ServiceInstanceEntry() {
@@ -91,6 +104,12 @@ public class ServiceInstanceEntry {
 	@XmlElement(name = "nodeInstance")
 	public List<SimpleXLink> getNodeInstanceList() {
 		return nodeInstanceList;
+	}
+	
+	@XmlElementWrapper(name = "relationInstances")
+	@XmlElement(name = "relationInstance")
+	public List<SimpleXLink> getRelationInstanceList() {
+		return relationInstanceList;
 	}
 	
 	public String toJSON() {

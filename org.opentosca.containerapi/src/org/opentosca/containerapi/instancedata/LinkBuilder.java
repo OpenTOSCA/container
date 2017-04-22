@@ -17,6 +17,7 @@ import org.opentosca.containerapi.resources.csar.servicetemplate.instances.Servi
 import org.opentosca.containerapi.resources.csar.servicetemplate.instances.ServiceTemplateInstancesResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances.NodeTemplateInstanceListResource;
 import org.opentosca.containerapi.resources.csar.servicetemplate.nodetemplate.instances.NodeTemplateInstanceResource;
+import org.opentosca.containerapi.resources.csar.servicetemplate.relationshiptemplate.instances.RelationshipTemplateInstanceListResource;
 
 /**
  * 
@@ -46,6 +47,11 @@ public class LinkBuilder {
 				.build(new Object[0]);
 	}
 	
+	public static URI linkToRelationInstanceList(UriInfo uriInfo) {
+		return uriInfo.getBaseUriBuilder().path(InstanceDataRoot.class).path(InstanceDataRoot.class, "getRelationInstances")
+				.build(new Object[0]);
+	}
+	
 	public static URI linkToServiceInstanceList(UriInfo uriInfo) {
 		return uriInfo.getBaseUriBuilder().path(InstanceDataRoot.class)
 				.path(ServiceTemplateResource.class, "getInstances").build(new Object[0]);
@@ -66,6 +72,13 @@ public class LinkBuilder {
 		paramMap.put(Constants.NodeInstanceListResource_getNodeInstance_PARAM, Integer.toString(id));
 		return UriBuilder.fromUri(linkToNodeInstanceList(uriInfo))
 				.path(NodeTemplateInstanceListResource.class, "getNodeInstance").buildFromMap(paramMap);
+	}
+	
+	public static URI linkToRelationInstance(UriInfo uriInfo, int id) {
+		Map<String, String> paramMap = new HashMap<String, String>();
+		paramMap.put(Constants.RelationInstanceListResource_getRelationInstance_PARAM, Integer.toString(id));
+		return UriBuilder.fromUri(linkToRelationInstanceList(uriInfo))
+				.path(RelationshipTemplateInstanceListResource.class, "getRelationInstance").buildFromMap(paramMap);
 	}
 	
 	public static URI linkToServiceInstance(UriInfo uriInfo, int id) {
