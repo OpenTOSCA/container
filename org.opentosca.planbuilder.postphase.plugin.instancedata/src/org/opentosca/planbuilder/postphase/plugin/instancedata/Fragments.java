@@ -54,7 +54,7 @@ public class Fragments {
 	 * state of the given nodeInstance with the contents of the given string
 	 * variable
 	 * 
-	 * @param nodeInstanceURLVar
+	 * @param instanceURLVar
 	 *            the variable holding the url to the node instance
 	 * @param RequestVarName
 	 *            the variable to take the request body contents from
@@ -62,16 +62,16 @@ public class Fragments {
 	 * @throws IOException
 	 *             is thrown when reading a internal file fails
 	 */
-	public String generateBPEL4RESTLightPUTNodeInstanceState(String nodeInstanceURLVar, String RequestVarName)
+	public String generateBPEL4RESTLightPUTInstanceState(String instanceURLVar, String RequestVarName)
 			throws IOException {
 		// BPEL4RESTLightPUT_NodeInstance_State_InstanceDataAPI.xml
 		// <!-- $RequestVarName,$nodeInstanceURLVar -->
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("BPEL4RESTLightPUT_NodeInstance_State_InstanceDataAPI.xml");
+				.getResource("BPEL4RESTLightPUT_Instance_State_InstanceDataAPI.xml");
 		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpel4restString = FileUtils.readFileToString(bpel4RestFile);
 
-		bpel4restString = bpel4restString.replace("$nodeInstanceURLVar", nodeInstanceURLVar);
+		bpel4restString = bpel4restString.replace("$instanceURLVar", instanceURLVar);
 		bpel4restString = bpel4restString.replace("$RequestVarName", RequestVarName);
 
 		return bpel4restString;
@@ -104,6 +104,34 @@ public class Fragments {
 
 		return bpelAssignString;
 	}
+	
+	/**
+	 * Generates a String containing a BPEL assign that reads the value of a
+	 * RelationInstance create response and writes it into the referenced string
+	 * variable
+	 * 
+	 * @param stringVarName
+	 *            the string variable to write the data into
+	 * @param relationInstancePOSTResponseVarName
+	 *            the response variable of a relationInstance create POST
+	 * @return a String containing a BPEL assign
+	 * @throws IOException
+	 *             is thrown when reading a internal file fails
+	 */
+	public String generateAssignFromRelationInstancePOSTResponseToStringVar(String stringVarName,
+			String relationInstancePOSTResponseVarName) throws IOException {
+		// BPELAssignFromNodeInstancePOSTResponseToStringVar.xml
+		// <!-- $stringVarName, $NodeInstanceResponseVarName -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPELAssignFromRelationInstancePOSTResponseToStringVar.xml");
+		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpel4RestFile);
+
+		bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
+		bpelAssignString = bpelAssignString.replace("$RelationInstanceResponseVarName", relationInstancePOSTResponseVarName);
+
+		return bpelAssignString;
+	}
 
 	/**
 	 * Generates a String containing a BPEL4RESTLight extension activity which
@@ -129,6 +157,35 @@ public class Fragments {
 
 		bpel4RestString = bpel4RestString.replace("$serviceInstanceURLVar", serviceInstanceURLVar);
 		bpel4RestString = bpel4RestString.replace("$nodeTemplateId", nodeTemplateId);
+		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
+
+		return bpel4RestString;
+	}
+	
+	/**
+	 * Generates a String containing a BPEL4RESTLight extension activity which
+	 * creates a Relationship Template instance on the given Service Template instance
+	 * 
+	 * @param serviceInstanceURLVar
+	 *            the variable holding the serviceInstanceUrl
+	 * @param relationshipTemplateId
+	 *            the id of the Relationship Template to instantiate
+	 * @param responseVariableName
+	 *            the variable to store the response into
+	 * @return a String containing a BPEL extension activity
+	 * @throws IOException
+	 *             is thrown when reading the internal file fails
+	 */
+	public String generateBPEL4RESTLightRelationInstancePOST(String serviceInstanceURLVar, String relationshipTemplateId,
+			String responseVariableName) throws IOException {
+		// <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPEL4RESTLightPOST_RelationInstance_InstanceDataAPI.xml");
+		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
+
+		bpel4RestString = bpel4RestString.replace("$serviceInstanceURLVar", serviceInstanceURLVar);
+		bpel4RestString = bpel4RestString.replace("$relationshipTemplateId", relationshipTemplateId);
 		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
 
 		return bpel4RestString;
@@ -197,21 +254,21 @@ public class Fragments {
 		return doc.getFirstChild();
 	}
 
-	public String generateNodeInstancePropertiesGET(String nodeInstanceUrlVarName, String bpel4RestLightResponseVarName)
+	public String generateInstancePropertiesGET(String instanceUrlVarName, String bpel4RestLightResponseVarName)
 			throws IOException {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("BPEL4RESTLightGET_NodeInstance_Properties.xml");
+				.getResource("BPEL4RESTLightGET_Instance_Properties.xml");
 		File bpel4restLightGETFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpel4restLightGETString = FileUtils.readFileToString(bpel4restLightGETFile);
 		// <!-- $urlVarName, $ResponseVarName -->
-		bpel4restLightGETString = bpel4restLightGETString.replace("$urlVarName", nodeInstanceUrlVarName);
+		bpel4restLightGETString = bpel4restLightGETString.replace("$urlVarName", instanceUrlVarName);
 		bpel4restLightGETString = bpel4restLightGETString.replace("$ResponseVarName", bpel4RestLightResponseVarName);
 		return bpel4restLightGETString;
 	}
 
-	public Node generateNodeInstancePropertiesGETAsNode(String nodeInstanceUrlVarName,
+	public Node generateInstancePropertiesGETAsNode(String instanceUrlVarName,
 			String bpel4RestLightResponseVarName) throws SAXException, IOException {
-		String templateString = this.generateNodeInstancePropertiesGET(nodeInstanceUrlVarName,
+		String templateString = this.generateInstancePropertiesGET(instanceUrlVarName,
 				bpel4RestLightResponseVarName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
@@ -378,22 +435,22 @@ public class Fragments {
 		return assignNode;
 	}
 
-	public String generateNodeInstancesBPEL4RESTLightPUT(String requestVarName, String nodeInstanceURLVarName)
+	public String generateInstancesBPEL4RESTLightPUT(String requestVarName, String instanceURLVarName)
 			throws IOException {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("BPEL4RESTLightPUT_NodeInstance_InstanceDataAPI.xml");
+				.getResource("BPEL4RESTLightPUT_Instance_InstanceDataAPI.xml");
 		File bpel4RESTLightPUTFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpel4RESTLightPut = FileUtils.readFileToString(bpel4RESTLightPUTFile);
 
 		// <!-- $RequestVarName,$nodeInstanceURLVar -->
 		bpel4RESTLightPut = bpel4RESTLightPut.replace("$RequestVarName", requestVarName);
-		bpel4RESTLightPut = bpel4RESTLightPut.replace("$nodeInstanceURLVar", nodeInstanceURLVarName);
+		bpel4RESTLightPut = bpel4RESTLightPut.replace("$instanceURLVar", instanceURLVarName);
 		return bpel4RESTLightPut;
 	}
 
-	public Node generateNodeInstancesBPEL4RESTLightPUTAsNode(String requestVarName, String nodeInstanceURLVarName)
+	public Node generateInstancesBPEL4RESTLightPUTAsNode(String requestVarName, String instanceURLVarName)
 			throws IOException, SAXException {
-		String templateString = this.generateNodeInstancesBPEL4RESTLightPUT(requestVarName, nodeInstanceURLVarName);
+		String templateString = this.generateInstancesBPEL4RESTLightPUT(requestVarName, instanceURLVarName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
