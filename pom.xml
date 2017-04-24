@@ -101,5 +101,9 @@
     <module>org.opentosca.container.feature</module>
     <module>org.opentosca.container.product</module>
     <module>target-definition</module>
+    <module>org.opentosca.container.engine.plan</module>
+    <module>org.opentosca.container.engine.plan.plugin.bpelwso2</module>
+    <module>org.opentosca.container.engine.plan.plugin.camunda</module>
+    <module>org.opentosca.container.portability</module>
   </modules>
 </project>
