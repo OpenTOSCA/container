@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="48">
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="59">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
@@ -9,10 +9,6 @@
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="com.eclipsesource.jaxrs.connector.feature.feature.group" version="5.3.1.201602281253"/>
 <repository location="http://hstaudacher.github.io/osgi-jax-rs-connector"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<unit id="org.eclipse.persistence.sdk.feature.group" version="2.6.3.v20160428-59c81c5"/>
-<repository location="http://download.eclipse.org/rt/eclipselink/updates/2.6.3.v20160428-59c81c5"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
@@ -25,6 +21,17 @@
 <unit id="jclouds-blobstore" version="1.6.3"/>
 <unit id="jclouds-slf4j" version="1.6.3"/>
 <repository location="http://update-site.opentosca.org"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<repository location="http://download.eclipse.org/gemini/jpa/updates"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<repository location="http://download.eclipse.org/gemini/updates/dbaccess/1.1.0"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.persistence.sdk.feature.group" version="2.6.3.v20160428-59c81c5"/>
+<unit id="org.eclipse.persistence.jpa.feature.group" version="2.6.3.v20160428-59c81c5"/>
+<repository location="http://download.eclipse.org/rt/eclipselink/updates/2.6.3.v20160428-59c81c5"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="com.fasterxml.jackson.core.jackson-databind" version="2.6.2.v20161117-2150"/>
@@ -42,8 +49,8 @@
 <unit id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations" version="2.5.0.v201504151636"/>
 <unit id="org.glassfish.jersey.core.jersey-common" version="2.22.1.v20161103-1916"/>
 <unit id="org.glassfish.jersey.containers.servlet.core" version="2.22.1.v20161103-0227"/>
-<unit id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" version="2.6.2.v20161117-2150"/>
 <unit id="org.apache.commons.httpclient" version="3.1.0.v201012070820"/>
+<unit id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" version="2.6.2.v20161117-2150"/>
 <unit id="org.glassfish.jersey.media.jersey-media-json-jackson" version="2.22.1.v20161117-2005"/>
 <unit id="org.slf4j.ext" version="1.7.10.v20170224-1220"/>
 <unit id="org.apache.commons.collections" version="3.2.2.v201511171945"/>

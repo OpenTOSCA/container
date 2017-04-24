@@ -22,22 +22,14 @@ import org.opentosca.container.core.model.endpoint.GenericEndpoint;
  * This class Represents a WSDL-Endpoint (an endpoint which points to a
  * SOAP-Operation of a WSDL). For the fields of this class refer to the WSDL
  * operation element in the TOSCA-Specification.
- * 
- * Copyright 2012 IAAS University of Stuttgart <br>
- * <br>
- * 
- * @author Matthias Fetzer - fetzerms@studi.informatik.uni-stuttgart.de
- * 
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-// @formatter:off
 @NamedQueries({@NamedQuery(name = WSDLEndpoint.getWSDLEndpointByPortType, query = WSDLEndpoint.getWSDLEndpointByPortTypeQuery),
-// @NamedQuery(name =
-// WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressType, query =
-// WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressTypeQuery),
-@NamedQuery(name = WSDLEndpoint.getWSDLEndpointByUri, query = WSDLEndpoint.getWSDLEndpointByUriQuery)})
-// @formatter:on
+		// @NamedQuery(name =
+		// WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressType, query =
+		// WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressTypeQuery),
+		@NamedQuery(name = WSDLEndpoint.getWSDLEndpointByUri, query = WSDLEndpoint.getWSDLEndpointByUriQuery)})
 @Table(name = WSDLEndpoint.tableName, uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "addressType", "csarId"}))
 public class WSDLEndpoint extends GenericEndpoint {
 	
@@ -56,7 +48,8 @@ public class WSDLEndpoint extends GenericEndpoint {
 	// "WSDLEndpoint.getWSDLEndpointByPortTypeAndAddressType";
 	// protected final static String
 	// getWSDLEndpointByPortTypeAndAddressTypeQuery =
-	// "select t from WSDLEndpoint t where t.PortType = :portType and t.AddressType = :addressType and t.csarId = :csarId";
+	// "select t from WSDLEndpoint t where t.PortType = :portType and
+	// t.AddressType = :addressType and t.csarId = :csarId";
 	
 	public final static String getWSDLEndpointByUri = "WSDLEndpoint.getWSDLEndpointByUri";
 	protected final static String getWSDLEndpointByUriQuery = "select t from WSDLEndpoint t where t.uri = :uri and t.csarId = :csarId";
@@ -96,7 +89,7 @@ public class WSDLEndpoint extends GenericEndpoint {
 	}
 	
 	// if planid is set nodeTypeimpl and iaName must be "null"
-	public WSDLEndpoint(URI uri, QName portType, CSARID csarId, QName planid, QName nodeTypeImplementation, String iaName) {
+	public WSDLEndpoint(final URI uri, final QName portType, final CSARID csarId, final QName planid, final QName nodeTypeImplementation, final String iaName) {
 		super(uri, csarId);
 		this.setPortType(portType);
 		this.setIaName(iaName);
@@ -111,7 +104,7 @@ public class WSDLEndpoint extends GenericEndpoint {
 	}
 	
 	@Override
-	public void setId(Long id) {
+	public void setId(final Long id) {
 		this.id = id;
 	}
 	
@@ -119,7 +112,7 @@ public class WSDLEndpoint extends GenericEndpoint {
 		return this.PortType;
 	}
 	
-	public void setPortType(QName portType) {
+	public void setPortType(final QName portType) {
 		this.PortType = portType;
 	}
 	
@@ -127,7 +120,7 @@ public class WSDLEndpoint extends GenericEndpoint {
 		return this.NodeTypeImplementation;
 	}
 	
-	public void setNodeTypeImplementation(QName nodeTypeImplementation) {
+	public void setNodeTypeImplementation(final QName nodeTypeImplementation) {
 		this.NodeTypeImplementation = nodeTypeImplementation;
 	}
 	
@@ -135,7 +128,7 @@ public class WSDLEndpoint extends GenericEndpoint {
 		return this.PlanId;
 	}
 	
-	public void setPlanId(QName planId) {
+	public void setPlanId(final QName planId) {
 		this.PlanId = planId;
 	}
 	
@@ -143,17 +136,17 @@ public class WSDLEndpoint extends GenericEndpoint {
 		return this.IaName;
 	}
 	
-	public void setIaName(String iaName) {
+	public void setIaName(final String iaName) {
 		this.IaName = iaName;
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (!(o instanceof WSDLEndpoint)) {
 			return false;
 		}
 		
-		WSDLEndpoint compareEndpoint = (WSDLEndpoint) o;
+		final WSDLEndpoint compareEndpoint = (WSDLEndpoint) o;
 		if (compareEndpoint.getId() != this.getId()) {
 			return false;
 		}

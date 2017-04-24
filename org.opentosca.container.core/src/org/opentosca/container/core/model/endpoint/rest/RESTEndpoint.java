@@ -25,22 +25,9 @@ import org.opentosca.container.core.model.endpoint.GenericEndpoint;
  * This class Represents a REST-Endpoint (an endpoint with a REST-Operation).
  * For the fields of this class refer to the REST operation element in the
  * TOSCA-Specification.
- * 
- * Copyright 2012 IAAS University of Stuttgart <br>
- * <br>
- * 
- * @author Matthias Fetzer - fetzerms@studi.informatik.uni-stuttgart.de
- * 
  */
-
 // Named Queries for JPA
-// @formatter:off
-@NamedQueries({
-	@NamedQuery(name = RESTEndpoint.getEndpointForPath, query = RESTEndpoint.getEndpointForPathQuery),
-	@NamedQuery(name = RESTEndpoint.getEndpointForPathAndMethod, query = RESTEndpoint.getEndpointForPathAndMethodQuery),
-	@NamedQuery(name = RESTEndpoint.getEndpointForUri, query = RESTEndpoint.getEndpointForUriQuery)
-})
-// @formatter:on
+@NamedQueries({@NamedQuery(name = RESTEndpoint.getEndpointForPath, query = RESTEndpoint.getEndpointForPathQuery), @NamedQuery(name = RESTEndpoint.getEndpointForPathAndMethod, query = RESTEndpoint.getEndpointForPathAndMethodQuery), @NamedQuery(name = RESTEndpoint.getEndpointForUri, query = RESTEndpoint.getEndpointForUriQuery)})
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = RESTEndpoint.tableName, uniqueConstraints = @UniqueConstraint(columnNames = {"path", "method", "csarId"}))
@@ -85,28 +72,28 @@ public class RESTEndpoint extends GenericEndpoint {
 	private QName responsePayload;
 	
 	@Column(name = "RequestHeaders")
-	private List<RequestHeader> headers = new ArrayList<RequestHeader>();
+	private final List<RequestHeader> headers = new ArrayList<>();
 	
 	@Column(name = "Parameters")
-	private List<Parameter> params = new ArrayList<Parameter>();
+	private final List<Parameter> params = new ArrayList<>();
 	
 	
 	public RESTEndpoint() {
 		super();
 	}
 	
-	public RESTEndpoint(URI uri, restMethod method, CSARID csarId) {
+	public RESTEndpoint(final URI uri, final restMethod method, final CSARID csarId) {
 		super(uri, csarId);
 		this.method = method;
 		this.path = uri.getPath();
 	}
 	
-	public RESTEndpoint(String host, String path, restMethod method, CSARID csarId) throws URISyntaxException {
+	public RESTEndpoint(final String host, final String path, final restMethod method, final CSARID csarId) throws URISyntaxException {
 		// Check if the path starts with a "/", if not we prepend a "/".
 		this(new URI(host + ((path.charAt(0) == '/') ? path : '/' + path)), method, csarId);
 	}
 	
-	public RESTEndpoint(URI uri, restMethod method, QName requestPayload, QName responsePayload, CSARID csarId) {
+	public RESTEndpoint(final URI uri, final restMethod method, final QName requestPayload, final QName responsePayload, final CSARID csarId) {
 		this(uri, method, csarId);
 		this.requestPayload = requestPayload;
 		this.responsePayload = responsePayload;
@@ -128,15 +115,15 @@ public class RESTEndpoint extends GenericEndpoint {
 		return this.path;
 	}
 	
-	public void setPath(String path) {
+	public void setPath(final String path) {
 		this.path = path;
 	}
 	
-	public void addParameter(Parameter p) {
+	public void addParameter(final Parameter p) {
 		this.params.add(p);
 	}
 	
-	public void addRequestHeader(RequestHeader h) {
+	public void addRequestHeader(final RequestHeader h) {
 		this.headers.add(h);
 	}
 	
