@@ -15,3 +15,4 @@ Bundle-ClassPath: .,
  META-INF/libs/org.apache.axis2.osgi-1.6.2.jar,
  META-INF/libs/apache-mime4j-core-0.7.2.jar
 Export-Package: org.opentosca.container.connector.bps
+Bundle-Activator: org.opentosca.container.connector.bps.Activator

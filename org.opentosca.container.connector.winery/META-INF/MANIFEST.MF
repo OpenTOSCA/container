@@ -18,5 +18,7 @@ Import-Package: com.fasterxml.jackson.core;version="2.6.2",
  org.apache.http.impl.client;version="4.2.0",
  org.apache.http.message;version="4.2.1",
  org.apache.http.util;version="4.2.1",
+ org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.5"
 Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0"
+Bundle-Activator: org.opentosca.container.connector.winery.Activator

@@ -12,6 +12,8 @@
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
     <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
+    <class>org.opentosca.container.core.model.instance.ServiceInstance</class>
+    <class>org.opentosca.container.core.model.instance.NodeInstance</class>
 
     <properties>
 

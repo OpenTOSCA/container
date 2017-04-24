@@ -94,6 +94,7 @@
     <module>org.opentosca.container.config.logging</module>
     <module>org.opentosca.container.connector.bps</module>
     <module>org.opentosca.container.connector.winery</module>
+    <module>org.opentosca.container.control</module>
     <module>org.opentosca.container.core</module>
     <module>org.opentosca.container.core.impl</module>
     <module>org.opentosca.container.core.tosca</module>
