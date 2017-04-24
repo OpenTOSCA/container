@@ -1,23 +1,38 @@
-<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
-  <persistence-unit name="Endpoints">
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+  <persistence-unit name="OpenTOSCA" transaction-type="RESOURCE_LOCAL">
+
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
-    <class>org.opentosca.container.core.model.csar.CSARContent</class>
+    <!-- <class>org.opentosca.container.core.model.csar.CSARContent</class> -->
     <class>org.opentosca.container.core.model.deployment.ia.IADeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo</class>
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
     <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
+
     <properties>
+
       <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
-      <property name="javax.persistence.jdbc.url" value="jdbc:derby:opentosca;create=true" />
+      <property name="javax.persistence.jdbc.url" value="jdbc:derby:database/opentosca;create=true" />
+
+      <property name="eclipselink.ddl-generation" value="create-tables" />
+      <property name="eclipselink.ddl-generation.output-mode" value="database" />
+      <property name="eclipselink.weaving" value="false" />
       <property name="eclipselink.target-database" value="Derby" />
       <property name="eclipselink.jdbc.read-connections.min" value="1" />
       <property name="eclipselink.jdbc.write-connections.min" value="1" />
-      <property name="eclipselink.jdbc.batch-writing" value="JDBC" />
-      <property name="eclipselink.ddl-generation" value="create-tables" />
-      <property name="eclipselink.ddl-generation.output-mode" value="database" />
+      <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
+
+      <property name="eclipselink.logging.level" value="OFF" />
+      <property name="eclipselink.logging.thread" value="false" />
+      <property name="eclipselink.logging.session" value="true" />
+      <property name="eclipselink.logging.exceptions" value="true" />
+      <property name="eclipselink.logging.timestamp" value="false" />
+
     </properties>
+
   </persistence-unit>
 </persistence>

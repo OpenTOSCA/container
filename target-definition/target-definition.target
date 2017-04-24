@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="59">
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="61">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
@@ -21,12 +21,6 @@
 <unit id="jclouds-blobstore" version="1.6.3"/>
 <unit id="jclouds-slf4j" version="1.6.3"/>
 <repository location="http://update-site.opentosca.org"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<repository location="http://download.eclipse.org/gemini/jpa/updates"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-<repository location="http://download.eclipse.org/gemini/updates/dbaccess/1.1.0"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.persistence.sdk.feature.group" version="2.6.3.v20160428-59c81c5"/>
@@ -76,6 +70,14 @@
 <unit id="ch.qos.logback.classic" version="1.1.2.v20160208-0839"/>
 <unit id="org.glassfish.jersey.containers.servlet" version="2.22.1.v20161103-0227"/>
 <repository location="http://download.eclipse.org/tools/orbit/R-builds/R20170307180635/repository"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.gemini.jpa.feature.feature.group" version="1.2.0.M1"/>
+<repository location="http://download.eclipse.org/gemini/jpa/updates"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+<unit id="org.eclipse.gemini.dbaccess.feature.feature.group" version="1.1.0.RELEASE"/>
+<repository location="http://download.eclipse.org/gemini/updates/dbaccess/1.1.0"/>
 </location>
 </locations>
 </target>

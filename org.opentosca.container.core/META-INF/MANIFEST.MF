@@ -51,12 +51,5 @@ Export-Package: org.opentosca.container.core,
  org.opentosca.container.core.model.endpoint.wsdl,
  org.opentosca.container.core.service,
  org.opentosca.container.core.service.internal
-Service-Component: 
- OSGI-INF/CSARFile_component.xml,
- OSGI-INF/ServiceHandler_component.xml,
- OSGI-INF/ToscaEngineServiceImpl_component.xml,
- OSGI-INF/ToscaReferenceMapper_component.xml,
- OSGI-INF/XMLSerializerServiceImpl_component.xml
 Meta-Persistence: META-INF/persistence.xml
-JPA-PersistenceUnits: Endpoints
-
+JPA-PersistenceUnits: OpenTOSCA 

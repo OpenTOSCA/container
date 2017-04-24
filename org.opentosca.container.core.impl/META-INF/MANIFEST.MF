@@ -17,21 +17,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0"
 Bundle-Activator: org.opentosca.container.core.impl.Activator
-Service-Component: 
- OSGI-INF/CoreCapabilityServiceImpl_component.xml,
- OSGI-INF/CoreCredentialsServiceImpl_component.xml, 
- OSGI-INF/CoreDeploymentTrackerServiceImpl_component.xml, 
- OSGI-INF/CoreEndpointServiceImpl_component.xml, 
- OSGI-INF/CoreFileServiceImpl_component.xml,
- OSGI-INF/CoreInternalCapabilityServiceImpl_component.xml, 
- OSGI-INF/CoreInternalCredentialsServiceImpl_component.xml,
- OSGI-INF/CoreInternalDeploymentTrackerServiceImpl_component.xml,
- OSGI-INF/CoreInternalEndpointServiceImpl_component.xml,
- OSGI-INF/CoreInternalFileServiceImpl_component.xml,
- OSGI-INF/CoreInternalFileStorageProviderFileSystemServiceImpl_component.xml,
- OSGI-INF/CoreInternalModelRepositoryServiceImpl_component.xml,
- OSGI-INF/CoreModelRepositoryServiceImpl_component.xml,
- OSGI-INF/CredentialsCommands_component.xml,
- OSGI-INF/CSARUnpacker_component.xml,
- OSGI-INF/FileServiceCommands_component.xml,
- OSGI-INF/StorageProviderManager_component.xml
+Service-Component: OSGI-INF/*

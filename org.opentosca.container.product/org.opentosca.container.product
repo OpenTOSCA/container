@@ -41,11 +41,22 @@
    </features>
 
    <configurations>
+      <plugin id="javax.persistence" autoStart="true" startLevel="1" />
+      <plugin id="org.apache.derby" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.gemini.dbaccess.derby" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.gemini.dbaccess.util" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.gemini.jpa" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.persistence.antlr" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.persistence.asm" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.persistence.core" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.persistence.jpa" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.persistence.jpa.jpql" autoStart="false" startLevel="4" />
+      <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>

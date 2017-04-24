@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="CoreInternalFileStorageProviderFileSystemServiceImpl">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CoreInternalFileStorageProviderFileSystemServiceImpl">
    <implementation class="org.opentosca.container.core.impl.service.internal.CoreInternalFileStorageProviderFileSystemServiceImpl"/>
    <service>
       <provide interface="org.opentosca.container.core.service.internal.ICoreInternalFileStorageProviderService"/>

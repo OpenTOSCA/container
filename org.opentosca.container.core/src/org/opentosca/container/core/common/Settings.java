@@ -20,6 +20,8 @@ public class Settings implements BundleActivator {
 	public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
 	public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
 
+	public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
+	
 	private static Logger logger = LoggerFactory.getLogger(Settings.class);
 	
 	// TODO: Use public static final variables instead, as in

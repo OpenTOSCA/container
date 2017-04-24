@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * operations in a certain deployment state of a CSAR file.
  */
 public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDeploymentTrackerService, CommandProvider {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(CoreInternalDeploymentTrackerServiceImpl.class);
-	
+
 	/**
 	 * JDBC-URL to the database that stores the deployment informations. It will
 	 * be created if it does not exist yet.
@@ -42,7 +42,7 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 	 */
 	private final String DB_LOCATION = Settings.getSetting("databaseLocation");
 	private final String DB_URL = "jdbc:derby:" + this.DB_LOCATION + ";create=true";
-	
+
 	/**
 	 * JPA EntityManager and Factory. These variables are global, as we do not
 	 * want to create a new EntityManager / Factory each time a method is
@@ -50,11 +50,11 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 	 */
 	private EntityManagerFactory emf;
 	private EntityManager em;
-	
-	
+
+
 	public CoreInternalDeploymentTrackerServiceImpl() {
 	}
-	
+
 	/**
 	 * Initializes JPA.
 	 */
@@ -62,11 +62,11 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		if (this.emf == null) {
 			final Map<String, String> properties = new HashMap<>();
 			properties.put(PersistenceUnitProperties.JDBC_URL, this.DB_URL);
-			this.emf = Persistence.createEntityManagerFactory("DeploymentTracker", properties);
+			this.emf = Persistence.createEntityManagerFactory(Settings.PERSISTENCE_UNIT_NAME, properties);
 			this.em = this.emf.createEntityManager();
 		}
 	}
-	
+
 	/**
 	 * Destructor. This method is called when the garbage collector destroys the
 	 * class. We will then manually close the EntityManager / Factory and pass
@@ -78,7 +78,7 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		this.emf.close();
 		super.finalize();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -104,30 +104,30 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Storing deployment state {} for CSAR \"{}\" completed.", deploymentState, csarID);
 		return true;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public DeploymentProcessState getDeploymentState(final CSARID csarID) {
-		
+
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Retrieving deployment state for CSAR \"{}\"...", csarID);
 		this.init();
 		final DeploymentProcessInfo info = this.getDeploymentProcessInfo(csarID);
-		
+
 		DeploymentProcessState deploymentState = null;
-		
+
 		if (info == null) {
 			CoreInternalDeploymentTrackerServiceImpl.LOG.error("No deployment state for CSAR \"{}\" stored!", csarID);
 		} else {
 			deploymentState = info.getDeploymentProcessState();
 			CoreInternalDeploymentTrackerServiceImpl.LOG.info("Deployment state of CSAR \"{}\": {}.", csarID, deploymentState);
 		}
-		
+
 		return deploymentState;
-		
+
 	}
-	
+
 	@Override
 	public void deleteDeploymentState(final CSARID csarID) {
 		CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Retrieving DeploymentProcessInfo for {}", csarID);
@@ -136,16 +136,16 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Beginning Transaction for removing DeploymentProcessInfo {}", csarID);
 			this.em.getTransaction().begin();
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Removing DeploymentProcessInfo {}", csarID);
-			
+
 			final Query queryRestEndpoints = this.em.createQuery("DELETE FROM DeploymentProcessInfo e where e.csarID = :csarID");
 			queryRestEndpoints.setParameter("csarID", csarID);
-			
+
 			// this.em.remove(info);
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Commiting Transaction");
 			this.em.getTransaction().commit();
 		}
 	}
-	
+
 	/**
 	 * Gets the deployment process information of a CSAR file.
 	 *
@@ -154,14 +154,14 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 	 *         <code>csarID</code> exists, otherwise <code>null</code>
 	 */
 	private DeploymentProcessInfo getDeploymentProcessInfo(final CSARID csarID) {
-		
+
 		this.init();
 		CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Retrieving deployment process info for CSAR \"{}\"...", csarID);
 		final Query getDeploymentProcessInfo = this.em.createNamedQuery(DeploymentProcessInfo.getDeploymentProcessInfoByCSARID).setParameter("csarID", csarID);
-		
+
 		@SuppressWarnings("unchecked")
 		final List<DeploymentProcessInfo> results = getDeploymentProcessInfo.getResultList();
-		
+
 		if (results.isEmpty()) {
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("No deployment process info for CSAR \"{}\" stored.", csarID);
 			return null;
@@ -169,59 +169,59 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Deployment process info for CSAR \"{}\" exists.", csarID);
 			return results.get(0);
 		}
-		
+
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean storeIADeploymentInfo(IADeploymentInfo iaDeploymentInfo) {
-		
+
 		this.init();
-		
+
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Storing deployment state {} for IA \"{}\" of CSAR \"{}\"...", new Object[] {iaDeploymentInfo.getDeploymentState(), iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID()});
 		this.em.getTransaction().begin();
-		
+
 		// check if deployment info for this IA already exists
 		final IADeploymentInfo storedIA = this.getIADeploymentInfo(iaDeploymentInfo.getCSARID(), iaDeploymentInfo.getRelPath());
-		
+
 		// deployment info already exists
 		if (storedIA != null) {
-			
+
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("IA deployment info for IA \"{}\" of CSAR \"{}\" already exists. Existent deployment info will be overwritten!", iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
-			
+
 			final IADeploymentState storedIADeployState = storedIA.getDeploymentState();
 			final IADeploymentState newIADeployState = iaDeploymentInfo.getDeploymentState();
-			
+
 			// if IA is deployed and will be now undeployed (deployment state
 			// change to IA_UNDEPLOYING) reset the attempt counter to 0
 			if (storedIADeployState.equals(IADeploymentState.IA_DEPLOYED) && newIADeployState.equals(IADeploymentState.IA_UNDEPLOYING)) {
 				CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Deployed IA \"{}\" of CSAR \"{}\" is now undeploying. Attempt count will be reseted.", iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
 				storedIA.setAttempt(0);
 			}
-			
+
 			storedIA.setDeploymentState(newIADeployState);
 			iaDeploymentInfo = storedIA;
-			
+
 		}
-		
+
 		// if IA is now deploying or undeploying (deployment state change to
 		// IA_DEPLOYING / IA_UNDEPLOYING) increment attempt counter
 		if (iaDeploymentInfo.getDeploymentState().equals(IADeploymentState.IA_DEPLOYING) || iaDeploymentInfo.getDeploymentState().equals(IADeploymentState.IA_UNDEPLOYING)) {
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("IA \"{}\" of CSAR \"{}\" is now deploying / undeploying. Increase attempt count.", iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
 			iaDeploymentInfo.setAttempt(iaDeploymentInfo.getAttempt() + 1);
 		}
-		
+
 		this.em.persist(iaDeploymentInfo);
 		this.em.getTransaction().commit();
-		
+
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Storing deployment state {} for IA \"{}\" of CSAR \"{}\" completed.", new Object[] {iaDeploymentInfo.getDeploymentState(), iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID()});
-		
+
 		return true;
-		
+
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -239,9 +239,9 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 			CoreInternalDeploymentTrackerServiceImpl.LOG.info("IA deployment info for IA \"{}\" of CSAR \"{}\" exists.", iaRelPath, csarID);
 			return results.get(0);
 		}
-		
+
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -259,55 +259,55 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("IA deployment infos of {} IA(s) of CSAR \"{}\" stored.", results.size(), csarID);
 		return results;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean storePlanDeploymentInfo(PlanDeploymentInfo planDeploymentInfo) {
 		this.init();
-		
+
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Storing deployment state {} for Plan \"{}\" of CSAR \"{}\"...", new Object[] {planDeploymentInfo.getDeploymentState(), planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID()});
-		
+
 		this.em.getTransaction().begin();
-		
+
 		// check if deployment info for this Plan already exists
 		final PlanDeploymentInfo storedPlan = this.getPlanDeploymentInfo(planDeploymentInfo.getCSARID(), planDeploymentInfo.getRelPath());
-		
+
 		// deployment info already exists
 		if (storedPlan != null) {
-			
+
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Plan deployment info for Plan \"{}\" of CSAR \"{}\" already exists. Existent deployment info will be overwritten!", planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
-			
+
 			final PlanDeploymentState storedPlanDeployState = storedPlan.getDeploymentState();
 			final PlanDeploymentState newPlanDeployState = planDeploymentInfo.getDeploymentState();
-			
+
 			// if Plan is deployed and will be now undeployed (deployment state
 			// change to PLAN_UNDEPLOYING) reset the attempt counter to 0
 			if (storedPlanDeployState.equals(PlanDeploymentState.PLAN_DEPLOYED) && newPlanDeployState.equals(PlanDeploymentState.PLAN_UNDEPLOYING)) {
 				CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Deployed Plan \"{}\" of CSAR \"{}\" is now undeploying. Attempt count will be reseted.", planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
 				storedPlan.setAttempt(0);
 			}
-			
+
 			storedPlan.setDeploymentState(newPlanDeployState);
 			planDeploymentInfo = storedPlan;
 		}
-		
+
 		// if Plan is now deploying or undeploying (deployment state change to
 		// PLAN_DEPLOYING / PLAN_UNDEPLOYING) increment attempt counter
 		if (planDeploymentInfo.getDeploymentState().equals(PlanDeploymentState.PLAN_DEPLOYING) || planDeploymentInfo.getDeploymentState().equals(PlanDeploymentState.PLAN_UNDEPLOYING)) {
 			CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Plan \"{}\" of CSAR \"{}\" is now deploying / undeploying. Increase attempt count.", planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
 			planDeploymentInfo.setAttempt(planDeploymentInfo.getAttempt() + 1);
 		}
-		
+
 		this.em.persist(planDeploymentInfo);
 		this.em.getTransaction().commit();
-		
+
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Storing deployment state {} for Plan \"{}\" of CSAR \"{}\" completed.", new Object[] {planDeploymentInfo.getDeploymentState(), planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID()});
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -326,7 +326,7 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 			return results.get(0);
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -344,7 +344,7 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		CoreInternalDeploymentTrackerServiceImpl.LOG.info("Plan deployment infos of {} Plan(s) of CSAR \"{}\" stored.", results.size(), csarID);
 		return results;
 	}
-	
+
 	/**
 	 * Prints the available OSGi commands.
 	 */
@@ -352,7 +352,7 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 	public String getHelp() {
 		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -362,7 +362,7 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		this.storeIADeploymentInfo(iaDeploymentInfo);
 		return true;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -372,5 +372,5 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
 		this.storePlanDeploymentInfo(planDeploymentInfo);
 		return true;
 	}
-	
+
 }

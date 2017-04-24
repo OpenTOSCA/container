@@ -57,33 +57,32 @@ import org.slf4j.LoggerFactory;
 @Table(name = CSARContent.CSAR_TABLE_NAME)
 @Converters({@Converter(name = "CSARIDConverter", converterClass = CSARIDConverter.class), @Converter(name = "PathConverter", converterClass = PathConverter.class)})
 public class CSARContent implements IBrowseable {
-
+	
 	final private static Logger LOG = LoggerFactory.getLogger(CSARContent.class);
-
+	
 	protected static final String CSAR_TABLE_NAME = "CSAR";
 	protected static final String CSAR_FILES_TABLE_NAME = "CSAR_Files";
 	protected static final String CSAR_DIRECTORIES_TABLE_NAME = "CSAR_Directories";
 
-	/**
+	/*
 	 * JPQL Queries
 	 */
-
 	public static final String getCSARIDs = "CSARContent.getCSARIDs";
 	protected static final String getCSARIDsQuery = "SELECT t.csarID FROM " + CSARContent.CSAR_TABLE_NAME + " t";
-
+	
 	public static final String getFileToStorageProviderIDMapByCSARID = CSARContent.CSAR_TABLE_NAME + ".getFileToStorageProviderIDMapByCSARID";
 	protected static final String getFileToStorageProviderIDMapByCSARIDQuery = "SELECT KEY(u), VALUE(u) FROM " + CSARContent.CSAR_TABLE_NAME + " t JOIN t.fileToStorageProviderIDMap u WHERE t.csarID = :csarID";
-
+	
 	/**
 	 * For storing / updating the storage provider ID of a file in CSAR we must
 	 * use a native SQL query, because JPQL update queries doesn't work on Maps.
 	 */
 	public static final String storeStorageProviderIDByFileAndCSARID = CSARContent.CSAR_TABLE_NAME + ".storeStorageProviderIDByFileAndCSARID";
 	protected static final String storeStorageProviderIDByFileAndCSARIDQuery = "UPDATE " + CSARContent.CSAR_FILES_TABLE_NAME + " SET storageProviderID = ? WHERE file = ? AND csarID = ?";
-
+	
 	public static final String getDirectoriesByCSARID = CSARContent.CSAR_TABLE_NAME + ".getDirectoriesByCSARID";
 	protected static final String getDirectoriesByCSARIDQuery = "SELECT t.directories FROM " + CSARContent.CSAR_TABLE_NAME + " t WHERE t.csarID = :csarID";
-
+	
 	/**
 	 * Relative path to CSAR root of the {@code IMPORTS} directory.
 	 *
@@ -91,7 +90,7 @@ public class CSARContent implements IBrowseable {
 	 */
 	@Transient
 	private final String IMPORTS_DIR_REL_PATH = Settings.getSetting("csarImportsRelPath");
-
+	
 	/**
 	 * Relative path to CSAR root of the {@code Definitions} directory.
 	 *
@@ -99,7 +98,7 @@ public class CSARContent implements IBrowseable {
 	 */
 	@Transient
 	private final String CSAR_DEFINITIONS_DIR_REL_PATH = Settings.getSetting("csarDefinitionsRelPath");
-
+	
 	/**
 	 * Possible file extensions of a TOSCA file.
 	 *
@@ -107,7 +106,7 @@ public class CSARContent implements IBrowseable {
 	 */
 	@Transient
 	private final String[] TOSCA_FILE_EXTENSIONS = Settings.getSetting("toscaFileExtensions").split(";");
-
+	
 	/**
 	 * Identifies this CSAR file.
 	 */
@@ -115,7 +114,7 @@ public class CSARContent implements IBrowseable {
 	@Convert("CSARIDConverter")
 	@Column(name = "csarID")
 	private CSARID csarID;
-
+	
 	/**
 	 * File to storage provider ID mapping of all files in this CSAR. Each file
 	 * path is given relative to the CSAR root.
@@ -126,7 +125,7 @@ public class CSARContent implements IBrowseable {
 	@MapKeyConvert("PathConverter")
 	@Column(name = "storageProviderID")
 	private Map<Path, String> fileToStorageProviderIDMap;
-
+	
 	/**
 	 * Directories in this CSAR.<br />
 	 * Each directory is given relative to the CSAR root.
@@ -136,13 +135,13 @@ public class CSARContent implements IBrowseable {
 	@Column(name = "directory")
 	@Convert("PathConverter")
 	private Set<Path> directories;
-
+	
 	/**
 	 * Contains the content of the TOSCA meta file of this CSAR.
 	 */
 	@Column(name = "toscaMetaFile")
 	private TOSCAMetaFile toscaMetaFile = null;
-
+	
 	/**
 	 * For CSAR browsing this class represents the CSAR root.<br />
 	 * Browsing methods in this class redirecting to the same methods of this
@@ -150,14 +149,15 @@ public class CSARContent implements IBrowseable {
 	 */
 	@Transient
 	private AbstractDirectory csarRoot = null;
-
-
+	
+	
 	/**
 	 * Needed by Eclipse Link.
 	 */
-	protected CSARContent() {
+	public CSARContent() {
+		super();
 	}
-
+	
 	/**
 	 * Creates a {@code CSARContent}.
 	 *
@@ -175,7 +175,7 @@ public class CSARContent implements IBrowseable {
 		this.toscaMetaFile = toscaMetaFile;
 		this.csarID = csarID;
 	}
-
+	
 	/**
 	 * Creates a {@link CSARDirectory} that represents the CSAR root. This is
 	 * necessary for CSAR browsing.<br />
@@ -186,52 +186,52 @@ public class CSARContent implements IBrowseable {
 	protected void setUpBrowsing() {
 		this.csarRoot = new CSARDirectory("", this.csarID, this.directories, this.fileToStorageProviderIDMap);
 	}
-
+	
 	/**
 	 * @return CSAR ID of this CSAR.
 	 */
 	public CSARID getCSARID() {
 		return this.csarID;
 	}
-
+	
 	@Override
 	public AbstractFile getFile(final String relPathOfFile) {
 		return this.csarRoot.getFile(relPathOfFile);
 	}
-
+	
 	@Override
 	public Set<AbstractFile> getFiles() {
 		return this.csarRoot.getFiles();
 	}
-
+	
 	@Override
 	public Set<AbstractFile> getFilesRecursively() {
 		return this.csarRoot.getFilesRecursively();
 	}
-
+	
 	@Override
 	public AbstractDirectory getDirectory(final String relPathOfDirectory) {
 		return this.csarRoot.getDirectory(relPathOfDirectory);
 	}
-
+	
 	@Override
 	public Set<AbstractDirectory> getDirectories() {
 		return this.csarRoot.getDirectories();
 	}
-
+	
 	/**
 	 * @param fileExtension
 	 * @return All files with extension {@code fileExtension} in directory
 	 *         "IMPORTS" of this CSAR as Set of {@code AbstractFile}.
 	 */
 	private Set<AbstractFile> getImportFiles(final String fileExtension) {
-
+		
 		final Set<AbstractFile> importFiles = new HashSet<>();
-
+		
 		CSARContent.LOG.debug("Retrieving import file(s) with extension \"{}\" in CSAR \"{}\"...", fileExtension, this.csarID);
-
+		
 		final AbstractDirectory importsDirectory = this.getDirectory(this.IMPORTS_DIR_REL_PATH);
-
+		
 		if (importsDirectory != null) {
 			for (final AbstractFile file : importsDirectory.getFilesRecursively()) {
 				if (file.getName().toLowerCase().endsWith("." + fileExtension)) {
@@ -239,12 +239,12 @@ public class CSARContent implements IBrowseable {
 				}
 			}
 		}
-
+		
 		CSARContent.LOG.debug("{} import file(s) with extension \"{}\" were found in CSAR \"{}\".", importFiles.size(), fileExtension, this.csarID);
-
+		
 		return importFiles;
 	}
-
+	
 	/**
 	 * Resolves the artifact reference {@code artifactReference} and makes the
 	 * content of the artifact available.<br />
@@ -262,13 +262,13 @@ public class CSARContent implements IBrowseable {
 	 *             artifact is not supported.
 	 */
 	public AbstractArtifact resolveArtifactReference(final String artifactReference) throws UserException, SystemException {
-
+		
 		// no patterns, so we pass empty sets (immutable to avoid unnecessary
 		// object creations)
 		return this.resolveArtifactReference(artifactReference, Collections.<String> emptySet(), Collections.<String> emptySet());
-
+		
 	}
-
+	
 	/**
 	 * Resolves the artifact reference {@code artifactReference} and makes the
 	 * content of the artifact available. Optionally {@code includePatterns} and
@@ -299,21 +299,21 @@ public class CSARContent implements IBrowseable {
 	 *             artifact is not supported.
 	 */
 	public AbstractArtifact resolveArtifactReference(final String artifactReference, final Set<String> includePatterns, final Set<String> excludePatterns) throws UserException, SystemException {
-
+		
 		CSARContent.LOG.debug("Resolving artifact reference \"{}\"...", artifactReference);
-
+		
 		String artifactReferenceTrimed = artifactReference.trim();
-
+		
 		// spaces are allowed in XSD anyURI => we must encode spaces
 		artifactReferenceTrimed = artifactReferenceTrimed.replaceAll("[ ]", "%20");
-
+		
 		try {
-
+			
 			new URI(artifactReferenceTrimed);
 			CSARContent.LOG.debug("Artifact reference \"{}\" is a valid URI.", artifactReferenceTrimed.toString());
-
+			
 			AbstractArtifact artifact = null;
-
+			
 			if (CSARArtifact.fitsArtifactReference(artifactReferenceTrimed)) {
 				artifact = new CSARArtifact(artifactReferenceTrimed, includePatterns, excludePatterns, this.csarID, this.directories, this.fileToStorageProviderIDMap);
 				// if further AbstractArtifact implementations exists, we
@@ -321,33 +321,33 @@ public class CSARContent implements IBrowseable {
 			} else {
 				throw new SystemException("Artifact reference \"" + artifactReferenceTrimed + "\" is not supported.");
 			}
-
+			
 			CSARContent.LOG.debug("Resolving artifact reference \"{}\" completed.", artifactReferenceTrimed);
-
+			
 			return artifact;
-
+			
 		} catch (final URISyntaxException exc) {
 			throw new UserException("Artifact reference \"" + artifactReference + "\" is not a valid URI.", exc);
 		}
-
+		
 	}
-
+	
 	/**
 	 * @return All files in directory "Definitions" of this CSAR as Set of
 	 *         {@code AbstractFile}.
 	 */
 	public Set<AbstractFile> getTOSCAsInDefinitionsDir() {
-
+		
 		CSARContent.LOG.debug("Retrieving TOSCA files in directory \"{}\" of CSAR \"{}\"...", this.CSAR_DEFINITIONS_DIR_REL_PATH, this.csarID);
-
+		
 		Set<AbstractFile> toscasInDefinitionsDir = new HashSet<>();
-
+		
 		final AbstractDirectory definitionsDir = this.getDirectory(this.CSAR_DEFINITIONS_DIR_REL_PATH);
-
+		
 		if (definitionsDir != null) {
-
+			
 			toscasInDefinitionsDir = definitionsDir.getFilesRecursively();
-
+			
 			// for (AbstractFile fileInDefinitionDir :
 			// definitionsDir.getFilesRecursively()) {
 			// if (this.hasFileExtension(fileInDefinitionDir.getPath(),
@@ -355,17 +355,17 @@ public class CSARContent implements IBrowseable {
 			// toscasInDefinitionsDir.add(fileInDefinitionDir);
 			// }
 			// }
-
+			
 		} else {
 			CSARContent.LOG.warn("Directory \"{}\" was not found in CSAR \"{}\".", this.CSAR_DEFINITIONS_DIR_REL_PATH, this.csarID);
 		}
-
+		
 		CSARContent.LOG.debug("{} TOSCA files were found in directory \"{}\" of CSAR \"{}\".", toscasInDefinitionsDir.size(), this.CSAR_DEFINITIONS_DIR_REL_PATH, this.csarID);
-
+		
 		return toscasInDefinitionsDir;
-
+		
 	}
-
+	
 	// /**
 	// * @param file
 	// * @param extensions of a file.
@@ -381,7 +381,7 @@ public class CSARContent implements IBrowseable {
 	// }
 	// return false;
 	// }
-
+	
 	/**
 	 * @return Root TOSCA file of this CSAR as {@code AbstractFile}.<br />
 	 *         If no root TOSCA path is specified in the TOSCA meta file
@@ -389,31 +389,31 @@ public class CSARContent implements IBrowseable {
 	 *         file {@code null}.
 	 */
 	public AbstractFile getRootTOSCA() {
-
+		
 		CSARContent.LOG.debug("Retrieving root TOSCA of CSAR \"{}\"...", this.csarID);
-
+		
 		String relPathOfRootTOSCA = null;
 		AbstractFile rootTOSCA = null;
-
+		
 		relPathOfRootTOSCA = this.toscaMetaFile.getEntryDefinitions();
-
+		
 		if (relPathOfRootTOSCA != null) {
-
+			
 			rootTOSCA = this.getFile(relPathOfRootTOSCA);
-
+			
 			if (rootTOSCA != null) {
 				CSARContent.LOG.debug("Root TOSCA exists at \"{}\" in CSAR \"{}\".", rootTOSCA.getPath(), this.csarID);
 			} else {
 				CSARContent.LOG.warn("Root TOSCA path \"{}\" specified in TOSCA meta file of CSAR \"{}\" points to a non-existing file.", relPathOfRootTOSCA, this.csarID);
 			}
-
+			
 		} else {
 			CSARContent.LOG.warn("Root TOSCA path is not specified in TOSCA meta file of CSAR \"{}\".", this.csarID);
 		}
-
+		
 		return rootTOSCA;
 	}
-
+	
 	/**
 	 * @return XML files in directory "IMPORTS" of this CSAR as Set of
 	 *         {@code AbstractFile}.
@@ -421,7 +421,7 @@ public class CSARContent implements IBrowseable {
 	public Set<AbstractFile> getXMLImports() {
 		return this.getImportFiles("xml");
 	}
-
+	
 	/**
 	 * @return WSDL files in directory "IMPORTS" of this CSAR as Set of
 	 *         {@code AbstractFile}.
@@ -429,7 +429,7 @@ public class CSARContent implements IBrowseable {
 	public Set<AbstractFile> getWSDLImports() {
 		return this.getImportFiles("wsdl");
 	}
-
+	
 	/**
 	 * @return XSD files in directory "IMPORTS" of this CSAR as Set of
 	 *         {@code AbstractFile}.
@@ -437,43 +437,43 @@ public class CSARContent implements IBrowseable {
 	public Set<AbstractFile> getXSDImports() {
 		return this.getImportFiles("xsd");
 	}
-
+	
 	/**
 	 * @return Author of this CSAR. If no author is specified in TOSCA meta file
 	 *         {@code null}.
 	 */
 	public String getCSARAuthor() {
-
+		
 		final String author = this.toscaMetaFile.getCreatedBy();
-
+		
 		if (author == null) {
 			CSARContent.LOG.debug("Author is not specified in TOSCA meta file of CSAR \"{}\".", TOSCAMetaFileAttributes.CREATED_BY, this.csarID);
 		} else {
 			CSARContent.LOG.debug("Author of CSAR \"{}\": {}", this.csarID, author);
 		}
-
+		
 		return author;
-
+		
 	}
-
+	
 	/**
 	 * @return Description of this CSAR. If no description is specified in TOSCA
 	 *         meta file {@code null}.
 	 */
 	public String getCSARDescription() {
-
+		
 		final String description = this.toscaMetaFile.getDescription();
-
+		
 		if (description == null) {
 			CSARContent.LOG.debug("Description is not specified in TOSCA meta file of CSAR \"{}\".", TOSCAMetaFileAttributes.DESCRIPTION, this.csarID);
 		} else {
 			CSARContent.LOG.debug("Description of CSAR \"{}\": {}", this.csarID, description);
 		}
-
+		
 		return description;
-
+		
 	}
-
+	
 	/**
 	 * @return Picture that visualizes the topology of this CSAR as
 	 *         {@code AbstractFile}. If no topology picture path is specified in
@@ -481,12 +481,12 @@ public class CSARContent implements IBrowseable {
 	 *         non-existent file {@code null}.
 	 */
 	public AbstractFile getTopologyPicture() {
-
+		
 		String topologyPictureRelPath = null;
 		AbstractFile topologyPicture = null;
-
+		
 		topologyPictureRelPath = this.toscaMetaFile.getTopology();
-
+		
 		if (topologyPictureRelPath != null) {
 			topologyPicture = this.getFile(topologyPictureRelPath);
 			if (topologyPicture != null) {
@@ -497,8 +497,8 @@ public class CSARContent implements IBrowseable {
 		} else {
 			CSARContent.LOG.warn("Topology picture path is not specified in TOSCA meta file of CSAR \"{}\".", this.csarID);
 		}
-
+		
 		return topologyPicture;
-
+		
 	}
 }
