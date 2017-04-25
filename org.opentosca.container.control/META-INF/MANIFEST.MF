@@ -11,4 +11,6 @@ Import-Package: org.opentosca.container.engine.plan,
  org.slf4j;version="1.7.10"
 Export-Package: org.opentosca.container.control
 Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
- org.opentosca.container.core.tosca
+ org.opentosca.container.core.tosca,
+ org.opentosca.container.engine.ia
+Bundle-Activator: org.opentosca.container.control.Activator
