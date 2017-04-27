@@ -56,6 +56,16 @@
       <plugin id="org.eclipse.persistence.core" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.jpa" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.jpa.jpql" autoStart="false" startLevel="4" />
+      <plugin id="org.opentosca.bus.management" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.api.osgievent" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.api.resthttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.api.soaphttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.remote.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.rest.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.service" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.plugins.soaphttp.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.service" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.service.impl" autoStart="true" startLevel="5" />
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />

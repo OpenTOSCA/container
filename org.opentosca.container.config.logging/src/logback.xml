@@ -16,4 +16,7 @@
     <appender-ref ref="CONSOLE" />
   </root>
 
+  <logger name="org.apache" level="INFO" />
+  <logger name="org.eclipse.jetty" level="INFO" />
+
 </configuration>
