@@ -119,6 +119,14 @@
     <module>org.opentosca.bus.management.plugins.soaphttp.service.impl</module>
     <module>org.opentosca.bus.management.service</module>
     <module>org.opentosca.bus.management.service.impl</module>
+    <module>org.opentosca.bus.application.api.jsonhttp</module>
+    <module>org.opentosca.bus.application.api.resthttp</module>
+    <module>org.opentosca.bus.application.api.soaphttp</module>
+    <module>org.opentosca.bus.application.model</module>
+    <module>org.opentosca.bus.application.plugin.jsonhttp.service.impl</module>
+    <module>org.opentosca.bus.application.plugin.service</module>
+    <module>org.opentosca.bus.application.service</module>
+    <module>org.opentosca.bus.application.service.impl</module>
   </modules>
 
 </project>

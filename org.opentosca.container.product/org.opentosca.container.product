@@ -41,21 +41,148 @@
    </features>
 
    <configurations>
+      <plugin id="ch.qos.logback.classic" autoStart="true" startLevel="0" />
+      <plugin id="ch.qos.logback.core" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.core.jackson-annotations" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.core.jackson-core" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.core.jackson-databind" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-base" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider" autoStart="true" startLevel="0" />
+      <plugin id="com.fasterxml.jackson.module.jackson-module-jaxb-annotations" autoStart="true" startLevel="0" />
+      <plugin id="com.google.gson" autoStart="true" startLevel="0" />
+      <plugin id="com.google.guava" autoStart="true" startLevel="0" />
+      <plugin id="com.google.inject" autoStart="true" startLevel="0" />
+      <plugin id="com.googlecode.json-simple" autoStart="true" startLevel="0" />
+      <plugin id="com.predic8.soa-model-core" autoStart="true" startLevel="0" />
+      <plugin id="com.springsource.util.common" autoStart="true" startLevel="0" />
+      <plugin id="com.springsource.util.osgi" autoStart="true" startLevel="0" />
+      <plugin id="com.springsource.util.parser.manifest" autoStart="true" startLevel="0" />
+      <plugin id="com.sun.jersey.client" autoStart="true" startLevel="0" />
+      <plugin id="com.sun.jersey.contribs.jersey-multipart" autoStart="true" startLevel="0" />
+      <plugin id="com.sun.jersey.core" autoStart="true" startLevel="0" />
+      <plugin id="com.sun.jersey.jersey-server" autoStart="true" startLevel="0" />
+      <plugin id="filesystem" autoStart="true" startLevel="0" />
+      <plugin id="javassist" autoStart="true" startLevel="0" />
+      <plugin id="javax.activation" autoStart="true" startLevel="0" />
+      <plugin id="javax.annotation" autoStart="true" startLevel="0" />
+      <plugin id="javax.inject" autoStart="true" startLevel="0" />
+      <plugin id="javax.mail" autoStart="true" startLevel="0" />
       <plugin id="javax.persistence" autoStart="true" startLevel="1" />
+      <plugin id="javax.servlet" autoStart="true" startLevel="0" />
+      <plugin id="javax.ws.rs" autoStart="true" startLevel="0" />
+      <plugin id="javax.wsdl" autoStart="true" startLevel="0" />
+      <plugin id="javax.xml" autoStart="true" startLevel="0" />
+      <plugin id="javax.xml.stream" autoStart="true" startLevel="0" />
+      <plugin id="jaxb-core" autoStart="true" startLevel="0" />
+      <plugin id="jaxb-xjc" autoStart="true" startLevel="0" />
+      <plugin id="jclouds-blobstore" autoStart="true" startLevel="0" />
+      <plugin id="jclouds-core" autoStart="true" startLevel="0" />
+      <plugin id="jclouds-slf4j" autoStart="true" startLevel="0" />
+      <plugin id="org.aopalliance" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.blueprint.api" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.blueprint.core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.proxy.api" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.util" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-blueprint" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-core-osgi" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-cxf" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-cxf-transport" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-http" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-http-common" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jaxb" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jetty" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jetty-common" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-jetty9" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-restlet" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-spring" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-stream" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.commons.codec" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.commons.httpclient" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.commons.io" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-bindings-soap" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-bindings-xml" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-databinding-jaxb" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-frontend-jaxrs" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-frontend-jaxws" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-frontend-simple" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-rs-client" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-transports-http" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-transports-http-jetty" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.cxf.cxf-rt-wsdl" autoStart="true" startLevel="0" />
       <plugin id="org.apache.derby" autoStart="true" startLevel="2" />
+      <plugin id="org.apache.felix.gogo.command" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.felix.gogo.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.felix.gogo.shell" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.httpcomponents.httpclient" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.httpcomponents.httpcore" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.neethi" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.servicemix.bundles.spring-aop" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.servicemix.bundles.spring-beans" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.servicemix.bundles.spring-context" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.servicemix.bundles.spring-core" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.servicemix.bundles.spring-expression" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.servicemix.bundles.spring-tx" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.ws.xmlschema.core" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.core.contenttype" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.core.jobs" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.cm" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.console" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.event" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.http.jetty" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.http.servlet" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.preferences" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.equinox.registry" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.equinox.util" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.gemini.dbaccess.derby" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.gemini.dbaccess.util" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.gemini.jpa" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.jetty.client" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.continuation" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.http" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.io" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.jmx" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.security" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.server" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.servlet" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.servlets" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.util" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.osgi" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.osgi.services" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.osgi.util" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.persistence.antlr" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.asm" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.core" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.jpa" autoStart="true" startLevel="3" />
-      <plugin id="org.eclipse.persistence.jpa.jpql" autoStart="false" startLevel="4" />
+      <plugin id="org.eclipse.persistence.jpa.jpql" autoStart="true" startLevel="4" />
+      <plugin id="org.glassfish.hk2.api" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.hk2.locator" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.hk2.osgi-resource-locator" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.hk2.utils" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.bundles.repackaged.jersey-guava" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.containers.servlet" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.containers.servlet.core" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.core.jersey-client" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.core.jersey-common" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.core.jersey-server" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.ext.entityfiltering" autoStart="true" startLevel="0" />
+      <plugin id="org.glassfish.jersey.media.jersey-media-json-jackson" autoStart="true" startLevel="0" />
+      <plugin id="org.jvnet.mimepull" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.bus.application.api.jsonhttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.api.resthttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.api.soaphttp" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.model" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.plugin.jsonhttp.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.plugin.service" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.service" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.application.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.osgievent" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.resthttp" autoStart="true" startLevel="5" />
@@ -66,7 +193,31 @@
       <plugin id="org.opentosca.bus.management.plugins.soaphttp.service.impl" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.service" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.service.impl" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.container.application" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.connector.bps" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.connector.winery" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.control" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.core" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.core.impl" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.core.tosca" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.aar" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.dockercompose" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.script" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.ia.plugin.tomcat" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.plan" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.plan.plugin.bpelwso2" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
+      <plugin id="org.restlet.jee.org.restlet" autoStart="true" startLevel="0" />
+      <plugin id="org.restlet.jee.org.restlet.ext.httpclient" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.api" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.apis.jcl" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.apis.log4j" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.bridge.jul" autoStart="true" startLevel="0" />
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
+      <plugin id="stax2-api" autoStart="true" startLevel="0" />
+      <plugin id="woodstox-core-asl" autoStart="true" startLevel="0" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>
