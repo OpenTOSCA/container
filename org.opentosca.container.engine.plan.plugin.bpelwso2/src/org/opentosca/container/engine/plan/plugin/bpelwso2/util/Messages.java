@@ -3,8 +3,8 @@ package org.opentosca.container.engine.plan.plugin.bpelwso2.util;
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-
-	private static final String BUNDLE_NAME = "org.opentosca.planengine.plugin.bpelwso2.util.messages";
+	
+	private static final String BUNDLE_NAME = Messages.class.getPackage().getName() + ".messages";
 	public static String BpsPlanEnginePlugin_description;
 	public static String BpsPlanEnginePlugin_bpsAddress;
 	public static String BpsPlanEnginePlugin_bpsLoginName;
@@ -16,8 +16,8 @@ public class Messages extends NLS {
 		// initialize resource bundle
 		NLS.initializeMessages(Messages.BUNDLE_NAME, Messages.class);
 	}
-
-
+	
+	
 	private Messages() {
 	}
 }

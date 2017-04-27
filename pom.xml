@@ -109,6 +109,16 @@
     <module>org.opentosca.container.engine.ia.plugin.dockercompose</module>
     <module>org.opentosca.container.engine.ia.plugin.script</module>
     <module>org.opentosca.container.engine.ia.plugin.tomcat</module>
+    <module>org.opentosca.bus.management</module>
+    <module>org.opentosca.bus.management.api.osgievent</module>
+    <module>org.opentosca.bus.management.api.resthttp</module>
+    <module>org.opentosca.bus.management.api.soaphttp</module>
+    <module>org.opentosca.bus.management.plugins.remote.service.impl</module>
+    <module>org.opentosca.bus.management.plugins.rest.service.impl</module>
+    <module>org.opentosca.bus.management.plugins.service</module>
+    <module>org.opentosca.bus.management.plugins.soaphttp.service.impl</module>
+    <module>org.opentosca.bus.management.service</module>
+    <module>org.opentosca.bus.management.service.impl</module>
   </modules>
 
 </project>

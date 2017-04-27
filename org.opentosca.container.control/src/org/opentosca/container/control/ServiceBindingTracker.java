@@ -25,6 +25,7 @@ import org.opentosca.container.core.service.internal.ICoreInternalFileService;
 import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
 import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * is ready for use.
  */
 public class ServiceBindingTracker {
-	
+
 	IIAEngineService iaEngineService;
 	ICoreCapabilityService coreCapabilityService;
 	ICoreDeploymentTrackerService coreDeploymentTrackerService;
@@ -56,64 +57,64 @@ public class ServiceBindingTracker {
 	IPlanInvocationEngine planInvocationEngine;
 	IManagementBusService managementBusService;
 	EventAdmin eventAdmin;
-	
+
 	private final Logger LOG = LoggerFactory.getLogger(ServiceBindingTracker.class);
-	
-	
+
+
 	/**
 	 * Checks if all services defined by this class are bound. If all are bound
 	 * there is a log output saying that the container is ready for use.
 	 */
 	private void checkAvailability() {
-
+		
 		// is true as long as each service is bound
 		boolean boolAllServicesBound = true;
-		
+
 		// Get all declared fields of this class. This contains all services.
 		for (final Field field : this.getClass().getDeclaredFields()) {
 			try {
-
+				
 				// Check if the fields are null or not. As soon as one field is
 				// null the check field never gets true again.
 				boolAllServicesBound = boolAllServicesBound && (field.get(this) != null);
-				
+
 			} catch (final IllegalArgumentException e) {
 				this.LOG.error(e.getLocalizedMessage());
 			} catch (final IllegalAccessException e) {
 				this.LOG.error(e.getLocalizedMessage());
 			}
 		}
-		
+
 		// put status log
 		if (boolAllServicesBound) {
 			this.logContainerIsAvailable();
 		}
 	}
-	
+
 	/**
 	 * Method for a log output saying that the container is ready for use.
 	 */
 	private void logContainerIsAvailable() {
-
+		
 		this.LOG.info("Start of the OpenTOSCA Container, now invoke the resolving and consolidation of TOSCA data inside of stored CSARs.");
 		for (final CSARID csarID : this.coreFileService.getCSARIDs()) {
 			this.openToscaControlService.invokeTOSCAProcessing(csarID);
-			
+
 			for (final QName serviceTemplateID : this.toscaEngineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID)) {
 				this.openToscaControlService.invokeIADeployment(csarID, serviceTemplateID);
 				this.openToscaControlService.invokePlanDeployment(csarID, serviceTemplateID);
 			}
 		}
-		
+
 		this.toscaEngineService.getToscaReferenceMapper().printStoredData();
-		
+
 		this.LOG.info("#################################################################################################");
 		this.LOG.info("#################################################################################################");
 		this.LOG.info("########################### The OpenTOSCA Container is ready for use! ###########################");
 		this.LOG.info("#################################################################################################");
 		this.LOG.info("#################################################################################################");
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -129,13 +130,13 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	protected void unbindIIAEngineService(final IIAEngineService service) {
 		this.LOG.debug("Unbind of the IIAEngineService.");
 		this.iaEngineService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -151,7 +152,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -162,7 +163,7 @@ public class ServiceBindingTracker {
 		this.coreCapabilityService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -178,7 +179,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -189,7 +190,7 @@ public class ServiceBindingTracker {
 		this.coreDeploymentTrackerService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -205,7 +206,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -216,7 +217,7 @@ public class ServiceBindingTracker {
 		this.coreEndpointService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -232,7 +233,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -243,7 +244,7 @@ public class ServiceBindingTracker {
 		this.coreFileService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -259,7 +260,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -270,7 +271,7 @@ public class ServiceBindingTracker {
 		this.coreInternalCapabilityService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -286,7 +287,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -297,7 +298,7 @@ public class ServiceBindingTracker {
 		this.coreInternalDeploymentTrackerService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -313,7 +314,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -324,7 +325,7 @@ public class ServiceBindingTracker {
 		this.coreInternalEndpointService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -340,7 +341,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -351,7 +352,7 @@ public class ServiceBindingTracker {
 		this.coreInternalFileService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -367,7 +368,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -378,7 +379,7 @@ public class ServiceBindingTracker {
 		this.coreInternalModelRepositoryService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -394,7 +395,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -405,7 +406,7 @@ public class ServiceBindingTracker {
 		this.coreModelRepositoryService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -421,7 +422,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -432,7 +433,7 @@ public class ServiceBindingTracker {
 		this.fileAccessService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -448,7 +449,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -459,7 +460,7 @@ public class ServiceBindingTracker {
 		this.httpService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -475,7 +476,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -486,7 +487,7 @@ public class ServiceBindingTracker {
 		this.openToscaControlService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -502,7 +503,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -513,7 +514,7 @@ public class ServiceBindingTracker {
 		this.planEngineService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -529,7 +530,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -540,7 +541,7 @@ public class ServiceBindingTracker {
 		this.toscaEngineService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -556,7 +557,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -567,7 +568,7 @@ public class ServiceBindingTracker {
 		this.xmlSerializerService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -583,7 +584,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -594,7 +595,7 @@ public class ServiceBindingTracker {
 		this.planInvocationEngine = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	/**
 	 * Bind method for a service.
 	 *
@@ -610,7 +611,7 @@ public class ServiceBindingTracker {
 			this.checkAvailability();
 		}
 	}
-	
+
 	/**
 	 * Unbind method for a service.
 	 *
@@ -621,38 +622,38 @@ public class ServiceBindingTracker {
 		this.managementBusService = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	protected void bindEventAdmin(final EventAdmin service) {
 		if (service == null) {
 			this.LOG.error("Service EventAdmin is null.");
 		} else {
 			this.LOG.debug("Bind of the EventAdmin.");
 			this.eventAdmin = service;
-			
+
 			final Map<String, Object> eventValues = new Hashtable<>();
 			eventValues.put("callbackaddressrequest", "request");
 			final Event event = new Event("org_opentosca_plans/callbackaddressrequest", eventValues);
-			
+
 			this.LOG.debug("Send callback address request.");
 			this.eventAdmin.postEvent(event);
 			this.log_online(service.getClass().getSimpleName());
-			
+
 			this.checkAvailability();
 		}
 	}
-	
+
 	protected void unbindEventAdmin(final EventAdmin service) {
 		this.LOG.debug("Unbind of the EventAdmin.");
 		this.eventAdmin = null;
 		this.log_offline(service.getClass().getSimpleName());
 	}
-	
+
 	private void log_online(final String servicename) {
 		// this.LOG.info("+++ Service is online: {}", servicename);
 	}
-	
+
 	private void log_offline(final String servicename) {
 		this.LOG.warn("--- Service is offline: {}", servicename);
 	}
-	
+
 }

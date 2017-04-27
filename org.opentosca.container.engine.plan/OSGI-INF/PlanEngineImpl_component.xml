@@ -4,7 +4,7 @@
    <service>
       <provide interface="org.opentosca.container.engine.plan.IPlanEngineService"/>
    </service>
+   <reference bind="bindCoreCapabilityService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="dynamic" unbind="unbindCoreCapabilityService"/>
    <reference bind="bindPlanReferencePlugin" cardinality="0..n" interface="org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService" name="IPlanEnginePlanRefPlugin" policy="dynamic" unbind="unbindPlanReferencePlugin"/>
    <reference bind="bindPlanModelPlugin" cardinality="0..n" interface="org.opentosca.container.engine.plan.plugin.IPlanEnginePlanModelPluginService" name="IPlanEnginePlanModelPlugin" policy="dynamic" unbind="unbindPlanModelPlugin"/>
-   <reference bind="bindCoreCapabilityService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="dynamic" unbind="unbindCoreCapabilityService"/>
 </scr:component>

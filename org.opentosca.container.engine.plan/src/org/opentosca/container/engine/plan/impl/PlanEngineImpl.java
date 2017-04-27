@@ -36,17 +36,17 @@ import org.slf4j.LoggerFactory;
  * should always be only one plugin for plans written in the same language.
  */
 public class PlanEngineImpl implements IPlanEngineService {
-
+	
 	// stores PlanReferencePlugins
 	private final Map<String, IPlanEnginePlanRefPluginService> refPluginsList = Collections.synchronizedMap(new HashMap<String, IPlanEnginePlanRefPluginService>());
 	// stores PlanModelPlugins
 	private final Map<String, IPlanEnginePlanModelPluginService> modelPluginsList = Collections.synchronizedMap(new HashMap<String, IPlanEnginePlanModelPluginService>());
 	private ICoreCapabilityService capabilityService;
 	private ICoreCapabilityService oldCapabilityService;
-	
+
 	final private static Logger LOG = LoggerFactory.getLogger(PlanEngineImpl.class);
-	
-	
+
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -78,10 +78,10 @@ public class PlanEngineImpl implements IPlanEngineService {
 				planCheck = false;
 			}
 		}
-		
+
 		return planCheck;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -89,13 +89,13 @@ public class PlanEngineImpl implements IPlanEngineService {
 	public boolean undeployPlan(final TPlan plan, final String targetNamespace, final CSARID csarId) {
 		boolean planCheck;
 		final String language = plan.getPlanLanguage();
-		
+
 		if (plan.getPlanModel() != null) {
 			PlanEngineImpl.LOG.info("Searching PlanModelPlugin for plan {} ", plan.getId());
 			final IPlanEnginePlanModelPluginService plugin = this.getModelPlugin(language);
 			if (plugin != null) {
 				PlanEngineImpl.LOG.info("Found PlanModelPlugin for plan {} ", plan.getId());
-				
+
 				planCheck = plugin.undeployPlan(plan.getPlanModel(), csarId);
 			} else {
 				PlanEngineImpl.LOG.warn("No PlanModelPlugin available for plan {} ", plan.getId());
@@ -114,10 +114,10 @@ public class PlanEngineImpl implements IPlanEngineService {
 				planCheck = false;
 			}
 		}
-		
+
 		return planCheck;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -125,24 +125,24 @@ public class PlanEngineImpl implements IPlanEngineService {
 	public List<TPlan> deployPlans(final TPlans plans, final String targetNamespace, final CSARID csarId) {
 		final List<TPlan> nonDeployedPlans = new LinkedList<>();
 		final List<TPlan> p = plans.getPlan();
-		
+
 		String namespace = plans.getTargetNamespace();
 		if (namespace == null) {
 			namespace = targetNamespace;
 		}
-		
+
 		if (namespace == null) {
 			PlanEngineImpl.LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong", plans.toString());
 			return p;
 		}
-		
+
 		for (final TPlan plan : p) {
-			
+
 			if (!this.deployPlan(plan, namespace, csarId)) {
 				nonDeployedPlans.add(plan);
 			}
 		}
-		
+
 		if (nonDeployedPlans.isEmpty()) {
 			PlanEngineImpl.LOG.info("Deployment of plans was successful");
 		} else {
@@ -153,7 +153,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 		}
 		return nonDeployedPlans;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -161,28 +161,28 @@ public class PlanEngineImpl implements IPlanEngineService {
 	public List<TPlan> undeployPlans(final TPlans plans, final String targetNamespace, final CSARID csarId) {
 		final List<TPlan> nonUndeployedPlans = new LinkedList<>();
 		final List<TPlan> p = plans.getPlan();
-		
+
 		String namespace = plans.getTargetNamespace();
 		if (namespace == null) {
 			namespace = targetNamespace;
 		}
-		
+
 		if (namespace == null) {
 			PlanEngineImpl.LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong", plans.toString());
 			return p;
 		}
-		
+
 		for (final TPlan plan : p) {
-			
+
 			// FIXME plans.getTargetNamespace can be null, then the
 			// targetNamespace has to be taken of the Service Template or
 			// Definitions
-			
+
 			if (!this.undeployPlan(plan, namespace, csarId)) {
 				nonUndeployedPlans.add(plan);
 			}
 		}
-		
+
 		if (nonUndeployedPlans.isEmpty()) {
 			PlanEngineImpl.LOG.info("Undeployment of plans was successful");
 		} else {
@@ -193,7 +193,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 		}
 		return nonUndeployedPlans;
 	}
-	
+
 	/**
 	 * Bind method for PlanModelPlugins
 	 *
@@ -208,10 +208,11 @@ public class PlanEngineImpl implements IPlanEngineService {
 				PlanEngineImpl.LOG.debug("CapabilityService unavailable, couldn't store plugin capabilities, will do later");
 			}
 			this.modelPluginsList.put(planModelPlugin.getLanguageUsed(), planModelPlugin);
-			PlanEngineImpl.LOG.debug("Registered PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
+			LOG.debug("Registered PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
+			LOG.debug("{} PlanEnginePlanModel plugins registered", this.modelPluginsList.size());
 		}
 	}
-	
+
 	/**
 	 * Unbind method for PlanModelPlugins
 	 *
@@ -229,7 +230,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 			PlanEngineImpl.LOG.debug("Unregistered PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
 		}
 	}
-	
+
 	/**
 	 * Bind method for PlanRefPlugins
 	 *
@@ -245,9 +246,10 @@ public class PlanEngineImpl implements IPlanEngineService {
 			}
 			this.refPluginsList.put(planRefPlugin.getLanguageUsed(), planRefPlugin);
 			PlanEngineImpl.LOG.debug("Registered PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
+			LOG.debug("{} PlanEnginePlanRef plugins registered", this.refPluginsList.size());
 		}
 	}
-	
+
 	/**
 	 * Unbind method for PlanRefPlugins
 	 *
@@ -265,7 +267,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 			PlanEngineImpl.LOG.debug("Unregistered PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
 		}
 	}
-	
+
 	/**
 	 * Returns a PlanEnginePlanModelPlugin capable of processing the given plan
 	 *
@@ -275,7 +277,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 	private IPlanEnginePlanModelPluginService getModelPlugin(final String language) {
 		return this.modelPluginsList.get(language);
 	}
-	
+
 	/**
 	 * Returns a PlanEnginePlanRefPlugin capable of processing the given plan
 	 *
@@ -285,7 +287,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 	private IPlanEnginePlanRefPluginService getRefPlugin(final String language) {
 		return this.refPluginsList.get(language);
 	}
-	
+
 	/**
 	 * Bind method for CapabilityService
 	 *
@@ -300,20 +302,20 @@ public class PlanEngineImpl implements IPlanEngineService {
 				this.oldCapabilityService = capabilityService;
 				this.capabilityService = capabilityService;
 			}
-			
+
 			// storing capabilities of already registered plugins
 			for (final IPlanEnginePlanModelPluginService planModelPlugin : this.modelPluginsList.values()) {
 				this.capabilityService.storeCapabilities(planModelPlugin.getCapabilties(), planModelPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			}
-			
+
 			for (final IPlanEnginePlanRefPluginService planRefPlugin : this.refPluginsList.values()) {
 				this.capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(), ProviderType.PLAN_PLUGIN);
 			}
-			
+
 			PlanEngineImpl.LOG.debug("Registered CapabilityService {}", capabilityService.toString());
 		}
 	}
-	
+
 	/**
 	 * Unbind method for CapabilityService
 	 *
@@ -328,7 +330,7 @@ public class PlanEngineImpl implements IPlanEngineService {
 		}
 		PlanEngineImpl.LOG.debug("Unregistered CapabilityService {}", capabilityService.toString());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

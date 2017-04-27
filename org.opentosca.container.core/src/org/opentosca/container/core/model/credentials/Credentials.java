@@ -78,7 +78,7 @@ public class Credentials {
 	 *
 	 */
 	@XmlElement(name = "Identity")
-	@Column(name = "identity")
+	@Column(name = "\"identity\"")
 	private String identity;
 	
 	/**
@@ -86,7 +86,7 @@ public class Credentials {
 	 * E.g. on Amazon S3 it's the Secret Access Key.
 	 */
 	@XmlElement(name = "Key")
-	@Column(name = "key")
+	@Column(name = "\"key\"")
 	private String key;
 	
 	/**
