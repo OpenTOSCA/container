@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.opentosca.container.api.legacy.instancedata.InstanceDataRoot;
 import org.opentosca.container.api.legacy.portability.PortabilityRoot;
 import org.opentosca.container.api.legacy.resources.RootResource;
@@ -75,8 +76,10 @@ public class JerseyApplication extends Application {
 		s.add(NotFoundExceptionMapper.class);
 
 		// add json mapper, no functionality yet, needs additional dependencies
-		s.add(JSONMapper.class);
+		// s.add(JSONMapper.class);
 
+		s.add(MultiPartFeature.class);
+		
 		return s;
 	}
 

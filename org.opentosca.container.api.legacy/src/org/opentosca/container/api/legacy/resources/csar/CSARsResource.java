@@ -28,6 +28,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.legacy.osgi.servicegetter.FileAccessServiceHandler;
 import org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler;
 import org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler;
@@ -51,8 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
 
 /**
  * Resource represents all CSARs.<br />
