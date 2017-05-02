@@ -2,4 +2,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ToscaReferenceMapper">
    <implementation class="org.opentosca.container.core.engine.impl.ToscaReferenceMapper"/>
    <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.container.core.engine.xml.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
+   <service>
+      <provide interface="org.opentosca.container.core.engine.IToscaReferenceMapper"/>
+   </service>
 </scr:component>

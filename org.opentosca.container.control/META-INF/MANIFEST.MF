@@ -15,3 +15,4 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.engine.ia,
  org.opentosca.bus.management.service;bundle-version="1.0.0"
 Bundle-Activator: org.opentosca.container.control.Activator
+Service-Component: OSGI-INF/*

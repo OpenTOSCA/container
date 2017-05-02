@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ContainerAPI.ICoreFileService">
-   <implementation class="org.opentosca.containerapi.osgi.servicegetter.FileRepositoryServiceHandler"/>
-   <reference bind="bindFileRepository" cardinality="1..1" interface="org.opentosca.core.file.service.ICoreFileService" name="ICoreFileService" policy="static" unbind="unbindFileRepository"/>
+   <implementation class="org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler"/>
+   <reference bind="bindFileRepository" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static" unbind="unbindFileRepository"/>
 </scr:component>

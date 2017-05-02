@@ -144,6 +144,7 @@
     <module>org.opentosca.planbuilder.type.plugin.dockercontainer</module>
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
+    <module>org.opentosca.container.api.legacy</module>
   </modules>
 
 </project>

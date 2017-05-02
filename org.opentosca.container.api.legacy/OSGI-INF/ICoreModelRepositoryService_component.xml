@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="ContainerAPI.ICoreModelRepositoryService">
-   <implementation class="org.opentosca.containerapi.osgi.servicegetter.ModelRepositoryServiceHandler"/>
-   <reference bind="bindModelRepository" cardinality="1..n" interface="org.opentosca.core.model.repository.service.ICoreModelRepositoryService" name="ICoreModelRepositoryService" policy="dynamic" unbind="unbindModelRepository"/>
+   <implementation class="org.opentosca.container.api.legacy.osgi.servicegetter.ModelRepositoryServiceHandler"/>
+   <reference bind="bindModelRepository" cardinality="1..n" interface="org.opentosca.container.core.service.ICoreModelRepositoryService" name="ICoreModelRepositoryService" policy="dynamic" unbind="unbindModelRepository"/>
 </scr:component>
