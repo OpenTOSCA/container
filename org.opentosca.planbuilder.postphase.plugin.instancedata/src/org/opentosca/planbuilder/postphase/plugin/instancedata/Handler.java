@@ -106,7 +106,7 @@ public class Handler {
 	private String createInstanceVar(TemplatePlanContext context, String templateId) {
 		String instanceURLVarName = ((context.getRelationshipTemplate() == null) ? "node" : "relationship") + "InstanceURL_" + templateId + "_" + context.getIdForNames();
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		if (!context.addVariable(instanceURLVarName, BuildPlan.VariableType.TYPE, stringTypeDeclId)) {
+		if (!context.addGlobalVariable(instanceURLVarName, BuildPlan.VariableType.TYPE, stringTypeDeclId)) {
 			return null;
 		}
 		
