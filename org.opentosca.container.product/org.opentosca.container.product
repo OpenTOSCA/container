@@ -209,6 +209,23 @@
       <plugin id="org.opentosca.container.engine.plan.plugin.bpelwso2" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="6" />
+      <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="5" />
       <plugin id="org.restlet.jee.org.restlet" autoStart="true" startLevel="0" />
       <plugin id="org.restlet.jee.org.restlet.ext.httpclient" autoStart="true" startLevel="0" />
       <plugin id="org.slf4j.api" autoStart="true" startLevel="0" />

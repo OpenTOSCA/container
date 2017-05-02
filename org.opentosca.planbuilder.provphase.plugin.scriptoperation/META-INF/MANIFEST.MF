@@ -2,21 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Scriptoperation
 Bundle-SymbolicName: org.opentosca.planbuilder.provphase.plugin.scriptoperation
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opentosca.planbuilder.provphase.plugin.scriptoperation.Activator
 Bundle-Vendor: OpenTosca PlanBuilder Script Operation Plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.apache.commons.io;version="2.4.0",
- org.eclipse.core.runtime;version="3.4.0",
- org.opentosca.model.tosca.conventions,
- org.opentosca.planbuilder,
- org.opentosca.planbuilder.model.plan,
- org.opentosca.planbuilder.model.tosca,
- org.opentosca.planbuilder.plugins,
- org.opentosca.planbuilder.plugins.context,
- org.opentosca.planbuilder.provphase.plugin.invoker,
- org.opentosca.planbuilder.utils,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.commons.io;version="2.2.0",
+ org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .,
  META-INF/ressources/
+Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
+ org.opentosca.planbuilder;bundle-version="1.0.0",
+ org.opentosca.planbuilder.model;bundle-version="1.0.0",
+ org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="1.0.0"

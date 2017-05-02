@@ -1,1 +1,0 @@
-This is a temporary workaround. Needed dependencies should be added to the OpenTOSCA p2 repository.

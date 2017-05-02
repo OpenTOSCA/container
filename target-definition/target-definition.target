@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="68">
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="69">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
 <unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
@@ -72,6 +72,7 @@
 <unit id="org.apache.cxf.cxf-rt-frontend-jaxws" version="3.1.10"/>
 <unit id="org.apache.camel.camel-core" version="2.18.3"/>
 <unit id="rocoto" version="6.2.0"/>
+<unit id="com.sun.jersey.servlet" version="1.17.1"/>
 <unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
 <unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
 <unit id="org.apache.servicemix.bundles.spring-beans" version="4.3.7.RELEASE_1"/>
