@@ -4,7 +4,11 @@
 ---
 ---
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure00-OpenTOSCA.jpg "OpenTosca")  
+![alt text][logo]
+[logo]: https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure00-OpenTOSCA.jpg "OpenTosca"  
+</center>
+
+
 # Developer Guide OpenTOSCA Container  
 
 
@@ -40,8 +44,8 @@
 ## Introduction
 
 This document helps to setup Eclipse to develop the OpenTosca Container and its user interfaces (UIs).
-Thereby, Section 2 explains the instalaltion of Eclipse, Section 3 the setup of eclipse and 
-Section 4 lists various guides regarding selected topics, e.g. how to create a declarative service. 
+Thereby, [Section 2](#eclipse-installation) explains the installation of Eclipse, [Section 3](#set-up-eclipse) the setup of eclipse and 
+[Section 4](#how-to) lists various guides regarding selected topics, e.g. how to create a declarative service. 
 Some subsections are optional and can be skipped.
 
 This introduction provides an architectural overview of the OpenTosca container including their 
@@ -51,6 +55,7 @@ Further details can be found in the respective architecture documentation of Ope
 
 <center>
 ![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure01-OpenToscaContainerArchitectureOverview.png "Fig.1: OpenTosca Container Architecture Overview")  
+
 Fig.1: OpenTOSCA Container Architecture Overview
 </center>
 
@@ -59,6 +64,7 @@ capabilities to the other components of the container.
 
 <center>
 ![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure02-OpenToscaContainerArchitectureOrCore.png "Fig.2: OpenTOSCA Container Architecture or Core")  
+
 Fig.2: OpenTOSCA Container Architecture or Core
 </center>
 ___
@@ -94,7 +100,7 @@ be done in all workspaces.
 2. Go to "**Server**", then "**Runtime Environments**" and click on "**Add...**".
 3. The wizard "**New Server Runtime Environment**" appears. select in the list "**Apache Tomcat v. 7.0**"
    and click on "**Next**".
-4. If you already installed Tomcar define its path at "**Tomcat installation directionary**". 
+4. If you already installed Tomcat define its path at "**Tomcat installation directionary**". 
    Otherwise you can download and install it directly from Eclipse by clicking on "**Download and Install**",
    accepting the license agreement and defining an installation directory.
 5. Click on "**Finish**" to add the defined Tomcat installations as a server runtime environment.
@@ -117,7 +123,7 @@ The following table shows the folder structure of the projects:
  1. Download and unzip code to a location of your choice.
  2. Menu "**File**" then ""**Import...**""
  3. Then select import source: "**General**" then "**Existing Projects into Workspace**" and click on "**Next**".
- 4. Choose the location you extracted the code as "**root directory**" and selesct all projects
+ 4. Choose the location you extracted the code as "**root directory**" and select all projects
     If you want you can exclude the tests (folder container test) or the UIs (folder ui-*)
  5. Click "**Finish**"
  
@@ -143,7 +149,7 @@ ___
 
 ### Create an Eclipse Plug-in project
 
-New Projects that shoul be belonging to the Container or the RAP UI must be created as Eclipse Plug-in Project (OSGI Bundle)
+New Projects that should be belonging to the Container or the RAP UI must be created as Eclipse Plug-in Project (OSGI Bundle)
 
 1. In Eclipse go to "**New**" then "**Other...**" in the File menu.
 2. Select in the list "**Plug.in Project**" and click on "**Next**".
@@ -156,7 +162,7 @@ New Projects that shoul be belonging to the Container or the RAP UI must be crea
 Fig.4: Define details of new Eclipse plug-in project.
 </center>
 
-4. Define at "**Name**" a human readable name of this project/bundle, e.g. "**Core File Servie Implementation**"
+4. Define at "**Name**" a human readable name of this project/bundle, e.g. "**Core File Service Implementation**"
 5. A Activator is a class that contains the methods "**start**" and "**stop**" that will be executed when the
    bundle will be started/stopped in the OSGi framework. Usually a Activator is not necessary.
    Thus, deselect the checkbox "**Generate an activator...**"
@@ -212,7 +218,7 @@ Fig.5: Create a new Component Definition.
 15. In the appearing window type in the class name of the interface project, e.g. "**ICoreFileService**" and click on "**OK**"
     to publish the service interface. Save the manifest.
 
-Fig. 6 shows the correct project structur of the Core File Service used as example in this chapter.
+Fig. 6 shows the correct project structure of the Core File Service used as example in this chapter.
 
 <center>
 ![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure06-ServiceInterfaceAndImplementationProjectStructure.png "Fig. 6: Service interface and implementation project structure. ")  
@@ -311,7 +317,7 @@ Also you can look in the directory "**plugins**" in your Eclipse installation
 If you found the bundle you can add it to the Target Platform.
 
 1. Open the project "**org.opentosca.targetplatform.container**" in the package explorer
-2. Move the buindle JAR file in the desired directory (e.g. "**Apache**") in the project.
+2. Move the bundle JAR file in the desired directory (e.g. "**Apache**") in the project.
 3. Set the container again as it's described in 3.4.
 
 #### Create a new directory
@@ -333,7 +339,7 @@ If you want create a new directory in a Target Platform you must do the followin
 Fig.7: Directory "MyDir" was added to target definition file.
 </center>
 
-6. Save the target definiton file.
+6. Save the target definition file.
 
 Now you can add bundles to the created directory like it's described in 4.4.1.
 
@@ -417,7 +423,7 @@ locally.
 
 #### 	Run the admin user interface in a dedicated tomcat
 
-Copy the admin.war inside the "webapps" folder of yout tomcat installation.  
+Copy the admin.war inside the "webapps" folder of your tomcat installation.  
 Then browse to the website like [http://127.0.0.1:8080/admin/index.action](http://127.0.0.1:8080/admin/index.action) if the tomcat is installed locally.
 
 
