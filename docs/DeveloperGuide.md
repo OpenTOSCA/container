@@ -36,7 +36,7 @@
   * [Build the admin user interface](#build-the-admin-user-interface)
     + [Install maven](#install-maven)
     + [Install the maven plugin of eclipse](#install-the-maven-plugin-of-eclipse)
-    + [Inital update and build of the admin user interface web project](#inital-update-and-build-of-the-admin-user-interface-web-project)
+    + [Initial update and build of the admin user interface web project](#inital-update-and-build-of-the-admin-user-interface-web-project)
     + [Run the admin user interface in the tomcat managed by Eclipse](#run-the-admin-user-interface-in-the-tomcat-managed-by-eclipse)
     + [Run the admin user interface in a dedicated tomcat](#run-the-admin-user-interface-in-a-dedicated-tomcat)
 
