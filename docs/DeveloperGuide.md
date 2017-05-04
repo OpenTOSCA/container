@@ -4,8 +4,9 @@
 ---
 ---
 <center>
-![alt text][logo]
-[logo]: https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure00-OpenTOSCA.jpg "OpenTosca"  
+
+![alt text](graphics/Figure00.jpg "OpenTosca")  
+
 </center>
 
 
@@ -54,7 +55,8 @@ overview of the OpenTosca container including the relations of the different com
 Further details can be found in the respective architecture documentation of OpenTOSCA.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure01-OpenToscaContainerArchitectureOverview.png "Fig.1: OpenTosca Container Architecture Overview")  
+
+![alt text](graphics/Figure01.png "Fig.1: OpenTosca Container Architecture Overview")  
 
 Fig.1: OpenTOSCA Container Architecture Overview
 </center>
@@ -63,7 +65,8 @@ Figure 2 shows the architecture of the OpenTosca Container core which provides d
 capabilities to the other components of the container.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure02-OpenToscaContainerArchitectureOrCore.png "Fig.2: OpenTOSCA Container Architecture or Core")  
+
+![alt text](graphics/Figure02.png "Fig.2: OpenTOSCA Container Architecture or Core")  
 
 Fig.2: OpenTOSCA Container Architecture or Core
 </center>
@@ -140,7 +143,7 @@ plug-in projects. The OpenTOSCA Target Platform is contained in the project
 3.After building the workspace there should be no errors left.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure03-EclipseTargetPlatformEditor.png "Fig.3: Eclipse Target Platform Editor")  
+![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure03.png "Fig.3: Eclipse Target Platform Editor")  
 Fig.3: Eclipse Target Platform Editor
 </center>
 ___
@@ -158,7 +161,8 @@ New Projects that should be belonging to the Container or the RAP UI must be cre
    "**an OSGi framework**" and in the associated drop down list "**standard**" (Fig. 4). Click on "**Next**".
 
 <center>
-![alt text](file:///Z:/Guides/DeveloperGuide_graphics/Figure04-DefineDetailsOfANewEclipsePlugInProject.png "Fig.4: Define details of new Eclipse plug-in project.")  
+
+![alt text](graphics/Figure04.png "Fig.4: Define details of new Eclipse plug-in project.")  
 Fig.4: Define details of new Eclipse plug-in project.
 </center>
 
@@ -206,8 +210,10 @@ _Implementation project:_
 11. Define as "File name" the name of the implementation class with the ending "**_component**", e.g. "**CoreFileServiceImpl_component.xml**" (Fig. 5)
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure05-CreateANewComponentDefinition.png "Fig.5: Create a new Component Definition.")  
+
+![alt text](graphics/Figure05.png "Fig.5: Create a new Component Definition.")  
 Fig.5: Create a new Component Definition.
+
 </center>
 
 12. Define in "**Class**" the fully qualified name of the implementation class, e.g. "**org.opentosca.core.file.service.impl.CoreFileServiceImpl**"
@@ -221,7 +227,9 @@ Fig.5: Create a new Component Definition.
 Fig. 6 shows the correct project structure of the Core File Service used as example in this chapter.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure06-ServiceInterfaceAndImplementationProjectStructure.png "Fig. 6: Service interface and implementation project structure. ")  
+
+![alt text](graphics/Figure06.png "Fig. 6: Service interface and implementation project structure. ") 
+ 
 Fig. 6: Service interface and implementation project structure. The Core File Services provides the methods “getTHOR” and “storeTHOR”. Its component XML resides in the folder “OSGI-INF” in the implementation project. 
 </center>
 
@@ -285,7 +293,9 @@ public class MyServiceImpl{
 }
 ```
 <center>
+
 Lst. 1 "MyServiceImpl" consumes the Core File Service.
+
 </center>
 
 You can now use the service by calling the desired method(s) on the service varaible.
@@ -335,8 +345,10 @@ If you want create a new directory in a Target Platform you must do the followin
    "**${workspace_loc}/org.opentosca.targetplatform.ui.rap/MyDir**"
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure07-DirectoryMyDirWasAddedToTargetDefinitionFile.png "Fig.7: Directory "MyDir" was added to target definition file.")  
+
+![alt text](graphics/Figure07.png)  
 Fig.7: Directory "MyDir" was added to target definition file.
+
 </center>
 
 6. Save the target definition file.
@@ -355,13 +367,17 @@ Download and install maven. You can follow the instructions on the following web
 First open the marketplace of Eclipse.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseMarketplace.png)
+
+![alt text](graphics/EclipseMarketplace.png)
+
 </center>
 
 Then search for m2eclipse-wtp:
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseMarketplaceInstall.png)
+
+![alt text](graphics/EclipseMarketplaceInstall.png)
+
 </center>
 
 Click on "**Install**" and follow the displayed steps.
@@ -373,34 +389,44 @@ mouse button on the project in the Eclipse "**Project Explorer**" and select "**
 in the "Maven" menu.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseMavenUpdateLink.png)
+
+![alt text](graphics/EclipseMavenUpdateLink.png)
+
 </center>
 
 Then just click on "OK" to download and update all dependencies of the project.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseMavenAccept.png)
+
+![alt text](graphics/EclipseMavenAccept.png)
+
 </center>
 
 To setup the maven build run configuration click on the black arrow on the right side of the green
 play button and select "**Run Configurations...**"
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseSetUpMavenBuildRun.png)
+
+![alt text](graphics/EclipseSetUpMavenBuildRun.png)
+
 </center>
 
 With a right click on "**Maven Build**" and "**New**" you can create a new maven run configuration.
 Name it "**org.opentosca.ui.admin build**" and insert the two goals clean and package. Last click on "**Apply**".
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseSetUpMavenBuildRunAccept.png)
+
+![alt text](graphics/EclipseSetUpMavenBuildRunAccept.png)
+
 </center>
 
 If you execute this run configuration there is an admin.war in the "**target**" folder inside your project
 afterwards.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseAdminWar.png)
+
+![alt text](graphics/EclipseAdminWar.png)
+
 </center>
 
 #### Run the admin user interface in the tomcat managed by Eclipse
@@ -409,13 +435,17 @@ First make sure to install a tomcat like described in chapter 3.1. Then do a rig
 org.opentosca.ui.admin project and select "**Run As**" and then "**Run on Server**".
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/EclipseRunAsLink.png)
+
+![alt text](graphics/EclipseRunAsLink.png)
+
 </center>
 
 Then choose the existin Tomcat v7.0 server and click on "**Finish**".
 
 <center>
-![alt text](file:///Z:/Guides/DeveloperGuide_graphics/EclipseRunAsAccept.png)
+
+![alt text](graphics/EclipseRunAsAccept.png)
+
 </center>
 
 Then browse to the website like [http://127.0.0.1:8080/admin/index.action](http://127.0.0.1:8080/admin/index.action) if the tomcat is installed
