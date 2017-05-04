@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -102,9 +102,9 @@ public class SyncHandler {
 		// register request and response message
 
 		String requestVariableName = portType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
-		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
+		context.addVariable(requestVariableName, TOSCAPlan.VariableType.MESSAGE, InputMessageId);
 		String responseVariableName = portType.getLocalPart() + InputMessageId.getLocalPart() + "Response" + context.getIdForNames();
-		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
+		context.addVariable(responseVariableName, TOSCAPlan.VariableType.MESSAGE, OutputMessageId);
 
 		// add assign for request
 		try {

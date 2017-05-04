@@ -130,7 +130,7 @@ public class RelationshipTemplateInstanceListResource {
 		}
 		
 		try {
-			// FIXME at this point a brutal amount confusion is rising up, while
+			// FIXME at this point a brutal amount of confusion is rising up, while
 			// implementing I noticed that this method
 			// createNodeInstance(para,para) is deprecated and doesn't work. So
 			// it seems this whole class is useless? Because I tried to

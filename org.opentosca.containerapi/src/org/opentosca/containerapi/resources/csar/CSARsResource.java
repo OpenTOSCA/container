@@ -45,7 +45,7 @@ import org.opentosca.exceptions.UserException;
 import org.opentosca.opentoscacontrol.service.IOpenToscaControlService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -376,7 +376,7 @@ public class CSARsResource {
 		Importer planBuilderImporter = new Importer();
 		Exporter planBuilderExporter = new Exporter();
 		
-		List<BuildPlan> buildPlans = planBuilderImporter.importDefs(csarId);
+		List<TOSCAPlan> buildPlans = planBuilderImporter.importDefs(csarId);
 		
 		// no buildplan generated <=> nothing to do
 		if (buildPlans.isEmpty()) {

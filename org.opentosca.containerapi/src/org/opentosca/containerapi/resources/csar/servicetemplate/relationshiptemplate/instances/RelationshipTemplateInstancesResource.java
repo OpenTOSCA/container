@@ -9,6 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -51,7 +52,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RelationshipTemplateInstancesResource {
-	
 	
 	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
 	
@@ -194,31 +194,37 @@ public class RelationshipTemplateInstancesResource {
 	
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
-	public Response createRelationInstance(@Context UriInfo uriInfo) {
+	public Response createRelationInstance(@Context UriInfo uriInfo, @QueryParam("sourceInstanceId") String sourceInstanceId, @QueryParam("targetInstanceId") String targetInstanceId) {
 		
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		//		ServiceInstance serviceInstanceIdURI = service.getservi
+		// ServiceInstance serviceInstanceIdURI = service.getservi
 		
 		// if (Utilities.areEmpty(nodeTemplateID, serviceTemplateInstanceId)) {
 		// throw new GenericRestException(Status.BAD_REQUEST, "Missing one of
 		// the required parameters: nodeTemplateID, serviceInstanceID");
 		// }
 		
-		//		URI serviceInstanceIdURI = null;
-		//		try {
-		//			
-		//			serviceInstanceIdURI = new ServiceInstance(csarId, nodeTemplateID, nodeTemplateID.getLocalPart(), serviceTemplateInstanceId).getServiceInstanceID();
-		//			if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-		//				throw new Exception("Error converting serviceInstanceID: invalid format!");
-		//			}
-		//			
-		//		} catch (Exception e1) {
-		//			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
-		//		}
+		// URI serviceInstanceIdURI = null;
+		// try {
+		//
+		// serviceInstanceIdURI = new ServiceInstance(csarId, nodeTemplateID,
+		// nodeTemplateID.getLocalPart(),
+		// serviceTemplateInstanceId).getServiceInstanceID();
+		// if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
+		// throw new Exception("Error converting serviceInstanceID: invalid
+		// format!");
+		// }
+		//
+		// } catch (Exception e1) {
+		// throw new GenericRestException(Status.BAD_REQUEST, "Error converting
+		// parameter: " + e1.getMessage());
+		// }
 		
 		try {
-			RelationInstance relationInstance = service.createRelationInstance(csarId, serviceTemplateID, serviceTemplateInstanceId, relatioshipTemplateID);
-			//			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + serviceTemplateInstanceId, "simple");
+			RelationInstance relationInstance = service.createRelationInstance(csarId, serviceTemplateID, serviceTemplateInstanceId, relatioshipTemplateID, sourceInstanceId, targetInstanceId);
+			// SimpleXLink response = new
+			// SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" +
+			// serviceTemplateInstanceId, "simple");
 			SimpleXLink response = new SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" + relationInstance.getId(), "simple");
 			return Response.ok(response).build();
 		} catch (ReferenceNotFoundException e) {

@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RelationshipTemplateInstanceResource {
 	
-	
 	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
 	
 	private final CSARID csarId;
@@ -82,7 +81,7 @@ public class RelationshipTemplateInstanceResource {
 		
 		References refs = new References();
 		
-		log.debug("try to build node template instance resource");
+		log.debug("try to build relation template instance resource");
 		IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		List<RelationInstance> relationInstances = service.getRelationInstances(IdConverter.relationInstanceIDtoURI(relationshipTemplateInstanceId), null, null, null);
 		
@@ -98,7 +97,9 @@ public class RelationshipTemplateInstanceResource {
 		links.add(LinkBuilder.selfLink(uriInfo));
 		
 		URI serviceInstanceID = relationInstance.getServiceInstance().getServiceInstanceID();
-		//		URI linkToServiceInstance = LinkBuilder.linkToServiceInstance(uriInfo, IdConverter.serviceInstanceUriToID(serviceInstanceID));
+		// URI linkToServiceInstance =
+		// LinkBuilder.linkToServiceInstance(uriInfo,
+		// IdConverter.serviceInstanceUriToID(serviceInstanceID));
 		
 		// String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" +
 		// URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") +
@@ -122,6 +123,14 @@ public class RelationshipTemplateInstanceResource {
 		
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "Properties"), XLinkConstants.SIMPLE, "Properties"));
 		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(), "State"), XLinkConstants.SIMPLE, "State"));
+		
+		if (relationInstance.getSourceInstance() != null) {
+			refs.getReference().add(new Reference(relationInstance.getSourceInstance().getNodeInstanceID().toString(), XLinkConstants.SIMPLE, "SourceInstanceId"));
+		}
+		
+		if (relationInstance.getTargetInstance() != null) {
+			refs.getReference().add(new Reference(relationInstance.getTargetInstance().getNodeInstanceID().toString(), XLinkConstants.SIMPLE, "TargetInstanceId"));
+		}
 		
 		// selflink
 		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));

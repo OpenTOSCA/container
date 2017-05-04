@@ -24,7 +24,7 @@ import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -93,6 +93,15 @@ public class TemplatePlanContext {
 		this.bpelTemplateHandler = new BPELTemplateScopeHandler();
 		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
+	}
+	
+	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate){
+		for(TemplateBuildPlan plan :this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()){
+			if(plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)){
+				return new TemplatePlanContext(plan, this.propertyMap, this.serviceTemplateId); 
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -234,12 +243,12 @@ public class TemplatePlanContext {
 	 *            the XSD Type of the variable
 	 * @return
 	 */
-	public boolean addVariable(String name, BuildPlan.VariableType variableType, QName declarationId) {
+	public boolean addVariable(String name, TOSCAPlan.VariableType variableType, QName declarationId) {
 		declarationId = this.importNamespace(declarationId);
 		return this.bpelTemplateHandler.addVariable(name, variableType, declarationId, this.templateBuildPlan);
 	}
 
-	public boolean addGlobalVariable(String name, BuildPlan.VariableType variableType, QName declarationId) {
+	public boolean addGlobalVariable(String name, TOSCAPlan.VariableType variableType, QName declarationId) {
 		declarationId = this.importNamespace(declarationId);
 		return this.bpelProcessHandler.addVariable(name, variableType, declarationId,
 				this.templateBuildPlan.getBuildPlan());
@@ -338,7 +347,7 @@ public class TemplatePlanContext {
 	 *         successful, else false
 	 */
 	private boolean addPLtoDeploy(String partnerLinkName, String partnerLinkType) {
-		BuildPlan buildPlan = this.templateBuildPlan.getBuildPlan();
+		TOSCAPlan buildPlan = this.templateBuildPlan.getBuildPlan();
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 
 		// get porttypes inside partnerlinktype
@@ -499,7 +508,7 @@ public class TemplatePlanContext {
 	 */
 	private List<File> getWSDLFiles() {
 		List<File> wsdlFiles = new ArrayList<File>();
-		BuildPlan buildPlan = this.templateBuildPlan.getBuildPlan();
+		TOSCAPlan buildPlan = this.templateBuildPlan.getBuildPlan();
 		for (File file : buildPlan.getImportedFiles()) {
 			if (file.getName().endsWith(".wsdl")) {
 				wsdlFiles.add(file);

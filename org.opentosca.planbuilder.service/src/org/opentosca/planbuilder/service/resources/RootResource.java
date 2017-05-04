@@ -33,7 +33,7 @@ import org.opentosca.exceptions.SystemException;
 import org.opentosca.exceptions.UserException;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.service.Activator;
 import org.opentosca.planbuilder.service.RunningTasks;
 import org.opentosca.planbuilder.service.ServiceRegistry;

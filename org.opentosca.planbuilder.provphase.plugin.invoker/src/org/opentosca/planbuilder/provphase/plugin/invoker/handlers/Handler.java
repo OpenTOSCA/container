@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.model.tosca.conventions.Interfaces;
 import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -120,9 +120,9 @@ public class Handler {
 
 		// register request and response message
 		String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
-		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
+		context.addVariable(requestVariableName, TOSCAPlan.VariableType.MESSAGE, InputMessageId);
 		String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart() + "Response" + context.getIdForNames();
-		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
+		context.addVariable(responseVariableName, TOSCAPlan.VariableType.MESSAGE, OutputMessageId);
 
 		// setup a correlation set for the messages
 		String correlationSetName = null;
@@ -342,9 +342,9 @@ public class Handler {
 
 		// register request and response message
 		String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
-		context.addVariable(requestVariableName, BuildPlan.VariableType.MESSAGE, InputMessageId);
+		context.addVariable(requestVariableName, TOSCAPlan.VariableType.MESSAGE, InputMessageId);
 		String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart() + "Response" + context.getIdForNames();
-		context.addVariable(responseVariableName, BuildPlan.VariableType.MESSAGE, OutputMessageId);
+		context.addVariable(responseVariableName, TOSCAPlan.VariableType.MESSAGE, OutputMessageId);
 
 		// setup a correlation set for the messages
 		String correlationSetName = null;

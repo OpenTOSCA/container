@@ -7,7 +7,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
  */
 public class EmptyPropertyToInputInitializer {
 	
-	public void initializeEmptyPropertiesAsInputParam(BuildPlan buildPlan, PropertyMap propMap) {
+	public void initializeEmptyPropertiesAsInputParam(TOSCAPlan buildPlan, PropertyMap propMap) {
 		
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
@@ -93,7 +93,7 @@ public class EmptyPropertyToInputInitializer {
 	 * @param var the variable to assign the value to
 	 * @param context a context for the manipulation
 	 */
-	private void addToPlanInput(BuildPlan buildPlan, String propLocalName, Variable var, TemplatePlanContext context) {
+	private void addToPlanInput(TOSCAPlan buildPlan, String propLocalName, Variable var, TemplatePlanContext context) {
 		// add to input
 		context.addStringValueToPlanRequest(propLocalName);
 		
@@ -116,7 +116,7 @@ public class EmptyPropertyToInputInitializer {
 	 * @param node a XML DOM Node
 	 * @return true if adding the node to the main sequence was successfull
 	 */
-	private boolean appendToInitSequence(Node node, BuildPlan buildPlan) {
+	private boolean appendToInitSequence(Node node, TOSCAPlan buildPlan) {
 		
 		Element flowElement = buildPlan.getBpelMainFlowElement();
 		
@@ -145,7 +145,7 @@ public class EmptyPropertyToInputInitializer {
 	 * @return a String containing a bpel copy
 	 */
 	private String generateCopyFromInputToVariableAsString(String inputQuery, String variableQuery) {
-		String copyString = "<bpel:assign xmlns:bpel=\"" + BuildPlan.bpelNamespace + "\"><bpel:copy>";
+		String copyString = "<bpel:assign xmlns:bpel=\"" + TOSCAPlan.bpelNamespace + "\"><bpel:copy>";
 		
 		copyString += "<bpel:from variable=\"input\" part=\"payload\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[" + inputQuery + "]]></bpel:query></bpel:from>";
 		

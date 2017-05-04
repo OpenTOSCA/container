@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
@@ -39,64 +39,64 @@ public class BPELTemplateScopeHandler {
 	 * @param buildPlan
 	 *            the BuildPlan to connect to TemplateBuildPlan to
 	 */
-	public void initializeXMLElements(TemplateBuildPlan newTemplateBuildPlan, BuildPlan buildPlan) {
+	public void initializeXMLElements(TemplateBuildPlan newTemplateBuildPlan, TOSCAPlan buildPlan) {
 		// set the build plan of the new template buildplan
 		newTemplateBuildPlan.setBuildPlan(buildPlan);
 
 		newTemplateBuildPlan.getBuildPlan();
 		// initialize bpelScopeElement and append to flow
 		newTemplateBuildPlan.setBpelScopeElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "scope"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "scope"));
 		// info: append to flow element of the buildplan
 		newTemplateBuildPlan.getBuildPlan().getBpelMainFlowElement()
 				.appendChild(newTemplateBuildPlan.getBpelScopeElement());
 
 		// initialize bpelTargetsElement and append to scope
 		newTemplateBuildPlan.setBpelTargetsElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "targets"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "targets"));
 		newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelTargetsElement());
 
 		// initialize bpelSourcesElement and append to scope
 		newTemplateBuildPlan.setBpelSourcesElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "sources"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "sources"));
 		newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelSourcesElement());
 
 		// init bpelPartnerLinksElement append to scope
 		newTemplateBuildPlan.setBpelPartnerLinks(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "partnerLinks"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "partnerLinks"));
 		newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelPartnerLinksElement());
 
 		// init bpelVariablesElement and append to scope
 		newTemplateBuildPlan.setBpelVariablesElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "variables"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "variables"));
 		newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelVariablesElement());
 
 		// init bpelCorrelationSetsElement and append to scope
 		newTemplateBuildPlan.setBpelCorrelationSets(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "correlationSets"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "correlationSets"));
 		newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelCorrelationSets());
 
 		// initialize bpelMainSequenceElement and append to scope
 		newTemplateBuildPlan.setBpelMainSequenceElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "sequence"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "sequence"));
 		newTemplateBuildPlan.getBpelScopeElement().appendChild(newTemplateBuildPlan.getBpelMainSequenceElement());
 
 		// initialize bpelSequencePrePhaseElement and append to mainsequence
 		newTemplateBuildPlan.setBpelSequencePrePhaseElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "sequence"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "sequence"));
 		newTemplateBuildPlan.getBpelMainSequenceElement()
 				.appendChild(newTemplateBuildPlan.getBpelSequencePrePhaseElement());
 
 		// initialize bpelSequenceProvisioningPhaseElement and append to
 		// mainsequence
 		newTemplateBuildPlan.setBpelSequenceProvisioningPhaseElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "sequence"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "sequence"));
 		newTemplateBuildPlan.getBpelMainSequenceElement()
 				.appendChild(newTemplateBuildPlan.getBpelSequenceProvisioningPhaseElement());
 
 		// initialize bpelSequencePostPhaseElement and append to scope
 		newTemplateBuildPlan.setBpelSequencePostPhaseElement(
-				newTemplateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "sequence"));
+				newTemplateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "sequence"));
 		newTemplateBuildPlan.getBpelMainSequenceElement()
 				.appendChild(newTemplateBuildPlan.getBpelSequencePostPhaseElement());
 
@@ -153,7 +153,7 @@ public class BPELTemplateScopeHandler {
 			return false;
 		}
 		Element partnerLinksElement = templateBuildPlan.getBpelPartnerLinksElement();
-		Element partnerLinkElement = templateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace,
+		Element partnerLinkElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace,
 				"partnerLink");
 
 		partnerLinkElement.setAttribute("name", partnerLinkName);
@@ -193,7 +193,7 @@ public class BPELTemplateScopeHandler {
 			return false;
 		}
 		Element correlationSetsElement = templateBuildPlan.getBpelCorrelationSets();
-		Element correlationSetElement = templateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace,
+		Element correlationSetElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace,
 				"correlationSet");
 		correlationSetElement.setAttribute("name", correlationSetName);
 		correlationSetElement.setAttribute("properties", "tns:" + propertyName);
@@ -233,7 +233,7 @@ public class BPELTemplateScopeHandler {
 			return false;
 		}
 		Element sourcesElement = templateBuildPlan.getBpelSourcesElement();
-		Element sourceElement = templateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "source");
+		Element sourceElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "source");
 		sourceElement.setAttribute("linkName", linkName);
 		sourcesElement.appendChild(sourceElement);
 		BPELTemplateScopeHandler.LOG.debug("Adding link as source was successful");
@@ -253,7 +253,7 @@ public class BPELTemplateScopeHandler {
 	 *            the TemplateBuildPlan to add the variable to
 	 * @return true if adding variable was successful, else false
 	 */
-	public boolean addVariable(String name, BuildPlan.VariableType variableType, QName declarationId,
+	public boolean addVariable(String name, TOSCAPlan.VariableType variableType, QName declarationId,
 			TemplateBuildPlan templateBuildPlan) {
 		BPELTemplateScopeHandler.LOG.debug(
 				"Trying to add variable {} with of type {} and XML Schematype {} to TemplateBuildPlan {}", name,
@@ -265,7 +265,7 @@ public class BPELTemplateScopeHandler {
 
 		// fetch variables element and create variable element
 		Element variablesElement = templateBuildPlan.getBpelVariablesElement();
-		Element variableElement = templateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace,
+		Element variableElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace,
 				"variable");
 
 		// set the type and declaration id
@@ -307,7 +307,7 @@ public class BPELTemplateScopeHandler {
 			return false;
 		}
 		Element targetsElement = templateBuildPlan.getBpelTargetsElement();
-		Element targetElement = templateBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "target");
+		Element targetElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "target");
 		targetElement.setAttribute("linkName", linkName);
 		targetsElement.appendChild(targetElement);
 		BPELTemplateScopeHandler.LOG.debug("Adding link as target was successful");
