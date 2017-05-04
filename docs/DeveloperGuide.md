@@ -13,6 +13,27 @@
 <!-- toc -->
 
 - [Introduction](#introduction)
+- [Eclipse Installation](#eclipse-installation)
+  * [Java SE Development Kit (JDK)](#java-se-development-kit-jdk)
+  * [Eclipse](#eclipse)
+- [Set up Eclipse](#set-up-eclipse)
+  * [Add Tomcat Runtime](#add-tomcat-runtime)
+  * [Code Structure](#code-structure)
+  * [Import Code](#import-code)
+  * [Set Container Target Platform](#set-container-target-platform)
+- [How to](#how-to)
+  * [Create an Eclipse Plug-in project](#create-an-eclipse-plug-in-project)
+  * [Create/provide a declarative service](#createprovide-a-declarative-service)
+  * [Consume / use a declarative service](#consume--use-a-declarative-service)
+  * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
+    + [Get and add libraries](#get-and-add-libraries)
+    + [Create a new directory](#create-a-new-directory)
+  * [Build the admin user interface](#build-the-admin-user-interface)
+    + [Install maven](#install-maven)
+    + [Install the maven plugin of eclipse](#install-the-maven-plugin-of-eclipse)
+    + [Inital update and build of the admin user interface web project](#inital-update-and-build-of-the-admin-user-interface-web-project)
+    + [Run the admin user interface in the tomcat managed by Eclipse](#run-the-admin-user-interface-in-the-tomcat-managed-by-eclipse)
+    + [Run the admin user interface in a dedicated tomcat](#run-the-admin-user-interface-in-a-dedicated-tomcat)
 
 <!-- tocstop -->
 
@@ -42,16 +63,16 @@ Fig.2: OpenTOSCA Container Architecture or Core
 </center>
 ___
 
-##2     Eclipse Installation
+## Eclipse Installation
 
 We use Eclipse as IDE for OpenTosca development.
 
-###2.1  Java SE Development Kit (JDK)
+### Java SE Development Kit (JDK)
 
 If not installed already, download and install the most recent Java JDK from:
 [http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
-###2.2  Eclipse
+### Eclipse
 
 If not installed already, download and install the most recent "Eclipse IDE for Java EE Developers"
 from [http://www.eclipse.org/downloads](http://www.eclipse.org/downloads).
@@ -59,11 +80,11 @@ Install Eclipse by unpacking the downloaded archieve to a location of your choic
 
 ***
 
-##3     Set up Eclipse
+## Set up Eclipse
 
 Start Eclipse and create a new workspace at a location of your choice.
 
-###3.1  Add Tomcat Runtime
+### Add Tomcat Runtime
 
 Some of our projects are web projects (e.g. the JSP UI project) and can be directly deployed
 on a local Tomcat from Eclipse. Thus, the path to Tomcat must be specified. the following must
@@ -78,7 +99,7 @@ be done in all workspaces.
    accepting the license agreement and defining an installation directory.
 5. Click on "**Finish**" to add the defined Tomcat installations as a server runtime environment.
 
-###3.2     Code Structure
+### Code Structure
 
 The following table shows the folder structure of the projects:
 
@@ -91,7 +112,7 @@ The following table shows the folder structure of the projects:
 | OpenTOSCA\trunk\ui-root               | Root UI; JSP                                       |
 | OpenTOSCA\trunk\ui-vinothek           | Vinothek (self service portal); JSP                |
 
-###3.3  Import Code
+### Import Code
 
  1. Download and unzip code to a location of your choice.
  2. Menu "**File**" then ""**Import...**""
@@ -100,7 +121,7 @@ The following table shows the folder structure of the projects:
     If you want you can exclude the tests (folder container test) or the UIs (folder ui-*)
  5. Click "**Finish**"
  
-###3.4  Set Container Target Platform
+### Set Container Target Platform
 
 An Eclipse Target Platform contains libraries (OSGI bundles) that can be used/ are available in Eclipse
 plug-in projects. The OpenTOSCA Target Platform is contained in the project
@@ -118,9 +139,9 @@ Fig.3: Eclipse Target Platform Editor
 </center>
 ___
 
-##4     How to
+## How to
 
-###4.1  Create an Eclipse Plug-in project
+### Create an Eclipse Plug-in project
 
 New Projects that shoul be belonging to the Container or the RAP UI must be created as Eclipse Plug-in Project (OSGI Bundle)
 
@@ -141,7 +162,7 @@ Fig.4: Define details of new Eclipse plug-in project.
    Thus, deselect the checkbox "**Generate an activator...**"
 6. Click on "**Finish**" to create the plug in project.
 
-###4.2  Create/provide a declarative service
+### Create/provide a declarative service
 
 A OSGi service consists of a interface class and one or more implementation classes (e.g. the Core File Service
 implementation for a database or Amazon S3) Interface and implementations should be in separate projects/bundles.
@@ -199,7 +220,7 @@ Fig. 6: Service interface and implementation project structure. The Core File Se
 </center>
 
 
-###4.3	Consume / use a declarative service
+### Consume / use a declarative service
 
 A service can be only consumed in a plug-in project.
 
@@ -264,8 +285,9 @@ Lst. 1 "MyServiceImpl" consumes the Core File Service.
 You can now use the service by calling the desired method(s) on the service varaible.
 In Lst. 1 coreFileService.storeTHOR(thorFile) will be called in method process.
 
-###4.4	OpenTOSCA Target Platforms
-####4.4.1	Get and add libraries
+### OpenTOSCA Target Platforms
+
+#### Get and add libraries
 
 If you need a package of a library (bundle) in a project that belongs to the Container ans it's not already available,
 you must add the bundle to the Target Platform project of the Container
@@ -292,7 +314,7 @@ If you found the bundle you can add it to the Target Platform.
 2. Move the buindle JAR file in the desired directory (e.g. "**Apache**") in the project.
 3. Set the container again as it's described in 3.4.
 
-####4.4.2	Create a new directory
+#### Create a new directory
 
 If you want create a new directory in a Target Platform you must do the following
 
@@ -315,14 +337,14 @@ Fig.7: Directory "MyDir" was added to target definition file.
 
 Now you can add bundles to the created directory like it's described in 4.4.1.
 
-###4.5	Build the admin user interface
-####4.5.1.	Install maven
+### Build the admin user interface
+#### Install maven
 
 Download and install maven. You can follow the instructions on the following website:
 
 [http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
 
-####4.5.2.	Install the maven plugin of eclipse
+#### Install the maven plugin of eclipse
 
 First open the marketplace of Eclipse.
 
@@ -338,7 +360,7 @@ Then search for m2eclipse-wtp:
 
 Click on "**Install**" and follow the displayed steps.
 
-####4.5.3.	Inital update and build of the admin user interface web project
+#### Inital update and build of the admin user interface web project
 
 After importing the project org.opentosca.ui.admin into the Eclipse workspace click with the right
 mouse button on the project in the Eclipse "**Project Explorer**" and select "**Update Project...**"
@@ -375,7 +397,7 @@ afterwards.
 ![alt text](file:///Z:/Guides/DeveloperGuide_graphics/EclipseAdminWar.png)
 </center>
 
-####4.5.4.	Run the admin user interface in the tomcat managed by Eclipse
+#### Run the admin user interface in the tomcat managed by Eclipse
 
 First make sure to install a tomcat like described in chapter 3.1. Then do a right click on the
 org.opentosca.ui.admin project and select "**Run As**" and then "**Run on Server**".
@@ -393,9 +415,10 @@ Then choose the existin Tomcat v7.0 server and click on "**Finish**".
 Then browse to the website like [http://127.0.0.1:8080/admin/index.action](http://127.0.0.1:8080/admin/index.action) if the tomcat is installed
 locally.
 
-####4.5.5. Run the admin user interface in a dedicated tomcat
+#### 	Run the admin user interface in a dedicated tomcat
 
 Copy the admin.war inside the "webapps" folder of yout tomcat installation.  
 Then browse to the website like [http://127.0.0.1:8080/admin/index.action](http://127.0.0.1:8080/admin/index.action) if the tomcat is installed locally.
+
 
 
