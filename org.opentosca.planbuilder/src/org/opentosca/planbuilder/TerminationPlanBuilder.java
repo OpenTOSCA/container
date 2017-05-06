@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.model.tosca.conventions.Interfaces;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
@@ -143,7 +144,6 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				// templatePlan should abort when the properties aren't set with
 				// values
 				this.nodeInstanceInitializer.addIfNullAbortCheck(newTerminationPlan, propMap);
-				
 
 				this.runPlugins(newTerminationPlan, serviceTemplate.getQName(), propMap);
 
@@ -205,6 +205,22 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 							context.executeOperation(infraNode,
 									org.opentosca.model.tosca.conventions.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
 									null);
+						}
+					}
+
+				} else {
+					// check whether this node is a docker container
+					TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, serviceTemplate);
+					// fetch infrastructure node (cloud provider)
+					List<AbstractNodeTemplate> nodes = new ArrayList<AbstractNodeTemplate>();
+					Utils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
+					
+
+					for (AbstractNodeTemplate node : nodes) {
+						if (org.opentosca.model.tosca.conventions.Utils
+								.isSupportedDockerEngineNodeType(node.getType().getId())) {
+							context.executeOperation(node,
+									Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER, null);
 						}
 					}
 
