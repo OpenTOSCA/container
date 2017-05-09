@@ -112,7 +112,7 @@
          id="com.google.guava"
          download-size="0"
          install-size="0"
-         version="14.0.1"
+         version="15.0.0"
          unpack="false"/>
 
    <plugin
@@ -1306,6 +1306,14 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.inject.multibindings"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
          unpack="false"/>
 
 </feature>

@@ -4,7 +4,7 @@ Bundle-Name: OpenTOSCA Container API (legacy)
 Bundle-SymbolicName: org.opentosca.container.api.legacy
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opentosca.container.api.legacy.Activator
-Import-Package: com.google.gson;version="2.7.0",
+Import-Package: com.google.gson;version="2.2.4",
  javax.servlet;version="2.4.0",
  javax.servlet.http;version="3.1.0",
  javax.ws.rs;version="1.1.1",
@@ -31,3 +31,31 @@ Require-Bundle: org.opentosca.container.control;bundle-version="1.0.0",
  org.opentosca.container.portability
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*
+Export-Package: org.opentosca.container.api.legacy,
+ org.opentosca.container.api.legacy.instancedata,
+ org.opentosca.container.api.legacy.instancedata.exception,
+ org.opentosca.container.api.legacy.instancedata.model,
+ org.opentosca.container.api.legacy.instancedata.utilities,
+ org.opentosca.container.api.legacy.osgi.servicegetter,
+ org.opentosca.container.api.legacy.portability,
+ org.opentosca.container.api.legacy.resources,
+ org.opentosca.container.api.legacy.resources.credentials,
+ org.opentosca.container.api.legacy.resources.credentials.jaxb,
+ org.opentosca.container.api.legacy.resources.csar,
+ org.opentosca.container.api.legacy.resources.csar.content,
+ org.opentosca.container.api.legacy.resources.csar.control,
+ org.opentosca.container.api.legacy.resources.csar.control.jaxb,
+ org.opentosca.container.api.legacy.resources.csar.jaxb,
+ org.opentosca.container.api.legacy.resources.csar.servicetemplate,
+ org.opentosca.container.api.legacy.resources.csar.servicetemplate.boundarydefinitions,
+ org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances,
+ org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances.plans,
+ org.opentosca.container.api.legacy.resources.csar.servicetemplate.nodetemplate,
+ org.opentosca.container.api.legacy.resources.csar.servicetemplate.nodetemplate.instances,
+ org.opentosca.container.api.legacy.resources.marketplace,
+ org.opentosca.container.api.legacy.resources.packager,
+ org.opentosca.container.api.legacy.resources.smartservices,
+ org.opentosca.container.api.legacy.resources.storageproviders,
+ org.opentosca.container.api.legacy.resources.storageproviders.jaxb,
+ org.opentosca.container.api.legacy.resources.utilities,
+ org.opentosca.container.api.legacy.resources.xlink

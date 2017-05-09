@@ -23,9 +23,11 @@ import java.util.List;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.opentosca.container.api.config.CorsFilter;
+import org.opentosca.container.api.config.JAXBContextProvider;
 import org.opentosca.container.api.config.ObjectMapperProvider;
 import org.opentosca.container.api.config.PlainTextMessageBodyWriter;
-import org.opentosca.container.api.resource.RootResource;
+import org.opentosca.container.api.resource.CsarController;
+import org.opentosca.container.api.resource.RootController;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -36,25 +38,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
-	
-	private static Logger logger = LoggerFactory.getLogger(Activator.class);
 
+	private static Logger logger = LoggerFactory.getLogger(Activator.class);
+	
 	private static BundleContext context;
-	
+
 	private final List<ServiceRegistration<?>> services = new ArrayList<>();
-	
-	
+
+
 	static BundleContext getContext() {
 		return context;
 	}
-
+	
 	@Override
 	public void start(final BundleContext bundleContext) throws Exception {
 		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
-		
-		// Endpoint Resources
-		this.services.add(bundleContext.registerService(RootResource.class, new RootResource(), null));
 
+		// Endpoint Resources
+		this.services.add(bundleContext.registerService(RootController.class, new RootController(), null));
+		this.services.add(bundleContext.registerService(CsarController.class, new CsarController(), null));
+		
 		// Jersey Configuration
 		this.configurator(bundleContext);
 		this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
@@ -62,35 +65,39 @@ public class Activator implements BundleActivator {
 		this.services.add(bundleContext.registerService(ObjectMapperProvider.class, new ObjectMapperProvider(), null));
 		this.services.add(bundleContext.registerService(JacksonFeature.class, new JacksonFeature(), null));
 		this.services.add(bundleContext.registerService(MultiPartFeature.class, new MultiPartFeature(), null));
+
+		// Custom JAXBContext provider to have proper error logging. Can be
+		// removed once the API is in a stable state.
+		this.services.add(bundleContext.registerService(JAXBContextProvider.class, new JAXBContextProvider(), null));
 		
 		context = bundleContext;
 	}
-
+	
 	@Override
 	public void stop(final BundleContext bundleContext) throws Exception {
 		logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
 		this.services.forEach(service -> service.unregister());
 		context = null;
 	}
-	
+
 	private void configurator(final BundleContext bundleContext) throws Exception {
 		final ServiceReference<?> configAdminRef = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
-
+		
 		if (configAdminRef == null) {
 			logger.warn("Reference to <ConfigurationAdmin> service could not be found, did you activate the bundle?");
 			return;
 		}
-
+		
 		final ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminRef);
 		final Configuration config = configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null);
-
+		
 		Dictionary<String, Object> properties = config.getProperties();
 		if (properties == null) {
 			properties = new Hashtable<>();
 		}
-
+		
 		properties.put("root", "/");
-
+		
 		config.update(properties);
 	}
 }

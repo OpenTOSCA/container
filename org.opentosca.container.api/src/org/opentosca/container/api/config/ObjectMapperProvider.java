@@ -21,6 +21,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -46,12 +47,13 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 		return this.objectMapper;
 	}
 	
-	private static ObjectMapper createDefaultMapper() {
-		
-		return new ObjectMapper();
+	public static ObjectMapper createDefaultMapper() {
+		final ObjectMapper om = new ObjectMapper();
+		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		return om;
 	}
-	
-	
+
+
 	public static class LinkSerializer extends JsonSerializer<Link> {
 		
 		@Override
