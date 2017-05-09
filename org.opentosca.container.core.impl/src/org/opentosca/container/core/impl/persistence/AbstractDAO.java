@@ -14,7 +14,7 @@ import org.opentosca.container.core.common.Settings;
  * Abstract class which delivers common functionality for other DAOs
  */
 public abstract class AbstractDAO {
-
+	
 	/**
 	 * JDBC-Url to the Database. The Database to store InstanceData (for
 	 * NodeInstances, ServiceInstances [later: and Relationsships]) will reside
@@ -29,19 +29,19 @@ public abstract class AbstractDAO {
 	 */
 	private EntityManagerFactory emf;
 	protected EntityManager em;
-	
-	
+
+
 	public AbstractDAO() {
 		super();
 	}
-	
+
 	@Override
 	protected void finalize() throws Throwable {
 		this.em.close();
 		this.emf.close();
 		super.finalize();
 	}
-	
+
 	/**
 	 * This method initializes the EntityManager/Factory in case it is not
 	 * connected/setup yet. It is called by each method, to ensure that a
@@ -53,9 +53,9 @@ public abstract class AbstractDAO {
 			properties.put(PersistenceUnitProperties.JDBC_URL, this.databaseURL);
 			// first parameter has to be the name of the JPA Unit (in this case)
 			// see ServiceInstance JPA Unit in persinstence.xml
-			this.emf = Persistence.createEntityManagerFactory("InstanceData", properties);
+			this.emf = Persistence.createEntityManagerFactory(Settings.PERSISTENCE_UNIT_NAME, properties);
 			this.em = this.emf.createEntityManager();
 		}
 	}
-	
+
 }

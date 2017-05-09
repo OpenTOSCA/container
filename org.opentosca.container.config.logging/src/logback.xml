@@ -16,7 +16,12 @@
     <appender-ref ref="CONSOLE" />
   </root>
 
-  <logger name="org.apache" level="INFO" />
+  <!-- Reducing logging noise  -->
+  <logger name="org.apache.axis2" level="INFO" />
+  <logger name="org.apache.axiom" level="INFO" />
+  <logger name="org.apache.commons" level="INFO" />
   <logger name="org.eclipse.jetty" level="INFO" />
+  <logger name="org.opentosca.planbuilder.importer.context" level="INFO" />
+  <logger name="httpclient.wire" level="INFO" />
 
 </configuration>

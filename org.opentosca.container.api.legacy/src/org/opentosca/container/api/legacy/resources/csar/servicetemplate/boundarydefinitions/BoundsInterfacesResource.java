@@ -22,23 +22,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BoundsInterfacesResource {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(BoundsInterfacesResource.class);
 	private CSARID csarID = null;
 	private QName serviceTemplateID = null;
-
+	
 	UriInfo uriInfo;
-
-
+	
+	
 	public BoundsInterfacesResource(final CSARID csarID, final QName serviceTemplateID) {
 		this.csarID = csarID;
 		this.serviceTemplateID = serviceTemplateID;
-
+		
 		if (null == ToscaServiceHandler.getToscaEngineService()) {
 			LOG.error("The ToscaEngineService is not alive.");
 		}
 	}
-	
+
 	/**
 	 * Builds the references of the Boundary Definitions of a CSAR.
 	 *
@@ -51,7 +51,7 @@ public class BoundsInterfacesResource {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getReferences().getXMLString()).build();
 	}
-
+	
 	/**
 	 * Builds the references of the Boundary Definitions of a CSAR.
 	 *
@@ -64,24 +64,24 @@ public class BoundsInterfacesResource {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getReferences().getJSONString()).build();
 	}
-
+	
 	private References getReferences() {
-
+		
 		final References refs = new References();
-
+		
 		final List<String> interfaces = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getBoundaryInterfacesOfCSAR(this.csarID);
-
+		
 		if (null != interfaces) {
 			for (final String intf : interfaces) {
-				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), intf), XLinkConstants.SIMPLE, intf));
+				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, intf), XLinkConstants.SIMPLE, intf));
 			}
 		}
-
+		
 		// selflink
 		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
-
+	
 	/**
 	 * Returns the Interface Operations for a given Interface name.
 	 *
@@ -92,5 +92,5 @@ public class BoundsInterfacesResource {
 	public BoundsInterfaceResource getPublicPlan(@PathParam("InterfaceName") final String intName) {
 		return new BoundsInterfaceResource(this.csarID, this.serviceTemplateID, intName);
 	}
-
+	
 }

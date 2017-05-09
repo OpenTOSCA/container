@@ -104,7 +104,9 @@ public class ServiceInstanceDAO extends AbstractDAO {
 
 		LOG.debug("Try to get Service Template instance objects from persistence for CSAR \"{}\" Service Template \"{}\" Instance Id \"{}\"", csarId, serviceTemplateId, serviceTemplateInstanceID);
 
-		final Query getServiceInstancesQuery = this.em.createNamedQuery(ServiceInstance.getServiceInstances);
+		// final Query getServiceInstancesQuery =
+		// this.em.createNamedQuery(ServiceInstance.getServiceInstances);
+		final Query getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id AND s.serviceTemplateName = :serviceTemplateName AND s.serviceTemplateID = :serviceTemplateID");
 
 		final String serviceTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, serviceTemplateId);
 
@@ -112,7 +114,7 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		// getServiceInstancesQuery.setParameter("param", param);
 		getServiceInstancesQuery.setParameter("id", serviceTemplateInstanceID);
 		getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
-		getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId.toString());
+		getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId);
 
 		// getServiceInstancesQuery.setParameter("serviceTemplateID",
 		// serviceTemplateID);

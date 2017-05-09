@@ -27,7 +27,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.persistence.annotations.CascadeOnDelete;
 import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
-import org.eclipse.persistence.annotations.Converters;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
 import org.opentosca.container.core.common.jpa.QNameConverter;
@@ -38,7 +37,6 @@ import org.w3c.dom.Document;
  * Model class representing a ServiceInstance
  */
 @Entity
-@Converters({@Converter(name = "QNameConverter", converterClass = QNameConverter.class), @Converter(name = "DOMDocumentConverter", converterClass = DocumentConverter.class)})
 @NamedQueries({@NamedQuery(name = ServiceInstance.getServiceInstances, query = ServiceInstance.getServiceInstancesQuery)})
 public class ServiceInstance {
 	
@@ -57,6 +55,7 @@ public class ServiceInstance {
 	private URI serviceInstanceID;
 
 	@Convert("QNameConverter")
+	@Converter(name = "QNameConverter", converterClass = QNameConverter.class)
 	private QName serviceTemplateID;
 
 	// the name of the corresponding ServiceTemplate
@@ -73,7 +72,8 @@ public class ServiceInstance {
 	private String csarID_DB;
 
 	@Column(name = "properties", columnDefinition = "VARCHAR(4096)")
-	@Convert("DOMDocumentConverter")
+	@Convert("DocumentConverter")
+	@Converter(name = "DocumentConverter", converterClass = DocumentConverter.class)
 	Document properties;
 
 

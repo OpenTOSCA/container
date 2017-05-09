@@ -68,8 +68,8 @@ public class ServiceTemplateResource {
 		
 		final References refs = new References();
 		
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "BoundaryDefinitions"), XLinkConstants.SIMPLE, "BoundaryDefinitions"));
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "Instances"), XLinkConstants.SIMPLE, "Instances"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "BoundaryDefinitions"), XLinkConstants.SIMPLE, "BoundaryDefinitions"));
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Instances"), XLinkConstants.SIMPLE, "Instances"));
 		
 		// selflink
 		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
