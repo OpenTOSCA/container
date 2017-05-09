@@ -60,15 +60,15 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Exporter extends AbstractExporter {
-
+	
 	private final static Logger LOG = LoggerFactory.getLogger(Exporter.class);
-
+	
 	private final SimpleFileExporter simpleExporter;
-
+	
 	private final ObjectFactory toscaFactory;
 	private final CSARHandler handler = new CSARHandler();
-	
-	
+
+
 	/**
 	 * Constructor
 	 */
@@ -76,7 +76,7 @@ public class Exporter extends AbstractExporter {
 		this.simpleExporter = new SimpleFileExporter();
 		this.toscaFactory = new ObjectFactory();
 	}
-
+	
 	/**
 	 * Exports the given BuildPlan to the given URI
 	 *
@@ -88,7 +88,7 @@ public class Exporter extends AbstractExporter {
 	public void export(final URI destination, final BuildPlan buildPlan) throws IOException, JAXBException {
 		this.simpleExporter.export(destination, buildPlan);
 	}
-
+	
 	/**
 	 * Exports the given BuildPlans repackaged with the CSAR denoted by the
 	 * given CSARID
@@ -98,40 +98,40 @@ public class Exporter extends AbstractExporter {
 	 * @return a File denoting the absolute Path to the exported CSAR
 	 */
 	public File export(final List<BuildPlan> buildPlans, final CSARID csarId) {
-
+		
 		CSARContent csarContent = null;
 		try {
 			csarContent = this.handler.getCSARContentForID(csarId);
 		} catch (final UserException e1) {
 			Exporter.LOG.error("Error occured while trying to retrieve CSAR content", e1);
 		}
-
+		
 		if (csarContent == null) {
 			return null;
 		}
-
+		
 		final String csarName = csarId.getFileName();
-
+		
 		final IFileAccessService service = this.getFileAccessService();
-
+		
 		final File tempDir = service.getTemp();
 		final File pathToRepackagedCsar = service.getTemp();
 		final File repackagedCsar = new File(pathToRepackagedCsar, csarName);
-
+		
 		try {
 			final Set<AbstractFile> files = csarContent.getFilesRecursively();
 			final AbstractFile mainDefFile = csarContent.getRootTOSCA();
 			final File rootDefFile = mainDefFile.getFile().toFile();
 			final Definitions defs = this.parseDefinitionsFile(rootDefFile);
 			final List<TServiceTemplate> servTemps = this.getServiceTemplates(defs);
-
+			
 			final List<BuildPlan> plansToExport = new ArrayList<>();
-
+			
 			// add plans element to servicetemplates
 			for (final BuildPlan buildPlan : buildPlans) {
 				for (final TServiceTemplate serviceTemplate : servTemps) {
 					if (buildPlan.getServiceTemplate().equals(this.buildQName(defs, serviceTemplate))) {
-
+						
 						TPlans plans = serviceTemplate.getPlans();
 						if (plans == null) {
 							plans = this.toscaFactory.createTPlans();
@@ -141,7 +141,7 @@ public class Exporter extends AbstractExporter {
 						final TPlan generatedPlanElement = this.generateTPlanElement(buildPlan);
 						planList.add(generatedPlanElement);
 						plansToExport.add(buildPlan);
-						
+
 						// add the plan as an operation to the boundary
 						// definitions
 						TBoundaryDefinitions boundary = serviceTemplate.getBoundaryDefinitions();
@@ -149,29 +149,29 @@ public class Exporter extends AbstractExporter {
 							boundary = this.toscaFactory.createTBoundaryDefinitions();
 							serviceTemplate.setBoundaryDefinitions(boundary);
 						}
-						
+
 						org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces iface = boundary.getInterfaces();
-						
+
 						if (iface == null) {
 							iface = this.toscaFactory.createTBoundaryDefinitionsInterfaces();
 							boundary.setInterfaces(iface);
 						}
-						
-						TExportedInterface exportedIface = null;
 
+						TExportedInterface exportedIface = null;
+						
 						// find already set openTOSCA lifecycle interface
 						for (final TExportedInterface exIface : iface.getInterface()) {
 							if ((exIface.getName() != null) && exIface.getName().equals("OpenTOSCA-Lifecycle-Interface")) {
 								exportedIface = exIface;
 							}
 						}
-
+						
 						if (exportedIface == null) {
 							exportedIface = this.toscaFactory.createTExportedInterface();
 							exportedIface.setName("OpenTOSCA-Lifecycle-Interface");
 							iface.getInterface().add(exportedIface);
 						}
-
+						
 						boolean alreadySpecified = false;
 						for (final TExportedOperation op : exportedIface.getOperation()) {
 							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
@@ -180,7 +180,7 @@ public class Exporter extends AbstractExporter {
 								alreadySpecified = true;
 							}
 						}
-						
+
 						if (!alreadySpecified) {
 							final TExportedOperation op = this.toscaFactory.createTExportedOperation();
 							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD)) {
@@ -189,7 +189,7 @@ public class Exporter extends AbstractExporter {
 								op.setName("terminate");
 							}
 							final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan plan = this.toscaFactory.createTExportedOperationPlan();
-
+							
 							plan.setPlanRef(generatedPlanElement);
 							op.setPlan(plan);
 							exportedIface.getOperation().add(op);
@@ -197,24 +197,24 @@ public class Exporter extends AbstractExporter {
 					}
 				}
 			}
-
+			
 			for (final AbstractFile file : files) {
 				if (file.getFile().toFile().toString().equals(rootDefFile.toString())) {
 					continue;
 				}
-
+				
 				final File newLocation = new File(tempDir, file.getPath());
 				Exporter.LOG.debug(newLocation.getAbsolutePath());
 				Exporter.LOG.debug(file.getFile().toString());
 				if (newLocation.isDirectory()) {
-
+					
 					FileUtils.copyDirectory(file.getFile().toFile(), newLocation);
 				} else {
 					FileUtils.copyFile(file.getFile().toFile(), newLocation);
 				}
-
+				
 			}
-
+			
 			// write new defs file
 			final File newDefsFile = new File(tempDir, mainDefFile.getPath());
 			newDefsFile.createNewFile();
@@ -223,7 +223,7 @@ public class Exporter extends AbstractExporter {
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			// output to the console: m.marshal(defs, System.out);
 			m.marshal(defs, newDefsFile);
-
+			
 			// write plans
 			for (final BuildPlan plan : plansToExport) {
 				final File planPath = new File(tempDir, this.generateRelativePlanPath(plan));
@@ -232,16 +232,16 @@ public class Exporter extends AbstractExporter {
 				planPath.createNewFile();
 				this.simpleExporter.export(planPath.toURI(), plan);
 			}
-
+			
 			// Check if selfservice is already available
 			final File selfServiceDir = new File(tempDir, "SELFSERVICE-Metadata");
 			final File selfServiceDataXml = new File(selfServiceDir, "data.xml");
 			final JAXBContext jaxbContextWineryApplication = JAXBContext.newInstance(Application.class);
-
+			
 			if (selfServiceDir.exists() && selfServiceDataXml.exists()) {
 				final Unmarshaller u = jaxbContextWineryApplication.createUnmarshaller();
 				final Application appDesc = (Application) u.unmarshal(selfServiceDataXml);
-
+				
 				if (appDesc.getOptions() != null) {
 					// check if planInput etc. is set properly
 					int addedToOptions = 0;
@@ -261,30 +261,30 @@ public class Exporter extends AbstractExporter {
 							}
 						}
 					}
-
+					
 					if (exportedPlans.size() != plansToExport.size()) {
-
+						
 						int optionCounter = 1 + appDesc.getOptions().getOption().size();
 						for (final BuildPlan plan : plansToExport) {
 							if (exportedPlans.contains(plan)) {
 								continue;
 							}
-
+							
 							final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 							this.writePlanInputMessageInstance(plan, new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
-
+							
 							appDesc.getOptions().getOption().add(option);
 							optionCounter++;
 						}
-
+						
 						final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
 						wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
 					}
-
+					
 				} else {
 					int optionCounter = 1;
 					final Application.Options options = new Application.Options();
-
+					
 					for (final BuildPlan plan : plansToExport) {
 						final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 						this.writePlanInputMessageInstance(plan, new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
@@ -292,24 +292,24 @@ public class Exporter extends AbstractExporter {
 						options.getOption().add(option);
 					}
 					appDesc.setOptions(options);
-
+					
 					final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
 					wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
 				}
-
+				
 			} else {
 				// write SELFSERVICE-Metadata folder and files
 				if (selfServiceDir.mkdirs() && selfServiceDataXml.createNewFile()) {
 					final Application appDesc = new Application();
-
+					
 					appDesc.setDisplayName(csarName);
 					appDesc.setDescription("No description available. This application was partially generated");
 					appDesc.setIconUrl("");
 					appDesc.setImageUrl("");
-
+					
 					int optionCounter = 1;
 					final Application.Options options = new Application.Options();
-
+					
 					for (final BuildPlan plan : plansToExport) {
 						final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 						this.writePlanInputMessageInstance(plan, new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
@@ -317,12 +317,12 @@ public class Exporter extends AbstractExporter {
 						options.getOption().add(option);
 					}
 					appDesc.setOptions(options);
-
+					
 					final Marshaller wineryAppMarshaller = jaxbContextWineryApplication.createMarshaller();
 					wineryAppMarshaller.marshal(appDesc, selfServiceDataXml);
 				}
 			}
-
+			
 		} catch (final IOException e) {
 			Exporter.LOG.error("Some IO Exception occured", e);
 		} catch (final JAXBException e) {
@@ -334,7 +334,7 @@ public class Exporter extends AbstractExporter {
 		Exporter.LOG.debug(repackagedCsar.toString());
 		return repackagedCsar;
 	}
-
+	
 	private ApplicationOption createApplicationOption(final BuildPlan plan, final int optionCounter) {
 		final ApplicationOption option = new ApplicationOption();
 		switch (plan.getType()) {
@@ -357,7 +357,7 @@ public class Exporter extends AbstractExporter {
 		option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
 		return option;
 	}
-
+	
 	/**
 	 * Parses the given file to a JAXB Definitions class
 	 *
@@ -368,7 +368,7 @@ public class Exporter extends AbstractExporter {
 	private Definitions parseDefinitionsFile(final File file) {
 		Definitions def = null;
 		try {
-			final JAXBContext jaxbContext = JAXBContext.newInstance("org.oasis_open.docs.tosca.ns._2011._12");
+			final JAXBContext jaxbContext = JAXBContext.newInstance(Definitions.class);
 			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			def = (Definitions) unmarshaller.unmarshal(new FileReader(file));
 		} catch (final JAXBException e) {
@@ -380,7 +380,7 @@ public class Exporter extends AbstractExporter {
 		}
 		return def;
 	}
-
+	
 	/**
 	 * Returns the FileAccessService of the OpenTOSCA Core
 	 *
@@ -392,7 +392,7 @@ public class Exporter extends AbstractExporter {
 		final IFileAccessService service = (IFileAccessService) ctx.getService(serviceReference);
 		return service;
 	}
-
+	
 	/**
 	 * Builds a valid QName for the given ServiceTemplate based on the given
 	 * Definitions document
@@ -409,7 +409,7 @@ public class Exporter extends AbstractExporter {
 		final String id = serviceTemplate.getId();
 		return new QName(namespace, id);
 	}
-
+	
 	/**
 	 * Returns a List of TServiceTemplate of the given Definitions document
 	 *
@@ -419,7 +419,7 @@ public class Exporter extends AbstractExporter {
 	 */
 	private List<TServiceTemplate> getServiceTemplates(final Definitions defs) {
 		final List<TServiceTemplate> servTemps = new ArrayList<>();
-
+		
 		for (final TExtensibleElements element : defs.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
 			if (element instanceof TServiceTemplate) {
 				servTemps.add((TServiceTemplate) element);
@@ -427,7 +427,7 @@ public class Exporter extends AbstractExporter {
 		}
 		return servTemps;
 	}
-
+	
 	/**
 	 * Generates a JAXB TPlan element for the given BuildPlan
 	 *
@@ -441,10 +441,10 @@ public class Exporter extends AbstractExporter {
 		final TPlan.OutputParameters outputParams = new TPlan.OutputParameters();
 		final List<TParameter> inputParamsList = inputParams.getInputParameter();
 		final List<TParameter> outputParamsList = outputParams.getOutputParameter();
-
+		
 		ref.setReference(this.generateRelativePlanPath(generatedPlan));
 		plan.setPlanModelReference(ref);
-
+		
 		for (final String paramName : generatedPlan.getWsdl().getInputMessageLocalNames()) {
 			// the builder supports only string types
 			final TParameter param = this.toscaFactory.createTParameter();
@@ -453,7 +453,7 @@ public class Exporter extends AbstractExporter {
 			param.setType("String");
 			inputParamsList.add(param);
 		}
-
+		
 		for (final String paramName : generatedPlan.getWsdl().getOuputMessageLocalNames()) {
 			final TParameter param = this.toscaFactory.createTParameter();
 			param.setName(paramName);
@@ -461,10 +461,10 @@ public class Exporter extends AbstractExporter {
 			param.setType("String");
 			outputParamsList.add(param);
 		}
-
+		
 		plan.setInputParameters(inputParams);
 		plan.setOutputParameters(outputParams);
-
+		
 		switch (generatedPlan.getType()) {
 		case BUILD:
 			plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan");
@@ -478,13 +478,13 @@ public class Exporter extends AbstractExporter {
 			plan.setPlanType("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan");
 			break;
 		}
-
+		
 		plan.setId(generatedPlan.getBpelProcessElement().getAttribute("name"));
 		plan.setPlanLanguage(BuildPlan.bpelNamespace);
-
+		
 		return plan;
 	}
-
+	
 	/**
 	 * Generates a relative path for the BuildPlan to be used inside a CSAR file
 	 *
@@ -494,7 +494,7 @@ public class Exporter extends AbstractExporter {
 	private String generateRelativePlanPath(final BuildPlan buildPlan) {
 		return "Plans/" + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip";
 	}
-
+	
 	private QName getBuildPlanServiceName(final Deploy deploy) {
 		// generated buildplans have only one process!
 		for (final TProvide provide : deploy.getProcess().get(0).getProvide()) {
@@ -505,30 +505,30 @@ public class Exporter extends AbstractExporter {
 		}
 		return null;
 	}
-
+	
 	private void writePlanInputMessageInstance(final BuildPlan buildPlan, final File xmlFile) throws IOException {
 		final String messageNs = buildPlan.getWsdl().getTargetNamespace();
 		final String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
 		final List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
-
+		
 		final VinothekKnownParameters paramMappings = new VinothekKnownParameters();
 		final String soapMessagePrefix = this.createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);
 		final String soapMessageSuffix = this.createSuffixPartOfSoapMessage(requestMessageLocalName);
-
+		
 		String soapMessage = soapMessagePrefix;
 		for (final String inputParamName : inputParamNames) {
 			soapMessage += paramMappings.createXmlElement(inputParamName);
 		}
 		soapMessage += soapMessageSuffix;
-
+		
 		FileUtils.write(xmlFile, soapMessage);
 	}
-
+	
 	private String createPrefixPartOfSoapMessage(final String namespace, final String messageBodyRootLocalName) {
 		final String soapEnvelopePrefix = "<soapenv:Envelope xmlns:wsa=\"http://www.w3.org/2005/08/addressing\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:org=\"" + namespace + "\"><soapenv:Header><wsa:ReplyTo><wsa:Address>%CALLBACK-URL%</wsa:Address></wsa:ReplyTo><wsa:Action>" + namespace + "/initiate</wsa:Action><wsa:MessageID>%CORRELATION-ID%</wsa:MessageID></soapenv:Header><soapenv:Body><org:" + messageBodyRootLocalName + ">";
 		return soapEnvelopePrefix;
 	}
-
+	
 	private String createSuffixPartOfSoapMessage(final String messageBodyRootLocalName) {
 		final String soapEnvelopeSuffix = "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
 		return soapEnvelopeSuffix;
