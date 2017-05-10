@@ -63,8 +63,10 @@
       <plugin id="com.sun.jersey.client" autoStart="true" startLevel="0" />
       <plugin id="com.sun.jersey.core" autoStart="true" startLevel="0" />
       <plugin id="filesystem" autoStart="true" startLevel="0" />
+      <plugin id="javax.activation" autoStart="true" startLevel="0" />
       <plugin id="javax.annotation" autoStart="true" startLevel="0" />
       <plugin id="javax.inject" autoStart="true" startLevel="0" />
+      <plugin id="javax.mail" autoStart="true" startLevel="0" />
       <plugin id="javax.persistence" autoStart="true" startLevel="1" />
       <plugin id="javax.servlet" autoStart="true" startLevel="0" />
       <plugin id="javax.wsdl" autoStart="true" startLevel="0" />
@@ -112,6 +114,7 @@
       <plugin id="org.apache.felix.gogo.shell" autoStart="true" startLevel="0" />
       <plugin id="org.apache.httpcomponents.httpclient" autoStart="true" startLevel="0" />
       <plugin id="org.apache.httpcomponents.httpcore" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.neethi" autoStart="true" startLevel="0" />
       <plugin id="org.apache.servicemix.bundles.spring-aop" autoStart="true" startLevel="0" />
       <plugin id="org.apache.servicemix.bundles.spring-beans" autoStart="true" startLevel="0" />
       <plugin id="org.apache.servicemix.bundles.spring-context" autoStart="true" startLevel="0" />
