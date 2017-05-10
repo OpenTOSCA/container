@@ -6,7 +6,6 @@ command="cd www/container/\n"
 command="${command}mkdir $TRAVIS_BRANCH\ncd $TRAVIS_BRANCH\nrm *.war\n"
 
 command="${command}mput org.opentosca.container.product/target/products/*.zip\n"
-command="${command}mput org.opentosca.planbuilder.service.product/target/products/*.zip\n"
 command="${command}exit\n"
 
 # now $command is complete
