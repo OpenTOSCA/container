@@ -1,6 +1,7 @@
-package org.opentosca.container.api.resource.dto;
+package org.opentosca.container.api.dto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -18,7 +19,7 @@ public class CsarListDTO extends ResourceSupport {
 	private final List<CsarDTO> csars = new ArrayList<>();
 	
 	
-	public void add(final CsarDTO csar) {
-		this.csars.add(csar);
+	public void add(final CsarDTO... csars) {
+		this.csars.addAll(Arrays.asList(csars));
 	}
 }

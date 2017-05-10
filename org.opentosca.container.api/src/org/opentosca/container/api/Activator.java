@@ -26,8 +26,7 @@ import org.opentosca.container.api.config.CorsFilter;
 import org.opentosca.container.api.config.JAXBContextProvider;
 import org.opentosca.container.api.config.ObjectMapperProvider;
 import org.opentosca.container.api.config.PlainTextMessageBodyWriter;
-import org.opentosca.container.api.resource.CsarController;
-import org.opentosca.container.api.resource.RootController;
+import org.opentosca.container.api.controller.RootController;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -53,10 +52,11 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(final BundleContext bundleContext) throws Exception {
 		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
+		
+		context = bundleContext;
 
-		// Endpoint Resources
+		// Non-OSGi Endpoint Resources
 		this.services.add(bundleContext.registerService(RootController.class, new RootController(), null));
-		this.services.add(bundleContext.registerService(CsarController.class, new CsarController(), null));
 		
 		// Jersey Configuration
 		this.configurator(bundleContext);
@@ -69,8 +69,6 @@ public class Activator implements BundleActivator {
 		// Custom JAXBContext provider to have proper error logging. Can be
 		// removed once the API is in a stable state.
 		this.services.add(bundleContext.registerService(JAXBContextProvider.class, new JAXBContextProvider(), null));
-		
-		context = bundleContext;
 	}
 	
 	@Override

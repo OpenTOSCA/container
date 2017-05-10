@@ -63,6 +63,7 @@
       <plugin id="com.sun.jersey.client" autoStart="true" startLevel="0" />
       <plugin id="com.sun.jersey.core" autoStart="true" startLevel="0" />
       <plugin id="filesystem" autoStart="true" startLevel="0" />
+      <plugin id="groovy-all" autoStart="true" startLevel="0" />
       <plugin id="javax.activation" autoStart="true" startLevel="0" />
       <plugin id="javax.annotation" autoStart="true" startLevel="0" />
       <plugin id="javax.inject" autoStart="true" startLevel="0" />

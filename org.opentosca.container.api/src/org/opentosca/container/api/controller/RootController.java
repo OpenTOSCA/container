@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *******************************************************************************/
-package org.opentosca.container.api.resource;
+package org.opentosca.container.api.controller;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,7 +25,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.opentosca.container.api.resource.dto.ResourceSupport;
+import org.opentosca.container.api.dto.ResourceSupport;
 
 @Path("/")
 public class RootController {

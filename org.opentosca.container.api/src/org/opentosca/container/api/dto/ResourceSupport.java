@@ -1,4 +1,4 @@
-package org.opentosca.container.api.resource.dto;
+package org.opentosca.container.api.dto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
