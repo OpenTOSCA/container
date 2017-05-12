@@ -26,15 +26,16 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
-	
+
 	private ObjectMapper objectMapper;
-
-
+	
+	
 	@Override
 	public ObjectMapper getContext(final Class<?> type) {
 		if (this.objectMapper == null) {
@@ -46,16 +47,22 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 		}
 		return this.objectMapper;
 	}
-	
-	public static ObjectMapper createDefaultMapper() {
+
+	public static ObjectMapper createSimpleMapper() {
 		final ObjectMapper om = new ObjectMapper();
 		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		return om;
 	}
 
+	public static ObjectMapper createDefaultMapper() {
+		final ObjectMapper om = createSimpleMapper();
+		om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+		return om;
+	}
+
 
 	public static class LinkSerializer extends JsonSerializer<Link> {
-		
+
 		@Override
 		public void serialize(final Link link, final JsonGenerator json, final SerializerProvider provider) throws IOException, JsonProcessingException {
 			if ((link.getUri() == null) || (link.getRel() == null) || link.getRel().isEmpty()) {

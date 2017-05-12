@@ -10,12 +10,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@XmlRootElement(name = "csar-list")
+@XmlRootElement(name = "CsarResources")
 public class CsarListDTO extends ResourceSupport {
 	
 	@JsonProperty
-	@XmlElement(name = "csar")
-	@XmlElementWrapper(name = "csars")
+	@XmlElement(name = "Csar")
+	@XmlElementWrapper(name = "Csars")
 	private final List<CsarDTO> csars = new ArrayList<>();
 	
 	

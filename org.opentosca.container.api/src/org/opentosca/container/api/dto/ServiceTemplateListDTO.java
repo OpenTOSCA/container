@@ -10,12 +10,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@XmlRootElement(name = "service-template-list")
+@XmlRootElement(name = "ServiceTemplateResources")
 public class ServiceTemplateListDTO extends ResourceSupport {
 
 	@JsonProperty
-	@XmlElement(name = "servicetemplate")
-	@XmlElementWrapper(name = "servicetemplates")
+	@XmlElement(name = "ServiceTemplate")
+	@XmlElementWrapper(name = "ServiceTemplates")
 	private final List<ServiceTemplateDTO> servicetemplates = new ArrayList<>();
 
 

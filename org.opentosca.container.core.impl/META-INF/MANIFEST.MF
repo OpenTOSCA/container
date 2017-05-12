@@ -30,3 +30,13 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0"
 Bundle-Activator: org.opentosca.container.core.impl.Activator
 Service-Component: OSGI-INF/*
+Export-Package: org.opentosca.container.core.impl,
+ org.opentosca.container.core.impl.persistence,
+ org.opentosca.container.core.impl.plan,
+ org.opentosca.container.core.impl.plan.messages,
+ org.opentosca.container.core.impl.service,
+ org.opentosca.container.core.impl.service.internal,
+ org.opentosca.container.core.impl.service.internal.credentials,
+ org.opentosca.container.core.impl.service.internal.file,
+ org.opentosca.container.core.impl.service.internal.file.csar,
+ org.opentosca.container.core.impl.service.internal.file.visitors

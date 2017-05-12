@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.impl.service.InstanceDataServiceImpl;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * Data Access Object for ServiceInstances
  */
 public class ServiceInstanceDAO extends AbstractDAO {
-	
+
 	// Logging
 	private final static Logger LOG = LoggerFactory.getLogger(ServiceInstanceDAO.class);
 
@@ -106,25 +107,23 @@ public class ServiceInstanceDAO extends AbstractDAO {
 
 		// final Query getServiceInstancesQuery =
 		// this.em.createNamedQuery(ServiceInstance.getServiceInstances);
-		final Query getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id AND s.serviceTemplateName = :serviceTemplateName AND s.serviceTemplateID = :serviceTemplateID");
+		// TODO: Use a query builder or something else, but please refactor
+		// this!!
 
 		final String serviceTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, serviceTemplateId);
 
-		// Set Parameters for the Query
-		// getServiceInstancesQuery.setParameter("param", param);
-		getServiceInstancesQuery.setParameter("id", serviceTemplateInstanceID);
-		getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
-		getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId);
+		TypedQuery<ServiceInstance> getServiceInstancesQuery = null;
 
-		// getServiceInstancesQuery.setParameter("serviceTemplateID",
-		// serviceTemplateID);
-		// getServiceInstancesQuery.setParameter("serviceTemplateNamespace",
-		// serviceTemplateNamespace);
-		// Get Query-Results (ServiceInstances) and add them to the result list.
-		@SuppressWarnings("unchecked")
-		final
-		// Result can only be a ServiceInstance
-		List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
+		if (serviceTemplateInstanceID == null) {
+			getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.serviceTemplateName = :serviceTemplateName AND s.serviceTemplateID = :serviceTemplateID", ServiceInstance.class);
+			getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
+			getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId);
+		} else {
+			getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id", ServiceInstance.class);
+			getServiceInstancesQuery.setParameter("id", serviceTemplateInstanceID);
+		}
+		
+		final List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
 
 		LOG.debug("Found {} instance objects for Service Template instance of CSAR \"{}\" Service Template \"{}\" Instance Id \"{}\"", queryResults.size(), csarId, serviceTemplateId, serviceTemplateInstanceID);
 

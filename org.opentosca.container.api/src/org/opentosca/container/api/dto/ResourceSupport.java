@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@XmlRootElement(name = "resources")
+@XmlRootElement(name = "Resources")
 public class ResourceSupport {
 	
 	private final List<Link> links = new ArrayList<>();
@@ -28,8 +28,8 @@ public class ResourceSupport {
 	 *
 	 * @return
 	 */
-	@XmlElement(name = "link")
-	@XmlElementWrapper(name = "links")
+	@XmlElement(name = "Link")
+	@XmlElementWrapper(name = "Links")
 	@XmlJavaTypeAdapter(Link.JaxbAdapter.class)
 	@JsonProperty("_links")
 	public List<Link> getLinks() {
