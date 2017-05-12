@@ -1,21 +1,18 @@
----
 {}
----
 ---
 ---
 <center>
 
-![alt text](graphics/Figure00.jpg "OpenTosca")  
+![OpenTOSCA](graphics/OpenTOSCALogo.jpg)  
 
 </center>
 
 
 # Developer Guide OpenTOSCA Container  
 
-
 ## Table of Contents
 
-<!-- toc -->
+<!-- toc -->	
 
 - [Introduction](#introduction)
 - [Eclipse Installation](#eclipse-installation)
@@ -56,9 +53,8 @@ Further details can be found in the respective architecture documentation of Ope
 
 <center>
 
-![alt text](graphics/Figure01.png "Fig.1: OpenTosca Container Architecture Overview")  
-
-Fig.1: OpenTOSCA Container Architecture Overview
+![OpenTosca Container Architecture](graphics/ContainerArchitectur.png)  
+**Fig.1: OpenTOSCA Container Architecture Overview**
 </center>
 
 Figure 2 shows the architecture of the OpenTosca Container core which provides different shared 
@@ -66,9 +62,9 @@ capabilities to the other components of the container.
 
 <center>
 
-![alt text](graphics/Figure02.png "Fig.2: OpenTOSCA Container Architecture or Core")  
+![OpenTOSCA Container Architecture or Core](graphics/ArchitectureOrCore.png)  
+**Fig.2: OpenTOSCA Container Architecture or Core**
 
-Fig.2: OpenTOSCA Container Architecture or Core
 </center>
 ___
 
@@ -79,12 +75,12 @@ We use Eclipse as IDE for OpenTosca development.
 ### Java SE Development Kit (JDK)
 
 If not installed already, download and install the most recent Java JDK from:
-[http://www.oracle.com/technetwork/java/javase/downloads/index.html](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 ### Eclipse
 
 If not installed already, download and install the most recent "Eclipse IDE for Java EE Developers"
-from [http://www.eclipse.org/downloads](http://www.eclipse.org/downloads).
+from http://www.eclipse.org/downloads .  
 Install Eclipse by unpacking the downloaded archieve to a location of your choice.
 
 ***
@@ -143,8 +139,10 @@ plug-in projects. The OpenTOSCA Target Platform is contained in the project
 3.After building the workspace there should be no errors left.
 
 <center>
-![alt text](https://github.com/OpenTOSCA/container/blob/devguide/docs/graphics/Figure03.png "Fig.3: Eclipse Target Platform Editor")  
+
+![Target Platform Editor](graphics/TargetPlatformEditor.png)  
 Fig.3: Eclipse Target Platform Editor
+
 </center>
 ___
 
@@ -162,8 +160,9 @@ New Projects that should be belonging to the Container or the RAP UI must be cre
 
 <center>
 
-![alt text](graphics/Figure04.png "Fig.4: Define details of new Eclipse plug-in project.")  
-Fig.4: Define details of new Eclipse plug-in project.
+![Define Details of new Eclipse plug-in](graphics/DefineDetails.png)  
+**Fig.4: Define details of new Eclipse plug-in project.**
+
 </center>
 
 4. Define at "**Name**" a human readable name of this project/bundle, e.g. "**Core File Service Implementation**"
@@ -211,8 +210,8 @@ _Implementation project:_
 
 <center>
 
-![alt text](graphics/Figure05.png "Fig.5: Create a new Component Definition.")  
-Fig.5: Create a new Component Definition.
+![Create Component Definition](graphics/CreateComponentDefinition.png)  
+**Fig.5: Create a new Component Definition.**
 
 </center>
 
@@ -228,9 +227,9 @@ Fig. 6 shows the correct project structure of the Core File Service used as exam
 
 <center>
 
-![alt text](graphics/Figure06.png "Fig. 6: Service interface and implementation project structure. ") 
+![InterfaceImplementationStructure](graphics/InterfaceImplementationStructure.png) 
  
-Fig. 6: Service interface and implementation project structure. The Core File Services provides the methods “getTHOR” and “storeTHOR”. Its component XML resides in the folder “OSGI-INF” in the implementation project. 
+**Fig. 6: Service interface and implementation project structure. The Core File Services provides the methods “getTHOR” and “storeTHOR”. Its component XML resides in the folder “OSGI-INF” in the implementation project.**
 </center>
 
 
@@ -294,7 +293,7 @@ public class MyServiceImpl{
 ```
 <center>
 
-Lst. 1 "MyServiceImpl" consumes the Core File Service.
+**Lst. 1 "MyServiceImpl" consumes the Core File Service.**
 
 </center>
 
@@ -318,8 +317,8 @@ Otherwise the JAR file is not a bundle.
 
 If you can't get a bundle directly from the library website you can look in a bundle repository.
 
-Eclipse Orbit Repository [http://download.eclipse.org/tools/orbit/downloads](http://download.eclipse.org/tools/orbit/downloads)  
-Spring Repository [http://ebr.springsource.com](http://ebr.springsource.com)
+Eclipse Orbit Repository http://download.eclipse.org/tools/orbit/downloads  
+Spring Repository http://ebr.springsource.com
 
 Also you can look in the directory "**plugins**" in your Eclipse installation 
 (Eclipse is based in OSGi) if the necessary bundle is available.
@@ -346,8 +345,8 @@ If you want create a new directory in a Target Platform you must do the followin
 
 <center>
 
-![alt text](graphics/Figure07.png)  
-Fig.7: Directory "MyDir" was added to target definition file.
+![Target Definition File](graphics/TargetDefinitionFile.png)  
+**Fig.7: Directory "MyDir" was added to target definition file.**
 
 </center>
 
@@ -360,7 +359,7 @@ Now you can add bundles to the created directory like it's described in 4.4.1.
 
 Download and install maven. You can follow the instructions on the following website:
 
-[http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
+http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html
 
 #### Install the maven plugin of eclipse
 
@@ -368,7 +367,7 @@ First open the marketplace of Eclipse.
 
 <center>
 
-![alt text](graphics/EclipseMarketplace.png)
+![Eclipse Marketplace](graphics/EclipseMarketplace.png)
 
 </center>
 
@@ -376,7 +375,7 @@ Then search for m2eclipse-wtp:
 
 <center>
 
-![alt text](graphics/EclipseMarketplaceInstall.png)
+![Marketplace Install](graphics/EclipseMarketplaceInstall.png)
 
 </center>
 
@@ -390,7 +389,7 @@ in the "Maven" menu.
 
 <center>
 
-![alt text](graphics/EclipseMavenUpdateLink.png)
+![Update Link](graphics/EclipseMavenUpdateLink.png)
 
 </center>
 
@@ -398,7 +397,7 @@ Then just click on "OK" to download and update all dependencies of the project.
 
 <center>
 
-![alt text](graphics/EclipseMavenAccept.png)
+![Maven Accept](graphics/EclipseMavenAccept.png)
 
 </center>
 
@@ -407,7 +406,7 @@ play button and select "**Run Configurations...**"
 
 <center>
 
-![alt text](graphics/EclipseSetUpMavenBuildRun.png)
+![Maven Build Run](graphics/EclipseSetUpMavenBuildRun.png)
 
 </center>
 
@@ -416,7 +415,7 @@ Name it "**org.opentosca.ui.admin build**" and insert the two goals clean and pa
 
 <center>
 
-![alt text](graphics/EclipseSetUpMavenBuildRunAccept.png)
+![Maven Build Run Accept](graphics/EclipseSetUpMavenBuildRunAccept.png)
 
 </center>
 
@@ -425,7 +424,7 @@ afterwards.
 
 <center>
 
-![alt text](graphics/EclipseAdminWar.png)
+![Admin War](graphics/EclipseAdminWar.png)
 
 </center>
 
@@ -436,25 +435,25 @@ org.opentosca.ui.admin project and select "**Run As**" and then "**Run on Server
 
 <center>
 
-![alt text](graphics/EclipseRunAsLink.png)
+![Run As Link](graphics/EclipseRunAsLink.png)
 
 </center>
 
-Then choose the existin Tomcat v7.0 server and click on "**Finish**".
+Then choose the existing Tomcat v7.0 server and click on "**Finish**".
 
 <center>
 
-![alt text](graphics/EclipseRunAsAccept.png)
+![Run As Accept](graphics/EclipseRunAsAccept.png)
 
 </center>
 
-Then browse to the website like [http://127.0.0.1:8080/admin/index.action](http://127.0.0.1:8080/admin/index.action) if the tomcat is installed
+Then browse to the website like http://127.0.0.1:8080/admin/index.action if the tomcat is installed
 locally.
 
 #### 	Run the admin user interface in a dedicated tomcat
 
 Copy the admin.war inside the "webapps" folder of your tomcat installation.  
-Then browse to the website like [http://127.0.0.1:8080/admin/index.action](http://127.0.0.1:8080/admin/index.action) if the tomcat is installed locally.
+Then browse to the website like http://127.0.0.1:8080/admin/index.action if the tomcat is installed locally.
 
 
 
