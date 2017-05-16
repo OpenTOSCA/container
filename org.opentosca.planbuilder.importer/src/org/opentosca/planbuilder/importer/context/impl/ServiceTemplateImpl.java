@@ -1,12 +1,15 @@
 package org.opentosca.planbuilder.importer.context.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.oasis_open.docs.tosca.ns._2011._12.TPlan;
 import org.oasis_open.docs.tosca.ns._2011._12.TPlans;
 import org.oasis_open.docs.tosca.ns._2011._12.TServiceTemplate;
+import org.oasis_open.docs.tosca.ns._2011._12.TTag;
 import org.opentosca.planbuilder.model.tosca.AbstractBoundaryDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
@@ -143,7 +146,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 		}
 		return false;
 	}
-
+	
 	@Override
 	public boolean hasTerminationPlan() {
 		if ((this.serviceTemplate.getPlans() != null)) {
@@ -159,6 +162,23 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
 			
 		}
 		return false;
+	}
+	
+	@Override
+	public Map<String, String> getTags() {
+		Map<String, String> tags = new HashMap<String, String>();
+		
+		if (this.serviceTemplate.getTags() == null) {
+			return tags;
+		} else if (this.serviceTemplate.getTags().getTag() == null) {
+			return tags;
+		}
+		
+		for (TTag tag : this.serviceTemplate.getTags().getTag()) {
+			tags.put(tag.getName(), tag.getValue());
+		}
+		
+		return tags;
 	}
 	
 }

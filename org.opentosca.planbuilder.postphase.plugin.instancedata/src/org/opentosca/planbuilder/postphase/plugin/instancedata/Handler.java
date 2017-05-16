@@ -96,7 +96,7 @@ public class Handler {
 		// create state variable inside scope
 		String stateVarName = templateId + "_state";
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		if (!context.addVariable(stateVarName, BuildPlan.VariableType.TYPE, stringTypeDeclId)) {
+		if (!context.addGlobalVariable(stateVarName, BuildPlan.VariableType.TYPE, stringTypeDeclId)) {
 			return null;
 		}
 		

@@ -164,7 +164,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				return newTerminationPlan;
 			}
 		}
-		TerminationPlanBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+		TerminationPlanBuilder.LOG.warn("Couldn't create TerminationPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
 				serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
 	}

@@ -44,7 +44,7 @@ public class ServiceInstanceInitializer {
 	}
 
 	/**
-	 * Appends to logic to handle instanceDataAPI interaction. Adds
+	 * Appends the logic to handle instanceDataAPI interaction. Adds
 	 * instanceDataAPI and serviceInstanceAPI elements into the input message of
 	 * the given plan and assign internal global variables with the input values
 	 *
@@ -89,6 +89,18 @@ public class ServiceInstanceInitializer {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public String getServiceInstanceVariableName(BuildPlan plan){
+		String serviceInstanceVarName = null;
+		
+		for(String varName : this.bpelProcessHandler.getMainVariableNames(plan)){
+			if(varName.contains(ServiceInstanceInitializer.ServiceInstanceVarKeyword)){
+				serviceInstanceVarName = varName;
+			}
+		}
+		
+		return serviceInstanceVarName;
 	}
 
 	public boolean appendServiceInstanceDelete(BuildPlan plan) {

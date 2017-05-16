@@ -61,7 +61,7 @@ public class PlanBuilder implements IPlanBuilder {
 	private BuildPlanHandler planHandler;
 	// handler for abstract templatebuildplan operations
 	private TemplateBuildPlanHandler templateHandler;
-	// class for initializing properties inside the build plan
+	// class for initializing properties inside the plan
 	private PropertyVariableInitializer propertyInitializer;
 	// class for initializing output with boundarydefinitions of a
 	// serviceTemplate
