@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -44,7 +44,7 @@ public class TemplateBuildPlanHandler {
 	 * @param buildPlan the BuildPlan the TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlan skeleton
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(BuildPlan buildPlan) {
+	public TemplateBuildPlan createTemplateBuildPlan(TOSCAPlan buildPlan) {
 		TemplateBuildPlan newTemplateBuildPlan = new TemplateBuildPlan();
 		this.templateHandler.initializeXMLElements(newTemplateBuildPlan, buildPlan);
 		return newTemplateBuildPlan;
@@ -59,7 +59,7 @@ public class TemplateBuildPlanHandler {
 	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlann skeleton for the given NodeTemplate
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, BuildPlan buildPlan) {
+	public TemplateBuildPlan createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, TOSCAPlan buildPlan) {
 		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
 		return templatePlan;
@@ -85,7 +85,7 @@ public class TemplateBuildPlanHandler {
 	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlan skeleton
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, BuildPlan buildPlan) {
+	public TemplateBuildPlan createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, TOSCAPlan buildPlan) {
 		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(relationshipTemplate.getId(), templatePlan);
 		return templatePlan;

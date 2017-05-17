@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.SourceVersion;
 import javax.swing.text.Utilities;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,12 +16,13 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.planbuilder.fragments.Fragments.Util;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
+import org.opentosca.planbuilder.utils.Utils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -86,7 +88,7 @@ public class Handler {
 	private String createRESTResponseVar(TemplatePlanContext context) {
 		String restCallResponseVarName = "bpel4restlightVarResponse" + context.getIdForNames();
 		QName restCallResponseDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
-		if (!context.addVariable(restCallResponseVarName, BuildPlan.VariableType.TYPE, restCallResponseDeclId)) {
+		if (!context.addGlobalVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE, restCallResponseDeclId)) {
 			return null;
 		}
 		return restCallResponseVarName;
@@ -94,19 +96,29 @@ public class Handler {
 	
 	private String createStateVar(TemplatePlanContext context, String templateId) {
 		// create state variable inside scope
-		String stateVarName = templateId + "_state";
+		String stateVarName = templateId + "_state_" + context.getIdForNames();
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		if (!context.addGlobalVariable(stateVarName, BuildPlan.VariableType.TYPE, stringTypeDeclId)) {
+		if (!context.addGlobalVariable(stateVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId)) {
 			return null;
 		}
 		
 		return stateVarName;
 	}
 	
+	private String findInstanceVar(TemplatePlanContext context, String templateId, boolean isNode) {
+		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
+		for (String varName : context.getMainVariableNames()) {
+			if (varName.contains(instanceURLVarName)) {
+				return varName;
+			}
+		}
+		return null;
+	}
+	
 	private String createInstanceVar(TemplatePlanContext context, String templateId) {
 		String instanceURLVarName = ((context.getRelationshipTemplate() == null) ? "node" : "relationship") + "InstanceURL_" + templateId + "_" + context.getIdForNames();
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		if (!context.addGlobalVariable(instanceURLVarName, BuildPlan.VariableType.TYPE, stringTypeDeclId)) {
+		if (!context.addGlobalVariable(instanceURLVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId)) {
 			return null;
 		}
 		
@@ -165,8 +177,14 @@ public class Handler {
 			e.printStackTrace();
 		}
 		
-		// generate String var for nodeInstance URL
-		String nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+		String nodeInstanceURLVarName = "";
+		
+		if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
+			// generate String var for nodeInstance URL
+			nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+		} else {
+			nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
+		}
 		
 		if (nodeInstanceURLVarName == null) {
 			return false;
@@ -413,6 +431,30 @@ public class Handler {
 			return false;
 		}
 		
+		// based on the relatioships baseType we add the logic into different
+		// phases of relations AND nodes
+		// connectsTo = own phases
+		// else = source node phasesl
+		
+		Element injectionPreElement = null;
+		Element injectionPostElement = null;
+		String sourceInstanceVarName = this.findInstanceVar(context, context.getRelationshipTemplate().getSource().getId(), true);
+		String targetInstanceVarName = this.findInstanceVar(context, context.getRelationshipTemplate().getTarget().getId(), true);
+		
+		if (Utils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType()).contains(Utils.TOSCABASETYPE_CONNECTSTO)) {
+			injectionPreElement = context.getPrePhaseElement();
+			injectionPostElement = context.getPostPhaseElement();
+		} else {
+			// fetch nodeTemplate
+			AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
+			injectionPreElement = context.createContext(sourceNodeTemplate).getPrePhaseElement();
+			injectionPostElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
+		}
+		
+		if (injectionPostElement == null | injectionPreElement == null | sourceInstanceVarName == null | targetInstanceVarName == null) {
+			return false;
+		}
+		
 		/*
 		 * (i) append bpel code to create the nodeInstance (ii) append bpel code
 		 * to fetch nodeInstanceURL
@@ -420,10 +462,10 @@ public class Handler {
 		
 		try {
 			// create bpel extension activity and append
-			String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceInstanceVarName, context.getRelationshipTemplate().getId(), restCallResponseVarName);
+			String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceInstanceVarName, context.getRelationshipTemplate().getId(), restCallResponseVarName, sourceInstanceVarName, targetInstanceVarName);
 			Node createRelationInstanceExActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
 			createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
-			context.getPrePhaseElement().appendChild(createRelationInstanceExActiv);
+			injectionPreElement.appendChild(createRelationInstanceExActiv);
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		} catch (SAXException e) {
@@ -431,7 +473,14 @@ public class Handler {
 		}
 		
 		// generate String var for relationInstance URL
-		String relationInstanceURLVarName = this.createInstanceVar(context, context.getRelationshipTemplate().getId());
+		String relationInstanceURLVarName = "";
+		
+		if (this.findInstanceVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+			// generate String var for nodeInstance URL
+			relationInstanceURLVarName = this.createInstanceVar(context, context.getRelationshipTemplate().getId());
+		} else {
+			relationInstanceURLVarName = this.findInstanceVar(context, context.getRelationshipTemplate().getId(), false);
+		}
 		
 		if (relationInstanceURLVarName == null) {
 			return false;
@@ -442,7 +491,7 @@ public class Handler {
 			String bpelString = this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(relationInstanceURLVarName, restCallResponseVarName);
 			Node assignRelationInstanceUrl = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
 			assignRelationInstanceUrl = context.importNode(assignRelationInstanceUrl);
-			context.getPrePhaseElement().appendChild(assignRelationInstanceUrl);
+			injectionPreElement.appendChild(assignRelationInstanceUrl);
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		} catch (SAXException e) {
@@ -459,13 +508,13 @@ public class Handler {
 			org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
 			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitRelationState" + System.currentTimeMillis(), "string('" + lastSetState + "')", stateVarName);
 			assignNode = context.importNode(assignNode);
-			context.getPrePhaseElement().appendChild(assignNode);
+			injectionPreElement.appendChild(assignNode);
 			
 			// send state to api
 			String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName, stateVarName);
 			Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
 			extActiv = context.importNode(extActiv);
-			context.getPrePhaseElement().appendChild(extActiv);
+			injectionPreElement.appendChild(extActiv);
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		} catch (SAXException e) {
@@ -485,8 +534,8 @@ public class Handler {
 			Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
 			extActiv = context.importNode(extActiv);
 			
-			context.getPostPhaseElement().appendChild(assignNode);
-			context.getPostPhaseElement().appendChild(extActiv);
+			injectionPostElement.appendChild(assignNode);
+			injectionPostElement.appendChild(extActiv);
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		} catch (SAXException e) {
@@ -503,7 +552,7 @@ public class Handler {
 				// fetch properties
 				Node nodeInstancePropsGETNode = this.fragments.generateInstancePropertiesGETAsNode(relationInstanceURLVarName, restCallResponseVarName);
 				nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
-				context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
+				injectionPostElement.appendChild(nodeInstancePropsGETNode);
 			} catch (SAXException e1) {
 				e1.printStackTrace();
 				return false;
@@ -525,7 +574,7 @@ public class Handler {
 				// proper format
 				Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName, propertyVarNameToDOMMapping);
 				assignNode = context.importNode(assignNode);
-				context.getPostPhaseElement().appendChild(assignNode);
+				injectionPostElement.appendChild(assignNode);
 			} catch (SAXException e) {
 				e.printStackTrace();
 				return false;
@@ -538,7 +587,7 @@ public class Handler {
 			try {
 				Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName, relationInstanceURLVarName);
 				bpel4restPUTNode = context.importNode(bpel4restPUTNode);
-				context.getPostPhaseElement().appendChild(bpel4restPUTNode);
+				injectionPostElement.appendChild(bpel4restPUTNode);
 			} catch (IOException e) {
 				e.printStackTrace();
 				return false;

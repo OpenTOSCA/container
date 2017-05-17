@@ -7,7 +7,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.model.tosca.conventions.Properties;
@@ -80,9 +80,9 @@ public class Handler {
 		// {http://ec2linux.aws.ia.opentosca.org}installPackageRequest
 		// {http://ec2linux.aws.ia.opentosca.org}installPackageResponse
 		String requestVarName = "local_linuxEc2InstallPackageRequest" + context.getIdForNames();
-		context.addVariable(requestVarName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "installPackageRequest", "ec2linuxIA"));
+		context.addVariable(requestVarName, TOSCAPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "installPackageRequest", "ec2linuxIA"));
 		String responseVarName = "local_linuxEc2InstallPackageResponse" + context.getIdForNames();
-		context.addVariable(responseVarName, BuildPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "installPackageResponse", "ec2linuxIA"));
+		context.addVariable(responseVarName, TOSCAPlan.VariableType.MESSAGE, new QName("http://ec2linux.aws.ia.opentosca.org", "installPackageResponse", "ec2linuxIA"));
 
 		context.addStringValueToPlanRequest("sshKey");
 		// fetch serverip property variable name, planrequestmsgname and

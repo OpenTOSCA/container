@@ -6,10 +6,10 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.IPlanBuilder;
-import org.opentosca.planbuilder.PlanBuilder;
 import org.opentosca.planbuilder.ScalingPlanBuilder;
+import org.opentosca.planbuilder.BuildPlanBuilder;
 import org.opentosca.planbuilder.TerminationPlanBuilder;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 
 /**
@@ -32,10 +32,10 @@ public abstract class AbstractImporter {
 	 *            contained in
 	 * @return a List of Plans
 	 */
-	public List<BuildPlan> buildPlans(AbstractDefinitions defs, String csarName) {
-		List<BuildPlan> plans = new ArrayList<BuildPlan>();
+	public List<TOSCAPlan> buildPlans(AbstractDefinitions defs, String csarName) {
+		List<TOSCAPlan> plans = new ArrayList<TOSCAPlan>();
 		
-		IPlanBuilder buildPlanBuilder = new PlanBuilder();
+		IPlanBuilder buildPlanBuilder = new BuildPlanBuilder();
 		IPlanBuilder terminationPlanBuilder = new TerminationPlanBuilder();
 		IPlanBuilder scalingPlanBuilder = new ScalingPlanBuilder();
 		
@@ -55,8 +55,8 @@ public abstract class AbstractImporter {
 	 *            given Definitions Document
 	 * @return a BuildPlan if generating a BuildPlan was successful, else null
 	 */
-	public BuildPlan buildPlan(AbstractDefinitions defs, String csarName, QName serviceTemplate) {
-		IPlanBuilder planBuilder = new PlanBuilder();
+	public TOSCAPlan buildPlan(AbstractDefinitions defs, String csarName, QName serviceTemplate) {
+		IPlanBuilder planBuilder = new BuildPlanBuilder();
 		return planBuilder.buildPlan(csarName, defs, serviceTemplate);
 	}
 	

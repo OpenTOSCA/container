@@ -15,8 +15,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -73,7 +75,15 @@ public class RelationInstance {
 	@ManyToOne
 	@JoinColumn(name = "serviceInstance")
 	ServiceInstance serviceInstance;
-
+	
+	@OneToOne
+	@PrimaryKeyJoinColumn(name = "id")
+	NodeInstance sourceInstance;
+	
+	@OneToOne
+	@PrimaryKeyJoinColumn(name = "id")
+	NodeInstance targetInstance;
+	
 	@Column(name = "properties", columnDefinition = "VARCHAR(8192)")
 	@Convert("DOMDocumentConverter")
 	Document properties;
@@ -95,21 +105,23 @@ public class RelationInstance {
 	 * Creates a new instance of a NodeTemplate. ID and creation date will be
 	 * set automatically.
 	 *
-	 * @param nodeTemplateID
-	 *            - the nodeTemplateID specified by the Namespace and the ID
-	 *            value of the NodeTemplate
-	 * @param nodeTemplateName
+	 * @param relationshipTemplateID
+	 *            - the relationshipTemplateID specified by the Namespace and the ID
+	 *            value of the RelationshipTemplate
+	 * @param relationshipTemplateName
 	 *            - the name of the nodeTemplate
 	 */
-	public RelationInstance(QName nodeTemplateID, String nodeTemplateName, QName nodeTypeOfNodeTemplate,
-			ServiceInstance serviceInstance) {
+	public RelationInstance(QName relationshipTemplateID, String relationshipTemplateName, QName relationshipTypeOfRelationshipTemplate,
+			ServiceInstance serviceInstance, NodeInstance sourceInstanceID, NodeInstance targetInstanceID) {
 		super();
-		this.relationshipTemplateID = nodeTemplateID;
-		this.relationshipTemplateName = nodeTemplateName;
+		this.relationshipTemplateID = relationshipTemplateID;
+		this.relationshipTemplateName = relationshipTemplateName;
 		this.serviceInstance = serviceInstance;
+		this.sourceInstance = sourceInstanceID;
+		this.targetInstance = targetInstanceID;
 		created = new Date();
 		properties = null;
-		relationshipType = nodeTypeOfNodeTemplate;
+		relationshipType = relationshipTypeOfRelationshipTemplate;
 	}
 	
 	public QName getRelationshipType() {
@@ -156,6 +168,14 @@ public class RelationInstance {
 		return serviceInstance;
 	}
 	
+	public NodeInstance getSourceInstance(){
+		return sourceInstance;
+	}
+	
+	public NodeInstance getTargetInstance(){
+		return targetInstance;
+	}
+	
 	/**
 	 * The ID persisted in the database is "only" an integer. To the outside, we
 	 * need the ID to be an URI. To avoid storing two IDs in the database we
@@ -165,9 +185,9 @@ public class RelationInstance {
 	 */
 	@PostLoad
 	@PostPersist
-	private void setNodeInstanceID() {
+	private void setRelationInstanceID() {
 		try {
-			relationInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + serviceInstance.getCSAR_ID() + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8") + "/Instances/" + id + "/RelationshipTemplates/" + relationshipTemplateName + "/Instances/" + id);
+			relationInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + serviceInstance.getCSAR_ID() + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8") + "/Instances/" + this.serviceInstance.getDBId() + "/RelationshipTemplates/" + relationshipTemplateName + "/Instances/" + id);
 			
 		} catch (URISyntaxException e) {
 			e.printStackTrace();

@@ -33,7 +33,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
 import org.opentosca.planbuilder.export.Exporter;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
 import org.opentosca.util.fileaccess.service.IFileAccessService;
@@ -86,7 +86,7 @@ public class SimpleFileExporter {
 	 * @throws JAXBException
 	 *             is thrown when writing with JAXB fails
 	 */
-	public boolean export(URI destination, BuildPlan buildPlan) throws IOException, JAXBException {
+	public boolean export(URI destination, TOSCAPlan buildPlan) throws IOException, JAXBException {
 		if (!new File(destination).getName().contains("zip")) {
 			return false;
 		}

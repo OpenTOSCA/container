@@ -13,7 +13,7 @@ import org.opentosca.exceptions.UserException;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.importer.context.impl.DefinitionsImpl;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,18 +43,18 @@ public class Importer extends AbstractImporter {
 	 * @param csarId the CSARID for the CSAR the BuildPlans should be generated
 	 * @return a List of BuildPlan
 	 */
-	public List<BuildPlan> importDefs(CSARID csarId) {
+	public List<TOSCAPlan> importDefs(CSARID csarId) {
 		try {
 			CSARContent content = this.handler.getCSARContentForID(csarId);
 			AbstractDefinitions defs = this.createContext(content);
-			List<BuildPlan> plans = this.buildPlans(defs, csarId.getFileName());
+			List<TOSCAPlan> plans = this.buildPlans(defs, csarId.getFileName());
 			return plans;
 		} catch (UserException e) {
 			Importer.LOG.error("Some error within input", e);
 		} catch (SystemException e) {
 			Importer.LOG.error("Some internal error", e);
 		}
-		return new ArrayList<BuildPlan>();
+		return new ArrayList<TOSCAPlan>();
 	}
 
 	/**

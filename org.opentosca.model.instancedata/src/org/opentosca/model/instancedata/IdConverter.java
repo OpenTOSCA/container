@@ -10,61 +10,105 @@ import java.net.URISyntaxException;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  */
 public class IdConverter {
-
+	
 	// TODO refactor to match new API
-
+	
 	public final static String containerApiRoot = "/containerapi";
 	public final static String nodeInstancePath = "/instancedata/nodeInstances/";
 	public final static String relationInstancePath = "/instancedata/relationInstances/";
 	public final static String serviceInstancePath = "/instancedata/serviceInstances/";
-
+	
+	
+	// http://localhost:1337/containerapi/CSARs/MyTinyToDo_On_Docker_VSphere.csar/ServiceTemplates/%257Bhttp%253A%252F%252Fopentosca.org%252Fservicetemplates%257DMyTinyToDo_On_Docker_VSphere/Instances/1/RelationshipTemplates/con_62/Instances/3
+	
 	public static Integer nodeInstanceUriToID(URI nodeInstanceID) {
 		String path = nodeInstanceID.getPath();
-
+		
 		if (path.contains(nodeInstancePath) && path.contains(containerApiRoot)) {
 			path = path.replace(containerApiRoot, "");
 			path = path.replace(nodeInstancePath, "");
 		}
-
+		
 		try {
 			return Integer.parseInt(path);
 		} catch (NumberFormatException e) {
-			return null;
+			return nodeInstanceUriToID(path);
 		}
-
+		
 	}
-
+	
+	/**
+	 * Returns the integer id of the given URI path
+	 * 
+	 * @param nodeInstanceIDPath a URI path
+	 * @return an Integer whether the path points to a nodeInstance or null
+	 */
+	private static Integer nodeInstanceUriToID(String nodeInstanceIDPath) {
+		
+		String[] paths = nodeInstanceIDPath.split("/");
+		
+		// if the paths are at the end are correct we assume a good URI
+		if (paths[paths.length - 2].equals("Instances") & paths[paths.length - 4].equals("NodeTemplates")) {
+			try {
+				return Integer.parseInt(paths[paths.length - 1]);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
 	public static Integer relationInstanceUriToID(URI relationInstanceID) {
 		String path = relationInstanceID.getPath();
-
+		
 		if (path.contains(relationInstancePath) && path.contains(containerApiRoot)) {
 			path = path.replace(containerApiRoot, "");
 			path = path.replace(relationInstancePath, "");
 		}
-
+		
 		try {
 			return Integer.parseInt(path);
 		} catch (NumberFormatException e) {
-			return null;
+			return relationInstanceUriToID(path);
 		}
-
+		
 	}
-
+	
+	private static Integer relationInstanceUriToID(String relationInstanceIDPath) {
+		String[] paths = relationInstanceIDPath.split("/");
+		
+		// if the paths are at the end are correct we assume a good URI
+		if (paths[paths.length - 2].equals("Instances") & paths[paths.length - 4].equals("RelationshipTemplates")) {
+			try {
+				return Integer.parseInt(paths[paths.length - 1]);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
 	public static Integer serviceInstanceUriToID(URI serviceInstanceID) {
 		String path = serviceInstanceID.getPath();
-
+		
 		if (path.contains(containerApiRoot) && path.contains(serviceInstancePath)) {
 			path = path.replace(containerApiRoot, "");
 			path = path.replace(serviceInstancePath, "");
 		}
-
+		
 		try {
 			return Integer.parseInt(path);
 		} catch (NumberFormatException e) {
 			return null;
 		}
 	}
-
+	
 	public static URI relationInstanceIDtoURI(int id) {
 		try {
 			return new URI(containerApiRoot + relationInstancePath + id);
@@ -72,7 +116,7 @@ public class IdConverter {
 			return null;
 		}
 	}
-
+	
 	public static URI nodeInstanceIDtoURI(int id) {
 		try {
 			return new URI(containerApiRoot + nodeInstancePath + id);
@@ -80,7 +124,7 @@ public class IdConverter {
 			return null;
 		}
 	}
-
+	
 	public static URI serviceInstanceIDtoURI(int id) {
 		try {
 			return new URI(containerApiRoot + serviceInstancePath + id);
@@ -88,7 +132,7 @@ public class IdConverter {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Checks if <code>uri</code> is a valid serviceInstanceID-URI in the
 	 * context of the InstanceDataAPI this means that it has one of the
@@ -110,15 +154,15 @@ public class IdConverter {
 		if (uri == null) {
 			return false;
 		}
-
+		
 		Integer serviceInstanceUriToID = serviceInstanceUriToID(uri);
 		if (serviceInstanceUriToID != null) {
 			return true;
 		}
-
+		
 		return false;
 	}
-
+	
 	/**
 	 * Checks if <code>uri</code> is a valid nodeInstanceID-URI in the context
 	 * of the InstanceDataAPI this means that it has one of the following
@@ -140,12 +184,12 @@ public class IdConverter {
 		if (uri == null) {
 			return false;
 		}
-
+		
 		Integer nodeInstanceUriToID = nodeInstanceUriToID(uri);
 		if (nodeInstanceUriToID != null) {
 			return true;
 		}
-
+		
 		return false;
 	}
 	
@@ -153,13 +197,13 @@ public class IdConverter {
 		if (uri == null) {
 			return false;
 		}
-
+		
 		Integer relationInstanceUriToID = relationInstanceUriToID(uri);
 		if (relationInstanceUriToID != null) {
 			return true;
 		}
-
+		
 		return false;
 	}
-
+	
 }

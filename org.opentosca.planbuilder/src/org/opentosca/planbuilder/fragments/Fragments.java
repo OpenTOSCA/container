@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -295,9 +295,11 @@ public class Fragments {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
-		
-		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BuildPlan.bpelNamespace + "\" >";
-		
+
+
+		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + TOSCAPlan.bpelNamespace
+				+ "\" >";
+
 		// <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
 		// $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
 		for (Element propElement : propElement2BpelVarNameMap.keySet()) {

@@ -19,11 +19,12 @@ import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.helpers.EmptyPropertyToInputInitializer;
+import org.opentosca.planbuilder.helpers.NodeInstanceInitializer;
 import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -53,10 +54,10 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class PlanBuilder implements IPlanBuilder {
-
-	private final static Logger LOG = LoggerFactory.getLogger(PlanBuilder.class);
-
+public class BuildPlanBuilder implements IPlanBuilder {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(BuildPlanBuilder.class);
+	
 	// handler for abstract buildplan operations
 	private BuildPlanHandler planHandler;
 	// handler for abstract templatebuildplan operations
@@ -74,22 +75,25 @@ public class PlanBuilder implements IPlanBuilder {
 	// accepted operations for provisioning
 	private List<String> opNames = new ArrayList<String>();
 	
+	private NodeInstanceInitializer instanceInit;
+	
 	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 	
 	private EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
-
-
+	
+	
 	/**
 	 * <p>
 	 * Default Constructor
 	 * </p>
 	 */
-	public PlanBuilder() {
+	public BuildPlanBuilder() {
 		try {
 			this.planHandler = new BuildPlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
+			this.instanceInit = new NodeInstanceInitializer();
 		} catch (ParserConfigurationException e) {
-			PlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
+			BuildPlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
 		this.templateHandler = new TemplateBuildPlanHandler();
 		// TODO seems ugly
@@ -102,7 +106,7 @@ public class PlanBuilder implements IPlanBuilder {
 		// this.opNames.add("connectTo");
 		// this.opNames.add("hostOn");
 	}
-
+	
 	/**
 	 * Returns the number of the plugins registered with this planbuilder
 	 *
@@ -111,7 +115,7 @@ public class PlanBuilder implements IPlanBuilder {
 	public int registeredPlugins() {
 		return PluginRegistry.getGenericPlugins().size() + PluginRegistry.getDaPlugins().size() + PluginRegistry.getIaPlugins().size() + PluginRegistry.getPostPlugins().size() + PluginRegistry.getProvPlugins().size();
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -120,9 +124,9 @@ public class PlanBuilder implements IPlanBuilder {
 	 * javax.xml.namespace.QName)
 	 */
 	@Override
-	public BuildPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+	public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
 		// create empty plan from servicetemplate and add definitions
-
+		
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			String namespace;
 			if (serviceTemplate.getTargetNamespace() != null) {
@@ -130,14 +134,14 @@ public class PlanBuilder implements IPlanBuilder {
 			} else {
 				namespace = definitions.getTargetNamespace();
 			}
-
+			
 			if (namespace.equals(serviceTemplateId.getNamespaceURI()) && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				String processName = serviceTemplate.getId() + "_buildPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
-				BuildPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 0);
+				TOSCAPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 0);
 				newBuildPlan.setDefinitions(definitions);
 				newBuildPlan.setCsarName(csarName);
-
+				
 				// create empty templateplans for each template and add them to
 				// buildplan
 				for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
@@ -145,18 +149,18 @@ public class PlanBuilder implements IPlanBuilder {
 					newTemplate.setNodeTemplate(nodeTemplate);
 					newBuildPlan.addTemplateBuildPlan(newTemplate);
 				}
-
+				
 				for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
 					TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newBuildPlan);
 					newTemplate.setRelationshipTemplate(relationshipTemplate);
 					newBuildPlan.addTemplateBuildPlan(newTemplate);
 				}
-
+				
 				// connect the templates
 				this.initializeDependenciesInBuildPlan(newBuildPlan);
-
+				
 				PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
-
+				
 				// init output
 				this.propertyOutputInitializer.initializeBuildPlanOutput(definitions, newBuildPlan, propMap);
 				
@@ -165,23 +169,25 @@ public class PlanBuilder implements IPlanBuilder {
 				
 				// initialize instanceData handling
 				this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
-
+				
+				this.instanceInit.addNodeInstanceIDVarToTemplatePlans(newBuildPlan);
+				
 				this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
-
+				
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				
 				this.idInit.addCorrellationID(newBuildPlan);
 				
 				this.finalizer.finalize(newBuildPlan);
-				PlanBuilder.LOG.debug("Created BuildPlan:");
-				PlanBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
+				BuildPlanBuilder.LOG.debug("Created BuildPlan:");
+				BuildPlanBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
 				return newBuildPlan;
 			}
 		}
-		PlanBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateId.toString(), definitions.getId(), csarName);
+		BuildPlanBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -189,8 +195,8 @@ public class PlanBuilder implements IPlanBuilder {
 	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
 	 */
 	@Override
-	public List<BuildPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-		List<BuildPlan> plans = new ArrayList<BuildPlan>();
+	public List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+		List<TOSCAPlan> plans = new ArrayList<TOSCAPlan>();
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			QName serviceTemplateId;
 			// targetNamespace attribute doesn't has to be set, so we check it
@@ -199,22 +205,22 @@ public class PlanBuilder implements IPlanBuilder {
 			} else {
 				serviceTemplateId = new QName(definitions.getTargetNamespace(), serviceTemplate.getId());
 			}
-
+			
 			if (!serviceTemplate.hasBuildPlan()) {
-				PlanBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplateId.toString());
-				BuildPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
-
+				BuildPlanBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplateId.toString());
+				TOSCAPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+				
 				if (newBuildPlan != null) {
-					PlanBuilder.LOG.debug("Created BuildPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
+					BuildPlanBuilder.LOG.debug("Created BuildPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
 					plans.add(newBuildPlan);
 				}
 			} else {
-				PlanBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed", serviceTemplateId.toString());
+				BuildPlanBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed", serviceTemplateId.toString());
 			}
 		}
 		return plans;
 	}
-
+	
 	/**
 	 * <p>
 	 * This method assigns plugins to the already initialized BuildPlan and its
@@ -228,31 +234,31 @@ public class PlanBuilder implements IPlanBuilder {
 	 * @param map a PropertyMap which contains mappings from Template to
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(BuildPlan buildPlan, QName serviceTemplateId, PropertyMap map) {
-
+	private void runPlugins(TOSCAPlan buildPlan, QName serviceTemplateId, PropertyMap map) {
+		
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				// handling nodetemplate
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-				PlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
+				BuildPlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
 				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
 				IPlanBuilderTypePlugin plugin = this.canGenericPluginHandle(nodeTemplate);
 				if (plugin == null) {
-					PlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
+					BuildPlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
 					ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
 					if (chain == null) {
-						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+						BuildPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 					} else {
-						PlanBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+						BuildPlanBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 						chain.executeIAProvisioning(context);
 						chain.executeDAProvisioning(context);
 						chain.executeOperationProvisioning(context, this.opNames);
 					}
 				} else {
-					PlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
+					BuildPlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
 					plugin.handle(context);
 				}
 				
@@ -272,24 +278,24 @@ public class PlanBuilder implements IPlanBuilder {
 				// TemplateBuildPlan is broken here!
 				// TODO implement fallback
 				if (!this.canGenericPluginHandle(relationshipTemplate)) {
-					PlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
+					BuildPlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
 					ProvisioningChain sourceChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, true);
 					ProvisioningChain targetChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, false);
 					
 					// first execute provisioning on target, then on source
 					if (targetChain != null) {
-						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+						BuildPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						targetChain.executeIAProvisioning(context);
 						targetChain.executeOperationProvisioning(context, this.opNames);
 					}
 					
 					if (sourceChain != null) {
-						PlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+						BuildPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						sourceChain.executeIAProvisioning(context);
 						sourceChain.executeOperationProvisioning(context, this.opNames);
 					}
 				} else {
-					PlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+					BuildPlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
 					this.handleWithGenericPlugin(context, relationshipTemplate);
 				}
 				
@@ -314,15 +320,15 @@ public class PlanBuilder implements IPlanBuilder {
 	 */
 	private IPlanBuilderTypePlugin canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			PlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
+			BuildPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
 			if (plugin.canHandle(nodeTemplate)) {
-				PlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
+				BuildPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
 				return plugin;
 			}
 		}
 		return null;
 	}
-
+	
 	/**
 	 * <p>
 	 * Checks whether there is any generic plugin, that can handle the given
@@ -337,13 +343,13 @@ public class PlanBuilder implements IPlanBuilder {
 	private boolean canGenericPluginHandle(AbstractRelationshipTemplate relationshipTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
-				PlanBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}", plugin.getID(), relationshipTemplate.getId());
+				BuildPlanBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}", plugin.getID(), relationshipTemplate.getId());
 				return true;
 			}
 		}
 		return false;
 	}
-
+	
 	/**
 	 * <p>
 	 * Takes the first occurence of a generic plugin which can handle the given
@@ -361,13 +367,13 @@ public class PlanBuilder implements IPlanBuilder {
 	private boolean handleWithGenericPlugin(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
-				PlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
+				BuildPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
 				return plugin.handle(context);
 			}
 		}
 		return false;
 	}
-
+	
 	// TODO delete this method, or add to utils. is pretty much copied from the
 	// net
 	/**
@@ -394,11 +400,11 @@ public class PlanBuilder implements IPlanBuilder {
 			writer.flush();
 			return writer.toString();
 		} catch (TransformerException ex) {
-			PlanBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
+			BuildPlanBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
 			return null;
 		}
 	}
-
+	
 	/**
 	 * <p>
 	 * Initilizes the TemplateBuildPlans inside a BuildPlan according to the
@@ -412,65 +418,65 @@ public class PlanBuilder implements IPlanBuilder {
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
 	 */
-	private void initializeDependenciesInBuildPlan(BuildPlan buildPlan) {
+	private void initializeDependenciesInBuildPlan(TOSCAPlan buildPlan) {
 		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
-
+			
 			// determine source and target of relationshiptemplate AND REVERSE
 			// the edge !
 			TemplateBuildPlan target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), buildPlan);
 			TemplateBuildPlan source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), buildPlan);
-
+			
 			// set dependencies inside buildplan (the links in the flow)
 			// according to the basetype
 			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 				// with a connectsto relation we have first build the
 				// nodetemplates and then the relationshiptemplate
-
+				
 				// first: generate global link for the source to relation
 				// dependency
 				String sourceToRelationlinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
 				this.planHandler.addLink(sourceToRelationlinkName, buildPlan);
-
+				
 				// second: connect source with relationship as target
-				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				BuildPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
-
+				
 				// third: generate global link for the target to relation
 				// dependency
 				String targetToRelationlinkName = target.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
 				this.planHandler.addLink(targetToRelationlinkName, buildPlan);
-
+				
 				// fourth: connect target with relationship as target
-				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				BuildPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
-
+				
 			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
-
+				
 				// with the other relations we have to build first the source,
 				// then the relation and at last the target
-
+				
 				// first: generate global link for the source to relation
 				// dependeny
 				String sourceToRelationLinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
 				this.planHandler.addLink(sourceToRelationLinkName, buildPlan);
-
+				
 				// second: connect source to relation
-				PlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				BuildPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
-
+				
 				// third: generate global link for the relation to target
 				// dependency
 				String relationToTargetLinkName = relationshipPlan.getRelationshipTemplate().getId() + "_BEFORE_" + target.getNodeTemplate().getId();
 				this.planHandler.addLink(relationToTargetLinkName, buildPlan);
-
+				
 				// fourth: connect relation to target
-				PlanBuilder.LOG.debug("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+				BuildPlanBuilder.LOG.debug("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
 				this.templateHandler.connect(relationshipPlan, target, relationToTargetLinkName);
 			}
-
+			
 		}
 	}
-
+	
 }

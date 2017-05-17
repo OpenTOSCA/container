@@ -11,7 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
@@ -67,7 +67,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to set the namespace to
 	 * @return true if the namespace isn't alread used, else false
 	 */
-	public boolean addNamespaceToBPELDoc(String prefix, String namespace, BuildPlan buildPlan) {
+	public boolean addNamespaceToBPELDoc(String prefix, String namespace, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Adding namespace {} to BuildPlan {}", namespace,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		buildPlan.getBpelProcessElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace);
@@ -98,12 +98,12 @@ public class BPELProcessHandler {
 	 * @param newBuildPlan
 	 *            a new BuildPlan
 	 */
-	public void initializeXMLElements(BuildPlan newBuildPlan) {
+	public void initializeXMLElements(TOSCAPlan newBuildPlan) {
 		newBuildPlan.setBpelDocument(this.documentBuilder.newDocument());
 
 		// initialize processElement and append to document
 		newBuildPlan.setBpelProcessElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "process"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "process"));
 		newBuildPlan.getBpelDocument().appendChild(newBuildPlan.getBpelProcessElement());
 
 		// FIXME declare xml schema namespace
@@ -115,7 +115,7 @@ public class BPELProcessHandler {
 
 		// initialize and append extensions element to process
 		newBuildPlan.setBpelExtensionsElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "extensions"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "extensions"));
 		newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelExtensionsElement());
 
 		// init and append imports element
@@ -131,50 +131,50 @@ public class BPELProcessHandler {
 
 		// init and append partnerlink element
 		newBuildPlan.setBpelPartnerLinksElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "partnerLinks"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "partnerLinks"));
 		newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelPartnerLinksElement());
 
 		// initialize and append variables element
 		newBuildPlan.setBpelProcessVariablesElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "variables"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "variables"));
 		newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelProcessVariablesElement());
 
 		// init and append main sequence to process element
 		newBuildPlan.setBpelMainSequenceElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "sequence"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "sequence"));
 		newBuildPlan.getBpelProcessElement().appendChild(newBuildPlan.getBpelMainSequenceElement());
 
 		// init and append main sequence receive element to main sequence
 		// element
 		newBuildPlan.setBpelMainSequenceReceiveElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "receive"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "receive"));
 		newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainSequenceReceiveElement());
 
 		// init and append main sequence property assign element to main
 		// sequence element
 		newBuildPlan.setBpelMainSequencePropertyAssignElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "assign"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "assign"));
 		newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainSequencePropertyAssignElement());
 
 		// init and append main sequence flow element to main sequence element
 		newBuildPlan.setBpelMainFlowElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "flow"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "flow"));
 		newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainFlowElement());
 
 		// init and append flow links element
 		newBuildPlan.setBpelMainFlowLinksElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "links"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "links"));
 		newBuildPlan.getBpelMainFlowElement().appendChild(newBuildPlan.getBpelMainFlowLinksElement());
 
 		// init and append output assign element
 		newBuildPlan.setBpelMainSequenceOutputAssignElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "assign"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "assign"));
 		newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainSequenceOutputAssignElement());
 
 		// init and append main sequence callback invoke element to main
 		// sequence element
 		newBuildPlan.setBpelMainSequenceCallbackInvokeElement(
-				newBuildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "invoke"));
+				newBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "invoke"));
 		newBuildPlan.getBpelMainSequenceElement().appendChild(newBuildPlan.getBpelMainSequenceCallbackInvokeElement());
 	}
 
@@ -188,7 +188,7 @@ public class BPELProcessHandler {
 	 * @param buildPlan
 	 *            the buildPlan to change
 	 */
-	public void setId(String namespace, String name, BuildPlan buildPlan) {
+	public void setId(String namespace, String name, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Setting name {} with namespace {} BuidlPlan", name, namespace);
 		// change the bpel document
 		buildPlan.getBpelProcessElement().setAttribute("name", name);
@@ -207,7 +207,7 @@ public class BPELProcessHandler {
 	 * @param buildPlan
 	 *            the BuildPlan to work on
 	 */
-	public void setWsdlId(String namespace, String name, BuildPlan buildPlan) {
+	public void setWsdlId(String namespace, String name, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Setting name {} and namespace {} of WSDL of BuildPlan {}", name, namespace,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
@@ -227,7 +227,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to add the Import to
 	 * @return true if adding the ImportElement was successful, else false
 	 */
-	public boolean addImports(String namespace, String location, BuildPlan.ImportType importType, BuildPlan buildPlan) {
+	public boolean addImports(String namespace, String location, TOSCAPlan.ImportType importType, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug(
 				"Trying to add Import with namespace {}, location {} and importType {} to BuildPlan {}", namespace,
 				location, importType, buildPlan.getBpelProcessElement().getAttribute("name"));
@@ -238,7 +238,7 @@ public class BPELProcessHandler {
 		}
 
 		// create new import element
-		Element importElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "import");
+		Element importElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "import");
 		importElement.setAttribute("namespace", namespace);
 		importElement.setAttribute("location", location);
 
@@ -270,7 +270,7 @@ public class BPELProcessHandler {
 	 * @return true if the BuildPlan already has the specified import, else
 	 *         false
 	 */
-	public boolean hasImport(String namespace, String location, BuildPlan.ImportType type, BuildPlan buildPlan) {
+	public boolean hasImport(String namespace, String location, TOSCAPlan.ImportType type, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Checking if import with namespace " + namespace + " and location " + location
 				+ " is already imported");
 		for (Element importElement : buildPlan.getBpelImportElements()) {
@@ -316,7 +316,7 @@ public class BPELProcessHandler {
 	 * @return true if adding the PartnerLink was successful, else false
 	 */
 	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole,
-			boolean initializePartnerRole, BuildPlan buildPlan) {
+			boolean initializePartnerRole, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug(
 				"Trying to add partnerLink {} with type {}, myRole {}, partnerRole {} and initializePartnerRole {} to BuildPlan {}",
 				partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole),
@@ -326,7 +326,7 @@ public class BPELProcessHandler {
 			return false;
 		} else {
 			Element partnerLinksElement = buildPlan.getBpelPartnerLinksElement();
-			Element partnerLinkElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace,
+			Element partnerLinkElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace,
 					"partnerLink");
 			partnerLinkElement.setAttribute("name", partnerLinkName);
 			partnerLinkElement.setAttribute("partnerLinkType",
@@ -358,7 +358,7 @@ public class BPELProcessHandler {
 	 * @return true if adding partnerLink was successful, else false
 	 */
 	public boolean addPartnerLinkType(String partnerLinkTypeName, String roleName, QName portType,
-			BuildPlan buildPlan) {
+			TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug(
 				"Trying to add partnerLinkType {} with roleName {} and portType {} to BuildPlan {}",
 				partnerLinkTypeName, roleName, portType.toString(),
@@ -384,7 +384,7 @@ public class BPELProcessHandler {
 	 * @return true if adding the partnerLinkType was successful, else false
 	 */
 	public boolean addPartnerLinkType(String partnerLinkTypeName, String roleName1, QName portType1, String roleName2,
-			QName portType2, BuildPlan buildPlan) {
+			QName portType2, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug(
 				"Trying to add partnerLinkType {} with roleName1 {}, portType1 {}, roleName2 {} and portType2 {} to BuildPlan {}",
 				partnerLinkTypeName, roleName1, portType1.toString(), roleName2, portType2.toString(),
@@ -406,8 +406,8 @@ public class BPELProcessHandler {
 	 *            the buildPlan to add the variable to
 	 * @return true if adding a variable to the plan was successful
 	 */
-	public boolean addVariable(String name, BuildPlan.VariableType variableType, QName declarationId,
-			BuildPlan buildPlan) {
+	public boolean addVariable(String name, TOSCAPlan.VariableType variableType, QName declarationId,
+			TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to Plan {}", name,
 				variableType, declarationId.toString(), buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasVariable(name, buildPlan)) {
@@ -417,7 +417,7 @@ public class BPELProcessHandler {
 
 		// fetch variables element and create variable element
 		Element variablesElement = buildPlan.getBpelProcessVariablesElement();
-		Element variableElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "variable");
+		Element variableElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "variable");
 
 		// set the type and declaration id
 		switch (variableType) {
@@ -451,7 +451,7 @@ public class BPELProcessHandler {
 	 * @return true if the given BuildPlan has a variable with the given name,
 	 *         else false
 	 */
-	private boolean hasVariable(String name, BuildPlan buildPlan) {
+	private boolean hasVariable(String name, TOSCAPlan buildPlan) {
 		return Utils.hasChildElementWithAttribute(buildPlan.getBpelProcessVariablesElement(), "name", name);
 	}
 
@@ -464,7 +464,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to check in
 	 * @return true if the BuildPlan has partnerLink with the given name
 	 */
-	private boolean hasPartnerLink(String name, BuildPlan buildPlan) {
+	private boolean hasPartnerLink(String name, TOSCAPlan buildPlan) {
 		return Utils.hasChildElementWithAttribute(buildPlan.getBpelPartnerLinksElement(), "name", name);
 	}
 
@@ -478,7 +478,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to add the link
 	 * @return true if adding the link was successful, else false
 	 */
-	public boolean addLink(String linkName, BuildPlan buildPlan) {
+	public boolean addLink(String linkName, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Trying to add link {} to BuildPlan {}", linkName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 
@@ -488,7 +488,7 @@ public class BPELProcessHandler {
 		}
 
 		Element linksElement = buildPlan.getBpelMainFlowLinksElement();
-		Element linkElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "link");
+		Element linkElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "link");
 
 		linkElement.setAttribute("name", linkName);
 		linksElement.appendChild(linkElement);
@@ -505,7 +505,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to check for the link
 	 * @return true if the BuildPlan has a link with the given name, else false
 	 */
-	private boolean hasLink(String linkName, BuildPlan buildPlan) {
+	private boolean hasLink(String linkName, TOSCAPlan buildPlan) {
 		return Utils.hasChildElementWithAttribute(buildPlan.getBpelMainFlowLinksElement(), "name", linkName);
 	}
 
@@ -520,14 +520,14 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to add extension to
 	 * @return true if adding the extension was successful, else false
 	 */
-	public boolean addExtension(String namespace, boolean mustUnderstand, BuildPlan buildPlan) {
+	public boolean addExtension(String namespace, boolean mustUnderstand, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Trying to add extension {} with mustUnderstand {} to BuildPlan {}", namespace,
 				String.valueOf(mustUnderstand), buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasExtension(namespace, buildPlan)) {
 			BPELProcessHandler.LOG.warn("Adding extension failed");
 			return false;
 		} else {
-			Element extensionElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace,
+			Element extensionElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace,
 					"extension");
 			extensionElement.setAttribute("namespace", namespace);
 			extensionElement.setAttribute("mustUnderstand", (mustUnderstand) ? "yes" : "no");
@@ -548,7 +548,7 @@ public class BPELProcessHandler {
 	 * @return true if the BuidlPlan has an extension with the given namespace,
 	 *         else false
 	 */
-	private boolean hasExtension(String namespace, BuildPlan buildPlan) {
+	private boolean hasExtension(String namespace, TOSCAPlan buildPlan) {
 		return Utils.hasChildElementWithAttribute(buildPlan.getBpelExtensionsElement(), "namespace", namespace);
 	}
 
@@ -564,17 +564,17 @@ public class BPELProcessHandler {
 	 *            the buildPlan where this has to happen
 	 * @return true
 	 */
-	public boolean assignVariableStringValue(String variableName, String variableValue, BuildPlan buildPlan) {
+	public boolean assignVariableStringValue(String variableName, String variableValue, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Trying to add assign of variable {} with value {} to BuildPlan {}", variableName,
 				variableValue, buildPlan.getBpelProcessElement().getAttribute("name"));
 		Element propertyAssignElement = buildPlan.getBpelMainSequencePropertyAssignElement();
 		// create copy element
-		Element copyElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "copy");
-		Element fromElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "from");
-		Element literalElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "literal");
+		Element copyElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "copy");
+		Element fromElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "from");
+		Element literalElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "literal");
 		literalElement.setTextContent(variableValue);
 		fromElement.appendChild(literalElement);
-		Element toElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "to");
+		Element toElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "to");
 		toElement.setAttribute("variable", variableName);
 		copyElement.appendChild(fromElement);
 		copyElement.appendChild(toElement);
@@ -601,16 +601,16 @@ public class BPELProcessHandler {
 	 * @return true iff adding the assign was successful
 	 */
 	public boolean assignVariableValueFromInput(String variableName, String inputVariableLocalName,
-			BuildPlan buildPlan) {
+			TOSCAPlan buildPlan) {
 		Element propertyAssignElement = buildPlan.getBpelMainSequencePropertyAssignElement();
 		// create copy element
-		Element copyElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "copy");
-		Element fromElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "from");
+		Element copyElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "copy");
+		Element fromElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "from");
 
 		fromElement.setAttribute("part", "payload");
 		fromElement.setAttribute("variable", "input");
 
-		Element queryElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "query");
+		Element queryElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "query");
 		queryElement.setAttribute("queryLanguage", "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0");
 
 		queryElement.appendChild(buildPlan.getBpelDocument()
@@ -623,7 +623,7 @@ public class BPELProcessHandler {
 		 */
 
 		fromElement.appendChild(queryElement);
-		Element toElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "to");
+		Element toElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "to");
 		toElement.setAttribute("variable", variableName);
 		copyElement.appendChild(fromElement);
 		copyElement.appendChild(toElement);
@@ -644,7 +644,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to add the BPEL copy element to
 	 * @return true if adding the string was successful, else false
 	 */
-	public boolean addCopyStringToOutputAssign(String copyElementString, BuildPlan buildPlan) {
+	public boolean addCopyStringToOutputAssign(String copyElementString, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug("Trying to add following copy to outputassign of BuildPlan {}", copyElementString,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		try {
@@ -685,16 +685,16 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to add the copy to
 	 * @return true if adding the copy was successful, else false
 	 */
-	public boolean assginOutputWithVariableValue(String variableName, String outputElementName, BuildPlan buildPlan) {
+	public boolean assginOutputWithVariableValue(String variableName, String outputElementName, TOSCAPlan buildPlan) {
 		BPELProcessHandler.LOG.debug(
 				"Trying to add copy from variable {} to element {} of OutputMessage of BuildPlan {}", variableName,
 				outputElementName, buildPlan.getBpelProcessElement().getAttribute("name"));
 		Element outputAssignElement = buildPlan.getBpelMainSequenceOutputAssignElement();
 		// create copy elements
-		Element copyElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "copy");
-		Element fromElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "from");
-		Element toElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "to");
-		Element queryElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "query");
+		Element copyElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "copy");
+		Element fromElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "from");
+		Element toElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "to");
+		Element queryElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "query");
 		CDATASection cdataSection = buildPlan.getBpelDocument().createCDATASection("tns:" + outputElementName);
 
 		// set attributes
@@ -728,7 +728,7 @@ public class BPELProcessHandler {
 	 * @return true if there is a copy element inside the main assign element of
 	 *         the given BuildPlan
 	 */
-	public boolean isVariableInitialized(String variableName, BuildPlan buildPlan) {
+	public boolean isVariableInitialized(String variableName, TOSCAPlan buildPlan) {
 		Element propertyAssignElement = buildPlan.getBpelMainSequencePropertyAssignElement();
 		// get all copy elements
 		for (int i = 0; i < propertyAssignElement.getChildNodes().getLength(); i++) {
@@ -755,7 +755,7 @@ public class BPELProcessHandler {
 	 * @param buildPlan
 	 *            the BuildPlan to remove the link from
 	 */
-	public void removeLink(String link, BuildPlan buildPlan) {
+	public void removeLink(String link, TOSCAPlan buildPlan) {
 		NodeList children = buildPlan.getBpelMainFlowLinksElement().getChildNodes();
 		Node toRemove = null;
 		for (int i = 0; i < children.getLength(); i++) {
@@ -782,7 +782,7 @@ public class BPELProcessHandler {
 	 * @return a List of Strings containing the names of the variables defined
 	 *         inside the given plan
 	 */
-	public List<String> getMainVariableNames(BuildPlan plan) {
+	public List<String> getMainVariableNames(TOSCAPlan plan) {
 		List<String> names = new ArrayList<String>();
 		NodeList childNodes = plan.getBpelProcessVariablesElement().getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {

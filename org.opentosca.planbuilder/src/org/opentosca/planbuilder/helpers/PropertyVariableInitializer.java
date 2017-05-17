@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -120,7 +120,7 @@ public class PropertyVariableInitializer {
 	 * @return a PropertyMap which holds mappings from Template to Template
 	 *         Property and BuildPlan variable
 	 */
-	public PropertyMap initializePropertiesAsVariables(BuildPlan buildPlan) {
+	public PropertyMap initializePropertiesAsVariables(TOSCAPlan buildPlan) {
 		PropertyMap map = new PropertyMap();
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			this.initializePropertiesAsVariables(map, templatePlan);

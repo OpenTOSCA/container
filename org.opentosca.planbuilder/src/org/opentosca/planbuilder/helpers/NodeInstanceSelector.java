@@ -14,8 +14,8 @@ import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.BPELProcessHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
-import org.opentosca.planbuilder.model.plan.BuildPlan.VariableType;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan.VariableType;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.w3c.dom.Element;
@@ -50,7 +50,7 @@ public class NodeInstanceSelector {
 		}
 	}
 	
-	public void selectNodeInstances(Map<AbstractRelationshipTemplate, List<AbstractNodeTemplate>> crossingRelations2NodesMap, BuildPlan plan) {
+	public void selectNodeInstances(Map<AbstractRelationshipTemplate, List<AbstractNodeTemplate>> crossingRelations2NodesMap, TOSCAPlan plan) {
 		Set<AbstractNodeTemplate> processedNodes = new HashSet<AbstractNodeTemplate>();
 		
 		// create node and relation instances response variables
@@ -146,7 +146,7 @@ public class NodeInstanceSelector {
 	 *            given plan
 	 * @param plan the plan to add the bpel code to
 	 */
-	public void addNodeInstanceUpdate(Set<AbstractNodeTemplate> nodes, BuildPlan plan, PropertyMap propMap) {
+	public void addNodeInstanceUpdate(Set<AbstractNodeTemplate> nodes, TOSCAPlan plan, PropertyMap propMap) {
 		String instanceDataAPIResponseVarName = this.createRESTResponseVar(plan);
 		
 		for (AbstractNodeTemplate nodeTemplate : nodes) {
@@ -167,7 +167,7 @@ public class NodeInstanceSelector {
 		}
 	}
 	
-	private String createRESTResponseVar(BuildPlan plan) {
+	private String createRESTResponseVar(TOSCAPlan plan) {
 		// add XMLSchema Namespace for the logic
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -178,7 +178,7 @@ public class NodeInstanceSelector {
 		return instanceDataAPIResponseVarName;
 	}
 	
-	public void addNodeInstanceUpdate(AbstractNodeTemplate nodeTemplate, BuildPlan plan, PropertyMap propMap, String nodeInstanceIDVarName, String instanceDataAPIResponseVarName) {
+	public void addNodeInstanceUpdate(AbstractNodeTemplate nodeTemplate, TOSCAPlan plan, PropertyMap propMap, String nodeInstanceIDVarName, String instanceDataAPIResponseVarName) {
 		// check whether the nodeTemplate has properties, if not, skip the
 		// update
 		if (nodeTemplate.getProperties() == null) {

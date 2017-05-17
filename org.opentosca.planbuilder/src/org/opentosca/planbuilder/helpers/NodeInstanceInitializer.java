@@ -11,10 +11,11 @@ import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.BPELProcessHandler;
 import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
-import org.opentosca.planbuilder.model.plan.BuildPlan.VariableType;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -28,7 +29,7 @@ public class NodeInstanceInitializer {
 	
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
-	private static final String InstanceIDVarKeyword = "instanceID";
+	private static final String InstanceIDVarKeyword = "InstanceURL";
 	
 	private BPELProcessHandler bpelProcessHandler;
 	
@@ -53,7 +54,7 @@ public class NodeInstanceInitializer {
 	 * @param propMap a Mapping from NodeTemplate Properties to BPEL Variables
 	 * @return true if adding logic described above was successful
 	 */
-	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(BuildPlan plan, PropertyMap propMap) {
+	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(TOSCAPlan plan, PropertyMap propMap) {
 		boolean check = true;
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null && templatePlan.getNodeTemplate().getProperties().getDOMElement() != null) {
@@ -74,10 +75,10 @@ public class NodeInstanceInitializer {
 		return this.findInstanceIdVarName(templatePlan.getBuildPlan(), templateId);
 	}
 	
-	public String findInstanceIdVarName(BuildPlan plan, String templateId) {
+	public String findInstanceIdVarName(TOSCAPlan plan, String templateId) {
 		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
 			// FIXME weak check
-			if (varName.startsWith(InstanceIDVarKeyword) & varName.contains(templateId)) {
+			if ((varName.startsWith("node"+ InstanceIDVarKeyword) | varName.startsWith("relation"+ InstanceIDVarKeyword)) & varName.contains(templateId)) {
 				return varName;
 			}
 		}
@@ -164,7 +165,7 @@ public class NodeInstanceInitializer {
 	 * @param plan a plan with TemplatePlans
 	 * @return
 	 */
-	public boolean addNodeInstanceIDVarToTemplatePlans(BuildPlan plan) {
+	public boolean addNodeInstanceIDVarToTemplatePlans(TOSCAPlan plan) {
 		boolean check = true;
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			check &= this.addInstanceIDVarToTemplatePlan(templatePlan);
@@ -185,20 +186,23 @@ public class NodeInstanceInitializer {
 		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
 		
 		String templateId = "";
+		String prefix = "";
 		
 		if (templatePlan.getNodeTemplate() != null) {
 			templateId = templatePlan.getNodeTemplate().getId();
+			prefix = "node";
 		} else {
 			templateId = templatePlan.getRelationshipTemplate().getId();
+			prefix = "relationship";
 		}
 		
-		String instanceIdVarName = NodeInstanceInitializer.InstanceIDVarKeyword + "_" + templateId;
+		String instanceIdVarName = prefix + "InstanceURL_" + templateId + "_" + System.currentTimeMillis();
 		
 		return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE, new QName(xsdNamespace, "string", xsdPrefix), templatePlan.getBuildPlan());
 		
 	}
 	
-	public boolean addNodeInstanceFindLogic(BuildPlan plan) {
+	public boolean addNodeInstanceFindLogic(TOSCAPlan plan) {
 		boolean check = true;
 		
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
@@ -241,9 +245,11 @@ public class NodeInstanceInitializer {
 			e.printStackTrace();
 		}
 		
+		String instanceIDVarName = this.findInstanceIdVarName(templatePlan);
+		
 		// fetch nodeInstanceID from nodeInstance query
 		try {
-			Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse = this.bpelFragments.createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsNode("assignNodeInstanceIDFromInstanceDataAPIResponse" + System.currentTimeMillis(), NodeInstanceInitializer.InstanceIDVarKeyword, instanceDataAPIResponseVarName);
+			Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse = this.bpelFragments.createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsNode("assignNodeInstanceIDFromInstanceDataAPIResponse" + System.currentTimeMillis(), instanceIDVarName, instanceDataAPIResponseVarName);
 			assignNodeInstanceIDFromInstanceDataAPIQueryResponse = templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
 			templatePlan.getBpelSequencePrePhaseElement().appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
 		} catch (SAXException e) {
@@ -264,8 +270,7 @@ public class NodeInstanceInitializer {
 	 *            Properties to BPEL Variables
 	 * @return true iff adding the logic was successful
 	 */
-	public boolean initializeNodeRelationInstanceData(BuildPlan plan, PropertyMap propMap) {
-		
+	public boolean initializeNodeInstanceData(TOSCAPlan plan, PropertyMap propMap) {
 		// find serviceInstanceID Variable
 		String serviceInstanceIdVarName = null;
 		String instanceDataUrlVarName = null;
@@ -374,7 +379,7 @@ public class NodeInstanceInitializer {
 		return true;
 	}
 	
-	public boolean addIfNullAbortCheck(BuildPlan plan, PropertyMap propMap) {
+	public boolean addIfNullAbortCheck(TOSCAPlan plan, PropertyMap propMap) {
 		boolean check = true;
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null) {

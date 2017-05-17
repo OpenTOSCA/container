@@ -19,7 +19,7 @@ import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -101,8 +101,8 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	
 	
 	@Override
-	public List<BuildPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-		List<BuildPlan> plans = new ArrayList<BuildPlan>();
+	public List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+		List<TOSCAPlan> plans = new ArrayList<TOSCAPlan>();
 		
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			plans.addAll(this.buildScalingPlans(csarName, definitions, serviceTemplate.getQName()));
@@ -111,8 +111,8 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		return plans;
 	}
 	
-	public List<BuildPlan> buildScalingPlans(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
-		List<BuildPlan> scalingPlans = new ArrayList<BuildPlan>();
+	public List<TOSCAPlan> buildScalingPlans(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+		List<TOSCAPlan> scalingPlans = new ArrayList<TOSCAPlan>();
 		
 		AbstractServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
 		
@@ -164,10 +164,10 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		return false;
 	}
 	
-	private BuildPlan createBuildPlanWithServiceInstanceAndNodeInstance(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
+	private TOSCAPlan createBuildPlanWithServiceInstanceAndNodeInstance(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
 		String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
 		String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
-		BuildPlan newScalingPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 1);
+		TOSCAPlan newScalingPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 1);
 		
 		newScalingPlan.setDefinitions(definitions);
 		newScalingPlan.setCsarName(csarName);
@@ -253,10 +253,10 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		return newScalingPlan;
 	}
 	
-	private BuildPlan createBuildPlanWithServiceInstance(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
+	private TOSCAPlan createBuildPlanWithServiceInstance(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
 		String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
 		String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
-		BuildPlan newScalingPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 1);
+		TOSCAPlan newScalingPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 1);
 		
 		newScalingPlan.setDefinitions(definitions);
 		newScalingPlan.setCsarName(csarName);
@@ -312,7 +312,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	 * @param map a PropertyMap which contains mappings from Template to
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(BuildPlan buildPlan, QName serviceTemplateId, PropertyMap map, Set<AbstractNodeTemplate> complementNodes) {
+	private void runPlugins(TOSCAPlan buildPlan, QName serviceTemplateId, PropertyMap map, Set<AbstractNodeTemplate> complementNodes) {
 		
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
@@ -588,7 +588,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
 	 */
-	private void initializeDependenciesInBuildPlan(BuildPlan buildPlan) {
+	private void initializeDependenciesInBuildPlan(TOSCAPlan buildPlan) {
 		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
@@ -650,7 +650,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	}
 	
 	@Override
-	public BuildPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+	public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
 		throw new RuntimeException("A service Template can have multiple scaling plans, this method is not supported");
 	}
 	
