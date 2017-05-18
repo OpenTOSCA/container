@@ -386,7 +386,7 @@ public class CSARsResource {
 
 				QName serviceTemplate = winCon.uploadCSAR(uploadFile);
 
-				this.fileHandler.deleteCSAR(csarID);
+				this.control.deleteCSAR(csarID);
 				//TODO
 				return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""+ winCon.getServiceTemplateURI(serviceTemplate).toString() +"\" }").build();
 				//return Response.status(Response.Status.SEE_OTHER).location(new URI(winCon.getServiceTemplateURI(serviceTemplate).toString()+"/injector/options")).build();
@@ -396,7 +396,9 @@ public class CSARsResource {
 			}
 		}
 
-		ToscaServiceHandler.getToscaEngineService().clearCSARContent(csarID);
+		// looks dumb, and it is. But the "TOSCA Processing" must be done again here
+		this.control.deleteCSAR(csarID);
+		csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
 
 		csarID = this.startPlanBuilder(csarID);
 
