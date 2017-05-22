@@ -13,10 +13,12 @@ import java.util.List;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.glassfish.jersey.uri.UriComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -33,7 +35,21 @@ import org.xml.sax.SAXException;
 public class Utilities {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
-	
+
+
+	public static URI encode(final URI uri) {
+		final List<PathSegment> pathSegments = UriComponent.decodePath(uri, false);
+		final UriBuilder uriBuilder = RuntimeDelegate.getInstance().createUriBuilder();
+		// Build base URL
+		uriBuilder.scheme(uri.getScheme()).host(uri.getHost()).port(uri.getPort());
+		// Interate over path segments and encode it if necessary
+		for (final PathSegment ps : pathSegments) {
+			uriBuilder.path(UriComponent.encode(ps.toString(), UriComponent.Type.PATH_SEGMENT));
+		}
+		LOG.debug("URL before encoding: {}", uri);
+		LOG.debug("URL after encoding:  {}", uriBuilder);
+		return URI.create(uriBuilder.toString());
+	}
 	
 	/**
 	 * Encodes URI path according to RFC 2396. This means e.g space will be

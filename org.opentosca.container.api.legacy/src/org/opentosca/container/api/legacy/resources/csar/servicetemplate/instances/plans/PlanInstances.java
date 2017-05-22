@@ -32,22 +32,22 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PlanInstances {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(PlanInstances.class);
 
+	private static final Logger LOG = LoggerFactory.getLogger(PlanInstances.class);
+	
 	private final CSARID csarID;
 	private final QName serviceTemplateID;
 	private final int serviceTemplateInstanceId;
-
+	
 	UriInfo uriInfo;
-
-
+	
+	
 	public PlanInstances(final CSARID csarID, final QName serviceTemplateID, final int serviceTemplateInstanceId) {
 		this.csarID = csarID;
 		this.serviceTemplateID = serviceTemplateID;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
 	}
-
+	
 	/**
 	 * Produces the xml which lists the CorrelationIDs of the active
 	 * PublicPlans.
@@ -61,7 +61,7 @@ public class PlanInstances {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getReferences().getXMLString()).build();
 	}
-
+	
 	/**
 	 * Produces the JSON which lists the links to the History and the active
 	 * plans.
@@ -75,29 +75,29 @@ public class PlanInstances {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getReferences().getJSONString()).build();
 	}
-
+	
 	public References getReferences() {
-
+		
 		PlanInstances.LOG.debug("Access plan instance list at " + this.uriInfo.getAbsolutePath().toString());
-
+		
 		if (this.csarID == null) {
 			PlanInstances.LOG.debug("The CSAR does not exist.");
 			return null;
 		}
-
+		
 		final References refs = new References();
-
+		
 		final IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
-
+		
 		for (final String correlation : control.getCorrelationsOfServiceTemplateInstance(new ServiceTemplateInstanceID(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId))) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), correlation), XLinkConstants.SIMPLE, correlation));
+			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, correlation), XLinkConstants.SIMPLE, correlation));
 		}
-
+		
 		// selflink
 		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 		return refs;
 	}
-
+	
 	/**
 	 * Returns the plan information from history.
 	 *
@@ -111,5 +111,5 @@ public class PlanInstances {
 		LOG.debug("get plan of corr {}", correlationID);
 		return new PlanInstance(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId, correlationID);
 	}
-
+	
 }

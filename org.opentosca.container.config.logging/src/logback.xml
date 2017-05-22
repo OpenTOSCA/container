@@ -24,5 +24,6 @@
   <logger name="org.eclipse.jetty" level="INFO" />
   <logger name="org.opentosca.planbuilder.importer.context" level="INFO" />
   <logger name="httpclient.wire" level="WARN" />
+  <logger name="com.predic8" level="WARN" />
 
 </configuration>

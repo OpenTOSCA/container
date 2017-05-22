@@ -72,7 +72,7 @@ public class ServiceTemplateController {
 
 		final ResourceSupport links = new ResourceSupport();
 		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("instances").build())).rel("instances").build());
-		// links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("boundarydefinitions").build())).rel("boundarydefinitions").build());
+		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("boundarydefinitions").build())).rel("boundarydefinitions").build());
 		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("buildplans").build())).rel("buildplans").build());
 		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 		
@@ -80,12 +80,7 @@ public class ServiceTemplateController {
 	}
 	
 	@Path("/{servicetemplate}/buildplans")
-	// @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public PlanController getBuildPlans() {
-		// Delegate to generic PlanController
-		
-		// return Resource.from(PlanController.class);
-		
 		return new PlanController(PlanTypes.BUILD, this.csarService, this.planService);
 	}
 

@@ -1,10 +1,16 @@
 package org.opentosca.bus.management.utils;
 
+import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.bus.management.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -325,5 +331,21 @@ public class MBUtils {
 		}
 
 		return reponseMap;
+	}
+	
+	public static String toString(final Document doc) {
+		try {
+			final StringWriter sw = new StringWriter();
+			final TransformerFactory tf = TransformerFactory.newInstance();
+			final Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.transform(new DOMSource(doc), new StreamResult(sw));
+			return sw.toString();
+		} catch (final Exception e) {
+			throw new RuntimeException("Error converting Document to String: " + e.getMessage(), e);
+		}
 	}
 }

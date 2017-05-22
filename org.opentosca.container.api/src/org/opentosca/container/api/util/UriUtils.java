@@ -12,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class UriUtils {
-
+	
 	private static Logger logger = LoggerFactory.getLogger(UriUtils.class);
-	
-	
+
+
 	public static URI encode(final URI uri) {
 		final List<PathSegment> pathSegments = UriComponent.decodePath(uri, false);
 		final UriBuilder uriBuilder = RuntimeDelegate.getInstance().createUriBuilder();
@@ -25,11 +25,11 @@ public final class UriUtils {
 		for (final PathSegment ps : pathSegments) {
 			uriBuilder.path(UriComponent.encode(ps.toString(), UriComponent.Type.PATH_SEGMENT));
 		}
-		logger.debug("URL before encoding:  {}", uri);
-		logger.debug("URL after encoding:   {}", uriBuilder);
+		logger.debug("URL before encoding: {}", uri);
+		logger.debug("URL after encoding:  {}", uriBuilder);
 		return URI.create(uriBuilder.toString());
 	}
-
+	
 	private UriUtils() {
 		throw new UnsupportedOperationException();
 	}

@@ -32,6 +32,7 @@ import org.opentosca.container.core.tosca.model.TExportedInterface;
 import org.opentosca.container.core.tosca.model.TExportedOperation;
 import org.opentosca.container.core.tosca.model.TPlan;
 import org.opentosca.container.core.tosca.model.TPolicy;
+import org.opentosca.container.core.tosca.model.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -1001,10 +1002,10 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		final List<String> list = new ArrayList<>();
 		
 		if (!this.mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.containsKey(csarID)) {
-			return null;
+			return list;
 		}
 		if (!this.mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.get(csarID).containsKey(serviceTemplateID)) {
-			return null;
+			return list;
 		}
 		
 		for (final String intf : this.mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.get(csarID).get(serviceTemplateID).keySet()) {
@@ -1153,8 +1154,13 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	}
 	
 	@Override
-	public String getServiceTemplateBoundsPropertiesContent(final CSARID csarID, final QName serviceTemplateID) {
-		return this.serviceTemplatePropertiesContent.get(csarID).get(serviceTemplateID);
+	public String getServiceTemplateBoundsPropertiesContent(final CSARID id, final QName serviceTemplate) {
+		final Map<QName, String> content = this.serviceTemplatePropertiesContent.get(id);
+		if (content == null) {
+			this.LOG.info("There is no Property Content for CSAR \"{}\"", id);
+			return null;
+		}
+		return content.get(serviceTemplate);
 	}
 	
 	@Override
@@ -1167,8 +1173,23 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 	}
 	
 	@Override
-	public PropertyMappings getServiceTemplateBoundsPropertyMappings(final CSARID csarID, final QName serviceTemplateID) {
-		return this.serviceTemplatePropertyMappings.get(csarID).get(serviceTemplateID);
+	public PropertyMappings getServiceTemplateBoundsPropertyMappings(final CSARID id, final QName serviceTemplate) {
+		final Map<QName, PropertyMappings> propertyMappings = this.serviceTemplatePropertyMappings.get(id);
+		if (propertyMappings == null) {
+			this.LOG.info("There are no Property Mappings for CSAR \"{}\"", id);
+			return null;
+		}
+		return propertyMappings.get(serviceTemplate);
+	}
+
+	@Override
+	public List<TPropertyMapping> getPropertyMappings(final CSARID id, final QName serviceTemplate) {
+		final PropertyMappings propertyMappings = this.getServiceTemplateBoundsPropertyMappings(id, serviceTemplate);
+		if (propertyMappings == null) {
+			this.LOG.info("There are no Property Mappings for CSAR \"{}\"", id);
+			return null;
+		}
+		return propertyMappings.getPropertyMapping();
 	}
 	
 	@Override

@@ -88,12 +88,12 @@ public class DirectoryResource {
 		
 		final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
 		for (final AbstractDirectory directory : directories) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), directory.getName()), XLinkConstants.SIMPLE, directory.getName()));
+			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, directory.getName()), XLinkConstants.SIMPLE, directory.getName()));
 		}
 		
 		final Set<AbstractFile> files = this.CSAR_DIRECTORY.getFiles();
 		for (final AbstractFile file : files) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), file.getName()), XLinkConstants.SIMPLE, file.getName()));
+			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, file.getName()), XLinkConstants.SIMPLE, file.getName()));
 		}
 		
 		final Reference self = new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
@@ -103,10 +103,11 @@ public class DirectoryResource {
 	}
 	
 	@Path("{directoryOrFile}")
-	public Object getDirectoryOrFile(@PathParam("directoryOrFile") final String directoryOrFile) {
+	public Object getDirectoryOrFile(@PathParam("directoryOrFile") String directoryOrFile) {
 		
+		directoryOrFile = Utilities.URLencode(directoryOrFile);
 		DirectoryResource.LOG.debug("Checking if \"{}\" exists in directory \"{}\" of CSAR \"{}\"...", directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
-		
+
 		final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
 		
 		for (final AbstractDirectory directory : directories) {

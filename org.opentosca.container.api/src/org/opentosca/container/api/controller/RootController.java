@@ -29,18 +29,18 @@ import org.opentosca.container.api.dto.ResourceSupport;
 
 @Path("/")
 public class RootController {
-
+	
 	@Context
 	private UriInfo uriInfo;
-	
-	
+
+
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response getRoot() {
 		final ResourceSupport links = new ResourceSupport();
 		links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
 		links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
-		links.add(Link.fromUriBuilder(UriBuilder.fromUri(this.uriInfo.getBaseUri()).path("/containerapi")).rel("legacy-api").build());
+		links.add(Link.fromUriBuilder(UriBuilder.fromUri(this.uriInfo.getBaseUri()).path("containerapi")).rel("containerapi").build());
 		return Response.ok(links).build();
 	}
 }

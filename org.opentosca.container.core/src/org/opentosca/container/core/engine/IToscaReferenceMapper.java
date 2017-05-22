@@ -8,11 +8,12 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
+import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Properties.PropertyMappings;
 import org.opentosca.container.core.tosca.model.TDefinitions;
 import org.opentosca.container.core.tosca.model.TExportedInterface;
 import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Properties.PropertyMappings;
+import org.opentosca.container.core.tosca.model.TPropertyMapping;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -23,7 +24,7 @@ import org.w3c.dom.Node;
  * of a TOSCA file.
  */
 public interface IToscaReferenceMapper {
-
+	
 	/**
 	 * This method stores a DOM document and its QName for a certain CSAR.
 	 *
@@ -33,7 +34,7 @@ public interface IToscaReferenceMapper {
 	 * @return true means no error, false means one or more errors
 	 */
 	public abstract void storeDocument(CSARID csarID, QName documentID, Document doc);
-	
+
 	/**
 	 * This method stores a DOM node and its QName for a certain CSAR.
 	 *
@@ -43,7 +44,7 @@ public interface IToscaReferenceMapper {
 	 * @return true means no error, false means one or more errors
 	 */
 	public abstract void storeReference(CSARID csarID, QName nodeID, Node node);
-	
+
 	/**
 	 * This method stores a ServiceTemplateID for a specific CSAR.
 	 *
@@ -51,7 +52,7 @@ public interface IToscaReferenceMapper {
 	 * @param csarID the CSARID of a specific CSAR.
 	 */
 	public void storeServiceTemplateIDForCSARID(QName serviceTemplateID, CSARID csarID);
-	
+
 	/**
 	 * This method returns the stored list of IDs of ServiceTemplates contained
 	 * in a specific CSAR.
@@ -61,7 +62,7 @@ public interface IToscaReferenceMapper {
 	 *         specific CSAR.
 	 */
 	public List<QName> getServiceTemplateIDsContainedInCSAR(CSARID csarID);
-	
+
 	/**
 	 * This method returns a list of Definitions contained in a specific CSAR.
 	 *
@@ -69,7 +70,7 @@ public interface IToscaReferenceMapper {
 	 * @return a list of the Definitions which are contained in a specific CSAR.
 	 */
 	public List<TDefinitions> getDefinitionsOfCSAR(CSARID csarID);
-	
+
 	/**
 	 * This method returns a list of IDs of Definitions contained in a specific
 	 * CSAR.
@@ -79,7 +80,7 @@ public interface IToscaReferenceMapper {
 	 *         specific CSAR.
 	 */
 	public List<QName> getDefinitionIDsOfCSAR(CSARID csarID);
-	
+
 	/**
 	 * Returns the requested Document. The Document is identified via the QName
 	 * of a CSAR and the QName of an element inside of it. If the object is
@@ -91,7 +92,7 @@ public interface IToscaReferenceMapper {
 	 * @return The DOM Document if it is found. Null if it is not found.
 	 */
 	public abstract Document getDOMDocumentForReference(CSARID csarID, QName reference);
-	
+
 	/**
 	 * Returns the requested Node object. The object is identified via the QName
 	 * of a CSAR and its own QName. If the object is found, it is returned as a
@@ -102,7 +103,7 @@ public interface IToscaReferenceMapper {
 	 * @return DOM Node object or null in case of failure
 	 */
 	public abstract Object getReferenceAsNode(CSARID csarID, QName nodeID);
-	
+
 	/**
 	 * Returns the requested JAXB object. The object is identified via the QName
 	 * of a CSAR and its own QName. If the object is found, it is serialized and
@@ -114,7 +115,7 @@ public interface IToscaReferenceMapper {
 	 *         null in case of failure
 	 */
 	public abstract Object getJAXBReference(CSARID csarID, QName nodeID);
-	
+
 	/**
 	 * Checks if the ToscaReferenceMapper has stored data about a certain CSAR.
 	 *
@@ -122,7 +123,7 @@ public interface IToscaReferenceMapper {
 	 * @return true if there is data stored, false if not
 	 */
 	public abstract boolean containsCSARData(CSARID csarID);
-	
+
 	/**
 	 * Checks if the ToscaReferenceMapper has stored a specific reference for a
 	 * CSAR.
@@ -132,7 +133,7 @@ public interface IToscaReferenceMapper {
 	 * @return true if there is data stored, false if not
 	 */
 	public boolean containsReferenceInsideCSAR(CSARID csarID, QName reference);
-	
+
 	/**
 	 * Stores a Definitions for a specific CSAR.
 	 *
@@ -140,7 +141,7 @@ public interface IToscaReferenceMapper {
 	 * @param definitions the Definitions.
 	 */
 	public void storeDefinitions(CSARID csarID, TDefinitions definitions);
-	
+
 	/**
 	 * Stores an exported interface for a CSAR.
 	 *
@@ -150,7 +151,7 @@ public interface IToscaReferenceMapper {
 	 * @param iface the exported interface.
 	 */
 	public void storeExportedInterface(CSARID csarID, QName serviceTemplateID, TExportedInterface iface);
-	
+
 	/**
 	 * Returns the list of exported interfaces of a CSAR.
 	 *
@@ -158,7 +159,7 @@ public interface IToscaReferenceMapper {
 	 * @return a list of the exported interfaces of the given CSAR.
 	 */
 	public Map<QName, List<TExportedInterface>> getExportedInterfacesOfCSAR(CSARID csarID);
-	
+
 	/**
 	 * Returns the persistence which maps a CSARID to a ServiceTemplateID to a
 	 * PlanID.
@@ -166,7 +167,7 @@ public interface IToscaReferenceMapper {
 	 * @return the map.
 	 */
 	public Map<CSARID, Map<QName, List<QName>>> getMapCsarIDToServiceTemplateIDToPlanID();
-	
+
 	/**
 	 * Returns a map of PlanTypes to a map of plan ids to plan for a certain
 	 * CSAR.
@@ -175,7 +176,7 @@ public interface IToscaReferenceMapper {
 	 * @return map
 	 */
 	public Map<PlanTypes, LinkedHashMap<QName, TPlan>> getCSARIDToPlans(CSARID csarID);
-	
+
 	/**
 	 * This method stores whether the plan is synchronous or asynchronous.
 	 *
@@ -184,7 +185,7 @@ public interface IToscaReferenceMapper {
 	 * @param checkAsynchronous false for synchronous, true for asynchronous
 	 */
 	public void storePlanAsynchronousBoolean(CSARID csarID, QName planID, boolean checkAsynchronous);
-	
+
 	/**
 	 * This method shows if a plan is synchronous or asynchronous.
 	 *
@@ -194,7 +195,7 @@ public interface IToscaReferenceMapper {
 	 *         no informations are stored
 	 */
 	public Boolean isPlanAsynchronous(CSARID csarID, QName planID);
-	
+
 	/**
 	 * Returns a PublicPlan if found.
 	 *
@@ -203,12 +204,12 @@ public interface IToscaReferenceMapper {
 	 * @return the PublicPlan if found, null instead.
 	 */
 	public TPlan getPlanForCSARIDAndPlanID(CSARID csarID, QName planID);
-	
+
 	/**
 	 * Debug output.
 	 */
 	public void printStoredData();
-	
+
 	/**
 	 * Returns the requested Consolidated Policies.
 	 *
@@ -217,7 +218,7 @@ public interface IToscaReferenceMapper {
 	 * @return the Consolidated Policies or null of none are found.
 	 */
 	public Policies getPolicies(CSARID csarID, QName templateID);
-	
+
 	/**
 	 * Puts the Consolidated Policies of a ServiceTemplate or NodeTemplate into
 	 * the storage.
@@ -227,7 +228,7 @@ public interface IToscaReferenceMapper {
 	 * @param policies the ConsolidatedPolicies object
 	 */
 	public void storeConsolidatedPolicies(CSARID csarID, QName templateID, Policies policies);
-	
+
 	/**
 	 * Stores the location inside of a CSAR for a Definitions file.
 	 *
@@ -235,7 +236,7 @@ public interface IToscaReferenceMapper {
 	 * @param location
 	 */
 	public void storeDefinitionsLocation(CSARID csarID, QName defID, String location);
-	
+
 	/**
 	 * Returns the location of a Definitions file for a given DefinitionsID.
 	 *
@@ -243,7 +244,7 @@ public interface IToscaReferenceMapper {
 	 * @return String location or null in case of error like not found
 	 */
 	public String getDefinitionsLocation(CSARID csarID, QName defID);
-	
+
 	/**
 	 * Stores the the Definitions ID for an element inside a CSAR.
 	 *
@@ -252,7 +253,7 @@ public interface IToscaReferenceMapper {
 	 * @param definitionsID the Definitions ID
 	 */
 	public void storeContainingDefinitionsID(CSARID csarID, QName elementID, QName definitionsID);
-	
+
 	/**
 	 * Returns the Definitions ID for a Definitions containing a element with
 	 * the given elementID inside a CSAR.
@@ -262,7 +263,7 @@ public interface IToscaReferenceMapper {
 	 * @return the Definitions ID or null in case of error like not found
 	 */
 	public QName getContainingDefinitionsID(CSARID csarID, QName elementID);
-	
+
 	/**
 	 * Stores the message element id of a plan, parsed from a WSDL.
 	 *
@@ -270,7 +271,7 @@ public interface IToscaReferenceMapper {
 	 * @param planID
 	 */
 	public void storePlanInputMessageID(CSARID csarID, QName planID, QName messageID);
-	
+
 	/**
 	 * Returns the message element id of a plan, parsed from a WSDL.
 	 *
@@ -279,50 +280,52 @@ public interface IToscaReferenceMapper {
 	 * @return
 	 */
 	public QName getPlanInputMessageID(CSARID csarID, QName planID);
-	
+
 	// public void storeOperationNameForPlan(CSARID csarID, QName
 	// serviceTemplateID, QName planID, String interfaceName, String
 	// operationName);
-	
-	public String getIntferaceNameOfPlan(CSARID csarID, QName planID);
-	
-	public String getIntferaceNameOfPlan(CSARID csarID, QName serviceTemplateID, QName planID);
-	
-	public String getOperationNameOfPlan(CSARID csarID, QName planID);
-	
-	public List<String> getBoundaryInterfacesOfCSAR(CSARID csarID);
-	
-	public List<String> getBoundaryInterfacesOfServiceTemplate(CSARID csarID, QName serviceTemplateID);
-	
-	public List<String> getBoundaryOperationsOfCSARInterface(CSARID csarID, QName serviceTemplateID, String intName);
-	
-	public QName getBoundaryPlanOfCSARInterface(CSARID csarID, String intName, String opName);
 
+	public String getIntferaceNameOfPlan(CSARID csarID, QName planID);
+
+	public String getIntferaceNameOfPlan(CSARID csarID, QName serviceTemplateID, QName planID);
+
+	public String getOperationNameOfPlan(CSARID csarID, QName planID);
+
+	public List<String> getBoundaryInterfacesOfCSAR(CSARID csarID);
+
+	public List<String> getBoundaryInterfacesOfServiceTemplate(CSARID csarID, QName serviceTemplateID);
+
+	public List<String> getBoundaryOperationsOfCSARInterface(CSARID csarID, QName serviceTemplateID, String intName);
+
+	public QName getBoundaryPlanOfCSARInterface(CSARID csarID, String intName, String opName);
+	
 	public String getNamespaceOfPlan(CSARID csarID, String planID);
-	
+
 	public void storeNamespaceOfPlan(CSARID csarID, String planID, String namespace);
-	
+
 	public void storeNodeTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID, String id);
-	
+
 	public Map<QName, List<String>> getServiceTemplatesAndNodeTemplatesInCSAR(CSARID csarID);
-	
+
 	public void storeServiceTemplateBoundsPropertiesInformation(CSARID csarID, QName serviceTemplateID, String propertiesContent, PropertyMappings propertyMappings);
-	
+
 	public String getServiceTemplateBoundsPropertiesContent(CSARID csarID, QName serviceTemplateID);
-	
+
 	public PropertyMappings getServiceTemplateBoundsPropertyMappings(CSARID csarID, QName serviceTemplateID);
-	
+
 	public List<String> getServiceTemplateBoundsPropertiesContent(CSARID csarID);
-	
+
 	public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(CSARID csarID);
-	
+
 	void storeServiceTemplateBoundsPlan(CSARID csarID, QName serviceTemplateID, String interfaceName, String opName, QName planID);
 	
+	List<TPropertyMapping> getPropertyMappings(CSARID id, QName serviceTemplate);
+
 	// public void storeInterfaceNameForPlan(CSARID csarID, QName
 	// serviceTemplateID, QName planID, String interfaceName);
 	// public void setBoundaryInterfaceForCSARIDPlan(CSARID csarID, QName
 	// serviceTemplateID, QName planID, String ifaceName);
 	// public void setBoundaryOperationForCSARIDPlan(CSARID csarID, QName
 	// serviceTemplateID, QName planID, String opName);
-	
+
 }
