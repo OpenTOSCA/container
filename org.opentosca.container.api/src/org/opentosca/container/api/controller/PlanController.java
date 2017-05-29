@@ -47,13 +47,15 @@ public class PlanController {
 
 	private final CSARID csarId;
 	private final QName serviceTemplate;
+	private final Integer serviceTemplateInstanceId;
 
 	private final List<PlanTypes> planTypes = Lists.newArrayList();
 	
 	
-	public PlanController(final CSARID csarId, final QName serviceTemplate, final PlanService planService, final InstanceService instanceService, final PlanTypes... planTypes) {
+	public PlanController(final CSARID csarId, final QName serviceTemplate, final Integer serviceTemplateInstanceId, final PlanService planService, final InstanceService instanceService, final PlanTypes... planTypes) {
 		this.csarId = csarId;
 		this.serviceTemplate = serviceTemplate;
+		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
 		this.planService = planService;
 		this.instanceService = instanceService;
 		this.planTypes.addAll(Arrays.asList(planTypes));
@@ -108,7 +110,13 @@ public class PlanController {
 			throw new NotFoundException("Plan \"" + plan + "\" could not be found");
 		}
 		
-		final List<ServiceInstance> serviceInstances = this.instanceService.getServiceTemplateInstances(this.csarId, this.serviceTemplate);
+		final List<ServiceInstance> serviceInstances;
+		if (this.serviceTemplateInstanceId != null) {
+			serviceInstances = Lists.newArrayList();
+			serviceInstances.add(this.instanceService.getServiceTemplateInstance(this.serviceTemplateInstanceId, this.csarId, this.serviceTemplate));
+		} else {
+			serviceInstances = this.instanceService.getServiceTemplateInstances(this.csarId, this.serviceTemplate);
+		}
 		final List<PlanInstanceDTO> planInstances = this.planService.getPlanInstances(serviceInstances, this.planTypes);
 		
 		for (final PlanInstanceDTO pi : planInstances) {
@@ -174,7 +182,13 @@ public class PlanController {
 			throw new NotFoundException("Plan instance \"" + instance + "\" could not be found");
 		}
 
-		final List<ServiceInstance> serviceInstances = this.instanceService.getServiceTemplateInstances(this.csarId, this.serviceTemplate);
+		final List<ServiceInstance> serviceInstances;
+		if (this.serviceTemplateInstanceId != null) {
+			serviceInstances = Lists.newArrayList();
+			serviceInstances.add(this.instanceService.getServiceTemplateInstance(this.serviceTemplateInstanceId, this.csarId, this.serviceTemplate));
+		} else {
+			serviceInstances = this.instanceService.getServiceTemplateInstances(this.csarId, this.serviceTemplate);
+		}
 		final List<PlanInstanceDTO> planInstances = this.planService.getPlanInstances(serviceInstances, this.planTypes);
 
 		final Optional<PlanInstanceDTO> pio = planInstances.stream().filter(p -> p.getId().equals(instance)).findFirst();

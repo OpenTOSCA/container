@@ -18,26 +18,26 @@ public class InstanceService {
 	private IInstanceDataService instanceDataService;
 	
 	
-	public List<ServiceInstance> getServiceTemplateInstances(final CSARID id, final String serviceTemplateName) {
-		return this.getServiceTemplateInstances(id, QName.valueOf(serviceTemplateName));
+	public List<ServiceInstance> getServiceTemplateInstances(final CSARID id, final String serviceTemplate) {
+		return this.getServiceTemplateInstances(id, QName.valueOf(serviceTemplate));
 	}
 
-	public List<ServiceInstance> getServiceTemplateInstances(final CSARID id, final QName serviceTemplateName) {
-		logger.debug("Requesting instances of ServiceTemplate \"{}\" in CSAR \"{}\"...", serviceTemplateName, id);
-		return this.instanceDataService.getServiceInstancesWithDetails(id, serviceTemplateName, null);
+	public List<ServiceInstance> getServiceTemplateInstances(final CSARID id, final QName serviceTemplate) {
+		logger.debug("Requesting instances of ServiceTemplate \"{}\" in CSAR \"{}\"...", serviceTemplate, id);
+		return this.instanceDataService.getServiceInstancesWithDetails(id, serviceTemplate, null);
 	}
 
-	public ServiceInstance getServiceTemplateInstance(final Integer id, final CSARID csarId, final String serviceTemplateName) {
-		return this.getServiceTemplateInstance(id, csarId, QName.valueOf(serviceTemplateName));
+	public ServiceInstance getServiceTemplateInstance(final Integer id, final CSARID csarId, final String serviceTemplate) {
+		return this.getServiceTemplateInstance(id, csarId, QName.valueOf(serviceTemplate));
 	}
 
-	public ServiceInstance getServiceTemplateInstance(final Integer id, final CSARID csarId, final QName serviceTemplateName) {
-		logger.debug("Requesting instance <{}> of ServiceTemplate \"{}\" in CSAR \"{}\"...", id, serviceTemplateName, csarId);
-		final List<ServiceInstance> instances = this.instanceDataService.getServiceInstancesWithDetails(csarId, serviceTemplateName, id);
+	public ServiceInstance getServiceTemplateInstance(final Integer id, final CSARID csarId, final QName serviceTemplate) {
+		logger.debug("Requesting instance <{}> of ServiceTemplate \"{}\" in CSAR \"{}\"...", id, serviceTemplate, csarId);
+		final List<ServiceInstance> instances = this.instanceDataService.getServiceInstancesWithDetails(csarId, serviceTemplate, id);
 		if (instances.size() == 1) {
 			return instances.get(0);
 		}
-		throw new NotFoundException("Instance <" + id + "> of ServiceTemplate \"" + serviceTemplateName + "\" in CSAR \"" + csarId + "\" not found");
+		throw new NotFoundException("Instance <" + id + "> of ServiceTemplate \"" + serviceTemplate + "\" in CSAR \"" + csarId + "\" not found");
 	}
 
 	public void setInstanceDataService(final IInstanceDataService instanceDataService) {
