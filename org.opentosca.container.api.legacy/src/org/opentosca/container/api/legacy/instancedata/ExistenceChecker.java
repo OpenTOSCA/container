@@ -8,13 +8,14 @@ import javax.ws.rs.core.Response.Status;
 import org.opentosca.container.api.legacy.instancedata.exception.GenericRestException;
 import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
+import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
 import org.opentosca.container.core.service.IInstanceDataService;
 
 /**
  * This class checks for Existence of ServiceInstances and NodeInstances by
  * calling the given InstanceDataService
- * 
+ *
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
@@ -75,6 +76,18 @@ public class ExistenceChecker {
 			return serviceInstances.get(0);
 		} else {
 			throw new GenericRestException(Status.NOT_FOUND, "Specified serviceInstance with id: " + serviceInstanceID + " doesn't exist");
+		}
+	}
+
+	public static RelationInstance checkRelationInstanceWithException(final int relationInstanceID, final IInstanceDataService service) throws GenericRestException {
+		final List<RelationInstance> relationInstances = service.getRelationInstances(IdConverter.relationInstanceIDtoURI(relationInstanceID), null, null, null);
+		// check if only one instance was returned - we dont verify because we
+		// assume the get Method returns the correct one!
+		// we got really bad problems if this wouldnt work anyway
+		if ((relationInstances != null) && (relationInstances.size() == 1) && (relationInstances.get(0) != null)) {
+			return relationInstances.get(0);
+		} else {
+			throw new GenericRestException(Status.NOT_FOUND, "Specified relationInstance with id: " + relationInstanceID + " doesn't exist");
 		}
 	}
 }

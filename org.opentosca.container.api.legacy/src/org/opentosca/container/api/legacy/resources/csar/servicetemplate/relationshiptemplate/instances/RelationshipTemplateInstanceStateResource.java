@@ -1,4 +1,4 @@
-package org.opentosca.container.api.legacy.resources.csar.servicetemplate.nodetemplate.instances;
+package org.opentosca.container.api.legacy.resources.csar.servicetemplate.relationshiptemplate.instances;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,76 +23,76 @@ import com.google.gson.JsonObject;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
-public class NodeTemplateInstanceStateResource {
-
-	private final int nodeInstanceID;
-
-
-	public NodeTemplateInstanceStateResource(final int id) {
-		this.nodeInstanceID = id;
-	}
+public class RelationshipTemplateInstanceStateResource {
 	
+	private final int relationInstanceID;
+
+
+	public RelationshipTemplateInstanceStateResource(final int id) {
+		this.relationInstanceID = id;
+	}
+
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response doGetXML() {
-		
+
 		final String idr = this.getState();
-		
+
 		return Response.ok(idr).build();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doGetJSON() {
-		
+
 		final String idr = this.getState();
-		
+
 		final JsonObject json = new JsonObject();
 		json.addProperty("state", idr);
-		
+
 		return Response.ok(json.toString()).build();
 	}
-	
+
 	public String getState() {
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		
+
 		try {
-			final QName state = service.getNodeInstanceState(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID));
+			final QName state = service.getRelationInstanceState(IdConverter.relationInstanceIDtoURI(this.relationInstanceID));
 			if (state != null) {
 				return state.toString();
 			} else {
 				return null;
 			}
 		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
+			throw new GenericRestException(Status.NOT_FOUND, "Specified relationInstance with id: " + this.relationInstanceID + " doesn't exist");
 		}
 	}
-	
+
 	@PUT
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_XML)
 	public Response setState(@Context final UriInfo uriInfo, final String state) {
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		
+
 		QName stateQName = null;
 		try {
 			stateQName = QName.valueOf(state);
-			
+
 		} catch (final Exception e1) {
 			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter state: " + e1.getMessage());
 		}
-		
+
 		try {
-			service.setNodeInstanceState(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), stateQName);
-			
+			service.setRelationInstanceState(IdConverter.relationInstanceIDtoURI(this.relationInstanceID), stateQName);
+
 			// SimpleXLink xLink = new
 			// SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
 			// nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
 			return Response.ok().build();
 		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
+			throw new GenericRestException(Status.NOT_FOUND, "Specified relationInstance with id: " + this.relationInstanceID + " doesn't exist");
 		}
-		
+
 	}
-	
+
 }
