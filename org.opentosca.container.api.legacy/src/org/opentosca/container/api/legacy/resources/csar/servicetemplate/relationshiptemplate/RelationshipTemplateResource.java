@@ -21,52 +21,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RelationshipTemplateResource {
-
+	
 	private final Logger log = LoggerFactory.getLogger(RelationshipTemplateResource.class);
 	private final CSARID csarId;
 	private final QName serviceTemplateID;
 	private final int serviceTemplateInstanceId;
 	private final QName relationshipTemplateID;
 	private UriInfo uriInfo;
-	
-	
+
+
 	public RelationshipTemplateResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId, final String planIdLocalPart) {
 		this.csarId = csarId;
 		this.serviceTemplateID = serviceTemplateID;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
 		this.relationshipTemplateID = new QName(serviceTemplateID.getNamespaceURI(), planIdLocalPart);
 	}
-	
+
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
 	public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getRefs().getXMLString()).build();
 	}
-	
+
 	@GET
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
 		this.uriInfo = uriInfo;
 		return Response.ok(this.getRefs().getJSONString()).build();
 	}
-	
+
 	public References getRefs() throws UnsupportedEncodingException {
-		
+
 		if (this.csarId == null) {
 			return null;
 		}
-		
+
 		final References refs = new References();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "Instances"), XLinkConstants.SIMPLE, "Instances"));
-		
+
+		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Instances"), XLinkConstants.SIMPLE, "Instances"));
+
 		// selflink
 		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
+
 		return refs;
 	}
-	
+
 	@Path("Instances")
 	public RelationshipTemplateInstancesResource getNodeTemplateInstances() {
 		return new RelationshipTemplateInstancesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, this.relationshipTemplateID);
