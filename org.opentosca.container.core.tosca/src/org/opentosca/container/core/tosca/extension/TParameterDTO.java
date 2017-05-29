@@ -31,6 +31,9 @@ public class TParameterDTO {
 		this.name = param.getName();
 		this.type = param.getType();
 		this.required = param.getRequired();
+		if (param instanceof org.opentosca.container.core.tosca.extension.TParameter) {
+			this.value = ((org.opentosca.container.core.tosca.extension.TParameter) param).getValue();
+		}
 	}
 	
 	public String getValue() {
@@ -43,9 +46,9 @@ public class TParameterDTO {
 	
 	/**
 	 * Gets the value of the name property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getName() {
 		return this.name;
@@ -53,9 +56,9 @@ public class TParameterDTO {
 	
 	/**
 	 * Sets the value of the name property.
-	 * 
+	 *
 	 * @param value allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setName(final String value) {
 		this.name = value;
@@ -63,9 +66,9 @@ public class TParameterDTO {
 	
 	/**
 	 * Gets the value of the type property.
-	 * 
+	 *
 	 * @return possible object is {@link String }
-	 * 
+	 *
 	 */
 	public String getType() {
 		return this.type;
@@ -73,9 +76,9 @@ public class TParameterDTO {
 	
 	/**
 	 * Sets the value of the type property.
-	 * 
+	 *
 	 * @param value allowed object is {@link String }
-	 * 
+	 *
 	 */
 	public void setType(final String value) {
 		this.type = value;
@@ -83,9 +86,9 @@ public class TParameterDTO {
 	
 	/**
 	 * Gets the value of the required property.
-	 * 
+	 *
 	 * @return possible object is {@link TBoolean }
-	 * 
+	 *
 	 */
 	public TBoolean getRequired() {
 		if (this.required == null) {
@@ -97,9 +100,9 @@ public class TParameterDTO {
 	
 	/**
 	 * Sets the value of the required property.
-	 * 
+	 *
 	 * @param value allowed object is {@link TBoolean }
-	 * 
+	 *
 	 */
 	public void setRequired(final TBoolean value) {
 		this.required = value;

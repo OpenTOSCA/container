@@ -1,79 +1,175 @@
 package org.opentosca.container.api.dto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.tosca.model.TParameter;
+import org.opentosca.container.core.tosca.extension.TParameter;
+import org.opentosca.container.core.tosca.extension.TParameterDTO;
+import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TPlan.PlanModelReference;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Lists;
 
-/**
- * Decorator class for {@link TPlan} to provide a proper JSON representation.
- */
 @XmlRootElement(name = "Plan")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanDTO extends ResourceSupport {
 
-	@XmlTransient
-	private TPlan plan;
+	@XmlAttribute
+	private String id;
+	
+	@XmlAttribute
+	private String name;
+	
+	@XmlAttribute
+	private String planType;
+	
+	@XmlAttribute
+	private String planLanguage;
+	
+	@XmlElement(name = "InputParameter")
+	@XmlElementWrapper(name = "InputParameters")
+	private List<TParameter> inputParameters = Lists.newArrayList();
+
+	@XmlElement(name = "OutputParameter")
+	@XmlElementWrapper(name = "OutputParameters")
+	private List<TParameter> outputParameters = Lists.newArrayList();
+
+	@XmlElement(name = "PlanModelReference")
+	private String planModelReference;
 
 
-	protected PlanDTO() {
+	public PlanDTO() {
 		
 	}
 
 	public PlanDTO(final TPlan plan) {
-		this.plan = plan;
+		this.id = plan.getId();
+		this.name = plan.getName();
+		this.planType = plan.getPlanType();
+		this.planLanguage = plan.getPlanLanguage();
+		this.inputParameters.addAll(plan.getInputParameters().getInputParameter().stream().map(p -> new TParameter(p)).collect(Collectors.toList()));
+		this.outputParameters.addAll(plan.getOutputParameters().getOutputParameter().stream().map(p -> new TParameter(p)).collect(Collectors.toList()));
+		this.planModelReference = plan.getPlanModelReference().getReference();
 	}
 
-	@XmlAttribute(name = "id")
 	public String getId() {
-		return this.plan.getId();
+		return this.id;
 	}
 
-	@XmlAttribute(name = "name")
+	public void setId(final String id) {
+		this.id = id;
+	}
+
 	public String getName() {
-		return this.plan.getName();
+		return this.name;
 	}
 
-	@XmlAttribute(name = "planType")
+	public void setName(final String name) {
+		this.name = name;
+	}
+
 	public String getPlanType() {
-		return this.plan.getPlanType();
+		return this.planType;
 	}
-	
-	@XmlAttribute(name = "planLanguage")
+
+	public void setPlanType(final String planType) {
+		this.planType = planType;
+	}
+
 	public String getPlanLanguage() {
-		return this.plan.getPlanLanguage();
+		return this.planLanguage;
 	}
-	
-	@XmlElement(name = "InputParameter")
-	@XmlElementWrapper(name = "InputParameters")
+
+	public void setPlanLanguage(final String planLanguage) {
+		this.planLanguage = planLanguage;
+	}
+
 	public List<TParameter> getInputParameters() {
-		return this.plan.getInputParameters().getInputParameter();
+		return this.inputParameters;
 	}
-	
-	@XmlElement(name = "OutputParameter")
-	@XmlElementWrapper(name = "OutputParameters")
+
+	public void setInputParameters(final List<TParameter> inputParameters) {
+		this.inputParameters = inputParameters;
+	}
+
 	public List<TParameter> getOutputParameters() {
-		return this.plan.getOutputParameters().getOutputParameter();
+		return this.outputParameters;
+	}
+
+	public void setOutputParameters(final List<TParameter> outputParameters) {
+		this.outputParameters = outputParameters;
 	}
 	
-	@XmlTransient
 	public String getPlanModelReference() {
-		return this.plan.getPlanModelReference().getReference();
+		return this.planModelReference;
 	}
 	
-	@JsonIgnore
-	@XmlElement(name = "PlanModelReference")
-	public PlanModelReference getPlanModelReferenceForXml() {
-		return this.plan.getPlanModelReference();
+	public void setPlanModelReference(final String planModelReference) {
+		this.planModelReference = planModelReference;
+	}
+
+
+	public static final class Converter {
+		
+		public static TPlanDTO convert(final PlanDTO object) {
+			final TPlanDTO plan = new TPlanDTO();
+			
+			plan.setId(QName.valueOf(object.getId()));
+			plan.setName(object.getName());
+			plan.setPlanLanguage(object.getPlanLanguage());
+			plan.setPlanType(object.getPlanType());
+
+			final TPlanDTO.InputParameters inputParameters = new TPlanDTO.InputParameters();
+			for (final TParameter param : object.getInputParameters()) {
+				inputParameters.getInputParameter().add(new TParameterDTO(param));
+			}
+			plan.setInputParameters(inputParameters);
+
+			final TPlanDTO.OutputParameters outputParameters = new TPlanDTO.OutputParameters();
+			for (final TParameter param : object.getOutputParameters()) {
+				outputParameters.getOutputParameter().add(new TParameterDTO(param));
+			}
+			plan.setOutputParameters(outputParameters);
+
+			return plan;
+		}
+		
+		public static PlanDTO convert(final TPlanDTO object) {
+			final PlanDTO plan = new PlanDTO();
+			
+			plan.setId(object.getId().toString());
+			plan.setName(object.getName());
+			plan.setPlanLanguage(object.getPlanLanguage());
+			plan.setPlanType(object.getPlanType());
+			
+			final List<TParameter> inputParameters = object.getInputParameters().getInputParameter().stream().map(p -> {
+				final TParameter parameter = new TParameter();
+				parameter.setName(p.getName());
+				parameter.setRequired(p.getRequired());
+				parameter.setType(p.getType());
+				parameter.setValue(p.getValue());
+				return parameter;
+			}).collect(Collectors.toList());
+			plan.setInputParameters(inputParameters);
+			
+			final List<TParameter> outputParameters = object.getOutputParameters().getOutputParameter().stream().map(p -> {
+				final TParameter parameter = new TParameter();
+				parameter.setName(p.getName());
+				parameter.setRequired(p.getRequired());
+				parameter.setType(p.getType());
+				parameter.setValue(p.getValue());
+				return parameter;
+			}).collect(Collectors.toList());
+			plan.setInputParameters(outputParameters);
+			
+			return plan;
+		}
 	}
 }

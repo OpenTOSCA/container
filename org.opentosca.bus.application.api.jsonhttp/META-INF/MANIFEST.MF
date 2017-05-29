@@ -4,7 +4,7 @@ Bundle-Name: Json-Http API for Application Bus
 Bundle-SymbolicName: org.opentosca.bus.application.api.jsonhttp
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.application.api.jsonhttp.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.builder;version="2.10.4",
  org.apache.camel.component.http;version="2.10.4",

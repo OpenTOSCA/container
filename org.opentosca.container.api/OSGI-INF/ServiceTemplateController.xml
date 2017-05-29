@@ -6,4 +6,5 @@
       <provide interface="org.opentosca.container.api.controller.ServiceTemplateController"/>
    </service>
    <reference bind="setPlanService" cardinality="1..1" interface="org.opentosca.container.api.service.PlanService" name="PlanService" policy="static"/>
+   <reference bind="setInstanceService" cardinality="1..1" interface="org.opentosca.container.api.service.InstanceService" name="InstanceService" policy="static"/>
 </scr:component>

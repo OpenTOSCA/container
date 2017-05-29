@@ -1,6 +1,7 @@
 package org.opentosca.container.api.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,14 +21,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 public class CsarService {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(CsarService.class);
-
+	
 	private ICoreFileService fileService;
-
+	
 	private IToscaEngineService engineService;
-
-
+	
+	
 	/**
 	 * Loads all available CSARs as {@link CSARContent}
 	 *
@@ -46,7 +47,7 @@ public class CsarService {
 		}
 		return csarSet;
 	}
-
+	
 	/**
 	 * Loads a CSAR as {@link CSARContent} by a given id
 	 *
@@ -62,7 +63,7 @@ public class CsarService {
 			throw new NotFoundException("CSAR \"" + id.getFileName() + "\" could not be found");
 		}
 	}
-
+	
 	/**
 	 * Loads a CSAR as {@link CSARContent} by a given id
 	 *
@@ -72,7 +73,7 @@ public class CsarService {
 	public CSARContent findById(final String id) {
 		return this.findById(new CSARID(id));
 	}
-	
+
 	/**
 	 * Returns a set of strings representing service templates contained in a
 	 * CSAR
@@ -83,9 +84,9 @@ public class CsarService {
 	public Set<String> getServiceTemplates(final CSARID id) {
 		logger.debug("Requesting ServiceTemplates of CSAR \"{}\"...", id);
 		final List<QName> result = this.engineService.getServiceTemplatesInCSAR(id);
-		return result.stream().map(item -> item.toString()).collect(Collectors.toSet());
+		return result.stream().filter(Objects::nonNull).map(item -> item.toString()).collect(Collectors.toSet());
 	}
-
+	
 	/**
 	 * Utility to check if a given CSAR has a certain ServiceTemplate attached
 	 *
@@ -96,11 +97,11 @@ public class CsarService {
 	public boolean hasServiceTemplate(final CSARID id, final String name) {
 		return this.getServiceTemplates(id).contains(name);
 	}
-
+	
 	public void setFileService(final ICoreFileService fileService) {
 		this.fileService = fileService;
 	}
-
+	
 	public void setEngineService(final IToscaEngineService engineService) {
 		this.engineService = engineService;
 	}

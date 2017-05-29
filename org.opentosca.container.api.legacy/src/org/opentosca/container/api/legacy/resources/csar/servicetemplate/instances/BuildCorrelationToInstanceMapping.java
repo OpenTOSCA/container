@@ -5,33 +5,33 @@ import java.util.Map;
 
 /**
  * TODO refactoring: move this to a suitable point
- * 
+ *
  * Copyright 2017 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Christian Endres - christian.endres@iaas.uni-stuttgart.de
  *
  */
 public class BuildCorrelationToInstanceMapping {
-	
+
 	public static BuildCorrelationToInstanceMapping instance = new BuildCorrelationToInstanceMapping();
-	
-	private Map<String, Integer> correlationIdToServiceTemplateInstanceId = new HashMap<String, Integer>();
-	
-	
-	private BuildCorrelationToInstanceMapping(){
+
+	private final Map<String, Integer> correlationIdToServiceTemplateInstanceId = new HashMap<>();
+
+
+	private BuildCorrelationToInstanceMapping() {
 	}
-	
-	public void correlateCorrelationIdToServiceTemplateInstanceId(String corrId, int serviceTemplateInstanceId){
-		correlationIdToServiceTemplateInstanceId.put(corrId, serviceTemplateInstanceId);
+
+	public void correlateCorrelationIdToServiceTemplateInstanceId(final String corrId, final int serviceTemplateInstanceId) {
+		this.correlationIdToServiceTemplateInstanceId.put(corrId, serviceTemplateInstanceId);
 	}
-	
-	public int getServiceTemplateInstanceIdForBuildPlanCorrelation(String corrId){
-		return correlationIdToServiceTemplateInstanceId.get(corrId);
+
+	public Integer getServiceTemplateInstanceIdForBuildPlanCorrelation(final String corrId) {
+		return this.correlationIdToServiceTemplateInstanceId.get(corrId);
 	}
-	
-	public boolean knowsCorrelationId(String buildPlanCorrId) {
-		return correlationIdToServiceTemplateInstanceId.containsKey(buildPlanCorrId);
+
+	public boolean knowsCorrelationId(final String buildPlanCorrId) {
+		return this.correlationIdToServiceTemplateInstanceId.containsKey(buildPlanCorrId);
 	}
-	
+
 }

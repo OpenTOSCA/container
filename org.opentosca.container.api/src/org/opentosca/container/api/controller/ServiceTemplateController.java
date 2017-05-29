@@ -11,12 +11,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
 import org.opentosca.container.api.service.CsarService;
+import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.model.csar.CSARContent;
@@ -38,6 +40,8 @@ public class ServiceTemplateController {
 	private CsarService csarService;
 	
 	private PlanService planService;
+	
+	private InstanceService instanceService;
 
 
 	@GET
@@ -80,8 +84,15 @@ public class ServiceTemplateController {
 	}
 	
 	@Path("/{servicetemplate}/buildplans")
-	public PlanController getBuildPlans() {
-		return new PlanController(PlanTypes.BUILD, this.csarService, this.planService);
+	public PlanController getBuildPlans(@PathParam("csar") final String csar, @PathParam("servicetemplate") final String servicetemplate) {
+		
+		final CSARContent csarContent = this.csarService.findById(csar);
+		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+			logger.info("Service template \"" + servicetemplate + "\" could not be found");
+			throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+		}
+		
+		return new PlanController(csarContent.getCSARID(), QName.valueOf(servicetemplate), this.planService, this.instanceService, PlanTypes.BUILD);
 	}
 
 	public void setCsarService(final CsarService csarService) {
@@ -90,5 +101,9 @@ public class ServiceTemplateController {
 	
 	public void setPlanService(final PlanService planService) {
 		this.planService = planService;
+	}
+
+	public void setInstanceService(final InstanceService instanceService) {
+		this.instanceService = instanceService;
 	}
 }
