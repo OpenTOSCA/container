@@ -90,6 +90,9 @@ public class Handler {
 		// fetch (optional) ContainerIP variable
 		final Variable containerIpVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerIP");
 
+		// fetch (optional) ContainerID variable
+		Variable containerIdVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerID");
+		
 		// fetch DockerEngine
 		final AbstractNodeTemplate dockerEngineNode = this.getDockerEngineNode(nodeTemplate);
 
@@ -108,17 +111,17 @@ public class Handler {
 			// handle with DA -> construct URL to the DockerImage .zip
 
 			final AbstractDeploymentArtifact da = this.fetchFirstDockerContainerDA(nodeTemplate);
-			this.handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar);
+			this.handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar);
 		} else {
 			// handle with imageId
-			return this.handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar);
+			return this.handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar);
 		}
 
 		return true;
 	}
-
-	private boolean handleWithImageId(final TemplatePlanContext context, final AbstractNodeTemplate dockerEngineNode, final Variable containerImageVar, final Variable portMappingVar, final Variable dockerEngineUrlVar, final Variable sshPortVar, final Variable containerIpVar) {
-
+	
+	private boolean handleWithImageId(TemplatePlanContext context, AbstractNodeTemplate dockerEngineNode, Variable containerImageVar, Variable portMappingVar, Variable dockerEngineUrlVar, Variable sshPortVar, Variable containerIpVar, Variable containerIdVar) {
+		
 		// map properties to input and output parameters
 		final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
 		final Map<String, Variable> createDEInternalExternalPropsOutput = new HashMap<>();
@@ -136,12 +139,16 @@ public class Handler {
 			createDEInternalExternalPropsOutput.put("ContainerIP", containerIpVar);
 		}
 
+		if (containerIdVar != null) {
+			createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
+		}
+		
 		this.invokerPlugin.handle(context, dockerEngineNode.getId(), true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, "planCallbackAddress_invoker", createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput, false);
 
 		return true;
 	}
-
-	private boolean handleWithDA(final TemplatePlanContext context, final AbstractNodeTemplate dockerEngineNode, final AbstractDeploymentArtifact da, final Variable portMappingVar, final Variable dockerEngineUrlVar, final Variable sshPortVar, final Variable containerIpVar) {
+	
+	private boolean handleWithDA(TemplatePlanContext context, AbstractNodeTemplate dockerEngineNode, AbstractDeploymentArtifact da, Variable portMappingVar, Variable dockerEngineUrlVar, Variable sshPortVar, Variable containerIpVar, Variable containerIdVar) {
 		context.addStringValueToPlanRequest("csarEntrypoint");
 		final String artifactPathQuery = this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences().get(0).getReference());
 
@@ -178,6 +185,10 @@ public class Handler {
 			createDEInternalExternalPropsOutput.put("ContainerIP", containerIpVar);
 		}
 
+		if (containerIdVar != null) {
+			createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
+		}
+		
 		this.invokerPlugin.handle(context, dockerEngineNode.getId(), true, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, "planCallbackAddress_invoker", createDEInternalExternalPropsInput, createDEInternalExternalPropsOutput, false);
 
 		return true;

@@ -24,7 +24,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.export.VinothekKnownParameters;
 import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -83,9 +83,9 @@ public class Util {
 	 * @param csarId the Id of the CSAR to generate plans for
 	 * @return a List of BuildPlans containing the generated BuildPlans
 	 */
-	public static List<BuildPlan> startPlanBuilder(final CSARID csarId) {
-		final Importer planBuilderImporter = new Importer();
-		final List<BuildPlan> plans = new ArrayList<>();
+	public static List<TOSCAPlan> startPlanBuilder(CSARID csarId) {
+		Importer planBuilderImporter = new Importer();
+		List<TOSCAPlan> plans = new ArrayList<TOSCAPlan>();
 		try {
 			final AbstractDefinitions defs = planBuilderImporter.createContext(ServiceRegistry.getCoreFileService().getCSAR(csarId));
 
@@ -159,12 +159,12 @@ public class Util {
 		}
 
 	}
-
-	public static SelfServiceOptionWrapper generateSelfServiceOption(final BuildPlan buildPlan) throws IOException {
-		final String id = String.valueOf(System.currentTimeMillis());
-		final ApplicationOption option = new ApplicationOption();
-
-		final File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
+	
+	public static SelfServiceOptionWrapper generateSelfServiceOption(TOSCAPlan buildPlan) throws IOException {
+		String id = String.valueOf(System.currentTimeMillis());
+		ApplicationOption option = new ApplicationOption();
+		
+		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
 		tmpDir.mkdir();
 
 		final File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
@@ -186,9 +186,9 @@ public class Util {
 	 * @param buildPlan a BuildPlan
 	 * @return a File denoting the export location
 	 */
-	public static File writePlan2TmpFolder(final BuildPlan buildPlan) {
-		final Exporter planBuilderExporter = new Exporter();
-		final File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
+	public static File writePlan2TmpFolder(TOSCAPlan buildPlan) {
+		Exporter planBuilderExporter = new Exporter();
+		File tmpDir = new File(System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Long.toString(System.currentTimeMillis()));
 		tmpDir.mkdir();
 
 		final File uploadFile = new File(tmpDir.getAbsoluteFile() + System.getProperty("file.separator") + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip");
@@ -223,16 +223,16 @@ public class Util {
 		}
 		return null;
 	}
-
-	private static void writePlanInputMessageInstance(final BuildPlan buildPlan, final File xmlFile) throws IOException {
-		final String messageNs = buildPlan.getWsdl().getTargetNamespace();
-		final String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
-		final List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
-
-		final VinothekKnownParameters paramMappings = new VinothekKnownParameters();
-		final String soapMessagePrefix = Util.createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);
-		final String soapMessageSuffix = Util.createSuffixPartOfSoapMessage(requestMessageLocalName);
-
+	
+	private static void writePlanInputMessageInstance(TOSCAPlan buildPlan, File xmlFile) throws IOException {
+		String messageNs = buildPlan.getWsdl().getTargetNamespace();
+		String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
+		List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
+		
+		VinothekKnownParameters paramMappings = new VinothekKnownParameters();
+		String soapMessagePrefix = Util.createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);
+		String soapMessageSuffix = Util.createSuffixPartOfSoapMessage(requestMessageLocalName);
+		
 		String soapMessage = soapMessagePrefix;
 		for (final String inputParamName : inputParamNames) {
 			soapMessage += paramMappings.createXmlElement(inputParamName);

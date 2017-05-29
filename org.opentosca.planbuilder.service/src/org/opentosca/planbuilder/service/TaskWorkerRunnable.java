@@ -21,7 +21,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.service.Util.SelfServiceOptionWrapper;
 import org.opentosca.planbuilder.service.model.PlanGenerationState;
 import org.opentosca.planbuilder.service.model.PlanGenerationState.PlanGenerationStates;
@@ -133,9 +133,9 @@ public class TaskWorkerRunnable implements Runnable {
 			Util.deleteCSAR(csarId);
 			return;
 		}
-
-		final List<BuildPlan> buildPlans = Util.startPlanBuilder(csarId);
-
+		
+		List<TOSCAPlan> buildPlans = Util.startPlanBuilder(csarId);
+		
 		if (buildPlans.size() <= 0) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
 			this.state.currentMessage = "No plans could be generated";
@@ -198,8 +198,8 @@ public class TaskWorkerRunnable implements Runnable {
 				} else {
 					planLocation = locationHeader.getValue();
 				}
-
-				final BuildPlan buildPlan = buildPlans.get(0);
+				
+				TOSCAPlan buildPlan = buildPlans.get(0);
 				/*
 				 * http://localhost:8080/winery/servicetemplates/http%253A%252F%
 				 * 252F example

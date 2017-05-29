@@ -158,7 +158,7 @@ public class NodeInstance {
 	@PostPersist
 	private void setNodeInstanceID() {
 		try {
-			this.nodeInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID() + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8") + "/Instances/" + this.id + "/NodeTemplates/" + this.nodeTemplateName + "/Instances/" + this.id);
+			nodeInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + serviceInstance.getCSAR_ID() + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8") + "/Instances/" + this.serviceInstance.getDBId() + "/NodeTemplates/" + nodeTemplateName + "/Instances/" + id);
 			
 		} catch (final URISyntaxException e) {
 			e.printStackTrace();

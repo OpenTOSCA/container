@@ -91,6 +91,13 @@ public class ServiceInstance {
 	private List<NodeInstance> nodeInstances;
 
 
+	@OneToMany(mappedBy = "serviceInstance", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	// cascade on delete tells the JPA Framework to let the DB handle the
+	// deletion (if serviceInstance is deleted => delete also all nodeInstances
+	// who reference it!)
+	@CascadeOnDelete
+	private List<RelationInstance> relationInstances;
+	
 	/**
 	 * Creates a new instance of a ServiceTemplate. ID and creation date will be
 	 * set automatically.
@@ -262,4 +269,7 @@ public class ServiceInstance {
 		return this.nodeInstances;
 	}
 
+	public List<RelationInstance> getRelationInstances() {
+		return relationInstances;
+	}
 }

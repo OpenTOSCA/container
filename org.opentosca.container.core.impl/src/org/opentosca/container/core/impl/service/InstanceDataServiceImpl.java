@@ -58,8 +58,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	// used for persistence
 	private final ServiceInstanceDAO siDAO = new ServiceInstanceDAO();
 	private final NodeInstanceDAO niDAO = new NodeInstanceDAO();
-
-
+	private final RelationInstanceDAO riDAO = new RelationInstanceDAO();
+	
+	
 	@Override
 	@WebMethod(exclude = true)
 	public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID, final String serviceTemplateName, final QName serviceTemplateID) {
@@ -144,6 +145,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 	}
 
 	@Override
+	public List<RelationInstance> getRelationInstances(URI relationInstanceID, QName relationshipTemplateID, String relationshipTemplateName, URI serviceInstanceID) {
+		return riDAO.getRelationInstances(serviceInstanceID, relationshipTemplateID, relationshipTemplateName, relationInstanceID);
+	}
+	
+	@Override
 	@WebMethod(exclude = true)
 	public NodeInstance createNodeInstance(final CSARID csarId, final QName serviceTemplateId, final int serviceTemplateInstanceID, final QName nodeTemplateID) throws ReferenceNotFoundException {
 
@@ -181,6 +187,55 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		return nodeInstance;
 	}
 
+	@Override
+	@WebMethod(exclude = true)
+	public RelationInstance createRelationInstance(CSARID csarId, QName serviceTemplateId, int serviceTemplateInstanceID, QName relationshipTemplateID, String sourceInstanceId, String targetInstanceId) throws ReferenceNotFoundException {
+		
+		LOG.debug("Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance \"{}\"", relationshipTemplateID.getNamespaceURI(), relationshipTemplateID.getLocalPart(), csarId, serviceTemplateId, serviceTemplateInstanceID);
+		
+		List<ServiceInstance> serviceInstances = siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
+		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
+			String msg = String.format("Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved", serviceTemplateInstanceID);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		ServiceInstance serviceInstance = serviceInstances.get(0);
+		
+		// check if nodeTemplate exists
+		
+		if (!InstanceDataServiceImpl.toscaEngineService.doesRelationshipTemplateExist(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart())) {
+			String msg = String.format("Failed to create RelationInstance: RelationshipTemplate: csar: %s serviceTemplateID: %s , relationshipTemplateID: '%s' - could not be retrieved / does not exists", serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), relationshipTemplateID);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		
+		String relationshipTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, relationshipTemplateID);
+		
+		// use localparts because serviceInstance QName namespace HAS to be the
+		// same as the namespace of the nodeInstance
+		QName nodeTypeOfNodeTemplate = InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart());
+		
+		// use localparts because serviceInstance QName namespace HAS to be the
+		// same as the namespace of the nodeInstance
+		Document propertiesOfRelationshipTemplate = InstanceDataServiceImpl.toscaEngineService.getPropertiesOfRelationshipTemplate(csarId, serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
+		
+		if (niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null, URI.create(sourceInstanceId)).isEmpty()) {
+			throw new ReferenceNotFoundException("Referenced source nodeInstance not found");
+		}
+		if (niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null, URI.create(targetInstanceId)).isEmpty()) {
+			throw new ReferenceNotFoundException("Referenced target nodeInstance not found");
+		}
+		
+		NodeInstance sourceInstance = niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null, URI.create(sourceInstanceId)).get(0);
+		NodeInstance targetInstance = niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null, URI.create(targetInstanceId)).get(0);
+		
+		RelationInstance relationInstance = new RelationInstance(relationshipTemplateID, relationshipTemplateName, nodeTypeOfNodeTemplate, serviceInstance, sourceInstance, targetInstance);
+		// set default properties
+		relationInstance.setProperties(propertiesOfRelationshipTemplate);
+		riDAO.saveRelationInstance(relationInstance);
+		return relationInstance;
+	}
+	
 	/**
 	 * Yes, this method throws always an exception. Why? Do not use the method!
 	 */
@@ -204,10 +259,46 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
 	}
 
+	public void deleteRelationInstance(URI relationInstanceID) {
+		List<RelationInstance> relationInstances = riDAO.getRelationInstances(null, null, null, relationInstanceID);
+		
+		if ((relationInstances == null) || (relationInstances.size() != 1)) {
+			InstanceDataServiceImpl.LOG.warn(String.format("Failed to delete RelatioknInstance: '%s' - could not be retrieved", relationInstanceID));
+			return;
+		}
+		riDAO.deleteRelationInstance(relationInstances.get(0));
+		
+	}
+	
 	@Override
 	@WebMethod(exclude = true)
-	public QName getState(final URI nodeInstanceID) throws ReferenceNotFoundException {
-		final List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+	public QName getRelationInstanceState(URI relationInstanceID) throws ReferenceNotFoundException {
+		List<RelationInstance> relationInstances = riDAO.getRelationInstances(null, null, null, relationInstanceID);
+		if ((relationInstances == null) || (relationInstances.size() != 1)) {
+			String msg = String.format("Failed to get State of RelationInstance: '%s' - does it exist?", relationInstanceID);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		return relationInstances.get(0).getState();
+	}
+	
+	@Override
+	@WebMethod(exclude = true)
+	public void setRelationInstanceState(URI relationInstanceID, QName state) throws ReferenceNotFoundException {
+		List<RelationInstance> relationInstances = riDAO.getRelationInstances(null, null, null, relationInstanceID);
+		
+		if ((relationInstances == null) || (relationInstances.size() != 1)) {
+			String msg = String.format("Failed to set State of RelationInstance: '%s' - does it exist?", relationInstanceID);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		riDAO.setState(relationInstances.get(0), state);
+	}
+	
+	@Override
+	@WebMethod(exclude = true)
+	public QName getNodeInstanceState(URI nodeInstanceID) throws ReferenceNotFoundException {
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			final String msg = String.format("Failed to get State of NodeInstance: '%s' - does it exist?", nodeInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
@@ -216,11 +307,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		return nodeInstances.get(0).getState();
 	}
 
-	@Override
-	@WebMethod(exclude = true)
-	public void setState(final URI nodeInstanceID, final QName state) throws ReferenceNotFoundException {
-		final List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
-
+	public void setNodeInstanceState(URI nodeInstanceID, QName state) throws ReferenceNotFoundException {
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			final String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?", nodeInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
@@ -247,13 +336,78 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		return serviceInstance.getProperties();
 	}
 
+	public Document getRelationInstanceProperties(URI relationInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException {
+		List<RelationInstance> relationInstances = getRelationInstances(relationInstanceID, null, null, null);
+		
+		if ((relationInstances == null) || (relationInstances.size() != 1)) {
+			String msg = String.format("Failed to retrieve NodeInstance: '%s'", relationInstanceID);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		RelationInstance relationInstance = relationInstances.get(0);
+		Document retrievedProperties = relationInstance.getProperties();
+		
+		// start extracting relevant properties
+		// if propertiesList == null return NO PROPERTIES
+		// if propertiesList.isEmpty() return ALL PROPERTIES
+		// if it contains values => filter and return them
+		if (propertiesList == null) {
+			return null;
+		}
+		if (propertiesList.isEmpty()) {
+			return retrievedProperties;
+		}
+		
+		Element docElement = retrievedProperties.getDocumentElement();
+		if (docElement == null) {
+			return null;
+		}
+		
+		// create new DOM-Document with new RootElement named like the old one
+		Document resultingProperties = InstanceDataServiceImpl.emptyDocument();
+		Element createElementNS = resultingProperties.createElement("Properties");
+		resultingProperties.appendChild(createElementNS);
+		
+		// filter elements from the properties
+		NodeList childNodes = docElement.getChildNodes();
+		
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node currentItem = childNodes.item(i);
+			
+			// this is a fix for empty text values due to a bug in the
+			// toscaReferenceMapper
+			if (currentItem.getLocalName() == null) {
+				// if QName can't be build skip this childNode (entry inside xml
+				// document)
+				continue;
+			}
+			
+			// calculate qName of the currentItem
+			QName currentItemQName = new QName(currentItem.getNamespaceURI(), currentItem.getLocalName());
+			
+			// match the item against the filters
+			for (QName qName : propertiesList) {
+				if (qName.equals(currentItemQName)) {
+					// match was found, add it to result (first deep clone the
+					// element => then adopt to document and finally append to
+					// the documentElement
+					Node cloneNode = currentItem.cloneNode(true);
+					resultingProperties.adoptNode(cloneNode);
+					resultingProperties.getDocumentElement().appendChild(cloneNode);
+				}
+			}
+		}
+		
+		return resultingProperties;
+	}
+	
 	@Override
 	@WebMethod(exclude = true)
 	// TODO: should it return a empty document when there aren't any properties
 	// for the nodeinstance?
-	public Document getNodeInstanceProperties(final URI nodeInstanceID, final List<QName> propertiesList) throws ReferenceNotFoundException {
-		final List<NodeInstance> nodeInstances = this.getNodeInstances(nodeInstanceID, null, null, null);
-
+	public Document getNodeInstanceProperties(URI nodeInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException {
+		List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
+		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			final String msg = String.format("Failed to retrieve NodeInstance: '%s'", nodeInstanceID);
 			InstanceDataServiceImpl.LOG.warn(msg);
@@ -334,12 +488,28 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		return null;
 	}
 
+	public void setRelationInstanceProperties(URI relationInstanceID, Document properties) throws ReferenceNotFoundException {
+		
+		List<RelationInstance> relationInstances = riDAO.getRelationInstances(null, null, null, relationInstanceID);
+		
+		if ((relationInstances == null) || (relationInstances.size() != 1)) {
+			InstanceDataServiceImpl.LOG.warn(String.format("Failed to set Properties of NodeInstance: '%s' - does it exist?", relationInstanceID));
+			return;
+		}
+		
+		riDAO.setProperties(relationInstances.get(0), properties);
+		
+		updateServiceInstanceProperties(relationInstances.get(0).getServiceInstance());
+		return;
+		
+	}
+	
 	@Override
 	@WebMethod(exclude = true)
-	public void setNodeInstanceProperties(final URI nodeInstanceID, final Document properties) throws ReferenceNotFoundException {
-
-		final List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
-
+	public void setNodeInstanceProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException {
+		
+		List<NodeInstance> nodeInstances = niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+		
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
 			InstanceDataServiceImpl.LOG.warn(String.format("Failed to set Properties of NodeInstance: '%s' - does it exist?", nodeInstanceID));
 			return;

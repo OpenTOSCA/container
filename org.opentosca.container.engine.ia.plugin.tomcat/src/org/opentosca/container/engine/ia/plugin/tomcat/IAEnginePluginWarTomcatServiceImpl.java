@@ -178,7 +178,7 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 				IAEnginePluginWarTomcatServiceImpl.LOG.info("Tomcat response: {} ", response);
 				
 				// Check if WAR-File was deployed successfully.
-				if (response.contains("OK - Deployed application at context path " + deployPath)) {
+				if (response.contains("OK - Deployed application at context path " + deployPath) | response.contains("OK - Deployed application at context path [" + deployPath + "]")) {
 					IAEnginePluginWarTomcatServiceImpl.LOG.info("{} was deployed successfully.", fileName);
 					
 					endpoint = IAEnginePluginWarTomcatServiceImpl.URL + deployPath;

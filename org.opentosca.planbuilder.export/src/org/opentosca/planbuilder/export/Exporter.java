@@ -40,7 +40,7 @@ import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
 import org.opentosca.planbuilder.integration.layer.AbstractExporter;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -85,7 +85,7 @@ public class Exporter extends AbstractExporter {
 	 * @throws IOException is thrown when reading/writing to the given URI fails
 	 * @throws JAXBException is thrown when writing with JAXB fails
 	 */
-	public void export(final URI destination, final BuildPlan buildPlan) throws IOException, JAXBException {
+	public void export(URI destination, TOSCAPlan buildPlan) throws IOException, JAXBException {
 		this.simpleExporter.export(destination, buildPlan);
 	}
 	
@@ -97,7 +97,7 @@ public class Exporter extends AbstractExporter {
 	 * @param csarId the CSARID of a CSAR
 	 * @return a File denoting the absolute Path to the exported CSAR
 	 */
-	public File export(final List<BuildPlan> buildPlans, final CSARID csarId) {
+	public File export(List<TOSCAPlan> buildPlans, CSARID csarId) {
 		
 		CSARContent csarContent = null;
 		try {
@@ -125,11 +125,11 @@ public class Exporter extends AbstractExporter {
 			final Definitions defs = this.parseDefinitionsFile(rootDefFile);
 			final List<TServiceTemplate> servTemps = this.getServiceTemplates(defs);
 			
-			final List<BuildPlan> plansToExport = new ArrayList<>();
+			List<TOSCAPlan> plansToExport = new ArrayList<TOSCAPlan>();
 			
 			// add plans element to servicetemplates
-			for (final BuildPlan buildPlan : buildPlans) {
-				for (final TServiceTemplate serviceTemplate : servTemps) {
+			for (TOSCAPlan buildPlan : buildPlans) {
+				for (TServiceTemplate serviceTemplate : servTemps) {
 					if (buildPlan.getServiceTemplate().equals(this.buildQName(defs, serviceTemplate))) {
 						
 						TPlans plans = serviceTemplate.getPlans();
@@ -174,18 +174,18 @@ public class Exporter extends AbstractExporter {
 						
 						boolean alreadySpecified = false;
 						for (final TExportedOperation op : exportedIface.getOperation()) {
-							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
+							if (buildPlan.getType().equals(TOSCAPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
 								alreadySpecified = true;
-							} else if (buildPlan.getType().equals(BuildPlan.PlanType.TERMINATE) & op.getName().equals("terminate")) {
+							} else if (buildPlan.getType().equals(TOSCAPlan.PlanType.TERMINATE) & op.getName().equals("terminate")) {
 								alreadySpecified = true;
 							}
 						}
 
 						if (!alreadySpecified) {
 							final TExportedOperation op = this.toscaFactory.createTExportedOperation();
-							if (buildPlan.getType().equals(BuildPlan.PlanType.BUILD)) {
+							if (buildPlan.getType().equals(TOSCAPlan.PlanType.BUILD)) {
 								op.setName("initiate");
-							} else if (buildPlan.getType().equals(BuildPlan.PlanType.TERMINATE)) {
+							} else if (buildPlan.getType().equals(TOSCAPlan.PlanType.TERMINATE)) {
 								op.setName("terminate");
 							}
 							final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan plan = this.toscaFactory.createTExportedOperationPlan();
@@ -225,8 +225,8 @@ public class Exporter extends AbstractExporter {
 			m.marshal(defs, newDefsFile);
 			
 			// write plans
-			for (final BuildPlan plan : plansToExport) {
-				final File planPath = new File(tempDir, this.generateRelativePlanPath(plan));
+			for (TOSCAPlan plan : plansToExport) {
+				File planPath = new File(tempDir, this.generateRelativePlanPath(plan));
 				Exporter.LOG.debug(planPath.toString());
 				planPath.getParentFile().mkdirs();
 				planPath.createNewFile();
@@ -245,9 +245,9 @@ public class Exporter extends AbstractExporter {
 				if (appDesc.getOptions() != null) {
 					// check if planInput etc. is set properly
 					int addedToOptions = 0;
-					final List<BuildPlan> exportedPlans = new ArrayList<>();
-					for (final ApplicationOption option : appDesc.getOptions().getOption()) {
-						for (final BuildPlan plan : plansToExport) {
+					List<TOSCAPlan> exportedPlans = new ArrayList<TOSCAPlan>();
+					for (ApplicationOption option : appDesc.getOptions().getOption()) {
+						for (TOSCAPlan plan : plansToExport) {
 							if (option.getPlanServiceName().equals(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
 								if (!new File(selfServiceDir, option.getPlanInputMessageUrl()).exists()) {
 									// the planinput file is defined in the xml,
@@ -265,7 +265,7 @@ public class Exporter extends AbstractExporter {
 					if (exportedPlans.size() != plansToExport.size()) {
 						
 						int optionCounter = 1 + appDesc.getOptions().getOption().size();
-						for (final BuildPlan plan : plansToExport) {
+						for (TOSCAPlan plan : plansToExport) {
 							if (exportedPlans.contains(plan)) {
 								continue;
 							}
@@ -285,8 +285,8 @@ public class Exporter extends AbstractExporter {
 					int optionCounter = 1;
 					final Application.Options options = new Application.Options();
 					
-					for (final BuildPlan plan : plansToExport) {
-						final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
+					for (TOSCAPlan plan : plansToExport) {
+						ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 						this.writePlanInputMessageInstance(plan, new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
 						optionCounter++;
 						options.getOption().add(option);
@@ -310,8 +310,8 @@ public class Exporter extends AbstractExporter {
 					int optionCounter = 1;
 					final Application.Options options = new Application.Options();
 					
-					for (final BuildPlan plan : plansToExport) {
-						final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
+					for (TOSCAPlan plan : plansToExport) {
+						ApplicationOption option = this.createApplicationOption(plan, optionCounter);
 						this.writePlanInputMessageInstance(plan, new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
 						optionCounter++;
 						options.getOption().add(option);
@@ -335,8 +335,8 @@ public class Exporter extends AbstractExporter {
 		return repackagedCsar;
 	}
 	
-	private ApplicationOption createApplicationOption(final BuildPlan plan, final int optionCounter) {
-		final ApplicationOption option = new ApplicationOption();
+	private ApplicationOption createApplicationOption(TOSCAPlan plan, int optionCounter) {
+		ApplicationOption option = new ApplicationOption();
 		switch (plan.getType()) {
 		case BUILD:
 			option.setName("Build" + optionCounter);
@@ -434,13 +434,13 @@ public class Exporter extends AbstractExporter {
 	 * @param generatedPlan a Plan
 	 * @return a JAXB TPlan Object which represents the given BuildPlan
 	 */
-	private TPlan generateTPlanElement(final BuildPlan generatedPlan) {
-		final TPlan plan = new Plan();
-		final TPlan.PlanModelReference ref = new TPlan.PlanModelReference();
-		final TPlan.InputParameters inputParams = new TPlan.InputParameters();
-		final TPlan.OutputParameters outputParams = new TPlan.OutputParameters();
-		final List<TParameter> inputParamsList = inputParams.getInputParameter();
-		final List<TParameter> outputParamsList = outputParams.getOutputParameter();
+	private TPlan generateTPlanElement(TOSCAPlan generatedPlan) {
+		TPlan plan = new Plan();
+		TPlan.PlanModelReference ref = new TPlan.PlanModelReference();
+		TPlan.InputParameters inputParams = new TPlan.InputParameters();
+		TPlan.OutputParameters outputParams = new TPlan.OutputParameters();
+		List<TParameter> inputParamsList = inputParams.getInputParameter();
+		List<TParameter> outputParamsList = outputParams.getOutputParameter();
 		
 		ref.setReference(this.generateRelativePlanPath(generatedPlan));
 		plan.setPlanModelReference(ref);
@@ -480,7 +480,7 @@ public class Exporter extends AbstractExporter {
 		}
 		
 		plan.setId(generatedPlan.getBpelProcessElement().getAttribute("name"));
-		plan.setPlanLanguage(BuildPlan.bpelNamespace);
+		plan.setPlanLanguage(TOSCAPlan.bpelNamespace);
 		
 		return plan;
 	}
@@ -491,7 +491,7 @@ public class Exporter extends AbstractExporter {
 	 * @param buildPlan the BuildPlan to get the path for
 	 * @return a relative Path to be used inside a CSAR
 	 */
-	private String generateRelativePlanPath(final BuildPlan buildPlan) {
+	private String generateRelativePlanPath(TOSCAPlan buildPlan) {
 		return "Plans/" + buildPlan.getBpelProcessElement().getAttribute("name") + ".zip";
 	}
 	
@@ -506,10 +506,10 @@ public class Exporter extends AbstractExporter {
 		return null;
 	}
 	
-	private void writePlanInputMessageInstance(final BuildPlan buildPlan, final File xmlFile) throws IOException {
-		final String messageNs = buildPlan.getWsdl().getTargetNamespace();
-		final String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
-		final List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
+	private void writePlanInputMessageInstance(TOSCAPlan buildPlan, File xmlFile) throws IOException {
+		String messageNs = buildPlan.getWsdl().getTargetNamespace();
+		String requestMessageLocalName = buildPlan.getWsdl().getRequestMessageLocalName();
+		List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
 		
 		final VinothekKnownParameters paramMappings = new VinothekKnownParameters();
 		final String soapMessagePrefix = this.createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);

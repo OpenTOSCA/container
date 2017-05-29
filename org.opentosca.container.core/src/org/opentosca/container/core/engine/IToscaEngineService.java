@@ -624,6 +624,19 @@ public interface IToscaEngineService {
 	boolean doesNodeTemplateExist(CSARID csarID, QName serviceTemplateID, String nodeTemplateID);
 	
 	/**
+	 * checks if a relationshipTemplate exists.
+	 * 
+	 * @param csarId
+	 *            csarID of the CSAR containing the reference
+	 * @param serviceTemplateID
+	 *            serviceTempalteId to look for the Relationship Template
+	 * @param relationshipTemplateID
+	 *            the Id of the Relationship Template to look for
+	 * @return true if the Relationship Template exists withing the Service Template of the referenced CSAR
+	 */
+	boolean doesRelationshipTemplateExist(CSARID csarId, QName serviceTemplateID, String relationshipTemplateID);
+
+	/**
 	 * Returns the ID of the target NodeTemplate if one exists.
 	 *
 	 * @param csarID
@@ -740,11 +753,24 @@ public interface IToscaEngineService {
 	 * Returns the List of Node Template IDs in a Service Template.
 	 *
 	 * @param csarID
+	 *            the Id of the CSAR to look for the Service Template
 	 * @param serviceTemplate
+	 *            the ID of the target Service Template
 	 * @return List of Node Template IDs
 	 */
 	public List<String> getNodeTemplatesOfServiceTemplate(CSARID csarID, QName serviceTemplate);
 	
+	/**
+	 * Returns the List of Relationship Template IDs in a Service Template.
+	 * 
+	 * @param csarID
+	 *            the Id of the CSAR to look for the Service Template
+	 * @param serviceTemplate
+	 *            the ID of the target Service Template
+	 * @return a List of Relationship Template IDs as Strings
+	 */
+	public List<String> getRelationshipTemplatesOfServiceTemplate(CSARID csarID, QName serviceTemplate);
+
 	/**
 	 * Returns the BoundaryDefinitions of the referenced ServiceTemplate
 	 *

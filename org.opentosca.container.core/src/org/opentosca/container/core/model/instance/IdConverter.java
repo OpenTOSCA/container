@@ -13,6 +13,7 @@ public class IdConverter {
 
 	public final static String containerApiRoot = "/containerapi";
 	public final static String nodeInstancePath = "/instancedata/nodeInstances/";
+	public final static String relationInstancePath = "/instancedata/relationInstances/";
 	public final static String serviceInstancePath = "/instancedata/serviceInstances/";
 	
 	
@@ -27,14 +28,71 @@ public class IdConverter {
 		try {
 			return Integer.parseInt(path);
 		} catch (final NumberFormatException e) {
-			return null;
+			return nodeInstanceUriToID(path);
 		}
 
 	}
-
-	public static Integer serviceInstanceUriToID(final URI serviceInstanceID) {
+	
+	/**
+	 * Returns the integer id of the given URI path
+	 * 
+	 * @param nodeInstanceIDPath a URI path
+	 * @return an Integer whether the path points to a nodeInstance or null
+	 */
+	private static Integer nodeInstanceUriToID(String nodeInstanceIDPath) {
+		
+		String[] paths = nodeInstanceIDPath.split("/");
+		
+		// if the paths are at the end are correct we assume a good URI
+		if (paths[paths.length - 2].equals("Instances") & paths[paths.length - 4].equals("NodeTemplates")) {
+			try {
+				return Integer.parseInt(paths[paths.length - 1]);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	public static Integer relationInstanceUriToID(URI relationInstanceID) {
+		String path = relationInstanceID.getPath();
+		
+		if (path.contains(relationInstancePath) && path.contains(containerApiRoot)) {
+			path = path.replace(containerApiRoot, "");
+			path = path.replace(relationInstancePath, "");
+		}
+		
+		try {
+			return Integer.parseInt(path);
+		} catch (NumberFormatException e) {
+			return relationInstanceUriToID(path);
+		}
+		
+	}
+	
+	private static Integer relationInstanceUriToID(String relationInstanceIDPath) {
+		String[] paths = relationInstanceIDPath.split("/");
+		
+		// if the paths are at the end are correct we assume a good URI
+		if (paths[paths.length - 2].equals("Instances") & paths[paths.length - 4].equals("RelationshipTemplates")) {
+			try {
+				return Integer.parseInt(paths[paths.length - 1]);
+			} catch (NumberFormatException e) {
+				return null;
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
+	public static Integer serviceInstanceUriToID(URI serviceInstanceID) {
 		String path = serviceInstanceID.getPath();
-
+		
 		if (path.contains(containerApiRoot) && path.contains(serviceInstancePath)) {
 			path = path.replace(containerApiRoot, "");
 			path = path.replace(serviceInstancePath, "");
@@ -46,18 +104,24 @@ public class IdConverter {
 			return null;
 		}
 	}
-
-	public static URI nodeInstanceIDtoURI(final int id) {
-
+	
+	public static URI relationInstanceIDtoURI(int id) {
+		try {
+			return new URI(containerApiRoot + relationInstancePath + id);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
+	
+	public static URI nodeInstanceIDtoURI(int id) {
 		try {
 			return new URI(containerApiRoot + nodeInstancePath + id);
 		} catch (final URISyntaxException e) {
 			return null;
 		}
 	}
-
-	public static URI serviceInstanceIDtoURI(final int id) {
-
+	
+	public static URI serviceInstanceIDtoURI(int id) {
 		try {
 			return new URI(containerApiRoot + serviceInstancePath + id);
 		} catch (final URISyntaxException e) {
@@ -125,4 +189,17 @@ public class IdConverter {
 		return false;
 	}
 
+	public static boolean isValidRelationInstanceID(URI uri) {
+		if (uri == null) {
+			return false;
+		}
+		
+		Integer relationInstanceUriToID = relationInstanceUriToID(uri);
+		if (relationInstanceUriToID != null) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 }

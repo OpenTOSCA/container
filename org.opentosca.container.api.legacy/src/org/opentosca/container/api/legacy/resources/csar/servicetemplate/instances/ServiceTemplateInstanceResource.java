@@ -121,6 +121,11 @@ public class ServiceTemplateInstanceResource {
 		return new NodeTemplatesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
 	}
 
+	@Path("RelationshipTemplates")
+	public Object getRelationshipTemplates() {
+		return new RelationshipTemplatesResource(csarId, serviceTemplateID, serviceTemplateInstanceId);
+	}
+	
 	@Path("/Properties")
 	public Object getProperties() {
 		return new ServiceTemplateInstancePropertiesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);

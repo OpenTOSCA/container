@@ -16,7 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
 import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class BPELFinalizer {
 	 * 
 	 * @param buildPlan the BuildPlan to finalize
 	 */
-	public void finalize(BuildPlan buildPlan) {
+	public void finalize(TOSCAPlan buildPlan) {
 		
 		// initialize output message
 		List<String> localNames = buildPlan.getWsdl().getOuputMessageLocalNames();
@@ -153,19 +153,19 @@ public class BPELFinalizer {
 			// elements, if it's empty, add an empty activity
 			Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
 			if (prePhaseElement.getChildNodes().getLength() == 0) {
-				Element emptyElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "empty");
+				Element emptyElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "empty");
 				prePhaseElement.appendChild(emptyElement);
 			}
 			
 			Element provPhaseElement = templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
 			if (provPhaseElement.getChildNodes().getLength() == 0) {
-				Element emptyElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "empty");
+				Element emptyElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "empty");
 				provPhaseElement.appendChild(emptyElement);
 			}
 			
 			Element postPhaseElement = templateBuildPlan.getBpelSequencePostPhaseElement();
 			if (postPhaseElement.getChildNodes().getLength() == 0) {
-				Element emptyElement = buildPlan.getBpelDocument().createElementNS(BuildPlan.bpelNamespace, "empty");
+				Element emptyElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "empty");
 				postPhaseElement.appendChild(emptyElement);
 			}
 			
@@ -242,7 +242,7 @@ public class BPELFinalizer {
 	 * 
 	 * @param buildPlan the BuildPlan to transform to sequential provisioning
 	 */
-	public void makeSequential(BuildPlan buildPlan) {
+	public void makeSequential(TOSCAPlan buildPlan) {
 		BPELFinalizer.LOG.debug("Starting to transform BuildPlan {} to sequential provsioning", buildPlan.getBpelProcessElement().getAttribute("name"));
 		List<TemplateBuildPlan> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 		

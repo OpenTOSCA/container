@@ -18,6 +18,7 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.planbuilder.TemplatePlanBuilder;
 import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;

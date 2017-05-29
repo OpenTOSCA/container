@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class BuildPlan {
+public class TOSCAPlan {
 
 	// determines whether this plan is a BuildPlan, ManagementPlan, TerminatePlan
 	public enum PlanType {

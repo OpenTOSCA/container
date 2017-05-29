@@ -17,7 +17,8 @@ public class Interfaces {
 
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE = "InterfaceDockerEngine";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER = "startContainer";
-
+	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER = "removeContainer";
+	
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER = "ContainerManagementInterface";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT = "runScript";
 	public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE = "transferFile";

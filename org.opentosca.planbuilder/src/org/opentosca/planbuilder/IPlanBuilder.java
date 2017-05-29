@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 
 public interface IPlanBuilder {
@@ -26,7 +26,7 @@ public interface IPlanBuilder {
 	 *         ServiceTemplate denoted by the given QName isn't found inside the
 	 *         Definitions document null is returned instead
 	 */
-	BuildPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
+	TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
 
 	/**
 	 * <p>
@@ -40,6 +40,6 @@ public interface IPlanBuilder {
 	 * @return a List of Build Plans for each ServiceTemplate contained inside
 	 *         the Definitions document
 	 */
-	List<BuildPlan> buildPlans(String csarName, AbstractDefinitions definitions);
+	List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions);
 
 }
