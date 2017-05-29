@@ -209,7 +209,6 @@
       <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.provphase.plugin.scriptoperation" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="0" />

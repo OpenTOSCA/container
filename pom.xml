@@ -138,7 +138,6 @@
     <module>org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux</module>
     <module>org.opentosca.planbuilder.provphase.plugin.ansibleoperation</module>
     <module>org.opentosca.planbuilder.provphase.plugin.invoker</module>
-    <module>org.opentosca.planbuilder.provphase.plugin.scriptoperation</module>
     <module>org.opentosca.planbuilder.service</module>
     <module>org.opentosca.planbuilder.type.plugin.connectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.dockercontainer</module>
