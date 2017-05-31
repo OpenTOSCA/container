@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
-<extension id="openTOSCAContainer" point="org.eclipse.core.runtime.products">
-  <product application="org.opentosca.container.application.application" name="OpenTOSCA Container Product Definition">
-     <property name="appName" value="OpenTOSCA Container Product Definition"/>
-  </product>
-</extension>
-
-   <extension
-         id="application"
-         point="org.eclipse.core.runtime.applications">
-      <application>
-         <run
-               class="org.opentosca.container.application.OpenTOSCAApplication">
-         </run>
-      </application>
-   </extension>
-
+	<extension id="opentoscacontainer" point="org.eclipse.core.runtime.products">
+		<product application="org.opentosca.container.application.application" name="OpenTOSCA Container">
+			<property name="appName" value="OpenTOSCA Container" />
+		</product>
+	</extension>
+	<extension id="application" point="org.eclipse.core.runtime.applications">
+		<application>
+			<run class="org.opentosca.container.application.Application"/>
+		</application>
+	</extension>
 </plugin>

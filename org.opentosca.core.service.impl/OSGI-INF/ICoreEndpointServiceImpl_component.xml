@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="ICoreEndpointService">
-   <implementation class="org.opentosca.core.endpoint.service.impl.CoreEndpointServiceImpl"/>
-   <service>
-   	  <provide interface="org.opentosca.core.endpoint.service.ICoreEndpointService" />
-   </service>
-   <reference bind="bind" cardinality="1..1" interface="org.opentosca.core.internal.endpoint.service.ICoreInternalEndpointService" name="ICoreInternalEndpointService" policy="static" unbind="unbind"/>
-</scr:component>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CamundaPlanEnginePlugin">
+   <implementation class="org.opentosca.container.engine.plan.plugin.camunda.CamundaPlanEnginePlugin"/>
+   <service>
+      <provide interface="org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService"/>
+   </service>
+   <reference cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static"/>
+   <reference cardinality="1..1" interface="org.opentosca.container.core.service.IFileAccessService" name="IFileAccessService" policy="static"/>
+   <reference cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static"/>
+   <reference cardinality="1..1" interface="org.opentosca.container.core.service.IHTTPService" name="IHTTPService" policy="static"/>
+</scr:component>

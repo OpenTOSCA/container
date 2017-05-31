@@ -28,17 +28,17 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.core.model.artifact.file.AbstractFile;
-import org.opentosca.core.model.csar.CSARContent;
-import org.opentosca.core.model.csar.id.CSARID;
-import org.opentosca.exceptions.SystemException;
-import org.opentosca.exceptions.UserException;
+import org.opentosca.container.core.common.SystemException;
+import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.model.AbstractFile;
+import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
-import org.opentosca.model.tosca.conventions.Properties;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.postphase.plugin.vinothek.Plugin;
 import org.opentosca.planbuilder.utils.Utils;
@@ -50,32 +50,30 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * 
+ *
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - nyuuyn@googlemail.com
  *
  */
 public class Handler {
-
-	private final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-			"ArchiveArtifact");
-	private final QName bpelArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-			"BPEL");
-
+	
+	private final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+	private final QName bpelArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "BPEL");
+	
 	private final CSARHandler csarHandler = new CSARHandler();
-	private DocumentBuilderFactory docFactory;
-	private DocumentBuilder docBuilder;
-
+	private final DocumentBuilderFactory docFactory;
+	private final DocumentBuilder docBuilder;
+	
+	
 	public Handler() throws ParserConfigurationException {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	}
-
-	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate,
-			AbstractNodeTypeImplementation nodeImpl) {
+	
+	public boolean handle(final TemplatePlanContext context, final AbstractNodeTemplate nodeTemplate, final AbstractNodeTypeImplementation nodeImpl) {
 		if (Utils.checkForTypeInHierarchy(nodeTemplate, Plugin.phpApp)) {
 			return this.handlePhpApp(context, nodeTemplate, nodeImpl);
 		} else if (Utils.checkForTypeInHierarchy(nodeTemplate, Plugin.bpelProcess)) {
@@ -83,277 +81,270 @@ public class Handler {
 		}
 		return false;
 	}
-
-	private boolean handlePhpApp(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate,
-			AbstractNodeTypeImplementation nodeImpl) {
-
+	
+	private boolean handlePhpApp(final TemplatePlanContext context, final AbstractNodeTemplate nodeTemplate, final AbstractNodeTypeImplementation nodeImpl) {
+		
 		// fetch the application zip file
 		AbstractArtifactReference zipRef = null;
-
+		
 		if (nodeImpl == null) {
 			zipRef = this.fetchPhpAppDA(nodeTemplate.getDeploymentArtifacts());
 		} else {
 			zipRef = this.fetchPhpAppDA(nodeImpl.getDeploymentArtifacts());
 		}
-
+		
 		if (zipRef == null) {
 			// didn't find appropiate artifact ref
 			return false;
 		}
-
+		
 		try {
-
-			CSARContent content = this.csarHandler.getCSARContentForID(new CSARID(context.getCSARFileName()));
-			String reference = zipRef.getReference();
-			Set<AbstractFile> files = content.getFilesRecursively();
+			
+			final CSARContent content = this.csarHandler.getCSARContentForID(new CSARID(context.getCSARFileName()));
+			final String reference = zipRef.getReference();
+			final Set<AbstractFile> files = content.getFilesRecursively();
 			AbstractFile daFile = null;
-
-			for (AbstractFile file : files) {
-				String path = file.getPath();
-
+			
+			for (final AbstractFile file : files) {
+				final String path = file.getPath();
+				
 				// this decode is used as counter-measure against the double
 				// encoding in winery
 				if (file.getPath().equals(URLDecoder.decode(reference, "UTF-8"))) {
 					daFile = file;
 				}
 			}
-
+			
 			if (daFile == null) {
 				return false;
 			}
-
+			
 			// we'll try to find the root dir, which should resemble the
 			// application path on an apache web server
-			Path daPath = daFile.getFile();
-			String absPath = daPath.toAbsolutePath().toString();
-
-			ZipFile zipFile = new ZipFile(absPath);
-
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			List<ZipEntry> dirEntries = new ArrayList<ZipEntry>();
-
+			final Path daPath = daFile.getFile();
+			final String absPath = daPath.toAbsolutePath().toString();
+			
+			final ZipFile zipFile = new ZipFile(absPath);
+			
+			final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			
+			final List<ZipEntry> dirEntries = new ArrayList<>();
+			
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = entries.nextElement();
+				final ZipEntry entry = entries.nextElement();
 				if (entry.isDirectory()) {
 					dirEntries.add(entry);
 				}
 			}
-
+			
 			// the entry with the shortest name should be our root dir
 			ZipEntry rootDirEntry = dirEntries.get(0);
-
-			for (ZipEntry entry : dirEntries) {
+			
+			for (final ZipEntry entry : dirEntries) {
 				if (entry.getName().length() <= rootDirEntry.getName().length()) {
 					rootDirEntry = entry;
 				}
 			}
-
+			
 			// this value will be concatenated with the form
 			// http://VMIP/applicationFolderName
-			String applicationFolderName = "/" + rootDirEntry.getName();
+			final String applicationFolderName = "/" + rootDirEntry.getName();
 			zipFile.close();
-
+			
 			// find serverip var name of the VM hosting the application
-			String serverIpVarName = context
-					.getVariableNameOfInfraNodeProperty(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
-
+			final String serverIpVarName = context.getVariableNameOfInfraNodeProperty(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+			
 			// add selfserviceApplicationUrl to output
 			context.addStringValueToPlanResponse("selfserviceApplicationUrl");
-
-			Element postPhaseElement = context.getPostPhaseElement();
-
-			Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
-					context.getPlanResponseMessageName(), "payload", "tns");
+			
+			final Element postPhaseElement = context.getPostPhaseElement();
+			
+			Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName, context.getPlanResponseMessageName(), "payload", "tns");
 			assignNode = context.importNode(assignNode);
-
+			
 			postPhaseElement.appendChild(assignNode);
-
-		} catch (UserException e) {
+			
+		} catch (final UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		} catch (SystemException e) {
+		} catch (final SystemException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
-		} catch (SAXException e) {
+		} catch (final SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
-
+		
 		return true;
 	}
-
-	private boolean handleBPELApp(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate,
-			AbstractNodeTypeImplementation nodeImpl) {
+	
+	private boolean handleBPELApp(final TemplatePlanContext context, final AbstractNodeTemplate nodeTemplate, final AbstractNodeTypeImplementation nodeImpl) {
 		// FIXME: this will be working under many assumptions (bpel-engine: wso2
 		// bps.., no port reconfigs,..)
 		// we try to construct an endpoint of the form
 		// ServerIP:9763/services/BPELStack_buildPlanService/
-
-		List<AbstractDeploymentArtifact> das = new ArrayList<AbstractDeploymentArtifact>();
-
+		
+		final List<AbstractDeploymentArtifact> das = new ArrayList<>();
+		
 		das.addAll(nodeTemplate.getDeploymentArtifacts());
-
+		
 		if (nodeImpl != null) {
 			das.addAll(nodeImpl.getDeploymentArtifacts());
 		}
-
-		AbstractArtifactReference bpelRef = this.fetchBPELAppDA(das);
-
+		
+		final AbstractArtifactReference bpelRef = this.fetchBPELAppDA(das);
+		
 		if (bpelRef == null) {
 			return false;
 		}
-
+		
 		CSARContent content;
 		try {
 			content = this.csarHandler.getCSARContentForID(new CSARID(context.getCSARFileName()));
-			String reference = bpelRef.getReference();
-			Set<AbstractFile> files = content.getFilesRecursively();
+			final String reference = bpelRef.getReference();
+			final Set<AbstractFile> files = content.getFilesRecursively();
 			AbstractFile daFile = null;
-
-			for (AbstractFile file : files) {
-				String path = file.getPath();
-
+			
+			for (final AbstractFile file : files) {
+				final String path = file.getPath();
+				
 				// this decode is used as counter-measure against the double
 				// encoding in winery
 				if (file.getPath().equals(URLDecoder.decode(reference, "UTF-8"))) {
 					daFile = file;
 				}
 			}
-
+			
 			if (daFile == null) {
 				return false;
 			}
-
+			
 			// we'll try to find the root dir, which should resemble the
 			// application path on an apache web server
-			Path daPath = daFile.getFile();
-			String absPath = daPath.toAbsolutePath().toString();
-
-			ZipFile zipFile = new ZipFile(absPath);
-
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			List<ZipEntry> fileEntries = new ArrayList<ZipEntry>();
-
+			final Path daPath = daFile.getFile();
+			final String absPath = daPath.toAbsolutePath().toString();
+			
+			final ZipFile zipFile = new ZipFile(absPath);
+			
+			final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			
+			final List<ZipEntry> fileEntries = new ArrayList<>();
+			
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = entries.nextElement();
+				final ZipEntry entry = entries.nextElement();
 				if (!entry.isDirectory()) {
 					fileEntries.add(entry);
 				}
 			}
-
+			
 			// the entry with the shortest name should be our root dir
 			ZipEntry deployXmlEntry = null;
-
-			for (ZipEntry entry : fileEntries) {
-
+			
+			for (final ZipEntry entry : fileEntries) {
+				
 				if (entry.getName().equals("deploy.xml")) {
 					deployXmlEntry = entry;
 				}
 			}
-
-			InputStream is = zipFile.getInputStream(deployXmlEntry);
-
-			XPathFactory factory = XPathFactory.newInstance();
-
-			XPath xpath = factory.newXPath();
-
+			
+			final InputStream is = zipFile.getInputStream(deployXmlEntry);
+			
+			final XPathFactory factory = XPathFactory.newInstance();
+			
+			final XPath xpath = factory.newXPath();
+			
 			xpath.setNamespaceContext(new NamespaceContext() {
-
-				private String ns = "http://www.apache.org/ode/schemas/dd/2007/03";
-
+				
+				private final String ns = "http://www.apache.org/ode/schemas/dd/2007/03";
+				
+				
 				@Override
-				public Iterator getPrefixes(String namespaceURI) {
+				public Iterator getPrefixes(final String namespaceURI) {
 					return null;
 				}
-
+				
 				@Override
-				public String getPrefix(String namespaceURI) {
+				public String getPrefix(final String namespaceURI) {
 					// TODO Auto-generated method stub
 					return null;
 				}
-
+				
 				@Override
-				public String getNamespaceURI(String prefix) {
+				public String getNamespaceURI(final String prefix) {
 					return this.ns;
 				}
 			});
-
-			InputSource inputSource = new InputSource(is);
-
-			String value = (String) xpath.evaluate(
-					"/ns:deploy/ns:process/ns:provide[@partnerLink='client']/ns:service/@name", inputSource,
-					XPathConstants.STRING);
-
-			String serviceName = value.split(":")[1];
-
+			
+			final InputSource inputSource = new InputSource(is);
+			
+			final String value = (String) xpath.evaluate("/ns:deploy/ns:process/ns:provide[@partnerLink='client']/ns:service/@name", inputSource, XPathConstants.STRING);
+			
+			final String serviceName = value.split(":")[1];
+			
 			// this is really a crude assumption of axis2 AND that the bps port
 			// is still set to 9763
-			String applicationFolderName = ":9763/services/" + serviceName;
-
+			final String applicationFolderName = ":9763/services/" + serviceName;
+			
 			zipFile.close();
-
+			
 			String serverIpVarName = null;
-
-			for (String serverPropName : org.opentosca.model.tosca.conventions.Utils
-					.getSupportedVirtualMachineIPPropertyNames()) {
-
+			
+			for (final String serverPropName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+				
 				// find serverip var name of the VM hosting the application
 				serverIpVarName = context.getVariableNameOfInfraNodeProperty(serverPropName);
-				if(serverIpVarName != null){
+				if (serverIpVarName != null) {
 					break;
 				}
 			}
-			
-			if(serverIpVarName == null){
+
+			if (serverIpVarName == null) {
 				return false;
 			}
-
+			
 			// add selfserviceApplicationUrl to output
 			context.addStringValueToPlanResponse("selfserviceApplicationUrl");
-
-			Element postPhaseElement = context.getPostPhaseElement();
-
-			Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
-					context.getPlanResponseMessageName(), "payload", "tns");
+			
+			final Element postPhaseElement = context.getPostPhaseElement();
+			
+			Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName, context.getPlanResponseMessageName(), "payload", "tns");
 			assignNode = context.importNode(assignNode);
-
+			
 			postPhaseElement.appendChild(assignNode);
-
-		} catch (UserException e) {
+			
+		} catch (final UserException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (SystemException e) {
+		} catch (final SystemException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (XPathExpressionException e) {
+		} catch (final XPathExpressionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (SAXException e) {
+		} catch (final SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
 	}
-
-	private AbstractArtifactReference fetchPhpAppDA(List<AbstractDeploymentArtifact> das) {
-		for (AbstractDeploymentArtifact da : das) {
+	
+	private AbstractArtifactReference fetchPhpAppDA(final List<AbstractDeploymentArtifact> das) {
+		for (final AbstractDeploymentArtifact da : das) {
 			if (da.getArtifactType().equals(this.zipArtifactType)) {
-				for (AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
+				for (final AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
 					if (ref.getReference().endsWith(".zip")) {
 						return ref;
 					}
@@ -362,40 +353,38 @@ public class Handler {
 		}
 		return null;
 	}
-
-	private AbstractArtifactReference fetchBPELAppDA(List<AbstractDeploymentArtifact> das) {
-		for (AbstractDeploymentArtifact da : das) {
+	
+	private AbstractArtifactReference fetchBPELAppDA(final List<AbstractDeploymentArtifact> das) {
+		for (final AbstractDeploymentArtifact da : das) {
 			if (da.getArtifactType().equals(this.bpelArtifactType)) {
-				for (AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
+				for (final AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
 					if (ref.getReference().endsWith(".zip")) {
 						return ref;
 					}
 				}
 			}
 		}
-
+		
 		return null;
 	}
-
-	private Node createSelfserviceApplicationUrlAssign(String serverIpVarName, String applicationName,
-			String outputVarName, String outputVarPartName, String outputVarPrefix) throws IOException, SAXException {
+	
+	private Node createSelfserviceApplicationUrlAssign(final String serverIpVarName, final String applicationName, final String outputVarName, final String outputVarPartName, final String outputVarPrefix) throws IOException, SAXException {
 		// <!--{serverIpVarName} {appName} {outputVarName} {outputVarPartName}
 		// {outputVarPrefix} -->
-
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("assignSelfserviceApplicationUrl.xml");
-		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+		
+		final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignSelfserviceApplicationUrl.xml");
+		final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 		template = template.replace("{serverIpVarName}", serverIpVarName);
 		template = template.replace("{appName}", applicationName);
 		template = template.replace("{outputVarName}", outputVarName);
 		template = template.replace("{outputVarPartName}", outputVarPartName);
 		template = template.replace("{outputVarPrefix}", outputVarPrefix);
-
-		InputSource is = new InputSource();
+		
+		final InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(template));
-		Document doc = this.docBuilder.parse(is);
+		final Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-
+	
 }

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.core.internal.model.repository.service.impl">
-   <implementation class="org.opentosca.core.model.internal.repository.service.impl.CoreInternalModelRepositoryServiceImpl"/>
-   <service>
-      <provide interface="org.opentosca.core.internal.model.repository.service.ICoreInternalModelRepositoryService"/>
-      <provide interface="org.eclipse.osgi.framework.console.CommandProvider"/>
-   </service>
-   <reference bind="bindToscaEngineService" cardinality="1..1" interface="org.opentosca.toscaengine.service.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaEngineService"/>
-</scr:component>

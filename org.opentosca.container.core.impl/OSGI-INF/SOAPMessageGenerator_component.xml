@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="SOAPMessageGenerator">
+   <implementation class="org.opentosca.container.core.impl.plan.messages.SOAPMessageGenerator"/>
+   <property name="event.topics" type="String" value="org_opentosca_plans/callbackaddress"/>
+   <service>
+      <provide interface="org.osgi.service.event.EventHandler"/>
+   </service>
+</scr:component>

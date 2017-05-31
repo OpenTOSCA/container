@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Plan Engine BPEL 2.0 Plugin for WSO2 BPS 2.1.2
+Bundle-SymbolicName: org.opentosca.container.engine.plan.plugin.bpelwso2
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.ibm.wsdl.extensions.http,
+ com.ibm.wsdl.extensions.soap,
+ javax.wsdl;version="1.6.0",
+ javax.wsdl.extensions;version="1.6.0",
+ javax.wsdl.extensions.http;version="1.6.0",
+ javax.wsdl.extensions.soap;version="1.6.0",
+ javax.wsdl.factory;version="1.6.0",
+ javax.wsdl.xml;version="1.6.0",
+ org.eclipse.osgi.util;version="1.1.0",
+ org.osgi.framework;version="1.6.0",
+ org.slf4j;version="1.6.4"
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.opentosca.container.core,
+ org.opentosca.container.core.tosca,
+ org.opentosca.container.engine.plan,
+ org.opentosca.container.connector.bps
+Service-Component: OSGI-INF/*
+Bundle-Activator: org.opentosca.container.engine.plan.plugin.bpelwso2.Activator
