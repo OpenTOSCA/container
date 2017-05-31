@@ -13,17 +13,17 @@ import org.slf4j.LoggerFactory;
 
 @Provider
 public class JAXBContextProvider implements ContextResolver<JAXBContext> {
-
-	private static Logger logger = LoggerFactory.getLogger(JAXBContextProvider.class);
 	
+	private static Logger logger = LoggerFactory.getLogger(JAXBContextProvider.class);
+
 	private final Map<Class<?>, JAXBContext> contextMap = new HashMap<>();
-
-
+	
+	
 	@Override
 	public JAXBContext getContext(final Class<?> type) {
-
+		
 		JAXBContext context = this.contextMap.get(type);
-
+		
 		if (context == null) {
 			try {
 				logger.debug("Creating JAXBContext for type \"{}\"", type.getName());
@@ -33,7 +33,7 @@ public class JAXBContextProvider implements ContextResolver<JAXBContext> {
 				logger.error("Error creating JAXBContext: {}", e.getMessage(), e);
 			}
 		}
-
+		
 		return context;
 	}
 }

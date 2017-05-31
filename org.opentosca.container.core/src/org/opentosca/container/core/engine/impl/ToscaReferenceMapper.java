@@ -512,7 +512,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 			Marshaller marshaller = null;
 			final StringWriter writer = new StringWriter();
 			try {
-				context = JAXBContext.newInstance("org.opentosca.model.tosca");
+				context = JAXBContext.newInstance(TPolicy.class);
 				marshaller = context.createMarshaller();
 				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			} catch (final JAXBException e) {

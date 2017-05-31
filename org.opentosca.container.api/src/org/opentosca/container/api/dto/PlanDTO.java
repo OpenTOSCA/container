@@ -3,6 +3,8 @@ package org.opentosca.container.api.dto;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -18,21 +20,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "Plan")
+@XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanDTO extends ResourceSupport {
-
-	@XmlAttribute
+	
+	@XmlAttribute(name = "id")
 	private String id;
 	
-	@XmlAttribute
+	@XmlAttribute(name = "name")
 	private String name;
 	
-	@XmlAttribute
+	@XmlAttribute(name = "planType")
 	private String planType;
 	
-	@XmlAttribute
+	@XmlAttribute(name = "planLanguage")
 	private String planLanguage;
-	
+
 	@XmlElement(name = "InputParameter")
 	@XmlElementWrapper(name = "InputParameters")
 	private List<TParameter> inputParameters = Lists.newArrayList();
@@ -66,7 +69,7 @@ public class PlanDTO extends ResourceSupport {
 	public void setId(final String id) {
 		this.id = id;
 	}
-
+	
 	public String getName() {
 		return this.name;
 	}
@@ -74,7 +77,7 @@ public class PlanDTO extends ResourceSupport {
 	public void setName(final String name) {
 		this.name = name;
 	}
-
+	
 	public String getPlanType() {
 		return this.planType;
 	}
@@ -90,7 +93,7 @@ public class PlanDTO extends ResourceSupport {
 	public void setPlanLanguage(final String planLanguage) {
 		this.planLanguage = planLanguage;
 	}
-
+	
 	public List<TParameter> getInputParameters() {
 		return this.inputParameters;
 	}

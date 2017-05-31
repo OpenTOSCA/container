@@ -7,12 +7,11 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.opentosca.container.core.tosca.model.TBoolean;
-import org.opentosca.container.core.tosca.model.TParameter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameterDTO")
 public class TParameterDTO {
-	
+
 	@XmlValue
 	protected String value;
 	@XmlAttribute(name = "name", required = true)
@@ -21,29 +20,33 @@ public class TParameterDTO {
 	protected String type;
 	@XmlAttribute(name = "required")
 	protected TBoolean required;
-	
-	
+
+
 	public TParameterDTO() {
-		
+
 	}
-	
-	public TParameterDTO(final TParameter param) {
+
+	public TParameterDTO(final org.opentosca.container.core.tosca.model.TParameter param) {
 		this.name = param.getName();
 		this.type = param.getType();
 		this.required = param.getRequired();
-		if (param instanceof org.opentosca.container.core.tosca.extension.TParameter) {
-			this.value = ((org.opentosca.container.core.tosca.extension.TParameter) param).getValue();
-		}
 	}
-	
+
+	public TParameterDTO(final org.opentosca.container.core.tosca.extension.TParameter param) {
+		this.name = param.getName();
+		this.type = param.getType();
+		this.required = param.getRequired();
+		this.value = param.getValue();
+	}
+
 	public String getValue() {
 		return this.value;
 	}
-	
+
 	public void setValue(final String value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Gets the value of the name property.
 	 *
@@ -53,7 +56,7 @@ public class TParameterDTO {
 	public String getName() {
 		return this.name;
 	}
-	
+
 	/**
 	 * Sets the value of the name property.
 	 *
@@ -63,7 +66,7 @@ public class TParameterDTO {
 	public void setName(final String value) {
 		this.name = value;
 	}
-	
+
 	/**
 	 * Gets the value of the type property.
 	 *
@@ -73,7 +76,7 @@ public class TParameterDTO {
 	public String getType() {
 		return this.type;
 	}
-	
+
 	/**
 	 * Sets the value of the type property.
 	 *
@@ -83,7 +86,7 @@ public class TParameterDTO {
 	public void setType(final String value) {
 		this.type = value;
 	}
-	
+
 	/**
 	 * Gets the value of the required property.
 	 *
@@ -97,7 +100,7 @@ public class TParameterDTO {
 			return this.required;
 		}
 	}
-	
+
 	/**
 	 * Sets the value of the required property.
 	 *
@@ -107,5 +110,5 @@ public class TParameterDTO {
 	public void setRequired(final TBoolean value) {
 		this.required = value;
 	}
-	
+
 }
