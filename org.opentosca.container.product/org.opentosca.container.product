@@ -62,6 +62,7 @@
       <plugin id="com.springsource.util.parser.manifest" autoStart="true" startLevel="0" />
       <plugin id="com.sun.jersey.client" autoStart="true" startLevel="0" />
       <plugin id="com.sun.jersey.core" autoStart="true" startLevel="0" />
+      <plugin id="dk.nykredit.jackson.dataformat.jackson-dataformat-hal" autoStart="true" startLevel="0" />
       <plugin id="filesystem" autoStart="true" startLevel="0" />
       <plugin id="groovy-all" autoStart="true" startLevel="0" />
       <plugin id="javax.activation" autoStart="true" startLevel="0" />

@@ -1,5 +1,7 @@
 package org.opentosca.container.api.dto.boundarydefinitions;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,19 +10,27 @@ import org.opentosca.container.api.dto.PlanDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.tosca.model.TExportedOperation;
 
+import dk.nykredit.jackson.dataformat.hal.annotation.EmbeddedResource;
+import dk.nykredit.jackson.dataformat.hal.annotation.Resource;
+
+@Resource
 @XmlRootElement(name = "Operation")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class OperationDTO extends ResourceSupport {
 
 	@XmlAttribute
 	private String name;
 
 	@XmlElement
+	@EmbeddedResource
 	private TExportedOperation.NodeOperation nodeOperation;
 
 	@XmlElement
+	@EmbeddedResource
 	private TExportedOperation.RelationshipOperation relationshipOperation;
 
 	@XmlElement
+	@EmbeddedResource
 	private PlanDTO plan;
 	
 	

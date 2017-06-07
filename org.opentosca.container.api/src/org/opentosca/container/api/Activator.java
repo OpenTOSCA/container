@@ -52,12 +52,12 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(final BundleContext bundleContext) throws Exception {
 		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
-		
+
 		context = bundleContext;
 
 		// Non-OSGi Endpoint Resources
 		this.services.add(bundleContext.registerService(RootController.class, new RootController(), null));
-		
+
 		// Jersey Configuration
 		this.configurator(bundleContext);
 		this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));

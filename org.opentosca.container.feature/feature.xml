@@ -1337,4 +1337,11 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="dk.nykredit.jackson.dataformat.jackson-dataformat-hal"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
