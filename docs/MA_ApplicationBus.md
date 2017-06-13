@@ -26,7 +26,7 @@ Per Instance Data Service können Instanzdaten gespeichert und abgefragt werden.
 
 <center>
 
-![ApplicationBusArchitektur](\graphics\ApplicationBusArchitektur(12).png)
+![ApplicationBusArchitektur](\graphics\ApplicationBusArchitektur.png)
 
 **Abbildung 12: Application Bus Architektur**
 </center>
@@ -46,7 +46,7 @@ Eine Anwendung kann somit beispielsweise den Application Bus per REST API anspre
 
 <center>
 
-![KommunikationsdiagrammApplicationBus](graphics\KommunikationsdiagrammApplicationBus(13).png)
+![KommunikationsdiagrammApplicationBus](graphics\KommunikationsdiagrammApplicationBus.png)
 **Abbildung 13:Kommunikationsdiagramm des Application Bus**
 </center>
 
@@ -56,7 +56,7 @@ Abbildung 13 zeigt weiterhin die beispielhafte Nutzung des Application Bus durch
 
 <center>
 
-![OpenTOSCAArchitekturApplicationBus](graphics\OpenTOSCAArchitekturApplicationBus(14).png)
+![OpenTOSCAArchitekturApplicationBus](graphics\OpenTOSCAArchitekturApplicationBus.png)
 **Abbildung 14: OpenTOSCA Architektur mit Application Bus**
 </center>
 
@@ -76,7 +76,7 @@ Der konzeptionelle Ablauf bei der Nutzung einer anderen API beziehungsweise eine
 
 <center>
 
-![Beispielszenario](graphics/Beispielszenario(15).png)
+![Beispielszenario](graphics/Beispielszenario.png)
 **Abbildung 15: Beispielszenario**
 </center>
 
@@ -108,7 +108,7 @@ Noch nicht implementiert, aber konzeptionell vorgesehen, ist auch das generieren
 
 <center>
 
-![GenerierungCodeSkelett](graphics/GenerierungCodeSkelettTOSCA(16).png)
+![GenerierungCodeSkelett](graphics/GenerierungCodeSkelettTOSCA.png)
 **Abbildung 16: Generierung eines Code-Skelettes aus TOSCA**
 </center>
 
@@ -220,7 +220,7 @@ Dadurch kann die Operation getTemp innerhalb der Anwendung HausSteuerung verwend
 
 <center>
 
-![StubsKommunikationApplicationBus](graphics/StubsKommunkationApplicationBus(17).png)
+![StubsKommunikationApplicationBus](graphics/StubsKommunkationApplicationBus.png)
 **Abbildung 17: Verwendung eines generierten Stubs zur Kommunikation mit dem Application Bus**
 </center>
 
@@ -266,7 +266,7 @@ Wie genau der Application Bus diese Instanz-IDs verwendet, wird in Abschnitt 9.5
 
 <center>
 
-![SetupApplicationBusAnwendung](graphics/SetupApplicationBusAnwendung(18).png)
+![SetupApplicationBusAnwendung](graphics/SetupApplicationBusAnwendung.png)
 **Abbildung 18: Setup einer den Application Bus nutzenden Anwendung**
 
 </center>
@@ -280,7 +280,7 @@ Da ein einheitliches Protokoll zur Kommunikation (siehe Abbildung 6) verwendet w
 
 <center>
 
-![KommunikationAnwendungApplicationBus](graphics/KommunikationAnwendungApplicationBus(19).png)
+![KommunikationAnwendungApplicationBus](graphics/KommunikationAnwendungApplicationBus.png)
 **Abbildung 19: Kommunikation einer Anwendung mit dem Application Bus**
 </center>
 
@@ -438,7 +438,7 @@ Beispielhaft wird hierfür das zum Application Bus Proxy passende Application Bu
 
 <center>
 
-![KommunikationApplicationBusAnwendung](graphics/KommunikationApplicationBusAnwendung(20).png)
+![KommunikationApplicationBusAnwendung](graphics/KommunikationApplicationBusAnwendung.png)
 **Abbildung 20: Kommunikation des Application Bus mit einer aufzurufenden Anwendung**
 </center>
 
@@ -726,7 +726,7 @@ Dort wird das, für die angegebene RequestID abgelegte Ergebnis, beziehungsweise
 
 <center>
 
-![RoutingApplicationBusEngine](graphics/RoutingApplicationBusEngine(21).png)
+![RoutingApplicationBusEngine](graphics/RoutingApplicationBusEngine.png)
 **Abbildung 21: Grafisch veranschaulichtes Routing innerhalb der Application Bus Engine**
 
 </center>
@@ -750,7 +750,7 @@ Nachdem das Plugin den Methodenaufruf abgeschlossen und ein Ergebnis zurückgege
 
 <center>
 
-![BearbeitungsablaufInvokeProcessor](graphics/BearbeitungsablaufInvokeProcessor(22).png)
+![BearbeitungsablaufInvokeProcessor](graphics/BearbeitungsablaufInvokeProcessor.png)
 **Abbildung 22: Bearbeitungsablauf innerhalb des Invoke-Processors**
 </center>
 
@@ -887,7 +887,7 @@ Das durch die Schnittstelle vorgesehene Polling und Abfragen des Ergebnisses erf
 
 <center>
 
-![FunktionsweiseApplicationBusProxy](graphics/FunktionsweiseApplicationBusProxy(23).png)
+![FunktionsweiseApplicationBusProxy](graphics/FunktionsweiseApplicationBusProxy.png)
 **Abbildung 23: Funktionsweise des Application Bus Proxys**
 </center>
 
@@ -913,6 +913,6 @@ Als Name der .jar wird dabei der Name des jeweiligen NodeTemplates verwendet.
 
 <center>
 
-![WorkflowApplicationBusStubGenerators](graphics/WorkflowApplicationBusStubGenerators(24).png)
+![WorkflowApplicationBusStubGenerators](graphics/WorkflowApplicationBusStubGenerators.png)
 **Abbildung 24: Workflow des Application Bus Stub Generators**
 </center>

@@ -3,7 +3,7 @@
 This is the OpenTOSCA runtime environment.
 
 First, we present the architecture.
-Furture things will come. Stay tuned.
+Future things will come. Stay tuned.
 
 ---
 
