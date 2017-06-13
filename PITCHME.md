@@ -18,7 +18,7 @@ Scroll down for the architecture
 
 +++
 
-![ArchitekturOpenTOSCAContainerIST](docs/graphics/ArchitekturOpenTOSCAContainer(IST).png)
+![ArchitekturOpenTOSCAContainerIST](docs/graphics/ArchitekturOpenTOSCAContainer-IST.png)
 
 +++
 
@@ -30,7 +30,7 @@ Scroll down for the architecture
 
 +++
 
-![ArchitekturOpenTOSCAContainerSOLL](docs/graphics/ArchitekturOpenTOSCAContainer(SOLL).png)
+![ArchitekturOpenTOSCAContainerSOLL](docs/graphics/ArchitekturOpenTOSCAContainer-SOLL.png)
 
 ---
 
