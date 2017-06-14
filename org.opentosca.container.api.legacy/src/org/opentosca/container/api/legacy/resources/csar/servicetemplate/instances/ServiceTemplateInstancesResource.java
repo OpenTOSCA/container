@@ -126,7 +126,7 @@ public class ServiceTemplateInstancesResource {
 				if (serviceInstance.getServiceTemplateID().equals(this.serviceTemplateID)) {
 					
 					final int instanceId = serviceInstance.getDBId();
-					refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, Integer.toString(instanceId)), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
+					refs.getReference().add(new Reference(serviceInstance.getServiceInstanceID().toString(), XLinkConstants.SIMPLE, Integer.toString(instanceId)));
 				}
 				// URI urlToServiceInstance =
 				// LinkBuilder.linkToServiceInstance(uriInfo,
@@ -314,6 +314,5 @@ public class ServiceTemplateInstancesResource {
 		this.log.debug("Callback URL is {}", url);
 		
 		return url.toString();
-		
 	}
 }

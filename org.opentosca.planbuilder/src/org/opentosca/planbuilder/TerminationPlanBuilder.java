@@ -127,7 +127,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				// initialize instanceData handling, add
 				// instanceDataAPI/serviceInstanceID into input, add global
 				// variables to hold the value for plugins
-				this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newTerminationPlan);
+				this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(newTerminationPlan);
 				this.serviceInstanceInitializer.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 				
 				this.nodeInstanceInitializer.addNodeInstanceIDVarToTemplatePlans(newTerminationPlan);
@@ -137,7 +137,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				// TODO add null/empty check of property variables, as the
 				// templatePlan should abort when the properties aren't set with
 				// values
-				this.nodeInstanceInitializer.addIfNullAbortCheck(newTerminationPlan, propMap);
+				//this.nodeInstanceInitializer.addIfNullAbortCheck(newTerminationPlan, propMap);
 				
 				this.runPlugins(newTerminationPlan, serviceTemplate.getQName(), propMap);
 				
@@ -190,7 +190,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 							// append logic to call terminateVM method on the
 							// node
 							
-							context.executeOperation(infraNode, org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM, null);
+							context.executeOperation(infraNode, org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM, null);
 						}
 					}
 					
@@ -203,7 +203,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 					
 					for (final AbstractNodeTemplate node : nodes) {
 						if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType().getId())) {
-							context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER, null);
+							context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,null);
 						}
 					}
 					

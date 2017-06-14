@@ -79,19 +79,19 @@ public class BuildPlanHandler {
 	 */
 	public TOSCAPlan createPlan(AbstractServiceTemplate serviceTemplate, String processName, String processNamespace, int type) {
 		BuildPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}", serviceTemplate.getQName().toString());
-		TOSCAPlan buildPlan = this.createBuildPlan(serviceTemplate.getQName());
+		TOSCAPlan buildPlan = null;
 
 		switch (type) {
 		case 0:
-			buildPlan.setType(PlanType.BUILD);
+			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.BUILD);
 			break;
 		case 2:
-			buildPlan.setType(PlanType.TERMINATE);
+			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.TERMINATE);
 			break;
 			// if we don't know what kind of plan this is -> ManagementPlan
 		default:
 		case 1:
-			buildPlan.setType(PlanType.MANAGE);
+			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.MANAGE);
 			break;
 		}
 
@@ -147,7 +147,21 @@ public class BuildPlanHandler {
 		// />
 		Element receiveElement = buildPlan.getBpelMainSequenceReceiveElement();
 		this.bpelProcessHandler.setAttribute(receiveElement, "name", "receiveInput");
-		this.bpelProcessHandler.setAttribute(receiveElement, "operation", "initiate");
+		
+		switch (type) {
+		case 2:
+			this.bpelProcessHandler.setAttribute(receiveElement, "operation", "terminate");
+			break;
+			// if we don't know what kind of plan this is -> ManagementPlan
+		default:
+		case 0:
+		case 1:
+			this.bpelProcessHandler.setAttribute(receiveElement, "operation", "initiate");
+			break;
+		}
+		
+		
+		
 		this.bpelProcessHandler.setAttribute(receiveElement, "variable", "input");
 		this.bpelProcessHandler.setAttribute(receiveElement, "createInstance", "yes");
 		this.bpelProcessHandler.setAttribute(receiveElement, "partnerLink", "client");
@@ -268,13 +282,13 @@ public class BuildPlanHandler {
 	 *            the QName of the ServiceTemplate
 	 * @return a BuildPlan without a Skeleton
 	 */
-	public TOSCAPlan createBuildPlan(QName serviceTemplate) {
+	public TOSCAPlan createBuildPlan(QName serviceTemplate, TOSCAPlan.PlanType planType) {
 		TOSCAPlan newBuildPlan = new TOSCAPlan();
 		newBuildPlan.setServiceTemplate(serviceTemplate);
-
+		newBuildPlan.setType(planType);
 		// init wsdl doc
 		try {
-			newBuildPlan.setProcessWsdl(new GenericWsdlWrapper());
+			newBuildPlan.setProcessWsdl(new GenericWsdlWrapper(planType));
 		} catch (IOException e) {
 			BuildPlanHandler.LOG.error("Internal error while initializing WSDL for BuildPlan", e);
 		}

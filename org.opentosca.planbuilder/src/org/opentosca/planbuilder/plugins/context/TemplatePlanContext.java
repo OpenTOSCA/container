@@ -1424,9 +1424,12 @@ public class TemplatePlanContext {
 	 * @return true if appending logic to execute the operation at runtime was
 	 *         successfull
 	 */
-	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String operationName,
+	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName,
 			Map<AbstractParameter, Variable> param2propertyMapping) {
-		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
+		
+		
+		
+		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningCall(nodeTemplate,interfaceName, operationName);
 		if (chain == null) {
 			return false;
 		}

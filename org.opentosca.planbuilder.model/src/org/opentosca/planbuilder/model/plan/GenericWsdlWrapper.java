@@ -51,6 +51,9 @@ public class GenericWsdlWrapper {
 	// use as tag to add propertyaliases
 	private final static String WSDL_PROPERTYALIAS_TAG = "{vpropaliases}";
 
+	// use as tag to set invoke operation name
+	private final static String WSDL_INVOKE_OPERATION_NAME = "{operationName}";
+
 	// this holds the complete wsdl
 	private String genericWsdlFileAsString;
 
@@ -59,26 +62,27 @@ public class GenericWsdlWrapper {
 	private String namespace = null;
 
 	// the names of the partnerLinkTypes this wsdl holds
-	private final List<String> partnerLinkTypeNames;
+
+	private List<String> partnerLinkTypeNames;
 
 	// the localNames inside the input and output message
-	private final List<String> inputMessageLocalNames;
-	private final List<String> outputMessageLocalNames;
+	private List<String> inputMessageLocalNames;
+	private List<String> outputMessageLocalNames;
 
 	// a list of absolute locations of imported wsdl/xsd's
-	private final List<String> absoluteLocations;
+	private List<String> absoluteLocations;
 
 	// a list of names of delcared properties
-	private final List<String> properties;
+	private List<String> properties;
 
 	// a map to store partnerLinks
-	private final PltMap pltMap = new PltMap();
+	private PltMap pltMap = new PltMap();
 
 	// counts namespaces
 	private int namespaceCounter = 0;
 	// a set of namespaces used in the wsdl
-	private final Set<String> namespaces = new HashSet<>();
 
+	private Set<String> namespaces = new HashSet<String>();
 
 	/**
 	 * <p>
@@ -93,24 +97,30 @@ public class GenericWsdlWrapper {
 	 */
 	private class PltMap {
 
-		private final List<String> partnerLinkTypeNames = new ArrayList<>();
-		private final List<String> roleNames1 = new ArrayList<>();
-		private final List<QName> portTypes1 = new ArrayList<>();
-		private final List<String> roleNames2 = new ArrayList<>();
-		private final List<QName> portTypes2 = new ArrayList<>();
 
+		private List<String> partnerLinkTypeNames = new ArrayList<String>();
+		private List<String> roleNames1 = new ArrayList<String>();
+		private List<QName> portTypes1 = new ArrayList<QName>();
+		private List<String> roleNames2 = new ArrayList<String>();
+		private List<QName> portTypes2 = new ArrayList<QName>();
 
 		/**
 		 * Adds a partnerLinkType to this PltMap
-		 *
-		 * @param partnerLinkTypeName the name of the partnerLinkType to use
-		 * @param role1 the name of the 1st role
-		 * @param portType1 a QName of the 1st portType
-		 * @param role2 the name of the 2nd role
-		 * @param portType2 a QName of the 2nd portType
+		 * 
+		 * @param partnerLinkTypeName
+		 *            the name of the partnerLinkType to use
+		 * @param role1
+		 *            the name of the 1st role
+		 * @param portType1
+		 *            a QName of the 1st portType
+		 * @param role2
+		 *            the name of the 2nd role
+		 * @param portType2
+		 *            a QName of the 2nd portType
 		 * @return true iff adding was successful
 		 */
-		public boolean addPLT(final String partnerLinkTypeName, final String role1, final QName portType1, final String role2, final QName portType2) {
+		public boolean addPLT(String partnerLinkTypeName, String role1, QName portType1, String role2,
+				QName portType2) {
 			boolean check = true;
 			check &= this.partnerLinkTypeNames.add(partnerLinkTypeName);
 			check &= this.roleNames1.add(role1);
@@ -131,8 +141,9 @@ public class GenericWsdlWrapper {
 
 		/**
 		 * Returns the 1st portType of the given partnerLinkType
-		 *
-		 * @param partnerLinkTypeName the name of the partnerLinkType
+		 * 
+		 * @param partnerLinkTypeName
+		 *            the name of the partnerLinkType
 		 * @return a QName if the partnerLinkType is found, else null
 		 */
 		public QName getPortType1OfPLT(final String partnerLinkTypeName) {
@@ -142,8 +153,9 @@ public class GenericWsdlWrapper {
 
 		/**
 		 * Returns the 2nd portType of the given partnerLinkType
-		 *
-		 * @param partnerLinkTypeName the name of the partnerLinkType
+		 * 
+		 * @param partnerLinkTypeName
+		 *            the name of the partnerLinkType
 		 * @return a QName of the 2nd PortType, else null
 		 */
 		public QName getPortType2OfPLT(final String partnerLinkTypeName) {
@@ -162,18 +174,32 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Constructor
-	 *
-	 * @throws IOException is thrown when reading the internal file fails
+	 * 
+	 * @throws IOException
+	 *             is thrown when reading the internal file fails
 	 */
-	public GenericWsdlWrapper() throws IOException {
-		final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("genericProcessWsdl.wsdl");
-		final File genericWsdlFile = new File(FileLocator.toFileURL(url).getPath());
+	public GenericWsdlWrapper(TOSCAPlan.PlanType planType) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("genericProcessWsdl.wsdl");
+		File genericWsdlFile = new File(FileLocator.toFileURL(url).getPath());
 		this.genericWsdlFileAsString = FileUtils.readFileToString(genericWsdlFile);
-		this.partnerLinkTypeNames = new ArrayList<>();
-		this.absoluteLocations = new ArrayList<>();
-		this.inputMessageLocalNames = new ArrayList<>();
-		this.outputMessageLocalNames = new ArrayList<>();
-		this.properties = new ArrayList<>();
+		this.partnerLinkTypeNames = new ArrayList<String>();
+		this.absoluteLocations = new ArrayList<String>();
+		this.inputMessageLocalNames = new ArrayList<String>();
+		this.outputMessageLocalNames = new ArrayList<String>();
+		this.properties = new ArrayList<String>();
+
+		switch (planType) {
+		case BUILD:
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
+					"initiate");
+		case MANAGE:
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
+					"initiate");
+		case TERMINATE:
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
+					"terminate");
+		}
 	}
 
 	/**
@@ -207,14 +233,19 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds a element declaration to the input message of this wsdl
-	 *
-	 * @param elementName the localName of the element
-	 * @param type the XSD type of the element
+	 * 
+	 * @param elementName
+	 *            the localName of the element
+	 * @param type
+	 *            the XSD type of the element
 	 * @return true iff adding was successful
 	 */
 	public boolean addElementToRequestMessage(final String elementName, final QName type) {
 		if (!this.inputMessageLocalNames.contains(elementName)) {
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG, this.generateElementString(elementName, type.getLocalPart()) + GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG);
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
+					GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG,
+					this.generateElementString(elementName, type.getLocalPart())
+							+ GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG);
 			this.inputMessageLocalNames.add(elementName);
 			return true;
 		} else {
@@ -224,14 +255,19 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds a element declaration to the output message of this wsdl
-	 *
-	 * @param elementName the localName of the element
-	 * @param type the XSD type of the element
+	 * 
+	 * @param elementName
+	 *            the localName of the element
+	 * @param type
+	 *            the XSD type of the element
 	 * @return true iff adding was successful
 	 */
 	public boolean addElementToResponseMessage(final String elementName, final QName type) {
 		if (!this.outputMessageLocalNames.contains(elementName)) {
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG, this.generateElementString(elementName, type.getLocalPart()) + GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG);
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
+					GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG,
+					this.generateElementString(elementName, type.getLocalPart())
+							+ GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG);
 			this.outputMessageLocalNames.add(elementName);
 			return true;
 		} else {
@@ -241,21 +277,27 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds a namespace with fiven prefix to this wsdl
-	 *
-	 * @param namespace the namespace to add
-	 * @param prefix the prefix for the given namespace
+	 * 
+	 * @param namespace
+	 *            the namespace to add
+	 * @param prefix
+	 *            the prefix for the given namespace
 	 * @return true iff adding was successful
 	 */
 	private boolean addNamespace(final String namespace, final String prefix) {
 		if (!this.namespaces.contains(namespace)) {
 			this.namespaces.add(namespace);
 			if ((prefix == null) | prefix.equals("")) {
-				final String nsDecl1 = "xmlns:ns" + this.namespaceCounter + "=\"" + namespace + "\" ";
-				this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG, nsDecl1 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
+				String nsDecl1 = "xmlns:ns" + this.namespaceCounter + "=\"" + namespace + "\" ";
+				this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
+						GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG,
+						nsDecl1 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
 				this.namespaceCounter++;
 			} else {
-				final String nsDecl2 = "xmlns:" + prefix + "=\"" + namespace + "\" ";
-				this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG, nsDecl2 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
+				String nsDecl2 = "xmlns:" + prefix + "=\"" + namespace + "\" ";
+				this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
+						GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG,
+						nsDecl2 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
 			}
 
 			return true;
@@ -266,11 +308,15 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds an import element to his wsdl
-	 *
-	 * @param importType the type of the import (wsdl, xsd)
-	 * @param namespace the namespace of the import
-	 * @param prefix the prefix of namespace
-	 * @param location the location of the import
+	 * 
+	 * @param importType
+	 *            the type of the import (wsdl, xsd)
+	 * @param namespace
+	 *            the namespace of the import
+	 * @param prefix
+	 *            the prefix of namespace
+	 * @param location
+	 *            the location of the import
 	 * @return true iff adding was successful
 	 */
 	public boolean addImportElement(final String importType, final String namespace, final String prefix, final String location) {
@@ -280,19 +326,24 @@ public class GenericWsdlWrapper {
 			return false;
 		}
 
-		final String importString = this.generateImportString(importType, namespace, location);
+
+		String importString = this.generateImportString(importType, namespace, location);
 		this.absoluteLocations.add(location);
-		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_IMPORTS_TAG, importString + GenericWsdlWrapper.WSDL_IMPORTS_TAG);
+		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_IMPORTS_TAG,
+				importString + GenericWsdlWrapper.WSDL_IMPORTS_TAG);
 		this.addNamespace(namespace, prefix);
 		return true;
 	}
 
 	/**
 	 * Generates a string which contains a wsdl import string
-	 *
-	 * @param importType the importType of the import as String
-	 * @param namespace the namespace of the import as String
-	 * @param location the location of the import as String
+	 * 
+	 * @param importType
+	 *            the importType of the import as String
+	 * @param namespace
+	 *            the namespace of the import as String
+	 * @param location
+	 *            the location of the import as String
 	 * @return a String containing an WSDL import declaration
 	 */
 	private String generateImportString(final String importType, final String namespace, final String location) {
@@ -302,9 +353,11 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Generates a XSD element declaration as string
-	 *
-	 * @param name the name of the element as String
-	 * @param type the type of the element as String
+	 * 
+	 * @param name
+	 *            the name of the element as String
+	 * @param type
+	 *            the type of the element as String
 	 * @return a String containing a XSD declaration
 	 */
 	private String generateElementString(final String name, final String type) {
@@ -313,9 +366,11 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Sets the id of this WSDL
-	 *
-	 * @param namespace the namespace of the WSDL to set
-	 * @param name the name of the WSDL to set
+	 * 
+	 * @param namespace
+	 *            the namespace of the WSDL to set
+	 * @param name
+	 *            the name of the WSDL to set
 	 */
 	public void setId(final String namespace, final String name) {
 		if (this.processName == null) {
@@ -326,7 +381,8 @@ public class GenericWsdlWrapper {
 		this.processName = name;
 
 		if (this.namespace == null) {
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_TARGETNAMESPACE_TAG, namespace);
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString
+					.replace(GenericWsdlWrapper.WSDL_TARGETNAMESPACE_TAG, namespace);
 		} else {
 			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(this.namespace, namespace);
 		}
@@ -362,10 +418,13 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds a partnerLinkType to this WSDL
-	 *
-	 * @param partnerLinkTypeName the name of partnerLinkType
-	 * @param roleName the name of the 1st role
-	 * @param portType the portType of the partner
+	 * 
+	 * @param partnerLinkTypeName
+	 *            the name of partnerLinkType
+	 * @param roleName
+	 *            the name of the 1st role
+	 * @param portType
+	 *            the portType of the partner
 	 * @return true iff adding the partnerLinkType was successful
 	 */
 	public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName, final QName portType) {
@@ -374,7 +433,10 @@ public class GenericWsdlWrapper {
 		} else {
 			// replace the tag with new partnerlinktype+tag, for adding other
 			// partnerlinks later
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG, this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName, portType) + GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
+					GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG,
+					this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName, portType)
+							+ GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
 		}
 		this.partnerLinkTypeNames.add(partnerLinkTypeName);
 		this.pltMap.addPLT(partnerLinkTypeName, roleName, portType, "", new QName(""));
@@ -384,21 +446,30 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds a partnerLinkType to this WSDL
-	 *
-	 * @param partnerLinkTypeName the name of the partnerLinkType
-	 * @param roleName1 the name of the 1st role
-	 * @param portType1 the portType of the 1st role
-	 * @param roleName2 the name of the 2nd role
-	 * @param portType2 the portType of the 2nd role
+	 * 
+	 * @param partnerLinkTypeName
+	 *            the name of the partnerLinkType
+	 * @param roleName1
+	 *            the name of the 1st role
+	 * @param portType1
+	 *            the portType of the 1st role
+	 * @param roleName2
+	 *            the name of the 2nd role
+	 * @param portType2
+	 *            the portType of the 2nd role
 	 * @return true iff adding was successful
 	 */
-	public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName1, final QName portType1, final String roleName2, final QName portType2) {
+	public boolean addPartnerLinkType(String partnerLinkTypeName, String roleName1, QName portType1, String roleName2,
+			QName portType2) {
 		if (this.isPartnerLinkTypeNameAlreadyUsed(partnerLinkTypeName)) {
 			return false;
 		} else {
 			// replace the tag with new partnerlinktype+tag, for adding other
 			// partnerlinks later
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG, this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName1, portType1, roleName2, portType2) + GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
+			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
+					GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG,
+					this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName1, portType1, roleName2, portType2)
+							+ GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
 		}
 		this.partnerLinkTypeNames.add(partnerLinkTypeName);
 		this.pltMap.addPLT(partnerLinkTypeName, roleName1, portType1, roleName2, portType2);
@@ -418,8 +489,9 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Returns the QName of the 1st portType for the given partnerLinkType name
-	 *
-	 * @param partnerLinkTypeName the name of the partnerLinkType
+	 * 
+	 * @param partnerLinkTypeName
+	 *            the name of the partnerLinkType
 	 * @return a QName representing the 1st portType of the partnerLinkType,
 	 *         else null
 	 */
@@ -429,9 +501,11 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Adds a property declaration to this WSDL
-	 *
-	 * @param propertyName the name of the property
-	 * @param type the type of the property
+	 * 
+	 * @param propertyName
+	 *            the name of the property
+	 * @param type
+	 *            the type of the property
 	 * @return true iff adding was succesful
 	 */
 	public boolean addProperty(final String propertyName, final QName type) {
@@ -439,32 +513,38 @@ public class GenericWsdlWrapper {
 			return false;
 		}
 		this.addNamespace(type.getNamespaceURI(), type.getPrefix());
-		final String property = this.generatePropertyString(propertyName, type);
-		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYS_TAG, property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
+		String property = this.generatePropertyString(propertyName, type);
+		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYS_TAG,
+				property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
 		return true;
 	}
 
 	/**
 	 * Adds a propertyAlias to this WSDL for the given property
-	 *
-	 * @param propertyName the name of the property the propertyAlias should
-	 *            belong to
-	 * @param partName the name of the message part
-	 * @param messageType the type of the message
-	 * @param query a XPath Query
+	 * 
+	 * @param propertyName
+	 *            the name of the property the propertyAlias should belong to
+	 * @param partName
+	 *            the name of the message part
+	 * @param messageType
+	 *            the type of the message
+	 * @param query
+	 *            a XPath Query
 	 * @return true iff adding was successful
 	 */
 	public boolean addPropertyAlias(final String propertyName, final String partName, final QName messageType, final String query) {
 		this.addNamespace(messageType.getNamespaceURI(), messageType.getPrefix());
-		final String propertyAlias = this.generatePropertyAliasString(propertyName, partName, messageType, query);
-		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG, propertyAlias + GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG);
+		String propertyAlias = this.generatePropertyAliasString(propertyName, partName, messageType, query);
+		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG,
+				propertyAlias + GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG);
 		return true;
 	}
 
 	/**
 	 * Returns the 2nd portType of referenced partnerLinkType
-	 *
-	 * @param partnerLinkTypeName the name of a partnerLinkType
+	 * 
+	 * @param partnerLinkTypeName
+	 *            the name of a partnerLinkType
 	 * @return a QName representing the 2nd portType, else null
 	 */
 	public QName getPortType2FromPartnerLinkType(final String partnerLinkTypeName) {
@@ -473,27 +553,32 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Generates a String which contains a property declaration
-	 *
-	 * @param propertyName the name of the property
-	 * @param type the type of the property
+	 * 
+	 * @param propertyName
+	 *            the name of the property
+	 * @param type
+	 *            the type of the property
 	 * @return a String containing a property declaration
 	 */
 	private String generatePropertyString(final String propertyName, final QName type) {
 		// <vprop:property name="createEC2InstanceCorrelationID"
 		// type="xsd:string"/>
-		return "<vprop:property name=\"" + propertyName + "\" type=\"" + type.getPrefix() + ":" + type.getLocalPart() + "\"/>";
+		return "<vprop:property name=\"" + propertyName + "\" type=\"" + type.getPrefix() + ":" + type.getLocalPart()
+				+ "\"/>";
 	}
 
 	/**
 	 * Generates a String which contains a propertyAlias declaration
-	 *
-	 * @param propertyName the name of the property the propertyAlias should
-	 *            belong to
-	 * @param partName the part name of the message the propertyAlias should
+	 * 
+	 * @param propertyName
+	 *            the name of the property the propertyAlias should belong to
+	 * @param partName
+	 *            the part name of the message the propertyAlias should
 	 *            reference
-	 * @param messageType the type of the message the propertyAlias should
-	 *            reference
-	 * @param query a XPath query which the propertyAlias should use
+	 * @param messageType
+	 *            the type of the message the propertyAlias should reference
+	 * @param query
+	 *            a XPath query which the propertyAlias should use
 	 * @return a String containing a propertyAlias declaration
 	 */
 	private String generatePropertyAliasString(final String propertyName, final String partName, final QName messageType, final String query) {
@@ -501,41 +586,58 @@ public class GenericWsdlWrapper {
 		// part="parameters" propertyName="tns:createEC2InstanceCorrelationID">
 		// <vprop:query><![CDATA[/wsdl:CorrelationId]]></vprop:query>
 		// </vprop:propertyAlias>
-		return "<vprop:propertyAlias messageType=\"" + messageType.getPrefix() + ":" + messageType.getLocalPart() + "\" part=\"" + partName + "\" propertyName=\"tns:" + propertyName + "\"><vprop:query><![CDATA[" + query + "]]></vprop:query></vprop:propertyAlias>";
+		return "<vprop:propertyAlias messageType=\"" + messageType.getPrefix() + ":" + messageType.getLocalPart()
+				+ "\" part=\"" + partName + "\" propertyName=\"tns:" + propertyName + "\"><vprop:query><![CDATA["
+				+ query + "]]></vprop:query></vprop:propertyAlias>";
 	}
 
 	/**
 	 * Generates a String containing a partnerLinkType declaration with one
 	 * portType
-	 *
-	 * @param partnerLinkTypeName the name for the partnerLinkType
-	 * @param roleName the name for the role
-	 * @param portType a QName for the portType
+	 * 
+	 * @param partnerLinkTypeName
+	 *            the name for the partnerLinkType
+	 * @param roleName
+	 *            the name for the role
+	 * @param portType
+	 *            a QName for the portType
 	 * @return a String containing a partnerLinkType declaration
 	 */
-	private String generatePartnerLinkTypeString(final String partnerLinkTypeName, final String roleName, final QName portType) {
-		return "<plnk:partnerLinkType name=\"" + partnerLinkTypeName + "\"><plnk:role name=\"" + roleName + "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"/></plnk:partnerLinkType>";
+	private String generatePartnerLinkTypeString(String partnerLinkTypeName, String roleName, QName portType) {
+		return "<plnk:partnerLinkType name=\"" + partnerLinkTypeName + "\"><plnk:role name=\"" + roleName
+				+ "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart()
+				+ "\"/></plnk:partnerLinkType>";
 	}
 
 	/**
 	 * Generates a String containing a partnerLinkType declaration with two
 	 * roles
-	 *
-	 * @param partnerLinkTypeName the name of the partnerLinkType
-	 * @param roleName1 the name of the 1st role
-	 * @param portType1 a QName of a portType for the 1st role
-	 * @param roleName2 the name of the 2nd role
-	 * @param portType2 a QName of a portType for the 2nd role
+	 * 
+	 * @param partnerLinkTypeName
+	 *            the name of the partnerLinkType
+	 * @param roleName1
+	 *            the name of the 1st role
+	 * @param portType1
+	 *            a QName of a portType for the 1st role
+	 * @param roleName2
+	 *            the name of the 2nd role
+	 * @param portType2
+	 *            a QName of a portType for the 2nd role
 	 * @return a String containing a partnerLinkType declaration with 2 roles
 	 */
-	private String generatePartnerLinkTypeString(final String partnerLinkTypeName, final String roleName1, final QName portType1, final String roleName2, final QName portType2) {
-		return "<plnk:partnerLinkType name=\"" + partnerLinkTypeName + "\"><plnk:role name=\"" + roleName1 + "\" portType=\"" + portType1.getPrefix() + ":" + portType1.getLocalPart() + "\"/><plnk:role name=\"" + roleName2 + "\" portType=\"" + portType2.getPrefix() + ":" + portType2.getLocalPart() + "\"/></plnk:partnerLinkType>";
+	private String generatePartnerLinkTypeString(String partnerLinkTypeName, String roleName1, QName portType1,
+			String roleName2, QName portType2) {
+		return "<plnk:partnerLinkType name=\"" + partnerLinkTypeName + "\"><plnk:role name=\"" + roleName1
+				+ "\" portType=\"" + portType1.getPrefix() + ":" + portType1.getLocalPart() + "\"/><plnk:role name=\""
+				+ roleName2 + "\" portType=\"" + portType2.getPrefix() + ":" + portType2.getLocalPart()
+				+ "\"/></plnk:partnerLinkType>";
 	}
 
 	/**
 	 * Checks whether the given partnerLinkType name is already in use
-	 *
-	 * @param partnerLinkTypeName a String
+	 * 
+	 * @param partnerLinkTypeName
+	 *            a String
 	 * @return true if the given String is already used as partnerLinkType name,
 	 *         else false
 	 */
@@ -574,9 +676,11 @@ public class GenericWsdlWrapper {
 	/**
 	 * Checks whether the QName with the given location is already imported
 	 * inside this wsdl
-	 *
-	 * @param qName a QName
-	 * @param absolutePath a location where the QName is defined
+	 * 
+	 * @param qName
+	 *            a QName
+	 * @param absolutePath
+	 *            a location where the QName is defined
 	 * @return true iff the given QName is already imported inside this WSDL
 	 */
 	public boolean isImported(final QName qName, final String absolutePath) {

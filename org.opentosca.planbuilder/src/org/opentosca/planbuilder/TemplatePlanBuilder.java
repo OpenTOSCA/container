@@ -363,6 +363,73 @@ public class TemplatePlanBuilder {
 		 * @return true if all Interfaces of the NodeTemplate can be
 		 *         provisioned, else false
 		 */
+		private boolean isValid(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName) {
+			// calculate the size of implemented operations by the IAs
+
+			int implementedOpsByIAsCount = 0;
+
+			for (AbstractImplementationArtifact ia : this.ias) {
+				if (ia.getInterfaceName() != null) {
+					if (!ia.getInterfaceName().equals(interfaceName)) {
+						continue;
+					}
+					if (ia.getOperationName() != null && !ia.getOperationName().equals(operationName)) {
+						continue;
+					}
+					if (ia.getOperationName() != null) {
+						// ia implements some single operation
+						implementedOpsByIAsCount++;
+					} else {
+						// we have to find the interface and count the
+						// operations in it
+						for (AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+							if (iface.getName().equals(ia.getInterfaceName())) {
+								implementedOpsByIAsCount += iface.getOperations().size();
+							}
+						}
+					}
+				}
+			}
+
+			int operationsToImplementCount = 0;
+
+			for (AbstractOperation op : this.ops) {
+
+				if (op instanceof InterfaceDummy) {
+					String ifaceName = ((InterfaceDummy) op).getIA().getInterfaceName();
+					if (!ifaceName.equals(interfaceName)) {
+						continue;
+					}
+					for (AbstractInterface iface : ((InterfaceDummy) op).getNodeTemplate().getType().getInterfaces()) {
+						if (iface.getName().equals(ifaceName)) {
+							operationsToImplementCount += iface.getOperations().size();
+						}
+					}
+				} else {
+					if (!op.getName().equals(operationName)) {
+						operationsToImplementCount++;
+					}
+				}
+			}
+
+			if (operationsToImplementCount != implementedOpsByIAsCount) {
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
+		 * <p>
+		 * Checks if any Interface of the given NodeTemplate can be executed
+		 * completely by this ProvisioningCandidate
+		 * </p>
+		 * 
+		 * @param nodeTemplate
+		 *            an AbtractNodeTemplate
+		 * @return true if all Interfaces of the NodeTemplate can be
+		 *         provisioned, else false
+		 */
 		private boolean isValid(AbstractNodeTemplate nodeTemplate) {
 			// calculate the size of implemented operations by the IAs
 
@@ -407,41 +474,6 @@ public class TemplatePlanBuilder {
 			if (this.ias.size() != this.plugins.size() && this.ops.size() != this.plugins.size()) {
 				return false;
 			}
-
-			// /* old */
-			// int operationsCount = 0;
-			//
-			// for (AbstractInterface iface :
-			// nodeTemplate.getType().getInterfaces()) {
-			// operationsCount += iface.getOperations().size();
-			// }
-			//
-			// // check if every operation defined on the template is matched
-			// if (operationsCount != this.ops.size() && operationsCount !=
-			// this.ias.size()) {
-			// return false;
-			// }
-			//
-			// // check if the operations are the same
-			//
-			// int counter = 0;
-			// for (AbstractInterface iface :
-			// nodeTemplate.getType().getInterfaces()) {
-			// for (AbstractOperation iFaceOp : iface.getOperations()) {
-			// for (AbstractOperation op : this.ops) {
-			// if (iFaceOp.equals(op)) {
-			// counter++;
-			// }
-			// }
-			// }
-			//
-			// }
-			//
-			// if (counter != operationsCount) {
-			// // found an interface which can be provisioned
-			// return false;
-			// }
-
 			return true;
 		}
 
@@ -621,9 +653,9 @@ public class TemplatePlanBuilder {
 		 */
 		private void add(AbstractImplementationArtifact ia, AbstractNodeTemplate nodeTemplate,
 				IPlanBuilderPrePhaseIAPlugin plugin) {
-			
-			for(AbstractImplementationArtifact candidateIa : this.ias){
-				if(candidateIa.equals(ia)){
+
+			for (AbstractImplementationArtifact candidateIa : this.ias) {
+				if (candidateIa.equals(ia)) {
 					return;
 				}
 			}
@@ -639,34 +671,85 @@ public class TemplatePlanBuilder {
 		 */
 		private boolean isValid() {
 			if (this.nodeImpl != null) {
-				
-				for(AbstractImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()){
+
+				for (AbstractImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()) {
 					boolean matched = false;
-					for(AbstractImplementationArtifact handledIa : this.ias){
-						if(ia.equals(handledIa)){
+					for (AbstractImplementationArtifact handledIa : this.ias) {
+						if (ia.equals(handledIa)) {
 							matched = true;
 						}
 					}
-					if(!matched){
+					if (!matched) {
 						return false;
 					}
 				}
-				
+
 				return true;
 			} else {
-				
-				for(AbstractImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()){
+
+				for (AbstractImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()) {
 					boolean matched = false;
-					for(AbstractImplementationArtifact handledIa : this.ias){
-						if(ia.equals(handledIa)){
+					for (AbstractImplementationArtifact handledIa : this.ias) {
+						if (ia.equals(handledIa)) {
 							matched = true;
 						}
 					}
-					if(!matched){
+					if (!matched) {
 						return false;
 					}
 				}
-				
+
+				return true;
+			}
+		}
+
+		/**
+		 * Checks whether all IA's can be deployed of Implementation
+		 * 
+		 * @return true if all IA's can be deployed, else false
+		 */
+		private boolean isValid(String interfaceName, String operationName) {
+			if (this.nodeImpl != null) {
+
+				for (AbstractImplementationArtifact ia : this.nodeImpl.getImplementationArtifacts()) {
+					if (ia.getInterfaceName() != interfaceName) {
+						continue;
+					}
+					if (ia.getOperationName() != null && ia.getOperationName() != operationName) {
+						continue;
+					}
+					boolean matched = false;
+					for (AbstractImplementationArtifact handledIa : this.ias) {
+						if (ia.equals(handledIa)) {
+							matched = true;
+						}
+					}
+					if (!matched) {
+						return false;
+					}
+				}
+
+				return true;
+			} else {
+
+				for (AbstractImplementationArtifact ia : this.relationImpl.getImplementationArtifacts()) {
+					if (ia.getInterfaceName() != interfaceName) {
+						continue;
+					}
+					if (ia.getOperationName() != null && ia.getOperationName() != operationName) {
+						continue;
+					}
+					boolean matched = false;
+					for (AbstractImplementationArtifact handledIa : this.ias) {
+						if (ia.equals(handledIa)) {
+							matched = true;
+						}
+					}
+					if (!matched) {
+						return false;
+					}
+				}
+
 				return true;
 			}
 		}
@@ -742,6 +825,76 @@ public class TemplatePlanBuilder {
 		TemplatePlanBuilder.filterIADACandidatesRelations(chain);
 
 		TemplatePlanBuilder.reorderProvCandidates(chain);
+
+		return chain;
+	}
+
+	/**
+	 * Creates a complete ProvisioningChain for the given NodeTemplate
+	 * 
+	 * @param nodeTemplate
+	 *            an AbstractNodeTemplate to create a ProvisioningChain for
+	 * @return a complete ProvisioningChain
+	 */
+	public static ProvisioningChain createProvisioningCall(AbstractNodeTemplate nodeTemplate, String interfaceName,
+			String operationName) {
+		// get nodetype implementations
+		List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate.getImplementations();
+
+		if (nodeTypeImpls.isEmpty()) {
+			TemplatePlanBuilder.LOG.warn(
+					"No implementations available for NodeTemplate {} , can't generate Provisioning logic",
+					nodeTemplate.getId());
+			return null;
+		}
+
+		ProvisioningChain chain = new ProvisioningChain(nodeTemplate);
+
+		// calculate infrastructure nodes
+		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
+		Utils.getInfrastructureNodes(nodeTemplate, infraNodes);
+
+		// we'll add here a dummy infra node, representing the management
+		// infrastructure of the tosca engine (WAR IA's implementing tosca
+		// operation,..)
+		infraNodes.add(new TOSCAManagementInfrastructureNodeTemplate());
+
+		// check for IA Plugins
+		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry.getIaPlugins();
+
+		TemplatePlanBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
+		// calculate nodeImpl candidates where all IAs of each can be
+		// provisioned
+		TemplatePlanBuilder.calculateBestImplementationIACandidates(nodeTypeImpls, iaPlugins, infraNodes, chain,
+				interfaceName, operationName);
+		for (IACandidateWrapper wrapper : chain.iaCandidates) {
+			int length = wrapper.ias.size();
+			for (int i = 0; i < length; i++) {
+				AbstractImplementationArtifact ia = wrapper.ias.get(i);
+				AbstractNodeTemplate infraNode = wrapper.infraNodes.get(i);
+				IPlanBuilderPlugin plugin = wrapper.plugins.get(i);
+				TemplatePlanBuilder.LOG.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}",
+						ia.getName(), infraNode.getId(), plugin.getID());
+			}
+		}
+
+		// check for prov plugins
+		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry.getProvPlugins();
+
+		// search for prov plugins according to the chosen IA provisionings in
+		// the chain
+		TemplatePlanBuilder.calculateProvPlugins(chain, provPlugins, interfaceName, operationName);
+
+		// filter ia and da candidates where the operations can't be executed
+		TemplatePlanBuilder.filterIADACandidates(chain);
+
+		// order provisioning candidates
+		TemplatePlanBuilder.reorderProvCandidates(chain);
+
+		// TODO consistency plugins
+
+		// select provisioning
+		TemplatePlanBuilder.selectProvisioning(chain);
 
 		return chain;
 	}
@@ -998,6 +1151,58 @@ public class TemplatePlanBuilder {
 	 *            a List of ProvPhaseOperationPlugins
 	 */
 	private static void calculateProvPlugins(ProvisioningChain chain,
+			List<IPlanBuilderProvPhaseOperationPlugin> provPlugins, String interfaceName, String operationName) {
+		List<ProvCandidateWrapper> candidates = new ArrayList<ProvCandidateWrapper>();
+		for (IACandidateWrapper candidate : chain.iaCandidates) {
+			ProvCandidateWrapper provCandidate = new ProvCandidateWrapper();
+			for (AbstractImplementationArtifact ia : candidate.ias) {
+				if (!ia.getInterfaceName().trim().equals(interfaceName.trim())) {
+					continue;
+				}
+				if (ia.getOperationName() != null && !ia.getOperationName().trim().equals(operationName.trim())) {
+					continue;
+				}
+				for (IPlanBuilderProvPhaseOperationPlugin plugin : provPlugins) {
+					if (chain.nodeTemplate != null) {
+						if (plugin.canHandle(ia.getArtifactType())
+								&& (TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia) != null)) {
+
+							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia), ia,
+									plugin);
+						}
+					} else {
+						if (plugin.canHandle(ia.getArtifactType())
+								&& (TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia) != null)) {
+							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia), ia,
+									plugin);
+						}
+					}
+				}
+			}
+			if (chain.nodeTemplate != null) {
+				if (provCandidate.isValid(chain.nodeTemplate, interfaceName, operationName)) {
+					candidates.add(provCandidate);
+				}
+			} else {
+				if (provCandidate.isValid(chain.relationshipTemplate)) {
+					candidates.add(provCandidate);
+				}
+			}
+
+		}
+		chain.provCandidates = candidates;
+	}
+
+	/**
+	 * Calculates which Provisioning can be used for Provisioining according to
+	 * the given IA/DACandidates inside the given ProvisioningChain
+	 * 
+	 * @param chain
+	 *            a ProvisioningChain with set DA/IACandidates
+	 * @param provPlugins
+	 *            a List of ProvPhaseOperationPlugins
+	 */
+	private static void calculateProvPlugins(ProvisioningChain chain,
 			List<IPlanBuilderProvPhaseOperationPlugin> provPlugins) {
 		List<ProvCandidateWrapper> candidates = new ArrayList<ProvCandidateWrapper>();
 		for (IACandidateWrapper candidate : chain.iaCandidates) {
@@ -1209,6 +1414,61 @@ public class TemplatePlanBuilder {
 			}
 		}
 		chain.daCandidates = candidates;
+	}
+
+	/**
+	 * Searches for NodeTypeImplementations where all IA's can be provisioned by
+	 * some plugin in the system.
+	 * 
+	 * @param impls
+	 *            all implementations of single nodetype
+	 * @param plugins
+	 *            all plugins possibly capable of working with the ia's
+	 *            contained in a nodetypeImplementation
+	 * @param infraNodes
+	 *            all infrastructure nodes of the nodetemplate the
+	 *            nodetypeimplementations originate from
+	 * @return a list of Wrapper class Object which contain information of which
+	 *         ia is provisioned on which infrastructure by which plugin
+	 */
+	private static void calculateBestImplementationIACandidates(List<AbstractNodeTypeImplementation> impls,
+			List<IPlanBuilderPrePhaseIAPlugin> plugins, List<AbstractNodeTemplate> infraNodes, ProvisioningChain chain,
+			String interfaceName, String operationName) {
+
+		List<IACandidateWrapper> candidates = new ArrayList<IACandidateWrapper>();
+		// cycle through all implementations
+		for (AbstractNodeTypeImplementation impl : impls) {
+			IACandidateWrapper candidate = new IACandidateWrapper(impl);
+			// match the ias of the implementation with the infrastructure nodes
+			for (AbstractImplementationArtifact ia : impl.getImplementationArtifacts()) {
+				if (!ia.getInterfaceName().trim().equals(interfaceName.trim())) {
+					continue;
+				}
+				if (ia.getOperationName() != null && !ia.getOperationName().trim().equals(operationName.trim())) {
+					continue;
+				}
+
+				TemplatePlanBuilder.LOG.debug(
+						"Checking whether IA {} can be deployed on a specific Infrastructure Node", ia.getName());
+				for (AbstractNodeTemplate infraNode : infraNodes) {
+					// check if any plugin can handle installing the ia on the
+					// infraNode
+					for (IPlanBuilderPrePhaseIAPlugin plugin : plugins) {
+						if (plugin.canHandle(ia, infraNode.getType())) {
+							candidate.add(ia, infraNode, plugin);
+						}
+					}
+				}
+			}
+			// check if all ias of the implementation can be provisioned
+			if (candidate.isValid(interfaceName, operationName)) {
+				candidates.add(candidate);
+				TemplatePlanBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
+			} else {
+				TemplatePlanBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
+			}
+		}
+		chain.iaCandidates = candidates;
 	}
 
 	/**

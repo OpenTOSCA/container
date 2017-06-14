@@ -7,6 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -39,19 +40,19 @@ public class NodeTemplatesResource {
 	
 	@GET
 	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+	public Response getReferencesXML(@Context final UriInfo uriInfo, @QueryParam("nodeType") QName nodeType) throws UnsupportedEncodingException {
 		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getXMLString()).build();
+		return Response.ok(this.getRefs(nodeType).getXMLString()).build();
 	}
 	
 	@GET
 	@Produces(ResourceConstants.LINKED_JSON)
 	public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
 		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getJSONString()).build();
+		return Response.ok(this.getRefs(null).getJSONString()).build();
 	}
 	
-	public References getRefs() throws UnsupportedEncodingException {
+	public References getRefs(QName nodeType) throws UnsupportedEncodingException {
 		
 		if (this.csarId == null) {
 			return null;
@@ -60,7 +61,12 @@ public class NodeTemplatesResource {
 		final References refs = new References();
 		
 		for (final String ntID : ToscaServiceHandler.getToscaEngineService().getNodeTemplatesOfServiceTemplate(this.csarId, this.serviceTemplateID)) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
+			
+			if(nodeType != null && ToscaServiceHandler.getToscaEngineService().getNodeTypeOfNodeTemplate(csarId, serviceTemplateID, ntID).equals(nodeType)){				
+				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
+			} else{
+				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
+			}
 		}
 		
 		// selflink
