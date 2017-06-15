@@ -1,5 +1,7 @@
 package org.opentosca.container.core.engine;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -374,5 +376,12 @@ public interface IToscaReferenceMapper {
 	// serviceTemplateID, QName planID, String ifaceName);
 	// public void setBoundaryOperationForCSARIDPlan(CSARID csarID, QName
 	// serviceTemplateID, QName planID, String opName);
+	
+	
+	public void storeRelationshipTemplateIDForServiceTemplateANdCSAR(final CSARID csarId, final QName serviceTemplateID, final String id);
+	
+	
+	
+	public Map<QName, List<String>> getServiceTemplate2RelationshipTemplateMap(final CSARID csarID);
 
 }

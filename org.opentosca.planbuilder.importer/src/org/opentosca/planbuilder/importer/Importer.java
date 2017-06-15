@@ -31,11 +31,9 @@ import org.slf4j.LoggerFactory;
 public class Importer extends AbstractImporter {
 	
 	final private static Logger LOG = LoggerFactory.getLogger(Importer.class);
-<<<<<<< HEAD
+
 	private final CSARHandler handler = new CSARHandler();
-=======
-	private CSARHandler handler = new CSARHandler();
->>>>>>> adds reqcap support into planbuilder model
+
 	
 	
 	/**
@@ -60,8 +58,7 @@ public class Importer extends AbstractImporter {
 		return new ArrayList<TOSCAPlan>();
 	}
 	
-<<<<<<< HEAD
-=======
+
 	/**
 	 * Returns a TOSCA Definitions object which contains the
 	 * Entry-ServiceTemplate
@@ -80,7 +77,7 @@ public class Importer extends AbstractImporter {
 		return null;
 	}
 	
->>>>>>> adds reqcap support into planbuilder model
+
 	/**
 	 * Creates an AbstractDefinitions Object of the given CSARContent
 	 *

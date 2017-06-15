@@ -1222,4 +1222,26 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		}
 		return propertyMappings.getPropertyMapping();
 	}
+
+	@Override
+	public void storeRelationshipTemplateIDForServiceTemplateAndCSAR(CSARID csarID, QName serviceTemplateID,
+			String id) {
+		if (!mapCSARIDToServiceTemplateQNameToRelationshipTemplateID.containsKey(csarID)) {
+			mapCSARIDToServiceTemplateQNameToRelationshipTemplateID.put(csarID, new HashMap<QName, List<String>>());
+		}
+		Map<QName, List<String>> map = mapCSARIDToServiceTemplateQNameToRelationshipTemplateID.get(csarID);
+		if (!map.containsKey(serviceTemplateID)) {
+			map.put(serviceTemplateID, new ArrayList<String>());
+		}
+		List<String> list = map.get(serviceTemplateID);
+		if (!list.contains(id)) {
+			list.add(id);
+		}
+		
+	}
+
+	@Override
+	public Map<QName, List<String>> getServiceTemplatesAndRelationshipTemplatesInCSAR(CSARID csarID) {
+		return mapCSARIDToServiceTemplateQNameToRelationshipTemplateID.get(csarID);
+	}
 }
