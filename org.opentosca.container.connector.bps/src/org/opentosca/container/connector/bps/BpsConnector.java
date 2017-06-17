@@ -39,6 +39,7 @@ import org.wso2.bps.management.schema.ListDeployedPackagesPaginated;
 import org.wso2.bps.management.schema.Package_type0;
 import org.wso2.bps.management.schema.ProcessIDList;
 import org.wso2.bps.management.schema.ProcessInfo;
+import org.wso2.bps.management.schema.ProcessStatus;
 import org.wso2.bps.management.schema.UndeployBPELPackage;
 import org.wso2.bps.management.wsdl.bpelpackagemanagement.BPELPackageManagementServiceStub;
 import org.wso2.bps.management.wsdl.bpelpackagemanagement.PackageManagementException;
@@ -243,11 +244,17 @@ public class BpsConnector {
 				for (final String pid : pidList.getPid()) {
 					req2.setPid(QName.valueOf(pid));
 					// request process info for pid
-					final ProcessInfo info = ((ProcessManagementServiceStub) this.setCookie(stub)).getProcessInfo(req2);
+					ProcessInfo info = ((ProcessManagementServiceStub) this.setCookie(stub)).getProcessInfo(req2);
 					BpsConnector.LOG.debug("Checking packageName for Pid: " + pid);
 					BpsConnector.LOG.debug("Package name of PID is: " + info.getProcessInfo().getDeploymentInfo().getPackageName());
 					if (info.getProcessInfo().getDeploymentInfo().getPackageName().startsWith(packageId + "-")) {
 						pids.add(QName.valueOf(pid));
+					}
+					
+					// check deployment state until its active
+					while(info.getProcessInfo().getStatus() != ProcessStatus.ACTIVE){						
+						info = ((ProcessManagementServiceStub) this.setCookie(stub)).getProcessInfo(req2);
+						Thread.sleep(500);
 					}
 				}
 			}
@@ -259,6 +266,8 @@ public class BpsConnector {
 			BpsConnector.LOG.error("Error while sending Request", e);
 		} catch (final ProcessManagementException e) {
 			BpsConnector.LOG.error("Error with request-processing at ProcessManagementService", e);
+		} catch (InterruptedException e) {
+			BpsConnector.LOG.error("Error while checking state of process deployment "+ packageId +"at ProcessManagementService", e);
 		}
 		return pids;
 	}
@@ -560,7 +569,7 @@ public class BpsConnector {
 				
 				for (final String endpointString : endpointRef.getServiceLocations().getServiceLocation()) {
 					try {
-						partnerLinkToEndpointURIs.put(endpointRef.getPartnerLink(), new URI(endpointString.replace("?tryit", "")));
+						partnerLinkToEndpointURIs.put(endpointRef.getPartnerLink(), new URI(endpointString.replace("?tryit", "").replace("localhost", URI.create(uri).getHost())));
 					} catch (final URISyntaxException e) {
 						e.printStackTrace();
 					}
