@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.Node;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.handlers.BuildPlanHandler;
@@ -26,6 +27,8 @@ import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
@@ -174,7 +177,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 	private void runPlugins(final TOSCAPlan plan, final QName serviceTemplate, final PropertyMap propMap) {
 		/*
 		 * TODO/FIXME until we decided whether we allow type plugins that
-		 * achieve termination, we just terminate each VM we can find
+		 * achieve termination, we just terminate each VM and Docker Container we can find
 		 */
 		for (final TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			// we handle only nodeTemplates..
@@ -197,6 +200,11 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				} else {
 					// check whether this node is a docker container
 					final TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, serviceTemplate);
+					
+					if(!this.isDockerContainer(context.getNodeTemplate())) {
+						continue;
+					}
+					
 					// fetch infrastructure node (cloud provider)
 					final List<AbstractNodeTemplate> nodes = new ArrayList<>();
 					Utils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
@@ -211,6 +219,34 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 			}
 		}
 		
+	}
+	
+	private boolean isDockerContainer(AbstractNodeTemplate nodeTemplate){
+		if(nodeTemplate.getProperties() == null){
+			return false;
+		}
+		Element propertyElement = nodeTemplate.getProperties().getDOMElement();
+		NodeList childNodeList = propertyElement.getChildNodes();
+		
+		int check = 0;
+		boolean foundDockerImageProp = false;
+		for (int index = 0; index < childNodeList.getLength(); index++) {
+			if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
+				check++;
+			} else if (childNodeList.item(index).getLocalName().equals("Port")) {
+				check++;
+			} else if (childNodeList.item(index).getLocalName().equals("ContainerImage")) {
+				foundDockerImageProp = true;
+			}
+		}
+		
+		if (check != 2) {
+			return false;
+		}
+		return true;
 	}
 	
 	/*
