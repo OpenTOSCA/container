@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 public class TemplateBuildPlan {
 	
 	// the buildplan this templatebuildplan belongs to
-	private BuildPlan buildPlan;
+	private TOSCAPlan buildPlan;
 	
 	// bpel elements this templatebuildplan controls
 	private Element bpelScopeElement;
@@ -56,7 +56,7 @@ public class TemplateBuildPlan {
 	 * 
 	 * @return a BuildPlan
 	 */
-	public BuildPlan getBuildPlan() {
+	public TOSCAPlan getBuildPlan() {
 		return this.buildPlan;
 	}
 	
@@ -65,7 +65,7 @@ public class TemplateBuildPlan {
 	 * 
 	 * @param buildPlan a BuildPlan
 	 */
-	public void setBuildPlan(BuildPlan buildPlan) {
+	public void setBuildPlan(TOSCAPlan buildPlan) {
 		this.buildPlan = buildPlan;
 	}
 	

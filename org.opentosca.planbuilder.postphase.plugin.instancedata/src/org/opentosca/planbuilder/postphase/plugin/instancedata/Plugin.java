@@ -33,9 +33,7 @@ public class Plugin implements IPlanBuilderPostPhasePlugin {
 	
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
-		// TODO blocking relationshipTemplate handling from now, as the
-		// instancedata api can't handle this
-		return false;
+		return this.handler.handle(context, relationshipTemplate);
 	}
 	
 	@Override
@@ -47,7 +45,7 @@ public class Plugin implements IPlanBuilderPostPhasePlugin {
 	@Override
 	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate) {
 		// we can't handle relations
-		return false;
+		return true;
 	}
 	
 	

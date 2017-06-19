@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -304,7 +304,7 @@ public class Fragments {
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 
-		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BuildPlan.bpelNamespace
+		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + TOSCAPlan.bpelNamespace
 				+ "\" >";
 
 		// <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
@@ -483,23 +483,20 @@ public class Fragments {
 	 *             is thrown when reading internal files fails
 	 */
 	public String createRESTExtensionGETForNodeInstanceDataAsString(String instanceDataUrlVar, String responseVarName,
-			QName templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate) throws IOException {
+			String templateId) throws IOException {
 		// <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId,
 		// $serviceInstanceUrlVarName, $templateType -->
+
+		// <!-- $InstanceDataURLVar, $ResponseVarName, $nodeType -->
 
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
 				.getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
-		template = template.replace("$InstanceDataURLVar", instanceDataUrlVar);
-		template = template.replace("$ResponseVarName", responseVarName);
-		template = template.replace("$TemplateId", templateId.toString());
-		template = template.replace("$serviceInstanceUrlVarName", serviceInstanceUrlVarName);
-		if (isNodeTemplate) {
-			template = template.replace("$templateType", "nodeTemplateID");
-		} else {
-			template = template.replace("$templateType", "relationshipTemplateID");
-		}
+		template = template.replaceAll("\\$InstanceDataURLVar", instanceDataUrlVar);
+		template = template.replaceAll("\\$ResponseVarName", responseVarName);
+		template = template.replaceAll("\\$templateId", templateId);
+
 		return template;
 	}
 
@@ -552,6 +549,31 @@ public class Fragments {
 		return doc.getFirstChild();
 	}
 
+	public String createAssignSelectFirstReferenceAndAssignToStringVar(String referencesResponseVarName,
+			String stringVarName) throws IOException {
+		// BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
+		// <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BpelAssignSelectFromNodeInstancesRequestToStringVar.xml");
+		File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
+
+		bpelAssignString = bpelAssignString.replaceAll("\\$assignName",
+				"assignSelectFirstReference" + System.currentTimeMillis());
+		bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", stringVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$NodeInstancesResponseVarName", referencesResponseVarName);
+		return bpelAssignString;
+	}
+
+	public Node createAssignSelectFirstReferenceAndAssignToStringVarAsNode(String referencesResponseVarName,
+			String stringVarName) throws IOException, SAXException {
+		String templateString = this.createAssignSelectFirstReferenceAndAssignToStringVar(referencesResponseVarName, stringVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
 	/**
 	 * Creates a Node containing a BPEL fragment which uses the
 	 * BPELRESTExtension to fetch the InstanceData from an OpenTOSCA Container
@@ -577,10 +599,9 @@ public class Fragments {
 	 *             is thrown when parsing internal files fails
 	 */
 	public Node createRESTExtensionGETForNodeInstanceDataAsNode(String instanceDataUrlVar, String responseVarName,
-			QName templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate)
-			throws SAXException, IOException {
+			String templateId) throws SAXException, IOException {
 		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(instanceDataUrlVar,
-				responseVarName, templateId, serviceInstanceUrlVarName, isNodeTemplate);
+				responseVarName, templateId);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);

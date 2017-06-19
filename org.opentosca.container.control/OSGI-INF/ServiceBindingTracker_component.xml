@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.opentoscacontrol.servicebindingtracking.ServiceBindingTracker">
+   <implementation class="org.opentosca.container.control.ServiceBindingTracker"/>
+   <reference bind="bindICoreCapabilityService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreCapabilityService" name="ICoreCapabilityService" policy="static" unbind="unbindICoreCapabilityService"/>
+   <reference bind="bindIIAEngineService" cardinality="1..1" interface="org.opentosca.container.engine.ia.IIAEngineService" name="IIAEngineService" policy="static" unbind="unbindIIAEngineService"/>
+   <reference bind="bindICoreDeploymentTrackerService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreDeploymentTrackerService" name="ICoreDeploymentTrackerService" policy="static" unbind="unbindICoreDeploymentTrackerService"/>
+   <reference bind="bindICoreEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreEndpointService" name="ICoreEndpointService" policy="static" unbind="unbindICoreEndpointService"/>
+   <reference bind="bindICoreFileService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static" unbind="unbindICoreFileService"/>
+   <reference bind="bindICoreInternalCapabilityService" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalCapabilityService" name="ICoreInternalCapabilityService" policy="static" unbind="unbindICoreInternalCapabilityService"/>
+   <reference bind="bindICoreInternalDeploymentTrackerService" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalDeploymentTrackerService" name="ICoreInternalDeploymentTrackerService" policy="static" unbind="unbindICoreInternalDeploymentTrackerService"/>
+   <reference bind="bindICoreInternalEndpointService" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalEndpointService" name="ICoreInternalEndpointService" policy="static" unbind="unbindICoreInternalEndpointService"/>
+   <reference bind="bindICoreInternalFileService" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalFileService" name="ICoreInternalFileService" policy="static" unbind="unbindICoreInternalFileService"/>
+   <reference bind="bindICoreInternalModelRepositoryService" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService" name="ICoreInternalModelRepositoryService" policy="static" unbind="unbindICoreInternalModelRepositoryService"/>
+   <reference bind="bindICoreModelRepositoryService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreModelRepositoryService" name="ICoreModelRepositoryService" policy="static" unbind="unbindICoreModelRepositoryService"/>
+   <reference bind="bindIFileAccessService" cardinality="1..1" interface="org.opentosca.container.core.service.IFileAccessService" name="IFileAccessService" policy="static" unbind="unbindIFileAccessService"/>
+   <reference bind="bindIHTTPService" cardinality="1..1" interface="org.opentosca.container.core.service.IHTTPService" name="IHTTPService" policy="static" unbind="unbindIHTTPService"/>
+   <reference bind="bindIOpenToscaControlService" cardinality="1..1" interface="org.opentosca.container.control.IOpenToscaControlService" name="IOpenToscaControlService" policy="static" unbind="unbindIOpenToscaControlService"/>
+   <reference bind="bindIPlanEngineService" cardinality="1..1" interface="org.opentosca.container.engine.plan.IPlanEngineService" name="IPlanEngineService" policy="static" unbind="unbindIPlanEngineService"/>
+   <reference bind="bindIToscaEngineService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindIToscaEngineService"/>
+   <reference bind="bindIXMLSerializerService" cardinality="1..1" interface="org.opentosca.container.core.engine.xml.IXMLSerializerService" name="IXMLSerializerService" policy="static" unbind="unbindIXMLSerializerService"/>
+   <reference bind="bindEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unbindEventAdmin"/>
+   <reference bind="bindIPlanInvocationEngine" cardinality="1..1" interface="org.opentosca.container.core.service.IPlanInvocationEngine" name="IPlanInvocationEngine" policy="static" unbind="unbindIPlanInvocationEngine"/>
+   <reference bind="bindIManagementBusService" cardinality="1..1" interface="org.opentosca.bus.management.service.IManagementBusService" name="IManagementBusService" policy="static" unbind="unbindIManagementBusService"/>
+</scr:component>

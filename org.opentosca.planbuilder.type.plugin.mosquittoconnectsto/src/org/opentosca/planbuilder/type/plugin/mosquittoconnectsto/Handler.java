@@ -15,7 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.model.tosca.conventions.Interfaces;
+import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
@@ -39,11 +39,11 @@ import org.xml.sax.SAXException;
  */
 public class Handler {
 	
-	private Plugin invokerPlugin = new Plugin();
+	private final Plugin invokerPlugin = new Plugin();
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
 	
-	private DocumentBuilderFactory docFactory;
-	private DocumentBuilder docBuilder;
+	private final DocumentBuilderFactory docFactory;
+	private final DocumentBuilder docBuilder;
 	
 	
 	/**
@@ -59,24 +59,24 @@ public class Handler {
 		
 	}
 	
-	public boolean handle(TemplatePlanContext templateContext) {
-		AbstractRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
+	public boolean handle(final TemplatePlanContext templateContext) {
+		final AbstractRelationshipTemplate relationTemplate = templateContext.getRelationshipTemplate();
 		
 		// fetch topic
-		Variable topicName = templateContext.getPropertyVariable(relationTemplate.getTarget(), "Name");
+		final Variable topicName = templateContext.getPropertyVariable(relationTemplate.getTarget(), "Name");
 		
 		/* fetch ip of mosquitto */
 		Variable mosquittoVmIp = null;
 		
 		// find infrastructure nodes of mosquitto
-		List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<AbstractNodeTemplate>();
+		List<AbstractNodeTemplate> infrastructureNodes = new ArrayList<>();
 		Utils.getInfrastructureNodes(relationTemplate.getTarget(), infrastructureNodes);
 		
 		Utils.getNodesFromNodeToSink(relationTemplate.getTarget(), infrastructureNodes);
 		
-		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
+		for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
 
-			for (String ipPropName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+			for (final String ipPropName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 				// fetch mosquitto ip
 				if (templateContext.getPropertyVariable(infraNode, ipPropName) != null) {
 					mosquittoVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
@@ -96,12 +96,12 @@ public class Handler {
 		Variable clientVmPass = null;
 		String ubuntuTemplateId = null;
 		
-		infrastructureNodes = new ArrayList<AbstractNodeTemplate>();
+		infrastructureNodes = new ArrayList<>();
 		Utils.getInfrastructureNodes(relationTemplate.getSource(), infrastructureNodes);
 		
-		for (AbstractNodeTemplate infraNode : infrastructureNodes) {
+		for (final AbstractNodeTemplate infraNode : infrastructureNodes) {
 			
-			for (String ipPropName : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+			for (final String ipPropName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 				if (templateContext.getPropertyVariable(infraNode, ipPropName) != null) {
 					clientVmIp = templateContext.getPropertyVariable(infraNode, ipPropName);
 					break;
@@ -109,14 +109,14 @@ public class Handler {
 				
 			}
 			
-			for (String loginNameProp : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+			for (final String loginNameProp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 				if (templateContext.getPropertyVariable(infraNode, loginNameProp) != null) {
 					ubuntuTemplateId = infraNode.getId();
 					clientVmUser = templateContext.getPropertyVariable(infraNode, loginNameProp);
 				}
 			}
 
-			for (String loginPwProp : org.opentosca.model.tosca.conventions.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+			for (final String loginPwProp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 				if (templateContext.getPropertyVariable(infraNode, loginPwProp) != null) {
 					ubuntuTemplateId = infraNode.getId();
 					clientVmPass = templateContext.getPropertyVariable(infraNode, loginPwProp);
@@ -127,14 +127,14 @@ public class Handler {
 		
 		/* create skript */
 		// the script itself
-		String bashCommand = "echo \"topicName = hostName\" > $(find ~ -maxdepth 1 -path \"*.csar\")/mosquitto_connections.txt;";
+		final String bashCommand = "echo \"topicName = hostName\" > $(find ~ -maxdepth 1 -path \"*.csar\")/mosquitto_connections.txt;";
 		
 		// add it as a var to the plan
-		Variable bashCommandVariable = templateContext.createGlobalStringVariable("addMosquittoConnection", bashCommand);
+		final Variable bashCommandVariable = templateContext.createGlobalStringVariable("addMosquittoConnection", bashCommand);
 		
 		// create bpel query which replaces topicName and hostName with real
 		// values
-		String xpathQuery = "replace(replace($" + bashCommandVariable.getName() + ",'topicName',$" + topicName.getName() + "),'hostName',$" + mosquittoVmIp.getName() + ")";
+		final String xpathQuery = "replace(replace($" + bashCommandVariable.getName() + ",'topicName',$" + topicName.getName() + "),'hostName',$" + mosquittoVmIp.getName() + ")";
 		
 		// create bpel assign with created query
 		try {
@@ -142,16 +142,16 @@ public class Handler {
 			Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignValuesToAddConnection" + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getName());
 			assignNode = templateContext.importNode(assignNode);
 			templateContext.getProvisioningPhaseElement().appendChild(assignNode);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			Handler.LOG.error("Couldn't load fragment from file", e);
 			return false;
-		} catch (SAXException e) {
+		} catch (final SAXException e) {
 			Handler.LOG.error("Couldn't parse fragment to DOM", e);
 			return false;
 		}
 		
 		/* add logic to execute script on client machine */
-		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
+		final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
 		
 		runScriptRequestInputParams.put("VMIP", clientVmIp);
 		
@@ -186,10 +186,10 @@ public class Handler {
 	 * @throws IOException is thrown when reading the BPEL fragment form the
 	 *             resources fails
 	 */
-	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query, String stringVarName) throws IOException {
+	public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query, final String stringVarName) throws IOException {
 		// <!-- {AssignName},{xpath2query}, {stringVarName} -->
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
-		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
+		final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelFragmentFile);
 		template = template.replace("{AssignName}", assignName);
 		template = template.replace("{xpath2query}", xpath2Query);
@@ -209,11 +209,11 @@ public class Handler {
 	 * @throws SAXException is thrown when parsing internal format into DOM
 	 *             fails
 	 */
-	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query, String stringVarName) throws IOException, SAXException {
-		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
-		InputSource is = new InputSource();
+	public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query, final String stringVarName) throws IOException, SAXException {
+		final String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+		final InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
-		Document doc = this.docBuilder.parse(is);
+		final Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
 	

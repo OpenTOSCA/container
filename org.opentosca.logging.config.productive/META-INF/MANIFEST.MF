@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Logback configuration for productive use
-Bundle-SymbolicName: org.opentosca.logging.config.productive
-Bundle-Version: 1.0.0
-Fragment-Host: ch.qos.logback.classic;bundle-version="1.0.3"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7

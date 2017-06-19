@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Plan Engine
+Bundle-SymbolicName: org.opentosca.container.engine.plan
+Bundle-Version: 1.0.0.qualifier
+Export-Package: org.opentosca.container.engine.plan,
+ org.opentosca.container.engine.plan.impl,
+ org.opentosca.container.engine.plan.plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Import-Package: org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.2"
+Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
+ org.opentosca.container.core.tosca;bundle-version="1.0.0"
+Service-Component: OSGI-INF/*

@@ -24,31 +24,27 @@ import org.slf4j.LoggerFactory;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilderPrePhaseDAPlugin {
 
 	private final static Logger LOG = LoggerFactory.getLogger(PrePhasePlugin.class);
 
-	private final QName scriptArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-			"ScriptArtifact");
-	private final QName archiveArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-			"ArchiveArtifact");
-	private final QName bpelArchiveArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-			"BPEL");
+	private final QName scriptArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
+	private final QName archiveArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+	private final QName bpelArchiveArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "BPEL");
 	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
 	private final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
-	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes",
-			"ConfigurationArtifact");
+	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes", "ConfigurationArtifact");
 
 	private final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
 	private final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
-	private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artefacttypes",
-			"DockerContainerArtefact");
+	private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
 
-	private Handler handler = new Handler();
+	private final Handler handler = new Handler();
+
 
 	/**
 	 * {@inheritDoc}
@@ -62,13 +58,12 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean canHandle(AbstractDeploymentArtifact deploymentArtifact, AbstractNodeType infrastructureNodeType) {
-		QName type = deploymentArtifact.getArtifactType();
-		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: "
-				+ infrastructureNodeType.getId().toString() + " can be handled");
+	public boolean canHandle(final AbstractDeploymentArtifact deploymentArtifact, final AbstractNodeType infrastructureNodeType) {
+		final QName type = deploymentArtifact.getArtifactType();
+		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: " + infrastructureNodeType.getId().toString() + " can be handled");
 		
-		for(QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)){
-			if(this.isSupportedDeploymentPair(type, nodeType, true)){
+		for (final QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)) {
+			if (this.isSupportedDeploymentPair(type, nodeType, true)) {
 				return true;
 			}
 		}
@@ -77,13 +72,12 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	}
 
 	@Override
-	public boolean canHandle(AbstractImplementationArtifact ia, AbstractNodeType infrastructureNodeType) {
-		QName type = ia.getArtifactType();
-		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: "
-				+ infrastructureNodeType.getId().toString() + " can be handled");
+	public boolean canHandle(final AbstractImplementationArtifact ia, final AbstractNodeType infrastructureNodeType) {
+		final QName type = ia.getArtifactType();
+		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: " + infrastructureNodeType.getId().toString() + " can be handled");
 
-		for(QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)){
-			if(this.isSupportedDeploymentPair(type, nodeType, false)){
+		for (final QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)) {
+			if (this.isSupportedDeploymentPair(type, nodeType, false)) {
 				return true;
 			}
 		}
@@ -95,21 +89,17 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 * Checks whether this Plugin can handle deploying artifacts of the given
 	 * artfiactType to a given InfrastructureNode of the given
 	 * infrastructureNodeType
-	 * 
-	 * @param scriptArtifactType
-	 *            a QName denoting an scriptArtifactType
-	 * @param infrastructureNodeType
-	 *            a QName denoting an infrastructureNodeType
-	 * @param isDA
-	 *            indicates whether this check is on an IA or DA with the given
+	 *
+	 * @param scriptArtifactType a QName denoting an scriptArtifactType
+	 * @param infrastructureNodeType a QName denoting an infrastructureNodeType
+	 * @param isDA indicates whether this check is on an IA or DA with the given
 	 *            artifactType
 	 * @return a Boolean. True if given pair of QName's denotes a pair which
 	 *         this plugin can handle
 	 */
-	private boolean isSupportedDeploymentPair(QName artifactType, QName infrastructureNodeType, boolean isDA) {
+	private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType, final boolean isDA) {
 
-		if (!isDA && this.warArtifactType.equals(artifactType) && infrastructureNodeType
-				.equals(new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
+		if (!isDA && this.warArtifactType.equals(artifactType) && infrastructureNodeType.equals(new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
 			// WARs are deployed as environment-centric artifacts -> doesn't
 			// need to be deployed on a node inside the topology, instead we
 			// install it inside the management infrastructure
@@ -155,7 +145,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 
 		// we can deploy only on ubuntu nodes
-		if (!org.opentosca.model.tosca.conventions.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
+		if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
 			return false;
 		}
 
@@ -166,8 +156,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean handle(TemplatePlanContext context, AbstractImplementationArtifact ia,
-			AbstractNodeTemplate nodeTemplate) {
+	public boolean handle(final TemplatePlanContext context, final AbstractImplementationArtifact ia, final AbstractNodeTemplate nodeTemplate) {
 		if (ia.getArtifactType().equals(this.warArtifactType)) {
 			// provisioning of IA that are webservice war files, is in the
 			// responsibility of
@@ -183,10 +172,9 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean handle(TemplatePlanContext context, AbstractDeploymentArtifact da,
-			AbstractNodeTemplate nodeTemplate) {
+	public boolean handle(final TemplatePlanContext context, final AbstractDeploymentArtifact da, final AbstractNodeTemplate nodeTemplate) {
 		
-		if(da.getArtifactType().equals(this.dockerContainerArtefactType)){
+		if (da.getArtifactType().equals(this.dockerContainerArtefactType)) {
 			return true;
 		}
 		

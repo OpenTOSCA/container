@@ -1,7 +1,10 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /**
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
@@ -36,15 +39,15 @@ public class InstanceStates {
 		operationPostStates.put("waitForAvailability", "started");
 	}
 
-	public static String getPreState(String operationName) {
+	public static String getOperationPreState(String operationName) {
 		return operationPreStates.get(operationName);
 	}
 
-	public static String getPostState(String operationName) {
+	public static String getOperationPostState(String operationName) {
 		return operationPostStates.get(operationName);
 	}
 	
-	public static boolean isStableState(String state){
+	public static boolean isStableOperationState(String state){
 		return operationPostStates.containsValue(state);
 	}
 
@@ -60,7 +63,7 @@ public class InstanceStates {
 	 *            a String containing a lifecycle state
 	 * @return a String containing the next stable state from the given state
 	 */
-	public static String getNextStableState(String state) {
+	public static String getNextStableOperationState(String state) {
 
 		if (operationPreStates.containsValue(state)) {
 			// given state is unstable

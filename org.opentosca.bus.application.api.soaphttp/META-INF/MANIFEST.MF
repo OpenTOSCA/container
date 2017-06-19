@@ -4,7 +4,7 @@ Bundle-Name: Application Bus Soap over http API
 Bundle-SymbolicName: org.opentosca.bus.application.api.soaphttp
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.application.api.soaphttp.Activator
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.builder;version="2.10.4",
  org.apache.camel.component.cxf.common.message;version="2.10.4",
@@ -15,11 +15,10 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.spi;version="2.10.4",
  org.apache.cxf.binding.soap;version="2.7.3",
  org.apache.cxf.headers;version="2.7.3",
- org.opentosca.bus.application.model.constants,
- org.opentosca.bus.application.model.exception,
- org.opentosca.bus.application.service,
- org.opentosca.settings,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
-Require-Bundle: org.eclipse.equinox.ds;bundle-version="1.3.1"
-Service-Component: OSGI-INF/ApplicationBusServiceHandler_component.xml
+Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
+ org.opentosca.bus.application.model;bundle-version="1.0.0",
+ org.opentosca.bus.application.service;bundle-version="1.0.0"
+Service-Component: OSGI-INF/*
+Bundle-ActivationPolicy: lazy

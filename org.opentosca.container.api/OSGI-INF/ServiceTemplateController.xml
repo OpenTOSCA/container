@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.container.api.controller.ServiceTemplateController">
+   <implementation class="org.opentosca.container.api.controller.ServiceTemplateController"/>
+   <reference bind="setCsarService" cardinality="1..1" interface="org.opentosca.container.api.service.CsarService" name="CsarService" policy="static"/>
+   <service>
+      <provide interface="org.opentosca.container.api.controller.ServiceTemplateController"/>
+   </service>
+   <reference bind="setPlanService" cardinality="1..1" interface="org.opentosca.container.api.service.PlanService" name="PlanService" policy="static"/>
+   <reference bind="setInstanceService" cardinality="1..1" interface="org.opentosca.container.api.service.InstanceService" name="InstanceService" policy="static"/>
+</scr:component>

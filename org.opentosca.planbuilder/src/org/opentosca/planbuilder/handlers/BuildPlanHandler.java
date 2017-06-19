@@ -14,8 +14,8 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.model.plan.BuildPlan;
-import org.opentosca.planbuilder.model.plan.BuildPlan.PlanType;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
@@ -66,7 +66,7 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to add the file to
 	 * @return true if adding the file was successful, else false
 	 */
-	public boolean addImportedFile(File file, BuildPlan buildPlan) {
+	public boolean addImportedFile(File file, TOSCAPlan buildPlan) {
 		return buildPlan.addImportedFile(file);
 	}
 
@@ -77,21 +77,21 @@ public class BuildPlanHandler {
 	 *            the ServiceTemplate to generate a Plan Skeleton for
 	 * @return an empty Plan Skeleton
 	 */
-	public BuildPlan createPlan(AbstractServiceTemplate serviceTemplate, String processName, String processNamespace, int type) {
+	public TOSCAPlan createPlan(AbstractServiceTemplate serviceTemplate, String processName, String processNamespace, int type) {
 		BuildPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}", serviceTemplate.getQName().toString());
-		BuildPlan buildPlan = this.createBuildPlan(serviceTemplate.getQName());
+		TOSCAPlan buildPlan = null;
 
 		switch (type) {
 		case 0:
-			buildPlan.setType(PlanType.BUILD);
+			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.BUILD);
 			break;
 		case 2:
-			buildPlan.setType(PlanType.TERMINATE);
+			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.TERMINATE);
 			break;
 			// if we don't know what kind of plan this is -> ManagementPlan
 		default:
 		case 1:
-			buildPlan.setType(PlanType.MANAGE);
+			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.MANAGE);
 			break;
 		}
 
@@ -101,7 +101,7 @@ public class BuildPlanHandler {
 
 		// add import for the process wsdl
 		this.bpelProcessHandler.addImports(processNamespace, buildPlan.getWsdl().getFileName(),
-				BuildPlan.ImportType.WSDL, buildPlan);
+				TOSCAPlan.ImportType.WSDL, buildPlan);
 
 		// add partnerlink to the process. note/FIXME?: the partnerlinktype of
 		// the process itself is alread initialized with setting the name of the
@@ -128,9 +128,9 @@ public class BuildPlanHandler {
 		// <bpel:variable name="VmMySql_Endpoint" type="ns1:string"/>
 		// <bpel:variable name="output"
 		// messageType="tns:bamoodlebuildplanResponseMessage" />
-		this.bpelProcessHandler.addVariable("input", BuildPlan.VariableType.MESSAGE,
+		this.bpelProcessHandler.addVariable("input", TOSCAPlan.VariableType.MESSAGE,
 				new QName(processNamespace, processName + "RequestMessage", "tns"), buildPlan);
-		this.bpelProcessHandler.addVariable("output", BuildPlan.VariableType.MESSAGE,
+		this.bpelProcessHandler.addVariable("output", TOSCAPlan.VariableType.MESSAGE,
 				new QName(processNamespace, processName + "ResponseMessage", "tns"), buildPlan);
 
 		// set the receive and callback invoke elements
@@ -147,7 +147,21 @@ public class BuildPlanHandler {
 		// />
 		Element receiveElement = buildPlan.getBpelMainSequenceReceiveElement();
 		this.bpelProcessHandler.setAttribute(receiveElement, "name", "receiveInput");
-		this.bpelProcessHandler.setAttribute(receiveElement, "operation", "initiate");
+		
+		switch (type) {
+		case 2:
+			this.bpelProcessHandler.setAttribute(receiveElement, "operation", "terminate");
+			break;
+			// if we don't know what kind of plan this is -> ManagementPlan
+		default:
+		case 0:
+		case 1:
+			this.bpelProcessHandler.setAttribute(receiveElement, "operation", "initiate");
+			break;
+		}
+		
+		
+		
 		this.bpelProcessHandler.setAttribute(receiveElement, "variable", "input");
 		this.bpelProcessHandler.setAttribute(receiveElement, "createInstance", "yes");
 		this.bpelProcessHandler.setAttribute(receiveElement, "partnerLink", "client");
@@ -213,7 +227,7 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to add to the given BuildPlan
 	 * @return true if adding the extension was successful, else false
 	 */
-	public boolean registerExtension(String namespace, boolean mustUnderstand, BuildPlan buildPlan) {
+	public boolean registerExtension(String namespace, boolean mustUnderstand, TOSCAPlan buildPlan) {
 		return this.bpelProcessHandler.addExtension(namespace, mustUnderstand, buildPlan);
 	}
 
@@ -232,7 +246,7 @@ public class BuildPlanHandler {
 	 * @return true if adding the invoke to the deployment deskriptor was
 	 *         successful, else false
 	 */
-	public boolean addInvokeToDeploy(String partnerLinkName, QName serviceName, String portName, BuildPlan buildPlan) {
+	public boolean addInvokeToDeploy(String partnerLinkName, QName serviceName, String portName, TOSCAPlan buildPlan) {
 		BuildPlanHandler.LOG.debug("Adding invoke with partnerLink {}, service {} and port {} to BuildPlan {}",
 				partnerLinkName, serviceName.toString(), portName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
@@ -268,13 +282,13 @@ public class BuildPlanHandler {
 	 *            the QName of the ServiceTemplate
 	 * @return a BuildPlan without a Skeleton
 	 */
-	public BuildPlan createBuildPlan(QName serviceTemplate) {
-		BuildPlan newBuildPlan = new BuildPlan();
+	public TOSCAPlan createBuildPlan(QName serviceTemplate, TOSCAPlan.PlanType planType) {
+		TOSCAPlan newBuildPlan = new TOSCAPlan();
 		newBuildPlan.setServiceTemplate(serviceTemplate);
-
+		newBuildPlan.setType(planType);
 		// init wsdl doc
 		try {
-			newBuildPlan.setProcessWsdl(new GenericWsdlWrapper());
+			newBuildPlan.setProcessWsdl(new GenericWsdlWrapper(planType));
 		} catch (IOException e) {
 			BuildPlanHandler.LOG.error("Internal error while initializing WSDL for BuildPlan", e);
 		}
@@ -295,7 +309,7 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to get the TemplateBuildPlans from
 	 * @return a List of TemplateBuildPlans which handle RelationshipTemplates
 	 */
-	public List<TemplateBuildPlan> getRelationshipTemplatePlans(BuildPlan buildPlan) {
+	public List<TemplateBuildPlan> getRelationshipTemplatePlans(TOSCAPlan buildPlan) {
 		List<TemplateBuildPlan> relationshipPlans = new ArrayList<TemplateBuildPlan>();
 		for (TemplateBuildPlan template : buildPlan.getTemplateBuildPlans()) {
 			if (this.templateHandler.isRelationshipTemplatePlan(template)) {
@@ -315,7 +329,7 @@ public class BuildPlanHandler {
 	 * @return a TemplateBuildPlan if it handles a Template with the given id,
 	 *         else null
 	 */
-	public TemplateBuildPlan getTemplateBuildPlanById(String id, BuildPlan buildPlan) {
+	public TemplateBuildPlan getTemplateBuildPlanById(String id, TOSCAPlan buildPlan) {
 		for (TemplateBuildPlan template : buildPlan.getTemplateBuildPlans()) {
 			// FIXME it looks a bit hacky.. it looks even more hacky if you look
 			// at getRelationshipTemplatePlans(..), the ifs
@@ -342,13 +356,13 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to add the import to
 	 * @return true if adding the import was successful, else false
 	 */
-	public boolean addImportToBpel(String namespace, String location, String importType, BuildPlan buildPlan) {
+	public boolean addImportToBpel(String namespace, String location, String importType, TOSCAPlan buildPlan) {
 		BuildPlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}",
 				namespace, location, importType, buildPlan.getBpelProcessElement().getAttribute("name"));
-		if (importType.equals(BuildPlan.ImportType.WSDL.toString())) {
-			return this.bpelProcessHandler.addImports(namespace, location, BuildPlan.ImportType.WSDL, buildPlan);
-		} else if (importType.equals(BuildPlan.ImportType.XSD.toString())) {
-			return this.bpelProcessHandler.addImports(namespace, location, BuildPlan.ImportType.XSD, buildPlan);
+		if (importType.equals(TOSCAPlan.ImportType.WSDL.toString())) {
+			return this.bpelProcessHandler.addImports(namespace, location, TOSCAPlan.ImportType.WSDL, buildPlan);
+		} else if (importType.equals(TOSCAPlan.ImportType.XSD.toString())) {
+			return this.bpelProcessHandler.addImports(namespace, location, TOSCAPlan.ImportType.XSD, buildPlan);
 		} else {
 			return false;
 		}
@@ -368,11 +382,11 @@ public class BuildPlanHandler {
 	 * @return true if the import is already present in the given BuildPlan,
 	 *         else false
 	 */
-	public boolean hasImport(String namespace, String location, String importType, BuildPlan buildPlan) {
-		if (importType.equals(BuildPlan.ImportType.WSDL.toString())) {
-			return this.bpelProcessHandler.hasImport(namespace, location, BuildPlan.ImportType.WSDL, buildPlan);
-		} else if (importType.equals(BuildPlan.ImportType.XSD.toString())) {
-			return this.bpelProcessHandler.hasImport(namespace, location, BuildPlan.ImportType.XSD, buildPlan);
+	public boolean hasImport(String namespace, String location, String importType, TOSCAPlan buildPlan) {
+		if (importType.equals(TOSCAPlan.ImportType.WSDL.toString())) {
+			return this.bpelProcessHandler.hasImport(namespace, location, TOSCAPlan.ImportType.WSDL, buildPlan);
+		} else if (importType.equals(TOSCAPlan.ImportType.XSD.toString())) {
+			return this.bpelProcessHandler.hasImport(namespace, location, TOSCAPlan.ImportType.XSD, buildPlan);
 		} else {
 			return false;
 		}
@@ -387,7 +401,7 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to add the link to
 	 * @return true if adding the link was successful, else false
 	 */
-	public boolean addLink(String name, BuildPlan buildPlan) {
+	public boolean addLink(String name, TOSCAPlan buildPlan) {
 		// did this to keep the planbuilder clean from the xml/dom handlers
 		return this.bpelProcessHandler.addLink(name, buildPlan);
 	}
@@ -401,8 +415,8 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to add the propertyVariable to
 	 * @return true if adding the PropertyVariable to the BuildPlan, else false
 	 */
-	public boolean addPropertyVariable(String name, BuildPlan buildPlan) {
-		return this.bpelProcessHandler.addVariable("prop_" + name, BuildPlan.VariableType.TYPE,
+	public boolean addPropertyVariable(String name, TOSCAPlan buildPlan) {
+		return this.bpelProcessHandler.addVariable("prop_" + name, TOSCAPlan.VariableType.TYPE,
 				new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), buildPlan);
 	}
 
@@ -418,7 +432,7 @@ public class BuildPlanHandler {
 	 *            the BuildPlan to add the copy to
 	 * @return true if adding the copy was successful, else false
 	 */
-	public boolean initializePropertyVariable(String propertyName, String value, BuildPlan buildPlan) {
+	public boolean initializePropertyVariable(String propertyName, String value, TOSCAPlan buildPlan) {
 		return this.bpelProcessHandler.assignVariableStringValue("prop_" + propertyName, value, buildPlan);
 	}
 
@@ -433,7 +447,7 @@ public class BuildPlanHandler {
 	 * @return true if adding the element to RequestMessage was successful, else
 	 *         false
 	 */
-	public boolean addStringElementToPlanRequest(String elementName, BuildPlan buildPlan) {
+	public boolean addStringElementToPlanRequest(String elementName, TOSCAPlan buildPlan) {
 		return buildPlan.getWsdl().addElementToRequestMessage(elementName,
 				new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
 	}
@@ -449,7 +463,7 @@ public class BuildPlanHandler {
 	 * @return true if adding the element to the ResponseMessage was successful,
 	 *         else false
 	 */
-	public boolean addStringElementToPlanResponse(String elementName, BuildPlan buildPlan) {
+	public boolean addStringElementToPlanResponse(String elementName, TOSCAPlan buildPlan) {
 		return buildPlan.getWsdl().addElementToResponseMessage(elementName,
 				new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
 	}
@@ -469,7 +483,7 @@ public class BuildPlanHandler {
 	 * @return true if adding the provide to the deployment deskriptor was
 	 *         successful, else false
 	 */
-	public boolean addProvideToDeploy(String partnerLinkName, QName serviceName, String portName, BuildPlan buildPlan) {
+	public boolean addProvideToDeploy(String partnerLinkName, QName serviceName, String portName, TOSCAPlan buildPlan) {
 		BuildPlanHandler.LOG.debug("Trying to add provide with partnerLink {}, service {} and port {} to BuildPlan {}",
 				partnerLinkName, serviceName.toString(), portName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
@@ -504,7 +518,7 @@ public class BuildPlanHandler {
 	 *            the BuildPlan whose declared Links should be returned
 	 * @return a List of Strings containing all Links of the given BuildPlan
 	 */
-	public List<String> getAllLinks(BuildPlan buildPlan) {
+	public List<String> getAllLinks(TOSCAPlan buildPlan) {
 		Element flowLinks = buildPlan.getBpelMainFlowLinksElement();
 		List<String> linkNames = new ArrayList<String>();
 		NodeList children = flowLinks.getChildNodes();
@@ -527,7 +541,7 @@ public class BuildPlanHandler {
 	 * @param buildPlan
 	 *            the BuildPlan where the link should be removed
 	 */
-	public void removeLink(String link, BuildPlan buildPlan) {
+	public void removeLink(String link, TOSCAPlan buildPlan) {
 		this.bpelProcessHandler.removeLink(link, buildPlan);
 
 	}

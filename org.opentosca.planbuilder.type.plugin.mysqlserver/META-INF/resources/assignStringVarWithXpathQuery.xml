@@ -1,7 +1,0 @@
-<bpel:assign validate="no" name="{AssignName}" xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
-	<!-- {AssignName},{XpathQuery}, {stringVarName} -->
-	<bpel:copy>
-		<bpel:from><![CDATA[{XpathQuery}]]></bpel:from>
-		<bpel:to variable="{stringVarName}"/>
-	</bpel:copy>
-</bpel:assign>
