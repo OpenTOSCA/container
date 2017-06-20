@@ -74,15 +74,22 @@ public class Handler {
 		if ((containerPortVar == null) | (portVar == null)) {
 			Handler.LOG.error("Couldn't fetch Property variables ContainerPort or Port");
 			return false;
+		}				
+		
+		final Variable portMappingVar = templateContext.createGlobalStringVariable("dockerContainerPortMappings" + System.currentTimeMillis(), "");
+		
+		try {
+			Node assignContainerPortsNode = this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping", "concat($"+containerPortVar.getName()+",',',$"+portVar.getName()+")", portMappingVar.getName());
+			assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
+			templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		// create String var with portmapping
-		final String containerPortVal = this.fetchValueFromProperty(nodeTemplate, "ContainerPort");
-		final String portVal = this.fetchValueFromProperty(nodeTemplate, "Port");
-
-		final String portMapping = containerPortVal + "," + portVal;
-
-		final Variable portMappingVar = templateContext.createGlobalStringVariable("dockerContainerPortMappings" + System.currentTimeMillis(), portMapping);
+		
 
 		// fetch (optional) SSHPort variable
 		final Variable sshPortVar = templateContext.getPropertyVariable(nodeTemplate, "SSHPort");
