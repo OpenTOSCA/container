@@ -1,11 +1,7 @@
 ---
 ---
-<center>
 
 ![OpenTOSCA](graphics/OpenTOSCALogo.jpg)  
-
-</center>
-
 
 # Developer Guide OpenTOSCA Container  
 
