@@ -17,6 +17,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
@@ -56,15 +57,34 @@ public class IAEnginePluginWarTomcatServiceImpl implements IIAEnginePluginServic
 	// Hardcoded location of Tomcat, username & password. Defined in
 	// messages.properties.
 	// Role "manager-script" has to be assigned in tomcat-user.xml.
-	static final private String USERNAME = Messages.TomcatIAEnginePlugin_tomcatUsername;
-	static final private String PASSWORD = Messages.TomcatIAEnginePlugin_tomcatPassword;
-	static final private String URL = Messages.TomcatIAEnginePlugin_url;
+	static private String USERNAME = Messages.TomcatIAEnginePlugin_tomcatUsername;
+	static private String PASSWORD = Messages.TomcatIAEnginePlugin_tomcatPassword;
+	static private String URL = Messages.TomcatIAEnginePlugin_url;
 	static final private String TYPES = Messages.TomcatIAEnginePlugin_types;
 	static final private String CAPABILITIES = Messages.TomcatIAEnginePlugin_capabilities;
 	
 	static final private Logger LOG = LoggerFactory.getLogger(IAEnginePluginWarTomcatServiceImpl.class);
 	
 	private IHTTPService httpService;
+	
+	public IAEnginePluginWarTomcatServiceImpl() {
+		String userName = Settings.getSetting("org.opentosca.container.engine.ia.plugin.tomcat.username");
+		if(userName != null) {
+			USERNAME = userName;
+		}
+		
+		String password = Settings.getSetting("org.opentosca.container.engine.ia.plugin.tomcat.password");
+		
+		if(password != null) {
+			PASSWORD = password;
+		}
+		
+		String url = Settings.getSetting("org.opentosca.container.engine.ia.plugin.tomcat.url");
+		
+		if(url != null) {
+			URL = url;
+		}
+	}
 	
 	
 	@Override

@@ -71,6 +71,8 @@ public class ODEEndpointUpdater {
 	private static ICoreEndpointService endpointService;
 	private static ICoreEndpointService oldEndpointService;
 	
+	private String servicesRoot; 
+	
 	
 	// private static IToscaEngineService toscaEngineService = null;
 	
@@ -79,9 +81,21 @@ public class ODEEndpointUpdater {
 	 *
 	 * @throws WSDLException if no instance of WSDLFactory was found
 	 */
+	public ODEEndpointUpdater(String servicesRoot) throws WSDLException {
+		this.factory = WSDLFactory.newInstance();
+		this.servicesRoot = servicesRoot;
+	}
+	
+	/**
+	 * Contructor
+	 *
+	 * @throws WSDLException if no instance of WSDLFactory was found
+	 */
 	public ODEEndpointUpdater() throws WSDLException {
 		this.factory = WSDLFactory.newInstance();
+		this.servicesRoot = null;
 	}
+	
 	
 	/**
 	 * Changes the endpoints of all WSDL files used by the given WS-BPEL 2.0
@@ -534,10 +548,10 @@ public class ODEEndpointUpdater {
 		 * csarInvokerService/
 		 */
 		String callbackEndpoint = "";
-		if (Messages.BpsPlanEnginPlugin_bpsServiceRootAddress.endsWith("/")) {
-			callbackEndpoint += Messages.BpsPlanEnginPlugin_bpsServiceRootAddress + service.getQName().getLocalPart();
+		if (this.servicesRoot.endsWith("/")) {
+			callbackEndpoint += this.servicesRoot + service.getQName().getLocalPart();
 		} else {
-			callbackEndpoint += Messages.BpsPlanEnginPlugin_bpsServiceRootAddress + "/" + service.getQName().getLocalPart();
+			callbackEndpoint += this.servicesRoot + "/" + service.getQName().getLocalPart();
 		}
 		
 		try {

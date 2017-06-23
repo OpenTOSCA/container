@@ -14,6 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.opentosca.container.connector.bps.BpsConnector;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -77,6 +78,36 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 	
 	private IToscaEngineService toscaEngine;
 	
+	static private String USERNAME = Messages.BpsPlanEnginePlugin_bpsLoginName;
+	static private String PASSWORD = Messages.BpsPlanEnginePlugin_bpsLoginPw;
+	static private String URL = Messages.BpsPlanEnginePlugin_bpsAddress;
+	static private String SERVICESURL = Messages.BpsPlanEnginPlugin_bpsServiceRootAddress;
+	
+	public BpsPlanEnginePlugin() {
+		String url = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.url");
+		
+		if(url != null) {
+			URL = url;
+		}
+		
+		String servicesUrl = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.services.url");
+		
+		if(servicesUrl != null) {
+			SERVICESURL = servicesUrl;
+		}
+		
+		String userName = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.username");
+		
+		if(userName != null) {
+			USERNAME = userName;
+		}
+		
+		String password = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.password");
+		
+		if(password != null) {
+			PASSWORD = password;
+		}
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -188,7 +219,7 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 		// changing endpoints in WSDLs
 		ODEEndpointUpdater odeUpdater;
 		try {
-			odeUpdater = new ODEEndpointUpdater();
+			odeUpdater = new ODEEndpointUpdater(SERVICESURL);
 			portType = odeUpdater.getPortType(planContents);
 			if (!odeUpdater.changeEndpoints(planContents, csarId)) {
 				BpsPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed", planRef.getReference());
@@ -237,8 +268,13 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 		
 		// deploy process
 		BpsPlanEnginePlugin.LOG.info("Deploying Plan: {}", tempPlan.getName());
-		final String processId = connector.deploy(tempPlan, Messages.BpsPlanEnginePlugin_bpsAddress, Messages.BpsPlanEnginePlugin_bpsLoginName, Messages.BpsPlanEnginePlugin_bpsLoginPw);
-		final Map<String, URI> endpoints = connector.getEndpointsForPID(processId, Messages.BpsPlanEnginePlugin_bpsAddress, Messages.BpsPlanEnginePlugin_bpsLoginName, Messages.BpsPlanEnginePlugin_bpsLoginPw);
+		String processId = "";
+		try {
+			processId = connector.deploy(tempPlan, URL, USERNAME, PASSWORD);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		final Map<String, URI> endpoints = connector.getEndpointsForPID(processId, URL, USERNAME, PASSWORD);
 		
 		// this will be the endpoint the container can use to instantiate the
 		// BPEL Process
@@ -341,7 +377,7 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 			}
 			final BpsConnector connector = new BpsConnector();
 			
-			final boolean wasUndeployed = connector.undeploy(fetchedPlan.toFile(), Messages.BpsPlanEnginePlugin_bpsAddress, Messages.BpsPlanEnginePlugin_bpsLoginName, Messages.BpsPlanEnginePlugin_bpsLoginPw);
+			final boolean wasUndeployed = connector.undeploy(fetchedPlan.toFile(), URL, USERNAME, PASSWORD);
 			
 			// remove endpoint from core
 			WSDLEndpoint endpoint = null;
