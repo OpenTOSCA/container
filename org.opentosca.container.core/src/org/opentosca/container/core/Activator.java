@@ -28,6 +28,7 @@ public class Activator implements BundleActivator {
 		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
 		context = bundleContext;
 		
+		
 		logger.info("org.opentosca.container.hostname={}", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
 		logger.info("org.opentosca.container.port={}", Settings.OPENTOSCA_CONTAINER_PORT);
 
@@ -52,12 +53,6 @@ public class Activator implements BundleActivator {
 		Settings.setSetting("csarStorePath", openTOSCAPath + File.separator + "CSARs");
 
 		// /////////////////// URLS ///////////////////
-
-		if (System.getProperty("openTOSCAWineryPath") == null) {
-			Settings.setSetting("openTOSCAWineryPath", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8080/winery");
-		} else {
-			Settings.setSetting("openTOSCAWineryPath", System.getProperty("openTOSCAWineryPath"));
-		}
 
 		// URI of the ContainerAPI
 		Settings.setSetting("containerUri", Settings.CONTAINER_API);

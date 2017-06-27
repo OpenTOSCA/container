@@ -4,6 +4,7 @@
  *******************************************************************************/
 package org.opentosca.container.connector.winery;
 
+import org.opentosca.container.core.common.Settings;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -24,6 +25,13 @@ public class Activator implements BundleActivator {
 	public void start(final BundleContext bundleContext) throws Exception {
 		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
 		context = bundleContext;
+		
+		String url = context.getProperty("org.opentosca.container.connector.winery.url");
+		
+		if(url != null) {
+			Settings.setSetting("org.opentosca.container.connector.winery.url", url);
+		}
+		
 	}
 	
 	@Override

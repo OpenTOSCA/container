@@ -50,7 +50,7 @@ public class WineryConnector {
 
 
 	public WineryConnector() {
-		this.wineryPath = Settings.getSetting("openTOSCAWineryPath");
+		this.wineryPath = Settings.getSetting("org.opentosca.container.connector.winery.url");
 		if (!this.wineryPath.endsWith("/")) {
 			this.wineryPath = this.wineryPath + "/";
 		}
