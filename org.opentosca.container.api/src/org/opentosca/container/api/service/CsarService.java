@@ -1,5 +1,6 @@
 package org.opentosca.container.api.service;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -8,8 +9,12 @@ import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.selfservice.Application;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
@@ -72,6 +77,23 @@ public class CsarService {
 	 */
 	public CSARContent findById(final String id) {
 		return this.findById(new CSARID(id));
+	}
+
+	/**
+	 * Reads the self-service metadata of a CSAR and returns it as a Java object
+	 *
+	 * @param csarContent The content object of the CSAR
+	 * @return The self-service metadata as Java object
+	 */
+	public Application getSelfserviceMetadata(final CSARContent csarContent) {
+		try (final InputStream is = csarContent.getDirectory("SELFSERVICE-Metadata").getFile("data.xml").getFileAsInputStream()) {
+			final JAXBContext jaxbContext = JAXBContext.newInstance(Application.class);
+			final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			return (Application) jaxbUnmarshaller.unmarshal(is);
+		} catch (final Exception e) {
+			logger.error("Could not serialize data.xml from CSAR", e);
+			throw new ServerErrorException(Status.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	/**
