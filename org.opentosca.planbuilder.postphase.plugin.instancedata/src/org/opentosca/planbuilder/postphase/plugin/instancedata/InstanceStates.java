@@ -25,18 +25,25 @@ public class InstanceStates {
 		operationPreStates.put("start", "starting");
 		operationPreStates.put("stop", "stopping");
 
-		// VM's
-		operationPreStates.put("createVM", "starting");
-		operationPreStates.put("waitForAvailability", "pending");
-
 		operationPostStates.put("install", "installed");
 		operationPostStates.put("uninstall", "uninstalled");
 		operationPostStates.put("configure", "configured");
 		operationPostStates.put("start", "started");
 		operationPostStates.put("stop", "stopped");
 
+		// VM's
+		operationPreStates.put("createVM", "starting");
+		operationPreStates.put("waitForAvailability", "pending");
+
 		operationPostStates.put("createVM", "pending");
 		operationPostStates.put("waitForAvailability", "started");
+		
+		// Docker
+		operationPreStates.put("startContainer", "starting");
+		operationPostStates.put("startContainer", "started");
+		
+		operationPreStates.put("removeContainer", "deleting");
+		operationPostStates.put("removeContainer", "deleted");
 	}
 
 	public static String getOperationPreState(String operationName) {

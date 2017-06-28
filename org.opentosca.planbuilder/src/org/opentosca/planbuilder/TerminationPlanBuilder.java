@@ -23,7 +23,9 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
+import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +154,8 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				
 				// add logic at the end of the process to DELETE the
 				// serviceInstance with the instanceDataAPI
-				this.serviceInstanceInitializer.appendServiceInstanceDelete(newTerminationPlan);
+				
+				//this.serviceInstanceInitializer.appendServiceInstanceDelete(newTerminationPlan);
 				
 				this.idInit.addCorrellationID(newTerminationPlan);
 				
@@ -216,7 +219,20 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 					}
 					
 				}
+				
+				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+				TerminationPlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, serviceTemplate);
+				
+				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+					if (postPhasePlugin.canHandle(nodeTemplate)) {
+						postPhasePlugin.handle(context, nodeTemplate);
+					}
+				}
 			}
+			
+			
+			
 		}
 		
 	}

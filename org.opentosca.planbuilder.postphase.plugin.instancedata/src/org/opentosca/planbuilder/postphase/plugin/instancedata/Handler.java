@@ -125,6 +125,208 @@ public class Handler {
 		return instanceURLVarName;
 	}
 	
+	
+	public boolean handleTerminate(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
+		
+		String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+		if (serviceInstanceVarName == null) {
+			return false;
+		}
+		
+		/*
+		 * Pre Phase code
+		 */
+		
+		// create variable for all responses
+		String restCallResponseVarName = this.createRESTResponseVar(context);
+		
+		if (restCallResponseVarName == null) {
+			return false;
+		}
+		
+		// create state variable inside scope
+		String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
+		
+		if (stateVarName == null) {
+			return false;
+		}
+		
+		
+		String nodeInstanceURLVarName = "";
+		
+		if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
+			// generate String var for nodeInstance URL
+			nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+		} else {
+			nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
+		}
+		
+		if (nodeInstanceURLVarName == null) {
+			return false;
+		}
+		
+	
+		
+		
+		
+		// we'll use this later when we determine that the handle Node doesn't
+		// have lifecycle operations. Without this check all nodes without
+		// lifecycle (or cloud prov operations) will be in an uninstalled state
+		String lastSetState = "uninstalled";
+		
+		/*
+		 * Prov Phase code
+		 */
+		
+		// fetch all assigns that assign an invoke async operation request
+		
+		Element provisioningPhaseElement = context.getProvisioningPhaseElement();
+		List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
+		
+		// for each assign element we fetch the operation name, determine the
+		// pre and post states, and append the pre state before the found assign
+		// and the post state after the receive of the invoker iteraction
+		for (Element assignContentElement : assignContentElements) {
+			
+			// fetch operationName from literal contents
+			String operationName = this.fetchOperationName(assignContentElement);
+			// determine pre and post state for operation
+			String preState = InstanceStates.getOperationPreState(operationName);
+			String postState = InstanceStates.getOperationPostState(operationName);
+			
+			if (preState != null) {
+				
+				try {
+					
+					// assign prestate to state variable
+					org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+					Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(), "string('" + preState + "')", stateVarName);
+					assignNode = context.importNode(assignNode);
+					lastSetState = preState;
+					
+					// assign the state before the assign of the invoker request
+					// is made
+					Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode().getParentNode();
+					bpelAssignNode.getParentNode().insertBefore(assignNode, bpelAssignNode);
+					
+					// create REST Put activity
+					String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
+					Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+					extActiv = context.importNode(extActiv);
+					
+					// send the state before the assign of the invoker request
+					// is made
+					bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				} catch (SAXException e) {
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if (postState != null) {
+				try {
+					// create state assign activity
+					org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+					Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignNodeState_" + operationName + "_" + System.currentTimeMillis(), "string('" + postState + "')", stateVarName);
+					assignNode = context.importNode(assignNode);
+					
+					lastSetState = postState;
+					
+					/*
+					 * assign the state after the receiving the response of the
+					 */
+					
+					// fetch assign node
+					Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode().getParentNode();
+					
+					// fetch the variable name which is used as request body
+					String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
+					
+					// from the assign element search for the receive element
+					// that is witing for the response
+					Element invokerReceiveElement = this.fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
+					
+					// insert assign after the receive
+					assignNode = invokerReceiveElement.getParentNode().insertBefore(assignNode, invokerReceiveElement.getNextSibling());
+					
+					// create PUT activity
+					String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
+					Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+					extActiv = context.importNode(extActiv);
+					
+					// insert REST call after the assign
+					invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
+					
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				} catch (SAXException e) {
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		
+		// needs property update only if the node has properties
+		if (hasProps) {
+			// make a GET on the nodeInstance properties
+			
+			try {
+				// fetch properties
+				Node nodeInstancePropsGETNode = this.fragments.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
+				nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
+				context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
+			} catch (SAXException e1) {
+				e1.printStackTrace();
+				return false;
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				return false;
+			}
+			
+			// assign the values from the property variables into REST/HTTP
+			// Request
+			// and send
+			// first build a mapping from property variable names to dom element
+			Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
+			try {
+				// then generate an assign to have code that writes the runtime
+				// values into the instance data db.
+				// we use the restCallResponseVarName from the GET before, as it
+				// has
+				// proper format
+				Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName, propertyVarNameToDOMMapping);
+				assignNode = context.importNode(assignNode);
+				context.getPostPhaseElement().appendChild(assignNode);
+			} catch (SAXException e) {
+				e.printStackTrace();
+				return false;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+			
+			// generate BPEL4RESTLight PUT request to update the instance data
+			try {
+				Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName, nodeInstanceURLVarName);
+				bpel4restPUTNode = context.importNode(bpel4restPUTNode);
+				context.getPostPhaseElement().appendChild(bpel4restPUTNode);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			} catch (SAXException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	/**
 	 * Appends BPEL Code that updates InstanceData for the given NodeTemplate.
 	 * Needs initialization code on the global level in the plan. This will be
@@ -134,7 +336,7 @@ public class Handler {
 	 * @param nodeTemplate the NodeTemplate to handle
 	 * @return true iff appending all BPEL code was successful
 	 */
-	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+	public boolean handleBuild(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
 		boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		
 		String serviceInstanceVarName = this.getServiceInstanceVarName(context);
