@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
+import org.opentosca.container.core.model.instance.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -16,30 +17,29 @@ import org.w3c.dom.Document;
  * Data Access Object for NodeInstances
  */
 public class NodeInstanceDAO extends AbstractDAO {
-	
+
 	// Logging
 	private final static Logger LOG = LoggerFactory.getLogger(NodeInstanceDAO.class);
-
-
+	
+	
 	public void deleteNodeInstance(final NodeInstance si) {
 		this.init();
 		this.em.getTransaction().begin();
-		this.em.remove(si);
+		si.setState(State.Node.DELETED);
 		this.em.getTransaction().commit();
 		NodeInstanceDAO.LOG.debug("Deleted NodeInstance with ID: " + si.getNodeInstanceID());
-		
 	}
-	
+
 	public void saveNodeInstance(final NodeInstance nodeInstance) {
 		this.init();
-		
+
 		this.em.getTransaction().begin();
 		this.em.persist(nodeInstance);
 		this.em.getTransaction().commit();
 		NodeInstanceDAO.LOG.debug("Stored NodeInstance: " + nodeInstance + " successful!");
-		
+
 	}
-	
+
 	/**
 	 * this method wraps the setting/saving of the properties
 	 *
@@ -52,35 +52,35 @@ public class NodeInstanceDAO extends AbstractDAO {
 		NodeInstanceDAO.LOG.debug("Invoke of saving nodeInstance: " + nodeInstance.getNodeInstanceID() + " to update properties");
 		this.saveNodeInstance(nodeInstance);
 	}
-	
+
 	/**
 	 * this method wraps the setting/saving of the state
 	 *
 	 * @param nodeInstance
 	 * @param state to be set
 	 */
-	public void setState(final NodeInstance nodeInstance, final QName state) {
+	public void setState(final NodeInstance nodeInstance, final String state) {
 		this.init();
-		nodeInstance.setState(state);
+		nodeInstance.setState(State.valueOf(State.Node.class, state, State.Node.STARTED));
 		NodeInstanceDAO.LOG.debug("Invoke of saving nodeInstance: " + nodeInstance.getNodeInstanceID() + " to update state");
 		this.saveNodeInstance(nodeInstance);
 	}
-	
+
 	public List<NodeInstance> getNodeInstances(final URI serviceInstanceID, final QName nodeTemplateID, final String nodeTemplateName, final URI nodeInstanceID) {
 		this.init();
-		
+
 		/**
 		 * Create Query to retrieve NodeInstances
 		 *
 		 * @see NodeInstance#getNodeInstances
 		 */
 		final Query getNodeInstancesQuery = this.em.createNamedQuery(NodeInstance.getNodeInstances);
-		
+
 		Integer internalID = null;
 		if (nodeInstanceID != null) {
 			internalID = IdConverter.nodeInstanceUriToID(nodeInstanceID);
 		}
-		
+
 		Integer internalServiceInstanceID = null;
 		if (serviceInstanceID != null) {
 			// The serviceInstanceID in this case has the following format:
@@ -90,14 +90,14 @@ public class NodeInstanceDAO extends AbstractDAO {
 			// resulting string array.
 			final String[] parts = serviceInstanceID.getPath().split("/");
 			internalServiceInstanceID = Integer.valueOf(parts[parts.length - 1]);
-			
+
 			// This won't work since IdConverter expects a different URL
 			// pattern (/instancedata/serviceInstances), which isn't given in
 			// this case.
 			// internalServiceInstanceID =
 			// IdConverter.serviceInstanceUriToID(serviceInstanceID);
 		}
-		
+
 		// Set Parameters for the Query
 		getNodeInstancesQuery.setParameter("internalID", internalID);
 		getNodeInstancesQuery.setParameter("nodeTemplateID", ((nodeTemplateID != null) ? nodeTemplateID.toString() : null));
@@ -105,8 +105,8 @@ public class NodeInstanceDAO extends AbstractDAO {
 		getNodeInstancesQuery.setParameter("internalServiceInstanceID", internalServiceInstanceID);
 		@SuppressWarnings("unchecked")
 		final List<NodeInstance> queryResults = getNodeInstancesQuery.getResultList();
-		
+
 		return queryResults;
 	}
-	
+
 }

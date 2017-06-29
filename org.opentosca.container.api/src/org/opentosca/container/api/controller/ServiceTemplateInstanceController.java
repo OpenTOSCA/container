@@ -69,6 +69,7 @@ public class ServiceTemplateInstanceController {
 			dto.setCreatedAt(i.getCreated());
 			dto.setCsarId(i.getCSAR_ID().toString());
 			dto.setServiceTemplateId(i.getServiceTemplateID().toString());
+			dto.setState(i.getState());
 
 			final URI selfLink = UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(dto.getId())).build());
 			dto.add(Link.fromUri(selfLink).rel("self").build());
@@ -99,6 +100,7 @@ public class ServiceTemplateInstanceController {
 		dto.setCreatedAt(i.getCreated());
 		dto.setCsarId(i.getCSAR_ID().toString());
 		dto.setServiceTemplateId(i.getServiceTemplateID().toString());
+		dto.setState(i.getState());
 
 		dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("managementplans").build())).rel("managementplans").build());
 		dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());

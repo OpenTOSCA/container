@@ -10,6 +10,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,64 +41,67 @@ import org.w3c.dom.Document;
 @Entity
 @NamedQueries({@NamedQuery(name = ServiceInstance.getServiceInstances, query = ServiceInstance.getServiceInstancesQuery)})
 public class ServiceInstance {
-	
+
 	// Query to retrieve ServiceInstances identified by a some parameters
 	public final static String getServiceInstances = "ServiceInstance.getServiceInstancesQuery";
 	protected final static String getServiceInstancesQuery = "select s from ServiceInstance s where" + " s.id = COALESCE(:id, s.id) AND" + " s.serviceTemplateName = COALESCE(:serviceTemplateName, s.serviceTemplateName) AND" + " s.serviceTemplateID = COALESCE(:serviceTemplateID, s.serviceTemplateID)";
-
+	
 	// the internal ID (Database) of the ServiceInstance
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
+	
 	// the external ID (used in all contexts BUT in the Database)
 	// it is separated because there is no need to save BOTH into the DB!
 	@Transient
 	private URI serviceInstanceID;
-
+	
 	@Convert("QNameConverter")
 	@Converter(name = "QNameConverter", converterClass = QNameConverter.class)
 	private QName serviceTemplateID;
-
+	
 	// the name of the corresponding ServiceTemplate
 	private String serviceTemplateName;
-
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	// the creation date of a ServiceInstance
 	private Date created;
-
+	
 	@Transient
 	private CSARID csarID;
-
+	
 	@Column(name = "csarID")
 	private String csarID_DB;
-
+	
 	@Column(name = "properties", columnDefinition = "VARCHAR(4096)")
 	@Convert("DocumentConverter")
 	@Converter(name = "DocumentConverter", converterClass = DocumentConverter.class)
 	Document properties;
-
-
+	
+	@Enumerated(EnumType.STRING)
+	private State.ServiceTemplate state = State.ServiceTemplate.INITIAL;
+	
+	
 	// This empty constructor is required by JPA
 	@SuppressWarnings("unused")
 	private ServiceInstance() {
 	}
-
-
+	
+	
 	@OneToMany(mappedBy = "serviceInstance", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	// cascade on delete tells the JPA Framework to let the DB handle the
 	// deletion (if serviceInstance is deleted => delete also all nodeInstances
 	// who reference it!)
 	@CascadeOnDelete
 	private List<NodeInstance> nodeInstances;
-
-
+	
 	@OneToMany(mappedBy = "serviceInstance", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	// cascade on delete tells the JPA Framework to let the DB handle the
 	// deletion (if serviceInstance is deleted => delete also all nodeInstances
 	// who reference it!)
 	@CascadeOnDelete
 	private List<RelationInstance> relationInstances;
+	
 	
 	/**
 	 * Creates a new instance of a ServiceTemplate. ID and creation date will be
@@ -113,39 +118,39 @@ public class ServiceInstance {
 		this.csarID_DB = csarID.getFileName();
 		this.setServiceTemplateID(serviceTemplateID);
 		this.serviceTemplateName = serviceTemplateName;
-
+		
 		this.created = new Date();
 		this.properties = null;
 	}
-
+	
 	public String getServiceTemplateName() {
 		return this.serviceTemplateName;
 	}
-
+	
 	public int getDBId() {
 		return this.id;
 	}
-
+	
 	public URI getServiceInstanceID() {
 		return this.serviceInstanceID;
 	}
-
+	
 	public QName getToscaID() {
 		return this.getServiceTemplateID();
 	}
-
+	
 	public Date getCreated() {
 		return this.created;
 	}
-
+	
 	public void setServiceTemplateName(final String serviceTemplateName) {
 		this.serviceTemplateName = serviceTemplateName;
 	}
-
+	
 	public CSARID getCSAR_ID() {
 		return this.csarID;
 	}
-
+	
 	/**
 	 * The ID persisted in the database is "only" an integer. To the outside, we
 	 * need the ID to be an URI. To avoid storing two IDs in the database we
@@ -168,20 +173,28 @@ public class ServiceInstance {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void setProperties(final Document props) {
 		this.properties = props;
 	}
-
+	
 	public Document getProperties() {
 		return this.properties;
 	}
-
+	
+	public State.ServiceTemplate getState() {
+		return this.state;
+	}
+	
+	public void setState(final State.ServiceTemplate state) {
+		this.state = state;
+	}
+	
 	@Override
 	public String toString() {
 		return "id:" + this.id + " created:" + this.created + " sID:" + this.serviceInstanceID + " templateID: " + this.getToscaID().toString() + " template name: " + this.serviceTemplateName;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -191,7 +204,7 @@ public class ServiceInstance {
 	public int hashCode() {
 		return this.id;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 *
@@ -256,20 +269,20 @@ public class ServiceInstance {
 		}
 		return true;
 	}
-
+	
 	public QName getServiceTemplateID() {
 		return this.serviceTemplateID;
 	}
-
+	
 	public void setServiceTemplateID(final QName serviceTemplateID) {
 		this.serviceTemplateID = serviceTemplateID;
 	}
-
+	
 	public List<NodeInstance> getNodeInstances() {
 		return this.nodeInstances;
 	}
-
+	
 	public List<RelationInstance> getRelationInstances() {
-		return relationInstances;
+		return this.relationInstances;
 	}
 }
