@@ -24,38 +24,38 @@ import com.google.gson.JsonObject;
  *
  */
 public class NodeTemplateInstanceStateResource {
-
+	
 	private final int nodeInstanceID;
-
-
+	
+	
 	public NodeTemplateInstanceStateResource(final int id) {
 		this.nodeInstanceID = id;
 	}
-	
+
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response doGetXML() {
-		
+
 		final String idr = this.getState();
-		
+
 		return Response.ok(idr).build();
 	}
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doGetJSON() {
-		
+
 		final String idr = this.getState();
-		
+
 		final JsonObject json = new JsonObject();
 		json.addProperty("state", idr);
-		
+
 		return Response.ok(json.toString()).build();
 	}
-	
+
 	public String getState() {
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		
+
 		try {
 			final QName state = service.getNodeInstanceState(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID));
 			if (state != null) {
@@ -67,24 +67,24 @@ public class NodeTemplateInstanceStateResource {
 			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
 		}
 	}
-	
+
 	@PUT
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_XML)
 	public Response setState(@Context final UriInfo uriInfo, final String state) {
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		
+
 		QName stateQName = null;
 		try {
 			stateQName = QName.valueOf(state);
-			
+
 		} catch (final Exception e1) {
 			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter state: " + e1.getMessage());
 		}
-		
+
 		try {
-			service.setNodeInstanceState(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), stateQName);
-			
+			service.setNodeInstanceState(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), state);
+
 			// SimpleXLink xLink = new
 			// SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
 			// nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
@@ -92,7 +92,7 @@ public class NodeTemplateInstanceStateResource {
 		} catch (final ReferenceNotFoundException e) {
 			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
 		}
-		
+
 	}
-	
+
 }

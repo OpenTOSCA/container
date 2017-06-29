@@ -171,7 +171,7 @@ public interface IInstanceDataService {
 	 * @param state
 	 * @throws ReferenceNotFoundException if nodeInstanceID doesn't exist
 	 */
-	public void setNodeInstanceState(URI nodeInstanceID, QName state) throws ReferenceNotFoundException;
+	public void setNodeInstanceState(URI nodeInstanceID, String state) throws ReferenceNotFoundException;
 	
 	/**
 	 * returns a DOM structure containing all properties specified in the
@@ -217,7 +217,7 @@ public interface IInstanceDataService {
 	
 	public QName getRelationInstanceState(URI relationInstanceID) throws ReferenceNotFoundException;
 	
-	public void setRelationInstanceState(URI relationInstanceID, QName state) throws ReferenceNotFoundException;
+	public void setRelationInstanceState(URI relationInstanceID, String state) throws ReferenceNotFoundException;
 	
 	public void setRelationInstanceProperties(URI relationInstanceID, Document properties) throws ReferenceNotFoundException;
 	

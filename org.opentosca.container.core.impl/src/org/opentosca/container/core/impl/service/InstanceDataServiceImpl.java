@@ -282,12 +282,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 			InstanceDataServiceImpl.LOG.warn(msg);
 			throw new ReferenceNotFoundException(msg);
 		}
-		return relationInstances.get(0).getState();
+		return QName.valueOf(relationInstances.get(0).getState().toString());
 	}
 
 	@Override
 	@WebMethod(exclude = true)
-	public void setRelationInstanceState(final URI relationInstanceID, final QName state) throws ReferenceNotFoundException {
+	public void setRelationInstanceState(final URI relationInstanceID, final String state) throws ReferenceNotFoundException {
 		final List<RelationInstance> relationInstances = this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
 
 		if ((relationInstances == null) || (relationInstances.size() != 1)) {
@@ -307,11 +307,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 			InstanceDataServiceImpl.LOG.warn(msg);
 			throw new ReferenceNotFoundException(msg);
 		}
-		return nodeInstances.get(0).getState();
+		return QName.valueOf(nodeInstances.get(0).getState().toString());
 	}
 	
 	@Override
-	public void setNodeInstanceState(final URI nodeInstanceID, final QName state) throws ReferenceNotFoundException {
+	public void setNodeInstanceState(final URI nodeInstanceID, final String state) throws ReferenceNotFoundException {
 		final List<NodeInstance> nodeInstances = this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 
 		if ((nodeInstances == null) || (nodeInstances.size() != 1)) {

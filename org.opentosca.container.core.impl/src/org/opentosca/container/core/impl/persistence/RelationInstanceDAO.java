@@ -8,6 +8,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.RelationInstance;
+import org.opentosca.container.core.model.instance.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -27,7 +28,7 @@ public class RelationInstanceDAO extends AbstractDAO {
 	public void deleteRelationInstance(final RelationInstance si) {
 		this.init();
 		this.em.getTransaction().begin();
-		this.em.remove(si);
+		si.setState(State.Relationship.DELETED);
 		this.em.getTransaction().commit();
 		RelationInstanceDAO.LOG.debug("Deleted NodeInstance with ID: " + si.getRelationInstanceID());
 		
@@ -62,9 +63,9 @@ public class RelationInstanceDAO extends AbstractDAO {
 	 * @param relationInstance
 	 * @param state to be set
 	 */
-	public void setState(final RelationInstance relationInstance, final QName state) {
+	public void setState(final RelationInstance relationInstance, final String state) {
 		this.init();
-		relationInstance.setState(state);
+		relationInstance.setState(State.valueOf(State.Relationship.class, state, State.Relationship.CREATED));
 		RelationInstanceDAO.LOG.debug("Invoke of saving nodeInstance: " + relationInstance.getRelationInstanceID() + " to update state");
 		this.saveRelationInstance(relationInstance);
 	}

@@ -21,6 +21,7 @@ import org.opentosca.container.core.impl.plan.ServiceProxy;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceInstance;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
+import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.IPlanLogHandler;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
@@ -115,7 +116,7 @@ public class PlanService {
 					final PlanInstanceDTO pi = new PlanInstanceDTO();
 					
 					pi.setId(correlationId);
-					pi.setState(PlanInstanceDTO.State.UNKNOWN);
+					pi.setState(State.Plan.UNKNOWN);
 					
 					final List<PlanInstanceDTO.LogEntry> logs = this.logHandler.getLogsOfPlanInstance(correlationId).entrySet().stream().map(e -> {
 						return new PlanInstanceDTO.LogEntry(e.getKey(), e.getValue());
@@ -137,7 +138,7 @@ public class PlanService {
 					if (event != null) {
 						pi.setState(this.determinePlanInstanceState(id.getCsarId(), correlationId));
 						if (event.isHasFailed()) {
-							pi.setState(PlanInstanceDTO.State.FAILED);
+							pi.setState(State.Plan.FAILED);
 						}
 					}
 
@@ -171,16 +172,16 @@ public class PlanService {
 		return null;
 	}
 	
-	private PlanInstanceDTO.State determinePlanInstanceState(final CSARID csarId, final String correlationId) {
+	private State.Plan determinePlanInstanceState(final CSARID csarId, final String correlationId) {
 		final List<String> finishedCorrelations = this.csarInstanceService.getFinishedCorrelations(csarId);
 		final List<String> activeCorrelations = this.csarInstanceService.getActiveCorrelations(csarId);
 		if ((finishedCorrelations != null) && finishedCorrelations.contains(correlationId)) {
-			return PlanInstanceDTO.State.FINISHED;
+			return State.Plan.FINISHED;
 		}
 		if ((activeCorrelations != null) && activeCorrelations.contains(correlationId)) {
-			return PlanInstanceDTO.State.RUNNING;
+			return State.Plan.RUNNING;
 		}
-		return PlanInstanceDTO.State.UNKNOWN;
+		return State.Plan.UNKNOWN;
 	}
 
 	public void setEngineService(final IToscaEngineService engineService) {
