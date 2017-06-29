@@ -216,7 +216,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 		// send the message to the service bus
 		final Event event = new Event("org_opentosca_plans/requests", eventValues);
 		this.LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
-		ServiceProxy.eventAdmin.postEvent(event);
+		ServiceProxy.eventAdmin.sendEvent(event);
 		
 		return correlationID;
 	}

@@ -54,7 +54,7 @@ public class Route extends RouteBuilder {
 		this.from("direct:invokeIA").to("stream:out").wireTap(MANAGEMENT_BUS_IA);
 		this.from("direct:invokePlan").to("stream:out").to(MANAGEMENT_BUS_PLAN).end();
 
-		this.from("direct-vm:" + Activator.apiID).to("direct:response").end();
+		this.from("direct-vm:" + Activator.apiID).recipientList(this.simple("direct:response${id}")).end();
 
 	}
 

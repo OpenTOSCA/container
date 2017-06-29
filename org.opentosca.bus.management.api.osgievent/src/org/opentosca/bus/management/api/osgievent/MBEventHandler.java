@@ -117,22 +117,19 @@ public class MBEventHandler implements EventHandler {
 
 				Object response = null;
 				String callbackMessageID = null;
+				Exchange exchange = null;
 
-				synchronized (this) {
+				try {
 
-					try {
+					consumer.start();
+					exchange = consumer.receive("direct:response" + messageID);
+					response = exchange.getIn().getBody();
+					callbackMessageID = exchange.getIn().getMessageId();
+					consumer.stop();
 
-						consumer.start();
-						final Exchange exchange = consumer.receive("direct:response");
-						response = exchange.getIn().getBody();
-						callbackMessageID = exchange.getIn().getMessageId();
-
-						consumer.stop();
-
-					} catch (final Exception e) {
-						MBEventHandler.LOG.error("Some error occured.");
-						e.printStackTrace();
-					}
+				} catch (final Exception e) {
+					MBEventHandler.LOG.error("Some error occured.");
+					e.printStackTrace();
 				}
 
 				MBEventHandler.LOG.debug("Received response with correlation id {}.", callbackMessageID);
@@ -215,22 +212,20 @@ public class MBEventHandler implements EventHandler {
 
 				Object response = null;
 				String callbackMessageID = null;
+				Exchange exchange = null;
 
-				synchronized (this) {
+				try {
 
-					try {
+					consumer.start();
+					exchange = consumer.receive("direct:response" + messageID);
+					response = exchange.getIn().getBody();
+					callbackMessageID = exchange.getIn().getMessageId();
 
-						consumer.start();
-						final Exchange exchange = consumer.receive("direct-vm:" + Activator.apiID);
-						response = exchange.getIn().getBody();
-						callbackMessageID = exchange.getIn().getMessageId();
+					consumer.stop();
 
-						consumer.stop();
-
-					} catch (final Exception e) {
-						MBEventHandler.LOG.error("Some error occured.");
-						e.printStackTrace();
-					}
+				} catch (final Exception e) {
+					MBEventHandler.LOG.error("Some error occured.");
+					e.printStackTrace();
 				}
 
 				MBEventHandler.LOG.debug("Received response with correlation id {}.", callbackMessageID);
