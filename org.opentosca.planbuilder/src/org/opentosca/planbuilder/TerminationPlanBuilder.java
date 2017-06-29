@@ -155,7 +155,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 				// add logic at the end of the process to DELETE the
 				// serviceInstance with the instanceDataAPI
 				
-				//this.serviceInstanceInitializer.appendServiceInstanceDelete(newTerminationPlan);
+				this.serviceInstanceInitializer.appendServiceInstanceDelete(newTerminationPlan);
 				
 				this.idInit.addCorrellationID(newTerminationPlan);
 				
