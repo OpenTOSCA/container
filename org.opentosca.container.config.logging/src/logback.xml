@@ -3,7 +3,7 @@
 
   <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
 
-  <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%5p] [%15.15t] %-40.40logger{39} Line %L : %m%n " />
+  <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%5p] [%15.15t] %5L : %-40.40logger{39} : %m%n " />
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
