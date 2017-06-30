@@ -1,5 +1,6 @@
 package org.opentosca.bus.application.api.soaphttp.route;
 
+import java.net.InetAddress;
 import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
@@ -32,7 +33,8 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 
-	private final static String ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8084/appBus";
+	// private final static String ENDPOINT = "http://" +
+	// Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8084/appBus";
 	private final static QName PORT = new QName("http://opentosca.org/appinvoker/", "AppInvokerSoapWebServicePort");
 
 
@@ -41,8 +43,12 @@ public class Route extends RouteBuilder {
 
 		final URL wsdlURL = this.getClass().getClassLoader().getResource("META-INF/wsdl/SoapAPI.wsdl");
 
+		// Determine localhost's IP address
+		final InetAddress localhost = InetAddress.getByName(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+		final String url = "http://" + localhost.getHostAddress() + ":8084/appBus";
+
 		// CXF Endpoint
-		final String SOAP_ENDPOINT = "cxf:" + Route.ENDPOINT + "?wsdlURL=" + wsdlURL.toString() + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName=" + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+		final String SOAP_ENDPOINT = "cxf:" + url + "?wsdlURL=" + wsdlURL.toString() + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName=" + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
 		final ValueBuilder APP_BUS_ENDPOINT = new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
 		final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
