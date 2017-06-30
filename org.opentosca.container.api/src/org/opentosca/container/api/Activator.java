@@ -17,11 +17,14 @@ package org.opentosca.container.api;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ServerProperties;
 import org.opentosca.container.api.config.CorsFilter;
 import org.opentosca.container.api.config.JAXBContextProvider;
 import org.opentosca.container.api.config.ObjectMapperProvider;
@@ -36,7 +39,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Activator implements BundleActivator {
+import com.eclipsesource.jaxrs.publisher.ApplicationConfiguration;
+
+public class Activator implements BundleActivator, ApplicationConfiguration {
 
 	private static Logger logger = LoggerFactory.getLogger(Activator.class);
 	
@@ -60,6 +65,7 @@ public class Activator implements BundleActivator {
 
 		// Jersey Configuration
 		this.configurator(bundleContext);
+		this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
 		this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
 		this.services.add(bundleContext.registerService(PlainTextMessageBodyWriter.class, new PlainTextMessageBodyWriter(), null));
 		this.services.add(bundleContext.registerService(ObjectMapperProvider.class, new ObjectMapperProvider(), null));
@@ -97,5 +103,12 @@ public class Activator implements BundleActivator {
 		properties.put("root", "/");
 		
 		config.update(properties);
+	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put(ServerProperties.WADL_FEATURE_DISABLE, true);
+		return properties;
 	}
 }
