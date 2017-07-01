@@ -118,6 +118,11 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 		this.csarIDToPolicies.remove(csarID);
 		this.mapDefinitionsIDToLocationString.remove(csarID);
 		this.mapElementIDToDefinitionsID.remove(csarID);
+		this.mapCSARIDToServiceTemplateIdToInterfaceToOperationToPlan.remove(csarID);
+		this.mapCSARIDToServiceTemplateQNameToNodeTemplateID.remove(csarID);
+		this.mapCSARIDToServiceTemplateQNameToRelationshipTemplateID.remove(csarID);
+		this.serviceTemplatePropertiesContent.remove(csarID);
+		this.serviceTemplatePropertyMappings.remove(csarID);
 		
 		if (this.containsCSARData(csarID)) {
 			return false;
