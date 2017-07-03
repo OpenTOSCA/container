@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MosquittoConnectsTo
 Bundle-SymbolicName: org.opentosca.planbuilder.type.plugin.mosquittoconnectsto
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",

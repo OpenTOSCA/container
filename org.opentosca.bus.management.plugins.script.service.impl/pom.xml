@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.opentosca</groupId>
     <artifactId>container</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>2.0.1-SNAPSHOT</version>
   </parent>
   <groupId>org.opentosca</groupId>
   <artifactId>org.opentosca.bus.management.plugins.script.service.impl</artifactId>

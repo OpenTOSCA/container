@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.opentosca.bus.management.plugins.soaphttp.service.impl
 Bundle-SymbolicName: org.opentosca.bus.management.plugins.soaphttp.service.impl
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.management.plugins.soaphttp.service.impl.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.predic8.schema,
