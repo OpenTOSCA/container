@@ -915,4 +915,33 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 		
 		this.updateServiceInstanceProperties(serviceInstance);
 	}
+
+	@Override
+	public String getServiceInstanceState(URI serviceInstanceID) throws ReferenceNotFoundException {
+		
+		
+		final List<ServiceInstance> serviceInstances = this.siDAO.getServiceInstances(serviceInstanceID, null, null);
+		 
+		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
+			final String msg = String.format("Failed to get State of ServiceInstance: '%s' - does it exist?", serviceInstances);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		return serviceInstances.get(0).getState().toString();
+	}
+
+	@Override
+	public void setServiceInstanceState(URI serviceInstanceIDtoURI, String state) throws ReferenceNotFoundException {
+		final List<ServiceInstance> serviceInstances = this.siDAO.getServiceInstances(serviceInstanceIDtoURI, null, null);
+		
+
+		if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
+			final String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?", serviceInstanceIDtoURI);
+			InstanceDataServiceImpl.LOG.warn(msg);
+			throw new ReferenceNotFoundException(msg);
+		}
+		
+		this.siDAO.setState(serviceInstances.get(0),state);
+		
+	}
 }

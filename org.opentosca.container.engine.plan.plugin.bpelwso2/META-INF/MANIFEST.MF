@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Plan Engine BPEL 2.0 Plugin for WSO2 BPS 2.1.2
 Bundle-SymbolicName: org.opentosca.container.engine.plan.plugin.bpelwso2
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.wsdl.extensions.http,
  com.ibm.wsdl.extensions.soap,

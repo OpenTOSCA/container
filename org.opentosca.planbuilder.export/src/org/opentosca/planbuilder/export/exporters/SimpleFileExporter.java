@@ -198,8 +198,9 @@ public class SimpleFileExporter {
 		
 		// the services and their new name the dd uses, excluding the client
 		// services, will be added here
-		final Map<QName, QName> servicesToRewrite = new HashMap<>();
-
+		final Map<QName, QName> invokedServicesToRewrite = new HashMap<>();
+		final Map<QName, QName> providedServicesToRewrite = new HashMap<>();
+		
 		for (final TInvoke invoke : invokes) {
 			if (invoke.getPartnerLink().equals("client")) {
 				continue;
@@ -210,7 +211,7 @@ public class SimpleFileExporter {
 			
 			final QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart() + System.currentTimeMillis());
 			
-			servicesToRewrite.put(serviceName, renamedServiceName);
+			invokedServicesToRewrite.put(serviceName, renamedServiceName);
 			
 			service.setName(renamedServiceName);
 			
@@ -227,14 +228,19 @@ public class SimpleFileExporter {
 			
 			final QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart() + System.currentTimeMillis());
 			
-			servicesToRewrite.put(serviceName, renamedServiceName);
+			providedServicesToRewrite.put(serviceName, renamedServiceName);
 			
 			service.setName(renamedServiceName);
 			
 			provide.setService(service);
 		}
 		
-		// and now for the killer part..
+		this.rewriteServices(providedServicesToRewrite, writer, reader, referencedFiles);
+		this.rewriteServices(invokedServicesToRewrite, writer, reader, referencedFiles);
+		
+	}
+	
+	private void rewriteServices(Map<QName, QName> servicesToRewrite, WSDLWriter writer, WSDLReader reader, final List<File> referencedFiles) throws WSDLException, FileNotFoundException {
 		for (final QName serviceName : servicesToRewrite.keySet()) {
 			
 			for (final File file : referencedFiles) {
@@ -274,9 +280,8 @@ public class SimpleFileExporter {
 				writer.writeWSDL(def, new FileOutputStream(file));
 			}
 		}
-		
 	}
-
+	
 	/**
 	 * Returns the FileAccessService of the OpenTOSCA Core
 	 *

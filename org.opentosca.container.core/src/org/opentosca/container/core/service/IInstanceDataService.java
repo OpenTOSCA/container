@@ -222,5 +222,9 @@ public interface IInstanceDataService {
 	public void setRelationInstanceProperties(URI relationInstanceID, Document properties) throws ReferenceNotFoundException;
 	
 	public Document getRelationInstanceProperties(URI relationInstanceID, List<QName> propertiesList) throws ReferenceNotFoundException;
+
+	public String getServiceInstanceState(URI serviceInstanceID) throws ReferenceNotFoundException;
+
+	public void setServiceInstanceState(URI serviceInstanceIDtoURI, String state) throws ReferenceNotFoundException;
 	
 }

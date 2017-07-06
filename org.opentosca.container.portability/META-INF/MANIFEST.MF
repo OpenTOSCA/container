@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Container Portability Service
 Bundle-SymbolicName: org.opentosca.container.portability
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Export-Package: org.opentosca.container.portability,
  org.opentosca.container.portability.impl,
  org.opentosca.container.portability.model,

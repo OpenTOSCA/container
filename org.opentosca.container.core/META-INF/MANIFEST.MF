@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Container Core
 Bundle-SymbolicName: org.opentosca.container.core
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.container.core.Activator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -58,4 +58,4 @@ Export-Package: org.opentosca.container.core,
  org.opentosca.container.core.service,
  org.opentosca.container.core.service.internal
 Meta-Persistence: META-INF/persistence.xml
-JPA-PersistenceUnits: OpenTOSCA 
+JPA-PersistenceUnits: OpenTOSCA

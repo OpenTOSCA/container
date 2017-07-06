@@ -123,4 +123,17 @@ public class ServiceInstanceDAO extends AbstractDAO {
 		return queryResults;
 	}
 
+	/**
+	 * this method wraps the setting/saving of the state
+	 *
+	 * @param nodeInstance
+	 * @param state to be set
+	 */
+	public void setState(ServiceInstance serviceInstance, String state) {
+			this.init();
+			serviceInstance.setState(State.valueOf(State.ServiceTemplate.class, state, State.ServiceTemplate.STARTED));
+			ServiceInstanceDAO.LOG.debug("Invoke of saving serviceInstance: " + serviceInstance.getServiceInstanceID() + " to update state");
+			this.storeServiceInstance(serviceInstance);
+	}
+
 }
