@@ -1,5 +1,6 @@
 package org.opentosca.container.api.dto;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +13,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @XmlRootElement(name = "Resources")
 public class ResourceSupport {
 	
+	@JsonSerialize(using = LinksSerializer.class)
 	private final List<Link> links = new ArrayList<>();
 	
 	
@@ -127,5 +134,41 @@ public class ResourceSupport {
 	@Override
 	public String toString() {
 		return String.format("links: %s", this.links.toString());
+	}
+	
+	
+	private static class LinksSerializer extends JsonSerializer<List<Link>> {
+
+		@Override
+		public void serialize(final List<Link> links, final JsonGenerator json, final SerializerProvider provider) throws IOException, JsonProcessingException {
+			if (links.isEmpty()) {
+				return;
+			}
+			final LinkSerializer delegate = new LinkSerializer();
+			json.writeStartObject();
+			for (final Link link : links) {
+				delegate.serialize(link, json, provider);
+			}
+			json.writeEndObject();
+		}
+	}
+	
+	private static class LinkSerializer extends JsonSerializer<Link> {
+		
+		@Override
+		public void serialize(final Link link, final JsonGenerator json, final SerializerProvider provider) throws IOException, JsonProcessingException {
+			if ((link.getUri() == null) || (link.getRel() == null) || link.getRel().isEmpty()) {
+				return;
+			}
+			json.writeObjectFieldStart(link.getRel());
+			json.writeStringField("href", link.getUri().toString());
+			if ((link.getTitle() != null) && !link.getTitle().isEmpty()) {
+				json.writeStringField(Link.TITLE, link.getTitle());
+			}
+			if ((link.getType() != null) && !link.getType().isEmpty()) {
+				json.writeStringField(Link.TYPE, link.getType());
+			}
+			json.writeEndObject();
+		}
 	}
 }
