@@ -54,6 +54,8 @@ public class ServiceInstanceInitializer {
 		this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.InstanceDataAPIUrlKeyword);
 		this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.ServiceInstanceVarKeyword);
 	}
+	
+	
 
 	/**
 	 * Appends logic to handle instanceDataAPI interaction. Adds instanceDataAPI
@@ -92,6 +94,75 @@ public class ServiceInstanceInitializer {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public boolean appendSetServiceInstanceState(TOSCAPlan plan, Element insertBeforeElement, String state) {
+
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+
+		// generate any type variable for REST call response
+		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
+		QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
+		
+		
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE,
+				rescalResponseVarDeclId, plan)) {
+			return false;
+		}
+		
+		String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
+		QName rescalRequestVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
+		
+		
+		if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, TOSCAPlan.VariableType.TYPE,
+				rescalRequestVarDeclId, plan)) {
+			return false;
+		}
+		
+
+		String assignName = "assignServiceInstanceState" + System.currentTimeMillis();
+		
+		try {
+			Node assignRequestWithStateNode = this.fragments.createAssignXpathQueryToStringVarFragmentAsNode(assignName, "string('" + state + "')", restCallRequestVarName);
+			assignRequestWithStateNode = plan.getBpelDocument().importNode(assignRequestWithStateNode, true);
+			insertBeforeElement.getParentNode().insertBefore(assignRequestWithStateNode, insertBeforeElement);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String serviceInstanceVarName = "";
+		
+		for(String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+			if(varName.contains(ServiceInstanceVarKeyword)) {
+				serviceInstanceVarName = varName;
+			}
+		}
+		
+		if(serviceInstanceVarName.isEmpty()) {
+			return false;
+		}
+		
+		
+		try {
+			Node setInstanceStateRequestNode = this.fragments.createBPEL4RESTLightPutStateAsNode(serviceInstanceVarName, restCallRequestVarName);
+			setInstanceStateRequestNode = plan.getBpelDocument().importNode(setInstanceStateRequestNode, true);
+			insertBeforeElement.getParentNode().insertBefore(setInstanceStateRequestNode, insertBeforeElement);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return true;
 	}
 
 	public boolean appendServiceInstanceDelete(TOSCAPlan plan) {
