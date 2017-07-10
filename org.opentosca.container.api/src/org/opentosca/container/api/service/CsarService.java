@@ -1,5 +1,7 @@
 package org.opentosca.container.api.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
@@ -14,12 +16,17 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.winery.model.selfservice.Application;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreFileService;
+import org.opentosca.container.core.service.IFileAccessService;
+import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.planbuilder.importer.Importer;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +39,8 @@ public class CsarService {
 	private ICoreFileService fileService;
 	
 	private IToscaEngineService engineService;
+
+	private IFileAccessService fileAccessService;
 	
 	
 	/**
@@ -120,11 +129,66 @@ public class CsarService {
 		return this.getServiceTemplates(id).contains(name);
 	}
 	
+	public File storeTemporaryFile(final String filename, final InputStream is) {
+
+		final File tempDirectory = this.fileAccessService.getTemp();
+
+		// Make sure the temp directory exists
+		tempDirectory.mkdir();
+
+		// Determine temporary file location
+		final File file = new File(tempDirectory, filename);
+
+		// Write the input stream into the file
+		try {
+			FileUtils.copyInputStreamToFile(is, file);
+		} catch (final IOException e) {
+			logger.error("Error writing temporary CSAR file: {}", e.getMessage(), e);
+			return null;
+		}
+
+		return file;
+	}
+
+	/**
+	 * Checks whether the plan builder should generate a build plans.
+	 *
+	 * @param csarId the {@link CSARID} to generate build plans
+	 * @return the new {@link CSARID} for the repackaged CSAR or null if an
+	 *         error occurred
+	 */
+	public CSARID generatePlans(final CSARID csarId) {
+
+		final Importer planBuilderImporter = new Importer();
+		final Exporter planBuilderExporter = new Exporter();
+
+		final List<TOSCAPlan> buildPlans = planBuilderImporter.importDefs(csarId);
+
+		if (buildPlans.isEmpty()) {
+			return csarId;
+		}
+
+		final File file = planBuilderExporter.export(buildPlans, csarId);
+
+		try {
+			this.fileService.deleteCSAR(csarId);
+			return this.fileService.storeCSAR(file.toPath());
+		} catch (final Exception e) {
+			logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
+		}
+
+		return null;
+	}
+
 	public void setFileService(final ICoreFileService fileService) {
 		this.fileService = fileService;
 	}
 	
 	public void setEngineService(final IToscaEngineService engineService) {
 		this.engineService = engineService;
+	}
+
+	public void setFileAccessService(final IFileAccessService fileAccessService) {
+		this.fileAccessService = fileAccessService;
 	}
 }
