@@ -135,10 +135,15 @@ public class CsarController {
 		}
 		
 		logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(), request.getUrl());
+
+		String filename = request.getName();
+		if (!filename.endsWith(".csar")) {
+			filename = filename + ".csar";
+		}
 		
 		try {
 			final URL url = new URL(request.getUrl());
-			return this.handleCsarUpload(request.getName(), url.openStream());
+			return this.handleCsarUpload(filename, url.openStream());
 		} catch (final Exception e) {
 			logger.error("Error uploading CSAR: {}", e.getMessage(), e);
 			return Response.serverError().build();
