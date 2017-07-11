@@ -10,6 +10,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -46,30 +47,30 @@ import org.slf4j.LoggerFactory;
 
 @Path("/csars")
 public class CsarController {
-	
-	private static Logger logger = LoggerFactory.getLogger(CsarController.class);
 
+	private static Logger logger = LoggerFactory.getLogger(CsarController.class);
+	
 	@Context
 	private UriInfo uriInfo;
-
+	
 	@Context
 	private Request request;
-	
-	private CsarService csarService;
 
+	private CsarService csarService;
+	
 	private ICoreFileService fileService;
-	
+
 	private IToscaEngineService engineService;
-	
+
 	private IOpenToscaControlService controlService;
-	
-	
+
+
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response getCsars() {
-
+		
 		final CsarListDTO list = new CsarListDTO();
-
+		
 		for (final CSARContent csarContent : this.csarService.findAll()) {
 			final String id = csarContent.getCSARID().getFileName();
 			final CsarDTO csar = new CsarDTO();
@@ -78,22 +79,22 @@ public class CsarController {
 			csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class).path(CsarController.class, "getCsar").build(id)).rel("self").build());
 			list.add(csar);
 		}
-
+		
 		list.add(Link.fromResource(CsarController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
-
+		
 		return Response.ok(list).build();
 	}
-	
+
 	@GET
 	@Path("/{id}")
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response getCsar(@PathParam("id") final String id) {
-
+		
 		final CSARContent csarContent = this.csarService.findById(id);
 		final Application metadata = this.csarService.getSelfserviceMetadata(csarContent);
-
-		final CsarDTO csar = CsarDTO.Converter.convert(metadata);
 		
+		final CsarDTO csar = CsarDTO.Converter.convert(metadata);
+
 		// Absolute URLs for icon and image
 		// TODO: Use new API endpoint
 		final String urlTemplate = "{0}containerapi/CSARs/{1}/Content/SELFSERVICE-Metadata/{2}";
@@ -101,46 +102,46 @@ public class CsarController {
 		final String imageUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
 		csar.setIconUrl(iconUrl);
 		csar.setImageUrl(imageUrl);
-
+		
 		csar.setId(id);
 		if (csar.getName() == null) {
 			csar.setName(id);
 		}
 		csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates").baseUri(this.uriInfo.getBaseUri()).build(id));
 		csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class).path(CsarController.class, "getCsar").build(id)).rel("self").build());
-
+		
 		return Response.ok(csar).build();
 	}
-	
+
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response uploadFile(@FormDataParam("file") final InputStream is, @FormDataParam("file") final FormDataContentDisposition file) throws IOException, URISyntaxException, UserException, SystemException {
-		
+
 		if ((is == null) || (file == null)) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		
+
 		logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
 		return this.handleCsarUpload(file.getFileName(), is);
 	}
-	
+
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Response upload(final CsarUploadRequest request) {
-
+		
 		if (request == null) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		
-		logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(), request.getUrl());
 
+		logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(), request.getUrl());
+		
 		String filename = request.getName();
 		if (!filename.endsWith(".csar")) {
 			filename = filename + ".csar";
 		}
-		
+
 		try {
 			final URL url = new URL(request.getUrl());
 			return this.handleCsarUpload(filename, url.openStream());
@@ -149,24 +150,24 @@ public class CsarController {
 			return Response.serverError().build();
 		}
 	}
-
+	
 	private Response handleCsarUpload(final String filename, final InputStream is) {
-
-		final File file = this.csarService.storeTemporaryFile(filename, is);
-
-		CSARID csarId;
 		
+		final File file = this.csarService.storeTemporaryFile(filename, is);
+		
+		CSARID csarId;
+
 		try {
 			csarId = this.fileService.storeCSAR(file.toPath());
 		} catch (final Exception e) {
 			logger.error("Failed to store CSAR: {}", e.getMessage(), e);
 			return Response.serverError().build();
 		}
-
+		
 		this.controlService.invokeTOSCAProcessing(csarId);
-
+		
 		try {
-
+			
 			if (ModelUtils.hasOpenRequirements(csarId)) {
 				final WineryConnector wc = new WineryConnector();
 				if (wc.isWineryRepositoryAvailable()) {
@@ -187,7 +188,7 @@ public class CsarController {
 			logger.error("Error resolving open requirements: {}", e.getMessage(), e);
 			return Response.serverError().build();
 		}
-
+		
 		this.controlService.deleteCSAR(csarId);
 		try {
 			csarId = this.fileService.storeCSAR(file.toPath());
@@ -195,15 +196,15 @@ public class CsarController {
 			logger.error("Failed to store CSAR: {}", e.getMessage(), e);
 			return Response.serverError().build();
 		}
-		
+
 		csarId = this.csarService.generatePlans(csarId);
 		if (csarId == null) {
 			return Response.serverError().build();
 		}
-
+		
 		this.controlService.setDeploymentProcessStateStored(csarId);
 		boolean success = this.controlService.invokeTOSCAProcessing(csarId);
-
+		
 		if (success) {
 			final List<QName> serviceTemplates = this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
 			for (final QName serviceTemplate : serviceTemplates) {
@@ -219,28 +220,46 @@ public class CsarController {
 				}
 			}
 		}
-
+		
 		if (!success) {
 			return Response.serverError().build();
 		}
-
+		
 		logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.getFileName());
 		final URI uri = UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId));
 		return Response.created(uri).build();
+	}
+
+	@DELETE
+	@Path("/{id}")
+	public Response delete(@PathParam("id") final String id) {
+		
+		final CSARContent csarContent = this.csarService.findById(id);
+
+		logger.info("Deleting CSAR \"{}\"", id);
+		final List<String> errors = this.controlService.deleteCSAR(csarContent.getCSARID());
+		
+		if (errors.size() > 0) {
+			logger.error("Error deleting CSAR");
+			errors.forEach(s -> logger.error(s));
+			return Response.serverError().build();
+		}
+
+		return Response.noContent().build();
 	}
 	
 	public void setCsarService(final CsarService csarService) {
 		this.csarService = csarService;
 	}
-
+	
 	public void setFileService(final ICoreFileService fileService) {
 		this.fileService = fileService;
 	}
-	
+
 	public void setEngineService(final IToscaEngineService engineService) {
 		this.engineService = engineService;
 	}
-
+	
 	public void setControlService(final IOpenToscaControlService controlService) {
 		this.controlService = controlService;
 	}
