@@ -391,28 +391,9 @@ public class TemplatePlanBuilder {
 				}
 			}
 
-			int operationsToImplementCount = 0;
+			
 
-			for (AbstractOperation op : this.ops) {
-
-				if (op instanceof InterfaceDummy) {
-					String ifaceName = ((InterfaceDummy) op).getIA().getInterfaceName();
-					if (!ifaceName.equals(interfaceName)) {
-						continue;
-					}
-					for (AbstractInterface iface : ((InterfaceDummy) op).getNodeTemplate().getType().getInterfaces()) {
-						if (iface.getName().equals(ifaceName)) {
-							operationsToImplementCount += iface.getOperations().size();
-						}
-					}
-				} else {
-					if (!op.getName().equals(operationName)) {
-						operationsToImplementCount++;
-					}
-				}
-			}
-
-			if (operationsToImplementCount != implementedOpsByIAsCount) {
+			if (1 != implementedOpsByIAsCount) {
 				return false;
 			}
 
