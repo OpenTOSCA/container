@@ -250,6 +250,11 @@ public class Handler {
 			 * is provided in the input message
 			 */
 			
+			Node messageIdInit = this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":" + interfaceName + ":" + operationName + ":");
+			messageIdInit = context.importNode(messageIdInit);
+			assignNode.appendChild(messageIdInit);
+			
+			
 			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName, InputMessagePartName, "ReplyTo");
 			replyToCopy = context.importNode(replyToCopy);
 			assignNode.appendChild(replyToCopy);
@@ -259,7 +264,7 @@ public class Handler {
 			Handler.LOG.error("Couldn't generate DOM node for the request message assign element", e);
 			return false;
 		}
-
+		
 		this.appendLOGActivity(context, operation.getName());
 		
 		// invoke service invoker
@@ -417,6 +422,11 @@ public class Handler {
 			// replyToCopy = context.importNode(replyToCopy);
 			// assignNode.appendChild(replyToCopy);
 			// }
+			
+			Node messageIdInit = this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":" + interfaceName + ":" + operationName + ":");
+			messageIdInit = context.importNode(messageIdInit);
+			assignNode.appendChild(messageIdInit);
+			
 			
 			if (appendToPrePhase) {
 				context.getPrePhaseElement().appendChild(assignNode);
