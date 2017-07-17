@@ -1,26 +1,20 @@
 language: java
 
-#We build against the latest JDK
 jdk:
   - oraclejdk8
 
-#We build at Ubuntu 14.04 (Trusty Tahr) as we want to use a more recent Ubuntu version
 sudo: required
 dist: trusty
 
 script:
   - mvn package --fail-at-end
-#  - mvn versioneye:update
 
-#upload codecov report
 after_script:
-  # Adapted based on https://gist.github.com/lukewpatterson/4242707
-  - echo -n $ID_RSA_TRAVIS_{1..23} >> ~/.ssh/id_rsa_base64
+  - echo -n $ID_RSA_TRAVIS_{1..23} >> ~/.ssh/id_rsa_base64 # Adapted based on https://gist.github.com/lukewpatterson/4242707
   - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa
   - eval "$(ssh-agent -s)"
   - ssh-add ~/.ssh/id_rsa
-  # Prevent "Are you sure you want to continue connecting (yes/no)? " prompt
   - echo -e "Host builds.opentosca.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - scripts/upload-to-builds.opentosca.org.sh
 

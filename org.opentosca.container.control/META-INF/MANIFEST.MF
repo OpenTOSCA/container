@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Container Control
+Bundle-SymbolicName: org.opentosca.container.control
+Bundle-Version: 2.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.opentosca.container.engine.plan,
+ org.osgi.framework;version="1.8.0",
+ org.osgi.service.event;version="1.2.0",
+ org.slf4j;version="1.7.10"
+Export-Package: org.opentosca.container.control
+Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
+ org.opentosca.container.core.tosca,
+ org.opentosca.container.engine.ia,
+ org.opentosca.bus.management.service;bundle-version="1.0.0"
+Bundle-Activator: org.opentosca.container.control.Activator
+Service-Component: OSGI-INF/*

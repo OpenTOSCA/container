@@ -1,17 +1,22 @@
 package org.opentosca.bus.management.plugins.soaphttp.service.impl.processor;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.CxfPayload;
 import org.apache.cxf.binding.soap.SoapHeader;
-import org.apache.cxf.helpers.DOMUtils;
+import org.w3c.dom.Document;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -30,38 +35,37 @@ import org.xml.sax.SAXException;
  *
  */
 public class HeaderProcessor implements Processor {
-	
-	
+
 	@Override
-	public void process(Exchange exchange) throws Exception {
+	public void process(final Exchange exchange) throws Exception {
 		
 		@SuppressWarnings("unchecked")
-		CxfPayload<SoapHeader> payload = exchange.getIn().getBody(CxfPayload.class);
-
-		Map<String, Object> headers = exchange.getIn().getHeaders();
-		for (Map.Entry<String, Object> entry : headers.entrySet()) {
+		final CxfPayload<SoapHeader> payload = exchange.getIn().getBody(CxfPayload.class);
+		
+		final Map<String, Object> headers = exchange.getIn().getHeaders();
+		for (final Map.Entry<String, Object> entry : headers.entrySet()) {
 			
 			if (entry.getKey().equalsIgnoreCase("ReplyTo")) {
 				
-				String xml1 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ReplyTo " + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\"><wsa:Address>" + entry.getValue().toString() + "</wsa:Address></ReplyTo>";
-				SoapHeader replyToSoapHeader = new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "ReplyTo"), DOMUtils.readXml(new StringReader(xml1)).getDocumentElement());
+				final String xml1 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ReplyTo " + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\"><wsa:Address>" + entry.getValue().toString() + "</wsa:Address></ReplyTo>";
+				final SoapHeader replyToSoapHeader = new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "ReplyTo"), readXml(new StringReader(xml1)).getDocumentElement());
 				payload.getHeaders().add(replyToSoapHeader);
-
+				
 			} else if (entry.getKey().equalsIgnoreCase("MessageID")) {
 				
-				String xml2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><MessageID " + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">" + entry.getValue().toString() + "</MessageID>";
-				SoapHeader messageIdSoapHeader = new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "MessageID"), DOMUtils.readXml(new StringReader(xml2)).getDocumentElement());
+				final String xml2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><MessageID " + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">" + entry.getValue().toString() + "</MessageID>";
+				final SoapHeader messageIdSoapHeader = new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "MessageID"), readXml(new StringReader(xml2)).getDocumentElement());
 				payload.getHeaders().add(messageIdSoapHeader);
-
+				
 			} else {
 				
 				payload.getHeaders().add(this.getSoapHeader(entry.getKey(), entry.getValue().toString()));
-
+				
 			}
 		}
-
+		
 		exchange.getIn().setBody(payload);
-
+		
 	}
 
 	/**
@@ -71,17 +75,17 @@ public class HeaderProcessor implements Processor {
 	 * @param content of the header
 	 * @return SoapHeader
 	 */
-	private SoapHeader getSoapHeader(String key, String content) {
-		String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><" + key + ">" + content + "</" + key + ">";
+	private SoapHeader getSoapHeader(final String key, final String content) {
+		final String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><" + key + ">" + content + "</" + key + ">";
 		try {
-			return new SoapHeader(new QName(key), DOMUtils.readXml(new StringReader(xml)).getDocumentElement());
-		} catch (SAXException e) {
+			return new SoapHeader(new QName(key), readXml(new StringReader(xml)).getDocumentElement());
+		} catch (final SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
+		} catch (final ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -89,4 +93,31 @@ public class HeaderProcessor implements Processor {
 
 	}
 
+	public static Document readXml(final Reader is) throws SAXException, IOException, ParserConfigurationException {
+		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+		dbf.setValidating(false);
+		dbf.setIgnoringComments(false);
+		dbf.setIgnoringElementContentWhitespace(true);
+		dbf.setNamespaceAware(true);
+		// dbf.setCoalescing(true);
+		// dbf.setExpandEntityReferences(true);
+
+		DocumentBuilder db = null;
+		db = dbf.newDocumentBuilder();
+		db.setEntityResolver(new NullResolver());
+
+		// db.setErrorHandler( new MyErrorHandler());
+		final InputSource ips = new InputSource(is);
+		return db.parse(ips);
+	}
+	
+	
+	public static class NullResolver implements EntityResolver {
+
+		@Override
+		public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
+			return new InputSource(new StringReader(""));
+		}
+	}
 }

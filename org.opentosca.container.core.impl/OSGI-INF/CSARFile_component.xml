@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CSARFile">
+   <implementation class="org.opentosca.container.core.model.CSARFile"/>
+   <reference bind="bindCoreInternalFileStorageProviderService" cardinality="0..n" interface="org.opentosca.container.core.service.internal.ICoreInternalFileStorageProviderService" name="ICoreInternalFileStorageProviderService" policy="dynamic" unbind="unbindCoreInternalFileStorageProviderService"/>
+   <reference bind="bindFileAccessService" cardinality="1..1" interface="org.opentosca.container.core.service.IFileAccessService" name="IFileAccessService" policy="dynamic" unbind="unbindFileAccessService"/>
+</scr:component>

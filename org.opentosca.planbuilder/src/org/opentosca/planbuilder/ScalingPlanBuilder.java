@@ -242,7 +242,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		// initialize instanceData handling, add
 		// instanceDataAPI/serviceInstanceID into input, add global
 		// variables to hold the value for plugins
-		this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
+		// this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
 		
 		this.runPlugins(newScalingPlan, serviceTemplate.getQName(), propMap, complementNodes);
 		
@@ -286,7 +286,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		// initialize instanceData handling, add
 		// instanceDataAPI/serviceInstanceID into input, add global
 		// variables to hold the value for plugins
-		this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
+		// this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
 		
 		this.runPlugins(newScalingPlan, serviceTemplate.getQName(), propMap, new HashSet<AbstractNodeTemplate>());
 		

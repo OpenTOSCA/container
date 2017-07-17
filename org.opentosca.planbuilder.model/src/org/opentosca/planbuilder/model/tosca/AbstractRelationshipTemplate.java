@@ -24,6 +24,15 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
 	public abstract AbstractNodeTemplate getSource();
 	
 	/**
+	 * Returns the Requirement which is referenced by this Relationship
+	 * Template.
+	 * 
+	 * @return an AbstractRequirements object, or null if this Relationship
+	 *         Template references a Node Template as Source instead
+	 */
+	public abstract AbstractRequirement getSourceRequirement();
+	
+	/**
 	 * Returns the AbstractNodeTemplate representing the NodeTemplate which is
 	 * the target of this RelationshipTemplate
 	 * 
@@ -31,6 +40,14 @@ public abstract class AbstractRelationshipTemplate extends AbstractEntityTemplat
 	 *         this RelationshipTemplate
 	 */
 	public abstract AbstractNodeTemplate getTarget();
+	
+	/**
+	 * Returns the Capability which is referenced by this Relationship Template.
+	 * 
+	 * @return an AbstractCapability object, or null if this Relationship
+	 *         Template references a Node Template as Target instead.
+	 */
+	public abstract AbstractCapability getTargetCapability();
 	
 	/**
 	 * Returns the name of this RelationshipTemplate

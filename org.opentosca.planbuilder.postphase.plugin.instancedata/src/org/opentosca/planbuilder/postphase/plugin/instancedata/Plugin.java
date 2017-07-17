@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
+import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
@@ -28,7 +29,11 @@ public class Plugin implements IPlanBuilderPostPhasePlugin {
 	
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
-		return this.handler.handle(context, nodeTemplate);
+		if(context.getPlanType().equals(TOSCAPlan.PlanType.BUILD)) {
+			return this.handler.handleBuild(context, nodeTemplate);
+		} else {
+			return this.handler.handleTerminate(context, nodeTemplate);
+		}
 	}
 	
 	@Override

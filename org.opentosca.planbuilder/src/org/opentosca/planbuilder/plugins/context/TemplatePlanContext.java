@@ -94,14 +94,23 @@ public class TemplatePlanContext {
 		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
 	}
-	
-	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate){
-		for(TemplateBuildPlan plan :this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()){
-			if(plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)){
-				return new TemplatePlanContext(plan, this.propertyMap, this.serviceTemplateId); 
+
+	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate) {
+		for (TemplateBuildPlan plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+			if (plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)) {
+				return new TemplatePlanContext(plan, this.propertyMap, this.serviceTemplateId);
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the plan type of this context
+	 * 
+	 * @return a TOSCAPlan.PlanType
+	 */
+	public TOSCAPlan.PlanType getPlanType() {
+		return this.templateBuildPlan.getBuildPlan().getType();
 	}
 
 	/**
@@ -1424,9 +1433,11 @@ public class TemplatePlanContext {
 	 * @return true if appending logic to execute the operation at runtime was
 	 *         successfull
 	 */
-	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String operationName,
+	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName,
 			Map<AbstractParameter, Variable> param2propertyMapping) {
-		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
+
+		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningCall(nodeTemplate, interfaceName,
+				operationName);
 		if (chain == null) {
 			return false;
 		}

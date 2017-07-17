@@ -167,6 +167,8 @@ public class BuildPlanBuilder implements IPlanBuilder {
 				// instanceDataAPI handling is done solely trough this extension
 				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newBuildPlan);
 				
+				
+				
 				// initialize instanceData handling
 				this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
 				
@@ -177,6 +179,9 @@ public class BuildPlanBuilder implements IPlanBuilder {
 				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
 				
 				this.idInit.addCorrellationID(newBuildPlan);
+				
+				this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan, newBuildPlan.getBpelMainFlowElement(), "CREATING");
+				this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan, newBuildPlan.getBpelMainSequenceOutputAssignElement(), "CREATED");
 				
 				this.finalizer.finalize(newBuildPlan);
 				BuildPlanBuilder.LOG.debug("Created BuildPlan:");

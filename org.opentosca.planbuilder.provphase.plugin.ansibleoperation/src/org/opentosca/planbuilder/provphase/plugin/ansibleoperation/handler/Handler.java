@@ -15,8 +15,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.model.tosca.conventions.Interfaces;
-import org.opentosca.model.tosca.conventions.Properties;
+import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -51,19 +51,20 @@ import org.xml.sax.SAXException;
  */
 public class Handler {
 
-	private Plugin invokerPlugin = new Plugin();
+	private final Plugin invokerPlugin = new Plugin();
 
 	private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Handler.class);
 
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
 
+
 	public Handler() {
 		try {
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
 			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
+		} catch (final ParserConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -72,20 +73,16 @@ public class Handler {
 	 * Adds logic to the BuildPlan to call a Ansible Playbook on a remote
 	 * machine
 	 *
-	 * @param context
-	 *            the TemplatePlanContext where the logical provisioning
+	 * @param context the TemplatePlanContext where the logical provisioning
 	 *            operation is called
-	 * @param operation
-	 *            the operation to call
-	 * @param ia
-	 *            the ia that implements the operation
+	 * @param operation the operation to call
+	 * @param ia the ia that implements the operation
 	 * @return true iff adding BPEL Fragment was successful
 	 */
-	public boolean handle(TemplatePlanContext templateContext, AbstractOperation operation,
-			AbstractImplementationArtifact ia) {
+	public boolean handle(final TemplatePlanContext templateContext, final AbstractOperation operation, final AbstractImplementationArtifact ia) {
 
 		LOG.debug("Handling Ansible Playbook IA operation: " + operation.getName());
-		AbstractArtifactReference ansibleRef = this.fetchAnsiblePlaybookRefFromIA(ia);
+		final AbstractArtifactReference ansibleRef = this.fetchAnsiblePlaybookRefFromIA(ia);
 		if (ansibleRef == null) {
 			return false;
 		}
@@ -93,13 +90,13 @@ public class Handler {
 
 		// calculate relevant nodeTemplates for this operation call (the node
 		// itself and infraNodes)
-		List<AbstractNodeTemplate> nodes = templateContext.getInfrastructureNodes();
+		final List<AbstractNodeTemplate> nodes = templateContext.getInfrastructureNodes();
 
 		// add the template itself
 		nodes.add(templateContext.getNodeTemplate());
 
 		// find the ubuntu node and its nodeTemplateId
-		AbstractNodeTemplate infrastructureNodeTemplate = this.findInfrastructureNode(nodes);
+		final AbstractNodeTemplate infrastructureNodeTemplate = this.findInfrastructureNode(nodes);
 
 		if (infrastructureNodeTemplate == null) {
 			Handler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
@@ -117,8 +114,7 @@ public class Handler {
 		// fetch server ip of the vm this apache http php module will be
 		// installed on
 		Variable serverIpPropWrapper = null;
-		for (String serverIp : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineIPPropertyNames()) {
+		for (final String serverIp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 			serverIpPropWrapper = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
 			if (serverIpPropWrapper != null) {
 				break;
@@ -132,8 +128,7 @@ public class Handler {
 
 		// find sshUser and sshKey
 		Variable sshUserVariable = null;
-		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+		for (final String vmUserName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			sshUserVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
 			if (sshUserVariable != null) {
 				break;
@@ -151,8 +146,7 @@ public class Handler {
 			}
 		}
 		Variable sshKeyVariable = null;
-		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+		for (final String vmUserPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			sshKeyVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
 			if (sshKeyVariable != null) {
 				break;
@@ -172,8 +166,7 @@ public class Handler {
 		// needed
 		if (sshUserVariable == null) {
 			// dirty check if we use old style properties
-			String cleanPropName = serverIpPropWrapper.getName()
-					.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+			final String cleanPropName = serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
 			switch (cleanPropName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 				LOG.debug("Adding sshUser field to plan input");
@@ -195,8 +188,7 @@ public class Handler {
 
 		if (sshKeyVariable == null) {
 			// dirty check if we use old style properties
-			String cleanPropName = serverIpPropWrapper.getName()
-					.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+			final String cleanPropName = serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
 			switch (cleanPropName) {
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 				LOG.debug("Adding sshUser field to plan input");
@@ -204,13 +196,11 @@ public class Handler {
 				break;
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
 				LOG.debug("Adding sshUser field to plan input");
-				templateContext
-						.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
 				break;
 			case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
 				LOG.debug("Adding User fiel to plan input");
-				templateContext
-						.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
+				templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
 				break;
 			default:
 				return false;
@@ -228,37 +218,31 @@ public class Handler {
 		LOG.debug("Adding csarEntryPoint field to plan input");
 		templateContext.addStringValueToPlanRequest("csarEntrypoint");
 
-		Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, ansibleRef,
-				ia);
+		final Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, ansibleRef, ia);
 
-		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-				sshUserVariable, sshKeyVariable, serverIpPropWrapper);
+		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar, sshUserVariable, sshKeyVariable, serverIpPropWrapper);
 	}
 
-	public boolean handle(TemplatePlanContext templateContext, AbstractOperation operation,
-			AbstractImplementationArtifact ia, Map<AbstractParameter, Variable> param2propertyMapping) {
+	public boolean handle(final TemplatePlanContext templateContext, final AbstractOperation operation, final AbstractImplementationArtifact ia, final Map<AbstractParameter, Variable> param2propertyMapping) {
 
 		if (operation.getInputParameters().size() != param2propertyMapping.size()) {
 			return false;
 		}
 
-		AbstractNodeTemplate infrastructureNodeTemplate = this
-				.findInfrastructureNode(templateContext.getInfrastructureNodes());
+		final AbstractNodeTemplate infrastructureNodeTemplate = this.findInfrastructureNode(templateContext.getInfrastructureNodes());
 		if (infrastructureNodeTemplate == null) {
 			return false;
 		}
 
 		Variable runShScriptStringVar = null;
-		AbstractArtifactReference scriptRef = this.fetchAnsiblePlaybookRefFromIA(ia);
+		final AbstractArtifactReference scriptRef = this.fetchAnsiblePlaybookRefFromIA(ia);
 		if (scriptRef == null) {
 			return false;
 		}
-		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia,
-				param2propertyMapping);
+		runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia, param2propertyMapping);
 
 		Variable ipStringVariable = null;
-		for (String serverIp : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineIPPropertyNames()) {
+		for (final String serverIp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
 			ipStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, serverIp);
 			if (ipStringVariable != null) {
 				break;
@@ -266,8 +250,7 @@ public class Handler {
 		}
 
 		Variable userStringVariable = null;
-		for (String vmUserName : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
+		for (final String vmUserName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
 			userStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserName);
 			if (userStringVariable != null) {
 				break;
@@ -275,8 +258,7 @@ public class Handler {
 		}
 
 		Variable passwdStringVariable = null;
-		for (String vmUserPassword : org.opentosca.model.tosca.conventions.Utils
-				.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+		for (final String vmUserPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
 			passwdStringVariable = templateContext.getPropertyVariable(infrastructureNodeTemplate, vmUserPassword);
 			if (passwdStringVariable != null) {
 				break;
@@ -288,12 +270,11 @@ public class Handler {
 			return false;
 		}
 
-		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-				userStringVariable, passwdStringVariable, ipStringVariable);
+		return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar, userStringVariable, passwdStringVariable, ipStringVariable);
 	}
 
-	private boolean isNull(Variable... vars) {
-		for (Variable var : vars) {
+	private boolean isNull(final Variable... vars) {
+		for (final Variable var : vars) {
 			if (var == null) {
 				return true;
 			}
@@ -301,10 +282,9 @@ public class Handler {
 		return false;
 	}
 
-	private AbstractNodeTemplate findInfrastructureNode(List<AbstractNodeTemplate> nodes) {
-		for (AbstractNodeTemplate nodeTemplate : nodes) {
-			if (org.opentosca.model.tosca.conventions.Utils
-					.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
+	private AbstractNodeTemplate findInfrastructureNode(final List<AbstractNodeTemplate> nodes) {
+		for (final AbstractNodeTemplate nodeTemplate : nodes) {
+			if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType().getId())) {
 				return nodeTemplate;
 			}
 		}
@@ -314,37 +294,29 @@ public class Handler {
 	/**
 	 * Append logic for executing a script on a remote machine with the invoker
 	 * plugin
-	 * 
-	 * @param templateContext
-	 *            the context with a bpel templateBuildPlan
-	 * @param templateId
-	 *            the id of the template inside the context
-	 * @param runShScriptStringVar
-	 *            the bpel variable containing the script call
-	 * @param sshUserVariable
-	 *            the user name for the remote machine as a bpel variable
-	 * @param sshKeyVariable
-	 *            the pass for the remote machine as a bpel variable
-	 * @param serverIpPropWrapper
-	 *            the ip of the remote machine as a bpel variable
+	 *
+	 * @param templateContext the context with a bpel templateBuildPlan
+	 * @param templateId the id of the template inside the context
+	 * @param runShScriptStringVar the bpel variable containing the script call
+	 * @param sshUserVariable the user name for the remote machine as a bpel
+	 *            variable
+	 * @param sshKeyVariable the pass for the remote machine as a bpel variable
+	 * @param serverIpPropWrapper the ip of the remote machine as a bpel
+	 *            variable
 	 * @return true if appending the bpel logic was successful else false
 	 */
-	private boolean appendExecuteScript(TemplatePlanContext templateContext, String templateId,
-			Variable runShScriptStringVar, Variable sshUserVariable, Variable sshKeyVariable,
-			Variable serverIpPropWrapper) {
+	private boolean appendExecuteScript(final TemplatePlanContext templateContext, final String templateId, final Variable runShScriptStringVar, final Variable sshUserVariable, final Variable sshKeyVariable, final Variable serverIpPropWrapper) {
 
-		Map<String, Variable> runScriptRequestInputParams = new HashMap<String, Variable>();
+		final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
 		// dirty check if we use old style properties
-		String cleanPropName = serverIpPropWrapper.getName()
-				.substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+		final String cleanPropName = serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
 		switch (cleanPropName) {
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
 			runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
 			runScriptRequestInputParams.put("sshKey", sshKeyVariable);
 			runScriptRequestInputParams.put("sshUser", sshUserVariable);
 			runScriptRequestInputParams.put("script", runShScriptStringVar);
-			this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
-					"planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
+			this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu", "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 
 			break;
 		case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -353,9 +325,7 @@ public class Handler {
 			runScriptRequestInputParams.put("VMPrivateKey", sshKeyVariable);
 			runScriptRequestInputParams.put("VMUserName", sshUserVariable);
 			runScriptRequestInputParams.put("Script", runShScriptStringVar);
-			this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
-					Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-					runScriptRequestInputParams, new HashMap<String, Variable>(), false);
+			this.invokerPlugin.handle(templateContext, templateId, true, "runScript", Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
 			break;
 		default:
 			return false;
@@ -364,10 +334,9 @@ public class Handler {
 		return true;
 	}
 
-	private Variable appendBPELAssignOperationShScript(TemplatePlanContext templateContext, AbstractOperation operation,
-			AbstractArtifactReference reference, AbstractImplementationArtifact ia) {
+	private Variable appendBPELAssignOperationShScript(final TemplatePlanContext templateContext, final AbstractOperation operation, final AbstractArtifactReference reference, final AbstractImplementationArtifact ia) {
 
-		String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
+		final String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 
 		// install ansible
 		String runShScriptString = "sudo apt-add-repository -y ppa:ansible/ansible && sudo apt-get update && sudo apt-get install -y ansible";
@@ -375,10 +344,10 @@ public class Handler {
 		// install unzip
 		runShScriptString += " && sudo apt-get install unzip";
 
-		String ansibleZipPath = templateContext.getCSARFileName() + "/" + reference.getReference();
-		String ansibleZipFileName = FilenameUtils.getName(ansibleZipPath);
-		String ansibleZipFolderName = FilenameUtils.getBaseName(ansibleZipFileName);
-		String ansibleZipParentPath = FilenameUtils.getFullPathNoEndSeparator(ansibleZipPath);
+		final String ansibleZipPath = templateContext.getCSARFileName() + "/" + reference.getReference();
+		final String ansibleZipFileName = FilenameUtils.getName(ansibleZipPath);
+		final String ansibleZipFolderName = FilenameUtils.getBaseName(ansibleZipFileName);
+		final String ansibleZipParentPath = FilenameUtils.getFullPathNoEndSeparator(ansibleZipPath);
 
 		// go into directory of the ansible zip
 		runShScriptString += " && cd " + ansibleZipParentPath;
@@ -386,7 +355,7 @@ public class Handler {
 		// unzip
 		runShScriptString += " && unzip " + ansibleZipFileName;
 
-		String playbookPath = getAnsiblePlaybookFilePath(templateContext);
+		final String playbookPath = this.getAnsiblePlaybookFilePath(templateContext);
 
 		if (playbookPath == null) {
 
@@ -396,9 +365,9 @@ public class Handler {
 
 			LOG.debug("Found Playbook: {}", playbookPath);
 
-			String completePlaybookPath = ansibleZipFolderName + "/" + FilenameUtils.separatorsToUnix(playbookPath);
-			String playbookFolder = FilenameUtils.getFullPathNoEndSeparator(completePlaybookPath);
-			String playbookFile = FilenameUtils.getName(completePlaybookPath);
+			final String completePlaybookPath = ansibleZipFolderName + "/" + FilenameUtils.separatorsToUnix(playbookPath);
+			final String playbookFolder = FilenameUtils.getFullPathNoEndSeparator(completePlaybookPath);
+			final String playbookFile = FilenameUtils.getName(completePlaybookPath);
 
 			// go into the unzipped directory
 			runShScriptString += " && cd " + playbookFolder;
@@ -407,15 +376,12 @@ public class Handler {
 			runShScriptString += " && ansible-playbook " + playbookFile;
 		}
 
-		Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName,
-				runShScriptString);
+		final Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName, runShScriptString);
 
 		return runShScriptStringVar;
 	}
 
-	private Variable appendBPELAssignOperationShScript(TemplatePlanContext templateContext, AbstractOperation operation,
-			AbstractArtifactReference reference, AbstractImplementationArtifact ia,
-			Map<AbstractParameter, Variable> inputMappings) {
+	private Variable appendBPELAssignOperationShScript(final TemplatePlanContext templateContext, final AbstractOperation operation, final AbstractArtifactReference reference, final AbstractImplementationArtifact ia, final Map<AbstractParameter, Variable> inputMappings) {
 
 		LOG.error("Not supported!");
 
@@ -424,20 +390,18 @@ public class Handler {
 
 	/**
 	 * Searches for the Playbook Mapping in the ArtifactTemplate
-	 * 
+	 *
 	 * @param templateContext
 	 * @return Path to the specified Ansible Playbook within the .zip
 	 */
-	private String getAnsiblePlaybookFilePath(TemplatePlanContext templateContext) {
+	private String getAnsiblePlaybookFilePath(final TemplatePlanContext templateContext) {
 
-		List<AbstractNodeTypeImplementation> abstractNodeTypeImpls = templateContext.getNodeTemplate()
-				.getImplementations();
+		final List<AbstractNodeTypeImplementation> abstractNodeTypeImpls = templateContext.getNodeTemplate().getImplementations();
 
-		for (AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
-			List<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
-			for (AbstractImplementationArtifact abstractIA : abstractIAs) {
-				NodeList nodeList = abstractIA.getArtifactRef().getProperties().getDOMElement()
-						.getElementsByTagName("Playbook");
+		for (final AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
+			final List<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
+			for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
+				final NodeList nodeList = abstractIA.getArtifactRef().getProperties().getDOMElement().getElementsByTagName("Playbook");
 				if (nodeList.getLength() > 0) {
 					return nodeList.item(0).getTextContent();
 				}
@@ -450,14 +414,13 @@ public class Handler {
 	 * Returns the first occurrence of *.zip file, inside the given
 	 * ImplementationArtifact
 	 *
-	 * @param ia
-	 *            an AbstractImplementationArtifact
+	 * @param ia an AbstractImplementationArtifact
 	 * @return a String containing a relative file path to a *.zip file, if no
 	 *         *.zip file inside the given IA is found null
 	 */
-	private AbstractArtifactReference fetchAnsiblePlaybookRefFromIA(AbstractImplementationArtifact ia) {
-		List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
-		for (AbstractArtifactReference ref : refs) {
+	private AbstractArtifactReference fetchAnsiblePlaybookRefFromIA(final AbstractImplementationArtifact ia) {
+		final List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
+		for (final AbstractArtifactReference ref : refs) {
 			if (ref.getReference().endsWith(".zip")) {
 				return ref;
 			}
@@ -469,23 +432,17 @@ public class Handler {
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName
-	 *            the name of the BPEL assign
-	 * @param xpath2Query
-	 *            the csarEntryPoint XPath query
-	 * @param stringVarName
-	 *            the variable to load the queries results into
+	 * @param assignName the name of the BPEL assign
+	 * @param xpath2Query the csarEntryPoint XPath query
+	 * @param stringVarName the variable to load the queries results into
 	 * @return a String containing a BPEL Assign element
-	 * @throws IOException
-	 *             is thrown when reading the BPEL fragment form the resources
-	 *             fails
+	 * @throws IOException is thrown when reading the BPEL fragment form the
+	 *             resources fails
 	 */
-	public String loadAssignXpathQueryToStringVarFragmentAsString(String assignName, String xpath2Query,
-			String stringVarName) throws IOException {
+	public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query, final String stringVarName) throws IOException {
 		// <!-- {AssignName},{xpath2query}, {stringVarName} -->
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-				.getResource("assignStringVarWithXpath2Query.xml");
-		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("assignStringVarWithXpath2Query.xml");
+		final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelFragmentFile);
 		template = template.replace("{AssignName}", assignName);
 		template = template.replace("{xpath2query}", xpath2Query);
@@ -497,25 +454,19 @@ public class Handler {
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName
-	 *            the name of the BPEL assign
-	 * @param csarEntryXpathQuery
-	 *            the csarEntryPoint XPath query
-	 * @param stringVarName
-	 *            the variable to load the queries results into
+	 * @param assignName the name of the BPEL assign
+	 * @param csarEntryXpathQuery the csarEntryPoint XPath query
+	 * @param stringVarName the variable to load the queries results into
 	 * @return a DOM Node representing a BPEL assign element
-	 * @throws IOException
-	 *             is thrown when loading internal bpel fragments fails
-	 * @throws SAXException
-	 *             is thrown when parsing internal format into DOM fails
+	 * @throws IOException is thrown when loading internal bpel fragments fails
+	 * @throws SAXException is thrown when parsing internal format into DOM
+	 *             fails
 	 */
-	public Node loadAssignXpathQueryToStringVarFragmentAsNode(String assignName, String xpath2Query,
-			String stringVarName) throws IOException, SAXException {
-		String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query,
-				stringVarName);
-		InputSource is = new InputSource();
+	public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query, final String stringVarName) throws IOException, SAXException {
+		final String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+		final InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
-		Document doc = this.docBuilder.parse(is);
+		final Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
 

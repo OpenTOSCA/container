@@ -2,9 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA PlanBuilder IntegrationLayer Bundle
 Bundle-SymbolicName: org.opentosca.planbuilder.integration
-Bundle-Version: 0.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.opentosca.planbuilder,
- org.opentosca.planbuilder.model.plan,
- org.opentosca.planbuilder.model.tosca
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.opentosca.planbuilder.integration.layer;uses:="org.opentosca.planbuilder.model.tosca,org.opentosca.planbuilder.model.plan,javax.xml.namespace"
+Require-Bundle: org.opentosca.planbuilder;bundle-version="1.0.0",
+ org.opentosca.planbuilder.model;bundle-version="1.0.0"

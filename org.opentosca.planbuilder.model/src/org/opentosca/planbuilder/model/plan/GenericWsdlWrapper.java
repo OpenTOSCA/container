@@ -26,9 +26,9 @@ import org.osgi.framework.FrameworkUtil;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class GenericWsdlWrapper {
 
@@ -50,6 +50,7 @@ public class GenericWsdlWrapper {
 	private final static String WSDL_PROPERTYS_TAG = "{vprops}";
 	// use as tag to add propertyaliases
 	private final static String WSDL_PROPERTYALIAS_TAG = "{vpropaliases}";
+
 	// use as tag to set invoke operation name
 	private final static String WSDL_INVOKE_OPERATION_NAME = "{operationName}";
 
@@ -61,6 +62,7 @@ public class GenericWsdlWrapper {
 	private String namespace = null;
 
 	// the names of the partnerLinkTypes this wsdl holds
+
 	private List<String> partnerLinkTypeNames;
 
 	// the localNames inside the input and output message
@@ -79,6 +81,7 @@ public class GenericWsdlWrapper {
 	// counts namespaces
 	private int namespaceCounter = 0;
 	// a set of namespaces used in the wsdl
+
 	private Set<String> namespaces = new HashSet<String>();
 
 	/**
@@ -88,11 +91,12 @@ public class GenericWsdlWrapper {
 	 * </p>
 	 * Copyright 2013 IAAS University of Stuttgart <br>
 	 * <br>
-	 * 
+	 *
 	 * @author nyu
-	 * 
+	 *
 	 */
 	private class PltMap {
+
 
 		private List<String> partnerLinkTypeNames = new ArrayList<String>();
 		private List<String> roleNames1 = new ArrayList<String>();
@@ -128,7 +132,7 @@ public class GenericWsdlWrapper {
 
 		/**
 		 * Returns the names of the partnerLinkTypes
-		 * 
+		 *
 		 * @return a List of Strings
 		 */
 		public List<String> getPartnerLinkTypeNames() {
@@ -142,8 +146,8 @@ public class GenericWsdlWrapper {
 		 *            the name of the partnerLinkType
 		 * @return a QName if the partnerLinkType is found, else null
 		 */
-		public QName getPortType1OfPLT(String partnerLinkTypeName) {
-			int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
+		public QName getPortType1OfPLT(final String partnerLinkTypeName) {
+			final int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
 			return this.portTypes1.get(pos);
 		}
 
@@ -154,9 +158,9 @@ public class GenericWsdlWrapper {
 		 *            the name of the partnerLinkType
 		 * @return a QName of the 2nd PortType, else null
 		 */
-		public QName getPortType2OfPLT(String partnerLinkTypeName) {
-			int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
-			QName portType = this.portTypes2.get(pos);
+		public QName getPortType2OfPLT(final String partnerLinkTypeName) {
+			final int pos = this.partnerLinkTypeNames.indexOf(partnerLinkTypeName);
+			final QName portType = this.portTypes2.get(pos);
 			// check if this is a portType dummy
 			if (portType.getLocalPart().equals("")) {
 				return null;
@@ -166,6 +170,7 @@ public class GenericWsdlWrapper {
 
 		}
 	}
+
 
 	/**
 	 * Constructor
@@ -199,7 +204,7 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Returns the file name of this wsdl
-	 * 
+	 *
 	 * @return a WSDL file name as String
 	 */
 	public String getFileName() {
@@ -209,7 +214,7 @@ public class GenericWsdlWrapper {
 	/**
 	 * Returns the localNames of the Elements inside the output message of this
 	 * wsdl
-	 * 
+	 *
 	 * @return a List of Strings
 	 */
 	public List<String> getOuputMessageLocalNames() {
@@ -219,7 +224,7 @@ public class GenericWsdlWrapper {
 	/**
 	 * Returns the localNames of the Elements inside the input message of this
 	 * wsdl
-	 * 
+	 *
 	 * @return a List of Strings
 	 */
 	public List<String> getInputMessageLocalNames() {
@@ -235,7 +240,7 @@ public class GenericWsdlWrapper {
 	 *            the XSD type of the element
 	 * @return true iff adding was successful
 	 */
-	public boolean addElementToRequestMessage(String elementName, QName type) {
+	public boolean addElementToRequestMessage(final String elementName, final QName type) {
 		if (!this.inputMessageLocalNames.contains(elementName)) {
 			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
 					GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG,
@@ -257,7 +262,7 @@ public class GenericWsdlWrapper {
 	 *            the XSD type of the element
 	 * @return true iff adding was successful
 	 */
-	public boolean addElementToResponseMessage(String elementName, QName type) {
+	public boolean addElementToResponseMessage(final String elementName, final QName type) {
 		if (!this.outputMessageLocalNames.contains(elementName)) {
 			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
 					GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG,
@@ -279,7 +284,7 @@ public class GenericWsdlWrapper {
 	 *            the prefix for the given namespace
 	 * @return true iff adding was successful
 	 */
-	private boolean addNamespace(String namespace, String prefix) {
+	private boolean addNamespace(final String namespace, final String prefix) {
 		if (!this.namespaces.contains(namespace)) {
 			this.namespaces.add(namespace);
 			if ((prefix == null) | prefix.equals("")) {
@@ -314,12 +319,13 @@ public class GenericWsdlWrapper {
 	 *            the location of the import
 	 * @return true iff adding was successful
 	 */
-	public boolean addImportElement(String importType, String namespace, String prefix, String location) {
+	public boolean addImportElement(final String importType, final String namespace, final String prefix, final String location) {
 		// TODO we assume the location is absolute for packaging later this has
 		// to be fixed
 		if (this.absoluteLocations.contains(location)) {
 			return false;
 		}
+
 
 		String importString = this.generateImportString(importType, namespace, location);
 		this.absoluteLocations.add(location);
@@ -340,7 +346,7 @@ public class GenericWsdlWrapper {
 	 *            the location of the import as String
 	 * @return a String containing an WSDL import declaration
 	 */
-	private String generateImportString(String importType, String namespace, String location) {
+	private String generateImportString(final String importType, final String namespace, final String location) {
 		// FIXME ? killed importType here importType=\"" + importType + "\"
 		return "<import namespace=\"" + namespace + "\" location=\"" + location + "\"/>";
 	}
@@ -354,7 +360,7 @@ public class GenericWsdlWrapper {
 	 *            the type of the element as String
 	 * @return a String containing a XSD declaration
 	 */
-	private String generateElementString(String name, String type) {
+	private String generateElementString(final String name, final String type) {
 		return "<element name=\"" + name + "\" " + "type=\"" + type + "\"/>";
 	}
 
@@ -366,7 +372,7 @@ public class GenericWsdlWrapper {
 	 * @param name
 	 *            the name of the WSDL to set
 	 */
-	public void setId(String namespace, String name) {
+	public void setId(final String namespace, final String name) {
 		if (this.processName == null) {
 			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_NAME_TAG, name);
 		} else {
@@ -385,7 +391,7 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Returns the targetNamespace of this WSDL
-	 * 
+	 *
 	 * @return a String containing the targetNamespace of this WSDL
 	 */
 	public String getTargetNamespace() {
@@ -394,7 +400,7 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Returns the localName of the Response message this WSDL
-	 * 
+	 *
 	 * @return a String containing the localName of the Response message
 	 */
 	public String getResponseMessageLocalName() {
@@ -403,7 +409,7 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Returns the localName of the Request message this WSDL
-	 * 
+	 *
 	 * @return a String containing the localName of the Request message
 	 */
 	public String getRequestMessageLocalName() {
@@ -421,7 +427,7 @@ public class GenericWsdlWrapper {
 	 *            the portType of the partner
 	 * @return true iff adding the partnerLinkType was successful
 	 */
-	public boolean addPartnerLinkType(String partnerLinkTypeName, String roleName, QName portType) {
+	public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName, final QName portType) {
 		if (this.isPartnerLinkTypeNameAlreadyUsed(partnerLinkTypeName)) {
 			return false;
 		} else {
@@ -474,7 +480,7 @@ public class GenericWsdlWrapper {
 
 	/**
 	 * Returns the names of all registered partnerLinkTypes in this WSDL
-	 * 
+	 *
 	 * @return a List of Strings containing the names of the partnerLinkTypes
 	 */
 	public List<String> getPartnerlinkTypeNames() {
@@ -489,7 +495,7 @@ public class GenericWsdlWrapper {
 	 * @return a QName representing the 1st portType of the partnerLinkType,
 	 *         else null
 	 */
-	public QName getPortType1FromPartnerLinkType(String partnerLinkTypeName) {
+	public QName getPortType1FromPartnerLinkType(final String partnerLinkTypeName) {
 		return this.pltMap.getPortType1OfPLT(partnerLinkTypeName);
 	}
 
@@ -502,7 +508,7 @@ public class GenericWsdlWrapper {
 	 *            the type of the property
 	 * @return true iff adding was succesful
 	 */
-	public boolean addProperty(String propertyName, QName type) {
+	public boolean addProperty(final String propertyName, final QName type) {
 		if (this.properties.contains(propertyName)) {
 			return false;
 		}
@@ -526,7 +532,7 @@ public class GenericWsdlWrapper {
 	 *            a XPath Query
 	 * @return true iff adding was successful
 	 */
-	public boolean addPropertyAlias(String propertyName, String partName, QName messageType, String query) {
+	public boolean addPropertyAlias(final String propertyName, final String partName, final QName messageType, final String query) {
 		this.addNamespace(messageType.getNamespaceURI(), messageType.getPrefix());
 		String propertyAlias = this.generatePropertyAliasString(propertyName, partName, messageType, query);
 		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG,
@@ -541,7 +547,7 @@ public class GenericWsdlWrapper {
 	 *            the name of a partnerLinkType
 	 * @return a QName representing the 2nd portType, else null
 	 */
-	public QName getPortType2FromPartnerLinkType(String partnerLinkTypeName) {
+	public QName getPortType2FromPartnerLinkType(final String partnerLinkTypeName) {
 		return this.pltMap.getPortType2OfPLT(partnerLinkTypeName);
 	}
 
@@ -554,7 +560,7 @@ public class GenericWsdlWrapper {
 	 *            the type of the property
 	 * @return a String containing a property declaration
 	 */
-	private String generatePropertyString(String propertyName, QName type) {
+	private String generatePropertyString(final String propertyName, final QName type) {
 		// <vprop:property name="createEC2InstanceCorrelationID"
 		// type="xsd:string"/>
 		return "<vprop:property name=\"" + propertyName + "\" type=\"" + type.getPrefix() + ":" + type.getLocalPart()
@@ -575,7 +581,7 @@ public class GenericWsdlWrapper {
 	 *            a XPath query which the propertyAlias should use
 	 * @return a String containing a propertyAlias declaration
 	 */
-	private String generatePropertyAliasString(String propertyName, String partName, QName messageType, String query) {
+	private String generatePropertyAliasString(final String propertyName, final String partName, final QName messageType, final String query) {
 		// <vprop:propertyAlias messageType="wsdl:createEC2InstanceResponse"
 		// part="parameters" propertyName="tns:createEC2InstanceCorrelationID">
 		// <vprop:query><![CDATA[/wsdl:CorrelationId]]></vprop:query>
@@ -635,13 +641,13 @@ public class GenericWsdlWrapper {
 	 * @return true if the given String is already used as partnerLinkType name,
 	 *         else false
 	 */
-	private boolean isPartnerLinkTypeNameAlreadyUsed(String partnerLinkTypeName) {
+	private boolean isPartnerLinkTypeNameAlreadyUsed(final String partnerLinkTypeName) {
 		return this.partnerLinkTypeNames.contains(partnerLinkTypeName);
 	}
 
 	/**
 	 * Returns a representation of this WSDL as String.
-	 * 
+	 *
 	 * @return a String containing a complete WSDL definition document
 	 */
 	public String getFinalizedWsdlAsString() {
@@ -661,7 +667,7 @@ public class GenericWsdlWrapper {
 		wsdlString = wsdlString.replace(GenericWsdlWrapper.WSDL_TARGETNAMESPACE_TAG, "");
 
 		// change absolute locations to relative
-		for (String absolutePath : this.absoluteLocations) {
+		for (final String absolutePath : this.absoluteLocations) {
 			wsdlString = wsdlString.replace(absolutePath, new File(absolutePath).getName());
 		}
 		return wsdlString;
@@ -677,7 +683,7 @@ public class GenericWsdlWrapper {
 	 *            a location where the QName is defined
 	 * @return true iff the given QName is already imported inside this WSDL
 	 */
-	public boolean isImported(QName qName, String absolutePath) {
+	public boolean isImported(final QName qName, final String absolutePath) {
 		boolean check = true;
 		check &= this.absoluteLocations.contains(absolutePath);
 		check &= this.namespaces.contains(qName.getNamespaceURI());

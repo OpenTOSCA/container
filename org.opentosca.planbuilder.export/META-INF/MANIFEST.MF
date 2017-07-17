@@ -2,26 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bundle for Exporting of BuildPlans
 Bundle-SymbolicName: org.opentosca.planbuilder.export
-Bundle-Version: 0.0.1.qualifier
+Bundle-Version: 2.0.0.qualifier
 Test-Suite: org.opentosca.planbuilder.export.test.TestSuite2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.ibm.wsdl;version="1.6.3",
- javax.wsdl;version="1.6.3",
- javax.wsdl.factory;version="1.6.3",
- javax.wsdl.xml;version="1.6.3",
- org.apache.commons.io;version="2.4.0",
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.ibm.wsdl,
+ javax.wsdl;version="1.6.0",
+ javax.wsdl.factory;version="1.6.0",
+ javax.wsdl.xml;version="1.6.0",
+ org.apache.commons.io;version="2.2.0",
  org.apache.ode.activityrecovery,
  org.apache.ode.schemas.dd._2007._03,
- org.opentosca.core.model.artifact.directory,
- org.opentosca.core.model.artifact.file,
- org.opentosca.core.model.csar,
- org.opentosca.core.model.csar.id,
- org.opentosca.exceptions,
- org.opentosca.planbuilder.csarhandler,
- org.opentosca.planbuilder.integration.layer,
- org.opentosca.planbuilder.model.plan,
- org.opentosca.planbuilder.model.tosca,
- org.opentosca.util.fileaccess.service,
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
 Export-Package: org.opentosca.planbuilder.export
+Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
+ org.opentosca.container.core.tosca;bundle-version="1.0.0",
+ org.opentosca.planbuilder;bundle-version="1.0.0",
+ org.opentosca.planbuilder.integration;bundle-version="1.0.0",
+ org.opentosca.planbuilder.model;bundle-version="1.0.0",
+ org.opentosca.planbuilder.csarhandler

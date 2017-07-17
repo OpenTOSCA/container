@@ -153,13 +153,37 @@ public class Fragments {
 		return template;
 	}
 	
+
+	public String createBPEL4RESTLightPUTState(String instanceURLVarName, String requestVarName) throws IOException {
+		//<!-- $urlVarName, $requestVar  -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPEL4RESTLightPUTInstanceState.xml");
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("$urlVarName", instanceURLVarName);
+		template = template.replace("$requestVar", requestVarName);
+		return template;
+	}
+	
+	public Node createBPEL4RESTLightPutStateAsNode(String instanceURLVarName, String requestVarName) throws IOException, SAXException {
+		String templateString = this.createBPEL4RESTLightPUTState(instanceURLVarName, requestVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
+
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
 	 * input message into String variable.
 	 *
-	 * @param assignName the name of the BPEL assign
-	 * @param csarEntryXpathQuery the csarEntryPoint XPath query
-	 * @param stringVarName the variable to load the queries results into
+	 * @param assignName
+	 *            the name of the BPEL assign
+	 * @param xpath2Query
+	 *            the xPath query
+	 * @param stringVarName
+	 *            the variable to load the queries results into
 	 * @return a DOM Node representing a BPEL assign element
 	 * @throws IOException is thrown when loading internal bpel fragments fails
 	 * @throws SAXException is thrown when parsing internal format into DOM
@@ -443,22 +467,21 @@ public class Fragments {
 	 * @return a String containing a BPEL Fragment
 	 * @throws IOException is thrown when reading internal files fails
 	 */
-	public String createRESTExtensionGETForNodeInstanceDataAsString(String instanceDataUrlVar, String responseVarName, QName templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate) throws IOException {
+	public String createRESTExtensionGETForNodeInstanceDataAsString(String instanceDataUrlVar, String responseVarName,
+			String templateId) throws IOException {
 		// <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId,
 		// $serviceInstanceUrlVarName, $templateType -->
-		
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
+
+		// <!-- $InstanceDataURLVar, $ResponseVarName, $nodeType -->
+
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
-		template = template.replace("$InstanceDataURLVar", instanceDataUrlVar);
-		template = template.replace("$ResponseVarName", responseVarName);
-		template = template.replace("$TemplateId", templateId.toString());
-		template = template.replace("$serviceInstanceUrlVarName", serviceInstanceUrlVarName);
-		if (isNodeTemplate) {
-			template = template.replace("$templateType", "nodeTemplateID");
-		} else {
-			template = template.replace("$templateType", "relationshipTemplateID");
-		}
+		template = template.replaceAll("\\$InstanceDataURLVar", instanceDataUrlVar);
+		template = template.replaceAll("\\$ResponseVarName", responseVarName);
+		template = template.replaceAll("\\$templateId", templateId);
+
 		return template;
 	}
 	
@@ -501,7 +524,32 @@ public class Fragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
-	
+
+	public String createAssignSelectFirstReferenceAndAssignToStringVar(String referencesResponseVarName,
+			String stringVarName) throws IOException {
+		// BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
+		// <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BpelAssignSelectFromNodeInstancesRequestToStringVar.xml");
+		File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
+
+		bpelAssignString = bpelAssignString.replaceAll("\\$assignName",
+				"assignSelectFirstReference" + System.currentTimeMillis());
+		bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", stringVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$NodeInstancesResponseVarName", referencesResponseVarName);
+		return bpelAssignString;
+	}
+
+	public Node createAssignSelectFirstReferenceAndAssignToStringVarAsNode(String referencesResponseVarName,
+			String stringVarName) throws IOException, SAXException {
+		String templateString = this.createAssignSelectFirstReferenceAndAssignToStringVar(referencesResponseVarName, stringVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+
 	/**
 	 * Creates a Node containing a BPEL fragment which uses the
 	 * BPELRESTExtension to fetch the InstanceData from an OpenTOSCA Container
@@ -520,8 +568,10 @@ public class Fragments {
 	 * @throws IOException is thrown when reading internal files fails
 	 * @throws SAXException is thrown when parsing internal files fails
 	 */
-	public Node createRESTExtensionGETForNodeInstanceDataAsNode(String instanceDataUrlVar, String responseVarName, QName templateId, String serviceInstanceUrlVarName, boolean isNodeTemplate) throws SAXException, IOException {
-		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(instanceDataUrlVar, responseVarName, templateId, serviceInstanceUrlVarName, isNodeTemplate);
+	public Node createRESTExtensionGETForNodeInstanceDataAsNode(String instanceDataUrlVar, String responseVarName,
+			String templateId) throws SAXException, IOException {
+		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(instanceDataUrlVar,
+				responseVarName, templateId);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);

@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Context
 Bundle-SymbolicName: org.opentosca.planbuilder.model
-Bundle-Version: 0.0.1.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.apache.ode.activityrecovery,
  org.apache.ode.schemas.dd._2007._03,
  org.opentosca.planbuilder.model.plan,
  org.opentosca.planbuilder.model.tosca
-Import-Package: org.apache.commons.io;version="2.4.0",
+Import-Package: org.apache.commons.io;version="2.2.0",
+ org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
  org.osgi.framework;version="1.6.0"
 Bundle-ClassPath: .,
  META-INF/resources/
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0"

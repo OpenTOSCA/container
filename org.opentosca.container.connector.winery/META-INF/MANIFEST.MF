@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Container Winery Connector
+Bundle-SymbolicName: org.opentosca.container.connector.winery
+Bundle-Version: 2.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: .
+Export-Package: org.opentosca.container.connector.winery
+Import-Package: com.fasterxml.jackson.core;version="2.6.2",
+ com.fasterxml.jackson.databind;version="2.6.2",
+ org.apache.http;version="4.2.1",
+ org.apache.http.client;version="4.2.0",
+ org.apache.http.client.entity;version="4.2.0",
+ org.apache.http.client.methods;version="4.2.0",
+ org.apache.http.entity.mime;version="4.2.0",
+ org.apache.http.entity.mime.content;version="4.2.0",
+ org.apache.http.impl.client;version="4.2.0",
+ org.apache.http.message;version="4.2.1",
+ org.apache.http.util;version="4.2.1",
+ org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.2"
+Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0"
+Bundle-Activator: org.opentosca.container.connector.winery.Activator

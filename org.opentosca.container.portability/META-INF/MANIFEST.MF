@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OpenTOSCA Container Portability Service
+Bundle-SymbolicName: org.opentosca.container.portability
+Bundle-Version: 2.0.0.qualifier
+Export-Package: org.opentosca.container.portability,
+ org.opentosca.container.portability.impl,
+ org.opentosca.container.portability.model,
+ org.opentosca.container.portability.model.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*
+Import-Package: org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.2"
+Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0"
+Bundle-Activator: org.opentosca.container.portability.Activator
