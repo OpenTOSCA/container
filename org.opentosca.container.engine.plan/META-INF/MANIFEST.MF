@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Plan Engine
 Bundle-SymbolicName: org.opentosca.container.engine.plan
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Export-Package: org.opentosca.container.engine.plan,
  org.opentosca.container.engine.plan.impl,
  org.opentosca.container.engine.plan.plugin

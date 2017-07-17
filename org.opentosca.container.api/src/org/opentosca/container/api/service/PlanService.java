@@ -20,6 +20,7 @@ import org.opentosca.container.core.impl.plan.PlanLogHandler;
 import org.opentosca.container.core.impl.plan.ServiceProxy;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.model.instance.ServiceInstanceId;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
@@ -95,7 +96,7 @@ public class PlanService {
 			throw new ServerErrorException(500, e);
 		}
 	}
-
+	
 	public List<PlanInstanceDTO> getPlanInstances(final List<ServiceInstance> serviceInstances, final List<PlanTypes> planTypes) {
 		
 		final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
@@ -117,6 +118,7 @@ public class PlanService {
 					
 					pi.setId(correlationId);
 					pi.setState(State.Plan.UNKNOWN);
+					pi.setServiceTemplateInstance(new ServiceInstanceId(si.getDBId(), si.getCSAR_ID().getFileName(), si.getServiceTemplateID().toString()));
 					
 					final List<PlanInstanceDTO.LogEntry> logs = this.logHandler.getLogsOfPlanInstance(correlationId).entrySet().stream().map(e -> {
 						return new PlanInstanceDTO.LogEntry(e.getKey(), e.getValue());
@@ -182,6 +184,10 @@ public class PlanService {
 			return State.Plan.RUNNING;
 		}
 		return State.Plan.UNKNOWN;
+	}
+
+	public PlanInvocationEvent getPlanInvocationEvent(final String correlationId) {
+		return this.csarInstanceService.getPlanForCorrelationId(correlationId);
 	}
 
 	public void setEngineService(final IToscaEngineService engineService) {

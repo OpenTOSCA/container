@@ -135,7 +135,7 @@ public class ServiceTemplateInstanceResource {
 
 	@Path("/State")
 	public Object getState() {
-		return new ServiceTemplateInstancePropertiesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
+		return new ServiceTemplateInstanceStateResource(this.serviceTemplateInstanceId);
 	}
 
 	@Path("/PlanInstances")

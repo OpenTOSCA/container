@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.PlanInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
 import org.opentosca.container.api.service.CsarService;
@@ -24,9 +25,13 @@ import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.model.instance.ServiceInstanceId;
+import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/instances")
 public class ServiceTemplateInstanceController {
@@ -95,12 +100,27 @@ public class ServiceTemplateInstanceController {
 
 		final ServiceInstance i = this.instanceService.getServiceTemplateInstance(id, csarContent.getCSARID(), servicetemplate);
 		final ServiceTemplateInstanceDTO dto = new ServiceTemplateInstanceDTO();
-		
+
 		dto.setId(i.getDBId());
 		dto.setCreatedAt(i.getCreated());
 		dto.setCsarId(i.getCSAR_ID().toString());
 		dto.setServiceTemplateId(i.getServiceTemplateID().toString());
 		dto.setState(i.getState());
+
+		// Build plan: Determine plan instance that created this service
+		// template instance
+		final List<ServiceInstance> serviceInstances = Lists.newArrayList(this.instanceService.getServiceTemplateInstance(id, csarContent.getCSARID(), servicetemplate));
+		final List<PlanInstanceDTO> planInstances = this.planService.getPlanInstances(serviceInstances, Lists.newArrayList(PlanTypes.BUILD));
+		for (final PlanInstanceDTO planInstance : planInstances) {
+			final ServiceInstanceId instanceId = planInstance.getServiceTemplateInstance();
+			if (instanceId.getCsar().equalsIgnoreCase(csar) && instanceId.getServiceTemplate().equalsIgnoreCase(servicetemplate) && instanceId.getId().equals(id)) {
+				// Add a link
+				final PlanInvocationEvent event = this.planService.getPlanInvocationEvent(planInstance.getId());
+				final String path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
+				final URI uri = this.uriInfo.getBaseUriBuilder().path(path).build(csar, servicetemplate, event.getPlanID().getLocalPart(), planInstance.getId());
+				dto.add(Link.fromUri(UriUtils.encode(uri)).rel("build_plan_instance").build());
+			}
+		}
 
 		dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("managementplans").build())).rel("managementplans").build());
 		dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());

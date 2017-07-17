@@ -2,6 +2,7 @@ package org.opentosca.container.api.legacy.resources.csar.servicetemplate.instan
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * TODO refactoring: move this to a suitable point
@@ -33,5 +34,13 @@ public class BuildCorrelationToInstanceMapping {
 	public boolean knowsCorrelationId(final String buildPlanCorrId) {
 		return this.correlationIdToServiceTemplateInstanceId.containsKey(buildPlanCorrId);
 	}
-
+	
+	public String getCorrelationId(final int serviceTemplateInstanceId) {
+		for (final Entry<String, Integer> entry : this.correlationIdToServiceTemplateInstanceId.entrySet()) {
+			if (entry.getValue() == serviceTemplateInstanceId) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
 }

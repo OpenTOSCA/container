@@ -121,6 +121,25 @@ public class Fragments {
 		template = template.replace("{stringVarName}", stringVarName);
 		return template;
 	}
+	
+	public String createBPEL4RESTLightPUTState(String instanceURLVarName, String requestVarName) throws IOException {
+		//<!-- $urlVarName, $requestVar  -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+				.getResource("BPEL4RESTLightPUTInstanceState.xml");
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("$urlVarName", instanceURLVarName);
+		template = template.replace("$requestVar", requestVarName);
+		return template;
+	}
+	
+	public Node createBPEL4RESTLightPutStateAsNode(String instanceURLVarName, String requestVarName) throws IOException, SAXException {
+		String templateString = this.createBPEL4RESTLightPUTState(instanceURLVarName, requestVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
 
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the
@@ -128,8 +147,8 @@ public class Fragments {
 	 *
 	 * @param assignName
 	 *            the name of the BPEL assign
-	 * @param csarEntryXpathQuery
-	 *            the csarEntryPoint XPath query
+	 * @param xpath2Query
+	 *            the xPath query
 	 * @param stringVarName
 	 *            the variable to load the queries results into
 	 * @return a DOM Node representing a BPEL assign element

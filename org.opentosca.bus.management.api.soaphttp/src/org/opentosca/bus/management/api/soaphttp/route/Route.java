@@ -15,7 +15,6 @@ import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.api.soaphttp.Activator;
 import org.opentosca.bus.management.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.management.api.soaphttp.processor.ResponseProcessor;
-import org.opentosca.container.core.common.Settings;
 
 /**
  * Route of the Management Bus-SOAP/HTTP-API.<br>
@@ -40,7 +39,7 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 	
-	public final static String ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
+	public final static String ENDPOINT = "http://localhost:8081/invoker";
 	public final static QName PORT = new QName("http://siserver.org/wsdl", "InvokePort");
 	public final static QName PORTTYPE = new QName("http://siserver.org/wsdl", "InvokePortType");
 	
@@ -51,7 +50,7 @@ public class Route extends RouteBuilder {
 		final URL wsdlURL = this.getClass().getClassLoader().getResource("META-INF/wsdl/invoker.wsdl");
 		
 		// CXF Endpoints
-		final String INVOKE_ENDPOINT = "cxf:" + Route.ENDPOINT + "?wsdlURL=" + wsdlURL.toString() + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+		final String INVOKE_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString() + "&serviceName={http://siserver.org/wsdl}InvokerService&portName=" + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 		final String CALLBACK_ENDPOINT = "cxf:${header[ReplyTo]}?wsdlURL=" + wsdlURL.toString() + "&serviceName={http://siserver.org/wsdl}InvokerService&portName={http://siserver.org/wsdl}CallbackPort&dataFormat=PAYLOAD&loggingFeatureEnabled=true&headerFilterStrategy=#" + CxfHeaderFilterStrategy.class.getName();
 		
 		// Management Bus Endpoints
