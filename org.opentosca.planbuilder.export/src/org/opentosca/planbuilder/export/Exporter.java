@@ -67,8 +67,8 @@ public class Exporter extends AbstractExporter {
 	
 	private final ObjectFactory toscaFactory;
 	private final CSARHandler handler = new CSARHandler();
-
-
+	
+	
 	/**
 	 * Constructor
 	 */
@@ -89,7 +89,7 @@ public class Exporter extends AbstractExporter {
 		this.simpleExporter.export(destination, buildPlan);
 	}
 	
-public File export(List<TOSCAPlan> buildPlans, CSARID csarId) {
+	public File export(List<TOSCAPlan> buildPlans, CSARID csarId) {
 		
 		CSARContent csarContent = null;
 		try {
@@ -133,7 +133,7 @@ public File export(List<TOSCAPlan> buildPlans, CSARID csarId) {
 						final TPlan generatedPlanElement = this.generateTPlanElement(buildPlan);
 						planList.add(generatedPlanElement);
 						plansToExport.add(buildPlan);
-
+						
 						// add the plan as an operation to the boundary
 						// definitions
 						TBoundaryDefinitions boundary = serviceTemplate.getBoundaryDefinitions();
@@ -141,14 +141,14 @@ public File export(List<TOSCAPlan> buildPlans, CSARID csarId) {
 							boundary = this.toscaFactory.createTBoundaryDefinitions();
 							serviceTemplate.setBoundaryDefinitions(boundary);
 						}
-
+						
 						org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces iface = boundary.getInterfaces();
-
+						
 						if (iface == null) {
 							iface = this.toscaFactory.createTBoundaryDefinitionsInterfaces();
 							boundary.setInterfaces(iface);
 						}
-
+						
 						TExportedInterface exportedIface = null;
 						
 						// find already set openTOSCA lifecycle interface
@@ -172,7 +172,7 @@ public File export(List<TOSCAPlan> buildPlans, CSARID csarId) {
 								alreadySpecified = true;
 							}
 						}
-
+						
 						if (!alreadySpecified) {
 							final TExportedOperation op = this.toscaFactory.createTExportedOperation();
 							if (buildPlan.getType().equals(TOSCAPlan.PlanType.BUILD)) {
