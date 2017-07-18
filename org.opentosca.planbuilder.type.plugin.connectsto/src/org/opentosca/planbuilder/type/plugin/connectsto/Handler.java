@@ -116,7 +116,7 @@ public class Handler {
 		for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
 			for (final AbstractOperation op : iface.getOperations()) {
 				if (op.getName().equals(operationName)) {
-					return op.getName();
+					return iface.getName();
 				}
 			}
 		}
