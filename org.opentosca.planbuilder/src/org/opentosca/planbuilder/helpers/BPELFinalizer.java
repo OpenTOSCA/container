@@ -13,9 +13,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
-import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELScopeHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.slf4j.Logger;
@@ -46,9 +46,9 @@ public class BPELFinalizer {
 	
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
-	private TemplateBuildPlanHandler templateHandler = new TemplateBuildPlanHandler();
-	private BuildPlanHandler buildPlanHandler;
-	private BPELTemplateScopeHandler scopeHandler;
+	private ScopeHandler templateHandler = new ScopeHandler();
+	private PlanHandler buildPlanHandler;
+	private BPELScopeHandler scopeHandler;
 	
 	
 	/**
@@ -73,8 +73,8 @@ public class BPELFinalizer {
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
 			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			this.buildPlanHandler = new BuildPlanHandler();
-			this.scopeHandler = new BPELTemplateScopeHandler();
+			this.buildPlanHandler = new PlanHandler();
+			this.scopeHandler = new BPELScopeHandler();
 		} catch (ParserConfigurationException e) {
 			BPELFinalizer.LOG.error("Initializing factories and handlers failed", e);
 		}

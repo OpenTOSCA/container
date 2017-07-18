@@ -26,9 +26,9 @@ import org.w3c.dom.NodeList;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class BPELTemplateScopeHandler {
+public class BPELScopeHandler {
 
-	private final static Logger LOG = LoggerFactory.getLogger(BPELTemplateScopeHandler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELScopeHandler.class);
 
 	/**
 	 * Initializes XML Elements of the given TemplateBuildPlan and connects it
@@ -111,7 +111,7 @@ public class BPELTemplateScopeHandler {
 	 *            the TemplateBuildPlan to set the name for
 	 */
 	public void setName(String name, TemplateBuildPlan templateBuildPlan) {
-		BPELTemplateScopeHandler.LOG.debug("Setting name {} for TemplateBuildPlan", name);
+		BPELScopeHandler.LOG.debug("Setting name {} for TemplateBuildPlan", name);
 		// set scope name
 		templateBuildPlan.getBpelScopeElement().setAttribute("name", name + "_scope");
 		// set main sequence name
@@ -144,12 +144,12 @@ public class BPELTemplateScopeHandler {
 	 */
 	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole,
 			boolean initializePartnerRole, TemplateBuildPlan templateBuildPlan) {
-		BPELTemplateScopeHandler.LOG.debug(
+		BPELScopeHandler.LOG.debug(
 				"Trying to add partnerLink {} with partnerLinkType {}, myRole {}, partnerRole {} and initializePartnerRole {} on TemplateBuildPlan {}",
 				partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole),
 				templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasPartnerlink(partnerLinkName, templateBuildPlan)) {
-			BPELTemplateScopeHandler.LOG.warn("Failed to add partnerLink");
+			BPELScopeHandler.LOG.warn("Failed to add partnerLink");
 			return false;
 		}
 		Element partnerLinksElement = templateBuildPlan.getBpelPartnerLinksElement();
@@ -169,7 +169,7 @@ public class BPELTemplateScopeHandler {
 		partnerLinkElement.setAttribute("initializePartnerRole", (initializePartnerRole) ? "yes" : "no");
 
 		partnerLinksElement.appendChild(partnerLinkElement);
-		BPELTemplateScopeHandler.LOG.debug("Adding partnerLink was successful");
+		BPELScopeHandler.LOG.debug("Adding partnerLink was successful");
 		return true;
 	}
 
@@ -186,10 +186,10 @@ public class BPELTemplateScopeHandler {
 	 */
 	public boolean addCorrelationSet(String correlationSetName, String propertyName,
 			TemplateBuildPlan templateBuildPlan) {
-		BPELTemplateScopeHandler.LOG.debug("Trying to add correlationSet {} with property {} to templateBuildPlan {}",
+		BPELScopeHandler.LOG.debug("Trying to add correlationSet {} with property {} to templateBuildPlan {}",
 				correlationSetName, propertyName, templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasCorrelationSet(correlationSetName, templateBuildPlan)) {
-			BPELTemplateScopeHandler.LOG.warn("Failed adding correlationSet");
+			BPELScopeHandler.LOG.warn("Failed adding correlationSet");
 			return false;
 		}
 		Element correlationSetsElement = templateBuildPlan.getBpelCorrelationSets();
@@ -198,7 +198,7 @@ public class BPELTemplateScopeHandler {
 		correlationSetElement.setAttribute("name", correlationSetName);
 		correlationSetElement.setAttribute("properties", "tns:" + propertyName);
 		correlationSetsElement.appendChild(correlationSetElement);
-		BPELTemplateScopeHandler.LOG.debug("Adding correlationSet was succesful");
+		BPELScopeHandler.LOG.debug("Adding correlationSet was succesful");
 		return true;
 	}
 
@@ -226,17 +226,17 @@ public class BPELTemplateScopeHandler {
 	 * @return true if adding the Link was successful, else false
 	 */
 	public boolean addSource(String linkName, TemplateBuildPlan templateBuildPlan) {
-		BPELTemplateScopeHandler.LOG.debug("Trying to add link {} as source to TemplateBuildPlan {}", linkName,
+		BPELScopeHandler.LOG.debug("Trying to add link {} as source to TemplateBuildPlan {}", linkName,
 				templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasSource(linkName, templateBuildPlan)) {
-			BPELTemplateScopeHandler.LOG.warn("Failed to add link as source");
+			BPELScopeHandler.LOG.warn("Failed to add link as source");
 			return false;
 		}
 		Element sourcesElement = templateBuildPlan.getBpelSourcesElement();
 		Element sourceElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "source");
 		sourceElement.setAttribute("linkName", linkName);
 		sourcesElement.appendChild(sourceElement);
-		BPELTemplateScopeHandler.LOG.debug("Adding link as source was successful");
+		BPELScopeHandler.LOG.debug("Adding link as source was successful");
 		return true;
 	}
 
@@ -255,11 +255,11 @@ public class BPELTemplateScopeHandler {
 	 */
 	public boolean addVariable(String name, TOSCAPlan.VariableType variableType, QName declarationId,
 			TemplateBuildPlan templateBuildPlan) {
-		BPELTemplateScopeHandler.LOG.debug(
+		BPELScopeHandler.LOG.debug(
 				"Trying to add variable {} with of type {} and XML Schematype {} to TemplateBuildPlan {}", name,
 				variableType, declarationId.toString(), templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasVariable(name, templateBuildPlan)) {
-			BPELTemplateScopeHandler.LOG.warn("Failed adding variable");
+			BPELScopeHandler.LOG.warn("Failed adding variable");
 			return false;
 		}
 
@@ -286,7 +286,7 @@ public class BPELTemplateScopeHandler {
 
 		// append to variables element
 		variablesElement.appendChild(variableElement);
-		BPELTemplateScopeHandler.LOG.debug("Adding variable was successful");
+		BPELScopeHandler.LOG.debug("Adding variable was successful");
 		return true;
 	}
 
@@ -300,17 +300,17 @@ public class BPELTemplateScopeHandler {
 	 * @return true if adding link was successful, else false
 	 */
 	public boolean addTarget(String linkName, TemplateBuildPlan templateBuildPlan) {
-		BPELTemplateScopeHandler.LOG.debug("Trying to add link {} as target to TemplateBuildPlan {}", linkName,
+		BPELScopeHandler.LOG.debug("Trying to add link {} as target to TemplateBuildPlan {}", linkName,
 				templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasTarget(linkName, templateBuildPlan)) {
-			BPELTemplateScopeHandler.LOG.warn("Failed adding link as target");
+			BPELScopeHandler.LOG.warn("Failed adding link as target");
 			return false;
 		}
 		Element targetsElement = templateBuildPlan.getBpelTargetsElement();
 		Element targetElement = templateBuildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace, "target");
 		targetElement.setAttribute("linkName", linkName);
 		targetsElement.appendChild(targetElement);
-		BPELTemplateScopeHandler.LOG.debug("Adding link as target was successful");
+		BPELScopeHandler.LOG.debug("Adding link as target was successful");
 		return true;
 	}
 
@@ -457,7 +457,7 @@ public class BPELTemplateScopeHandler {
 		Element sources = template.getBpelSourcesElement();
 
 		if (sources != null) {
-			BPELTemplateScopeHandler.removeAllChildNodes(sources);
+			BPELScopeHandler.removeAllChildNodes(sources);
 		}
 	}
 
@@ -471,7 +471,7 @@ public class BPELTemplateScopeHandler {
 	public void removeTargets(TemplateBuildPlan template) {
 		Element targets = template.getBpelTargetsElement();
 		if (targets != null) {
-			BPELTemplateScopeHandler.removeAllChildNodes(targets);
+			BPELScopeHandler.removeAllChildNodes(targets);
 		}
 	}
 

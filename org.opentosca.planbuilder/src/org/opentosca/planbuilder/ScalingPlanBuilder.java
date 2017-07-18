@@ -11,8 +11,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
-import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
@@ -46,10 +46,10 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	private final static Logger LOG = LoggerFactory.getLogger(ScalingPlanBuilder.class);
 	
 	// handler for abstract plan operations
-	private BuildPlanHandler planHandler;
+	private PlanHandler planHandler;
 	
 	// handler for abstract templatebuildplan operations
-	private TemplateBuildPlanHandler templateHandler;
+	private ScopeHandler scopeHandler;
 	
 	// class for initializing properties inside the plan
 	private PropertyVariableInitializer propertyInitializer;
@@ -69,12 +69,12 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	
 	public ScalingPlanBuilder() {
 		try {
-			this.planHandler = new BuildPlanHandler();
+			this.planHandler = new PlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 		} catch (ParserConfigurationException e) {
 			ScalingPlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
-		this.templateHandler = new TemplateBuildPlanHandler();
+		this.scopeHandler = new ScopeHandler();
 		// TODO seems ugly
 		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		
@@ -178,7 +178,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		Map<AbstractRelationshipTemplate, List<AbstractNodeTemplate>> crossingRelations2NodesMap = new HashMap<AbstractRelationshipTemplate, List<AbstractNodeTemplate>>();
 		
 		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplates) {
-			TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newScalingPlan);
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, newScalingPlan);
 			newTemplate.setRelationshipTemplate(relationshipTemplate);
 			newScalingPlan.addTemplateBuildPlan(newTemplate);
 			
@@ -209,7 +209,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		}
 		
 		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {
-			TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
 			newTemplate.setNodeTemplate(nodeTemplate);
 			newScalingPlan.addTemplateBuildPlan(newTemplate);
 		}
@@ -224,7 +224,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		}
 		
 		for (AbstractNodeTemplate nodeTemplate : complementNodes) {
-			TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
 			newTemplate.setNodeTemplate(nodeTemplate);
 			newScalingPlan.addTemplateBuildPlan(newTemplate);
 		}
@@ -262,13 +262,13 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		newScalingPlan.setCsarName(csarName);
 		
 		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {
-			TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
 			newTemplate.setNodeTemplate(nodeTemplate);
 			newScalingPlan.addTemplateBuildPlan(newTemplate);
 		}
 		
 		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplates) {
-			TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newScalingPlan);
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, newScalingPlan);
 			newTemplate.setRelationshipTemplate(relationshipTemplate);
 			newScalingPlan.addTemplateBuildPlan(newTemplate);
 		}
@@ -611,7 +611,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 				
 				// second: connect source with relationship as target
 				ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.templateHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
+				this.scopeHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
 				
 				// third: generate global link for the target to relation
 				// dependency
@@ -620,7 +620,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 				
 				// fourth: connect target with relationship as target
 				ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.templateHandler.connect(target, relationshipPlan, targetToRelationlinkName);
+				this.scopeHandler.connect(target, relationshipPlan, targetToRelationlinkName);
 				
 			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 				
@@ -634,7 +634,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 				
 				// second: connect source to relation
 				ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.templateHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
+				this.scopeHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
 				
 				// third: generate global link for the relation to target
 				// dependency
@@ -643,7 +643,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 				
 				// fourth: connect relation to target
 				ScalingPlanBuilder.LOG.debug("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.templateHandler.connect(relationshipPlan, target, relationToTargetLinkName);
+				this.scopeHandler.connect(relationshipPlan, target, relationToTargetLinkName);
 			}
 			
 		}

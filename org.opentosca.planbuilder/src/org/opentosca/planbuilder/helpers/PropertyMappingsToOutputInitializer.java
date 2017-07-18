@@ -12,8 +12,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.opentosca.planbuilder.handlers.BPELProcessHandler;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractBoundaryDefinitions;
@@ -259,8 +259,8 @@ public class PropertyMappingsToOutputInitializer {
 	private void initializeAssignOutput(TOSCAPlan buildPlan, PropertyMap propMap,
 			ServiceTemplatePropertyToPropertyMapping mapping) {
 		try {
-			BuildPlanHandler buildPlanHandler = new BuildPlanHandler();
-			BPELProcessHandler processHandler = new BPELProcessHandler();
+			PlanHandler buildPlanHandler = new PlanHandler();
+			BPELPlanHandler processHandler = new BPELPlanHandler();
 
 			List<String> failedServiceTemplateProperties = new ArrayList<String>();
 

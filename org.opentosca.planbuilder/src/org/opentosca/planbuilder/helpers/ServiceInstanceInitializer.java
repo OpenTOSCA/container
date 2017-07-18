@@ -8,8 +8,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.BPELProcessHandler;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
@@ -33,13 +33,13 @@ public class ServiceInstanceInitializer {
 	
 	private Fragments fragments;
 	
-	private BuildPlanHandler planHandler;
-	private BPELProcessHandler bpelProcessHandler;
+	private PlanHandler planHandler;
+	private BPELPlanHandler bpelProcessHandler;
 	
 	
 	public ServiceInstanceInitializer() throws ParserConfigurationException {
-		this.planHandler = new BuildPlanHandler();
-		this.bpelProcessHandler = new BPELProcessHandler();
+		this.planHandler = new PlanHandler();
+		this.bpelProcessHandler = new BPELPlanHandler();
 		this.fragments = new Fragments();
 	}
 	

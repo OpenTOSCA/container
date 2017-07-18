@@ -8,8 +8,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.Node;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
-import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.helpers.NodeInstanceInitializer;
@@ -41,9 +41,9 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 	private final static Logger LOG = LoggerFactory.getLogger(TerminationPlanBuilder.class);
 	
 	// handler for abstract buildplan operations
-	private BuildPlanHandler planHandler;
+	private PlanHandler planHandler;
 	// handler for abstract templatebuildplan operations
-	private final TemplateBuildPlanHandler templateHandler;
+	private final ScopeHandler templateHandler;
 	// class for initializing properties inside the build plan
 	private final PropertyVariableInitializer propertyInitializer;
 	// class for initializing output with boundarydefinitions of a
@@ -69,13 +69,13 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 	 */
 	public TerminationPlanBuilder() {
 		try {
-			this.planHandler = new BuildPlanHandler();
+			this.planHandler = new PlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 			this.nodeInstanceInitializer = new NodeInstanceInitializer();
 		} catch (final ParserConfigurationException e) {
 			TerminationPlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
-		this.templateHandler = new TemplateBuildPlanHandler();
+		this.templateHandler = new ScopeHandler();
 		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		this.propertyOutputInitializer = new PropertyMappingsToOutputInitializer();
 		this.finalizer = new BPELFinalizer();

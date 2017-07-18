@@ -3,7 +3,7 @@ package org.opentosca.planbuilder.helpers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -28,7 +28,7 @@ public class PropertyVariableInitializer {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(PropertyVariableInitializer.class);
 	
-	private BuildPlanHandler planHandler;
+	private PlanHandler planHandler;
 	
 	
 	/**
@@ -108,7 +108,7 @@ public class PropertyVariableInitializer {
 	 * @param planHandler a BuildPlanHandler for the class
 	 * @param templateHandler a TemplateBuildPlanHandler for the class
 	 */
-	public PropertyVariableInitializer(BuildPlanHandler planHandler) {
+	public PropertyVariableInitializer(PlanHandler planHandler) {
 		this.planHandler = planHandler;
 	}
 	

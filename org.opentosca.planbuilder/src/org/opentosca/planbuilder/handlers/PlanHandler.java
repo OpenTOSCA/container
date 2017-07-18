@@ -36,12 +36,12 @@ import org.w3c.dom.NodeList;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class BuildPlanHandler {
+public class PlanHandler {
 	
-	private final static Logger LOG = LoggerFactory.getLogger(BuildPlanHandler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(PlanHandler.class);
 	
-	private BPELProcessHandler bpelProcessHandler;
-	private BPELTemplateScopeHandler templateHandler;
+	private BPELPlanHandler bpelProcessHandler;
+	private BPELScopeHandler templateHandler;
 	private ObjectFactory ddFactory;
 	
 	
@@ -51,9 +51,9 @@ public class BuildPlanHandler {
 	 * @throws ParserConfigurationException is thrown when initializing
 	 *             factories failed
 	 */
-	public BuildPlanHandler() throws ParserConfigurationException {
-		this.bpelProcessHandler = new BPELProcessHandler();
-		this.templateHandler = new BPELTemplateScopeHandler();
+	public PlanHandler() throws ParserConfigurationException {
+		this.bpelProcessHandler = new BPELPlanHandler();
+		this.templateHandler = new BPELScopeHandler();
 		this.ddFactory = new ObjectFactory();
 		
 	}
@@ -77,7 +77,7 @@ public class BuildPlanHandler {
 	 * @return an empty Plan Skeleton
 	 */
 	public TOSCAPlan createPlan(AbstractServiceTemplate serviceTemplate, String processName, String processNamespace, int type) {
-		BuildPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}", serviceTemplate.getQName().toString());
+		PlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}", serviceTemplate.getQName().toString());
 
 		TOSCAPlan buildPlan = null;
 
@@ -243,13 +243,13 @@ public class BuildPlanHandler {
 	 */
 
 	public boolean addInvokeToDeploy(String partnerLinkName, QName serviceName, String portName, TOSCAPlan buildPlan) {
-		BuildPlanHandler.LOG.debug("Adding invoke with partnerLink {}, service {} and port {} to BuildPlan {}",
+		PlanHandler.LOG.debug("Adding invoke with partnerLink {}, service {} and port {} to BuildPlan {}",
 				partnerLinkName, serviceName.toString(), portName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 
 		for (TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
 			if (inv.getPartnerLink().equals(partnerLinkName)) {
-				BuildPlanHandler.LOG.warn("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name", partnerLinkName, serviceName.toString(), portName);
+				PlanHandler.LOG.warn("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name", partnerLinkName, serviceName.toString(), portName);
 				return false;
 			}
 		}
@@ -266,7 +266,7 @@ public class BuildPlanHandler {
 		
 		buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke().add(invoke);
 		
-		BuildPlanHandler.LOG.debug("Adding invoke was successful");
+		PlanHandler.LOG.debug("Adding invoke was successful");
 		return true;
 	}
 	
@@ -286,7 +286,7 @@ public class BuildPlanHandler {
 		try {
 			newBuildPlan.setProcessWsdl(new GenericWsdlWrapper(planType));
 		} catch (IOException e) {
-			BuildPlanHandler.LOG.error("Internal error while initializing WSDL for BuildPlan", e);
+			PlanHandler.LOG.error("Internal error while initializing WSDL for BuildPlan", e);
 		}
 		
 		this.bpelProcessHandler.initializeXMLElements(newBuildPlan);
@@ -346,7 +346,7 @@ public class BuildPlanHandler {
 	 * @return true if adding the import was successful, else false
 	 */
 	public boolean addImportToBpel(String namespace, String location, String importType, TOSCAPlan buildPlan) {
-		BuildPlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}",
+		PlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}",
 				namespace, location, importType, buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (importType.equals(TOSCAPlan.ImportType.WSDL.toString())) {
 			return this.bpelProcessHandler.addImports(namespace, location, TOSCAPlan.ImportType.WSDL, buildPlan);
@@ -465,12 +465,12 @@ public class BuildPlanHandler {
 	 *         successful, else false
 	 */
 	public boolean addProvideToDeploy(String partnerLinkName, QName serviceName, String portName, TOSCAPlan buildPlan) {
-		BuildPlanHandler.LOG.debug("Trying to add provide with partnerLink {}, service {} and port {} to BuildPlan {}",
+		PlanHandler.LOG.debug("Trying to add provide with partnerLink {}, service {} and port {} to BuildPlan {}",
 				partnerLinkName, serviceName.toString(), portName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		for (TProvide inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide()) {
 			if (inv.getPartnerLink().equals(partnerLinkName)) {
-				BuildPlanHandler.LOG.warn("Adding provide failed");
+				PlanHandler.LOG.warn("Adding provide failed");
 				return false;
 			}
 		}
@@ -486,7 +486,7 @@ public class BuildPlanHandler {
 		provide.setService(service);
 		
 		buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide().add(provide);
-		BuildPlanHandler.LOG.debug("Adding provide was successful");
+		PlanHandler.LOG.debug("Adding provide was successful");
 		return true;
 		
 	}

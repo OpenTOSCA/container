@@ -19,10 +19,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.TemplatePlanBuilder;
 import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
-import org.opentosca.planbuilder.handlers.BPELProcessHandler;
-import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
-import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELScopeHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
@@ -58,10 +58,10 @@ public class TemplatePlanContext {
 	private TemplateBuildPlan templateBuildPlan;
 	private QName serviceTemplateId;
 
-	private BuildPlanHandler buildPlanHandler;
-	private BPELProcessHandler bpelProcessHandler;
-	private TemplateBuildPlanHandler templateHandler;
-	private BPELTemplateScopeHandler bpelTemplateHandler;
+	private PlanHandler buildPlanHandler;
+	private BPELPlanHandler bpelProcessHandler;
+	private ScopeHandler templateHandler;
+	private BPELScopeHandler bpelTemplateHandler;
 	private Map<String, String> namespaceMap;
 	private PropertyMap propertyMap;
 
@@ -84,13 +84,13 @@ public class TemplatePlanContext {
 		this.serviceTemplateId = serviceTemplateId;
 
 		try {
-			this.buildPlanHandler = new BuildPlanHandler();
-			this.bpelProcessHandler = new BPELProcessHandler();
+			this.buildPlanHandler = new PlanHandler();
+			this.bpelProcessHandler = new BPELPlanHandler();
 		} catch (ParserConfigurationException e) {
 			TemplatePlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
 		}
-		this.templateHandler = new TemplateBuildPlanHandler();
-		this.bpelTemplateHandler = new BPELTemplateScopeHandler();
+		this.templateHandler = new ScopeHandler();
+		this.bpelTemplateHandler = new BPELScopeHandler();
 		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
 	}

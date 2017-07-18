@@ -23,18 +23,18 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class TemplateBuildPlanHandler {
+public class ScopeHandler {
 	
-	private final static Logger LOG = LoggerFactory.getLogger(TemplateBuildPlanHandler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(ScopeHandler.class);
 	
-	private BPELTemplateScopeHandler templateHandler;
+	private BPELScopeHandler templateHandler;
 	
 	
 	/**
 	 * Constructor
 	 */
-	public TemplateBuildPlanHandler() {
-		this.templateHandler = new BPELTemplateScopeHandler();
+	public ScopeHandler() {
+		this.templateHandler = new BPELScopeHandler();
 	}
 	
 	/**
@@ -128,7 +128,7 @@ public class TemplateBuildPlanHandler {
 	 * @return true iff adding partnerLink was successful
 	 */
 	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole, boolean initializePartnerRole, TemplateBuildPlan templateBuildPlan) {
-		TemplateBuildPlanHandler.LOG.debug("Trying to add partnerLink {} with partnerLinkType {}, myRole {}, partnerRole {} and initializePartnerRole {} for TemplateBuildPlan {}", partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole), templateBuildPlan.getBpelScopeElement().getAttribute("name"));
+		ScopeHandler.LOG.debug("Trying to add partnerLink {} with partnerLinkType {}, myRole {}, partnerRole {} and initializePartnerRole {} for TemplateBuildPlan {}", partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole), templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		return this.templateHandler.addPartnerLink(partnerLinkName, partnerLinkType, myRole, partnerRole, initializePartnerRole, templateBuildPlan);
 	}
 	
@@ -165,7 +165,7 @@ public class TemplateBuildPlanHandler {
 	 *         else false
 	 */
 	public boolean connect(TemplateBuildPlan source, TemplateBuildPlan target, String linkName) {
-		TemplateBuildPlanHandler.LOG.debug("Trying to connect TemplateBuildPlan {} as source with TemplateBuildPlan {} as target", source.getBpelScopeElement().getAttribute("name"), target.getBpelScopeElement().getAttribute("name"));
+		ScopeHandler.LOG.debug("Trying to connect TemplateBuildPlan {} as source with TemplateBuildPlan {} as target", source.getBpelScopeElement().getAttribute("name"), target.getBpelScopeElement().getAttribute("name"));
 		boolean check = true;
 		// if everything was successfully added return true
 		check &= this.templateHandler.addSource(linkName, source);

@@ -14,8 +14,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
-import org.opentosca.planbuilder.handlers.TemplateBuildPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.helpers.EmptyPropertyToInputInitializer;
@@ -59,9 +59,9 @@ public class BuildPlanBuilder implements IPlanBuilder {
 	private final static Logger LOG = LoggerFactory.getLogger(BuildPlanBuilder.class);
 	
 	// handler for abstract buildplan operations
-	private BuildPlanHandler planHandler;
+	private PlanHandler planHandler;
 	// handler for abstract templatebuildplan operations
-	private TemplateBuildPlanHandler templateHandler;
+	private ScopeHandler templateHandler;
 	// class for initializing properties inside the plan
 	private PropertyVariableInitializer propertyInitializer;
 	// class for initializing output with boundarydefinitions of a
@@ -89,13 +89,13 @@ public class BuildPlanBuilder implements IPlanBuilder {
 	 */
 	public BuildPlanBuilder() {
 		try {
-			this.planHandler = new BuildPlanHandler();
+			this.planHandler = new PlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 			this.instanceInit = new NodeInstanceInitializer();
 		} catch (ParserConfigurationException e) {
 			BuildPlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
-		this.templateHandler = new TemplateBuildPlanHandler();
+		this.templateHandler = new ScopeHandler();
 		// TODO seems ugly
 		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		this.propertyOutputInitializer = new PropertyMappingsToOutputInitializer();

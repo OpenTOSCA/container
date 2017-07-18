@@ -7,7 +7,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,14 +17,14 @@ import org.xml.sax.SAXException;
 
 public class CorrelationIDInitializer {
 	
-	private BuildPlanHandler buildPlanHandler;
+	private PlanHandler buildPlanHandler;
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
 	
 	
 	public CorrelationIDInitializer() {
 		try {
-			this.buildPlanHandler = new BuildPlanHandler();
+			this.buildPlanHandler = new PlanHandler();
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
 			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

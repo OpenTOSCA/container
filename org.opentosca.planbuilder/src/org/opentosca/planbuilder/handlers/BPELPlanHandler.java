@@ -36,9 +36,9 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class BPELProcessHandler {
+public class BPELPlanHandler {
 
-	private final static Logger LOG = LoggerFactory.getLogger(BPELProcessHandler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELPlanHandler.class);
 
 	private DocumentBuilderFactory documentBuilderFactory;
 	private DocumentBuilder documentBuilder;
@@ -50,7 +50,7 @@ public class BPELProcessHandler {
 	 *             is thrown when the interal DOM Builders couldn't be
 	 *             initialized
 	 */
-	public BPELProcessHandler() throws ParserConfigurationException {
+	public BPELPlanHandler() throws ParserConfigurationException {
 		this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		this.documentBuilderFactory.setNamespaceAware(true);
 		this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
@@ -68,7 +68,7 @@ public class BPELProcessHandler {
 	 * @return true if the namespace isn't alread used, else false
 	 */
 	public boolean addNamespaceToBPELDoc(String prefix, String namespace, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Adding namespace {} to BuildPlan {}", namespace,
+		BPELPlanHandler.LOG.debug("Adding namespace {} to BuildPlan {}", namespace,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		buildPlan.getBpelProcessElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, namespace);
 		// TODO make a real check
@@ -86,7 +86,7 @@ public class BPELProcessHandler {
 	 *            the value for the attribute
 	 */
 	public void setAttribute(Element element, String attrName, String attrValue) {
-		BPELProcessHandler.LOG.debug("Setting attribute {} with value {} on Element {}", attrName, attrValue,
+		BPELPlanHandler.LOG.debug("Setting attribute {} with value {} on Element {}", attrName, attrValue,
 				element.getLocalName());
 		// TODO check why this method is here
 		element.setAttribute(attrName, attrValue);
@@ -189,7 +189,7 @@ public class BPELProcessHandler {
 	 *            the buildPlan to change
 	 */
 	public void setId(String namespace, String name, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Setting name {} with namespace {} BuidlPlan", name, namespace);
+		BPELPlanHandler.LOG.debug("Setting name {} with namespace {} BuidlPlan", name, namespace);
 		// change the bpel document
 		buildPlan.getBpelProcessElement().setAttribute("name", name);
 		buildPlan.getBpelProcessElement().setAttribute("targetNamespace", namespace);
@@ -208,7 +208,7 @@ public class BPELProcessHandler {
 	 *            the BuildPlan to work on
 	 */
 	public void setWsdlId(String namespace, String name, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Setting name {} and namespace {} of WSDL of BuildPlan {}", name, namespace,
+		BPELPlanHandler.LOG.debug("Setting name {} and namespace {} of WSDL of BuildPlan {}", name, namespace,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 		wsdl.setId(namespace, name);
@@ -228,12 +228,12 @@ public class BPELProcessHandler {
 	 * @return true if adding the ImportElement was successful, else false
 	 */
 	public boolean addImports(String namespace, String location, TOSCAPlan.ImportType importType, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug(
+		BPELPlanHandler.LOG.debug(
 				"Trying to add Import with namespace {}, location {} and importType {} to BuildPlan {}", namespace,
 				location, importType, buildPlan.getBpelProcessElement().getAttribute("name"));
 
 		if (this.hasImport(namespace, location, importType, buildPlan)) {
-			BPELProcessHandler.LOG.warn("Failed adding Import");
+			BPELPlanHandler.LOG.warn("Failed adding Import");
 			return false;
 		}
 
@@ -252,7 +252,7 @@ public class BPELProcessHandler {
 		}
 		buildPlan.addBpelImportElement(importElement);
 
-		BPELProcessHandler.LOG.debug("Adding import was successful");
+		BPELPlanHandler.LOG.debug("Adding import was successful");
 		return true;
 	}
 
@@ -271,24 +271,24 @@ public class BPELProcessHandler {
 	 *         false
 	 */
 	public boolean hasImport(String namespace, String location, TOSCAPlan.ImportType type, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Checking if import with namespace " + namespace + " and location " + location
+		BPELPlanHandler.LOG.debug("Checking if import with namespace " + namespace + " and location " + location
 				+ " is already imported");
 		for (Element importElement : buildPlan.getBpelImportElements()) {
-			BPELProcessHandler.LOG.debug("Checking import element");
+			BPELPlanHandler.LOG.debug("Checking import element");
 			int checkInt = 0;
 			if (importElement.hasAttribute("namespace") && importElement.getAttribute("namespace").equals(namespace)) {
-				BPELProcessHandler.LOG.debug("Found import with same namespace");
+				BPELPlanHandler.LOG.debug("Found import with same namespace");
 				checkInt++;
 			}
 			if (importElement.hasAttribute("location") && importElement.getAttribute("location").equals(location)) {
-				BPELProcessHandler.LOG.debug("Found import with same location");
+				BPELPlanHandler.LOG.debug("Found import with same location");
 				checkInt++;
 			}
 			if (checkInt == 2) {
 				return true;
 			}
 			if (importElement.hasAttribute("type") && importElement.getAttribute("type").equals(type.toString())) {
-				BPELProcessHandler.LOG.debug("Found import with same type");
+				BPELPlanHandler.LOG.debug("Found import with same type");
 				checkInt++;
 			}
 			if (checkInt == 3) {
@@ -317,12 +317,12 @@ public class BPELProcessHandler {
 	 */
 	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole,
 			boolean initializePartnerRole, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug(
+		BPELPlanHandler.LOG.debug(
 				"Trying to add partnerLink {} with type {}, myRole {}, partnerRole {} and initializePartnerRole {} to BuildPlan {}",
 				partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole),
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasPartnerLink(partnerLinkName, buildPlan)) {
-			BPELProcessHandler.LOG.warn("Failed to add partnerLink");
+			BPELPlanHandler.LOG.warn("Failed to add partnerLink");
 			return false;
 		} else {
 			Element partnerLinksElement = buildPlan.getBpelPartnerLinksElement();
@@ -340,7 +340,7 @@ public class BPELProcessHandler {
 
 			partnerLinksElement.appendChild(partnerLinkElement);
 		}
-		BPELProcessHandler.LOG.debug("Adding partnerLink was successful");
+		BPELPlanHandler.LOG.debug("Adding partnerLink was successful");
 		return true;
 	}
 
@@ -359,7 +359,7 @@ public class BPELProcessHandler {
 	 */
 	public boolean addPartnerLinkType(String partnerLinkTypeName, String roleName, QName portType,
 			TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug(
+		BPELPlanHandler.LOG.debug(
 				"Trying to add partnerLinkType {} with roleName {} and portType {} to BuildPlan {}",
 				partnerLinkTypeName, roleName, portType.toString(),
 				buildPlan.getBpelProcessElement().getAttribute("name"));
@@ -385,7 +385,7 @@ public class BPELProcessHandler {
 	 */
 	public boolean addPartnerLinkType(String partnerLinkTypeName, String roleName1, QName portType1, String roleName2,
 			QName portType2, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug(
+		BPELPlanHandler.LOG.debug(
 				"Trying to add partnerLinkType {} with roleName1 {}, portType1 {}, roleName2 {} and portType2 {} to BuildPlan {}",
 				partnerLinkTypeName, roleName1, portType1.toString(), roleName2, portType2.toString(),
 				buildPlan.getBpelProcessElement().getAttribute("name"));
@@ -408,10 +408,10 @@ public class BPELProcessHandler {
 	 */
 	public boolean addVariable(String name, TOSCAPlan.VariableType variableType, QName declarationId,
 			TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to Plan {}", name,
+		BPELPlanHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to Plan {}", name,
 				variableType, declarationId.toString(), buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasVariable(name, buildPlan)) {
-			BPELProcessHandler.LOG.warn("Adding variable failed");
+			BPELPlanHandler.LOG.warn("Adding variable failed");
 			return false;
 		}
 
@@ -437,7 +437,7 @@ public class BPELProcessHandler {
 
 		// append to variables element
 		variablesElement.appendChild(variableElement);
-		BPELProcessHandler.LOG.debug("Adding variable was successful");
+		BPELPlanHandler.LOG.debug("Adding variable was successful");
 		return true;
 	}
 
@@ -479,11 +479,11 @@ public class BPELProcessHandler {
 	 * @return true if adding the link was successful, else false
 	 */
 	public boolean addLink(String linkName, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Trying to add link {} to BuildPlan {}", linkName,
+		BPELPlanHandler.LOG.debug("Trying to add link {} to BuildPlan {}", linkName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 
 		if (this.hasLink(linkName, buildPlan)) {
-			BPELProcessHandler.LOG.warn("Adding link failed");
+			BPELPlanHandler.LOG.warn("Adding link failed");
 			return false;
 		}
 
@@ -492,7 +492,7 @@ public class BPELProcessHandler {
 
 		linkElement.setAttribute("name", linkName);
 		linksElement.appendChild(linkElement);
-		BPELProcessHandler.LOG.debug("Adding link was successful");
+		BPELPlanHandler.LOG.debug("Adding link was successful");
 		return true;
 	}
 
@@ -521,10 +521,10 @@ public class BPELProcessHandler {
 	 * @return true if adding the extension was successful, else false
 	 */
 	public boolean addExtension(String namespace, boolean mustUnderstand, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Trying to add extension {} with mustUnderstand {} to BuildPlan {}", namespace,
+		BPELPlanHandler.LOG.debug("Trying to add extension {} with mustUnderstand {} to BuildPlan {}", namespace,
 				String.valueOf(mustUnderstand), buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasExtension(namespace, buildPlan)) {
-			BPELProcessHandler.LOG.warn("Adding extension failed");
+			BPELPlanHandler.LOG.warn("Adding extension failed");
 			return false;
 		} else {
 			Element extensionElement = buildPlan.getBpelDocument().createElementNS(TOSCAPlan.bpelNamespace,
@@ -533,7 +533,7 @@ public class BPELProcessHandler {
 			extensionElement.setAttribute("mustUnderstand", (mustUnderstand) ? "yes" : "no");
 			buildPlan.getBpelExtensionsElement().appendChild(extensionElement);
 		}
-		BPELProcessHandler.LOG.debug("Adding Extension was successful");
+		BPELPlanHandler.LOG.debug("Adding Extension was successful");
 		return true;
 	}
 
@@ -565,7 +565,7 @@ public class BPELProcessHandler {
 	 * @return true
 	 */
 	public boolean assignVariableStringValue(String variableName, String variableValue, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Trying to add assign of variable {} with value {} to BuildPlan {}", variableName,
+		BPELPlanHandler.LOG.debug("Trying to add assign of variable {} with value {} to BuildPlan {}", variableName,
 				variableValue, buildPlan.getBpelProcessElement().getAttribute("name"));
 		Element propertyAssignElement = buildPlan.getBpelMainSequencePropertyAssignElement();
 		// create copy element
@@ -580,7 +580,7 @@ public class BPELProcessHandler {
 		copyElement.appendChild(toElement);
 		propertyAssignElement.appendChild(copyElement);
 
-		BPELProcessHandler.LOG.debug("Adding assing was successful");
+		BPELPlanHandler.LOG.debug("Adding assing was successful");
 		// TODO check if a false can be made
 		return true;
 	}
@@ -629,7 +629,7 @@ public class BPELProcessHandler {
 		copyElement.appendChild(toElement);
 		propertyAssignElement.appendChild(copyElement);
 
-		BPELProcessHandler.LOG.debug("Adding assing was successful");
+		BPELPlanHandler.LOG.debug("Adding assing was successful");
 		// TODO check if a false can be made
 		return true;
 	}
@@ -645,7 +645,7 @@ public class BPELProcessHandler {
 	 * @return true if adding the string was successful, else false
 	 */
 	public boolean addCopyStringToOutputAssign(String copyElementString, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug("Trying to add following copy to outputassign of BuildPlan {}", copyElementString,
+		BPELPlanHandler.LOG.debug("Trying to add following copy to outputassign of BuildPlan {}", copyElementString,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		try {
 			InputSource is = new InputSource();
@@ -660,13 +660,13 @@ public class BPELProcessHandler {
 				outputAssignElement.insertBefore(copyElement, outputAssignElement.getFirstChild());
 			}
 		} catch (SAXException e) {
-			BPELProcessHandler.LOG.error("Failed adding copy to output assign", e);
+			BPELPlanHandler.LOG.error("Failed adding copy to output assign", e);
 			return false;
 		} catch (IOException e) {
-			BPELProcessHandler.LOG.error("Failed adding copy to output assign", e);
+			BPELPlanHandler.LOG.error("Failed adding copy to output assign", e);
 			return false;
 		}
-		BPELProcessHandler.LOG.debug("Adding copy was successful");
+		BPELPlanHandler.LOG.debug("Adding copy was successful");
 		return true;
 
 	}
@@ -686,7 +686,7 @@ public class BPELProcessHandler {
 	 * @return true if adding the copy was successful, else false
 	 */
 	public boolean assginOutputWithVariableValue(String variableName, String outputElementName, TOSCAPlan buildPlan) {
-		BPELProcessHandler.LOG.debug(
+		BPELPlanHandler.LOG.debug(
 				"Trying to add copy from variable {} to element {} of OutputMessage of BuildPlan {}", variableName,
 				outputElementName, buildPlan.getBpelProcessElement().getAttribute("name"));
 		Element outputAssignElement = buildPlan.getBpelMainSequenceOutputAssignElement();
@@ -713,7 +713,7 @@ public class BPELProcessHandler {
 		copyElement.appendChild(fromElement);
 		copyElement.appendChild(toElement);
 		outputAssignElement.appendChild(copyElement);
-		BPELProcessHandler.LOG.debug("Adding copy was successful");
+		BPELPlanHandler.LOG.debug("Adding copy was successful");
 		return true;
 	}
 

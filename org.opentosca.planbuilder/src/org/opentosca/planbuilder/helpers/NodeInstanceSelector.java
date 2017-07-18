@@ -11,8 +11,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.BPELProcessHandler;
-import org.opentosca.planbuilder.handlers.BuildPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
@@ -33,16 +33,16 @@ import org.xml.sax.SAXException;
 public class NodeInstanceSelector {
 	
 	private Fragments bpelFragments;
-	private BPELProcessHandler bpelProcessHandler;
-	private BuildPlanHandler planHandler;
+	private BPELPlanHandler bpelProcessHandler;
+	private PlanHandler planHandler;
 	private ServiceInstanceInitializer serviceInstanceInitializer;
 	
 	
 	public NodeInstanceSelector() {
 		try {
 			this.bpelFragments = new Fragments();
-			this.bpelProcessHandler = new BPELProcessHandler();
-			this.planHandler = new BuildPlanHandler();
+			this.bpelProcessHandler = new BPELPlanHandler();
+			this.planHandler = new PlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block

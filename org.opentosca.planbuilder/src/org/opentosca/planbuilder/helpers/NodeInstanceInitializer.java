@@ -8,8 +8,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.BPELProcessHandler;
-import org.opentosca.planbuilder.handlers.BPELTemplateScopeHandler;
+import org.opentosca.planbuilder.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan.VariableType;
@@ -31,16 +31,16 @@ public class NodeInstanceInitializer {
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 	private static final String InstanceIDVarKeyword = "InstanceURL";
 	
-	private BPELProcessHandler bpelProcessHandler;
+	private BPELPlanHandler bpelProcessHandler;
 	
-	private BPELTemplateScopeHandler bpelTemplateScopeHandler;
+	private BPELScopeHandler bpelTemplateScopeHandler;
 	
 	private Fragments bpelFragments;
 	
 	
 	public NodeInstanceInitializer() throws ParserConfigurationException {
-		this.bpelProcessHandler = new BPELProcessHandler();
-		this.bpelTemplateScopeHandler = new BPELTemplateScopeHandler();
+		this.bpelProcessHandler = new BPELPlanHandler();
+		this.bpelTemplateScopeHandler = new BPELScopeHandler();
 		this.bpelFragments = new Fragments();
 	}
 	
