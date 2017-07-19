@@ -1,6 +1,8 @@
 package org.opentosca.container.api.legacy.resources.utilities;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -11,11 +13,11 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreFileService;
+import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.model.Definitions;
 import org.opentosca.container.core.tosca.model.TExtensibleElements;
+import org.opentosca.container.core.tosca.model.TPlan;
 import org.opentosca.container.core.tosca.model.TServiceTemplate;
-
-
 
 public class ModelUtils {
 	
@@ -42,6 +44,25 @@ public class ModelUtils {
 			
 		}
 		return false;
+	}
+	
+	public static boolean hasBuildPlan(CSARID csarId) throws UserException, SystemException {
+		QName serviceTemplateId = ModelUtils.getEntryServiceTemplate(csarId);
+		
+		Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarId);
+		
+		if (plans == null)
+			return false;
+		
+		return plans.containsKey(PlanTypes.BUILD);
+	}
+	
+	public static boolean hasTerminationPlan(CSARID csarId) throws UserException, SystemException {
+		QName serviceTemplateId = ModelUtils.getEntryServiceTemplate(csarId);
+		
+		Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarId);
+		
+		return plans.containsKey(PlanTypes.TERMINATION);
 	}
 	
 	public static QName getEntryServiceTemplate(CSARID csarId) throws UserException, SystemException {
