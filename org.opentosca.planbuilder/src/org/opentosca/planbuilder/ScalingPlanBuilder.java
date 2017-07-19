@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -90,12 +91,14 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		String name;
 		List<AbstractNodeTemplate> nodeTemplates;
 		List<AbstractRelationshipTemplate> relationshipTemplates;
+		Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes;
 		
 		
-		public ScalingPlanDefinition(String name, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplate) {
+		public ScalingPlanDefinition(String name, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplate, Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes) {
 			this.name = name;
 			this.nodeTemplates = nodeTemplates;
 			this.relationshipTemplates = relationshipTemplate;
+			this.selectionStrategy2BorderNodes = selectionStrategy2BorderNodes;
 		}
 	}
 	
@@ -231,7 +234,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		
 		// we can now execute the basic high-level skeleton generation algorithm
 		// for build plans
-		this.initializeDependenciesInBuildPlan(newScalingPlan);
+		this.initializeDependenciesInScalingPlan(newScalingPlan);
 		
 		// init variables
 		PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newScalingPlan);
@@ -275,7 +278,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		
 		// we can now execute the basic high-level skeleton generation algorithm
 		// for build plans
-		this.initializeDependenciesInBuildPlan(newScalingPlan);
+		this.initializeDependenciesInScalingPlan(newScalingPlan);
 		
 		// init variables
 		PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newScalingPlan);
@@ -289,8 +292,6 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		// this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
 		
 		this.runPlugins(newScalingPlan, serviceTemplate.getQName(), propMap, new HashSet<AbstractNodeTemplate>());
-		
-		
 		
 		this.idInit.addCorrellationID(newScalingPlan);
 		
@@ -478,7 +479,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		// fetch scaling plan names
 		String scalingPlanNamesRawValue = tags.get("scalingplans").trim();
 		
-		String[] scalingPlanNamesRaw = scalingPlanNamesRawValue.split(",");
+		List<String> scalingPlanNamesRaw = this.getElementsFromCSV(scalingPlanNamesRawValue);
 		
 		for (String scalingPlanName : scalingPlanNamesRaw) {
 			
@@ -487,7 +488,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 				
 				String[] scalingPlanNodesNEdgesRawValueSplit = scalingPlanNodesNEdgesRawValue.split(";");
 				
-				if (scalingPlanNodesNEdgesRawValueSplit.length != 2) {
+				if (scalingPlanNodesNEdgesRawValueSplit.length != 3) {
 					LOG.error("Scaling Plan Definition '" + scalingPlanName + "' couldn't be parsed properly, skipping");
 					continue;
 				}
@@ -506,7 +507,9 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 					continue;
 				}
 				
-				scalingPlanDefinitions.add(new ScalingPlanDefinition(scalingPlanName, nodeTemplates, relationshipTemplates));
+				Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes = this.fetchSelectionStrategy2BorderNodes(topology, scalingPlanNodesNEdgesRawValueSplit[3]);
+				
+				scalingPlanDefinitions.add(new ScalingPlanDefinition(scalingPlanName, nodeTemplates, relationshipTemplates, selectionStrategy2BorderNodes));
 			}
 			
 		}
@@ -514,52 +517,102 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		return scalingPlanDefinitions;
 	}
 	
+	private Map<String, AbstractNodeTemplate> fetchSelectionStrategy2BorderNodes(AbstractTopologyTemplate topologyTemplate, String selectionStrategyBorderNodesCSV) {
+		
+		selectionStrategyBorderNodesCSV = this.cleanCSVString(selectionStrategyBorderNodesCSV);
+		
+		List<String> selectionStrategyBorderNodes = this.getElementsFromCSV(selectionStrategyBorderNodesCSV);
+		
+		Map<String, String> selectionStrategyBorderNodesMap = this.transformSelectionStrategyListToMap(selectionStrategyBorderNodes);
+		
+		Map<String, AbstractNodeTemplate> selectionStrategyNodeTemplatesMap = new HashMap<String, AbstractNodeTemplate>();
+		
+		for (String selectionStrategy : selectionStrategyBorderNodesMap.keySet()) {
+			AbstractNodeTemplate node = this.fetchNodeTemplate(topologyTemplate, selectionStrategyBorderNodesMap.get(selectionStrategy));
+			if (node != null) {
+				selectionStrategyNodeTemplatesMap.put(selectionStrategy, node);
+			}
+		}
+		
+		return selectionStrategyNodeTemplatesMap;
+	}
+	
+	private AbstractNodeTemplate fetchNodeTemplate(AbstractTopologyTemplate topologyTemplate, String nodeTemplateId) {
+		for (AbstractNodeTemplate nodeTemplate : topologyTemplate.getNodeTemplates()) {
+			if (nodeTemplate.getId().equals(nodeTemplateId)) {
+				return nodeTemplate;
+			}
+		}
+		return null;
+	}
+	
+	private Map<String, String> transformSelectionStrategyListToMap(List<String> selectionStrategyBorderNodes) {
+		Map<String, String> selectionStrategyBorderNodesMap = new HashMap<String, String>();
+		for (String selectionStrategyBorderNode : selectionStrategyBorderNodes) {
+			if (selectionStrategyBorderNode.split("[").length == 2 && selectionStrategyBorderNode.endsWith("]")) {
+				String selectionStrategy = selectionStrategyBorderNode.split("[")[0];
+				String borderNode = selectionStrategyBorderNode.split("[")[1].replace("]", "");
+				selectionStrategyBorderNodesMap.put(selectionStrategy, selectionStrategyBorderNode);
+			} else {
+				LOG.error("Parsing Selection Strategies and border Node Templates had an error. Couldn't parse \"" + selectionStrategyBorderNode + "\" properly.");
+			}
+		}
+		return selectionStrategyBorderNodesMap;
+	}
+	
+	private String cleanCSVString(String commaSeperatedList) {
+		while (commaSeperatedList.endsWith(";") | commaSeperatedList.endsWith(",")) {
+			commaSeperatedList = commaSeperatedList.substring(0, commaSeperatedList.length() - 2);
+		}
+		return commaSeperatedList;
+	}
+	
 	private List<AbstractRelationshipTemplate> fetchRelationshipTemplates(AbstractTopologyTemplate topology, String scalingPlanRelationsRawValue) {
 		List<AbstractRelationshipTemplate> relationshipTemplates = new ArrayList<AbstractRelationshipTemplate>();
 		
-		// remove trailing comma and semicolon
-		while (scalingPlanRelationsRawValue.endsWith(";") | scalingPlanRelationsRawValue.endsWith(",")) {
-			scalingPlanRelationsRawValue = scalingPlanRelationsRawValue.substring(0, scalingPlanRelationsRawValue.length() - 2);
-		}
+		scalingPlanRelationsRawValue = this.cleanCSVString(scalingPlanRelationsRawValue);
 		
 		// fetch nodeTemplateIds from raw value
-		String[] scalingPlanRelationNamesRawSplit = scalingPlanRelationsRawValue.split(",");
+		List<String> scalingPlanRelationNames = this.getElementsFromCSV(scalingPlanRelationsRawValue);
 		
 		for (AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
-			for (String scalingNodeName : scalingPlanRelationNamesRawSplit) {
+			for (String scalingNodeName : scalingPlanRelationNames) {
 				if (relationshipTemplate.getId().equals(scalingNodeName.trim())) {
 					relationshipTemplates.add(relationshipTemplate);
 				}
 			}
 		}
 		
-		if (relationshipTemplates.size() != scalingPlanRelationNamesRawSplit.length) {
+		if (relationshipTemplates.size() != scalingPlanRelationNames.size()) {
 			return null;
 		} else {
 			return relationshipTemplates;
 		}
 	}
 	
+	private List<String> getElementsFromCSV(String csvString) {
+		csvString = this.cleanCSVString(csvString);
+		String[] scalingPlanRelationNamesRawSplit = csvString.split(",");
+		return Arrays.asList(scalingPlanRelationNamesRawSplit);
+	}
+	
 	private List<AbstractNodeTemplate> fetchNodeTemplates(AbstractTopologyTemplate topology, String scalingPlanNodesRawValue) {
 		List<AbstractNodeTemplate> nodeTemplates = new ArrayList<AbstractNodeTemplate>();
 		
-		// remove trailing comma and semicolon
-		while (scalingPlanNodesRawValue.endsWith(";") | scalingPlanNodesRawValue.endsWith(",")) {
-			scalingPlanNodesRawValue = scalingPlanNodesRawValue.substring(0, scalingPlanNodesRawValue.length() - 2);
-		}
+		scalingPlanNodesRawValue = this.cleanCSVString(scalingPlanNodesRawValue);
 		
 		// fetch nodeTemplateIds from raw value
-		String[] scalingPlanNodeNamesRawSplit = scalingPlanNodesRawValue.split(",");
 		
-		for (AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-			for (String scalingNodeName : scalingPlanNodeNamesRawSplit) {
-				if (nodeTemplate.getId().equals(scalingNodeName.trim())) {
-					nodeTemplates.add(nodeTemplate);
-				}
+		List<String> scalingPlanNodeNames = this.getElementsFromCSV(scalingPlanNodesRawValue);
+		
+		for (String scalingNodeName : scalingPlanNodeNames) {
+			AbstractNodeTemplate node = this.fetchNodeTemplate(topology, scalingNodeName);
+			if (node != null) {
+				nodeTemplates.add(node);
 			}
 		}
 		
-		if (nodeTemplates.size() != scalingPlanNodeNamesRawSplit.length) {
+		if (nodeTemplates.size() != scalingPlanNodeNames.size()) {
 			return null;
 		} else {
 			return nodeTemplates;
@@ -588,7 +641,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
 	 */
-	private void initializeDependenciesInBuildPlan(TOSCAPlan buildPlan) {
+	private void initializeDependenciesInScalingPlan(TOSCAPlan buildPlan) {
 		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
