@@ -4,6 +4,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.QName;
 
@@ -36,18 +39,22 @@ import org.slf4j.LoggerFactory;
  */
 public class MBEventHandler implements EventHandler {
 
-	private static String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
-	private static String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
+	private static final String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
+	private static final String BPELNS = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
-	public static EventAdmin eventAdmin;
-	final private static Logger LOG = LoggerFactory.getLogger(MBEventHandler.class);
+	private static Logger logger = LoggerFactory.getLogger(MBEventHandler.class);
+
+	private final ExecutorService executor = Executors.newFixedThreadPool(5);
+
+	private EventAdmin eventAdmin;
+
 
 	@Override
 	public void handleEvent(final Event event) {
 
 		// Handle plan invoke requests
 		if ("org_opentosca_plans/requests".equals(event.getTopic())) {
-			MBEventHandler.LOG.debug("Process event of topic \"org_opentosca_plans/requests\".");
+			logger.debug("Process event of topic \"org_opentosca_plans/requests\".");
 
 			final CSARID csarID = (CSARID) event.getProperty("CSARID");
 			final QName planID = (QName) event.getProperty("PLANID");
@@ -80,10 +87,10 @@ public class MBEventHandler implements EventHandler {
 				headers.put("PlanLanguage", planLanguage);
 
 				if (async) {
-					MBEventHandler.LOG.debug("Invocation is asynchronous.");
+					logger.debug("Invocation is asynchronous.");
 					headers.put("MessageID", messageID);
 				} else {
-					MBEventHandler.LOG.debug("Invocation is synchronous.");
+					logger.debug("Invocation is synchronous.");
 				}
 
 				if (message instanceof HashMap) {
@@ -93,8 +100,7 @@ public class MBEventHandler implements EventHandler {
 							serviceInstanceURI = new URI(serviceInstanceID);
 							headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
 						} catch (final URISyntaxException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							logger.warn("Could not generate service instance URL: {}", e.getMessage(), e);
 						}
 					}
 
@@ -103,51 +109,51 @@ public class MBEventHandler implements EventHandler {
 					}
 				}
 
-				MBEventHandler.LOG.debug("Sending message {}", message);
+				logger.debug("Sending message {}", message);
 
 				final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 				final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
 
-				MBEventHandler.LOG.debug("Send request with correlation id {}.", messageID);
+				logger.debug("Send request with correlation id {}.", messageID);
 
-				Exchange requestExchange = new DefaultExchange(Activator.camelContext);
+				final Exchange requestExchange = new DefaultExchange(Activator.camelContext);
 				requestExchange.getIn().setBody(message);
 				requestExchange.getIn().setHeaders(headers);
 				template.asyncSend("direct:invoke", requestExchange);
 
-				Object response = null;
-				String callbackMessageID = null;
-				Exchange exchange = null;
+				// Threaded reception of response
+				this.executor.submit(() -> {
 
-				try {
+					Object response;
+					String callbackMessageID;
+					
+					try {
 
-					consumer.start();
-					exchange = consumer.receive("direct:response" + messageID);
-					response = exchange.getIn().getBody();
-					callbackMessageID = exchange.getIn().getMessageId();
-					consumer.stop();
+						consumer.start();
+						final Exchange exchange = consumer.receive("direct:response" + messageID);
+						response = exchange.getIn().getBody();
+						callbackMessageID = exchange.getIn().getMessageId();
+						consumer.stop();
+					} catch (final Exception e) {
+						logger.error("Error occured: {}", e.getMessage(), e);
+						return;
+					}
 
-				} catch (final Exception e) {
-					MBEventHandler.LOG.error("Some error occured.");
-					e.printStackTrace();
-				}
+					logger.debug("Received response with correlation id {}.", callbackMessageID);
 
-				MBEventHandler.LOG.debug("Received response with correlation id {}.", callbackMessageID);
+					final Map<String, Object> responseMap = new HashMap<>();
+					responseMap.put("RESPONSE", response);
+					responseMap.put("MESSAGEID", messageID);
+					final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
 
-				final Map<String, Object> responseMap = new HashMap<>();
-				responseMap.put("RESPONSE", response);
-				responseMap.put("MESSAGEID", messageID);
-				final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
-
-				MBEventHandler.LOG.debug("Posting response.");
-
-				MBEventHandler.eventAdmin.postEvent(responseEvent);
-
+					logger.debug("Posting response.");
+					this.eventAdmin.postEvent(responseEvent);
+				});
 			}
 
 			// BPMN
 			else if (planLanguage.startsWith(BPMNNS)) {
-				MBEventHandler.LOG.debug("Process a BPMN call.");
+				logger.debug("Process a BPMN call.");
 
 				// Should be of type Document or HashMap<String, String>. Maybe
 				// better handle them with different topics.
@@ -173,10 +179,10 @@ public class MBEventHandler implements EventHandler {
 				headers.put("PlanLanguage", planLanguage);
 
 				if (async) {
-					MBEventHandler.LOG.debug("Invocation is asynchronous.");
+					logger.debug("Invocation is asynchronous.");
 					headers.put("MessageID", messageID);
 				} else {
-					MBEventHandler.LOG.debug("Invocation is synchronous.");
+					logger.debug("Invocation is synchronous.");
 				}
 
 				if (message instanceof HashMap) {
@@ -189,63 +195,61 @@ public class MBEventHandler implements EventHandler {
 							e.printStackTrace();
 						}
 					} else {
-						LOG.warn("Service instance ID is null.");
+						logger.warn("Service instance ID is null.");
 					}
 
 					if (operationName != null) {
 						headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
 					} else {
-						LOG.warn("Operation name is null.");
+						logger.warn("Operation name is null.");
 					}
 				} else {
-					LOG.warn("The message is no Hashmap.");
+					logger.warn("The message is no Hashmap.");
 				}
 
-				MBEventHandler.LOG.debug("Sending message {}", message);
+				logger.debug("Sending message {}", message);
 
 				final ProducerTemplate template = Activator.camelContext.createProducerTemplate();
 				final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
 
-				MBEventHandler.LOG.debug("Send request with correlation id {}.", messageID);
+				logger.debug("Send request with correlation id {}.", messageID);
 
 				template.sendBodyAndHeaders("direct:invoke", ExchangePattern.InOnly, message, headers);
 
-				Object response = null;
-				String callbackMessageID = null;
-				Exchange exchange = null;
-
-				try {
-
-					consumer.start();
-					exchange = consumer.receive("direct:response" + messageID);
-					response = exchange.getIn().getBody();
-					callbackMessageID = exchange.getIn().getMessageId();
-
-					consumer.stop();
-
-				} catch (final Exception e) {
-					MBEventHandler.LOG.error("Some error occured.");
-					e.printStackTrace();
-				}
-
-				MBEventHandler.LOG.debug("Received response with correlation id {}.", callbackMessageID);
-
-				final Map<String, Object> responseMap = new HashMap<>();
-				responseMap.put("RESPONSE", response);
-				responseMap.put("MESSAGEID", messageID);
-				responseMap.put("PLANLANGUAGE", planLanguage);
-				final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
-
-				MBEventHandler.LOG.debug("Posting response.");
-
-				MBEventHandler.eventAdmin.postEvent(responseEvent);
-
+				// Threaded reception of response
+				this.executor.submit(() -> {
+					
+					Object response;
+					String callbackMessageID;
+					
+					try {
+						consumer.start();
+						final Exchange exchange = consumer.receive("direct:response" + messageID);
+						response = exchange.getIn().getBody();
+						callbackMessageID = exchange.getIn().getMessageId();
+						consumer.stop();
+					} catch (final Exception e) {
+						logger.error("Error occured: {}", e.getMessage(), e);
+						return;
+					}
+					
+					logger.debug("Received response with correlation id {}.", callbackMessageID);
+					
+					final Map<String, Object> responseMap = new HashMap<>();
+					responseMap.put("RESPONSE", response);
+					responseMap.put("MESSAGEID", messageID);
+					responseMap.put("PLANLANGUAGE", planLanguage);
+					final Event responseEvent = new Event("org_opentosca_plans/responses", responseMap);
+					
+					logger.debug("Posting response.");
+					this.eventAdmin.postEvent(responseEvent);
+				});
 			}
 		}
 
 		// Handle IA invoke requests
 		if ("org_opentosca_ia/requests".equals(event.getTopic())) {
-			MBEventHandler.LOG.debug("Process event of topic \"org_opentosca_ia/requests\".");
+			logger.debug("Process event of topic \"org_opentosca_ia/requests\".");
 
 			// TODO when needed.
 
@@ -253,29 +257,19 @@ public class MBEventHandler implements EventHandler {
 
 	}
 
-	/**
-	 * Bind EventAdmin.
-	 *
-	 * @param service
-	 *            - The EventAdmin to register.
-	 */
-	protected void bindEventAdmin(final EventAdmin service) {
-		if (service == null) {
-			MBEventHandler.LOG.debug("Service EventAdmin is null.");
-		} else {
-			MBEventHandler.LOG.debug("Bind of the EventAdmin.");
-			MBEventHandler.eventAdmin = service;
-		}
+	public void bindEventAdmin(final EventAdmin eventAdmin) {
+		this.eventAdmin = eventAdmin;
 	}
-
-	/**
-	 * Unbind EventAdmin.
-	 *
-	 * @param service
-	 *            - The EventAdmin to unregister.
-	 */
-	protected void unbindEventAdmin(final EventAdmin service) {
-		MBEventHandler.LOG.debug("Unbind of the EventAdmin.");
-		MBEventHandler.eventAdmin = null;
+	
+	public void unbindEventAdmin(final EventAdmin eventAdmin) {
+		try {
+			this.executor.shutdown();
+			this.executor.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (final InterruptedException e) {
+			// Ignore
+		} finally {
+			this.executor.shutdownNow();
+		}
+		this.eventAdmin = null;
 	}
 }
