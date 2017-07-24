@@ -1,3 +1,5 @@
+---
+---
 # Application Invoker
 
 <!-- toc -->
@@ -167,7 +169,6 @@ public class TempSensors{
 ```
 
 **Listing 3: Aus TOSCA generiertes Code-Skelett einer Anwendungsoperation**
-</center>
 
 Damit die angebotenen Operationen einer Anwendung durch den Application Bus aufgerufen werden können, muss die Anwendung eine Web Service Schnittstelle anbieten. 
 Diese Schnittstelle wird dann von einem passenden Application Bus Plugin zur Kommunikation verwendet. 
