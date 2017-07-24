@@ -1,6 +1,3 @@
----
----
-
 # Application Invoker
 
 <!-- toc -->
@@ -193,7 +190,6 @@ Das *DeploymentArtifact* wiederum gehört zur *NodeTypeImplementation* des eigen
     </opentosca:ApplicationInterfaceInformations>
 </opentosca:ApplicationInterfacesproperties>
 ```
-<center>
 
 **Listing 4: ArtifactTemplate Properties**
 
