@@ -145,6 +145,7 @@
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
     <module>org.opentosca.container.api.legacy</module>
     <module>org.opentosca.container.api</module>
+    <module>org.opentosca.container.core.next</module>
   </modules>
 
 </project>
