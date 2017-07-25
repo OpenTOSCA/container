@@ -3,6 +3,7 @@ package org.opentosca.container.core.next.model;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -20,12 +21,15 @@ public class PlanInstance extends BaseEntity {
 
   public static final String TABLE_NAME = "PLAN_INSTANCE";
 
+  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private PlanInstanceState state;
 
+  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private PlanType type;
 
+  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private PlanLanguage language;
 

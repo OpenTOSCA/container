@@ -1,5 +1,6 @@
 package org.opentosca.container.core.next.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -14,6 +15,7 @@ public class RelationshipTemplateInstance extends BaseEntity {
 
   public static final String TABLE_NAME = "RELATIONSHIP_TEMPLATE_INSTANCE";
 
+  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private RelationshipTemplateInstanceState state;
 

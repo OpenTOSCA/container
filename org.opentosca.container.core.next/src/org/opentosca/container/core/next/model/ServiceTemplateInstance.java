@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.model;
 
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -16,6 +17,7 @@ public class ServiceTemplateInstance extends BaseEntity {
 
   public static final String TABLE_NAME = "SERVICE_TEMPLATE_INSTANCE";
 
+  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private ServiceTemplateInstanceState state;
 

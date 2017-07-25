@@ -17,17 +17,14 @@ public class PlanInstanceEvent extends BaseEntity {
 
   public static final String TABLE_NAME = "PLAN_INSTANCE_EVENT";
 
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp;
 
-  @Column(nullable = true)
   private String status;
 
-  @Column(nullable = true)
   private String type;
 
-  @Column(nullable = true)
   private String message;
 
   @ManyToOne(fetch = FetchType.LAZY)

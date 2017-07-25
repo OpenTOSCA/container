@@ -18,10 +18,8 @@ public class PlanInstanceOutput extends BaseEntity {
   @Column(nullable = false)
   private String key;
 
-  @Column(nullable = true)
   private String value;
 
-  @Column(nullable = true)
   private String description;
 
   @ManyToOne(fetch = FetchType.LAZY)
