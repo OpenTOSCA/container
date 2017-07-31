@@ -1,6 +1,6 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.Set;
+import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,11 +12,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
-public class NodeTemplateInstance extends BaseEntity {
+public class NodeTemplateInstance extends PersistenceObject {
+
+  private static final long serialVersionUID = 6596755785422340480L;
 
   public static final String TABLE_NAME = "NODE_TEMPLATE_INSTANCE";
 
@@ -24,15 +26,18 @@ public class NodeTemplateInstance extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private NodeTemplateInstanceState state;
 
+  @OneToMany(mappedBy = "nodeTemplateInstance")
+  private Collection<NodeTemplateInstanceProperty> properties = Lists.newArrayList();
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   private ServiceTemplateInstance serviceTemplateInstance;
 
   @OneToMany(mappedBy = "source")
-  private Set<RelationshipTemplateInstance> sourceRelations = Sets.newHashSet();
+  private Collection<RelationshipTemplateInstance> sourceRelations = Lists.newArrayList();
 
   @OneToMany(mappedBy = "target")
-  private Set<RelationshipTemplateInstance> targetRelations = Sets.newHashSet();
+  private Collection<RelationshipTemplateInstance> targetRelations = Lists.newArrayList();
 
 
   public NodeTemplateInstance() {
@@ -47,6 +52,21 @@ public class NodeTemplateInstance extends BaseEntity {
     this.state = state;
   }
 
+  public Collection<NodeTemplateInstanceProperty> getProperties() {
+    return this.properties;
+  }
+
+  public void setProperties(final Collection<NodeTemplateInstanceProperty> properties) {
+    this.properties = properties;
+  }
+
+  public void addProperty(final NodeTemplateInstanceProperty property) {
+    this.properties.add(property);
+    if (property.getNodeTemplateInstance() != this) {
+      property.setNodeTemplateInstance(this);
+    }
+  }
+
   public ServiceTemplateInstance getServiceTemplateInstance() {
     return this.serviceTemplateInstance;
   }
@@ -58,11 +78,11 @@ public class NodeTemplateInstance extends BaseEntity {
     }
   }
 
-  public Set<RelationshipTemplateInstance> getSourceRelations() {
+  public Collection<RelationshipTemplateInstance> getSourceRelations() {
     return this.sourceRelations;
   }
 
-  public void setSourceRelations(final Set<RelationshipTemplateInstance> sourceRelations) {
+  public void setSourceRelations(final Collection<RelationshipTemplateInstance> sourceRelations) {
     this.sourceRelations = sourceRelations;
   }
 
@@ -73,11 +93,11 @@ public class NodeTemplateInstance extends BaseEntity {
     }
   }
 
-  public Set<RelationshipTemplateInstance> getTargetRelations() {
+  public Collection<RelationshipTemplateInstance> getTargetRelations() {
     return this.targetRelations;
   }
 
-  public void setTargetRelations(final Set<RelationshipTemplateInstance> targetRelations) {
+  public void setTargetRelations(final Collection<RelationshipTemplateInstance> targetRelations) {
     this.targetRelations = targetRelations;
   }
 

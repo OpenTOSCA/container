@@ -1,6 +1,6 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.Set;
+import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,11 +9,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
 @Entity
 @Table(name = ServiceTemplateInstance.TABLE_NAME)
-public class ServiceTemplateInstance extends BaseEntity {
+public class ServiceTemplateInstance extends PersistenceObject {
+
+  private static final long serialVersionUID = 6652347924001914320L;
 
   public static final String TABLE_NAME = "SERVICE_TEMPLATE_INSTANCE";
 
@@ -22,10 +24,10 @@ public class ServiceTemplateInstance extends BaseEntity {
   private ServiceTemplateInstanceState state;
 
   @OneToMany(mappedBy = "serviceTemplateInstance")
-  private Set<PlanInstance> planInstances = Sets.newHashSet();
+  private Collection<PlanInstance> planInstances = Lists.newArrayList();
 
   @OneToMany(mappedBy = "serviceTemplateInstance")
-  private Set<NodeTemplateInstance> nodeTemplateInstances = Sets.newHashSet();
+  private Collection<NodeTemplateInstance> nodeTemplateInstances = Lists.newArrayList();
 
 
   public ServiceTemplateInstance() {
@@ -40,11 +42,11 @@ public class ServiceTemplateInstance extends BaseEntity {
     this.state = state;
   }
 
-  public Set<PlanInstance> getPlanInstances() {
+  public Collection<PlanInstance> getPlanInstances() {
     return this.planInstances;
   }
 
-  public void setPlanInstances(final Set<PlanInstance> planInstances) {
+  public void setPlanInstances(final Collection<PlanInstance> planInstances) {
     this.planInstances = planInstances;
   }
 
@@ -55,11 +57,12 @@ public class ServiceTemplateInstance extends BaseEntity {
     }
   }
 
-  public Set<NodeTemplateInstance> getNodeTemplateInstances() {
+  public Collection<NodeTemplateInstance> getNodeTemplateInstances() {
     return this.nodeTemplateInstances;
   }
 
-  public void setNodeTemplateInstances(final Set<NodeTemplateInstance> nodeTemplateInstances) {
+  public void setNodeTemplateInstances(
+      final Collection<NodeTemplateInstance> nodeTemplateInstances) {
     this.nodeTemplateInstances = nodeTemplateInstances;
   }
 

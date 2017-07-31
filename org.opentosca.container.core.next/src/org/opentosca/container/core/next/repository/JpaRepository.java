@@ -3,84 +3,94 @@ package org.opentosca.container.core.next.repository;
 import java.util.Collection;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.opentosca.container.core.next.utils.EntityManagerProvider;
 
-public class JpaRepository<T> implements Repository<T> {
+public class JpaRepository<T> implements Repository<T, Long> {
 
   protected final Class<T> clazz;
 
-  protected final EntityManager em;
+  protected final EntityManagerFactory emf;
 
 
   public JpaRepository(final Class<T> clazz) {
     this.clazz = clazz;
-    this.em = EntityManagerProvider.getEntityManagerFactory().createEntityManager();
+    this.emf = EntityManagerProvider.getEntityManagerFactory();
   }
 
   @Override
   public void add(final T entity) {
+    final EntityManager em = this.emf.createEntityManager();
     try {
-      this.em.getTransaction().begin();
-      this.em.persist(entity);
-      this.em.getTransaction().commit();
+      em.getTransaction().begin();
+      em.persist(entity);
+      em.getTransaction().commit();
     } finally {
-      if (this.em.getTransaction().isActive()) {
-        this.em.getTransaction().rollback();
+      if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
       }
-      this.em.close();
+      em.close();
     }
   }
 
   @Override
   public void add(final Iterable<T> items) {
+    final EntityManager em = this.emf.createEntityManager();
     try {
-      this.em.getTransaction().begin();
-      items.forEach(this.em::persist);
-      this.em.getTransaction().commit();
+      em.getTransaction().begin();
+      items.forEach(em::persist);
+      em.getTransaction().commit();
     } finally {
-      if (this.em.getTransaction().isActive()) {
-        this.em.getTransaction().rollback();
+      if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
       }
-      this.em.close();
+      em.close();
     }
   }
 
   @Override
-  public void update(final T entity) {
+  public T update(final T entity) {
+    final EntityManager em = this.emf.createEntityManager();
+    T updatedEntity = null;
     try {
-      this.em.getTransaction().begin();
-      this.em.merge(entity);
-      this.em.getTransaction().commit();
+      em.getTransaction().begin();
+      updatedEntity = em.merge(entity);
+      em.getTransaction().commit();
     } finally {
-      if (this.em.getTransaction().isActive()) {
-        this.em.getTransaction().rollback();
+      if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
       }
-      this.em.close();
+      em.close();
     }
+    return updatedEntity;
   }
 
   @Override
   public void remove(final T entity) {
+    final EntityManager em = this.emf.createEntityManager();
     try {
-      this.em.getTransaction().begin();
-      this.em.remove(entity);
-      this.em.getTransaction().commit();
+      em.getTransaction().begin();
+      em.remove(entity);
+      em.getTransaction().commit();
     } finally {
-      if (this.em.getTransaction().isActive()) {
-        this.em.getTransaction().rollback();
+      if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
       }
-      this.em.close();
+      em.close();
     }
   }
 
   @Override
   public T findById(final Long id) {
-    return this.em.find(this.clazz, id);
+    final EntityManager em = this.emf.createEntityManager();
+    return em.find(this.clazz, id);
   }
 
   @Override
   public Collection<T> findAll() {
-    return this.em.createQuery("from " + this.clazz.getName(), this.clazz).getResultList();
+    final EntityManager em = this.emf.createEntityManager();
+    return em.createQuery(String.format("from %s e", this.clazz.getSimpleName()), this.clazz)
+        .getResultList();
   }
 }

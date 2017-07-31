@@ -3,9 +3,13 @@
              xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
   <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>org.opentosca.container.core.next.model.PersistenceObject</class>
+    <class>org.opentosca.container.core.next.model.Property</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
     <class>org.opentosca.container.core.next.model.NodeTemplateInstance</class>
+    <class>org.opentosca.container.core.next.model.NodeTemplateInstanceProperty</class>
     <class>org.opentosca.container.core.next.model.RelationshipTemplateInstance</class>
+    <class>org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty</class>
     <class>org.opentosca.container.core.next.model.PlanInstance</class>
     <class>org.opentosca.container.core.next.model.PlanInstanceEvent</class>
     <class>org.opentosca.container.core.next.model.PlanInstanceOutput</class>
@@ -16,7 +20,7 @@
       <!-- <property name="javax.persistence.jdbc.user" value=""/> -->
       <!-- <property name="javax.persistence.jdbc.password" value=""/> -->
       <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/>
-      <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+      <property name="eclipselink.ddl-generation" value="create-tables"/>
       <property name="eclipselink.ddl-generation.output-mode" value="database"/>
       <property name="eclipselink.connection-pool.min" value="1" />
       <property name="eclipselink.connection-pool.max" value="15" />
@@ -25,7 +29,7 @@
       <property name="eclipselink.jdbc.batch-writing" value="JDBC"/>
       <property name="eclipselink.weaving" value="false"/>
       <!-- Levels: ALL FINEST FINER FINE CONFIG INFO WARNING SEVERE OFF -->
-      <property name="eclipselink.logging.level" value="CONFIG"/>
+      <property name="eclipselink.logging.level" value="FINE"/>
       <property name="eclipselink.logging.timestamp" value="false"/>
       <property name="eclipselink.logging.thread" value="false"/>
       <property name="eclipselink.logging.exceptions" value="true"/>

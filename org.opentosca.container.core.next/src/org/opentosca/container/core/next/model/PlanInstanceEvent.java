@@ -13,7 +13,9 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = PlanInstanceEvent.TABLE_NAME)
-public class PlanInstanceEvent extends BaseEntity {
+public class PlanInstanceEvent extends PersistenceObject {
+
+  private static final long serialVersionUID = -5464457144036432912L;
 
   public static final String TABLE_NAME = "PLAN_INSTANCE_EVENT";
 

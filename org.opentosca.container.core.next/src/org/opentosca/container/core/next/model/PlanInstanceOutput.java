@@ -1,26 +1,19 @@
 package org.opentosca.container.core.next.model;
 
-import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-import com.google.common.base.Preconditions;
 
 @Entity
-@Table(name = PlanInstanceOutput.TABLE_NAME)
-public class PlanInstanceOutput extends BaseEntity {
+@DiscriminatorValue(PlanInstanceOutput.TABLE_NAME)
+public class PlanInstanceOutput extends Property {
+
+  private static final long serialVersionUID = -8847410322957873980L;
 
   public static final String TABLE_NAME = "PLAN_INSTANCE_OUTPUT";
 
-  @Column(nullable = false)
-  private String key;
-
-  private String value;
-
-  private String description;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "PLAN_INSTANCE_ID")
@@ -28,38 +21,11 @@ public class PlanInstanceOutput extends BaseEntity {
 
 
   public PlanInstanceOutput() {
-
+    super();
   }
 
-  public PlanInstanceOutput(final String key, final String value, final String description) {
-    Preconditions.checkNotNull(key);
-    this.key = key;
-    this.value = value;
-    this.description = description;
-  }
-
-  public String getKey() {
-    return this.key;
-  }
-
-  public void setKey(final String key) {
-    this.key = key;
-  }
-
-  public String getValue() {
-    return this.value;
-  }
-
-  public void setValue(final String value) {
-    this.value = value;
-  }
-
-  public String getDescription() {
-    return this.description;
-  }
-
-  public void setDescription(final String description) {
-    this.description = description;
+  public PlanInstanceOutput(final String name, final String value) {
+    super(name, value, null);
   }
 
   public PlanInstance getPlanInstance() {

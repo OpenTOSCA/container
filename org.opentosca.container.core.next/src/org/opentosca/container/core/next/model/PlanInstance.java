@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,11 +14,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
-public class PlanInstance extends BaseEntity {
+public class PlanInstance extends PersistenceObject {
+
+  private static final long serialVersionUID = -1289110419946090305L;
 
   public static final String TABLE_NAME = "PLAN_INSTANCE";
 
@@ -34,10 +37,10 @@ public class PlanInstance extends BaseEntity {
   private PlanLanguage language;
 
   @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-  private Set<PlanInstanceEvent> events = Sets.newHashSet();
+  private List<PlanInstanceEvent> events = Lists.newArrayList();
 
   @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-  private Set<PlanInstanceOutput> outputs = Sets.newHashSet();
+  private Collection<PlanInstanceOutput> outputs = Lists.newArrayList();
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
@@ -56,11 +59,11 @@ public class PlanInstance extends BaseEntity {
     this.state = state;
   }
 
-  public Set<PlanInstanceEvent> getEvents() {
+  public List<PlanInstanceEvent> getEvents() {
     return this.events;
   }
 
-  public void setEvents(final Set<PlanInstanceEvent> events) {
+  public void setEvents(final List<PlanInstanceEvent> events) {
     this.events = events;
   }
 
@@ -71,11 +74,11 @@ public class PlanInstance extends BaseEntity {
     }
   }
 
-  public Set<PlanInstanceOutput> getOutputs() {
+  public Collection<PlanInstanceOutput> getOutputs() {
     return this.outputs;
   }
 
-  public void setOutputs(final Set<PlanInstanceOutput> outputs) {
+  public void setOutputs(final Collection<PlanInstanceOutput> outputs) {
     this.outputs = outputs;
   }
 
