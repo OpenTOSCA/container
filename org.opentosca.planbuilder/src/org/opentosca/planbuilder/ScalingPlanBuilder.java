@@ -16,11 +16,13 @@ import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.helpers.NodeInstanceInitializer;
 import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -42,12 +44,11 @@ import org.slf4j.LoggerFactory;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class ScalingPlanBuilder implements IPlanBuilder {
+public class ScalingPlanBuilder extends IPlanBuilder {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ScalingPlanBuilder.class);
 	
-	// handler for abstract plan operations
-	private PlanHandler planHandler;
+
 	
 	// handler for abstract templatebuildplan operations
 	private ScopeHandler scopeHandler;
@@ -57,6 +58,8 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	
 	// adds serviceInstance Variable and instanceDataAPIUrl to Plans
 	private ServiceInstanceInitializer serviceInstanceInitializer;
+	
+	private NodeInstanceInitializer nodeInstanceInitializer;
 	
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
@@ -88,20 +91,150 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 	
 	private class ScalingPlanDefinition {
 		
+		// topology
 		String name;
+		AbstractTopologyTemplate topology;
+		
+		// region
 		List<AbstractNodeTemplate> nodeTemplates;
 		List<AbstractRelationshipTemplate> relationshipTemplates;
+		
+		// nodes with selection strategies
 		Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes;
 		
+		// recursive selections
+		List<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
+		List<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
 		
-		public ScalingPlanDefinition(String name, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplate, Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes) {
+		// border crossing relations
+		Set<AbstractRelationshipTemplate> borderCrossingRelations;
+		
+		
+		public ScalingPlanDefinition(String name, AbstractTopologyTemplate topology, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplate, Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes) {
 			this.name = name;
+			this.topology = topology;
 			this.nodeTemplates = nodeTemplates;
 			this.relationshipTemplates = relationshipTemplate;
 			this.selectionStrategy2BorderNodes = selectionStrategy2BorderNodes;
+			
+			this.nodeTemplatesRecursiveSelection = new ArrayList<AbstractNodeTemplate>();
+			this.relationshipTemplatesRecursiveSelection = new ArrayList<AbstractRelationshipTemplate>();
+			
+			this.init();
+			
+			this.borderCrossingRelations = this.calculateBorderCrossingRelations();
+		}
+		
+		private void init() {
+			
+			this.isValid();
+			
+			// calculate recursive nodes
+			for (AbstractNodeTemplate nodeTemplate : selectionStrategy2BorderNodes.values()) {
+				List<AbstractNodeTemplate> sinkNodes = new ArrayList<AbstractNodeTemplate>();
+				
+				Utils.getNodesFromNodeToSink(nodeTemplate, Utils.TOSCABASETYPE_HOSTEDON, sinkNodes);
+				Utils.getNodesFromNodeToSink(nodeTemplate, Utils.TOSCABASETYPE_DEPENDSON, sinkNodes);
+				Utils.getNodesFromNodeToSink(nodeTemplate, Utils.TOSCABASETYPE_DEPLOYEDON, sinkNodes);
+				
+				List<AbstractRelationshipTemplate> outgoing = Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_HOSTEDON, Utils.TOSCABASETYPE_DEPENDSON, Utils.TOSCABASETYPE_DEPLOYEDON);
+				
+				this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
+				this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
+			}
+		}
+		
+		private Set<AbstractRelationshipTemplate> calculateBorderCrossingRelations() {
+			Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<AbstractRelationshipTemplate>();
+			
+			for (AbstractRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
+				AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relationshipTemplate, nodeTemplates);
+				if (nodeStratSelection != null && this.selectionStrategy2BorderNodes.values().contains(nodeStratSelection)) {
+					borderCrossingRelations.add(relationshipTemplate);
+				}
+			}
+			
+			for (AbstractNodeTemplate nodeTemplate : this.nodeTemplates) {
+				List<AbstractRelationshipTemplate> relations = this.getBorderCrossingRelations(nodeTemplate, nodeTemplates);
+				borderCrossingRelations.addAll(relations);
+			}
+			return borderCrossingRelations;
+		}
+		
+		private boolean isValid() {
+			// check if all nodes at the border are attached with a selection
+			// strategy
+			/* calculate all border crossing relations */
+			Set<AbstractRelationshipTemplate> borderCrossingRelations = this.calculateBorderCrossingRelations();
+			
+			for (AbstractRelationshipTemplate relation : borderCrossingRelations) {
+				AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relation, nodeTemplates);
+				if (nodeStratSelection == null) {
+					// these edges MUST be connected to a strategically selected
+					// node
+					return false;
+				}
+				
+				if (!this.selectionStrategy2BorderNodes.values().contains(nodeStratSelection)) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+		
+		private List<AbstractRelationshipTemplate> getBorderCrossingRelations(AbstractNodeTemplate nodeTemplate, List<AbstractNodeTemplate> nodesToScale) {
+			List<AbstractRelationshipTemplate> borderCrossingRelations = new ArrayList<AbstractRelationshipTemplate>();
+			
+			for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
+				if (this.crossesBorder(relation, nodesToScale) != null) {
+					borderCrossingRelations.add(relation);
+				}
+			}
+			
+			for (AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
+				if (this.crossesBorder(relation, nodesToScale) != null) {
+					borderCrossingRelations.add(relation);
+				}
+			}
+			
+			return borderCrossingRelations;
+		}
+		
+		private AbstractNodeTemplate crossesBorder(AbstractRelationshipTemplate relationship, List<AbstractNodeTemplate> nodesToScale) {
+			
+			AbstractNodeTemplate source = relationship.getSource();
+			AbstractNodeTemplate target = relationship.getTarget();
+			
+			QName baseType = Utils.getRelationshipBaseType(relationship);
+			
+			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+				// if either the source or target is not in the nodesToScale
+				// list =>
+				// relation crosses border
+				if (!nodesToScale.contains(source)) {
+					return source;
+				} else if (!nodesToScale.contains(target)) {
+					return target;
+				}
+			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+				// if target is not in the nodesToScale list => relation crosses
+				// border
+				if (!nodesToScale.contains(target)) {
+					return target;
+				}
+				
+			}
+			
+			return null;
 		}
 	}
 	
+	
+	@Override
+	public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+		throw new RuntimeException("A service Template can have multiple scaling plans, this method is not supported");
+	}
 	
 	@Override
 	public List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
@@ -134,343 +267,291 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 		
 		List<ScalingPlanDefinition> scalingPlanDefinitions = this.fetchScalingPlansDefinitions(serviceTemplate.getTopologyTemplate(), tags);
 		
-		// check whether the defined scaling plans can be generated
-		/*
-		 * 1.Case: Scaling Plan = Sub-Graph of Topology without edges beeing
-		 * connected to TopoNodes\ScalingPlanNodes => BuildPlan for
-		 * ScalingPlanNode with service instance set
-		 * 
-		 * 2.Case: Scaling Plan = Subgraph of Topology with edges that are
-		 * connected to node of the original topology (nodes which aren't in the
-		 * subgraph) => build plan for subgraph with set service instance and
-		 * selection of node instances
-		 */
+		
 		for (ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
-			if (this.isConnectedToComplement(scalingPlanDefinition) & !this.equalsTopology(serviceTemplate.getTopologyTemplate(), scalingPlanDefinition)) {
-				// case 2
-				scalingPlans.add(this.createBuildPlanWithServiceInstanceAndNodeInstance(csarName, definitions, serviceTemplate, scalingPlanDefinition));
-			} else {
-				// case 1
-				scalingPlans.add(this.createBuildPlanWithServiceInstance(csarName, definitions, serviceTemplate, scalingPlanDefinition));
-			}
+			
+			String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
+			String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
+			
+			TOSCAPlan scalingPlan = this.createEmptyPlan(csarName, definitions, serviceTemplate, processName, processNamespace, PlanType.MANAGE);
+			
+			this.addNodeAndRelationScopes(scalingPlan, scalingPlanDefinition);
+			
+			this.initializeScaleOrderGraph(scalingPlan, scalingPlanDefinition);
+			
+			PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(scalingPlan);
+			
+			// instanceDataAPI handling is done solely trough this extension
+			this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, scalingPlan);
+			
+			this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(scalingPlan);
+			
+			this.nodeInstanceInitializer.addNodeInstanceIDVarToTemplatePlans(scalingPlan);
+			
+			this.idInit.addCorrellationID(scalingPlan);
+			
+			this.runProvisioningLogicGeneration(scalingPlan, propMap, scalingPlanDefinition.nodeTemplates, scalingPlanDefinition.relationshipTemplates);
+			
+			// TODO add generic instance selection
+			// TODO add plugin system
 			
 		}
 		
 		return scalingPlans;
 	}
 	
-	private boolean equalsTopology(AbstractTopologyTemplate topology, ScalingPlanDefinition scalingPlanDefinition) {
-		if (scalingPlanDefinition.nodeTemplates.containsAll(topology.getNodeTemplates()) & scalingPlanDefinition.relationshipTemplates.containsAll(topology.getRelationshipTemplates())) {
-			return true;
+	
+	
+	
+	
+	
+	private void runProvisioningLogicGeneration(TOSCAPlan plan, PropertyMap map, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplates) {
+		for (AbstractNodeTemplate node : nodeTemplates) {
+			this.runProvisioningLogicGeneration(plan, node, map);
 		}
-		
-		return false;
+		for (AbstractRelationshipTemplate relation : relationshipTemplates) {
+			this.runProvisioningLogicGeneration(plan, relation, map);
+		}
 	}
 	
-	private TOSCAPlan createBuildPlanWithServiceInstanceAndNodeInstance(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
-		String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
-		String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
-		TOSCAPlan newScalingPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 1);
+	private void runProvisioningLogicGeneration(TOSCAPlan plan, AbstractRelationshipTemplate relationshipTemplate, PropertyMap map) {
+		// handling relationshiptemplate
 		
-		newScalingPlan.setDefinitions(definitions);
-		newScalingPlan.setCsarName(csarName);
+		TemplatePlanContext context = new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map, plan.getServiceTemplate());
 		
-		// find nodeTemplates whose nodeinstances must be found for the edges
-		// which are crossing the subgraph
-		// boundary
-		Map<AbstractRelationshipTemplate, List<AbstractNodeTemplate>> crossingRelations2NodesMap = new HashMap<AbstractRelationshipTemplate, List<AbstractNodeTemplate>>();
-		
-		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplates) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, newScalingPlan);
-			newTemplate.setRelationshipTemplate(relationshipTemplate);
-			newScalingPlan.addTemplateBuildPlan(newTemplate);
+		// check if we have a generic plugin to handle the template
+		// Note: if a generic plugin fails during execution the
+		// TemplateBuildPlan is broken here!
+		// TODO implement fallback
+		if (this.findTypePlugin(relationshipTemplate) == null) {
+			ScalingPlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
+			ProvisioningChain sourceChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, true);
+			ProvisioningChain targetChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, false);
 			
-			// check if relation is crossing the subgraph that is intended to
-			// scale
-			if (!scalingPlanDefinition.nodeTemplates.contains(relationshipTemplate.getSource())) {
-				if (crossingRelations2NodesMap.containsKey(relationshipTemplate)) {
-					List<AbstractNodeTemplate> nodeTemplates = crossingRelations2NodesMap.get(relationshipTemplate);
-					nodeTemplates.add(relationshipTemplate.getSource());
-					crossingRelations2NodesMap.put(relationshipTemplate, nodeTemplates);
-				} else {
-					List<AbstractNodeTemplate> nodeTemplates = new ArrayList<AbstractNodeTemplate>();
-					nodeTemplates.add(relationshipTemplate.getSource());
-					crossingRelations2NodesMap.put(relationshipTemplate, nodeTemplates);
-				}
+			// first execute provisioning on target, then on source
+			if (targetChain != null) {
+				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+				targetChain.executeIAProvisioning(context);
+				targetChain.executeOperationProvisioning(context, this.opNames);
 			}
-			if (!scalingPlanDefinition.nodeTemplates.contains(relationshipTemplate.getTarget())) {
-				if (crossingRelations2NodesMap.containsKey(relationshipTemplate)) {
-					List<AbstractNodeTemplate> nodeTemplates = crossingRelations2NodesMap.get(relationshipTemplate);
-					nodeTemplates.add(relationshipTemplate.getTarget());
-					crossingRelations2NodesMap.put(relationshipTemplate, nodeTemplates);
-				} else {
-					List<AbstractNodeTemplate> nodeTemplates = new ArrayList<AbstractNodeTemplate>();
-					nodeTemplates.add(relationshipTemplate.getTarget());
-					crossingRelations2NodesMap.put(relationshipTemplate, nodeTemplates);
-				}
+			
+			if (sourceChain != null) {
+				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+				sourceChain.executeIAProvisioning(context);
+				sourceChain.executeOperationProvisioning(context, this.opNames);
+			}
+		} else {
+			ScalingPlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+			this.handleWithTypePlugin(context, relationshipTemplate);
+		}
+		
+		for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+			if (postPhasePlugin.canHandle(relationshipTemplate)) {
+				postPhasePlugin.handle(context, relationshipTemplate);
 			}
 		}
-		
-		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
-			newTemplate.setNodeTemplate(nodeTemplate);
-			newScalingPlan.addTemplateBuildPlan(newTemplate);
-		}
-		
-		// create unique set of source and target nodes referenced by the
-		// crossing relations
-		Set<AbstractNodeTemplate> complementNodes = new HashSet<AbstractNodeTemplate>();
-		for (List<AbstractNodeTemplate> nodeTemplates : crossingRelations2NodesMap.values()) {
-			for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-				complementNodes.add(nodeTemplate);
-			}
-		}
-		
-		for (AbstractNodeTemplate nodeTemplate : complementNodes) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
-			newTemplate.setNodeTemplate(nodeTemplate);
-			newScalingPlan.addTemplateBuildPlan(newTemplate);
-		}
-		
-		// we can now execute the basic high-level skeleton generation algorithm
-		// for build plans
-		this.initializeDependenciesInScalingPlan(newScalingPlan);
-		
-		// init variables
-		PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newScalingPlan);
-		
-		// instanceDataAPI handling is done solely trough this extension
-		this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newScalingPlan);
-		
-		// initialize instanceData handling, add
-		// instanceDataAPI/serviceInstanceID into input, add global
-		// variables to hold the value for plugins
-		// this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
-		
-		this.runPlugins(newScalingPlan, serviceTemplate.getQName(), propMap, complementNodes);
-		
-		this.idInit.addCorrellationID(newScalingPlan);
-		
-		this.finalizer.finalize(newScalingPlan);
-		
-		return newScalingPlan;
 	}
 	
-	private TOSCAPlan createBuildPlanWithServiceInstance(String csarName, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
-		String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
-		String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
-		TOSCAPlan newScalingPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 1);
-		
-		newScalingPlan.setDefinitions(definitions);
-		newScalingPlan.setCsarName(csarName);
-		
-		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, newScalingPlan);
-			newTemplate.setNodeTemplate(nodeTemplate);
-			newScalingPlan.addTemplateBuildPlan(newTemplate);
-		}
-		
-		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplates) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, newScalingPlan);
-			newTemplate.setRelationshipTemplate(relationshipTemplate);
-			newScalingPlan.addTemplateBuildPlan(newTemplate);
-		}
-		
-		// we can now execute the basic high-level skeleton generation algorithm
-		// for build plans
-		this.initializeDependenciesInScalingPlan(newScalingPlan);
-		
-		// init variables
-		PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newScalingPlan);
-		
-		// instanceDataAPI handling is done solely trough this extension
-		this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newScalingPlan);
-		
-		// initialize instanceData handling, add
-		// instanceDataAPI/serviceInstanceID into input, add global
-		// variables to hold the value for plugins
-		// this.serviceInstanceInitializer.initializeCompleteInstanceDataFromInput(newScalingPlan);
-		
-		this.runPlugins(newScalingPlan, serviceTemplate.getQName(), propMap, new HashSet<AbstractNodeTemplate>());
-		
-		this.idInit.addCorrellationID(newScalingPlan);
-		
-		this.finalizer.finalize(newScalingPlan);
-		
-		return newScalingPlan;
-	}
-	
-	/**
-	 * <p>
-	 * This method assigns plugins to the already initialized BuildPlan and its
-	 * TemplateBuildPlans. First there will be checked if any generic plugin can
-	 * handle a template of the TopologyTemplate
-	 * </p>
-	 *
-	 * @param buildPlan a BuildPlan which is alread initialized
-	 * @param serviceTemplateName the name of the ServiceTemplate the BuildPlan
-	 *            belongs to
-	 * @param map a PropertyMap which contains mappings from Template to
-	 *            Property and to variable name of inside the BuidlPlan
-	 */
-	private void runPlugins(TOSCAPlan buildPlan, QName serviceTemplateId, PropertyMap map, Set<AbstractNodeTemplate> complementNodes) {
-		
-		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
-			if (templatePlan.getNodeTemplate() != null) {
-				
-				// if not a complement node (aka no member of the scaling group)
-				// we handle this node for instantiation
-				if (!complementNodes.contains(templatePlan.getNodeTemplate())) {
-					// handling nodetemplate
-					AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-					ScalingPlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-					TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
-					// check if we have a generic plugin to handle the template
-					// Note: if a generic plugin fails during execution the
-					// TemplateBuildPlan is broken!
-					IPlanBuilderTypePlugin plugin = this.canGenericPluginHandle(nodeTemplate);
-					if (plugin == null) {
-						ScalingPlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
-						ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
-						if (chain == null) {
-							ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
-						} else {
-							ScalingPlanBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
-							chain.executeIAProvisioning(context);
-							chain.executeDAProvisioning(context);
-							chain.executeOperationProvisioning(context, this.opNames);
-						}
-					} else {
-						ScalingPlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
-						plugin.handle(context);
-					}
-					
-					for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
-						if (postPhasePlugin.canHandle(nodeTemplate)) {
-							postPhasePlugin.handle(context, nodeTemplate);
-						}
-					}
-				}
-				
+	private void runProvisioningLogicGeneration(TOSCAPlan plan, AbstractNodeTemplate nodeTemplate, PropertyMap map) {
+		// handling nodetemplate
+		TemplatePlanContext context = new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate());
+		// check if we have a generic plugin to handle the template
+		// Note: if a generic plugin fails during execution the
+		// TemplateBuildPlan is broken!
+		IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
+		if (plugin == null) {
+			ScalingPlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
+			ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
+			if (chain == null) {
+				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 			} else {
-				// handling relationshiptemplate
-				AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
+				ScalingPlanBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+				chain.executeIAProvisioning(context);
+				chain.executeDAProvisioning(context);
+				chain.executeOperationProvisioning(context, this.opNames);
+			}
+		} else {
+			ScalingPlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
+			plugin.handle(context);
+		}
+		
+		for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+			if (postPhasePlugin.canHandle(nodeTemplate)) {
+				postPhasePlugin.handle(context, nodeTemplate);
+			}
+		}
+	}
+	
+	private void initializeScaleOrderGraph(TOSCAPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
+		// connect nodes and relation scopes that are going to provision a new
+		// instance, except the connections to border nodes
+		for (AbstractRelationshipTemplate relation : scalingPlanDefinition.relationshipTemplates) {
+			if (this.connectedToRegionOnly(relation, scalingPlanDefinition)) {
+				TemplateBuildPlan relationPlan = this.planHandler.getTemplateBuildPlanById(relation.getId(), plan);
+				TemplateBuildPlan sourcePlan = this.planHandler.getTemplateBuildPlanById(relation.getSource().getId(), plan);
+				TemplateBuildPlan targetPlan = this.planHandler.getTemplateBuildPlanById(relation.getTarget().getId(), plan);
 				
-				// check if we have a generic plugin to handle the template
-				// Note: if a generic plugin fails during execution the
-				// TemplateBuildPlan is broken here!
-				// TODO implement fallback
-				if (!this.canGenericPluginHandle(relationshipTemplate)) {
-					ScalingPlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
-					ProvisioningChain sourceChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, true);
-					ProvisioningChain targetChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, false);
-					
-					// first execute provisioning on target, then on source
-					if (targetChain != null) {
-						ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
-						targetChain.executeIAProvisioning(context);
-						targetChain.executeOperationProvisioning(context, this.opNames);
-					}
-					
-					if (sourceChain != null) {
-						ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
-						sourceChain.executeIAProvisioning(context);
-						sourceChain.executeOperationProvisioning(context, this.opNames);
-					}
-				} else {
-					ScalingPlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
-					this.handleWithGenericPlugin(context, relationshipTemplate);
-				}
-				
-				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
-					if (postPhasePlugin.canHandle(relationshipTemplate)) {
-						postPhasePlugin.handle(context, relationshipTemplate);
+				this.createProvisioningConnection(plan, relationPlan, sourcePlan, targetPlan);
+			}
+		}
+		
+		// create instance selection order for each bordering node and store the
+		// last recursively selected Node
+		Map<AbstractNodeTemplate, AbstractNodeTemplate> selectionNode2LastRecursiveNode = new HashMap<AbstractNodeTemplate, AbstractNodeTemplate>();
+		
+		for (AbstractNodeTemplate strategicallySelectedNode : selectionNode2LastRecursiveNode.values()) {
+			List<TemplateBuildPlan> recursiveSelectionScopes = this.connectInstanceSelectionPaths(plan, strategicallySelectedNode, scalingPlanDefinition);
+			
+			// connect these scopes to the edge connecting region and strat
+			// selected node
+			for (AbstractRelationshipTemplate borderCrossingRelation : scalingPlanDefinition.borderCrossingRelations) {
+				if (borderCrossingRelation.getSource().equals(strategicallySelectedNode) || borderCrossingRelation.getTarget().equals(strategicallySelectedNode)) {
+					for (TemplateBuildPlan recursiveSelectionTemplatePlan : recursiveSelectionScopes) {
+						
+						TemplateBuildPlan crossingRelationScope = this.planHandler.getTemplateBuildPlanById(borderCrossingRelation.getId(), plan);
+						
+						String linkName = strategicallySelectedNode.getId() + "_InstanceRegion2ProvisioningRegionLink_";
+						
+						this.scopeHandler.connect(recursiveSelectionTemplatePlan, crossingRelationScope, linkName);
+						
 					}
 				}
 			}
+			
 		}
 		
 	}
 	
-	/**
-	 * <p>
-	 * Checks whether there is any generic plugin, that can handle the given
-	 * NodeTemplate
-	 * </p>
-	 *
-	 * @param nodeTemplate an AbstractNodeTemplate denoting a NodeTemplate
-	 * @return true if there is any generic plugin which can handle the given
-	 *         NodeTemplate, else false
-	 */
-	private IPlanBuilderTypePlugin canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			ScalingPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
-			if (plugin.canHandle(nodeTemplate)) {
-				ScalingPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
-				return plugin;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * <p>
-	 * Checks whether there is any generic plugin, that can handle the given
-	 * RelationshipTemplate
-	 * </p>
-	 *
-	 * @param relationshipTemplate an AbstractRelationshipTemplate denoting a
-	 *            RelationshipTemplate
-	 * @return true if there is any generic plugin which can handle the given
-	 *         RelationshipTemplate, else false
-	 */
-	private boolean canGenericPluginHandle(AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			if (plugin.canHandle(relationshipTemplate)) {
-				ScalingPlanBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}", plugin.getID(), relationshipTemplate.getId());
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * <p>
-	 * Takes the first occurence of a generic plugin which can handle the given
-	 * RelationshipTemplate
-	 * </p>
-	 *
-	 * @param context a TemplatePlanContext which was initialized for the given
-	 *            RelationshipTemplate
-	 * @param nodeTemplate a RelationshipTemplate as an
-	 *            AbstractRelationshipTemplate
-	 * @return returns true if there was a generic plugin which could handle the
-	 *         given RelationshipTemplate and execution was successful, else
-	 *         false
-	 */
-	private boolean handleWithGenericPlugin(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			if (plugin.canHandle(relationshipTemplate)) {
-				ScalingPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
-				return plugin.handle(context);
-			}
-		}
-		return false;
-	}
-	
-	private boolean isConnectedToComplement(ScalingPlanDefinition scalingPlanDefinition) {
+	private List<TemplateBuildPlan> connectInstanceSelectionPaths(TOSCAPlan plan, AbstractNodeTemplate strategicallySelectedNode, ScalingPlanDefinition scalingPlanDefinition) {
+		List<TemplateBuildPlan> templateBuildPlans = new ArrayList<TemplateBuildPlan>();
+		AbstractNodeTemplate currentNode = strategicallySelectedNode;
+		TemplateBuildPlan currentScope = this.planHandler.getTemplateBuildPlanById(strategicallySelectedNode.getId(), plan);
 		
-		// if just one edge exists whose source or target is connected to a node
-		// which isn't in node set of scaling plan => scaling plan is connected
-		// to complement = case 2
+		if (currentNode.getOutgoingRelations().isEmpty()) {
+			templateBuildPlans.add(currentScope);
+			return templateBuildPlans;
+		}
+		
+		for (AbstractRelationshipTemplate relation : currentNode.getOutgoingRelations()) {
+			if (scalingPlanDefinition.relationshipTemplatesRecursiveSelection.contains(relation)) {
+				String linkNameSourceToRel = "instanceSelectionLink_" + currentNode.getId() + "_" + relation.getId();
+				String linkNameRelToTarget = "instanceSelectionLink_" + relation.getId() + "_" + relation.getTarget().getId();
+				
+				// connect currentNode with Rel
+				this.scopeHandler.connect(currentScope, this.planHandler.getTemplateBuildPlanById(relation.getId(), plan), linkNameSourceToRel);
+				this.scopeHandler.connect(this.planHandler.getTemplateBuildPlanById(relation.getId(), plan), this.planHandler.getTemplateBuildPlanById(relation.getTarget().getId(), plan), linkNameRelToTarget);
+				
+				templateBuildPlans.addAll(this.connectInstanceSelectionPaths(plan, relation.getTarget(), scalingPlanDefinition));
+			}
+		}
+		
+		return templateBuildPlans;
+	}
+	
+	private void createProvisioningConnection(TOSCAPlan buildPlan, TemplateBuildPlan relationshipPlan, TemplateBuildPlan source, TemplateBuildPlan target) {
+		
+		// determine base type of relationshiptemplate
+		QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
+		
+		// determine source and target of relationshiptemplate AND REVERSE
+		// the edge !
+		
+		// set dependencies inside buildplan (the links in the flow)
+		// according to the basetype
+		if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+			// with a connectsto relation we have first build the
+			// nodetemplates and then the relationshiptemplate
+			
+			// first: generate global link for the source to relation
+			// dependency
+			String sourceToRelationlinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
+			this.planHandler.addLink(sourceToRelationlinkName, buildPlan);
+			
+			// second: connect source with relationship as target
+			ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+			this.scopeHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
+			
+			// third: generate global link for the target to relation
+			// dependency
+			String targetToRelationlinkName = target.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
+			this.planHandler.addLink(targetToRelationlinkName, buildPlan);
+			
+			// fourth: connect target with relationship as target
+			ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+			this.scopeHandler.connect(target, relationshipPlan, targetToRelationlinkName);
+			
+		} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+			
+			// with the other relations we have to build first the source,
+			// then the relation and at last the target
+			
+			// first: generate global link for the source to relation
+			// dependeny
+			String sourceToRelationLinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
+			this.planHandler.addLink(sourceToRelationLinkName, buildPlan);
+			
+			// second: connect source to relation
+			ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+			this.scopeHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
+			
+			// third: generate global link for the relation to target
+			// dependency
+			String relationToTargetLinkName = relationshipPlan.getRelationshipTemplate().getId() + "_BEFORE_" + target.getNodeTemplate().getId();
+			this.planHandler.addLink(relationToTargetLinkName, buildPlan);
+			
+			// fourth: connect relation to target
+			ScalingPlanBuilder.LOG.debug("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
+			this.scopeHandler.connect(relationshipPlan, target, relationToTargetLinkName);
+		}
+		
+	}
+	
+	private boolean connectedToRegionOnly(AbstractRelationshipTemplate relation, ScalingPlanDefinition scalingPlanDefinition) {
+		AbstractNodeTemplate source = relation.getSource();
+		AbstractNodeTemplate target = relation.getTarget();
+		
+		if (scalingPlanDefinition.nodeTemplates.contains(source) & scalingPlanDefinition.nodeTemplates.contains(target)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	private void addNodeAndRelationScopes(TOSCAPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
+		
+		// add scopes for the region
+		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
+			newTemplate.setNodeTemplate(nodeTemplate);
+			plan.addTemplateBuildPlan(newTemplate);
+		}
+		
 		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplates) {
-			if (!scalingPlanDefinition.nodeTemplates.contains(relationshipTemplate.getSource()) | scalingPlanDefinition.nodeTemplates.contains(relationshipTemplate.getTarget())) {
-				return true;
-			}
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, plan);
+			newTemplate.setRelationshipTemplate(relationshipTemplate);
+			plan.addTemplateBuildPlan(newTemplate);
 		}
 		
-		return false;
+		// add scopes for each node selected strategically at runtime
+		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes.values()) {
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
+			newTemplate.setNodeTemplate(nodeTemplate);
+			plan.addTemplateBuildPlan(newTemplate);
+		}
+		
+		// add scopes for all templates selected recursively at runtime
+		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
+			newTemplate.setNodeTemplate(nodeTemplate);
+			plan.addTemplateBuildPlan(newTemplate);
+		}
+		
+		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
+			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, plan);
+			newTemplate.setRelationshipTemplate(relationshipTemplate);
+			plan.addTemplateBuildPlan(newTemplate);
+		}
 	}
 	
 	private List<ScalingPlanDefinition> fetchScalingPlansDefinitions(AbstractTopologyTemplate topology, Map<String, String> tags) {
@@ -509,7 +590,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 				
 				Map<String, AbstractNodeTemplate> selectionStrategy2BorderNodes = this.fetchSelectionStrategy2BorderNodes(topology, scalingPlanNodesNEdgesRawValueSplit[3]);
 				
-				scalingPlanDefinitions.add(new ScalingPlanDefinition(scalingPlanName, nodeTemplates, relationshipTemplates, selectionStrategy2BorderNodes));
+				scalingPlanDefinitions.add(new ScalingPlanDefinition(scalingPlanName, topology, nodeTemplates, relationshipTemplates, selectionStrategy2BorderNodes));
 			}
 			
 		}
@@ -552,7 +633,7 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 			if (selectionStrategyBorderNode.split("[").length == 2 && selectionStrategyBorderNode.endsWith("]")) {
 				String selectionStrategy = selectionStrategyBorderNode.split("[")[0];
 				String borderNode = selectionStrategyBorderNode.split("[")[1].replace("]", "");
-				selectionStrategyBorderNodesMap.put(selectionStrategy, selectionStrategyBorderNode);
+				selectionStrategyBorderNodesMap.put(selectionStrategy, borderNode);
 			} else {
 				LOG.error("Parsing Selection Strategies and border Node Templates had an error. Couldn't parse \"" + selectionStrategyBorderNode + "\" properly.");
 			}
@@ -626,85 +707,6 @@ public class ScalingPlanBuilder implements IPlanBuilder {
 			}
 		}
 		return null;
-	}
-	
-	/**
-	 * <p>
-	 * Initilizes the TemplateBuildPlans inside a BuildPlan according to the
-	 * GenerateBuildPlanSkeleton algorithm in <a href=
-	 * "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=BCLR-0043&mod=0&engl=1&inst=FAK"
-	 * >Konzept und Implementierung eine Java-Komponente zur Generierung von
-	 * WS-BPEL 2.0 BuildPlans fuer OpenTOSCA</a>
-	 * </p>
-	 *
-	 * @param buildPlan a BuildPlan where all TemplateBuildPlans are set for
-	 *            each template inside TopologyTemplate the BuildPlan should
-	 *            provision
-	 */
-	private void initializeDependenciesInScalingPlan(TOSCAPlan buildPlan) {
-		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
-			// determine base type of relationshiptemplate
-			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
-			
-			// determine source and target of relationshiptemplate AND REVERSE
-			// the edge !
-			TemplateBuildPlan target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), buildPlan);
-			TemplateBuildPlan source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), buildPlan);
-			
-			// set dependencies inside buildplan (the links in the flow)
-			// according to the basetype
-			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
-				// with a connectsto relation we have first build the
-				// nodetemplates and then the relationshiptemplate
-				
-				// first: generate global link for the source to relation
-				// dependency
-				String sourceToRelationlinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
-				this.planHandler.addLink(sourceToRelationlinkName, buildPlan);
-				
-				// second: connect source with relationship as target
-				ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.scopeHandler.connect(source, relationshipPlan, sourceToRelationlinkName);
-				
-				// third: generate global link for the target to relation
-				// dependency
-				String targetToRelationlinkName = target.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
-				this.planHandler.addLink(targetToRelationlinkName, buildPlan);
-				
-				// fourth: connect target with relationship as target
-				ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.scopeHandler.connect(target, relationshipPlan, targetToRelationlinkName);
-				
-			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
-				
-				// with the other relations we have to build first the source,
-				// then the relation and at last the target
-				
-				// first: generate global link for the source to relation
-				// dependeny
-				String sourceToRelationLinkName = source.getNodeTemplate().getId() + "_BEFORE_" + relationshipPlan.getRelationshipTemplate().getId();
-				this.planHandler.addLink(sourceToRelationLinkName, buildPlan);
-				
-				// second: connect source to relation
-				ScalingPlanBuilder.LOG.debug("Connecting NodeTemplate {} -> RelationshipTemplate {}", source.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.scopeHandler.connect(source, relationshipPlan, sourceToRelationLinkName);
-				
-				// third: generate global link for the relation to target
-				// dependency
-				String relationToTargetLinkName = relationshipPlan.getRelationshipTemplate().getId() + "_BEFORE_" + target.getNodeTemplate().getId();
-				this.planHandler.addLink(relationToTargetLinkName, buildPlan);
-				
-				// fourth: connect relation to target
-				ScalingPlanBuilder.LOG.debug("Connecting RelationshipTemplate {} -> NodeTemplate {}", target.getNodeTemplate().getId(), relationshipPlan.getRelationshipTemplate().getId());
-				this.scopeHandler.connect(relationshipPlan, target, relationToTargetLinkName);
-			}
-			
-		}
-	}
-	
-	@Override
-	public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
-		throw new RuntimeException("A service Template can have multiple scaling plans, this method is not supported");
 	}
 	
 }

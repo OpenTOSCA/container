@@ -347,6 +347,21 @@ public class Utils {
 		Utils.cleanDuplciates(nodes);
 	}
 	
+	public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate, QName relationshipType, final List<AbstractNodeTemplate> nodes) {
+		final AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
+		nodes.add(nodeTemplate);
+		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
+			
+			
+			if (Utils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType()).contains(relationshipType)) {
+
+				Utils.getNodesFromRelationToSink(outgoingTemplate, relationshipType, nodes);
+			}
+
+		}
+		Utils.cleanDuplciates(nodes);
+	}
+	
 	/**
 	 * Returns all NodeTemplates from the given NodeTemplate going along the
 	 * path of relation following the target interfaces
@@ -364,6 +379,61 @@ public class Utils {
 				continue;
 			}
 			Utils.getNodesFromRelationToSink(outgoingTemplate, nodes);
+		}
+		Utils.cleanDuplciates(nodes);
+	}
+	
+	public static List<AbstractRelationshipTemplate> getOutgoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
+		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
+		
+		for(AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
+			for(QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+				boolean match = false;
+				for(QName relationshipType : relationshipTypes) {					
+					if(relationshipTypeHierarchyMember.equals(relationshipType)) {
+						relations.add(relation);
+						break;
+					}
+				}
+				if(match) {
+					break;
+				}
+			}
+		}
+		
+		return relations;
+	}
+	
+	public static List<AbstractRelationshipTemplate> getIngoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
+		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
+		
+		for(AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
+			for(QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+				boolean match = false;
+				for(QName relationshipType : relationshipTypes) {					
+					if(relationshipTypeHierarchyMember.equals(relationshipType)) {
+						relations.add(relation);
+						break;
+					}
+				}
+				if(match) {
+					break;
+				}
+			}
+		}
+		
+		return relations;
+	}
+	
+	public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate, QName relationshipType, final List<AbstractNodeTemplate> nodes) {
+		nodes.add(nodeTemplate);
+		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {			
+			if (Utils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType()).contains(relationshipType)) {
+				// we skip connectTo relations, as they are connecting stacks
+				// and
+				// make the result even more ambigious				
+				Utils.getNodesFromRelationToSink(outgoingTemplate, nodes);
+			}
 		}
 		Utils.cleanDuplciates(nodes);
 	}

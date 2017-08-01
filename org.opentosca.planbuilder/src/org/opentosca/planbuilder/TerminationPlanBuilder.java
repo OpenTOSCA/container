@@ -19,11 +19,13 @@ import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.utils.Utils;
@@ -36,7 +38,7 @@ import org.w3c.dom.NodeList;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class TerminationPlanBuilder implements IPlanBuilder {
+public class TerminationPlanBuilder extends IPlanBuilder {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(TerminationPlanBuilder.class);
 	
@@ -103,7 +105,7 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 			if (namespace.equals(serviceTemplateId.getNamespaceURI()) && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				final String processName = serviceTemplate.getId() + "_terminationPlan";
 				final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
-				final TOSCAPlan newTerminationPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 2);
+				final TOSCAPlan newTerminationPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, PlanType.TERMINATE);
 				newTerminationPlan.setDefinitions(definitions);
 				newTerminationPlan.setCsarName(csarName);
 				
@@ -371,6 +373,6 @@ public class TerminationPlanBuilder implements IPlanBuilder {
 			}
 			
 		}
-	}
+	}	
 	
 }

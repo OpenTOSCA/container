@@ -62,6 +62,7 @@ public class ScopeHandler {
 	public TemplateBuildPlan createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, TOSCAPlan buildPlan) {
 		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
+		templatePlan.setNodeTemplate(nodeTemplate);
 		return templatePlan;
 	}
 	
@@ -88,6 +89,7 @@ public class ScopeHandler {
 	public TemplateBuildPlan createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, TOSCAPlan buildPlan) {
 		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(relationshipTemplate.getId(), templatePlan);
+		templatePlan.setRelationshipTemplate(relationshipTemplate);
 		return templatePlan;
 	}
 	

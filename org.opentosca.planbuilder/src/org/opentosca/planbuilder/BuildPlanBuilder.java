@@ -25,6 +25,7 @@ import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.TOSCAPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class BuildPlanBuilder implements IPlanBuilder {
+public class BuildPlanBuilder extends IPlanBuilder {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(BuildPlanBuilder.class);
 	
@@ -138,7 +139,7 @@ public class BuildPlanBuilder implements IPlanBuilder {
 			if (namespace.equals(serviceTemplateId.getNamespaceURI()) && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				String processName = serviceTemplate.getId() + "_buildPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
-				TOSCAPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, 0);
+				TOSCAPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, PlanType.BUILD);
 				newBuildPlan.setDefinitions(definitions);
 				newBuildPlan.setCsarName(csarName);
 				
@@ -250,7 +251,7 @@ public class BuildPlanBuilder implements IPlanBuilder {
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
-				IPlanBuilderTypePlugin plugin = this.canGenericPluginHandle(nodeTemplate);
+				IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
 				if (plugin == null) {
 					BuildPlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
 					ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
@@ -301,7 +302,7 @@ public class BuildPlanBuilder implements IPlanBuilder {
 					}
 				} else {
 					BuildPlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
-					this.handleWithGenericPlugin(context, relationshipTemplate);
+					this.handleWithTypePlugin(context, relationshipTemplate);
 				}
 				
 				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
@@ -313,26 +314,7 @@ public class BuildPlanBuilder implements IPlanBuilder {
 		}
 	}
 	
-	/**
-	 * <p>
-	 * Checks whether there is any generic plugin, that can handle the given
-	 * NodeTemplate
-	 * </p>
-	 *
-	 * @param nodeTemplate an AbstractNodeTemplate denoting a NodeTemplate
-	 * @return true if there is any generic plugin which can handle the given
-	 *         NodeTemplate, else false
-	 */
-	private IPlanBuilderTypePlugin canGenericPluginHandle(AbstractNodeTemplate nodeTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			BuildPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
-			if (plugin.canHandle(nodeTemplate)) {
-				BuildPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
-				return plugin;
-			}
-		}
-		return null;
-	}
+
 	
 	/**
 	 * <p>
@@ -355,29 +337,7 @@ public class BuildPlanBuilder implements IPlanBuilder {
 		return false;
 	}
 	
-	/**
-	 * <p>
-	 * Takes the first occurence of a generic plugin which can handle the given
-	 * RelationshipTemplate
-	 * </p>
-	 *
-	 * @param context a TemplatePlanContext which was initialized for the given
-	 *            RelationshipTemplate
-	 * @param nodeTemplate a RelationshipTemplate as an
-	 *            AbstractRelationshipTemplate
-	 * @return returns true if there was a generic plugin which could handle the
-	 *         given RelationshipTemplate and execution was successful, else
-	 *         false
-	 */
-	private boolean handleWithGenericPlugin(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			if (plugin.canHandle(relationshipTemplate)) {
-				BuildPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
-				return plugin.handle(context);
-			}
-		}
-		return false;
-	}
+
 	
 	// TODO delete this method, or add to utils. is pretty much copied from the
 	// net

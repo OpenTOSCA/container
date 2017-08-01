@@ -76,25 +76,15 @@ public class PlanHandler {
 	 *            for
 	 * @return an empty Plan Skeleton
 	 */
-	public TOSCAPlan createPlan(AbstractServiceTemplate serviceTemplate, String processName, String processNamespace, int type) {
+	public TOSCAPlan createPlan(AbstractServiceTemplate serviceTemplate, String processName, String processNamespace, PlanType type) {
 		PlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}", serviceTemplate.getQName().toString());
 
 		TOSCAPlan buildPlan = null;
 
 
-		switch (type) {
-		case 0:
-			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.BUILD);
-			break;
-		case 2:
-			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.TERMINATE);
-			break;
-		// if we don't know what kind of plan this is -> ManagementPlan
-		default:
-		case 1:
-			buildPlan = this.createBuildPlan(serviceTemplate.getQName(),PlanType.MANAGE);
-			break;
-		}
+		
+		buildPlan = this.createBuildPlan(serviceTemplate.getQName(),type);
+		
 		
 		// set name of process and wsdl
 		this.bpelProcessHandler.setId(processNamespace, processName, buildPlan);
@@ -151,13 +141,13 @@ public class PlanHandler {
 		this.bpelProcessHandler.setAttribute(receiveElement, "name", "receiveInput");
 		
 		switch (type) {
-		case 2:
+		case TERMINATE:
 			this.bpelProcessHandler.setAttribute(receiveElement, "operation", "terminate");
 			break;
 			// if we don't know what kind of plan this is -> ManagementPlan
 		default:
-		case 0:
-		case 1:
+		case BUILD:
+		case MANAGE:
 			this.bpelProcessHandler.setAttribute(receiveElement, "operation", "initiate");
 			break;
 		}
