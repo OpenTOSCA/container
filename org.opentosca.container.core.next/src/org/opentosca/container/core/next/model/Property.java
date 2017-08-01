@@ -3,24 +3,22 @@ package org.opentosca.container.core.next.model;
 import java.util.Objects;
 
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.Table;
+import javax.persistence.MappedSuperclass;
 
 import com.google.common.base.Preconditions;
 
-@Entity
-@Table(name = Property.TABLE_NAME)
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "TYPE")
+@MappedSuperclass
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Property extends PersistenceObject {
 
   private static final long serialVersionUID = 5476371703998806702L;
 
   public static final String TABLE_NAME = "PROPERTY";
 
+  @Id
   @Column(nullable = false)
   private String name;
 

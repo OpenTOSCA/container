@@ -8,11 +8,11 @@ public interface Repository<T, K> {
 
   void add(final Iterable<T> items);
 
-  T update(final T entity);
+  void update(final T entity);
 
   void remove(final T entity);
 
-  T findById(final K id);
+  T find(final K id);
 
   Collection<T> findAll();
 }

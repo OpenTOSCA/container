@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -26,7 +27,7 @@ public class NodeTemplateInstance extends PersistenceObject {
   @Enumerated(EnumType.STRING)
   private NodeTemplateInstanceState state;
 
-  @OneToMany(mappedBy = "nodeTemplateInstance")
+  @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
   private Collection<NodeTemplateInstanceProperty> properties = Lists.newArrayList();
 
   @ManyToOne(fetch = FetchType.LAZY)

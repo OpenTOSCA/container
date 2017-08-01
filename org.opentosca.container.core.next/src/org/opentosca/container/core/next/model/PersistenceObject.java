@@ -11,9 +11,15 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.eclipse.persistence.annotations.Customizer;
+import org.opentosca.container.core.next.jpa.SoftDeleteCustomizer;
+
 @MappedSuperclass
+@Customizer(SoftDeleteCustomizer.class)
 public class PersistenceObject implements Serializable {
 
   private static final long serialVersionUID = 7082895776724756832L;
@@ -26,10 +32,16 @@ public class PersistenceObject implements Serializable {
   protected Long version;
 
   @Column(name = "CREATED_AT", insertable = true, updatable = false)
+  @Temporal(TemporalType.TIMESTAMP)
   protected Date createdAt;
 
   @Column(name = "UPDATED_AT", insertable = false, updatable = true)
+  @Temporal(TemporalType.TIMESTAMP)
   protected Date updatedAt;
+
+  @Column(name = "DELETED_AT")
+  @Temporal(TemporalType.TIMESTAMP)
+  protected Date deletedAt;
 
 
   public Long getId() {
@@ -62,6 +74,14 @@ public class PersistenceObject implements Serializable {
 
   private void setUpdatedAt(final Date updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public Date getDeletedAt() {
+    return this.deletedAt;
+  }
+
+  public void setDeletedAt(final Date deletedAt) {
+    this.deletedAt = deletedAt;
   }
 
   @PrePersist

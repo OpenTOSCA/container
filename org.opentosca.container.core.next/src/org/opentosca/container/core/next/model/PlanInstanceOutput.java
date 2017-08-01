@@ -1,13 +1,14 @@
 package org.opentosca.container.core.next.model;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
-@DiscriminatorValue(PlanInstanceOutput.TABLE_NAME)
+@Table(name = PlanInstanceOutput.TABLE_NAME)
 public class PlanInstanceOutput extends Property {
 
   private static final long serialVersionUID = -8847410322957873980L;
@@ -15,6 +16,7 @@ public class PlanInstanceOutput extends Property {
   public static final String TABLE_NAME = "PLAN_INSTANCE_OUTPUT";
 
 
+  @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "PLAN_INSTANCE_ID")
   private PlanInstance planInstance;

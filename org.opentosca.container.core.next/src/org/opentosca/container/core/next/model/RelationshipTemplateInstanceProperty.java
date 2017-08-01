@@ -1,13 +1,13 @@
 package org.opentosca.container.core.next.model;
 
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
-@DiscriminatorValue(RelationshipTemplateInstanceProperty.TABLE_NAME)
+@Table(name = RelationshipTemplateInstanceProperty.TABLE_NAME)
 public class RelationshipTemplateInstanceProperty extends Property {
 
   private static final long serialVersionUID = -8847410322957873980L;
