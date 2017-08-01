@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * For the JPA-Queries refer to: {@link RESTEndpoint}, {@link WSDLEndpoint}
  */
 public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointService, CommandProvider {
-
+	
 	/**
 	 * JDBC-Url to the Database. The Database to store Endpoints (Endpoints for
 	 * SOAP and REST services) will reside at this spot. It will be created if
@@ -446,7 +446,13 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 		queryWSDLEndpoint.setParameter("csarId", csarId);
 		queryWSDLEndpoint.setParameter("planId", planId);
 		
-		endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
+		try {			
+			endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
+		} catch (NoResultException e) {
+			LOG.error("Query in database didn't return a result", e);
+			return null;
+		}
+		
 		return endpoint;
 	}
 	

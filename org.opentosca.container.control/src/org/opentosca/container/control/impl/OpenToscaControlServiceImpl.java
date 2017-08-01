@@ -297,6 +297,11 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 	private boolean undeployPlans(CSARID csarID) {
 		final List<TPlan> listOfUndeployedPlans = new ArrayList<>();
 		// invoke PlanEngine
+		if(this.toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
+			// nothing to delete
+			return true;
+		}
+		
 		for (QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
 			this.LOG.info("Invoke the PlanEngine for processing the Plans.");

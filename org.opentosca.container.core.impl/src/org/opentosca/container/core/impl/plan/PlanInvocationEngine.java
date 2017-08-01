@@ -119,6 +119,13 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 					found = true;
 					planEvent.getInputParameter().add(dto);
 					String value = dto.getValue();
+					if (value == null) {
+						value = "";
+					}
+					// Probably copied from:
+					// https://stackoverflow.com/a/3777853/7065173
+					// TODO: Check if can use Apache Common's normalize method
+					// to implement this platfrom independently
 					value = value.replace("\\r", "\r");
 					value = value.replace("\r", "");
 					value = value.replace("\\n", "\n");
