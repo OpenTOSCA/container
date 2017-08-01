@@ -38,6 +38,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
 	private final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
 	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes", "ConfigurationArtifact");
+	private final QName tdlConfigurationArtifactType = new QName("http://opentosca.org/artifacttypes", "TDLArtifact");
 
 	private final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
 	private final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
@@ -141,6 +142,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 		}
 		
 		if (this.dockerContainerArtefactType.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
+		
+		if(this.tdlConfigurationArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
 
