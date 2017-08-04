@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
+import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
@@ -36,6 +38,8 @@ import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * Copyright 2017 IAAS University of Stuttgart <br>
@@ -47,8 +51,6 @@ import org.slf4j.LoggerFactory;
 public class ScalingPlanBuilder extends IPlanBuilder {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ScalingPlanBuilder.class);
-	
-
 	
 	// handler for abstract templatebuildplan operations
 	private ScopeHandler scopeHandler;
@@ -253,7 +255,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		AbstractServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
 		
 		if (serviceTemplate == null) {
-			return null;
+			return scalingPlans;
 		}
 		
 		// check if the given serviceTemplate has the scaling plans defined as
@@ -262,11 +264,10 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		Map<String, String> tags = serviceTemplate.getTags();
 		
 		if (!tags.containsKey("scalingplans")) {
-			return null;
+			return scalingPlans;
 		}
 		
 		List<ScalingPlanDefinition> scalingPlanDefinitions = this.fetchScalingPlansDefinitions(serviceTemplate.getTopologyTemplate(), tags);
-		
 		
 		for (ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 			
@@ -292,7 +293,15 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			
 			this.runProvisioningLogicGeneration(scalingPlan, propMap, scalingPlanDefinition.nodeTemplates, scalingPlanDefinition.relationshipTemplates);
 			
-			// TODO add generic instance selection
+			// add generic instance selection
+			
+			for(AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
+				this.addRecursiveInstanceSelection(scalingPlan, propMap, relationshipTemplate);
+			}			
+			for(AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
+				this.addRecursiveInstanceSelection(scalingPlan, propMap, nodeTemplate);
+			}
+			
 			// TODO add plugin system
 			
 		}
@@ -300,10 +309,136 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return scalingPlans;
 	}
 	
+	private void addRecursiveInstanceSelection(TOSCAPlan plan, PropertyMap map, AbstractNodeTemplate nodeTemplate) {
+		// fetch nodeInstance Variable to store the result at the end
+		TemplatePlanContext nodeContext = this.createContext(nodeTemplate, plan, map);
+		String nodeInstanceVarName = this.findInstanceVar(nodeContext, nodeTemplate.getId(), true);
+				
+		// find first relationtemplate which is an infrastructure edge
+		AbstractRelationshipTemplate relationshipTemplate = this.getFirstInfrastructureRelation(nodeTemplate);		
+		if(relationshipTemplate == null) {
+			return;
+		}		
+		TemplatePlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
+		String relationInstanceVarName = this.findInstanceVar(relationContext, relationshipTemplate.getId(), false);
+				
+		
+		// create response variable
+		QName anyTypeDeclId = nodeContext.importQName(new QName("http://www.w3.org/2001/XMLSchema", "any", "xsd"));
+		String responseVarName = "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";		
+		nodeContext.addVariable(responseVarName, TOSCAPlan.VariableType.TYPE, anyTypeDeclId);
+		
+		// fetch relationInstance data
+		try {
+			Node fetchRelationInstanceData = new Fragments().createRESTDeleteOnURLBPELVarAsNode(relationInstanceVarName, responseVarName);
+			fetchRelationInstanceData = nodeContext.importNode(fetchRelationInstanceData);
+			nodeContext.getPrePhaseElement().appendChild(fetchRelationInstanceData);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SAXException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		// query its source node, which will be nodeInstance for this NodeTemplate
+		// set nodeInstance variable
+		
+		String xpathQuery = "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
+		try {
+			Node queryNodeInstanceUrl = new Fragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchNodeInstance" + System.currentTimeMillis(), xpathQuery, nodeInstanceVarName);
+			queryNodeInstanceUrl = nodeContext.importNode(queryNodeInstanceUrl);
+			nodeContext.getPrePhaseElement().appendChild(queryNodeInstanceUrl);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}		
+	
+	private AbstractRelationshipTemplate getFirstInfrastructureRelation(AbstractNodeTemplate nodeTemplate) {
+		List<AbstractRelationshipTemplate> relations = Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_HOSTEDON);
+		relations.addAll(Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_DEPENDSON));
+		relations.addAll(Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_DEPLOYEDON));
+		
+		if(!relations.isEmpty()) {
+			return relations.get(0);
+		}
+				
+		return null;
+	}
 	
 	
+	private void addRecursiveInstanceSelection(TOSCAPlan plan, PropertyMap map, AbstractRelationshipTemplate relationshipTemplate) {
+		// fetch relationInstance variable of relationship template
+		TemplatePlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
+		String relationshipTemplateInstanceVarName = this.findInstanceVar(relationContext, relationshipTemplate.getId(), false);
+		
+		// fetch nodeInstance variable of source node template
+		TemplatePlanContext nodeContext = this.createContext(relationshipTemplate.getTarget(), plan, map);
+		String nodeTemplateInstanceVarName = this.findInstanceVar(nodeContext, relationshipTemplate.getTarget().getId(), true);
+		
+		String serviceInstanceIdVarName = this.serviceInstanceInitializer.getServiceInstanceVariableName(plan);
+		
+		// find relationshipTemplate instance that has the node template
+		// instance as source
+		
+		QName stringTypeDeclId = relationContext.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+		String requestVarName = "recursiveSelection_RelationInstance_" + relationshipTemplate.getId() + System.currentTimeMillis() + "_Request";
+		String responseVarName = "recursiveSelection_RelationInstance_" + relationshipTemplate.getId() + System.currentTimeMillis() + "_Response";
+		
+		relationContext.addVariable(requestVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId);
+		relationContext.addVariable(responseVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId);
+		
+		try {
+			Node requestRelationInstance = new Fragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName, relationshipTemplate.getId(), responseVarName, nodeTemplateInstanceVarName);			
+			requestRelationInstance = relationContext.importNode(requestRelationInstance);			
+			relationContext.getPrePhaseElement().appendChild(requestRelationInstance);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String xpathQuery = "//*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']]/@*[local-name()='href']/string()";
+		
+		// set relationInstnace variable of the relationship templates' scope
+		try {
+			new Fragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchRelationInstance" + System.currentTimeMillis(), xpathQuery, relationshipTemplateInstanceVarName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
-	
+	private String findInstanceVar(TemplatePlanContext context, String templateId, boolean isNode) {
+		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
+		for (String varName : context.getMainVariableNames()) {
+			if (varName.contains(instanceURLVarName)) {
+				return varName;
+			}
+		}
+		return null;
+	}
 	
 	private void runProvisioningLogicGeneration(TOSCAPlan plan, PropertyMap map, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplates) {
 		for (AbstractNodeTemplate node : nodeTemplates) {
@@ -317,7 +452,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 	private void runProvisioningLogicGeneration(TOSCAPlan plan, AbstractRelationshipTemplate relationshipTemplate, PropertyMap map) {
 		// handling relationshiptemplate
 		
-		TemplatePlanContext context = new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map, plan.getServiceTemplate());
+		TemplatePlanContext context = this.createContext(relationshipTemplate, plan, map);
 		
 		// check if we have a generic plugin to handle the template
 		// Note: if a generic plugin fails during execution the
@@ -516,7 +651,6 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			return false;
 		}
 	}
-	
 	
 	private void addNodeAndRelationScopes(TOSCAPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
 		

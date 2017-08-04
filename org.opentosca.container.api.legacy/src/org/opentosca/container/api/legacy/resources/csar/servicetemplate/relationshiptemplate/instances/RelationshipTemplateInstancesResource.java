@@ -50,69 +50,69 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RelationshipTemplateInstancesResource {
-
+	
 	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
-
+	
 	private final CSARID csarId;
 	private final QName serviceTemplateID;
 	private final int serviceTemplateInstanceId;
 	private final QName relatioshipTemplateID;
-
-
+	
+	
 	public RelationshipTemplateInstancesResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId, final QName relationshipTemplateID) {
 		this.csarId = csarId;
 		this.serviceTemplateID = serviceTemplateID;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
 		this.relatioshipTemplateID = relationshipTemplateID;
 	}
-
+	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context final UriInfo uriInfo) {
-
-		final References idr = this.getRefs(uriInfo);
-
+	public Response doGetXML(@Context final UriInfo uriInfo, @QueryParam("sourceNodeInstanceId") String sourceNodeInstanceId, @QueryParam("targetNodeInstanceId") String targetNodeInstanceId) {
+		
+		final References idr = this.getRefs(uriInfo, sourceNodeInstanceId, targetNodeInstanceId);
+		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-
+		
 		return Response.ok(idr.getXMLString()).build();
 	}
-
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@Context final UriInfo uriInfo) {
-
-		final References idr = this.getRefs(uriInfo);
-
+	public Response doGetJSON(@Context final UriInfo uriInfo, @QueryParam("sourceNodeInstanceId") String sourceNodeInstanceId, @QueryParam("targetNodeInstanceId") String targetNodeInstanceId) {
+		
+		final References idr = this.getRefs(uriInfo, sourceNodeInstanceId, targetNodeInstanceId);
+		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-
+		
 		return Response.ok(idr.getJSONString()).build();
 	}
-
-	public References getRefs(final UriInfo uriInfo) {
+	
+	public References getRefs(final UriInfo uriInfo, String sourceNodeInstanceId, String targetNodeInstanceId) {
 		final References refs = new References();
-
+		
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		final URI serviceInstanceIDtoURI = IdConverter.serviceInstanceIDtoURI(this.serviceTemplateInstanceId);
-
+		
 		try {
 			// self link is only link at the moment in the main list
 			final List<SimpleXLink> serviceInstanceLinks = new LinkedList<>();
 			serviceInstanceLinks.add(LinkBuilder.selfLink(uriInfo));
-
+			
 			// its ensured that this serviceInstance exists
 			final List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIDtoURI, null, null);
 			final ServiceInstance serviceInstance = serviceInstances.get(0);
-
+			
 			// extract values
-
+			
 			// build nodeInstanceList
 			final List<RelationInstance> relationInstances = service.getRelationInstances(null, null, null, serviceInstanceIDtoURI);
 			final List<SimpleXLink> relationInstanceLinks = new LinkedList<>();
-
+			
 			for (final RelationInstance relationInstance : relationInstances) {
 				// URI uriToNodeInstance =
 				// LinkBuilder.linkToNodeInstance(uriInfo,
@@ -120,14 +120,26 @@ public class RelationshipTemplateInstancesResource {
 				// // build simpleXLink with the nodeInstanceID as LinkText
 				// nodeInstanceLinks.add(new SimpleXLink(uriToNodeInstance,
 				// nodeInstance.getNodeInstanceID().toString()));
-
+				
+				if(sourceNodeInstanceId != null ) {
+					if(!relationInstance.getSourceInstance().getNodeInstanceID().toString().equals(sourceNodeInstanceId)) {
+						continue;
+					}
+				}
+				
+				if(targetNodeInstanceId != null ) {
+					if(!relationInstance.getTargetInstance().getNodeInstanceID().toString().equals(targetNodeInstanceId)) {
+						continue;
+					}
+				}
+				
 				final QName relationId = relationInstance.getRelationshipTemplateID();
 				final int relationInstanceId = relationInstance.getId();
 				// String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" +
 				// URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") +
 				// "/Instances/" + serviceTemplateInstanceId + "/NodeTemplates/"
 				// + nodeInstanceId;
-
+				
 				if (this.relatioshipTemplateID.toString().equalsIgnoreCase(relationId.toString()) || this.relatioshipTemplateID.toString().equalsIgnoreCase(relationId.getLocalPart())) {
 					final Reference ref = new Reference(Utilities.buildURI(uriInfo, String.valueOf(relationInstanceId)), XLinkConstants.SIMPLE, String.valueOf(relationInstanceId));
 					refs.getReference().add(ref);
@@ -145,7 +157,7 @@ public class RelationshipTemplateInstancesResource {
 				} else {
 					this.log.debug("Skipped node instance {} of node template id {}", relationInstanceId, relationId);
 				}
-
+				
 				// if (nodeType == null) {
 				// QName nodeId = nodeInstance.getNodeTemplateID();
 				// int nodeInstanceId = nodeInstance.getId();
@@ -177,31 +189,31 @@ public class RelationshipTemplateInstancesResource {
 			// we dont want a self link because the InstanceList is part of
 			// another list already containing a self link
 			final RelationInstanceList ril = new RelationInstanceList(null, relationInstanceLinks);
-
+			
 			final ServiceInstanceEntry sie = new ServiceInstanceEntry(serviceInstance, serviceInstanceLinks, ril);
-
+			
 			// selflink
 			refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-
+			
 			return refs;
 		} catch (final Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-
+	
 	@POST
 	@Produces(MediaType.APPLICATION_XML)
 	public Response createRelationInstance(@Context final UriInfo uriInfo, @QueryParam("sourceInstanceId") final String sourceInstanceId, @QueryParam("targetInstanceId") final String targetInstanceId) {
-
+		
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		// ServiceInstance serviceInstanceIdURI = service.getservi
-
+		
 		// if (Utilities.areEmpty(nodeTemplateID, serviceTemplateInstanceId)) {
 		// throw new GenericRestException(Status.BAD_REQUEST, "Missing one of
 		// the required parameters: nodeTemplateID, serviceInstanceID");
 		// }
-
+		
 		// URI serviceInstanceIdURI = null;
 		// try {
 		//
@@ -217,7 +229,7 @@ public class RelationshipTemplateInstancesResource {
 		// throw new GenericRestException(Status.BAD_REQUEST, "Error converting
 		// parameter: " + e1.getMessage());
 		// }
-
+		
 		try {
 			final RelationInstance relationInstance = service.createRelationInstance(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, this.relatioshipTemplateID, sourceInstanceId, targetInstanceId);
 			// SimpleXLink response = new
@@ -229,10 +241,10 @@ public class RelationshipTemplateInstancesResource {
 			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
 		}
 	}
-
+	
 	@Path("/{" + Constants.RelationInstanceListResource_getRelationInstance_PARAM + "}")
 	public Object getRelationInstance(@PathParam(Constants.RelationInstanceListResource_getRelationInstance_PARAM) final int relationshipTemplateInstanceId, @Context final UriInfo uriInfo) {
-
+		
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 		ExistenceChecker.checkRelationInstanceWithException(relationshipTemplateInstanceId, service);
 		return new RelationshipTemplateInstanceResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, this.relatioshipTemplateID, relationshipTemplateInstanceId);

@@ -111,6 +111,28 @@ public class Fragments {
 		return doc.getFirstChild();
 	}
 	
+	
+	public String createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(String serviceInstanceIdVarName, String relationshipTemplateId, String responseVarName, String nodeInstanceIdVarName) throws IOException {
+		// BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml
+		// <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName, $nodeInstanceIdVarName  -->
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
+		template = template.replace("$relationshipTemplateId", relationshipTemplateId);
+		template = template.replace("$ResponseVarName", responseVarName);
+		template = template.replace("$nodeInstanceIdVarName", nodeInstanceIdVarName);
+		return template;
+	}
+	
+	public Node createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(String serviceInstanceIdVarName, String relationshipTemplateId, String responseVarName, String nodeInstanceIdVarName) throws IOException, SAXException {
+		String templateString = this.createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(serviceInstanceIdVarName, relationshipTemplateId, responseVarName, nodeInstanceIdVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+	
 	public String createBPEL4RESTLightPlanInstanceLOGsPOST(String urlVarName, String requestVarName, String correlationIdVarName) throws IOException {
 		// BPEL4RESTLightPOST_PlanInstance_Logs.xml
 		// <!-- $urlVarName, $requestVar, $correlationId -->
@@ -208,6 +230,24 @@ public class Fragments {
 		Fragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
 		String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
 		return filePath;
+	}
+	
+	public String generateBPEL4RESTLightGETonURL(String urlVarName, String responseVarName) throws IOException {		
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightGET_URL_ApplicationXML.xml");
+		File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
+		// <!-- $ResponseVarName, $urlVar  -->
+		bpelAssignString = bpelAssignString.replace("$ResponseVarName", responseVarName);
+		bpelAssignString = bpelAssignString.replace("$urlVar", urlVarName);
+		return bpelAssignString;
+	}
+	
+	public Node generateBPEL4RESTLightGETonURLAsNode(String urlVarName, String reponseVarName) throws IOException, SAXException {
+		String templateString = this.generateBPEL4RESTLightGETonURL(urlVarName, reponseVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
 	}
 	
 	/**

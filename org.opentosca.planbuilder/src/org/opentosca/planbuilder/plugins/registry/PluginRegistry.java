@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
@@ -26,6 +27,8 @@ public class PluginRegistry {
 	private static List<IPlanBuilderPrePhaseIAPlugin> prePhaseIAPlugins = new ArrayList<IPlanBuilderPrePhaseIAPlugin>();
 	private static List<IPlanBuilderProvPhaseOperationPlugin> provPhaseOperationPlugins = new ArrayList<IPlanBuilderProvPhaseOperationPlugin>();
 	private static List<IPlanBuilderTypePlugin> genericPlugins = new ArrayList<IPlanBuilderTypePlugin>();
+	private static List<IScalingPlanBuilderSelectionPlugin> selectionPlugins = new ArrayList<IScalingPlanBuilderSelectionPlugin>();
+	
 	
 	
 	/**
@@ -71,6 +74,15 @@ public class PluginRegistry {
 	 */
 	public static List<IPlanBuilderPostPhasePlugin> getPostPlugins() {
 		return PluginRegistry.postPhasePlugins;
+	}
+	
+	/**
+	 * Returns all registered SelectionPlugins
+	 * 
+	 * @return a List of IScalingPlanBuilderSelectionPlugin
+	 */
+	public static List<IScalingPlanBuilderSelectionPlugin> getSelectionPlugins() {
+		return PluginRegistry.selectionPlugins;
 	}
 	
 	/**
@@ -201,6 +213,32 @@ public class PluginRegistry {
 		}
 		if (toRemove != null) {
 			PluginRegistry.genericPlugins.remove(toRemove);
+		}
+	}
+	
+	/**
+	 * Registers a SelectionPlugin in this registry
+	 * 
+	 * @param selectionPlugin a IScalingPlanBuilderSelectionPlugin to register
+	 */
+	protected static void bindSelectionPlugin(IScalingPlanBuilderSelectionPlugin selectionPlugin) {
+		PluginRegistry.selectionPlugins.add(selectionPlugin);
+	}
+	
+	/**
+	 * De-registers a SelectionPlugin in this registry
+	 * 
+	 * @param selectionPlugin a IScalingPlanBuilderSelectionPlugin to de-register
+	 */
+	protected static void unbindSelectionPlugin(IScalingPlanBuilderSelectionPlugin selectionPlugin) {
+		IScalingPlanBuilderSelectionPlugin toRemove = null;
+		for (IScalingPlanBuilderSelectionPlugin plugin : PluginRegistry.selectionPlugins) {
+			if (plugin.getID().equals(selectionPlugin.getID())) {
+				toRemove = plugin;
+			}
+		}
+		if (toRemove != null) {
+			PluginRegistry.selectionPlugins.remove(toRemove);
 		}
 	}
 	

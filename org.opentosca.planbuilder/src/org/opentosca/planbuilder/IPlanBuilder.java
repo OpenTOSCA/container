@@ -5,6 +5,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -131,6 +132,14 @@ public abstract class IPlanBuilder {
 		newScalingPlan.setCsarName(csarName);
 		
 		return newScalingPlan;
+	}
+	
+	public TemplatePlanContext createContext(AbstractRelationshipTemplate relationshipTemplate, TOSCAPlan plan, PropertyMap map) {
+		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map, plan.getServiceTemplate());
+	}
+	
+	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate, TOSCAPlan plan, PropertyMap map) {
+		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate());
 	}
 	
 }

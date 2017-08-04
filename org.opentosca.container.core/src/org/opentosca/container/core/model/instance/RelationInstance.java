@@ -76,11 +76,11 @@ public class RelationInstance {
 	ServiceInstance serviceInstance;
 	
 	@OneToOne
-	@PrimaryKeyJoinColumn(name = "id")
+	@JoinColumn(name = "sourceInstance", referencedColumnName = "id")
 	NodeInstance sourceInstance;
 	
 	@OneToOne
-	@PrimaryKeyJoinColumn(name = "id")
+	@JoinColumn(name = "targetInstance", referencedColumnName = "id")	
 	NodeInstance targetInstance;
 	
 	@Column(name = "properties", columnDefinition = "VARCHAR(8192)")

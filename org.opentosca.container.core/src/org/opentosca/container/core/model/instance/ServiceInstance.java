@@ -165,7 +165,7 @@ public class ServiceInstance {
 			// old: serviceInstanceID = new URI(Settings.CONTAINER_API +
 			// IdConverter.serviceInstancePath + id);
 			// http://localhost:1337/containerapi/CSARs/BPMNLAMPStack.csar/ServiceTemplates/%257Bhttp%253A%252F%252Fopentosca.org%252FBPMN%257DBPMNLAMPStack/Instances/1/
-			this.serviceInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.csarID + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8"), "UTF-8") + "/Instances/" + this.id);
+			this.serviceInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.csarID_DB + "/ServiceTemplates/" + URLEncoder.encode(URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8"), "UTF-8") + "/Instances/" + this.id);
 			this.csarID = new CSARID(this.csarID_DB);
 		} catch (final URISyntaxException e) {
 			e.printStackTrace();
