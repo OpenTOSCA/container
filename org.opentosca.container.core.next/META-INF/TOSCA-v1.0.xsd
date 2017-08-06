@@ -1,0 +1,790 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Topology and Orchestration Specification for Cloud Applications Version 1.0
+	OASIS Standard
+	25 November 2013
+	Copyright (c) OASIS Open 2013. All rights reserved.
+	Source: http://docs.oasis-open.org/tosca/TOSCA/v1.0/os/schemas/
+-->
+<xs:schema targetNamespace="http://docs.oasis-open.org/tosca/ns/2011/12" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns="http://docs.oasis-open.org/tosca/ns/2011/12" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+ <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+ <xs:element name="documentation" type="tDocumentation"/>
+ <xs:complexType name="tDocumentation" mixed="true">
+  <xs:sequence>
+   <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="source" type="xs:anyURI"/>
+  <xs:attribute ref="xml:lang"/>
+ </xs:complexType>
+ <xs:complexType name="tExtensibleElements">
+  <xs:sequence>
+   <xs:element ref="documentation" minOccurs="0" maxOccurs="unbounded"/>
+   <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:anyAttribute namespace="##other" processContents="lax"/>
+ </xs:complexType>
+ <xs:complexType name="tImport">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:attribute name="namespace" type="xs:anyURI"/>
+    <xs:attribute name="location" type="xs:anyURI"/>
+    <xs:attribute name="importType" type="importedURI" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:element name="Definitions">
+  <xs:complexType>
+   <xs:complexContent>
+    <xs:extension base="tDefinitions"/>
+   </xs:complexContent>
+  </xs:complexType>
+ </xs:element>
+ <xs:complexType name="tDefinitions">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Extensions" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Extension" type="tExtension" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="Import" type="tImport" minOccurs="0" maxOccurs="unbounded"/>
+     <xs:element name="Types" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:choice maxOccurs="unbounded">
+      <xs:element name="ServiceTemplate" type="tServiceTemplate"/>
+      <xs:element name="NodeType" type="tNodeType"/>
+      <xs:element name="NodeTypeImplementation" type="tNodeTypeImplementation"/>
+      <xs:element name="RelationshipType" type="tRelationshipType"/>
+      <xs:element name="RelationshipTypeImplementation" type="tRelationshipTypeImplementation"/>
+      <xs:element name="RequirementType" type="tRequirementType"/>
+      <xs:element name="CapabilityType" type="tCapabilityType"/>
+      <xs:element name="ArtifactType" type="tArtifactType"/>
+      <xs:element name="ArtifactTemplate" type="tArtifactTemplate"/>
+      <xs:element name="PolicyType" type="tPolicyType"/>
+      <xs:element name="PolicyTemplate" type="tPolicyTemplate"/>
+     </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="targetNamespace" type="xs:anyURI" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tServiceTemplate">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Tags" type="tTags" minOccurs="0"/>
+     <xs:element name="BoundaryDefinitions" type="tBoundaryDefinitions" minOccurs="0"/>
+     <xs:element name="TopologyTemplate" type="tTopologyTemplate"/>
+     <xs:element name="Plans" type="tPlans" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="targetNamespace" type="xs:anyURI"/>
+    <xs:attribute name="substitutableNodeType" type="xs:QName" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tTags">
+  <xs:sequence>
+   <xs:element name="Tag" type="tTag" maxOccurs="unbounded"/>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tTag">
+  <xs:attribute name="name" type="xs:string" use="required"/>
+  <xs:attribute name="value" type="xs:string" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tBoundaryDefinitions">
+  <xs:sequence>
+   <xs:element name="Properties" minOccurs="0">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:any namespace="##other"/>
+      <xs:element name="PropertyMappings" minOccurs="0">
+       <xs:complexType>
+        <xs:sequence>
+         <xs:element name="PropertyMapping" type="tPropertyMapping" maxOccurs="unbounded"/>
+        </xs:sequence>
+       </xs:complexType>
+      </xs:element>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="PropertyConstraints" minOccurs="0">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="PropertyConstraint" type="tPropertyConstraint" maxOccurs="unbounded"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="Requirements" minOccurs="0">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="Requirement" type="tRequirementRef" maxOccurs="unbounded"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="Capabilities" minOccurs="0">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="Capability" type="tCapabilityRef" maxOccurs="unbounded"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="Policies" minOccurs="0">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="Policy" type="tPolicy" maxOccurs="unbounded"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="Interfaces" minOccurs="0">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="Interface" type="tExportedInterface" maxOccurs="unbounded"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tPropertyMapping">
+  <xs:attribute name="serviceTemplatePropertyRef" type="xs:string" use="required"/>
+  <xs:attribute name="targetObjectRef" type="xs:IDREF" use="required"/>
+  <xs:attribute name="targetPropertyRef" type="xs:string" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tRequirementRef">
+  <xs:attribute name="name" type="xs:string" use="optional"/>
+  <xs:attribute name="ref" type="xs:IDREF" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tCapabilityRef">
+  <xs:attribute name="name" type="xs:string" use="optional"/>
+  <xs:attribute name="ref" type="xs:IDREF" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tEntityType" abstract="true">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Tags" type="tTags" minOccurs="0"/>
+     <xs:element name="DerivedFrom" minOccurs="0">
+      <xs:complexType>
+       <xs:attribute name="typeRef" type="xs:QName" use="required"/>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="PropertiesDefinition" minOccurs="0">
+      <xs:complexType>
+       <xs:attribute name="element" type="xs:QName"/>
+       <xs:attribute name="type" type="xs:QName"/>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
+    <xs:attribute name="abstract" type="tBoolean" default="no"/>
+    <xs:attribute name="final" type="tBoolean" default="no"/>
+    <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tEntityTemplate" abstract="true">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Properties" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:any namespace="##other" processContents="lax"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="PropertyConstraints" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="PropertyConstraint" type="tPropertyConstraint" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="type" type="xs:QName" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tNodeTemplate">
+  <xs:complexContent>
+   <xs:extension base="tEntityTemplate">
+    <xs:sequence>
+     <xs:element name="Requirements" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Requirement" type="tRequirement" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="Capabilities" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Capability" type="tCapability" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="Policies" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Policy" type="tPolicy" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="DeploymentArtifacts" type="tDeploymentArtifacts" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="minInstances" type="xs:int" use="optional" default="1"/>
+    <xs:attribute name="maxInstances" use="optional" default="1">
+     <xs:simpleType>
+      <xs:union>
+       <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+         <xs:pattern value="([1-9]+[0-9]*)"/>
+        </xs:restriction>
+       </xs:simpleType>
+       <xs:simpleType>
+        <xs:restriction base="xs:string">
+         <xs:enumeration value="unbounded"/>
+        </xs:restriction>
+       </xs:simpleType>
+      </xs:union>
+     </xs:simpleType>
+    </xs:attribute>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tTopologyTemplate">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:choice maxOccurs="unbounded">
+     <xs:element name="NodeTemplate" type="tNodeTemplate"/>
+     <xs:element name="RelationshipTemplate" type="tRelationshipTemplate"/>
+    </xs:choice>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tRelationshipType">
+  <xs:complexContent>
+   <xs:extension base="tEntityType">
+    <xs:sequence>
+     <xs:element name="InstanceStates" type="tTopologyElementInstanceStates" minOccurs="0"/>
+     <xs:element name="SourceInterfaces" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Interface" type="tInterface" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="TargetInterfaces" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Interface" type="tInterface" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="ValidSource" minOccurs="0">
+      <xs:complexType>
+       <xs:attribute name="typeRef" type="xs:QName" use="required"/>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="ValidTarget" minOccurs="0">
+      <xs:complexType>
+       <xs:attribute name="typeRef" type="xs:QName" use="required"/>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tRelationshipTypeImplementation">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Tags" type="tTags" minOccurs="0"/>
+     <xs:element name="DerivedFrom" minOccurs="0">
+      <xs:complexType>
+       <xs:attribute name="relationshipTypeImplementationRef" type="xs:QName" use="required"/>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="RequiredContainerFeatures" type="tRequiredContainerFeatures" minOccurs="0"/>
+     <xs:element name="ImplementationArtifacts" type="tImplementationArtifacts" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
+    <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional"/>
+    <xs:attribute name="relationshipType" type="xs:QName" use="required"/>
+    <xs:attribute name="abstract" type="tBoolean" use="optional" default="no"/>
+    <xs:attribute name="final" type="tBoolean" use="optional" default="no"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tRelationshipTemplate">
+  <xs:complexContent>
+   <xs:extension base="tEntityTemplate">
+    <xs:sequence>
+     <xs:element name="SourceElement">
+      <xs:complexType>
+       <xs:attribute name="ref" type="xs:IDREF" use="required"/>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="TargetElement">
+      <xs:complexType>
+       <xs:attribute name="ref" type="xs:IDREF" use="required"/>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="RelationshipConstraints" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="RelationshipConstraint" maxOccurs="unbounded">
+         <xs:complexType>
+          <xs:sequence>
+           <xs:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attribute name="constraintType" type="xs:anyURI" use="required"/>
+         </xs:complexType>
+        </xs:element>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tNodeType">
+  <xs:complexContent>
+   <xs:extension base="tEntityType">
+    <xs:sequence>
+     <xs:element name="RequirementDefinitions" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="RequirementDefinition" type="tRequirementDefinition" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="CapabilityDefinitions" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="CapabilityDefinition" type="tCapabilityDefinition" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="InstanceStates" type="tTopologyElementInstanceStates" minOccurs="0"/>
+     <xs:element name="Interfaces" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Interface" type="tInterface" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tNodeTypeImplementation">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Tags" type="tTags" minOccurs="0"/>
+     <xs:element name="DerivedFrom" minOccurs="0">
+      <xs:complexType>
+       <xs:attribute name="nodeTypeImplementationRef" type="xs:QName" use="required"/>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="RequiredContainerFeatures" type="tRequiredContainerFeatures" minOccurs="0"/>
+     <xs:element name="ImplementationArtifacts" type="tImplementationArtifacts" minOccurs="0"/>
+     <xs:element name="DeploymentArtifacts" type="tDeploymentArtifacts" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
+    <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional"/>
+    <xs:attribute name="nodeType" type="xs:QName" use="required"/>
+    <xs:attribute name="abstract" type="tBoolean" use="optional" default="no"/>
+    <xs:attribute name="final" type="tBoolean" use="optional" default="no"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tRequirementType">
+  <xs:complexContent>
+   <xs:extension base="tEntityType">
+    <xs:attribute name="requiredCapabilityType" type="xs:QName" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tRequirementDefinition">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Constraints" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Constraint" type="tConstraint" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="requirementType" type="xs:QName" use="required"/>
+    <xs:attribute name="lowerBound" type="xs:int" use="optional" default="1"/>
+    <xs:attribute name="upperBound" use="optional" default="1">
+     <xs:simpleType>
+      <xs:union>
+       <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+         <xs:pattern value="([1-9]+[0-9]*)"/>
+        </xs:restriction>
+       </xs:simpleType>
+       <xs:simpleType>
+        <xs:restriction base="xs:string">
+         <xs:enumeration value="unbounded"/>
+        </xs:restriction>
+       </xs:simpleType>
+      </xs:union>
+     </xs:simpleType>
+    </xs:attribute>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tRequirement">
+  <xs:complexContent>
+   <xs:extension base="tEntityTemplate">
+    <xs:attribute name="name" type="xs:string" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tCapabilityType">
+  <xs:complexContent>
+   <xs:extension base="tEntityType"/>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tCapabilityDefinition">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Constraints" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="Constraint" type="tConstraint" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="capabilityType" type="xs:QName" use="required"/>
+    <xs:attribute name="lowerBound" type="xs:int" use="optional" default="1"/>
+    <xs:attribute name="upperBound" use="optional" default="1">
+     <xs:simpleType>
+      <xs:union>
+       <xs:simpleType>
+        <xs:restriction base="xs:nonNegativeInteger">
+         <xs:pattern value="([1-9]+[0-9]*)"/>
+        </xs:restriction>
+       </xs:simpleType>
+       <xs:simpleType>
+        <xs:restriction base="xs:string">
+         <xs:enumeration value="unbounded"/>
+        </xs:restriction>
+       </xs:simpleType>
+      </xs:union>
+     </xs:simpleType>
+    </xs:attribute>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tCapability">
+  <xs:complexContent>
+   <xs:extension base="tEntityTemplate">
+    <xs:attribute name="name" type="xs:string" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tArtifactType">
+  <xs:complexContent>
+   <xs:extension base="tEntityType"/>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tArtifactTemplate">
+  <xs:complexContent>
+   <xs:extension base="tEntityTemplate">
+    <xs:sequence>
+     <xs:element name="ArtifactReferences" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="ArtifactReference" type="tArtifactReference" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tDeploymentArtifacts">
+  <xs:sequence>
+   <xs:element name="DeploymentArtifact" type="tDeploymentArtifact" maxOccurs="unbounded"/>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tDeploymentArtifact">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="artifactType" type="xs:QName" use="required"/>
+    <xs:attribute name="artifactRef" type="xs:QName" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tImplementationArtifacts">
+  <xs:sequence>
+   <xs:element name="ImplementationArtifact" maxOccurs="unbounded">
+    <xs:complexType>
+     <xs:complexContent>
+      <xs:extension base="tImplementationArtifact"/>
+     </xs:complexContent>
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tImplementationArtifact">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:attribute name="interfaceName" type="xs:anyURI" use="optional"/>
+    <xs:attribute name="operationName" type="xs:NCName" use="optional"/>
+    <xs:attribute name="artifactType" type="xs:QName" use="required"/>
+    <xs:attribute name="artifactRef" type="xs:QName" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tPlans">
+  <xs:sequence>
+   <xs:element name="Plan" type="tPlan" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional"/>
+ </xs:complexType>
+ <xs:complexType name="tPlan">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Precondition" type="tCondition" minOccurs="0"/>
+     <xs:element name="InputParameters" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="InputParameter" type="tParameter" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="OutputParameters" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="OutputParameter" type="tParameter" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:choice>
+      <xs:element name="PlanModel">
+       <xs:complexType>
+        <xs:sequence>
+         <xs:any namespace="##other" processContents="lax"/>
+        </xs:sequence>
+       </xs:complexType>
+      </xs:element>
+      <xs:element name="PlanModelReference">
+       <xs:complexType>
+        <xs:attribute name="reference" type="xs:anyURI" use="required"/>
+       </xs:complexType>
+      </xs:element>
+     </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="planType" type="xs:anyURI" use="required"/>
+    <xs:attribute name="planLanguage" type="xs:anyURI" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tPolicyType">
+  <xs:complexContent>
+   <xs:extension base="tEntityType">
+    <xs:sequence>
+     <xs:element name="AppliesTo" type="tAppliesTo" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="policyLanguage" type="xs:anyURI" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tPolicyTemplate">
+  <xs:complexContent>
+   <xs:extension base="tEntityTemplate">
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tAppliesTo">
+  <xs:sequence>
+   <xs:element name="NodeTypeReference" maxOccurs="unbounded">
+    <xs:complexType>
+     <xs:attribute name="typeRef" type="xs:QName" use="required"/>
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tPolicy">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:attribute name="name" type="xs:string" use="optional"/>
+    <xs:attribute name="policyType" type="xs:QName" use="required"/>
+    <xs:attribute name="policyRef" type="xs:QName" use="optional"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tConstraint">
+  <xs:sequence>
+   <xs:any namespace="##other" processContents="lax"/>
+  </xs:sequence>
+  <xs:attribute name="constraintType" type="xs:anyURI" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tPropertyConstraint">
+  <xs:complexContent>
+   <xs:extension base="tConstraint">
+    <xs:attribute name="property" type="xs:string" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tExtensions">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="Extension" type="tExtension" maxOccurs="unbounded"/>
+    </xs:sequence>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tExtension">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:attribute name="namespace" type="xs:anyURI" use="required"/>
+    <xs:attribute name="mustUnderstand" type="tBoolean" use="optional" default="yes"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tParameter">
+  <xs:attribute name="name" type="xs:string" use="required"/>
+  <xs:attribute name="type" type="xs:string" use="required"/>
+  <xs:attribute name="required" type="tBoolean" use="optional" default="yes"/>
+ </xs:complexType>
+ <xs:complexType name="tInterface">
+  <xs:sequence>
+   <xs:element name="Operation" type="tOperation" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="name" type="xs:anyURI" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tExportedInterface">
+  <xs:sequence>
+   <xs:element name="Operation" type="tExportedOperation" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="name" type="xs:anyURI" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tOperation">
+  <xs:complexContent>
+   <xs:extension base="tExtensibleElements">
+    <xs:sequence>
+     <xs:element name="InputParameters" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="InputParameter" type="tParameter" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+     <xs:element name="OutputParameters" minOccurs="0">
+      <xs:complexType>
+       <xs:sequence>
+        <xs:element name="OutputParameter" type="tParameter" maxOccurs="unbounded"/>
+       </xs:sequence>
+      </xs:complexType>
+     </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
+   </xs:extension>
+  </xs:complexContent>
+ </xs:complexType>
+ <xs:complexType name="tExportedOperation">
+  <xs:choice>
+   <xs:element name="NodeOperation">
+    <xs:complexType>
+     <xs:attribute name="nodeRef" type="xs:IDREF" use="required"/>
+     <xs:attribute name="interfaceName" type="xs:anyURI" use="required"/>
+     <xs:attribute name="operationName" type="xs:NCName" use="required"/>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="RelationshipOperation">
+    <xs:complexType>
+     <xs:attribute name="relationshipRef" type="xs:IDREF" use="required"/>
+     <xs:attribute name="interfaceName" type="xs:anyURI" use="required"/>
+     <xs:attribute name="operationName" type="xs:NCName" use="required"/>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="Plan">
+    <xs:complexType>
+     <xs:attribute name="planRef" type="xs:IDREF" use="required"/>
+    </xs:complexType>
+   </xs:element>
+  </xs:choice>
+  <xs:attribute name="name" type="xs:NCName" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tCondition">
+  <xs:sequence>
+   <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="expressionLanguage" type="xs:anyURI" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tTopologyElementInstanceStates">
+  <xs:sequence>
+   <xs:element name="InstanceState" maxOccurs="unbounded">
+    <xs:complexType>
+     <xs:attribute name="state" type="xs:anyURI" use="required"/>
+    </xs:complexType>
+   </xs:element>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tArtifactReference">
+  <xs:choice minOccurs="0" maxOccurs="unbounded">
+   <xs:element name="Include">
+    <xs:complexType>
+     <xs:attribute name="pattern" type="xs:string" use="required"/>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="Exclude">
+    <xs:complexType>
+     <xs:attribute name="pattern" type="xs:string" use="required"/>
+    </xs:complexType>
+   </xs:element>
+  </xs:choice>
+  <xs:attribute name="reference" type="xs:anyURI" use="required"/>
+ </xs:complexType>
+ <xs:complexType name="tRequiredContainerFeatures">
+  <xs:sequence>
+   <xs:element name="RequiredContainerFeature" type="tRequiredContainerFeature" maxOccurs="unbounded"/>
+  </xs:sequence>
+ </xs:complexType>
+ <xs:complexType name="tRequiredContainerFeature">
+  <xs:attribute name="feature" type="xs:anyURI" use="required"/>
+ </xs:complexType>
+ <xs:simpleType name="tBoolean">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="yes"/>
+   <xs:enumeration value="no"/>
+  </xs:restriction>
+ </xs:simpleType>
+ <xs:simpleType name="importedURI">
+  <xs:restriction base="xs:anyURI"/>
+ </xs:simpleType>
+</xs:schema>
