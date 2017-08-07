@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.selection.plugin.firstavailable;
+package org.opentosca.planbuilder.selection.plugin.mosquitto.workload;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,18 +30,18 @@ import org.xml.sax.SAXException;
  */
 public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 	
-	private static final String firstAvailableSelectionStrategy = "FirstInstance";
+	private static final String workloadSelectionStrategy = "WorkloadBased";
 	
 	
 	@Override
 	public String getID() {
-		return "OpenTOSCA First Available Selection Plugin";
+		return "OpenTOSCA Mosquitto Workload Selection Plugin";
 	}
 	
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies) {
 		// we can basically handle every type with this strategy
-		if (selectionStrategies.contains(Plugin.firstAvailableSelectionStrategy)) {
+		if (selectionStrategies.contains(Plugin.workloadSelectionStrategy)) {
 			return true;
 		}
 		return false;
@@ -49,6 +49,8 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 	
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies) {
+		
+		// TODO
 		// fetch instance variables
 		String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
 		

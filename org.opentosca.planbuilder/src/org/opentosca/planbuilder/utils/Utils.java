@@ -300,6 +300,19 @@ public class Utils {
 		relationshipTemplates.addAll(list);
 	}
 	
+	public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(final AbstractNodeTemplate nodeTemplate) {
+		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
+		
+		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
+			List<QName> types = Utils.getRelationshipTypeHierarchy(relation.getRelationshipType());
+			if (types.contains(TOSCABASETYPE_DEPENDSON) | types.contains(TOSCABASETYPE_DEPLOYEDON) | types.contains(TOSCABASETYPE_HOSTEDON)) {
+				relations.add(relation);
+			}
+		}
+		
+		return relations;
+	}
+	
 	/**
 	 * Adds the InfrastructureEdges of the given NodeTemplate to the given List
 	 *
@@ -352,12 +365,11 @@ public class Utils {
 		nodes.add(nodeTemplate);
 		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
 			
-			
 			if (Utils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType()).contains(relationshipType)) {
-
+				
 				Utils.getNodesFromRelationToSink(outgoingTemplate, relationshipType, nodes);
 			}
-
+			
 		}
 		Utils.cleanDuplciates(nodes);
 	}
@@ -386,16 +398,16 @@ public class Utils {
 	public static List<AbstractRelationshipTemplate> getOutgoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
 		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
 		
-		for(AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-			for(QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
+			for (QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
 				boolean match = false;
-				for(QName relationshipType : relationshipTypes) {					
-					if(relationshipTypeHierarchyMember.equals(relationshipType)) {
+				for (QName relationshipType : relationshipTypes) {
+					if (relationshipTypeHierarchyMember.equals(relationshipType)) {
 						relations.add(relation);
 						break;
 					}
 				}
-				if(match) {
+				if (match) {
 					break;
 				}
 			}
@@ -407,16 +419,16 @@ public class Utils {
 	public static List<AbstractRelationshipTemplate> getIngoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
 		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
 		
-		for(AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-			for(QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+		for (AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
+			for (QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
 				boolean match = false;
-				for(QName relationshipType : relationshipTypes) {					
-					if(relationshipTypeHierarchyMember.equals(relationshipType)) {
+				for (QName relationshipType : relationshipTypes) {
+					if (relationshipTypeHierarchyMember.equals(relationshipType)) {
 						relations.add(relation);
 						break;
 					}
 				}
-				if(match) {
+				if (match) {
 					break;
 				}
 			}
@@ -427,11 +439,11 @@ public class Utils {
 	
 	public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate, QName relationshipType, final List<AbstractNodeTemplate> nodes) {
 		nodes.add(nodeTemplate);
-		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {			
+		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
 			if (Utils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType()).contains(relationshipType)) {
 				// we skip connectTo relations, as they are connecting stacks
 				// and
-				// make the result even more ambigious				
+				// make the result even more ambigious
 				Utils.getNodesFromRelationToSink(outgoingTemplate, nodes);
 			}
 		}
