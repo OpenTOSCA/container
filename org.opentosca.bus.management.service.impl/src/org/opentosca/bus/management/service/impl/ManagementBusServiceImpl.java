@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -602,7 +603,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 							prop = this.getSupportedProperty(supportedIPPropertyNames, propertiesMap);
 
 							if (prop != null) {
-								inputParams.put(expectedParam, prop);
+								this.putOnlyIfNotSet(inputParams, expectedParam, prop);
 							}
 
 						} else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
@@ -610,7 +611,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 							prop = this.getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
 
 							if (prop != null) {
-								inputParams.put(expectedParam, prop);
+								this.putOnlyIfNotSet(inputParams, expectedParam, prop);
 							}
 
 						} else if (supportedPasswordPropertyNames.contains(expectedParam)) {
@@ -618,22 +619,22 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 							prop = this.getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
 
 							if (prop != null) {
-								inputParams.put(expectedParam, prop);
+								this.putOnlyIfNotSet(inputParams, expectedParam, prop);
 							}
 
 						} else if (supportedUsernamePropertyNames.contains(expectedParam)) {
 							ManagementBusServiceImpl.LOG.debug("Supported Username-Property found.");
 							prop = this.getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
 
-							if (prop != null) {
-								inputParams.put(expectedParam, prop);
+							if (prop != null) {								
+								this.putOnlyIfNotSet(inputParams, expectedParam, prop);
 							}
 
 						} else {
 
 							for (final String propName : propertiesMap.keySet()) {
 								if (expectedParam.equals(propName)) {
-									inputParams.put(expectedParam, propertiesMap.get(propName));
+									this.putOnlyIfNotSet(inputParams, expectedParam, propertiesMap.get(propName));									
 								}
 							}
 							
@@ -652,6 +653,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 		}
 
 		return inputParams;
+	}
+	
+	private void putOnlyIfNotSet(final Map<String, String> inputParams, String key, String value) {
+		if(!inputParams.containsKey(key)) {
+			inputParams.put(key, value);
+		}
 	}
 
 	/**
