@@ -7,6 +7,7 @@ import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 /**
  * Abstract class which delivers common functionality for other DAOs
  */
+@Deprecated
 public abstract class AbstractDAO {
 
   protected EntityManager em;

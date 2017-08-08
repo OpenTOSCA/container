@@ -53,7 +53,7 @@ import org.w3c.dom.NodeList;
 @SOAPBinding(style = SOAPBinding.Style.RPC)
 public class InstanceDataServiceImpl implements IInstanceDataService {
 
-  final private static Logger LOG = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
+  final private static Logger logger = LoggerFactory.getLogger(InstanceDataServiceImpl.class);
 
   public static IToscaEngineService toscaEngineService;
 
@@ -67,6 +67,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID,
       final String serviceTemplateName, final QName serviceTemplateID) {
+
+    logger.info("getServiceInstances(): {}", serviceInstanceID.toString());
+    logger.info("getServiceInstances(): {}", serviceTemplateName.toString());
+    logger.info("getServiceInstances(): {}", serviceTemplateID.toString());
+
     return this.siDAO.getServiceInstances(serviceInstanceID, serviceTemplateName,
         serviceTemplateID);
   }
@@ -75,6 +80,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public List<ServiceInstance> getServiceInstancesWithDetails(final CSARID csarId,
       final QName serviceTemplateId, final Integer serviceTemplateInstanceID) {
+
+    logger.info("getServiceInstancesWithDetails(): {}", csarId.toString());
+    logger.info("getServiceInstancesWithDetails(): {}", serviceTemplateId.toString());
+    logger.info("getServiceInstancesWithDetails(): {}", serviceTemplateInstanceID.toString());
+
     return this.siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
   }
 
@@ -82,13 +92,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public ServiceInstance createServiceInstance(final CSARID csarID, final QName serviceTemplateID)
       throws ReferenceNotFoundException {
-    InstanceDataServiceImpl.LOG
+
+    logger.info("createServiceInstance(): {}", csarID.toString());
+    logger.info("createServiceInstance(): {}", serviceTemplateID.toString());
+
+    InstanceDataServiceImpl.logger
         .debug("Starting creating ServiceInstance for " + serviceTemplateID + " in " + csarID);
     // TODO: boolean flag for cascading creation? cool or not?
     // check if serviceTemplate doesn't exist
     if (!ToscaEngineProxy.doesServiceTemplateExist(InstanceDataServiceImpl.toscaEngineService,
         csarID, serviceTemplateID)) {
-      InstanceDataServiceImpl.LOG.warn(String.format(
+      InstanceDataServiceImpl.logger.warn(String.format(
           "Failed to create ServiceInstance for CSAR-ID: %s / serviceTemplateID: %s - was not found!",
           csarID, serviceTemplateID));
       throw new ReferenceNotFoundException("ServiceTemplate doesn't exist in the specified CSAR");
@@ -143,11 +157,13 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public void deleteServiceInstance(final URI serviceInstanceID) {
 
+    logger.info("deleteServiceInstance(): {}", serviceInstanceID.toString());
+
     final List<ServiceInstance> serviceInstances =
         this.siDAO.getServiceInstances(serviceInstanceID, null, null);
 
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
-      InstanceDataServiceImpl.LOG.warn(String.format(
+      InstanceDataServiceImpl.logger.warn(String.format(
           "Failed to delete ServiceInstance: '%s' - could not be retrieved", serviceInstanceID));
       return;
     }
@@ -158,6 +174,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public List<NodeInstance> getNodeInstances(final URI nodeInstanceID, final QName nodeTemplateID,
       final String nodeTemplateName, final URI serviceInstanceID) {
+
+    logger.info("getNodeInstances(): {}", nodeInstanceID.toString());
+    logger.info("getNodeInstances(): {}", nodeTemplateID.toString());
+    logger.info("getNodeInstances(): {}", nodeTemplateName.toString());
+    logger.info("getNodeInstances(): {}", serviceInstanceID.toString());
+
     return this.niDAO.getNodeInstances(serviceInstanceID, nodeTemplateID, nodeTemplateName,
         nodeInstanceID);
   }
@@ -166,6 +188,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public List<RelationInstance> getRelationInstances(final URI relationInstanceID,
       final QName relationshipTemplateID, final String relationshipTemplateName,
       final URI serviceInstanceID) {
+
+    logger.info("getNodeInstances(): {}", relationInstanceID.toString());
+    logger.info("getNodeInstances(): {}", relationshipTemplateID.toString());
+    logger.info("getNodeInstances(): {}", relationshipTemplateName.toString());
+    logger.info("getNodeInstances(): {}", serviceInstanceID.toString());
+
     return this.riDAO.getRelationInstances(serviceInstanceID, relationshipTemplateID,
         relationshipTemplateName, relationInstanceID);
   }
@@ -176,7 +204,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final int serviceTemplateInstanceID, final QName nodeTemplateID)
       throws ReferenceNotFoundException {
 
-    LOG.debug(
+    logger.info("createNodeInstance(): {}", csarId.toString());
+    logger.info("createNodeInstance(): {}", serviceTemplateId.toString());
+    logger.info("createNodeInstance(): {}", serviceTemplateInstanceID);
+    logger.info("createNodeInstance(): {}", nodeTemplateID.toString());
+
+    logger.debug(
         "Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance \"{}\"",
         nodeTemplateID.getNamespaceURI(), nodeTemplateID.getLocalPart(), csarId, serviceTemplateId,
         serviceTemplateInstanceID);
@@ -187,7 +220,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final String msg = String.format(
           "Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved",
           serviceTemplateInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     final ServiceInstance serviceInstance = serviceInstances.get(0);
@@ -198,7 +231,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final String msg = String.format(
           "Failed to create NodeInstance: NodeTemplate: csar: %s serviceTemplateID: %s , nodeTemplateID: '%s' - could not be retrieved / does not exists",
           serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(), nodeTemplateID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
 
@@ -231,7 +264,14 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final String sourceInstanceId, final String targetInstanceId)
       throws ReferenceNotFoundException {
 
-    LOG.debug(
+    logger.info("createRelationInstance(): {}", csarId.toString());
+    logger.info("createRelationInstance(): {}", serviceTemplateId.toString());
+    logger.info("createRelationInstance(): {}", serviceTemplateInstanceID);
+    logger.info("createRelationInstance(): {}", relationshipTemplateID.toString());
+    logger.info("createRelationInstance(): {}", sourceInstanceId);
+    logger.info("createRelationInstance(): {}", targetInstanceId);
+
+    logger.debug(
         "Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance \"{}\"",
         relationshipTemplateID.getNamespaceURI(), relationshipTemplateID.getLocalPart(), csarId,
         serviceTemplateId, serviceTemplateInstanceID);
@@ -242,7 +282,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final String msg = String.format(
           "Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved",
           serviceTemplateInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     final ServiceInstance serviceInstance = serviceInstances.get(0);
@@ -255,7 +295,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
           "Failed to create RelationInstance: RelationshipTemplate: csar: %s serviceTemplateID: %s , relationshipTemplateID: '%s' - could not be retrieved / does not exists",
           serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(),
           relationshipTemplateID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
 
@@ -313,11 +353,14 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   @WebMethod(exclude = true)
   public void deleteNodeInstance(final URI nodeInstanceID) {
+
+    logger.info("deleteNodeInstance(): {}", nodeInstanceID.toString());
+
     final List<NodeInstance> nodeInstances =
         this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
-      InstanceDataServiceImpl.LOG.warn(String
+      InstanceDataServiceImpl.logger.warn(String
           .format("Failed to delete NodeInstance: '%s' - could not be retrieved", nodeInstanceID));
       return;
     }
@@ -327,11 +370,14 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   @Override
   public void deleteRelationInstance(final URI relationInstanceID) {
+
+    logger.info("deleteRelationInstance(): {}", relationInstanceID.toString());
+
     final List<RelationInstance> relationInstances =
         this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
-      InstanceDataServiceImpl.LOG.warn(String.format(
+      InstanceDataServiceImpl.logger.warn(String.format(
           "Failed to delete RelatioknInstance: '%s' - could not be retrieved", relationInstanceID));
       return;
     }
@@ -343,12 +389,15 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public QName getRelationInstanceState(final URI relationInstanceID)
       throws ReferenceNotFoundException {
+
+    logger.info("getRelationInstanceState(): {}", relationInstanceID.toString());
+
     final List<RelationInstance> relationInstances =
         this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format(
           "Failed to get State of RelationInstance: '%s' - does it exist?", relationInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     return QName.valueOf(relationInstances.get(0).getState().toString());
@@ -358,13 +407,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public void setRelationInstanceState(final URI relationInstanceID, final String state)
       throws ReferenceNotFoundException {
+
+    logger.info("setRelationInstanceState(): {}", relationInstanceID.toString());
+    logger.info("setRelationInstanceState(): {}", state);
+
     final List<RelationInstance> relationInstances =
         this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format(
           "Failed to set State of RelationInstance: '%s' - does it exist?", relationInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     this.riDAO.setState(relationInstances.get(0), state);
@@ -373,12 +426,15 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   @WebMethod(exclude = true)
   public QName getNodeInstanceState(final URI nodeInstanceID) throws ReferenceNotFoundException {
+
+    logger.info("getNodeInstanceState(): {}", nodeInstanceID.toString());
+
     final List<NodeInstance> nodeInstances =
         this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       final String msg = String.format("Failed to get State of NodeInstance: '%s' - does it exist?",
           nodeInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     return QName.valueOf(nodeInstances.get(0).getState().toString());
@@ -387,13 +443,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   public void setNodeInstanceState(final URI nodeInstanceID, final String state)
       throws ReferenceNotFoundException {
+
+    logger.info("setNodeInstanceState(): {}", nodeInstanceID.toString());
+    logger.info("setNodeInstanceState(): {}", state);
+
     final List<NodeInstance> nodeInstances =
         this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       final String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?",
           nodeInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     this.niDAO.setState(nodeInstances.get(0), state);
@@ -403,13 +463,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public Document getServiceInstanceProperties(final URI serviceInstanceID,
       final List<QName> propertiesList) throws ReferenceNotFoundException {
+
+    logger.info("getServiceInstanceProperties(): {}", serviceInstanceID.toString());
+    logger.info("getServiceInstanceProperties(): {}", propertiesList.toString());
+
     final List<ServiceInstance> serviceInstances =
         this.getServiceInstances(serviceInstanceID, null, null);
 
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       final String msg =
           String.format("Failed to retrieve ServiceInstance: '%s'", serviceInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
 
@@ -423,12 +487,16 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   public Document getRelationInstanceProperties(final URI relationInstanceID,
       final List<QName> propertiesList) throws ReferenceNotFoundException {
+
+    logger.info("getRelationInstanceProperties(): {}", relationInstanceID.toString());
+    logger.info("getRelationInstanceProperties(): {}", propertiesList.toString());
+
     final List<RelationInstance> relationInstances =
         this.getRelationInstances(relationInstanceID, null, null, null);
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format("Failed to retrieve NodeInstance: '%s'", relationInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     final RelationInstance relationInstance = relationInstances.get(0);
@@ -495,12 +563,16 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   // for the nodeinstance?
   public Document getNodeInstanceProperties(final URI nodeInstanceID,
       final List<QName> propertiesList) throws ReferenceNotFoundException {
+
+    logger.info("getNodeInstanceProperties(): {}", nodeInstanceID.toString());
+    logger.info("getNodeInstanceProperties(): {}", propertiesList.toString());
+
     final List<NodeInstance> nodeInstances =
         this.getNodeInstances(nodeInstanceID, null, null, null);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       final String msg = String.format("Failed to retrieve NodeInstance: '%s'", nodeInstanceID);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     final NodeInstance nodeInstance = nodeInstances.get(0);
@@ -574,7 +646,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final Document doc = db.newDocument();
       return doc;
     } catch (final ParserConfigurationException e) {
-      InstanceDataServiceImpl.LOG.error(e.getMessage());
+      InstanceDataServiceImpl.logger.error(e.getMessage());
     }
     return null;
   }
@@ -583,11 +655,13 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setRelationInstanceProperties(final URI relationInstanceID, final Document properties)
       throws ReferenceNotFoundException {
 
+    logger.info("setRelationInstanceProperties(): {}", relationInstanceID.toString());
+
     final List<RelationInstance> relationInstances =
         this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
-      InstanceDataServiceImpl.LOG.warn(String.format(
+      InstanceDataServiceImpl.logger.warn(String.format(
           "Failed to set Properties of NodeInstance: '%s' - does it exist?", relationInstanceID));
       return;
     }
@@ -604,11 +678,13 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setNodeInstanceProperties(final URI nodeInstanceID, final Document properties)
       throws ReferenceNotFoundException {
 
+    logger.info("setNodeInstanceProperties(): {}", nodeInstanceID.toString());
+
     final List<NodeInstance> nodeInstances =
         this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
-      InstanceDataServiceImpl.LOG.warn(String.format(
+      InstanceDataServiceImpl.logger.warn(String.format(
           "Failed to set Properties of NodeInstance: '%s' - does it exist?", nodeInstanceID));
       return;
     }
@@ -623,17 +699,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public void bindToscaEngineService(final IToscaEngineService toscaEngineService) {
     if (toscaEngineService == null) {
-      InstanceDataServiceImpl.LOG.error("Can't bind ToscaEngine Service.");
+      InstanceDataServiceImpl.logger.error("Can't bind ToscaEngine Service.");
     } else {
       InstanceDataServiceImpl.toscaEngineService = toscaEngineService;
-      InstanceDataServiceImpl.LOG.debug("ToscaEngine-Service bound.");
+      InstanceDataServiceImpl.logger.debug("ToscaEngine-Service bound.");
     }
   }
 
   @WebMethod(exclude = true)
   public void unbindToscaEngineService(final IToscaEngineService toscaEngineService) {
     InstanceDataServiceImpl.toscaEngineService = null;
-    InstanceDataServiceImpl.LOG.debug("ToscaEngine-Service unbound.");
+    InstanceDataServiceImpl.logger.debug("ToscaEngine-Service unbound.");
 
   }
 
@@ -935,7 +1011,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   private Document createServiceInstancePropertiesFromServiceTemplate(final CSARID csarId,
       final QName serviceTemplateId) {
 
-    InstanceDataServiceImpl.LOG.debug(
+    InstanceDataServiceImpl.logger.debug(
         "Creating initial ServiceInstance Properties for " + serviceTemplateId + " in " + csarId);
     final TBoundaryDefinitions boundaryDefs = InstanceDataServiceImpl.toscaEngineService
         .getBoundaryDefinitionsOfServiceTemplate(csarId, serviceTemplateId);
@@ -944,7 +1020,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     if ((boundaryDefs != null) && (boundaryDefs.getProperties() != null)) {
 
-      LOG.debug("Properties found in Bounds for ST {}", serviceTemplateId);
+      logger.debug("Properties found in Bounds for ST {}", serviceTemplateId);
 
       // Document emptyDoc = InstanceDataServiceImpl.emptyDocument();
       //
@@ -982,7 +1058,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
       if ((null == propertiesElement) || (null == propertiesElement.getOwnerDocument())) {
 
-        LOG.debug("null pointer ahead!");
+        logger.debug("null pointer ahead!");
 
         // LOG.debug("No Properties found in Bounds for ST {} thus
         // create blank ones", serviceTemplateId);
@@ -998,7 +1074,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       }
     } else {
 
-      LOG.debug("No Properties found in Bounds for ST {} thus create blank ones",
+      logger.debug("No Properties found in Bounds for ST {} thus create blank ones",
           serviceTemplateId);
       final Document emptyDoc = InstanceDataServiceImpl.emptyDocument();
       final Element createElementNS =
@@ -1017,6 +1093,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public void setServiceInstanceProperties(final URI serviceInstanceID, final Document properties)
       throws ReferenceNotFoundException {
+
+    logger.info("setServiceInstanceProperties(): {}", serviceInstanceID.toString());
+
     final List<ServiceInstance> serviceInstances =
         this.getServiceInstances(serviceInstanceID, null, null);
 
@@ -1036,6 +1115,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   public String getServiceInstanceState(URI serviceInstanceID) throws ReferenceNotFoundException {
 
+    logger.info("getServiceInstanceState(): {}", serviceInstanceID.toString());
 
     final List<ServiceInstance> serviceInstances =
         this.siDAO.getServiceInstances(serviceInstanceID, null, null);
@@ -1043,7 +1123,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       final String msg = String.format(
           "Failed to get State of ServiceInstance: '%s' - does it exist?", serviceInstances);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
     return serviceInstances.get(0).getState().toString();
@@ -1052,14 +1132,17 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   public void setServiceInstanceState(URI serviceInstanceIDtoURI, String state)
       throws ReferenceNotFoundException {
+
+    logger.info("setServiceInstanceState(): {}", serviceInstanceIDtoURI.toString());
+    logger.info("setServiceInstanceState(): {}", state.toString());
+
     final List<ServiceInstance> serviceInstances =
         this.siDAO.getServiceInstances(serviceInstanceIDtoURI, null, null);
-
 
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       final String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?",
           serviceInstanceIDtoURI);
-      InstanceDataServiceImpl.LOG.warn(msg);
+      InstanceDataServiceImpl.logger.warn(msg);
       throw new ReferenceNotFoundException(msg);
     }
 

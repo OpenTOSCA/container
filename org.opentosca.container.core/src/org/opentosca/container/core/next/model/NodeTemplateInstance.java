@@ -46,6 +46,10 @@ public class NodeTemplateInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
+  @Convert("QNameConverter")
+  @Column(name = "NODE_TYPE", nullable = false)
+  private QName nodeType;
+
 
   public NodeTemplateInstance() {
 
@@ -121,5 +125,13 @@ public class NodeTemplateInstance extends PersistenceObject {
 
   public void setTemplateId(QName templateId) {
     this.templateId = templateId;
+  }
+
+  public QName getNodeType() {
+    return nodeType;
+  }
+
+  public void setNodeType(QName nodeType) {
+    this.nodeType = nodeType;
   }
 }

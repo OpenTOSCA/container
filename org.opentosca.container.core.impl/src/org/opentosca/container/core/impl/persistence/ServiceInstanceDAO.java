@@ -1,140 +1,159 @@
 package org.opentosca.container.core.impl.persistence;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.TypedQuery;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.impl.service.InstanceDataServiceImpl;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.ServiceInstance;
-import org.opentosca.container.core.model.instance.State;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.utils.Enums;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Data Access Object for ServiceInstances
- */
-public class ServiceInstanceDAO extends AbstractDAO {
-	
-	// Logging
-	private final static Logger LOG = LoggerFactory.getLogger(ServiceInstanceDAO.class);
-	
-	
-	public void deleteServiceInstance(final ServiceInstance si) {
-		this.init();
-		this.em.getTransaction().begin();
-		si.setState(State.ServiceTemplate.DELETED);
-		this.em.getTransaction().commit();
-		ServiceInstanceDAO.LOG.debug("Deleted ServiceInstance with ID: " + si.getServiceInstanceID());
-	}
-	
-	public void storeServiceInstance(final ServiceInstance serviceInstance) {
-		this.init();
-		
-		if (null == this.em) {
-			System.out.println("EM is null");
-		}
-		try {
-			if (null == this.em.getTransaction()) { // FIXME sometimes null
-													// pointer
-				// exception
-				System.out.println("EM transaction is null");
-			}
-		} catch (final NullPointerException e) {
-			// maybe it works a second later ... yes, i am serious
-			try {
-				Thread.sleep(1000);
-			} catch (final InterruptedException e1) {
-				e1.printStackTrace();
-			}
-		}
-		
-		this.em.getTransaction().begin();
-		this.em.persist(serviceInstance);
-		this.em.getTransaction().commit();
-		ServiceInstanceDAO.LOG.debug("Stored ServiceInstance for Service Template: " + serviceInstance.getServiceTemplateID().getNamespaceURI() + " : " + serviceInstance.getServiceTemplateID().getLocalPart() + " successful!");
-		
-	}
-	
-	public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID, final String serviceTemplateName, final QName serviceTemplateID) {
-		this.init();
-		
-		// TODO: Use a query builder !!!
-		// final Query getServiceInstancesQuery =
-		// this.em.createNamedQuery(ServiceInstance.getServiceInstances);
-		final TypedQuery<ServiceInstance> getServiceInstancesQuery;
-		
-		Integer internalID = null;
-		if (serviceInstanceID != null) {
-			internalID = IdConverter.serviceInstanceUriToID(serviceInstanceID);
-		}
 
-		// String serviceTemplateID_String = null;
-		// if (serviceTemplateID != null) {
-		// serviceTemplateID_String = serviceTemplateID.toString();
-		// }
-		
-		if (internalID == null) {
-			getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.serviceTemplateName = :serviceTemplateName AND s.serviceTemplateID = :serviceTemplateID", ServiceInstance.class);
-			getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
-			getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateID);
-		} else {
-			getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id", ServiceInstance.class);
-			getServiceInstancesQuery.setParameter("id", internalID);
-		}
-		
-		final List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
-		
-		return queryResults;
-		
-	}
-	
-	public List<ServiceInstance> getServiceInstances(final CSARID csarId, final QName serviceTemplateId, final Integer serviceTemplateInstanceID) {
-		
-		this.init();
-		
-		LOG.debug("Try to get Service Template instance objects from persistence for CSAR \"{}\" Service Template \"{}\" Instance Id \"{}\"", csarId, serviceTemplateId, serviceTemplateInstanceID);
-		
-		// final Query getServiceInstancesQuery =
-		// this.em.createNamedQuery(ServiceInstance.getServiceInstances);
-		// TODO: Use a query builder or something else, but please refactor
-		// this!!
-		
-		final String serviceTemplateName = InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, serviceTemplateId);
-		
-		TypedQuery<ServiceInstance> getServiceInstancesQuery = null;
-		
-		if (serviceTemplateInstanceID == null) {
-			getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.serviceTemplateName = :serviceTemplateName AND s.serviceTemplateID = :serviceTemplateID", ServiceInstance.class);
-			getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
-			getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId);
-		} else {
-			getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id", ServiceInstance.class);
-			getServiceInstancesQuery.setParameter("id", serviceTemplateInstanceID);
-		}
+public class ServiceInstanceDAO {
 
-		final List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
-		
-		LOG.debug("Found {} instance objects for Service Template instance of CSAR \"{}\" Service Template \"{}\" Instance Id \"{}\"", queryResults.size(), csarId, serviceTemplateId, serviceTemplateInstanceID);
-		
-		return queryResults;
-	}
-	
-	/**
-	 * this method wraps the setting/saving of the state
-	 *
-	 * @param nodeInstance
-	 * @param state to be set
-	 */
-	public void setState(final ServiceInstance serviceInstance, final String state) {
-		this.init();
-		// TODO: Setting unknown states should result in BadRequest exceptions
-		serviceInstance.setState(State.valueOf(State.ServiceTemplate.class, state, State.ServiceTemplate.CREATED));
-		ServiceInstanceDAO.LOG.debug("Invoke of saving serviceInstance: " + serviceInstance.getServiceInstanceID() + " to update state");
-		this.storeServiceInstance(serviceInstance);
-	}
-	
+  private static Logger logger = LoggerFactory.getLogger(ServiceInstanceDAO.class);
+
+  ServiceTemplateInstanceRepository repository = new ServiceTemplateInstanceRepository();
+
+
+  public void deleteServiceInstance(final ServiceInstance si) {
+    try {
+      logger.info("ServiceInstance: {}", si.toString());
+      ServiceTemplateInstance sti = repository.find(DaoUtil.toLong(si.getId()));
+      sti.setState(ServiceTemplateInstanceState.DELETED);
+      repository.update(sti);
+      repository.remove(sti);
+      logger.debug("Deleted ServiceInstance with ID: " + si.getId());
+    } catch (Exception e) {
+      logger.error("Could not delete service instance: {}", e.getMessage(), e);
+      e.printStackTrace();
+    }
+  }
+
+  public void storeServiceInstance(final ServiceInstance serviceInstance) {
+    try {
+      logger.info("ServiceInstance: {}", serviceInstance.toString());
+      ServiceTemplateInstance sti = Converters.convert(serviceInstance);
+      try {
+        repository.add(sti);
+      } catch (Exception ex) {
+        repository.update(sti);
+      }
+    } catch (Exception e) {
+      logger.error("Could not save node instance: {}", e.getMessage(), e);
+      e.printStackTrace();
+    }
+  }
+
+  public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID,
+      final String serviceTemplateName, final QName serviceTemplateID) {
+
+    logger.info("Not Implemented: Relation instances cannot be queried");
+    return new ArrayList<>();
+
+    // this.init();
+    //
+    // // TODO: Use a query builder !!!
+    // // final Query getServiceInstancesQuery =
+    // // this.em.createNamedQuery(ServiceInstance.getServiceInstances);
+    // final TypedQuery<ServiceInstance> getServiceInstancesQuery;
+    //
+    // Integer internalID = null;
+    // if (serviceInstanceID != null) {
+    // internalID = IdConverter.serviceInstanceUriToID(serviceInstanceID);
+    // }
+    //
+    // // String serviceTemplateID_String = null;
+    // // if (serviceTemplateID != null) {
+    // // serviceTemplateID_String = serviceTemplateID.toString();
+    // // }
+    //
+    // if (internalID == null) {
+    // getServiceInstancesQuery = this.em.createQuery(
+    // "FROM ServiceInstance s WHERE s.serviceTemplateName = :serviceTemplateName AND
+    // s.serviceTemplateID = :serviceTemplateID",
+    // ServiceInstance.class);
+    // getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
+    // getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateID);
+    // } else {
+    // getServiceInstancesQuery =
+    // this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id", ServiceInstance.class);
+    // getServiceInstancesQuery.setParameter("id", internalID);
+    // }
+    //
+    // final List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
+    //
+    // return queryResults;
+  }
+
+  public List<ServiceInstance> getServiceInstances(final CSARID csarId,
+      final QName serviceTemplateId, final Integer serviceTemplateInstanceID) {
+
+    logger.info("Not Implemented: Relation instances cannot be queried");
+    return new ArrayList<>();
+
+    // this.init();
+    //
+    // logger.debug("Try to get Service Template instance objects from persistence for CSAR \"{}\"
+    // Service Template \"{}\" Instance Id \"{}\"", csarId, serviceTemplateId,
+    // serviceTemplateInstanceID);
+    //
+    // // final Query getServiceInstancesQuery =
+    // // this.em.createNamedQuery(ServiceInstance.getServiceInstances);
+    // // TODO: Use a query builder or something else, but please refactor
+    // // this!!
+    //
+    // final String serviceTemplateName =
+    // InstanceDataServiceImpl.toscaEngineService.getNameOfReference(csarId, serviceTemplateId);
+    //
+    // TypedQuery<ServiceInstance> getServiceInstancesQuery = null;
+    //
+    // if (serviceTemplateInstanceID == null) {
+    // getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE
+    // s.serviceTemplateName = :serviceTemplateName AND s.serviceTemplateID = :serviceTemplateID",
+    // ServiceInstance.class);
+    // getServiceInstancesQuery.setParameter("serviceTemplateName", serviceTemplateName);
+    // getServiceInstancesQuery.setParameter("serviceTemplateID", serviceTemplateId);
+    // } else {
+    // getServiceInstancesQuery = this.em.createQuery("FROM ServiceInstance s WHERE s.id = :id",
+    // ServiceInstance.class);
+    // getServiceInstancesQuery.setParameter("id", serviceTemplateInstanceID);
+    // }
+    //
+    // final List<ServiceInstance> queryResults = getServiceInstancesQuery.getResultList();
+    //
+    // logger.debug("Found {} instance objects for Service Template instance of CSAR \"{}\" Service
+    // Template \"{}\" Instance Id \"{}\"", queryResults.size(), csarId, serviceTemplateId,
+    // serviceTemplateInstanceID);
+    //
+    // return queryResults;
+  }
+
+  /**
+   * this method wraps the setting/saving of the state
+   *
+   * @param nodeInstance
+   * @param state to be set
+   */
+  public void setState(final ServiceInstance serviceInstance, final String state) {
+
+    try {
+      logger.info("ServiceInstance: {}", serviceInstance.toString());
+      ServiceTemplateInstance sti = repository.find(DaoUtil.toLong(serviceInstance.getId()));
+      sti.setState(Enums.valueOf(ServiceTemplateInstanceState.class, state,
+          ServiceTemplateInstanceState.ERROR));
+      repository.update(sti);
+    } catch (Exception e) {
+      logger.error("Could not update service instance: {}", e.getMessage(), e);
+      e.printStackTrace();
+    }
+  }
+
 }

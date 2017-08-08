@@ -293,4 +293,30 @@ public class ServiceInstance {
   public List<RelationInstance> getRelationInstances() {
     return this.relationInstances;
   }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public CSARID getCsarID() {
+    return csarID;
+  }
+
+  public void setCsarID(CSARID csarID) {
+    this.csarID = csarID;
+  }
+
+  public String getCsarID_DB() {
+    return csarID_DB;
+  }
+
+  public void setCsarID_DB(String csarID_DB) {
+    this.csarID_DB = csarID_DB;
+  }
+
+
 }

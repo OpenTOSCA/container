@@ -23,6 +23,8 @@ public class PlanInstance extends PersistenceObject {
 
   public static final String TABLE_NAME = "PLAN_INSTANCE";
 
+  private String correlationId;
+
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private PlanInstanceState state;
@@ -41,6 +43,9 @@ public class PlanInstance extends PersistenceObject {
   @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
   private Collection<PlanInstanceOutput> outputs = Lists.newArrayList();
 
+  @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
+  private Collection<PlanInstanceInput> inputs = Lists.newArrayList();
+
   @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   private ServiceTemplateInstance serviceTemplateInstance;
@@ -48,6 +53,14 @@ public class PlanInstance extends PersistenceObject {
 
   public PlanInstance() {
 
+  }
+
+  public String getCorrelationId() {
+    return correlationId;
+  }
+
+  public void setCorrelationId(String correlationId) {
+    this.correlationId = correlationId;
   }
 
   public PlanInstanceState getState() {
@@ -85,6 +98,21 @@ public class PlanInstance extends PersistenceObject {
     this.outputs.add(output);
     if (output.getPlanInstance() != this) {
       output.setPlanInstance(this);
+    }
+  }
+
+  public Collection<PlanInstanceInput> getInputs() {
+    return inputs;
+  }
+
+  public void setInputs(Collection<PlanInstanceInput> inputs) {
+    this.inputs = inputs;
+  }
+
+  public void addInput(final PlanInstanceInput input) {
+    this.inputs.add(input);
+    if (input.getPlanInstance() != this) {
+      input.setPlanInstance(this);
     }
   }
 
