@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.model;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,6 +16,7 @@ public class RelationshipTemplateInstanceProperty extends Property {
   public static final String TABLE_NAME =
       RelationshipTemplateInstance.TABLE_NAME + "_" + Property.TABLE_NAME;
 
+  @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "RELATIONSHIP_TEMPLATE_INSTANCE_ID")
   private RelationshipTemplateInstance relationshipTemplateInstance;

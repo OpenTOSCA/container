@@ -15,7 +15,6 @@ public class PlanInstanceOutput extends Property {
 
   public static final String TABLE_NAME = "PLAN_INSTANCE_OUTPUT";
 
-
   @Id
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "PLAN_INSTANCE_ID")

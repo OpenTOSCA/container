@@ -14,18 +14,22 @@ import org.opentosca.container.core.next.utils.Consts;
 
 public final class EntityManagerProvider {
 
+  public static final String DATABASE_FILE = new File(Consts.DBDIR, "opentosca").getAbsolutePath();
+  public static final String DATABASE_PROPERTIES = ";AUTO_SERVER=TRUE";
+
+
+
+  public static final String JDBC_URL = "jdbc:h2:file:" + DATABASE_FILE + DATABASE_PROPERTIES;
+
   public static final String PERSISTENCE_UNIT = "default";
 
   private static EntityManagerFactory emf = null;
 
   static {
+    final Map<String, Object> cfg = new HashMap<>();
     // We cannot reference Java's temp directory thru the persistence.xml unfortunately.
     // Therefore, we set the "javax.persistence.jdbc.url" property via code.
-    final String databaseFile = new File(Consts.DBDIR, "opentosca").getAbsolutePath();
-    final String databaseProperties = ";AUTO_SERVER=TRUE";
-    final Map<String, Object> cfg = new HashMap<>();
-    cfg.put(PersistenceUnitProperties.JDBC_URL,
-        "jdbc:h2:file:" + databaseFile + databaseProperties);
+    cfg.put(PersistenceUnitProperties.JDBC_URL, JDBC_URL);
     emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT, cfg);
   }
 
