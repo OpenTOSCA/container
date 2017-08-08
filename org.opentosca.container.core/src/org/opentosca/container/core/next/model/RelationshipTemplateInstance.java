@@ -7,11 +7,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.namespace.QName;
+
+import org.eclipse.persistence.annotations.Convert;
 
 import com.google.common.collect.Lists;
 
@@ -30,13 +32,17 @@ public class RelationshipTemplateInstance extends PersistenceObject {
   @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
   private Collection<RelationshipTemplateInstanceProperty> properties = Lists.newArrayList();
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "SOURCE_ID")
   private NodeTemplateInstance source;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "TARGET_ID")
   private NodeTemplateInstance target;
+
+  @Convert("QNameConverter")
+  @Column(name = "TEMPLATE_ID", nullable = false)
+  private QName templateId;
 
 
   public RelationshipTemplateInstance() {
@@ -86,5 +92,13 @@ public class RelationshipTemplateInstance extends PersistenceObject {
     if (!target.getTargetRelations().contains(this)) {
       target.getTargetRelations().add(this);
     }
+  }
+
+  public QName getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(QName templateId) {
+    this.templateId = templateId;
   }
 }

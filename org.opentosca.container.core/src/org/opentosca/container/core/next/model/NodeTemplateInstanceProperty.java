@@ -1,7 +1,6 @@
 package org.opentosca.container.core.next.model;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,7 +16,7 @@ public class NodeTemplateInstanceProperty extends Property {
       NodeTemplateInstance.TABLE_NAME + "_" + Property.TABLE_NAME;
 
   @Id
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID")
   private NodeTemplateInstance nodeTemplateInstance;
 

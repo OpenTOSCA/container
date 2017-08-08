@@ -71,11 +71,11 @@ public class Property extends PersistenceObject {
       return false;
     }
     final Property entity = (Property) o;
-    return Objects.equals(this.name, entity.name) && Objects.equals(this.version, entity.version);
+    return Objects.equals(this.name, entity.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.name, this.version);
+    return Objects.hash(this.name);
   }
 }

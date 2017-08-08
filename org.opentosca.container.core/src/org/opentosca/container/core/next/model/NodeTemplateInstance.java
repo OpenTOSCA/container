@@ -7,11 +7,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.namespace.QName;
+
+import org.eclipse.persistence.annotations.Convert;
 
 import com.google.common.collect.Lists;
 
@@ -30,7 +32,7 @@ public class NodeTemplateInstance extends PersistenceObject {
   @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
   private Collection<NodeTemplateInstanceProperty> properties = Lists.newArrayList();
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   private ServiceTemplateInstance serviceTemplateInstance;
 
@@ -39,6 +41,10 @@ public class NodeTemplateInstance extends PersistenceObject {
 
   @OneToMany(mappedBy = "target")
   private Collection<RelationshipTemplateInstance> targetRelations = Lists.newArrayList();
+
+  @Convert("QNameConverter")
+  @Column(name = "TEMPLATE_ID", nullable = false)
+  private QName templateId;
 
 
   public NodeTemplateInstance() {
@@ -107,5 +113,13 @@ public class NodeTemplateInstance extends PersistenceObject {
     if (targetRelation.getTarget() != this) {
       targetRelation.setTarget(this);
     }
+  }
+
+  public QName getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(QName templateId) {
+    this.templateId = templateId;
   }
 }

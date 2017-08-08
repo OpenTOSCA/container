@@ -13,7 +13,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
 
 import org.eclipse.persistence.annotations.Customizer;
 import org.opentosca.container.core.next.jpa.SoftDeleteCustomizer;
@@ -28,8 +27,8 @@ public class PersistenceObject implements Serializable {
   @GeneratedValue(strategy = GenerationType.AUTO)
   protected Long id;
 
-  @Version
-  protected Long version;
+  // @Version
+  // protected Long version;
 
   @Column(name = "CREATED_AT", insertable = true, updatable = false)
   @Temporal(TemporalType.TIMESTAMP)
@@ -52,13 +51,13 @@ public class PersistenceObject implements Serializable {
     this.id = id;
   }
 
-  public Long getVersion() {
-    return this.version;
-  }
+  // public Long getVersion() {
+  // return this.version;
+  // }
 
-  public void setVersion(final Long version) {
-    this.version = version;
-  }
+  // public void setVersion(final Long version) {
+  // this.version = version;
+  // }
 
   public Date getCreatedAt() {
     return this.createdAt;
@@ -103,11 +102,11 @@ public class PersistenceObject implements Serializable {
       return false;
     }
     final PersistenceObject entity = (PersistenceObject) o;
-    return Objects.equals(this.id, entity.id) && Objects.equals(this.version, entity.version);
+    return Objects.equals(this.id, entity.id);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.id, this.version);
+    return Objects.hash(this.id);
   }
 }

@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 import org.opentosca.container.core.next.jpa.AutoCloseableEntityManager;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 
-public class JpaRepository<T> implements Repository<T, Long> {
+public abstract class JpaRepository<T> implements Repository<T, Long> {
 
   protected final Class<T> clazz;
 

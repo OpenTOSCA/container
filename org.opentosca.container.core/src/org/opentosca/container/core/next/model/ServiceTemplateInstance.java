@@ -8,6 +8,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.namespace.QName;
+
+import org.eclipse.persistence.annotations.Convert;
+import org.opentosca.container.core.model.csar.id.CSARID;
 
 import com.google.common.collect.Lists;
 
@@ -28,6 +32,14 @@ public class ServiceTemplateInstance extends PersistenceObject {
 
   @OneToMany(mappedBy = "serviceTemplateInstance")
   private Collection<NodeTemplateInstance> nodeTemplateInstances = Lists.newArrayList();
+
+  @Convert("CSARIDConverter")
+  @Column(name = "CSAR_ID", nullable = false)
+  private CSARID csarId;
+
+  @Convert("QNameConverter")
+  @Column(name = "TEMPLATE_ID", nullable = false)
+  private QName templateId;
 
 
   public ServiceTemplateInstance() {
@@ -71,5 +83,21 @@ public class ServiceTemplateInstance extends PersistenceObject {
     if (nodeTemplateInstance.getServiceTemplateInstance() != this) {
       nodeTemplateInstance.setServiceTemplateInstance(this);
     }
+  }
+
+  public CSARID getCsarId() {
+    return csarId;
+  }
+
+  public void setCsarId(CSARID csarId) {
+    this.csarId = csarId;
+  }
+
+  public QName getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(QName templateId) {
+    this.templateId = templateId;
   }
 }

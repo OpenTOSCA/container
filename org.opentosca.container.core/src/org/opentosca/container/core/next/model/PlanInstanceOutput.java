@@ -1,7 +1,6 @@
 package org.opentosca.container.core.next.model;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,7 +15,7 @@ public class PlanInstanceOutput extends Property {
   public static final String TABLE_NAME = "PLAN_INSTANCE_OUTPUT";
 
   @Id
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "PLAN_INSTANCE_ID")
   private PlanInstance planInstance;
 
