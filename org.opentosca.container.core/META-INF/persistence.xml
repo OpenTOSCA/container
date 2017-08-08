@@ -16,6 +16,7 @@
     <class>org.opentosca.container.core.next.model.PlanInstance</class>
     <class>org.opentosca.container.core.next.model.PlanInstanceEvent</class>
     <class>org.opentosca.container.core.next.model.PlanInstanceOutput</class>
+    <class>org.opentosca.container.core.next.model.PlanInstanceInput</class>
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.core.model.csar.CSARContent</class>
