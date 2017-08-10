@@ -467,8 +467,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     logger.info("deleteNodeInstance(): {}", nodeInstanceID);
 
-    final List<NodeInstance> nodeInstances =
-        this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+    final List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       InstanceDataServiceImpl.logger.warn(String
@@ -485,7 +484,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     logger.info("deleteRelationInstance(): {}", relationInstanceID);
 
     final List<RelationInstance> relationInstances =
-        this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
+        getRelationInstances(relationInstanceID, null, null, null);
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       InstanceDataServiceImpl.logger.warn(String.format(
