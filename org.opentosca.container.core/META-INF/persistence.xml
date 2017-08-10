@@ -9,6 +9,7 @@
     <class>org.opentosca.container.core.next.model.PersistenceObject</class>
     <class>org.opentosca.container.core.next.model.Property</class>
     <class>org.opentosca.container.core.next.model.ServiceTemplateInstance</class>
+    <class>org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty</class>
     <class>org.opentosca.container.core.next.model.NodeTemplateInstance</class>
     <class>org.opentosca.container.core.next.model.NodeTemplateInstanceProperty</class>
     <class>org.opentosca.container.core.next.model.RelationshipTemplateInstance</class>
@@ -36,9 +37,9 @@
       <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform" />
       <property name="eclipselink.ddl-generation" value="create-tables" />
       <property name="eclipselink.ddl-generation.output-mode" value="database" />
-      <property name="eclipselink.connection-pool.min" value="1" />
-      <property name="eclipselink.connection-pool.max" value="15" />
-      <property name="eclipselink.connection-pool.initial" value="5" />
+      <property name="eclipselink.connection-pool.min" value="10" />
+      <property name="eclipselink.connection-pool.max" value="20" />
+      <property name="eclipselink.connection-pool.initial" value="10" />
       <property name="eclipselink.jdbc.cache-statements" value="true" />
       <property name="eclipselink.jdbc.batch-writing" value="JDBC" />
       <property name="eclipselink.weaving" value="false" />

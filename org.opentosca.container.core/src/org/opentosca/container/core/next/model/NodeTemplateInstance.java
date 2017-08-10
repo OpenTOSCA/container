@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,12 +11,14 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
@@ -29,8 +32,9 @@ public class NodeTemplateInstance extends PersistenceObject {
   @Enumerated(EnumType.STRING)
   private NodeTemplateInstanceState state;
 
+  @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
-  private Collection<NodeTemplateInstanceProperty> properties = Lists.newArrayList();
+  private Set<NodeTemplateInstanceProperty> properties = Sets.newHashSet();
 
   @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
@@ -67,12 +71,15 @@ public class NodeTemplateInstance extends PersistenceObject {
     return this.properties;
   }
 
-  public void setProperties(final Collection<NodeTemplateInstanceProperty> properties) {
+  public void setProperties(final Set<NodeTemplateInstanceProperty> properties) {
     this.properties = properties;
   }
 
   public void addProperty(final NodeTemplateInstanceProperty property) {
-    this.properties.add(property);
+    if (!this.properties.add(property)) {
+      this.properties.remove(property);
+      this.properties.add(property);
+    }
     if (property.getNodeTemplateInstance() != this) {
       property.setNodeTemplateInstance(this);
     }

@@ -102,8 +102,7 @@ public class RelationInstance {
 
 
   // This empty constructor is required by JPA
-  @SuppressWarnings("unused")
-  private RelationInstance() {}
+  public RelationInstance() {}
 
   /**
    * Creates a new instance of a NodeTemplate. ID and creation date will be set automatically.
@@ -203,6 +202,10 @@ public class RelationInstance {
     }
   }
 
+  public void setId(int id) {
+    this.id = id;
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -214,6 +217,38 @@ public class RelationInstance {
         + ", relationshipTemplateID=" + this.relationshipTemplateID + ", relationshipTemplateName="
         + this.relationshipTemplateName + ", created=" + this.created + ", serviceInstance="
         + this.serviceInstance + ", properties=" + this.properties + "]";
+  }
+
+  public void setRelationInstanceID(URI relationInstanceID) {
+    this.relationInstanceID = relationInstanceID;
+  }
+
+  public void setRelationshipTemplateID(QName relationshipTemplateID) {
+    this.relationshipTemplateID = relationshipTemplateID;
+  }
+
+  public void setRelationshipTemplateName(String relationshipTemplateName) {
+    this.relationshipTemplateName = relationshipTemplateName;
+  }
+
+  public void setCreated(Date created) {
+    this.created = created;
+  }
+
+  public void setServiceInstance(ServiceInstance serviceInstance) {
+    this.serviceInstance = serviceInstance;
+  }
+
+  public void setSourceInstance(NodeInstance sourceInstance) {
+    this.sourceInstance = sourceInstance;
+  }
+
+  public void setTargetInstance(NodeInstance targetInstance) {
+    this.targetInstance = targetInstance;
+  }
+
+  public void setRelationshipType(QName relationshipType) {
+    this.relationshipType = relationshipType;
   }
 
 }

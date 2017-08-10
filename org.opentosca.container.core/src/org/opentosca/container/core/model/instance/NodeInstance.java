@@ -162,7 +162,7 @@ public class NodeInstance {
    */
   @PostLoad
   @PostPersist
-  private void setNodeInstanceID() {
+  public void setNodeInstanceID() {
     try {
       this.nodeInstanceID =
           new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID()
@@ -179,6 +179,10 @@ public class NodeInstance {
     }
   }
 
+  public void setId(int id) {
+    this.id = id;
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -192,4 +196,7 @@ public class NodeInstance {
         + ", properties=" + this.properties + "]";
   }
 
+  public void setCreated(Date created) {
+    this.created = created;
+  }
 }

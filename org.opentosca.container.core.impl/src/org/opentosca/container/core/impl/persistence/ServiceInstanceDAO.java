@@ -3,6 +3,7 @@ package org.opentosca.container.core.impl.persistence;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
@@ -26,36 +27,44 @@ public class ServiceInstanceDAO {
   public void deleteServiceInstance(final ServiceInstance si) {
     try {
       logger.info("ServiceInstance: {}", si.toString());
-      ServiceTemplateInstance sti = repository.find(DaoUtil.toLong(si.getId()));
-      sti.setState(ServiceTemplateInstanceState.DELETED);
-      repository.update(sti);
-      repository.remove(sti);
-      logger.debug("Deleted ServiceInstance with ID: " + si.getId());
+      Optional<ServiceTemplateInstance> o = repository.find(DaoUtil.toLong(si.getId()));
+      if (o.isPresent()) {
+        ServiceTemplateInstance sti = o.get();
+        sti.setState(ServiceTemplateInstanceState.DELETED);
+        repository.update(sti);
+        // repository.remove(sti);
+        logger.debug("Deleted ServiceInstance with ID: " + si.getId());
+      } else {
+        logger.info("NOT FOUND");
+      }
     } catch (Exception e) {
       logger.error("Could not delete service instance: {}", e.getMessage(), e);
       e.printStackTrace();
     }
   }
 
-  public void storeServiceInstance(final ServiceInstance serviceInstance) {
+  public ServiceInstance storeServiceInstance(ServiceInstance serviceInstance) {
     try {
       logger.info("ServiceInstance: {}", serviceInstance.toString());
       ServiceTemplateInstance sti = Converters.convert(serviceInstance);
       try {
         repository.add(sti);
       } catch (Exception ex) {
+        logger.info("Object already added, trying to update");
         repository.update(sti);
       }
+      return Converters.convert(sti);
     } catch (Exception e) {
       logger.error("Could not save node instance: {}", e.getMessage(), e);
       e.printStackTrace();
     }
+    return serviceInstance;
   }
 
   public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID,
       final String serviceTemplateName, final QName serviceTemplateID) {
 
-    logger.info("Not Implemented: Relation instances cannot be queried");
+    logger.info("Not Implemented: Service instances cannot be queried");
     return new ArrayList<>();
 
     // this.init();
@@ -96,7 +105,7 @@ public class ServiceInstanceDAO {
   public List<ServiceInstance> getServiceInstances(final CSARID csarId,
       final QName serviceTemplateId, final Integer serviceTemplateInstanceID) {
 
-    logger.info("Not Implemented: Relation instances cannot be queried");
+    logger.info("Not Implemented: Service instances cannot be queried");
     return new ArrayList<>();
 
     // this.init();
@@ -146,14 +155,19 @@ public class ServiceInstanceDAO {
 
     try {
       logger.info("ServiceInstance: {}", serviceInstance.toString());
-      ServiceTemplateInstance sti = repository.find(DaoUtil.toLong(serviceInstance.getId()));
-      sti.setState(Enums.valueOf(ServiceTemplateInstanceState.class, state,
-          ServiceTemplateInstanceState.ERROR));
-      repository.update(sti);
+      Optional<ServiceTemplateInstance> o =
+          repository.find(DaoUtil.toLong(serviceInstance.getId()));
+      if (o.isPresent()) {
+        ServiceTemplateInstance sti = o.get();
+        sti.setState(Enums.valueOf(ServiceTemplateInstanceState.class, state,
+            ServiceTemplateInstanceState.ERROR));
+        repository.update(sti);
+      } else {
+        logger.info("NOT FOUND");
+      }
     } catch (Exception e) {
       logger.error("Could not update service instance: {}", e.getMessage(), e);
       e.printStackTrace();
     }
   }
-
 }

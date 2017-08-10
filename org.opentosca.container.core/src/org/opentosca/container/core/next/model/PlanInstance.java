@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,9 +12,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
@@ -37,14 +40,17 @@ public class PlanInstance extends PersistenceObject {
   @Enumerated(EnumType.STRING)
   private PlanLanguage language;
 
+  @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
   private List<PlanInstanceEvent> events = Lists.newArrayList();
 
+  @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-  private Collection<PlanInstanceOutput> outputs = Lists.newArrayList();
+  private Set<PlanInstanceOutput> outputs = Sets.newHashSet();
 
+  @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-  private Collection<PlanInstanceInput> inputs = Lists.newArrayList();
+  private Set<PlanInstanceInput> inputs = Sets.newHashSet();
 
   @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
@@ -90,12 +96,15 @@ public class PlanInstance extends PersistenceObject {
     return this.outputs;
   }
 
-  public void setOutputs(final Collection<PlanInstanceOutput> outputs) {
+  public void setOutputs(final Set<PlanInstanceOutput> outputs) {
     this.outputs = outputs;
   }
 
   public void addOutput(final PlanInstanceOutput output) {
-    this.outputs.add(output);
+    if (!this.outputs.add(output)) {
+      this.outputs.remove(output);
+      this.outputs.add(output);
+    }
     if (output.getPlanInstance() != this) {
       output.setPlanInstance(this);
     }
@@ -105,12 +114,15 @@ public class PlanInstance extends PersistenceObject {
     return inputs;
   }
 
-  public void setInputs(Collection<PlanInstanceInput> inputs) {
+  public void setInputs(Set<PlanInstanceInput> inputs) {
     this.inputs = inputs;
   }
 
   public void addInput(final PlanInstanceInput input) {
-    this.inputs.add(input);
+    if (!this.inputs.add(input)) {
+      this.inputs.remove(input);
+      this.inputs.add(input);
+    }
     if (input.getPlanInstance() != this) {
       input.setPlanInstance(this);
     }

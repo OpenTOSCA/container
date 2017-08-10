@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface Repository<T, K> {
 
@@ -12,7 +13,7 @@ public interface Repository<T, K> {
 
   void remove(final T entity);
 
-  T find(final K id);
+  Optional<T> find(final K id);
 
   Collection<T> findAll();
 }

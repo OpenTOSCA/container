@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,12 +11,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = RelationshipTemplateInstance.TABLE_NAME)
@@ -29,8 +31,9 @@ public class RelationshipTemplateInstance extends PersistenceObject {
   @Enumerated(EnumType.STRING)
   private RelationshipTemplateInstanceState state;
 
+  @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
-  private Collection<RelationshipTemplateInstanceProperty> properties = Lists.newArrayList();
+  private Set<RelationshipTemplateInstanceProperty> properties = Sets.newHashSet();
 
   @ManyToOne
   @JoinColumn(name = "SOURCE_ID")
@@ -61,12 +64,15 @@ public class RelationshipTemplateInstance extends PersistenceObject {
     return this.properties;
   }
 
-  public void setProperties(final Collection<RelationshipTemplateInstanceProperty> properties) {
+  public void setProperties(final Set<RelationshipTemplateInstanceProperty> properties) {
     this.properties = properties;
   }
 
   public void addProperty(final RelationshipTemplateInstanceProperty property) {
-    this.properties.add(property);
+    if (!this.properties.add(property)) {
+      this.properties.remove(property);
+      this.properties.add(property);
+    }
     if (property.getRelationshipTemplateInstance() != this) {
       property.setRelationshipTemplateInstance(this);
     }

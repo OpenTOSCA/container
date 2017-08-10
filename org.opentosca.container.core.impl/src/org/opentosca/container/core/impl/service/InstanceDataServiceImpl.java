@@ -2,9 +2,13 @@ package org.opentosca.container.core.impl.service;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -22,13 +26,21 @@ import javax.xml.xpath.XPathFactory;
 import org.opentosca.container.core.common.ReferenceNotFoundException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.NodeTemplateInstanceCounts;
+import org.opentosca.container.core.impl.persistence.Converters;
+import org.opentosca.container.core.impl.persistence.DaoUtil;
 import org.opentosca.container.core.impl.persistence.NodeInstanceDAO;
 import org.opentosca.container.core.impl.persistence.RelationInstanceDAO;
 import org.opentosca.container.core.impl.persistence.ServiceInstanceDAO;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.model.instance.State;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.IInstanceDataService;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
 import org.opentosca.container.core.tosca.model.TNodeTemplate;
@@ -39,6 +51,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.google.common.collect.Lists;
 
 /**
  * The InstanceDataService.<br>
@@ -57,6 +71,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   public static IToscaEngineService toscaEngineService;
 
+  private static ServiceTemplateInstanceRepository serviceTemplateInstanceRepo =
+      new ServiceTemplateInstanceRepository();
+  private static NodeTemplateInstanceRepository nodeTemplateInstanceRepo =
+      new NodeTemplateInstanceRepository();
+
+
   // used for persistence
   private final ServiceInstanceDAO siDAO = new ServiceInstanceDAO();
   private final NodeInstanceDAO niDAO = new NodeInstanceDAO();
@@ -66,14 +86,38 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   @WebMethod(exclude = true)
   public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID,
-      final String serviceTemplateName, final QName serviceTemplateID) {
+      final String serviceTemplateName, final QName serviceTemplateId) {
 
-    logger.info("getServiceInstances(): {}", serviceInstanceID.toString());
-    logger.info("getServiceInstances(): {}", serviceTemplateName.toString());
-    logger.info("getServiceInstances(): {}", serviceTemplateID.toString());
+    logger.info("getServiceInstances(): {}", serviceInstanceID);
+    logger.info("getServiceInstances(): {}", serviceTemplateName);
+    logger.info("getServiceInstances(): {}", serviceTemplateId);
+
+    if (serviceInstanceID != null) {
+      Integer id = IdConverter.serviceInstanceUriToID(serviceInstanceID);
+      if (id == null) {
+        String[] segments = serviceInstanceID.getPath().split("/");
+        id = Integer.valueOf(segments[segments.length - 1]);
+      }
+      Optional<ServiceTemplateInstance> sti = serviceTemplateInstanceRepo.find(DaoUtil.toLong(id));
+      if (sti.isPresent()) {
+        logger.info("Single Result: {}", sti);
+        return Lists.newArrayList(Converters.convert(sti.get()));
+      } else {
+        logger.info("NOT FOUND");
+      }
+    }
+
+    if (serviceTemplateId != null) {
+      Collection<ServiceTemplateInstance> result =
+          serviceTemplateInstanceRepo.findByTemplateId(serviceTemplateId);
+      if (result != null) {
+        logger.info("Result: {}", result.size());
+        return result.stream().map(sti -> Converters.convert(sti)).collect(Collectors.toList());
+      }
+    }
 
     return this.siDAO.getServiceInstances(serviceInstanceID, serviceTemplateName,
-        serviceTemplateID);
+        serviceTemplateId);
   }
 
   @Override
@@ -81,9 +125,29 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public List<ServiceInstance> getServiceInstancesWithDetails(final CSARID csarId,
       final QName serviceTemplateId, final Integer serviceTemplateInstanceID) {
 
-    logger.info("getServiceInstancesWithDetails(): {}", csarId.toString());
-    logger.info("getServiceInstancesWithDetails(): {}", serviceTemplateId.toString());
-    logger.info("getServiceInstancesWithDetails(): {}", serviceTemplateInstanceID.toString());
+    logger.info("getServiceInstancesWithDetails(): {}", csarId);
+    logger.info("getServiceInstancesWithDetails(): {}", serviceTemplateId);
+    logger.info("getServiceInstancesWithDetails(): {}", serviceTemplateInstanceID);
+
+    if (serviceTemplateInstanceID != null) {
+      Optional<ServiceTemplateInstance> sti =
+          serviceTemplateInstanceRepo.find(DaoUtil.toLong(serviceTemplateInstanceID));
+      if (sti.isPresent()) {
+        logger.info("Single Result: {}", sti);
+        return Lists.newArrayList(Converters.convert(sti.get()));
+      } else {
+        logger.info("NOT FOUND");
+      }
+    }
+
+    if (serviceTemplateId != null) {
+      Collection<ServiceTemplateInstance> result =
+          serviceTemplateInstanceRepo.findByTemplateId(serviceTemplateId);
+      if (result != null) {
+        logger.info("Result: {}", result.size());
+        return result.stream().map(sti -> Converters.convert(sti)).collect(Collectors.toList());
+      }
+    }
 
     return this.siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
   }
@@ -93,8 +157,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public ServiceInstance createServiceInstance(final CSARID csarID, final QName serviceTemplateID)
       throws ReferenceNotFoundException {
 
-    logger.info("createServiceInstance(): {}", csarID.toString());
-    logger.info("createServiceInstance(): {}", serviceTemplateID.toString());
+    logger.info("createServiceInstance(): {}", csarID);
+    logger.info("createServiceInstance(): {}", serviceTemplateID);
 
     InstanceDataServiceImpl.logger
         .debug("Starting creating ServiceInstance for " + serviceTemplateID + " in " + csarID);
@@ -116,7 +180,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         .getInstanceCountsOfNodeTemplatesByServiceTemplateID(csarID, serviceTemplateID);
 
     // creation of real objects
-    final ServiceInstance serviceInstance =
+    ServiceInstance serviceInstance =
         new ServiceInstance(csarID, serviceTemplateID, serviceTemplateName);
 
     // construct initial properties of serviceTemplate
@@ -125,7 +189,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     serviceInstance.setProperties(properties);
 
-    this.siDAO.storeServiceInstance(serviceInstance);
+    serviceInstance = this.siDAO.storeServiceInstance(serviceInstance);
     // store serviceInstance so we can use nodeInstanceDAO to create
     // nodeInstances (they need an existing object because its working in
     // another transaction)
@@ -157,10 +221,10 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public void deleteServiceInstance(final URI serviceInstanceID) {
 
-    logger.info("deleteServiceInstance(): {}", serviceInstanceID.toString());
+    logger.info("deleteServiceInstance(): {}", serviceInstanceID);
 
     final List<ServiceInstance> serviceInstances =
-        this.siDAO.getServiceInstances(serviceInstanceID, null, null);
+        getServiceInstances(serviceInstanceID, null, null);
 
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       InstanceDataServiceImpl.logger.warn(String.format(
@@ -175,10 +239,49 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public List<NodeInstance> getNodeInstances(final URI nodeInstanceID, final QName nodeTemplateID,
       final String nodeTemplateName, final URI serviceInstanceID) {
 
-    logger.info("getNodeInstances(): {}", nodeInstanceID.toString());
-    logger.info("getNodeInstances(): {}", nodeTemplateID.toString());
-    logger.info("getNodeInstances(): {}", nodeTemplateName.toString());
-    logger.info("getNodeInstances(): {}", serviceInstanceID.toString());
+    logger.info("getNodeInstances(): {}", nodeInstanceID);
+    logger.info("getNodeInstances(): {}", nodeTemplateID);
+    logger.info("getNodeInstances(): {}", nodeTemplateName);
+    logger.info("getNodeInstances(): {}", serviceInstanceID);
+
+    if (nodeInstanceID != null) {
+      Integer id = IdConverter.nodeInstanceUriToID(nodeInstanceID);
+      Optional<NodeTemplateInstance> nti = nodeTemplateInstanceRepo.find(DaoUtil.toLong(id));
+      if (nti.isPresent()) {
+        logger.info("Single Result: {}", nti);
+        return Lists.newArrayList(Converters.convert(nti.get()));
+      } else {
+        logger.info("NOT FOUND");
+      }
+    }
+
+    if (nodeTemplateID != null) {
+      Collection<NodeTemplateInstance> result =
+          nodeTemplateInstanceRepo.findByTemplateId(nodeTemplateID);
+      if (result != null) {
+        logger.info("Result: {}", result.size());
+        return result.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());
+      }
+    }
+
+    if (serviceInstanceID != null) {
+      Integer id = IdConverter.serviceInstanceUriToID(serviceInstanceID);
+      if (id == null) {
+        String[] segments = serviceInstanceID.getPath().split("/");
+        id = Integer.valueOf(segments[segments.length - 1]);
+      }
+      Optional<ServiceTemplateInstance> sti = serviceTemplateInstanceRepo.find(DaoUtil.toLong(id));
+      if (sti.isPresent()) {
+        ServiceTemplateInstance i = sti.get();
+        Collection<NodeTemplateInstance> result = i.getNodeTemplateInstances();
+        if (result != null) {
+          logger.info("Result: {}", result.size());
+          return result.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());
+        }
+      } else {
+        logger.info("NOT FOUND");
+      }
+    }
 
     return this.niDAO.getNodeInstances(serviceInstanceID, nodeTemplateID, nodeTemplateName,
         nodeInstanceID);
@@ -189,13 +292,14 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final QName relationshipTemplateID, final String relationshipTemplateName,
       final URI serviceInstanceID) {
 
-    logger.info("getNodeInstances(): {}", relationInstanceID.toString());
-    logger.info("getNodeInstances(): {}", relationshipTemplateID.toString());
-    logger.info("getNodeInstances(): {}", relationshipTemplateName.toString());
-    logger.info("getNodeInstances(): {}", serviceInstanceID.toString());
+    logger.info("getRelationInstances(): {}", relationInstanceID);
+    logger.info("getRelationInstances(): {}", relationshipTemplateID);
+    logger.info("getRelationInstances(): {}", relationshipTemplateName);
+    logger.info("getRelationInstances(): {}", serviceInstanceID);
 
-    return this.riDAO.getRelationInstances(serviceInstanceID, relationshipTemplateID,
-        relationshipTemplateName, relationInstanceID);
+    return Lists.newArrayList(this.createRelationInstance(null, null, 0, null, null, null));
+    // return this.riDAO.getRelationInstances(serviceInstanceID, relationshipTemplateID,
+    // relationshipTemplateName, relationInstanceID);
   }
 
   @Override
@@ -204,10 +308,10 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
       final int serviceTemplateInstanceID, final QName nodeTemplateID)
       throws ReferenceNotFoundException {
 
-    logger.info("createNodeInstance(): {}", csarId.toString());
-    logger.info("createNodeInstance(): {}", serviceTemplateId.toString());
+    logger.info("createNodeInstance(): {}", csarId);
+    logger.info("createNodeInstance(): {}", serviceTemplateId);
     logger.info("createNodeInstance(): {}", serviceTemplateInstanceID);
-    logger.info("createNodeInstance(): {}", nodeTemplateID.toString());
+    logger.info("createNodeInstance(): {}", nodeTemplateID);
 
     logger.debug(
         "Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance \"{}\"",
@@ -215,7 +319,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         serviceTemplateInstanceID);
 
     final List<ServiceInstance> serviceInstances =
-        this.siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
+        getServiceInstancesWithDetails(csarId, serviceTemplateId, serviceTemplateInstanceID);
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       final String msg = String.format(
           "Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved",
@@ -249,11 +353,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         InstanceDataServiceImpl.toscaEngineService.getPropertiesOfNodeTemplate(csarId,
             serviceTemplateId, nodeTemplateID.getLocalPart().toString());
 
-    final NodeInstance nodeInstance =
+    NodeInstance nodeInstance =
         new NodeInstance(nodeTemplateID, nodeTemplateName, nodeTypeOfNodeTemplate, serviceInstance);
     // set default properties
     nodeInstance.setProperties(propertiesOfNodeTemplate);
-    this.niDAO.saveNodeInstance(nodeInstance);
+    nodeInstance = this.niDAO.saveNodeInstance(nodeInstance);
     return nodeInstance;
   }
 
@@ -261,81 +365,88 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public RelationInstance createRelationInstance(final CSARID csarId, final QName serviceTemplateId,
       final int serviceTemplateInstanceID, final QName relationshipTemplateID,
-      final String sourceInstanceId, final String targetInstanceId)
-      throws ReferenceNotFoundException {
+      final String sourceInstanceId, final String targetInstanceId) {
 
-    logger.info("createRelationInstance(): {}", csarId.toString());
-    logger.info("createRelationInstance(): {}", serviceTemplateId.toString());
+    logger.info("createRelationInstance(): {}", csarId);
+    logger.info("createRelationInstance(): {}", serviceTemplateId);
     logger.info("createRelationInstance(): {}", serviceTemplateInstanceID);
-    logger.info("createRelationInstance(): {}", relationshipTemplateID.toString());
+    logger.info("createRelationInstance(): {}", relationshipTemplateID);
     logger.info("createRelationInstance(): {}", sourceInstanceId);
     logger.info("createRelationInstance(): {}", targetInstanceId);
 
-    logger.debug(
-        "Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance \"{}\"",
-        relationshipTemplateID.getNamespaceURI(), relationshipTemplateID.getLocalPart(), csarId,
-        serviceTemplateId, serviceTemplateInstanceID);
+    // logger.debug(
+    // "Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance
+    // \"{}\"",
+    // relationshipTemplateID.getNamespaceURI(), relationshipTemplateID.getLocalPart(), csarId,
+    // serviceTemplateId, serviceTemplateInstanceID);
 
-    final List<ServiceInstance> serviceInstances =
-        this.siDAO.getServiceInstances(csarId, serviceTemplateId, serviceTemplateInstanceID);
-    if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
-      final String msg = String.format(
-          "Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved",
-          serviceTemplateInstanceID);
-      InstanceDataServiceImpl.logger.warn(msg);
-      throw new ReferenceNotFoundException(msg);
-    }
-    final ServiceInstance serviceInstance = serviceInstances.get(0);
-
-    // check if nodeTemplate exists
-
-    if (!InstanceDataServiceImpl.toscaEngineService.doesRelationshipTemplateExist(csarId,
-        serviceTemplateId, relationshipTemplateID.getLocalPart())) {
-      final String msg = String.format(
-          "Failed to create RelationInstance: RelationshipTemplate: csar: %s serviceTemplateID: %s , relationshipTemplateID: '%s' - could not be retrieved / does not exists",
-          serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(),
-          relationshipTemplateID);
-      InstanceDataServiceImpl.logger.warn(msg);
-      throw new ReferenceNotFoundException(msg);
-    }
-
-    final String relationshipTemplateName = InstanceDataServiceImpl.toscaEngineService
-        .getNameOfReference(csarId, relationshipTemplateID);
-
-    // use localparts because serviceInstance QName namespace HAS to be the
-    // same as the namespace of the nodeInstance
-    final QName nodeTypeOfNodeTemplate =
-        InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
-            serviceTemplateId, relationshipTemplateID.getLocalPart());
-
-    // use localparts because serviceInstance QName namespace HAS to be the
-    // same as the namespace of the nodeInstance
-    final Document propertiesOfRelationshipTemplate =
-        InstanceDataServiceImpl.toscaEngineService.getPropertiesOfRelationshipTemplate(csarId,
-            serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
-
-    if (this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-        URI.create(sourceInstanceId)).isEmpty()) {
-      throw new ReferenceNotFoundException("Referenced source nodeInstance not found");
-    }
-    if (this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-        URI.create(targetInstanceId)).isEmpty()) {
-      throw new ReferenceNotFoundException("Referenced target nodeInstance not found");
-    }
-
-    final NodeInstance sourceInstance =
-        this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-            URI.create(sourceInstanceId)).get(0);
-    final NodeInstance targetInstance =
-        this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-            URI.create(targetInstanceId)).get(0);
-
-    final RelationInstance relationInstance =
-        new RelationInstance(relationshipTemplateID, relationshipTemplateName,
-            nodeTypeOfNodeTemplate, serviceInstance, sourceInstance, targetInstance);
-    // set default properties
-    relationInstance.setProperties(propertiesOfRelationshipTemplate);
-    this.riDAO.saveRelationInstance(relationInstance);
+    // final List<ServiceInstance> serviceInstances =
+    // getServiceInstancesWithDetails(csarId, serviceTemplateId, serviceTemplateInstanceID);
+    // if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
+    // final String msg = String.format(
+    // "Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved",
+    // serviceTemplateInstanceID);
+    // InstanceDataServiceImpl.logger.warn(msg);
+    // throw new ReferenceNotFoundException(msg);
+    // }
+    // final ServiceInstance serviceInstance = serviceInstances.get(0);
+    //
+    // // check if nodeTemplate exists
+    //
+    // if (!InstanceDataServiceImpl.toscaEngineService.doesRelationshipTemplateExist(csarId,
+    // serviceTemplateId, relationshipTemplateID.getLocalPart())) {
+    // final String msg = String.format(
+    // "Failed to create RelationInstance: RelationshipTemplate: csar: %s serviceTemplateID: %s ,
+    // relationshipTemplateID: '%s' - could not be retrieved / does not exists",
+    // serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(),
+    // relationshipTemplateID);
+    // InstanceDataServiceImpl.logger.warn(msg);
+    // throw new ReferenceNotFoundException(msg);
+    // }
+    //
+    // final String relationshipTemplateName = InstanceDataServiceImpl.toscaEngineService
+    // .getNameOfReference(csarId, relationshipTemplateID);
+    //
+    // // use localparts because serviceInstance QName namespace HAS to be the
+    // // same as the namespace of the nodeInstance
+    // final QName nodeTypeOfNodeTemplate =
+    // InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
+    // serviceTemplateId, relationshipTemplateID.getLocalPart());
+    //
+    // // use localparts because serviceInstance QName namespace HAS to be the
+    // // same as the namespace of the nodeInstance
+    // final Document propertiesOfRelationshipTemplate =
+    // InstanceDataServiceImpl.toscaEngineService.getPropertiesOfRelationshipTemplate(csarId,
+    // serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
+    //
+    // if (this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
+    // URI.create(sourceInstanceId)).isEmpty()) {
+    // throw new ReferenceNotFoundException("Referenced source nodeInstance not found");
+    // }
+    // if (this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
+    // URI.create(targetInstanceId)).isEmpty()) {
+    // throw new ReferenceNotFoundException("Referenced target nodeInstance not found");
+    // }
+    //
+    // final NodeInstance sourceInstance =
+    // this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
+    // URI.create(sourceInstanceId)).get(0);
+    // final NodeInstance targetInstance =
+    // this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
+    // URI.create(targetInstanceId)).get(0);
+    //
+    // final RelationInstance relationInstance =
+    // new RelationInstance(relationshipTemplateID, relationshipTemplateName,
+    // nodeTypeOfNodeTemplate, serviceInstance, sourceInstance, targetInstance);
+    // // set default properties
+    // relationInstance.setProperties(propertiesOfRelationshipTemplate);
+    // this.riDAO.saveRelationInstance(relationInstance);
+    // FIXME: Do not overwrite this once we fully support relationship instances
+    RelationInstance relationInstance = new RelationInstance();
+    relationInstance.setId(100);
+    relationInstance.setCreated(new Date());
+    relationInstance.setState(State.Relationship.INITIAL);
+    relationInstance.setRelationshipType(QName.valueOf("Dummy Relation"));
     return relationInstance;
   }
 
@@ -354,7 +465,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public void deleteNodeInstance(final URI nodeInstanceID) {
 
-    logger.info("deleteNodeInstance(): {}", nodeInstanceID.toString());
+    logger.info("deleteNodeInstance(): {}", nodeInstanceID);
 
     final List<NodeInstance> nodeInstances =
         this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
@@ -371,7 +482,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   public void deleteRelationInstance(final URI relationInstanceID) {
 
-    logger.info("deleteRelationInstance(): {}", relationInstanceID.toString());
+    logger.info("deleteRelationInstance(): {}", relationInstanceID);
 
     final List<RelationInstance> relationInstances =
         this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
@@ -390,10 +501,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public QName getRelationInstanceState(final URI relationInstanceID)
       throws ReferenceNotFoundException {
 
-    logger.info("getRelationInstanceState(): {}", relationInstanceID.toString());
+    logger.info("getRelationInstanceState(): {}", relationInstanceID);
 
     final List<RelationInstance> relationInstances =
-        this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
+        // this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
+        Lists.newArrayList(this.createRelationInstance(null, null, 0, null, null, null));
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format(
           "Failed to get State of RelationInstance: '%s' - does it exist?", relationInstanceID);
@@ -408,7 +520,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setRelationInstanceState(final URI relationInstanceID, final String state)
       throws ReferenceNotFoundException {
 
-    logger.info("setRelationInstanceState(): {}", relationInstanceID.toString());
+    logger.info("setRelationInstanceState(): {}", relationInstanceID);
     logger.info("setRelationInstanceState(): {}", state);
 
     final List<RelationInstance> relationInstances =
@@ -427,10 +539,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @WebMethod(exclude = true)
   public QName getNodeInstanceState(final URI nodeInstanceID) throws ReferenceNotFoundException {
 
-    logger.info("getNodeInstanceState(): {}", nodeInstanceID.toString());
+    logger.info("getNodeInstanceState(): {}", nodeInstanceID);
 
-    final List<NodeInstance> nodeInstances =
-        this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+    final List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       final String msg = String.format("Failed to get State of NodeInstance: '%s' - does it exist?",
           nodeInstanceID);
@@ -444,7 +555,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setNodeInstanceState(final URI nodeInstanceID, final String state)
       throws ReferenceNotFoundException {
 
-    logger.info("setNodeInstanceState(): {}", nodeInstanceID.toString());
+    logger.info("setNodeInstanceState(): {}", nodeInstanceID);
     logger.info("setNodeInstanceState(): {}", state);
 
     final List<NodeInstance> nodeInstances =
@@ -464,8 +575,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public Document getServiceInstanceProperties(final URI serviceInstanceID,
       final List<QName> propertiesList) throws ReferenceNotFoundException {
 
-    logger.info("getServiceInstanceProperties(): {}", serviceInstanceID.toString());
-    logger.info("getServiceInstanceProperties(): {}", propertiesList.toString());
+    logger.info("getServiceInstanceProperties(): {}", serviceInstanceID);
+    logger.info("getServiceInstanceProperties(): {}", propertiesList);
 
     final List<ServiceInstance> serviceInstances =
         this.getServiceInstances(serviceInstanceID, null, null);
@@ -488,11 +599,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public Document getRelationInstanceProperties(final URI relationInstanceID,
       final List<QName> propertiesList) throws ReferenceNotFoundException {
 
-    logger.info("getRelationInstanceProperties(): {}", relationInstanceID.toString());
-    logger.info("getRelationInstanceProperties(): {}", propertiesList.toString());
+    logger.info("getRelationInstanceProperties(): {}", relationInstanceID);
+    logger.info("getRelationInstanceProperties(): {}", propertiesList);
 
     final List<RelationInstance> relationInstances =
-        this.getRelationInstances(relationInstanceID, null, null, null);
+        // this.getRelationInstances(relationInstanceID, null, null, null);
+        Lists.newArrayList(this.createRelationInstance(null, null, 0, null, null, null));
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format("Failed to retrieve NodeInstance: '%s'", relationInstanceID);
@@ -564,8 +676,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public Document getNodeInstanceProperties(final URI nodeInstanceID,
       final List<QName> propertiesList) throws ReferenceNotFoundException {
 
-    logger.info("getNodeInstanceProperties(): {}", nodeInstanceID.toString());
-    logger.info("getNodeInstanceProperties(): {}", propertiesList.toString());
+    logger.info("getNodeInstanceProperties(): {}", nodeInstanceID);
+    logger.info("getNodeInstanceProperties(): {}", propertiesList);
 
     final List<NodeInstance> nodeInstances =
         this.getNodeInstances(nodeInstanceID, null, null, null);
@@ -655,7 +767,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setRelationInstanceProperties(final URI relationInstanceID, final Document properties)
       throws ReferenceNotFoundException {
 
-    logger.info("setRelationInstanceProperties(): {}", relationInstanceID.toString());
+    logger.info("setRelationInstanceProperties(): {}", relationInstanceID);
 
     final List<RelationInstance> relationInstances =
         this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
@@ -678,10 +790,9 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setNodeInstanceProperties(final URI nodeInstanceID, final Document properties)
       throws ReferenceNotFoundException {
 
-    logger.info("setNodeInstanceProperties(): {}", nodeInstanceID.toString());
+    logger.info("setNodeInstanceProperties(): {}", nodeInstanceID);
 
-    final List<NodeInstance> nodeInstances =
-        this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+    final List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       InstanceDataServiceImpl.logger.warn(String.format(
@@ -1094,7 +1205,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setServiceInstanceProperties(final URI serviceInstanceID, final Document properties)
       throws ReferenceNotFoundException {
 
-    logger.info("setServiceInstanceProperties(): {}", serviceInstanceID.toString());
+    logger.info("setServiceInstanceProperties(): {}", serviceInstanceID);
 
     final List<ServiceInstance> serviceInstances =
         this.getServiceInstances(serviceInstanceID, null, null);
@@ -1115,10 +1226,10 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   @Override
   public String getServiceInstanceState(URI serviceInstanceID) throws ReferenceNotFoundException {
 
-    logger.info("getServiceInstanceState(): {}", serviceInstanceID.toString());
+    logger.info("getServiceInstanceState(): {}", serviceInstanceID);
 
     final List<ServiceInstance> serviceInstances =
-        this.siDAO.getServiceInstances(serviceInstanceID, null, null);
+        getServiceInstances(serviceInstanceID, null, null);
 
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       final String msg = String.format(
@@ -1133,11 +1244,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
   public void setServiceInstanceState(URI serviceInstanceIDtoURI, String state)
       throws ReferenceNotFoundException {
 
-    logger.info("setServiceInstanceState(): {}", serviceInstanceIDtoURI.toString());
-    logger.info("setServiceInstanceState(): {}", state.toString());
+    logger.info("setServiceInstanceState(): {}", serviceInstanceIDtoURI);
+    logger.info("setServiceInstanceState(): {}", state);
 
     final List<ServiceInstance> serviceInstances =
-        this.siDAO.getServiceInstances(serviceInstanceIDtoURI, null, null);
+        getServiceInstances(serviceInstanceIDtoURI, null, null);
 
     if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
       final String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?",

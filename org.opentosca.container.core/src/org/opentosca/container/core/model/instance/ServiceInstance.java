@@ -163,7 +163,7 @@ public class ServiceInstance {
    */
   @PostLoad
   @PostPersist
-  private void setIDs() {
+  public void setIDs() {
     try {
       // old: serviceInstanceID = new URI(Settings.CONTAINER_API +
       // IdConverter.serviceInstancePath + id);
@@ -316,6 +316,10 @@ public class ServiceInstance {
 
   public void setCsarID_DB(String csarID_DB) {
     this.csarID_DB = csarID_DB;
+  }
+
+  public void setCreated(Date created) {
+    this.created = created;
   }
 
 

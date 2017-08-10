@@ -1,12 +1,15 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
@@ -14,6 +17,7 @@ import org.eclipse.persistence.annotations.Convert;
 import org.opentosca.container.core.model.csar.id.CSARID;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = ServiceTemplateInstance.TABLE_NAME)
@@ -40,6 +44,10 @@ public class ServiceTemplateInstance extends PersistenceObject {
   @Convert("QNameConverter")
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
+
+  @OrderBy("createdAt DESC")
+  @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+  private Set<ServiceTemplateInstanceProperty> properties = Sets.newHashSet();
 
 
   public ServiceTemplateInstance() {
@@ -99,5 +107,23 @@ public class ServiceTemplateInstance extends PersistenceObject {
 
   public void setTemplateId(QName templateId) {
     this.templateId = templateId;
+  }
+
+  public Collection<ServiceTemplateInstanceProperty> getProperties() {
+    return this.properties;
+  }
+
+  public void setProperties(final Set<ServiceTemplateInstanceProperty> properties) {
+    this.properties = properties;
+  }
+
+  public void addProperty(final ServiceTemplateInstanceProperty property) {
+    if (!this.properties.add(property)) {
+      this.properties.remove(property);
+      this.properties.add(property);
+    }
+    if (property.getServiceTemplateInstance() != this) {
+      property.setServiceTemplateInstance(this);
+    }
   }
 }

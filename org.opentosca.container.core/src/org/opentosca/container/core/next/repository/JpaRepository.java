@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -77,13 +78,13 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
   }
 
   @Override
-  public T find(final Long id) {
+  public Optional<T> find(final Long id) {
     try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
       final T entity = em.find(this.clazz, id);
       em.refresh(entity);
-      return entity;
+      return Optional.ofNullable(entity);
     } catch (final Exception e) {
-      return null;
+      return Optional.empty();
     }
   }
 

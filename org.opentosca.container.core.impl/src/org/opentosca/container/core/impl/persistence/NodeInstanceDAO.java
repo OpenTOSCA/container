@@ -3,6 +3,7 @@ package org.opentosca.container.core.impl.persistence;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
@@ -30,30 +31,38 @@ public class NodeInstanceDAO {
   public void deleteNodeInstance(final NodeInstance si) {
     try {
       logger.info("NodeInstance: {}", si.toString());
-      NodeTemplateInstance nti = repository.find(DaoUtil.toLong(si.getId()));
-      nti.setState(NodeTemplateInstanceState.DELETED);
-      repository.update(nti);
-      repository.remove(nti);
-      logger.debug("Deleted NodeInstance with ID: " + si.getId());
+      Optional<NodeTemplateInstance> o = repository.find(DaoUtil.toLong(si.getId()));
+      if (o.isPresent()) {
+        NodeTemplateInstance nti = o.get();
+        nti.setState(NodeTemplateInstanceState.DELETED);
+        repository.update(nti);
+        repository.remove(nti);
+        logger.debug("Deleted NodeInstance with ID: " + si.getId());
+      } else {
+        logger.info("NOT FOUND");
+      }
     } catch (Exception e) {
       logger.error("Could not delete node instance: {}", e.getMessage(), e);
       e.printStackTrace();
     }
   }
 
-  public void saveNodeInstance(final NodeInstance nodeInstance) {
+  public NodeInstance saveNodeInstance(final NodeInstance nodeInstance) {
     try {
       logger.info("NodeInstance: {}", nodeInstance.toString());
       NodeTemplateInstance nti = Converters.convert(nodeInstance);
       try {
         repository.add(nti);
       } catch (Exception ex) {
+        logger.info("Object already added, trying to update");
         repository.update(nti);
       }
+      return Converters.convert(nti);
     } catch (Exception e) {
       logger.error("Could not save node instance: {}", e.getMessage(), e);
       e.printStackTrace();
     }
+    return nodeInstance;
   }
 
   /**
@@ -66,16 +75,22 @@ public class NodeInstanceDAO {
     try {
       logger.info("NodeInstance: {}", nodeInstance.toString());
       DocumentConverter converter = new DocumentConverter();
-      NodeTemplateInstance nti = repository.find(DaoUtil.toLong(nodeInstance.getId()));
-      if (properties != null) {
-        String value = (String) converter.convertObjectValueToDataValue(properties, null);
-        NodeTemplateInstanceProperty prop = new NodeTemplateInstanceProperty();
-        prop.setName("xml");
-        prop.setType("xml");
-        prop.setValue(value);
-        nti.addProperty(prop);
+      Optional<NodeTemplateInstance> o = repository.find(DaoUtil.toLong(nodeInstance.getId()));
+      if (o.isPresent()) {
+        NodeTemplateInstance nti = o.get();
+        if (properties != null) {
+          String value = (String) converter.convertObjectValueToDataValue(properties, null);
+          logger.info("XML: {}", value);
+          NodeTemplateInstanceProperty prop = new NodeTemplateInstanceProperty();
+          prop.setName("xml");
+          prop.setType("xml");
+          prop.setValue(value);
+          nti.addProperty(prop);
+        }
+        repository.update(nti);
+      } else {
+        logger.info("NOT FOUND");
       }
-      repository.update(nti);
     } catch (Exception e) {
       logger.error("Could not update node instance: {}", e.getMessage(), e);
       e.printStackTrace();
@@ -91,10 +106,15 @@ public class NodeInstanceDAO {
   public void setState(final NodeInstance nodeInstance, final String state) {
     try {
       logger.info("NodeInstance: {}", nodeInstance.toString());
-      NodeTemplateInstance nti = repository.find(DaoUtil.toLong(nodeInstance.getId()));
-      nti.setState(
-          Enums.valueOf(NodeTemplateInstanceState.class, state, NodeTemplateInstanceState.ERROR));
-      repository.update(nti);
+      Optional<NodeTemplateInstance> o = repository.find(DaoUtil.toLong(nodeInstance.getId()));
+      if (o.isPresent()) {
+        NodeTemplateInstance nti = o.get();
+        nti.setState(
+            Enums.valueOf(NodeTemplateInstanceState.class, state, NodeTemplateInstanceState.ERROR));
+        repository.update(nti);
+      } else {
+        logger.info("NOT FOUND");
+      }
     } catch (Exception e) {
       logger.error("Could not update node instance: {}", e.getMessage(), e);
       e.printStackTrace();
@@ -104,7 +124,7 @@ public class NodeInstanceDAO {
   public List<NodeInstance> getNodeInstances(final URI serviceInstanceID,
       final QName nodeTemplateID, final String nodeTemplateName, final URI nodeInstanceID) {
 
-    logger.info("Not Implemented: Relation instances cannot be queried");
+    logger.info("Not Implemented: Node instances cannot be queried");
     return new ArrayList<>();
 
     // final Query getNodeInstancesQuery = this.em.createNamedQuery(NodeInstance.getNodeInstances);
