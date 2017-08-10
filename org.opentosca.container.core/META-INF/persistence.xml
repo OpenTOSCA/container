@@ -44,7 +44,7 @@
       <property name="eclipselink.jdbc.batch-writing" value="JDBC" />
       <property name="eclipselink.weaving" value="false" />
       <!-- Levels: ALL FINEST FINER FINE CONFIG INFO WARNING SEVERE OFF -->
-      <property name="eclipselink.logging.level" value="WARNING" />
+      <property name="eclipselink.logging.level" value="SEVERE" />
       <property name="eclipselink.logging.timestamp" value="false" />
       <property name="eclipselink.logging.thread" value="false" />
       <property name="eclipselink.logging.exceptions" value="true" />

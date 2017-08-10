@@ -35,6 +35,12 @@ public abstract class Converters {
     si.setState(Enums.valueOf(State.ServiceTemplate.class, object.getState().toString()));
     si.setIDs();
     si.setCreated(object.getCreatedAt());
+    ServiceTemplateInstanceProperty prop =
+        object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
+            .collect(Collectors.reducing((a, b) -> null)).get();
+    if (prop != null) {
+      si.setProperties((Document) converter.convertDataValueToObjectValue(prop.getValue(), null));
+    }
     return si;
   }
 

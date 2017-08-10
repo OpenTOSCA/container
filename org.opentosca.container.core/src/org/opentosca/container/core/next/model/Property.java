@@ -3,7 +3,6 @@ package org.opentosca.container.core.next.model;
 import java.util.Objects;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
@@ -18,7 +17,6 @@ public class Property extends PersistenceObject {
 
   public static final String TABLE_NAME = "PROPERTY";
 
-  @Id
   @Column(nullable = false)
   private String name;
 

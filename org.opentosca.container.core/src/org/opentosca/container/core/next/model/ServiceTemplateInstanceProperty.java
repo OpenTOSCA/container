@@ -1,7 +1,6 @@
 package org.opentosca.container.core.next.model;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,7 +14,6 @@ public class ServiceTemplateInstanceProperty extends Property {
   public static final String TABLE_NAME =
       ServiceTemplateInstance.TABLE_NAME + "_" + Property.TABLE_NAME;
 
-  @Id
   @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   private ServiceTemplateInstance serviceTemplateInstance;

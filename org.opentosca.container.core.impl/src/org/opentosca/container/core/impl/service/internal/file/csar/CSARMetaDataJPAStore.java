@@ -1,7 +1,6 @@
 package org.opentosca.container.core.impl.service.internal.file.csar;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.UserException;
@@ -261,24 +261,18 @@ public class CSARMetaDataJPAStore {
 
     initJPA();
 
-    final Query getDirectoriesQuery = em.createNamedQuery(CSARContent.getDirectoriesByCSARID);
+    final TypedQuery<CSARContent> getDirectoriesQuery =
+        em.createNamedQuery(CSARContent.getDirectoriesByCSARID, CSARContent.class);
     getDirectoriesQuery.setParameter("csarID", csarID);
 
-    // Query should return a list of Path objects, but it returns a list
-    // of String objects instead (Eclipse Link bug). As a workaround we
-    // manually convert all String objects to Path objects.
+    final CSARContent result = getDirectoriesQuery.getSingleResult();
 
-    @SuppressWarnings("unchecked")
-    final List<String> directoriesAsString = getDirectoriesQuery.getResultList();
-
-    if (directoriesAsString.isEmpty())
+    if (result == null)
       throw new UserException("Meta data of CSAR \"" + csarID + "\" were not found.");
 
-    final Set<Path> directories = new HashSet<>();
+    Set<Path> directories = result.getDirectoriesJpa();
 
-    for (final String directoryAsString : directoriesAsString)
-      directories.add(Paths.get(directoryAsString));
-
+    LOG.debug("Directories: {}", directories.size());
     CSARMetaDataJPAStore.LOG.debug("Retrieving directories meta data of CSAR \"{}\" completed.",
         csarID);
     return directories;
