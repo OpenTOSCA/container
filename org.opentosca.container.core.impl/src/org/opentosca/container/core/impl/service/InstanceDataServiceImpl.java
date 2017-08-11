@@ -98,6 +98,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         String[] segments = serviceInstanceID.getPath().split("/");
         id = Integer.valueOf(segments[segments.length - 1]);
       }
+      logger.info("Using serviceInstanceID: {}", id);
       Optional<ServiceTemplateInstance> sti = serviceTemplateInstanceRepo.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         logger.info("Single Result: {}", sti);
@@ -108,6 +109,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     }
 
     if (serviceTemplateId != null) {
+      logger.info("Using serviceTemplateId: {}", serviceTemplateId);
       Collection<ServiceTemplateInstance> result =
           serviceTemplateInstanceRepo.findByTemplateId(serviceTemplateId);
       if (result != null) {
@@ -557,8 +559,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     logger.info("setNodeInstanceState(): {}", nodeInstanceID);
     logger.info("setNodeInstanceState(): {}", state);
 
-    final List<NodeInstance> nodeInstances =
-        this.niDAO.getNodeInstances(null, null, null, nodeInstanceID);
+    final List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
 
     if ((nodeInstances == null) || (nodeInstances.size() != 1)) {
       final String msg = String.format("Failed to set State of NodeInstance: '%s' - does it exist?",
