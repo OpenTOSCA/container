@@ -17,6 +17,8 @@ import javax.persistence.TemporalType;
 import org.eclipse.persistence.annotations.Customizer;
 import org.opentosca.container.core.next.jpa.SoftDeleteCustomizer;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @MappedSuperclass
 @Customizer(SoftDeleteCustomizer.class)
 public class PersistenceObject implements Serializable {
@@ -30,14 +32,17 @@ public class PersistenceObject implements Serializable {
   // @Version
   // protected Long version;
 
+  @JsonIgnore
   @Column(name = "CREATED_AT", insertable = true, updatable = false)
   @Temporal(TemporalType.TIMESTAMP)
   protected Date createdAt;
 
+  @JsonIgnore
   @Column(name = "UPDATED_AT", insertable = false, updatable = true)
   @Temporal(TemporalType.TIMESTAMP)
   protected Date updatedAt;
 
+  @JsonIgnore
   @Column(name = "DELETED_AT")
   @Temporal(TemporalType.TIMESTAMP)
   protected Date deletedAt;

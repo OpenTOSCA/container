@@ -14,7 +14,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
+import javax.xml.namespace.QName;
 
+import org.eclipse.persistence.annotations.Convert;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -26,6 +30,7 @@ public class PlanInstance extends PersistenceObject {
 
   public static final String TABLE_NAME = "PLAN_INSTANCE";
 
+  @Column(nullable = false, unique = true)
   private String correlationId;
 
   @Column(nullable = false)
@@ -54,7 +59,12 @@ public class PlanInstance extends PersistenceObject {
 
   @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
+  @JsonIgnore
   private ServiceTemplateInstance serviceTemplateInstance;
+
+  @Convert("QNameConverter")
+  @Column(name = "TEMPLATE_ID", nullable = false)
+  private QName templateId;
 
 
   public PlanInstance() {
@@ -153,5 +163,13 @@ public class PlanInstance extends PersistenceObject {
     if (!serviceTemplateInstance.getPlanInstances().contains(this)) {
       serviceTemplateInstance.getPlanInstances().add(this);
     }
+  }
+
+  public QName getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(QName templateId) {
+    this.templateId = templateId;
   }
 }

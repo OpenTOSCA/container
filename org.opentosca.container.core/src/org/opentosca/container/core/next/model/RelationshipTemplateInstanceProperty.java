@@ -5,6 +5,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = RelationshipTemplateInstanceProperty.TABLE_NAME)
 public class RelationshipTemplateInstanceProperty extends Property {
@@ -16,6 +18,7 @@ public class RelationshipTemplateInstanceProperty extends Property {
 
   @ManyToOne
   @JoinColumn(name = "RELATIONSHIP_TEMPLATE_INSTANCE_ID")
+  @JsonIgnore
   private RelationshipTemplateInstance relationshipTemplateInstance;
 
 

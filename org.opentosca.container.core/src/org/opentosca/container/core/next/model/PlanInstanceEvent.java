@@ -10,6 +10,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = PlanInstanceEvent.TABLE_NAME)
 public class PlanInstanceEvent extends PersistenceObject {
@@ -30,6 +32,7 @@ public class PlanInstanceEvent extends PersistenceObject {
 
   @ManyToOne
   @JoinColumn(name = "PLAN_INSTANCE_ID")
+  @JsonIgnore
   private PlanInstance planInstance;
 
 

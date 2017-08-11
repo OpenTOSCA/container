@@ -5,6 +5,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = PlanInstanceOutput.TABLE_NAME)
 public class PlanInstanceOutput extends Property {
@@ -15,6 +17,7 @@ public class PlanInstanceOutput extends Property {
 
   @ManyToOne
   @JoinColumn(name = "PLAN_INSTANCE_ID")
+  @JsonIgnore
   private PlanInstance planInstance;
 
 
@@ -22,8 +25,8 @@ public class PlanInstanceOutput extends Property {
     super();
   }
 
-  public PlanInstanceOutput(final String name, final String value) {
-    super(name, value, null);
+  public PlanInstanceOutput(final String name, final String value, String type) {
+    super(name, value, type);
   }
 
   public PlanInstance getPlanInstance() {
