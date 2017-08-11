@@ -531,10 +531,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		}
 		
 		// create instance selection order for each bordering node and store the
-		// last recursively selected Node
-		Map<AbstractNodeTemplate, AbstractNodeTemplate> selectionNode2LastRecursiveNode = new HashMap<AbstractNodeTemplate, AbstractNodeTemplate>();
-		
-		for (AbstractNodeTemplate strategicallySelectedNode : selectionNode2LastRecursiveNode.values()) {
+		// last recursively selected Node				
+		for (AbstractNodeTemplate strategicallySelectedNode : scalingPlanDefinition.selectionStrategy2BorderNodes.values()) {
 			List<TemplateBuildPlan> recursiveSelectionScopes = this.connectInstanceSelectionPaths(plan, strategicallySelectedNode, scalingPlanDefinition);
 			
 			// connect these scopes to the edge connecting region and strat
