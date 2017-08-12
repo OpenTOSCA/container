@@ -12,8 +12,8 @@ import org.opentosca.planbuilder.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -51,7 +51,7 @@ public class ServiceInstanceInitializer {
 	 *
 	 * @param plan a plan
 	 */
-	public void initializeInstanceDataAPIandServiceInstanceIDFromInput(TOSCAPlan plan) {
+	public void initializeInstanceDataAPIandServiceInstanceIDFromInput(BPELPlan plan) {
 		this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.InstanceDataAPIUrlKeyword);
 		this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.ServiceInstanceVarKeyword);
 	}
@@ -63,13 +63,13 @@ public class ServiceInstanceInitializer {
 	 *
 	 * @param plan a plan
 	 */
-	public void initializeInstanceDataFromInput(TOSCAPlan plan) {
+	public void initializeInstanceDataFromInput(BPELPlan plan) {
 		String instanceDataAPIVarName = this.appendAssignFromInputToVariable(plan, ServiceInstanceInitializer.InstanceDataAPIUrlKeyword);
 		this.appendServiceInstanceInitCode(plan, instanceDataAPIVarName);
 		this.addAssignOutputWithServiceInstanceId(plan);
 	}
 	
-	private void addAssignOutputWithServiceInstanceId(TOSCAPlan plan) {
+	private void addAssignOutputWithServiceInstanceId(BPELPlan plan) {
 		this.planHandler.addStringElementToPlanResponse("instanceId", plan);
 		
 		String serviceInstanceVarName = null;
@@ -92,7 +92,7 @@ public class ServiceInstanceInitializer {
 		
 	}
 	
-	public String getServiceInstanceVariableName(TOSCAPlan plan) {
+	public String getServiceInstanceVariableName(BPELPlan plan) {
 		String serviceInstanceVarName = null;
 		
 		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
@@ -103,7 +103,7 @@ public class ServiceInstanceInitializer {
 		return serviceInstanceVarName;
 	}
 	
-	public boolean appendSetServiceInstanceState(TOSCAPlan plan, Element insertBeforeElement, String state) {
+	public boolean appendSetServiceInstanceState(BPELPlan plan, Element insertBeforeElement, String state) {
 		
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -113,14 +113,14 @@ public class ServiceInstanceInitializer {
 		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
 		QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 		
-		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE, rescalResponseVarDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, rescalResponseVarDeclId, plan)) {
 			return false;
 		}
 		
 		String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
 		QName rescalRequestVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
 		
-		if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, TOSCAPlan.VariableType.TYPE, rescalRequestVarDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE, rescalRequestVarDeclId, plan)) {
 			return false;
 		}
 		
@@ -165,7 +165,7 @@ public class ServiceInstanceInitializer {
 		return true;
 	}
 	
-	public boolean appendServiceInstanceDelete(TOSCAPlan plan) {
+	public boolean appendServiceInstanceDelete(BPELPlan plan) {
 		
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -175,7 +175,7 @@ public class ServiceInstanceInitializer {
 		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
 		QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 		
-		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE, rescalResponseVarDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, rescalResponseVarDeclId, plan)) {
 			return false;
 		}
 		
@@ -194,7 +194,7 @@ public class ServiceInstanceInitializer {
 		return true;
 	}
 	
-	public boolean initPropertyVariablesFromInstanceData(TOSCAPlan plan, PropertyMap propMap) {
+	public boolean initPropertyVariablesFromInstanceData(BPELPlan plan, PropertyMap propMap) {
 		
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -204,7 +204,7 @@ public class ServiceInstanceInitializer {
 		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
 		QName rescalResponseVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 		
-		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE, rescalResponseVarDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, rescalResponseVarDeclId, plan)) {
 			return false;
 		}
 		
@@ -212,7 +212,7 @@ public class ServiceInstanceInitializer {
 		String tempNodeInstanceIDVarName = "tempNodeInstanceID" + System.currentTimeMillis();
 		QName tempNodeInstanceIDVarDeclId = new QName(xsdNamespace, "string", xsdPrefix);
 		
-		if (!this.bpelProcessHandler.addVariable(tempNodeInstanceIDVarName, TOSCAPlan.VariableType.TYPE, tempNodeInstanceIDVarDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(tempNodeInstanceIDVarName, BPELPlan.VariableType.TYPE, tempNodeInstanceIDVarDeclId, plan)) {
 			return false;
 		}
 		
@@ -220,7 +220,7 @@ public class ServiceInstanceInitializer {
 		String tempNodeInstancePropertiesVarName = "tempNodeInstanceProperties" + System.currentTimeMillis();
 		QName tempNodeInstancePropertiesVarDeclId = new QName(xsdNamespace, "anyType", xsdPrefix);
 		
-		if (!this.bpelProcessHandler.addVariable(tempNodeInstancePropertiesVarName, TOSCAPlan.VariableType.TYPE, tempNodeInstancePropertiesVarDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(tempNodeInstancePropertiesVarName, BPELPlan.VariableType.TYPE, tempNodeInstancePropertiesVarDeclId, plan)) {
 			return false;
 		}
 		
@@ -296,7 +296,7 @@ public class ServiceInstanceInitializer {
 		return true;
 	}
 	
-	private String appendServiceInstanceInitCode(TOSCAPlan buildPlan, String instanceDataAPIUrlVarName) {
+	private String appendServiceInstanceInitCode(BPELPlan buildPlan, String instanceDataAPIUrlVarName) {
 		// here we'll add code to:
 		// instantiate a full instance of the serviceTemplate at the container
 		// instancedata api
@@ -324,12 +324,12 @@ public class ServiceInstanceInitializer {
 		this.bpelProcessHandler.addNamespaceToBPELDoc(reqResVarDeclId.getPrefix(), reqResVarDeclId.getNamespaceURI(), buildPlan);
 		
 		String restCallResponseVarName = "bpel4restlightVarResponse" + System.currentTimeMillis();
-		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE, reqResVarDeclId, buildPlan)) {
+		if (!this.bpelProcessHandler.addVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, reqResVarDeclId, buildPlan)) {
 			return null;
 		}
 		
 		String restCallRequestVarName = "bpel4restlightVarRequest" + System.currentTimeMillis();
-		if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, TOSCAPlan.VariableType.TYPE, reqResVarDeclId, buildPlan)) {
+		if (!this.bpelProcessHandler.addVariable(restCallRequestVarName, BPELPlan.VariableType.TYPE, reqResVarDeclId, buildPlan)) {
 			return null;
 		}
 		
@@ -388,7 +388,7 @@ public class ServiceInstanceInitializer {
 		QName serviceInstanceUrlDeclId = new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());
 		this.bpelProcessHandler.addNamespaceToBPELDoc(serviceInstanceUrlDeclId.getPrefix(), serviceInstanceUrlDeclId.getNamespaceURI(), buildPlan);
 		
-		if (!this.bpelProcessHandler.addVariable(serviceInstanceUrlVarName, TOSCAPlan.VariableType.TYPE, serviceInstanceUrlDeclId, buildPlan)) {
+		if (!this.bpelProcessHandler.addVariable(serviceInstanceUrlVarName, BPELPlan.VariableType.TYPE, serviceInstanceUrlDeclId, buildPlan)) {
 			return null;
 		}
 		
@@ -423,7 +423,7 @@ public class ServiceInstanceInitializer {
 	 * @return a String containing the generated Variable Name of the Variable
 	 *         holding the value from the input at runtime
 	 */
-	private String appendAssignFromInputToVariable(TOSCAPlan plan, String varName) {
+	private String appendAssignFromInputToVariable(BPELPlan plan, String varName) {
 		// add instancedata api url element to plan input message
 		this.planHandler.addStringElementToPlanRequest(varName, plan);
 		
@@ -434,7 +434,7 @@ public class ServiceInstanceInitializer {
 		QName instanceDataAPIUrlDeclId = new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());
 		this.bpelProcessHandler.addNamespaceToBPELDoc(instanceDataAPIUrlDeclId.getPrefix(), instanceDataAPIUrlDeclId.getNamespaceURI(), plan);
 		
-		if (!this.bpelProcessHandler.addVariable(varName, TOSCAPlan.VariableType.TYPE, instanceDataAPIUrlDeclId, plan)) {
+		if (!this.bpelProcessHandler.addVariable(varName, BPELPlan.VariableType.TYPE, instanceDataAPIUrlDeclId, plan)) {
 			return null;
 		}
 		
@@ -460,7 +460,7 @@ public class ServiceInstanceInitializer {
 	 * @param node a XML DOM Node
 	 * @return true if adding the node to the main sequence was successfull
 	 */
-	private boolean appendToInitSequence(Node node, TOSCAPlan buildPlan) {
+	private boolean appendToInitSequence(Node node, BPELPlan buildPlan) {
 		
 		Element flowElement = buildPlan.getBpelMainFlowElement();
 		

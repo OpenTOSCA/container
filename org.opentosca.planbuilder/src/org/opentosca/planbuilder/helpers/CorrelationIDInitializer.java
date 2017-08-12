@@ -8,7 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,7 +33,7 @@ public class CorrelationIDInitializer {
 		}
 	}
 	
-	public void addCorrellationID(TOSCAPlan buildPlan) {
+	public void addCorrellationID(BPELPlan buildPlan) {
 		// set a correlation id which will can be set in the input and will be
 		// send back with the response
 		this.buildPlanHandler.addStringElementToPlanRequest("CorrelationID", buildPlan);

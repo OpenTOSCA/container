@@ -28,13 +28,13 @@ import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
-import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -134,7 +134,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 * javax.xml.namespace.QName)
 	 */
 	@Override
-	public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+	public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
 		// create empty plan from servicetemplate and add definitions
 		
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
@@ -153,7 +153,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 				
 								
 				
-				TOSCAPlan newBuildPlan = this.planHandler.createBPELPlan(processNamespace, processName, buildPlan);
+				BPELPlan newBuildPlan = this.planHandler.createBPELPlan(processNamespace, processName, buildPlan);
 				
 				newBuildPlan.setCsarName(csarName);
 				
@@ -213,8 +213,8 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
 	 */
 	@Override
-	public List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-		List<TOSCAPlan> plans = new ArrayList<TOSCAPlan>();
+	public List<BPELPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+		List<BPELPlan> plans = new ArrayList<BPELPlan>();
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			QName serviceTemplateId;
 			// targetNamespace attribute doesn't has to be set, so we check it
@@ -226,7 +226,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 			
 			if (!serviceTemplate.hasBuildPlan()) {
 				BuildPlanBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplateId.toString());
-				TOSCAPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+				BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
 				
 				if (newBuildPlan != null) {
 					BuildPlanBuilder.LOG.debug("Created BuildPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
@@ -250,7 +250,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 * @param map a PropertyMap which contains mappings from Template to
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(TOSCAPlan buildPlan, PropertyMap map) {
+	private void runPlugins(BPELPlan buildPlan, PropertyMap map) {
 		
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
@@ -459,7 +459,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
 	 */
-	private void initializeDependenciesInBuildPlan(TOSCAPlan buildPlan) {
+	private void initializeDependenciesInBuildPlan(BPELPlan buildPlan) {
 		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());

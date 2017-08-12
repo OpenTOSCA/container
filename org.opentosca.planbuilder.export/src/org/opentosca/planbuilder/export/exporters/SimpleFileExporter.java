@@ -34,9 +34,9 @@ import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.planbuilder.export.Exporter;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.Deploy;
-import org.opentosca.planbuilder.model.plan.GenericWsdlWrapper;
+import org.opentosca.planbuilder.model.plan.bpel.Deploy;
+import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -85,7 +85,7 @@ public class SimpleFileExporter {
 	 * @throws IOException is thrown when reading/writing the file fails
 	 * @throws JAXBException is thrown when writing with JAXB fails
 	 */
-	public boolean export(URI destination, TOSCAPlan buildPlan) throws IOException, JAXBException {
+	public boolean export(URI destination, BPELPlan buildPlan) throws IOException, JAXBException {
 		if (!new File(destination).getName().contains("zip")) {
 			return false;
 		}

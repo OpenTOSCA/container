@@ -29,9 +29,9 @@ import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
-import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -240,13 +240,13 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 	
 	
 	@Override
-	public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+	public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
 		throw new RuntimeException("A service Template can have multiple scaling plans, this method is not supported");
 	}
 	
 	@Override
-	public List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-		List<TOSCAPlan> plans = new ArrayList<TOSCAPlan>();
+	public List<BPELPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+		List<BPELPlan> plans = new ArrayList<BPELPlan>();
 		
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			plans.addAll(this.buildScalingPlans(csarName, definitions, serviceTemplate.getQName()));
@@ -255,8 +255,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return plans;
 	}
 	
-	public List<TOSCAPlan> buildScalingPlans(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
-		List<TOSCAPlan> scalingPlans = new ArrayList<TOSCAPlan>();
+	public List<BPELPlan> buildScalingPlans(String csarName, AbstractDefinitions definitions, QName serviceTemplateId) {
+		List<BPELPlan> scalingPlans = new ArrayList<BPELPlan>();
 		
 		AbstractServiceTemplate serviceTemplate = this.getServiceTemplate(definitions, serviceTemplateId);
 		
@@ -284,7 +284,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			AbstractPlan abstractScaleOutPlan =this.generateSOG(new QName(processNamespace,processName).toString(), definitions, serviceTemplate, scalingPlanDefinition);
 			
 			
-			TOSCAPlan scalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractScaleOutPlan);
+			BPELPlan scalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractScaleOutPlan);
 			
 			this.addNodeAndRelationScopes(scalingPlan, scalingPlanDefinition);
 			
@@ -319,7 +319,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return scalingPlans;
 	}
 	
-	private void addRecursiveInstanceSelection(TOSCAPlan plan, PropertyMap map, AbstractNodeTemplate nodeTemplate) {
+	private void addRecursiveInstanceSelection(BPELPlan plan, PropertyMap map, AbstractNodeTemplate nodeTemplate) {
 		// fetch nodeInstance Variable to store the result at the end
 		TemplatePlanContext nodeContext = this.createContext(nodeTemplate, plan, map);
 		String nodeInstanceVarName = this.findInstanceVar(nodeContext, nodeTemplate.getId(), true);
@@ -335,7 +335,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		// create response variable
 		QName anyTypeDeclId = nodeContext.importQName(new QName("http://www.w3.org/2001/XMLSchema", "any", "xsd"));
 		String responseVarName = "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";
-		nodeContext.addVariable(responseVarName, TOSCAPlan.VariableType.TYPE, anyTypeDeclId);
+		nodeContext.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
 		
 		// fetch relationInstance data
 		try {
@@ -386,7 +386,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return null;
 	}
 	
-	private void addRecursiveInstanceSelection(TOSCAPlan plan, PropertyMap map, AbstractRelationshipTemplate relationshipTemplate) {
+	private void addRecursiveInstanceSelection(BPELPlan plan, PropertyMap map, AbstractRelationshipTemplate relationshipTemplate) {
 		// fetch relationInstance variable of relationship template
 		TemplatePlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
 		String relationshipTemplateInstanceVarName = this.findInstanceVar(relationContext, relationshipTemplate.getId(), false);
@@ -404,8 +404,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		String requestVarName = "recursiveSelection_RelationInstance_" + relationshipTemplate.getId() + System.currentTimeMillis() + "_Request";
 		String responseVarName = "recursiveSelection_RelationInstance_" + relationshipTemplate.getId() + System.currentTimeMillis() + "_Response";
 		
-		relationContext.addVariable(requestVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId);
-		relationContext.addVariable(responseVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId);
+		relationContext.addVariable(requestVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId);
+		relationContext.addVariable(responseVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId);
 		
 		try {
 			Node requestRelationInstance = new Fragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName, relationshipTemplate.getId(), responseVarName, nodeTemplateInstanceVarName);
@@ -449,7 +449,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return null;
 	}
 	
-	private void runProvisioningLogicGeneration(TOSCAPlan plan, PropertyMap map, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplates) {
+	private void runProvisioningLogicGeneration(BPELPlan plan, PropertyMap map, List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplates) {
 		for (AbstractNodeTemplate node : nodeTemplates) {
 			this.runProvisioningLogicGeneration(plan, node, map);
 		}
@@ -458,7 +458,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		}
 	}
 	
-	private void runProvisioningLogicGeneration(TOSCAPlan plan, AbstractRelationshipTemplate relationshipTemplate, PropertyMap map) {
+	private void runProvisioningLogicGeneration(BPELPlan plan, AbstractRelationshipTemplate relationshipTemplate, PropertyMap map) {
 		// handling relationshiptemplate
 		
 		TemplatePlanContext context = this.createContext(relationshipTemplate, plan, map);
@@ -496,7 +496,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		}
 	}
 	
-	private void runProvisioningLogicGeneration(TOSCAPlan plan, AbstractNodeTemplate nodeTemplate, PropertyMap map) {
+	private void runProvisioningLogicGeneration(BPELPlan plan, AbstractNodeTemplate nodeTemplate, PropertyMap map) {
 		// handling nodetemplate
 		TemplatePlanContext context = new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate());
 		// check if we have a generic plugin to handle the template
@@ -624,7 +624,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 	}
 	
-	private void initializeScaleOrderGraph(TOSCAPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
+	private void initializeScaleOrderGraph(BPELPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
 		// connect nodes and relation scopes that are going to provision a new
 		// instance, except the connections to border nodes
 		for (AbstractRelationshipTemplate relation : scalingPlanDefinition.relationshipTemplates) {
@@ -662,7 +662,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 	}
 	
-	private List<TemplateBuildPlan> connectInstanceSelectionPaths(TOSCAPlan plan, AbstractNodeTemplate strategicallySelectedNode, ScalingPlanDefinition scalingPlanDefinition) {
+	private List<TemplateBuildPlan> connectInstanceSelectionPaths(BPELPlan plan, AbstractNodeTemplate strategicallySelectedNode, ScalingPlanDefinition scalingPlanDefinition) {
 		List<TemplateBuildPlan> templateBuildPlans = new ArrayList<TemplateBuildPlan>();
 		AbstractNodeTemplate currentNode = strategicallySelectedNode;
 		TemplateBuildPlan currentScope = this.planHandler.getTemplateBuildPlanById(strategicallySelectedNode.getId(), plan);
@@ -688,7 +688,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return templateBuildPlans;
 	}
 	
-	private void createProvisioningConnection(TOSCAPlan buildPlan, TemplateBuildPlan relationshipPlan, TemplateBuildPlan source, TemplateBuildPlan target) {
+	private void createProvisioningConnection(BPELPlan buildPlan, TemplateBuildPlan relationshipPlan, TemplateBuildPlan source, TemplateBuildPlan target) {
 		
 		// determine base type of relationshiptemplate
 		QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
@@ -757,7 +757,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		}
 	}
 	
-	private void addNodeAndRelationScopes(TOSCAPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
+	private void addNodeAndRelationScopes(BPELPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
 		
 		// add scopes for the region
 		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {

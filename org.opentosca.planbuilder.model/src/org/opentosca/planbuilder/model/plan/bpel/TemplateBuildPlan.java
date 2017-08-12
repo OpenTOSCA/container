@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.model.plan;
+package org.opentosca.planbuilder.model.plan.bpel;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 public class TemplateBuildPlan {
 	
 	// the buildplan this templatebuildplan belongs to
-	private TOSCAPlan buildPlan;
+	private BPELPlan buildPlan;
 	
 	// bpel elements this templatebuildplan controls
 	private Element bpelScopeElement;
@@ -56,7 +56,7 @@ public class TemplateBuildPlan {
 	 * 
 	 * @return a BuildPlan
 	 */
-	public TOSCAPlan getBuildPlan() {
+	public BPELPlan getBuildPlan() {
 		return this.buildPlan;
 	}
 	
@@ -65,7 +65,7 @@ public class TemplateBuildPlan {
 	 * 
 	 * @param buildPlan a BuildPlan
 	 */
-	public void setBuildPlan(TOSCAPlan buildPlan) {
+	public void setBuildPlan(BPELPlan buildPlan) {
 		this.buildPlan = buildPlan;
 	}
 	

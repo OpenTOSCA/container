@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.model.plan;
+package org.opentosca.planbuilder.model.plan.bpel;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +12,8 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.osgi.framework.FrameworkUtil;
 
 /**
@@ -178,7 +180,7 @@ public class GenericWsdlWrapper {
 	 * @throws IOException
 	 *             is thrown when reading the internal file fails
 	 */
-	public GenericWsdlWrapper(TOSCAPlan.PlanType planType) throws IOException {
+	public GenericWsdlWrapper(BPELPlan.PlanType planType) throws IOException {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
 				.getResource("genericProcessWsdl.wsdl");
 		File genericWsdlFile = new File(FileLocator.toFileURL(url).getPath());

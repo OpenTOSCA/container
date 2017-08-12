@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.model.plan;
+package org.opentosca.planbuilder.model.plan.bpel;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

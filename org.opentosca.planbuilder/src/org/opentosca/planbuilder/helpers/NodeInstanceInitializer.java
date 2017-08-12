@@ -11,9 +11,9 @@ import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan.VariableType;
-import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.w3c.dom.Element;
@@ -54,7 +54,7 @@ public class NodeInstanceInitializer {
 	 * @param propMap a Mapping from NodeTemplate Properties to BPEL Variables
 	 * @return true if adding logic described above was successful
 	 */
-	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(TOSCAPlan plan, PropertyMap propMap) {
+	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(BPELPlan plan, PropertyMap propMap) {
 		boolean check = true;
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null && templatePlan.getNodeTemplate().getProperties().getDOMElement() != null) {
@@ -75,7 +75,7 @@ public class NodeInstanceInitializer {
 		return this.findInstanceIdVarName(templatePlan.getBuildPlan(), templateId);
 	}
 	
-	public String findInstanceIdVarName(TOSCAPlan plan, String templateId) {
+	public String findInstanceIdVarName(BPELPlan plan, String templateId) {
 		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
 			// FIXME weak check
 			if ((varName.startsWith("node"+ InstanceIDVarKeyword) | varName.startsWith("relation"+ InstanceIDVarKeyword)) & varName.contains(templateId)) {
@@ -165,7 +165,7 @@ public class NodeInstanceInitializer {
 	 * @param plan a plan with TemplatePlans
 	 * @return
 	 */
-	public boolean addNodeInstanceIDVarToTemplatePlans(TOSCAPlan plan) {
+	public boolean addNodeInstanceIDVarToTemplatePlans(BPELPlan plan) {
 		boolean check = true;
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			check &= this.addInstanceIDVarToTemplatePlan(templatePlan);
@@ -202,7 +202,7 @@ public class NodeInstanceInitializer {
 		
 	}
 	
-	public boolean addNodeInstanceFindLogic(TOSCAPlan plan) {
+	public boolean addNodeInstanceFindLogic(BPELPlan plan) {
 		boolean check = true;
 		
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
@@ -261,7 +261,7 @@ public class NodeInstanceInitializer {
 		return true;
 	}
 	
-	public boolean addIfNullAbortCheck(TOSCAPlan plan, PropertyMap propMap) {
+	public boolean addIfNullAbortCheck(BPELPlan plan, PropertyMap propMap) {
 		boolean check = true;
 		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null) {

@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class ScopeHandler {
 	 * @param buildPlan the BuildPlan the TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlan skeleton
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(TOSCAPlan buildPlan) {
+	public TemplateBuildPlan createTemplateBuildPlan(BPELPlan buildPlan) {
 		TemplateBuildPlan newTemplateBuildPlan = new TemplateBuildPlan();
 		this.templateHandler.initializeXMLElements(newTemplateBuildPlan, buildPlan);
 		return newTemplateBuildPlan;
@@ -59,7 +59,7 @@ public class ScopeHandler {
 	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlann skeleton for the given NodeTemplate
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, TOSCAPlan buildPlan) {
+	public TemplateBuildPlan createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, BPELPlan buildPlan) {
 		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
 		templatePlan.setNodeTemplate(nodeTemplate);
@@ -86,7 +86,7 @@ public class ScopeHandler {
 	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlan skeleton
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, TOSCAPlan buildPlan) {
+	public TemplateBuildPlan createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan buildPlan) {
 		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(relationshipTemplate.getId(), templatePlan);
 		templatePlan.setRelationshipTemplate(relationshipTemplate);

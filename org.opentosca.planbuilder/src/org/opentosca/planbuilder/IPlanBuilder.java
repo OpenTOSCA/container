@@ -7,7 +7,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -43,7 +43,7 @@ public abstract class IPlanBuilder {
 	 *         ServiceTemplate denoted by the given QName isn't found inside the
 	 *         Definitions document null is returned instead
 	 */
-	abstract public TOSCAPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
+	abstract public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
 	
 	/**
 	 * <p>
@@ -57,7 +57,7 @@ public abstract class IPlanBuilder {
 	 * @return a List of Build Plans for each ServiceTemplate contained inside
 	 *         the Definitions document
 	 */
-	abstract public List<TOSCAPlan> buildPlans(String csarName, AbstractDefinitions definitions);
+	abstract public List<BPELPlan> buildPlans(String csarName, AbstractDefinitions definitions);
 	
 	/**
 	 * <p>
@@ -125,11 +125,11 @@ public abstract class IPlanBuilder {
 		return false;
 	}
 	
-	public TOSCAPlan createBPELPlan(String csarName, String processName, String processNamespace, AbstractPlan abstractPlan) {
+	public BPELPlan createBPELPlan(String csarName, String processName, String processNamespace, AbstractPlan abstractPlan) {
 		
 		
 		
-		TOSCAPlan newScalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractPlan);
+		BPELPlan newScalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractPlan);
 		
 		
 		newScalingPlan.setCsarName(csarName);
@@ -137,11 +137,11 @@ public abstract class IPlanBuilder {
 		return newScalingPlan;
 	}
 	
-	public TemplatePlanContext createContext(AbstractRelationshipTemplate relationshipTemplate, TOSCAPlan plan, PropertyMap map) {
+	public TemplatePlanContext createContext(AbstractRelationshipTemplate relationshipTemplate, BPELPlan plan, PropertyMap map) {
 		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map, plan.getServiceTemplate());
 	}
 	
-	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate, TOSCAPlan plan, PropertyMap map) {
+	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate, BPELPlan plan, PropertyMap map) {
 		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate());
 	}
 		

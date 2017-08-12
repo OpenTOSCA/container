@@ -13,7 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -361,7 +361,7 @@ public class Fragments {
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 
 
-		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + TOSCAPlan.bpelNamespace
+		String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace
 				+ "\" >";
 
 		// <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,

@@ -15,7 +15,7 @@ import javax.xml.xpath.XPathFactory;
 import org.opentosca.planbuilder.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractBoundaryDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -216,7 +216,7 @@ public class PropertyMappingsToOutputInitializer {
 	 *            a PropMap which contains the names of the different template
 	 *            property variables inside the plan
 	 */
-	public void initializeBuildPlanOutput(AbstractDefinitions definitions, TOSCAPlan buildPlan, PropertyMap propMap) {
+	public void initializeBuildPlanOutput(AbstractDefinitions definitions, BPELPlan buildPlan, PropertyMap propMap) {
 		QName serviceTemplateId = buildPlan.getServiceTemplate().getQName();
 
 		// fetch serviceTemplate and boundaryDefinitions
@@ -256,7 +256,7 @@ public class PropertyMappingsToOutputInitializer {
 	 *            the mappings from serviceTemplate Properties to template
 	 *            properties
 	 */
-	private void initializeAssignOutput(TOSCAPlan buildPlan, PropertyMap propMap,
+	private void initializeAssignOutput(BPELPlan buildPlan, PropertyMap propMap,
 			ServiceTemplatePropertyToPropertyMapping mapping) {
 		try {
 			PlanHandler buildPlanHandler = new PlanHandler();
@@ -321,7 +321,7 @@ public class PropertyMappingsToOutputInitializer {
 	 * @return a String containing a valid BPEL Copy Element
 	 */
 	private String generateCopyFromQueryToOutputAsString(String fromQuery, String toQuery) {
-		String copyString = "<bpel:copy xmlns:bpel=\"" + TOSCAPlan.bpelNamespace + "\"><bpel:from expressionLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[";
+		String copyString = "<bpel:copy xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\"><bpel:from expressionLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[";
 		copyString += fromQuery + "]]></bpel:from>";
 		copyString += "<bpel:to variable=\"output\" part=\"payload\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[" + toQuery
 				+ "]]></bpel:query></bpel:to></bpel:copy>";
@@ -339,7 +339,7 @@ public class PropertyMappingsToOutputInitializer {
 	 * @return a valid BPEL Literal element as String
 	 */
 	private String generateLiteralAssignForOutput(ServiceTemplatePropertyToPropertyMapping mapping,
-			TOSCAPlan buildPlan) {
+			BPELPlan buildPlan) {
 		String responseMessageLocalName = buildPlan.getWsdl().getResponseMessageLocalName();
 
 		// <bpel:literal>
@@ -353,7 +353,7 @@ public class PropertyMappingsToOutputInitializer {
 		// </impl:getPublicDNS>
 		// </bpel:literal>
 
-		String literalString = "<bpel:literal xmlns:bpel=\"" + TOSCAPlan.bpelNamespace + "\">";
+		String literalString = "<bpel:literal xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\">";
 		literalString += "<impl:" + responseMessageLocalName + " xmlns:impl=\""
 				+ buildPlan.getWsdl().getTargetNamespace()
 				+ "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >";

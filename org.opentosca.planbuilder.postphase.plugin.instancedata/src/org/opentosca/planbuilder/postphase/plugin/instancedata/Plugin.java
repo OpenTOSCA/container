@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;

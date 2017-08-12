@@ -8,7 +8,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
@@ -66,7 +66,7 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 		
 		String responseVarName = "selectFirstInstance_" + nodeTemplate.getId() + "_FetchRelationInstance_" + relation.getId() + "_" + System.currentTimeMillis();
 		QName anyTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "any", "xsd"));
-		context.addVariable(responseVarName, TOSCAPlan.VariableType.MESSAGE, anyTypeDeclId);
+		context.addVariable(responseVarName, BPELPlan.VariableType.MESSAGE, anyTypeDeclId);
 		
 		try {
 			Node getRelationInstance = new Fragments().generateBPEL4RESTLightGETonURLAsNode(relationTemplateInstnaceVar, responseVarName);

@@ -17,7 +17,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.planbuilder.fragments.Fragments.Util;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -89,7 +89,7 @@ public class Handler {
 	private String createRESTResponseVar(TemplatePlanContext context) {
 		String restCallResponseVarName = "bpel4restlightVarResponse" + context.getIdForNames();
 		QName restCallResponseDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
-		if (!context.addGlobalVariable(restCallResponseVarName, TOSCAPlan.VariableType.TYPE, restCallResponseDeclId)) {
+		if (!context.addGlobalVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, restCallResponseDeclId)) {
 			return null;
 		}
 		return restCallResponseVarName;
@@ -99,7 +99,7 @@ public class Handler {
 		// create state variable inside scope
 		String stateVarName = templateId + "_state_" + context.getIdForNames();
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		if (!context.addGlobalVariable(stateVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId)) {
+		if (!context.addGlobalVariable(stateVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
 			return null;
 		}
 		
@@ -119,7 +119,7 @@ public class Handler {
 	private String createInstanceVar(TemplatePlanContext context, String templateId) {
 		String instanceURLVarName = ((context.getRelationshipTemplate() == null) ? "node" : "relationship") + "InstanceURL_" + templateId + "_" + context.getIdForNames();
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-		if (!context.addGlobalVariable(instanceURLVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId)) {
+		if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
 			return null;
 		}
 		

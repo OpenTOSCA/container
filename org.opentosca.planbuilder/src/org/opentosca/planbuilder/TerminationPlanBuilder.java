@@ -21,13 +21,13 @@ import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -102,7 +102,7 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 	 * javax.xml.namespace.QName)
 	 */
 	@Override
-	public TOSCAPlan buildPlan(final String csarName, final AbstractDefinitions definitions, final QName serviceTemplateId) {
+	public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions, final QName serviceTemplateId) {
 		for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			String namespace;
 			if (serviceTemplate.getTargetNamespace() != null) {
@@ -116,7 +116,7 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 				final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 				
 				final AbstractPlan newAbstractTerminationPlan = this.generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
-				final TOSCAPlan newTerminationPlan = this.planHandler.createBPELPlan(processNamespace, processName, newAbstractTerminationPlan);
+				final BPELPlan newTerminationPlan = this.planHandler.createBPELPlan(processNamespace, processName, newAbstractTerminationPlan);
 				newTerminationPlan.setCsarName(csarName);
 				
 				// create empty templateplans for each template and add them to
@@ -191,7 +191,7 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 	 * @param propMap a PropertyMapping from NodeTemplate to Properties to
 	 *            BPELVariables
 	 */
-	private void runPlugins(final TOSCAPlan plan, final PropertyMap propMap) {
+	private void runPlugins(final BPELPlan plan, final PropertyMap propMap) {
 		/*
 		 * TODO/FIXME until we decided whether we allow type plugins that
 		 * achieve termination, we just terminate each VM and Docker Container
@@ -285,8 +285,8 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
 	 */
 	@Override
-	public List<TOSCAPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-		final List<TOSCAPlan> plans = new ArrayList<>();
+	public List<BPELPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+		final List<BPELPlan> plans = new ArrayList<>();
 		for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			QName serviceTemplateId;
 			// targetNamespace attribute doesn't has to be set, so we check it
@@ -298,7 +298,7 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 			
 			if (!serviceTemplate.hasBuildPlan()) {
 				TerminationPlanBuilder.LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan", serviceTemplateId.toString());
-				final TOSCAPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+				final BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
 				
 				if (newBuildPlan != null) {
 					TerminationPlanBuilder.LOG.debug("Created TerminationPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
@@ -358,7 +358,7 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 	 *            each template inside TopologyTemplate the BuildPlan should
 	 *            provision
 	 */
-	private void initializeConnectionsInTerminationPlan(final TOSCAPlan plan) {
+	private void initializeConnectionsInTerminationPlan(final BPELPlan plan) {
 		for (final TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(plan)) {
 			// determine base type of relationshiptemplate
 			final QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());

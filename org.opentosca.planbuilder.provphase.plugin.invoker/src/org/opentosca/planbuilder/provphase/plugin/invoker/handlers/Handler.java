@@ -19,7 +19,7 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -121,9 +121,9 @@ public class Handler {
 		
 		// register request and response message
 		final String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
-		context.addVariable(requestVariableName, TOSCAPlan.VariableType.MESSAGE, InputMessageId);
+		context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
 		final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart() + "Response" + context.getIdForNames();
-		context.addVariable(responseVariableName, TOSCAPlan.VariableType.MESSAGE, OutputMessageId);
+		context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 		
 		// setup a correlation set for the messages
 		String correlationSetName = null;
@@ -348,9 +348,9 @@ public class Handler {
 		
 		// register request and response message
 		final String requestVariableName = invokerPortType.getLocalPart() + InputMessageId.getLocalPart() + "Request" + context.getIdForNames();
-		context.addVariable(requestVariableName, TOSCAPlan.VariableType.MESSAGE, InputMessageId);
+		context.addVariable(requestVariableName, BPELPlan.VariableType.MESSAGE, InputMessageId);
 		final String responseVariableName = invokerCallbackPortType.getLocalPart() + OutputMessageId.getLocalPart() + "Response" + context.getIdForNames();
-		context.addVariable(responseVariableName, TOSCAPlan.VariableType.MESSAGE, OutputMessageId);
+		context.addVariable(responseVariableName, BPELPlan.VariableType.MESSAGE, OutputMessageId);
 		
 		// setup a correlation set for the messages
 		String correlationSetName = null;

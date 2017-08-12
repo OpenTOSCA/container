@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.model.plan;
+package org.opentosca.planbuilder.model.plan.bpel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,6 +8,9 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Document;
@@ -29,9 +32,9 @@ import org.w3c.dom.Element;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class TOSCAPlan extends AbstractPlan{
+public class BPELPlan extends AbstractPlan{
 
-	public TOSCAPlan(String id, PlanType type, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Map<AbstractActivity, AbstractActivity> links) {
+	public BPELPlan(String id, PlanType type, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Map<AbstractActivity, AbstractActivity> links) {
 		super(id, type, definitions, serviceTemplate, activities, links); 
 	}
 
