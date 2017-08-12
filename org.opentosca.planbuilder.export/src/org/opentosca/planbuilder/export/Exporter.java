@@ -43,6 +43,7 @@ import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.export.exporters.SimpleFileExporter;
 import org.opentosca.planbuilder.integration.layer.AbstractExporter;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.Deploy;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -126,7 +127,7 @@ public class Exporter extends AbstractExporter {
 			// add plans element to servicetemplates
 			for (TOSCAPlan buildPlan : buildPlans) {
 				for (TServiceTemplate serviceTemplate : servTemps) {
-					if (buildPlan.getServiceTemplate().equals(this.buildQName(defs, serviceTemplate))) {
+					if (buildPlan.getServiceTemplate().getQName().equals(this.buildQName(defs, serviceTemplate))) {
 						
 						TPlans plans = serviceTemplate.getPlans();
 						if (plans == null) {
@@ -170,18 +171,18 @@ public class Exporter extends AbstractExporter {
 						
 						boolean alreadySpecified = false;
 						for (final TExportedOperation op : exportedIface.getOperation()) {
-							if (buildPlan.getType().equals(TOSCAPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
+							if (buildPlan.getType().equals(AbstractPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
 								alreadySpecified = true;
-							} else if (buildPlan.getType().equals(TOSCAPlan.PlanType.TERMINATE) & op.getName().equals("terminate")) {
+							} else if (buildPlan.getType().equals(AbstractPlan.PlanType.TERMINATE) & op.getName().equals("terminate")) {
 								alreadySpecified = true;
 							}
 						}
 						
 						if (!alreadySpecified) {
 							final TExportedOperation op = this.toscaFactory.createTExportedOperation();
-							if (buildPlan.getType().equals(TOSCAPlan.PlanType.BUILD)) {
+							if (buildPlan.getType().equals(AbstractPlan.PlanType.BUILD)) {
 								op.setName("initiate");
-							} else if (buildPlan.getType().equals(TOSCAPlan.PlanType.TERMINATE)) {
+							} else if (buildPlan.getType().equals(AbstractPlan.PlanType.TERMINATE)) {
 								op.setName("terminate");
 							}
 							final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan plan = this.toscaFactory.createTExportedOperationPlan();

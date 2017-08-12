@@ -330,12 +330,28 @@ public class Utils {
 		// edges
 		for (final AbstractNodeTemplate infraNode : infraNodes) {
 			for (final AbstractRelationshipTemplate outgoingEdge : infraNode.getOutgoingRelations()) {
-				if (Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPENDSON) || Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_HOSTEDON) || Utils.getRelationshipBaseType(outgoingEdge).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+				if (isInfrastructureRelationshipType(outgoingEdge.getType())) {
 					infrastructureEdges.add(outgoingEdge);
 				}
 			}
 		}
 		Utils.cleanDuplicates(infrastructureEdges);
+	}
+	
+	public static boolean isInfrastructureRelationshipType(QName relationshipType) {
+		if (relationshipType.equals(Utils.TOSCABASETYPE_DEPENDSON) | relationshipType.equals(Utils.TOSCABASETYPE_HOSTEDON) | relationshipType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static boolean isCommunicationRelationshipType(QName relationshipType) {
+		if(relationshipType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	/**
@@ -349,7 +365,7 @@ public class Utils {
 		final AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
 		nodes.add(nodeTemplate);
 		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
-			if (outgoingTemplate.getType().equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+			if (isCommunicationRelationshipType(outgoingTemplate.getType())) {
 				// we skip connectTo relations, as they are connecting stacks
 				// and
 				// make the result even more ambigious

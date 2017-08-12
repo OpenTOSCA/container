@@ -37,8 +37,7 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(), this.plugin, null);
-		
+		this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(), this.plugin, null);			
 	}
 	
 	/**

@@ -2,11 +2,14 @@ package org.opentosca.planbuilder.model.plan;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,11 +29,10 @@ import org.w3c.dom.Element;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class TOSCAPlan {
+public class TOSCAPlan extends AbstractPlan{
 
-	// determines whether this plan is a BuildPlan, ManagementPlan, TerminatePlan
-	public enum PlanType {
-		BUILD, MANAGE, TERMINATE
+	public TOSCAPlan(String id, PlanType type, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Map<AbstractActivity, AbstractActivity> links) {
+		super(id, type, definitions, serviceTemplate, activities, links); 
 	}
 
 	/**
@@ -102,67 +104,23 @@ public class TOSCAPlan {
 	// variable for TemplateBuildPlans, makes it easier or handlers and
 	// planbuilder to hold it here extra
 	private List<TemplateBuildPlan> templateBuildPlans = new ArrayList<TemplateBuildPlan>();
-	// same here for definitions
-	private AbstractDefinitions definitions = null;
-
 	// imported files of the whole buildplan, to keep track for export
 	private List<File> importedFiles;
 
 	// var for apache ode deployment deskriptor
 	private Deploy deploymentDeskriptor;
 
-	// holds the qname of the serviceTemplate this buildPlan belongs to
-	private QName serviceTemplate;
-
 	// the file name of the csar the serviceTemplate and this buildPlan belongs
 	// to
 	private String csarName = null;
 
-	// used to generate unique id's for the plugins
-	private int id = 0;
-
 	// wsdl related stuff
 	private GenericWsdlWrapper processWsdl = null;
 
+	int internalCounterId = 0;
+
 	public static String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 	
-	private PlanType type;
-	
-	
-
-	/**
-	 * @return the type
-	 */
-	public PlanType getType() {
-		return type;
-	}
-
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(PlanType type) {
-		this.type = type;
-	}
-
-	/**
-	 * Returns a id for the plugins to make their declarations unique
-	 * 
-	 * @return an Integer
-	 */
-	public int getId() {
-		return this.id;
-	}
-
-	/**
-	 * Sets the id
-	 * 
-	 * @param id
-	 *            an Integer
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	/**
 	 * Returns the csar file name this BuildPlan belongs to
 	 * 
@@ -180,36 +138,6 @@ public class TOSCAPlan {
 	 */
 	public void setCsarName(String csarName) {
 		this.csarName = csarName;
-	}
-
-	/**
-	 * Returns the QName of the ServiceTemplate this BuildPlan belongs to
-	 * 
-	 * @return a QName
-	 */
-	public QName getServiceTemplate() {
-		return this.serviceTemplate;
-	}
-
-	/**
-	 * Sets the ServiceTemplate this BuildPlan belongs to
-	 * 
-	 * @param serviceTemplate
-	 *            a QName
-	 */
-	public void setServiceTemplate(QName serviceTemplate) {
-		this.serviceTemplate = serviceTemplate;
-	}
-
-	/**
-	 * Returns the definitions document this buildPlan belongs to. the
-	 * ServiceTemplate this BuildPlan provisions should be contained in the
-	 * given Definitions
-	 * 
-	 * @return an AbstractDefinitions
-	 */
-	public AbstractDefinitions getDefinitions() {
-		return this.definitions;
 	}
 
 	/**
@@ -240,16 +168,6 @@ public class TOSCAPlan {
 	 */
 	public boolean addImportedFile(File file) {
 		return this.importedFiles.add(file);
-	}
-
-	/**
-	 * Sets the AbstractDefinitions of this BuildPlan
-	 * 
-	 * @param definitions
-	 *            an AbstractDefinitions
-	 */
-	public void setDefinitions(AbstractDefinitions definitions) {
-		this.definitions = definitions;
 	}
 
 	/**
@@ -576,6 +494,25 @@ public class TOSCAPlan {
 	 */
 	public void setBpelMainSequenceOutputAssignElement(Element bpelMainSequenceOutputAssignElement) {
 		this.bpelMainSequenceOutputAssignElement = bpelMainSequenceOutputAssignElement;
+	}
+
+	/**
+	 * Returns a id for the plugins to make their declarations unique
+	 * 
+	 * @return an Integer
+	 */
+	public int getInternalCounterId() {
+		return this.internalCounterId;
+	}
+
+	/**
+	 * Sets the id
+	 * 
+	 * @param id
+	 *            an Integer
+	 */
+	public void setInternalCounterId(int id) {
+		this.internalCounterId = id;
 	}
 
 }

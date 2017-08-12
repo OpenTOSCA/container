@@ -217,7 +217,7 @@ public class PropertyMappingsToOutputInitializer {
 	 *            property variables inside the plan
 	 */
 	public void initializeBuildPlanOutput(AbstractDefinitions definitions, TOSCAPlan buildPlan, PropertyMap propMap) {
-		QName serviceTemplateId = buildPlan.getServiceTemplate();
+		QName serviceTemplateId = buildPlan.getServiceTemplate().getQName();
 
 		// fetch serviceTemplate and boundaryDefinitions
 		AbstractServiceTemplate buildPlanServiceTemplate = null;

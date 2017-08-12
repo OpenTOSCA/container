@@ -41,7 +41,7 @@ public abstract class AbstractImporter {
 		
 		plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
-		plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
+		//plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
 		return plans;
 	}
 

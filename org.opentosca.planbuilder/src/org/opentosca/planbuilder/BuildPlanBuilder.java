@@ -2,7 +2,10 @@ package org.opentosca.planbuilder;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -14,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
+import org.opentosca.planbuilder.fragments.Fragments.Util;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.BPELFinalizer;
@@ -25,12 +29,17 @@ import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan.PlanType;
+import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
@@ -139,8 +148,13 @@ public class BuildPlanBuilder extends IPlanBuilder {
 			if (namespace.equals(serviceTemplateId.getNamespaceURI()) && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 				String processName = serviceTemplate.getId() + "_buildPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
-				TOSCAPlan newBuildPlan = this.planHandler.createPlan(serviceTemplate, processName, processNamespace, PlanType.BUILD);
-				newBuildPlan.setDefinitions(definitions);
+				
+				AbstractPlan buildPlan = this.generatePOG(new QName(processNamespace,processName).toString(), definitions, serviceTemplate);
+				
+								
+				
+				TOSCAPlan newBuildPlan = this.planHandler.createBPELPlan(processNamespace, processName, buildPlan);
+				
 				newBuildPlan.setCsarName(csarName);
 				
 				// create empty templateplans for each template and add them to
@@ -168,8 +182,6 @@ public class BuildPlanBuilder extends IPlanBuilder {
 				// instanceDataAPI handling is done solely trough this extension
 				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newBuildPlan);
 				
-				
-				
 				// initialize instanceData handling
 				this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
 				
@@ -177,7 +189,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 				
 				this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
 				
-				this.runPlugins(newBuildPlan, serviceTemplate.getQName(), propMap);
+				this.runPlugins(newBuildPlan, propMap);
 				
 				this.idInit.addCorrellationID(newBuildPlan);
 				
@@ -235,19 +247,17 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 * </p>
 	 *
 	 * @param buildPlan a BuildPlan which is alread initialized
-	 * @param serviceTemplateName the name of the ServiceTemplate the BuildPlan
-	 *            belongs to
 	 * @param map a PropertyMap which contains mappings from Template to
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(TOSCAPlan buildPlan, QName serviceTemplateId, PropertyMap map) {
+	private void runPlugins(TOSCAPlan buildPlan, PropertyMap map) {
 		
 		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				// handling nodetemplate
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 				BuildPlanBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, buildPlan.getServiceTemplate());
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
@@ -277,7 +287,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 			} else {
 				// handling relationshiptemplate
 				AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, serviceTemplateId);
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, buildPlan.getServiceTemplate());
 				
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
@@ -314,8 +324,6 @@ public class BuildPlanBuilder extends IPlanBuilder {
 		}
 	}
 	
-
-	
 	/**
 	 * <p>
 	 * Checks whether there is any generic plugin, that can handle the given
@@ -336,8 +344,6 @@ public class BuildPlanBuilder extends IPlanBuilder {
 		}
 		return false;
 	}
-	
-
 	
 	// TODO delete this method, or add to utils. is pretty much copied from the
 	// net
@@ -368,6 +374,76 @@ public class BuildPlanBuilder extends IPlanBuilder {
 			BuildPlanBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
 			return null;
 		}
+	}
+	
+	protected AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate, Collection<AbstractNodeTemplate> nodeTemplates, Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
+		Map<AbstractActivity, AbstractActivity> links = new HashMap<AbstractActivity, AbstractActivity>();
+		
+		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+				
+		
+		for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
+			AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity", "PROVISIONING", nodeTemplate);
+			activities.add(activity);
+			mapping.put(nodeTemplate, activity);
+		}
+		
+		for (AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
+			AbstractActivity activity = new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
+			activities.add(activity);
+			
+			QName baseType = Utils.getRelationshipBaseType(relationshipTemplate);
+			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+				links.put(mapping.get(relationshipTemplate.getSource()), activity);
+				links.put(mapping.get(relationshipTemplate.getTarget()), activity);
+			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+				links.put(mapping.get(relationshipTemplate.getTarget()), activity);
+				links.put(activity, mapping.get(relationshipTemplate.getSource()));
+			}
+			
+		}
+		
+		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+			
+		};
+		return plan;
+	}
+	
+	protected AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate) {
+		
+		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
+		Map<AbstractActivity, AbstractActivity> links = new HashMap<AbstractActivity, AbstractActivity>();
+		
+		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+		
+		final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+		
+		for (AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+			AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity", "PROVISIONING", nodeTemplate);
+			activities.add(activity);
+			mapping.put(nodeTemplate, activity);
+		}
+		
+		for (AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
+			AbstractActivity activity = new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
+			activities.add(activity);
+			
+			QName baseType = Utils.getRelationshipBaseType(relationshipTemplate);
+			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+				links.put(mapping.get(relationshipTemplate.getSource()), activity);
+				links.put(mapping.get(relationshipTemplate.getTarget()), activity);
+			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+				links.put(mapping.get(relationshipTemplate.getTarget()), activity);
+				links.put(activity, mapping.get(relationshipTemplate.getSource()));
+			}
+			
+		}
+		
+		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
+			
+		};
+		return plan;
 	}
 	
 	/**

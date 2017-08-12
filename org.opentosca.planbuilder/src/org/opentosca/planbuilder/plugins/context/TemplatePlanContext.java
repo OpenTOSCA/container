@@ -56,7 +56,7 @@ public class TemplatePlanContext {
 	private final static Logger LOG = LoggerFactory.getLogger(TemplatePlanContext.class);
 	
 	private TemplateBuildPlan templateBuildPlan;
-	private QName serviceTemplateId;
+	private AbstractServiceTemplate serviceTemplate;
 
 	private PlanHandler buildPlanHandler;
 	private BPELPlanHandler bpelProcessHandler;
@@ -78,9 +78,9 @@ public class TemplatePlanContext {
 	 * @param map a PropertyMap containing mappings for all Template properties
 	 *            of the TopologyTemplate the ServiceTemplate has
 	 */
-	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, PropertyMap map, QName serviceTemplateId) {
+	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, PropertyMap map, AbstractServiceTemplate serviceTemplateId) {
 		this.templateBuildPlan = templateBuildPlan;
-		this.serviceTemplateId = serviceTemplateId;
+		this.serviceTemplate = serviceTemplateId;
 		
 		try {
 			this.buildPlanHandler = new PlanHandler();
@@ -97,7 +97,7 @@ public class TemplatePlanContext {
 	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate) {
 		for (TemplateBuildPlan plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)) {
-				return new TemplatePlanContext(plan, this.propertyMap, this.serviceTemplateId);
+				return new TemplatePlanContext(plan, this.propertyMap, this.serviceTemplate);
 			}
 		}
 		return null;
@@ -180,13 +180,8 @@ public class TemplatePlanContext {
 	 * @return a List of AbstractNodeTemplate
 	 */
 	public List<AbstractNodeTemplate> getNodeTemplates() {
-		// find the serviceTemplate
-		for (AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions().getServiceTemplates()) {
-			if (serviceTemplate.getQName().equals(this.serviceTemplateId)) {
-				return serviceTemplate.getTopologyTemplate().getNodeTemplates();
-			}
-		}
-		return null;
+		// find the serviceTemplate		
+		return this.templateBuildPlan.getBuildPlan().getServiceTemplate().getTopologyTemplate().getNodeTemplates();		
 	}
 	
 	/**
@@ -199,7 +194,7 @@ public class TemplatePlanContext {
 	 */
 	public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
 		for (AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions().getServiceTemplates()) {
-			if (serviceTemplate.getQName().equals(this.serviceTemplateId)) {
+			if (serviceTemplate.getQName().equals(this.serviceTemplate)) {
 				return serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
 			}
 		}
@@ -276,8 +271,8 @@ public class TemplatePlanContext {
 	 * @return an Integer
 	 */
 	public int getIdForNames() {
-		int idToReturn = this.templateBuildPlan.getBuildPlan().getId();
-		this.templateBuildPlan.getBuildPlan().setId(idToReturn + 1);
+		int idToReturn = this.templateBuildPlan.getBuildPlan().getInternalCounterId();
+		this.templateBuildPlan.getBuildPlan().setInternalCounterId(idToReturn + 1);
 		return idToReturn;
 	}
 	
@@ -1277,7 +1272,7 @@ public class TemplatePlanContext {
 	}
 	
 	public QName getServiceTemplateId() {
-		return this.serviceTemplateId;
+		return this.serviceTemplate.getQName();
 	}
 	
 	public String getTemplateId() {
@@ -1353,7 +1348,7 @@ public class TemplatePlanContext {
 		
 		// create context from this context and set the given nodeTemplate as
 		// the node for the scope
-		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplateId);
+		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
 		
 		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
 		context.templateBuildPlan.setRelationshipTemplate(null);

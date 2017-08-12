@@ -11,6 +11,7 @@ import org.opentosca.planbuilder.fragments.Fragments;
 import org.opentosca.planbuilder.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.w3c.dom.Element;
@@ -302,7 +303,7 @@ public class ServiceInstanceInitializer {
 		
 		// get csar and serviceTemplate
 		String csarId = buildPlan.getCsarName();
-		QName serviceTemplateId = buildPlan.getServiceTemplate();
+		QName serviceTemplateId = buildPlan.getServiceTemplate().getQName();
 		
 		// Our Goal with the REST Extension:
 		// POST

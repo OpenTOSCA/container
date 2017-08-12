@@ -170,6 +170,8 @@ public class CSARResource {
 		
 		final DirectoryResource dir = (DirectoryResource) new ContentResource(this.CSAR).getDirectoryOrFile("SELFSERVICE-Metadata");
 		final FileResource file = (FileResource) dir.getDirectoryOrFile("data.json");
+		
+		
 		CSARResource.LOG.trace("Metadata file is of class: {}", file.getClass());
 		
 		return Response.status(Status.OK).type(MediaType.APPLICATION_JSON).entity(file.getAsJSONString()).build();// .type(MediaType.TEXT_PLAIN).entity("No

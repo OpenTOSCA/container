@@ -3,8 +3,10 @@ package org.opentosca.planbuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +25,12 @@ import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.TOSCAPlan;
-import org.opentosca.planbuilder.model.plan.TOSCAPlan.PlanType;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.TemplateBuildPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -274,7 +280,11 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
 			String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
 			
-			TOSCAPlan scalingPlan = this.createEmptyPlan(csarName, definitions, serviceTemplate, processName, processNamespace, PlanType.MANAGE);
+			
+			AbstractPlan abstractScaleOutPlan =this.generateSOG(new QName(processNamespace,processName).toString(), definitions, serviceTemplate, scalingPlanDefinition);
+			
+			
+			TOSCAPlan scalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractScaleOutPlan);
 			
 			this.addNodeAndRelationScopes(scalingPlan, scalingPlanDefinition);
 			
@@ -313,19 +323,18 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		// fetch nodeInstance Variable to store the result at the end
 		TemplatePlanContext nodeContext = this.createContext(nodeTemplate, plan, map);
 		String nodeInstanceVarName = this.findInstanceVar(nodeContext, nodeTemplate.getId(), true);
-				
+		
 		// find first relationtemplate which is an infrastructure edge
-		AbstractRelationshipTemplate relationshipTemplate = this.getFirstInfrastructureRelation(nodeTemplate);		
-		if(relationshipTemplate == null) {
+		AbstractRelationshipTemplate relationshipTemplate = this.getFirstInfrastructureRelation(nodeTemplate);
+		if (relationshipTemplate == null) {
 			return;
-		}		
+		}
 		TemplatePlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
 		String relationInstanceVarName = this.findInstanceVar(relationContext, relationshipTemplate.getId(), false);
-				
 		
 		// create response variable
 		QName anyTypeDeclId = nodeContext.importQName(new QName("http://www.w3.org/2001/XMLSchema", "any", "xsd"));
-		String responseVarName = "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";		
+		String responseVarName = "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";
 		nodeContext.addVariable(responseVarName, TOSCAPlan.VariableType.TYPE, anyTypeDeclId);
 		
 		// fetch relationInstance data
@@ -344,7 +353,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			e1.printStackTrace();
 		}
 		
-		// query its source node, which will be nodeInstance for this NodeTemplate
+		// query its source node, which will be nodeInstance for this
+		// NodeTemplate
 		// set nodeInstance variable
 		
 		String xpathQuery = "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
@@ -362,20 +372,19 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}		
+	}
 	
 	private AbstractRelationshipTemplate getFirstInfrastructureRelation(AbstractNodeTemplate nodeTemplate) {
 		List<AbstractRelationshipTemplate> relations = Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_HOSTEDON);
 		relations.addAll(Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_DEPENDSON));
 		relations.addAll(Utils.getOutgoingRelations(nodeTemplate, Utils.TOSCABASETYPE_DEPLOYEDON));
 		
-		if(!relations.isEmpty()) {
+		if (!relations.isEmpty()) {
 			return relations.get(0);
 		}
-				
+		
 		return null;
 	}
-	
 	
 	private void addRecursiveInstanceSelection(TOSCAPlan plan, PropertyMap map, AbstractRelationshipTemplate relationshipTemplate) {
 		// fetch relationInstance variable of relationship template
@@ -399,8 +408,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		relationContext.addVariable(responseVarName, TOSCAPlan.VariableType.TYPE, stringTypeDeclId);
 		
 		try {
-			Node requestRelationInstance = new Fragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName, relationshipTemplate.getId(), responseVarName, nodeTemplateInstanceVarName);			
-			requestRelationInstance = relationContext.importNode(requestRelationInstance);			
+			Node requestRelationInstance = new Fragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName, relationshipTemplate.getId(), responseVarName, nodeTemplateInstanceVarName);
+			requestRelationInstance = relationContext.importNode(requestRelationInstance);
 			relationContext.getPrePhaseElement().appendChild(requestRelationInstance);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -517,6 +526,104 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		}
 	}
 	
+	private AbstractPlan generateSOG(String id, AbstractDefinitions defintions, AbstractServiceTemplate serviceTemplate, ScalingPlanDefinition scalingPlanDefinition) {
+		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
+		
+		Map<AbstractActivity, AbstractActivity> links = new HashMap<AbstractActivity, AbstractActivity>();
+		
+		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+		
+		BuildPlanBuilder buildPlanBuilder = new BuildPlanBuilder();
+		
+		AbstractPlan abstractScaleOutPlan = buildPlanBuilder.generatePOG(id, defintions, serviceTemplate, scalingPlanDefinition.nodeTemplates, scalingPlanDefinition.relationshipTemplates);
+		
+		abstractScaleOutPlan.setType(org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType.MANAGE);
+		
+		for (AbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes.values()) {
+			AbstractActivity activity = new ANodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity", "STRATEGICSELECTION", stratNodeTemplate) {
+			};
+			abstractScaleOutPlan.getActivites().add(activity);
+			mapping.put(stratNodeTemplate, activity);
+			
+			// TODO here we create recursive selection and connect everything
+			Collection<List<AbstractRelationshipTemplate>> paths = new HashSet<List<AbstractRelationshipTemplate>>();
+			
+			this.findPaths(paths, stratNodeTemplate);
+			
+			for (List<AbstractRelationshipTemplate> path : paths) {
+				for (AbstractRelationshipTemplate relationshipTemplate : path) {
+					AbstractActivity recursiveRelationActivity = new ARelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity", "RECURSIVESELECTION", relationshipTemplate) {
+					};
+					AbstractActivity recursiveTargetNodeActivity = new ANodeTemplateActivity(relationshipTemplate.getTarget().getId() + "_recursiveselection_activity", "RECURSIVESELECTION", relationshipTemplate.getTarget());
+					AbstractActivity recursiveSourceNodeActivity = new ANodeTemplateActivity(relationshipTemplate.getSource().getId() + "_recursiveselection_activity", "RECURSIVESELECTION", relationshipTemplate.getSource());
+					
+					abstractScaleOutPlan.getActivites().add(recursiveRelationActivity);
+					abstractScaleOutPlan.getActivites().add(recursiveSourceNodeActivity);
+					abstractScaleOutPlan.getActivites().add(recursiveTargetNodeActivity);
+					
+					links.put(recursiveRelationActivity, recursiveTargetNodeActivity);
+					links.put(recursiveSourceNodeActivity, recursiveRelationActivity);
+				}
+				
+				for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
+					if (relationshipTemplate.getSource().equals(stratNodeTemplate) | relationshipTemplate.getTarget().equals(stratNodeTemplate)) {
+						
+						AbstractActivity provRelationActivity = this.findRelationshipTemplateActivity(new ArrayList<AbstractActivity>(abstractScaleOutPlan.getActivites()), relationshipTemplate, "PROVISIONING");
+						if (provRelationActivity == null) {
+							provRelationActivity = new ARelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity", "PROVISIONING", relationshipTemplate);
+						}
+						
+						AbstractActivity recursiveRelationActivity = this.findRelationshipTemplateActivity(new ArrayList<AbstractActivity>(abstractScaleOutPlan.getActivites()), path.get(path.size() - 1), "RECURSIVESELECTION");
+						
+						links.put(recursiveRelationActivity, provRelationActivity);
+					}
+				}
+			}
+		}
+		
+		return abstractScaleOutPlan;
+	}
+	
+	private AbstractActivity findRelationshipTemplateActivity(List<AbstractActivity> activities, AbstractRelationshipTemplate relationshipTemplate, String type) {
+		for (AbstractActivity activity : activities) {
+			if (activity.getType().equals(type)) {
+				if (activity instanceof ARelationshipTemplateActivity) {
+					if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate().equals(relationshipTemplate)) {
+						return activity;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private void findPaths(Collection<List<AbstractRelationshipTemplate>> paths, AbstractNodeTemplate nodeTemplate) {
+		List<AbstractRelationshipTemplate> infrastructureEdges = new ArrayList<AbstractRelationshipTemplate>();
+		Utils.getInfrastructureEdges(nodeTemplate, infrastructureEdges);
+		
+		for (AbstractRelationshipTemplate infrastructureEdge : infrastructureEdges) {
+			List<AbstractRelationshipTemplate> pathToAdd = null;
+			for (Iterator<List<AbstractRelationshipTemplate>> iter = paths.iterator(); iter.hasNext();) {
+				List<AbstractRelationshipTemplate> path = iter.next();
+				if (path.get(path.size() - 1).getTarget().equals(infrastructureEdge.getSource())) {
+					pathToAdd = path;
+					break;
+				}
+			}
+			
+			if (pathToAdd == null) {
+				// we didn't find a path where this infrastructureEdge is
+				// connected to => create a new path
+				pathToAdd = new ArrayList<AbstractRelationshipTemplate>();
+				paths.add(pathToAdd);
+			}
+			
+			pathToAdd.add(infrastructureEdge);
+			this.findPaths(paths, infrastructureEdge.getTarget());
+		}
+		
+	}
+	
 	private void initializeScaleOrderGraph(TOSCAPlan plan, ScalingPlanDefinition scalingPlanDefinition) {
 		// connect nodes and relation scopes that are going to provision a new
 		// instance, except the connections to border nodes
@@ -531,7 +638,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		}
 		
 		// create instance selection order for each bordering node and store the
-		// last recursively selected Node				
+		// last recursively selected Node
 		for (AbstractNodeTemplate strategicallySelectedNode : scalingPlanDefinition.selectionStrategy2BorderNodes.values()) {
 			List<TemplateBuildPlan> recursiveSelectionScopes = this.connectInstanceSelectionPaths(plan, strategicallySelectedNode, scalingPlanDefinition);
 			
