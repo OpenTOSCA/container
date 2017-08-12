@@ -26,7 +26,7 @@ import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
@@ -55,7 +55,7 @@ public class TemplatePlanContext {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(TemplatePlanContext.class);
 	
-	private TemplateBuildPlan templateBuildPlan;
+	private BPELScopeActivity templateBuildPlan;
 	private AbstractServiceTemplate serviceTemplate;
 
 	private PlanHandler buildPlanHandler;
@@ -78,7 +78,7 @@ public class TemplatePlanContext {
 	 * @param map a PropertyMap containing mappings for all Template properties
 	 *            of the TopologyTemplate the ServiceTemplate has
 	 */
-	public TemplatePlanContext(TemplateBuildPlan templateBuildPlan, PropertyMap map, AbstractServiceTemplate serviceTemplateId) {
+	public TemplatePlanContext(BPELScopeActivity templateBuildPlan, PropertyMap map, AbstractServiceTemplate serviceTemplateId) {
 		this.templateBuildPlan = templateBuildPlan;
 		this.serviceTemplate = serviceTemplateId;
 		
@@ -95,7 +95,7 @@ public class TemplatePlanContext {
 	}
 	
 	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate) {
-		for (TemplateBuildPlan plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+		for (BPELScopeActivity plan : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (plan.getNodeTemplate() != null && plan.getNodeTemplate().equals(nodeTemplate)) {
 				return new TemplatePlanContext(plan, this.propertyMap, this.serviceTemplate);
 			}
@@ -1199,7 +1199,7 @@ public class TemplatePlanContext {
 	private List<AbstractNodeTemplate> getAllNodeTemplates() {
 		List<AbstractNodeTemplate> list = new ArrayList<AbstractNodeTemplate>();
 		
-		for (TemplateBuildPlan template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+		for (BPELScopeActivity template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (template.getNodeTemplate() != null) {
 				list.add(template.getNodeTemplate());
 			}
@@ -1215,7 +1215,7 @@ public class TemplatePlanContext {
 	private List<AbstractRelationshipTemplate> getAllRelationshipTemplates() {
 		List<AbstractRelationshipTemplate> list = new ArrayList<AbstractRelationshipTemplate>();
 		
-		for (TemplateBuildPlan template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
+		for (BPELScopeActivity template : this.templateBuildPlan.getBuildPlan().getTemplateBuildPlans()) {
 			if (template.getNodeTemplate() == null) {
 				list.add(template.getRelationshipTemplate());
 			}

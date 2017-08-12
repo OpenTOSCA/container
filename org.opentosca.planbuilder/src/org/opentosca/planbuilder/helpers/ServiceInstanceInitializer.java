@@ -13,7 +13,7 @@ import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -224,7 +224,7 @@ public class ServiceInstanceInitializer {
 			return false;
 		}
 		
-		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			
 			if (templatePlan.getNodeTemplate() == null) {
 				continue;

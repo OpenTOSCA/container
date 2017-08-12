@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class TemplateBuildPlan {
+public class BPELScopeActivity {
 	
 	// the buildplan this templatebuildplan belongs to
 	private BPELPlan buildPlan;

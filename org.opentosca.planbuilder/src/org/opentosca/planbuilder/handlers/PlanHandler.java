@@ -20,7 +20,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -271,9 +271,9 @@ public class PlanHandler {
 	 * @param buildPlan the BuildPlan to get the TemplateBuildPlans from
 	 * @return a List of TemplateBuildPlans which handle RelationshipTemplates
 	 */
-	public List<TemplateBuildPlan> getRelationshipTemplatePlans(BPELPlan buildPlan) {
-		List<TemplateBuildPlan> relationshipPlans = new ArrayList<TemplateBuildPlan>();
-		for (TemplateBuildPlan template : buildPlan.getTemplateBuildPlans()) {
+	public List<BPELScopeActivity> getRelationshipTemplatePlans(BPELPlan buildPlan) {
+		List<BPELScopeActivity> relationshipPlans = new ArrayList<BPELScopeActivity>();
+		for (BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
 			if (this.templateHandler.isRelationshipTemplatePlan(template)) {
 				relationshipPlans.add(template);
 			}
@@ -289,8 +289,8 @@ public class PlanHandler {
 	 * @return a TemplateBuildPlan if it handles a Template with the given id,
 	 *         else null
 	 */
-	public TemplateBuildPlan getTemplateBuildPlanById(String id, BPELPlan buildPlan) {
-		for (TemplateBuildPlan template : buildPlan.getTemplateBuildPlans()) {
+	public BPELScopeActivity getTemplateBuildPlanById(String id, BPELPlan buildPlan) {
+		for (BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
 			// FIXME it looks a bit hacky.. it looks even more hacky if you look
 			// at getRelationshipTemplatePlans(..), the ifs
 			if ((template.getNodeTemplate() != null) && template.getNodeTemplate().getId().equals(id)) {

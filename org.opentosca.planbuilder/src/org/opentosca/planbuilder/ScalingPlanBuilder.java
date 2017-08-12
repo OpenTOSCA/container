@@ -31,7 +31,7 @@ import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -629,9 +629,9 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		// instance, except the connections to border nodes
 		for (AbstractRelationshipTemplate relation : scalingPlanDefinition.relationshipTemplates) {
 			if (this.connectedToRegionOnly(relation, scalingPlanDefinition)) {
-				TemplateBuildPlan relationPlan = this.planHandler.getTemplateBuildPlanById(relation.getId(), plan);
-				TemplateBuildPlan sourcePlan = this.planHandler.getTemplateBuildPlanById(relation.getSource().getId(), plan);
-				TemplateBuildPlan targetPlan = this.planHandler.getTemplateBuildPlanById(relation.getTarget().getId(), plan);
+				BPELScopeActivity relationPlan = this.planHandler.getTemplateBuildPlanById(relation.getId(), plan);
+				BPELScopeActivity sourcePlan = this.planHandler.getTemplateBuildPlanById(relation.getSource().getId(), plan);
+				BPELScopeActivity targetPlan = this.planHandler.getTemplateBuildPlanById(relation.getTarget().getId(), plan);
 				
 				this.createProvisioningConnection(plan, relationPlan, sourcePlan, targetPlan);
 			}
@@ -640,15 +640,15 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		// create instance selection order for each bordering node and store the
 		// last recursively selected Node
 		for (AbstractNodeTemplate strategicallySelectedNode : scalingPlanDefinition.selectionStrategy2BorderNodes.values()) {
-			List<TemplateBuildPlan> recursiveSelectionScopes = this.connectInstanceSelectionPaths(plan, strategicallySelectedNode, scalingPlanDefinition);
+			List<BPELScopeActivity> recursiveSelectionScopes = this.connectInstanceSelectionPaths(plan, strategicallySelectedNode, scalingPlanDefinition);
 			
 			// connect these scopes to the edge connecting region and strat
 			// selected node
 			for (AbstractRelationshipTemplate borderCrossingRelation : scalingPlanDefinition.borderCrossingRelations) {
 				if (borderCrossingRelation.getSource().equals(strategicallySelectedNode) || borderCrossingRelation.getTarget().equals(strategicallySelectedNode)) {
-					for (TemplateBuildPlan recursiveSelectionTemplatePlan : recursiveSelectionScopes) {
+					for (BPELScopeActivity recursiveSelectionTemplatePlan : recursiveSelectionScopes) {
 						
-						TemplateBuildPlan crossingRelationScope = this.planHandler.getTemplateBuildPlanById(borderCrossingRelation.getId(), plan);
+						BPELScopeActivity crossingRelationScope = this.planHandler.getTemplateBuildPlanById(borderCrossingRelation.getId(), plan);
 						
 						String linkName = strategicallySelectedNode.getId() + "_InstanceRegion2ProvisioningRegionLink_";
 						
@@ -662,10 +662,10 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 	}
 	
-	private List<TemplateBuildPlan> connectInstanceSelectionPaths(BPELPlan plan, AbstractNodeTemplate strategicallySelectedNode, ScalingPlanDefinition scalingPlanDefinition) {
-		List<TemplateBuildPlan> templateBuildPlans = new ArrayList<TemplateBuildPlan>();
+	private List<BPELScopeActivity> connectInstanceSelectionPaths(BPELPlan plan, AbstractNodeTemplate strategicallySelectedNode, ScalingPlanDefinition scalingPlanDefinition) {
+		List<BPELScopeActivity> templateBuildPlans = new ArrayList<BPELScopeActivity>();
 		AbstractNodeTemplate currentNode = strategicallySelectedNode;
-		TemplateBuildPlan currentScope = this.planHandler.getTemplateBuildPlanById(strategicallySelectedNode.getId(), plan);
+		BPELScopeActivity currentScope = this.planHandler.getTemplateBuildPlanById(strategicallySelectedNode.getId(), plan);
 		
 		if (currentNode.getOutgoingRelations().isEmpty()) {
 			templateBuildPlans.add(currentScope);
@@ -688,7 +688,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return templateBuildPlans;
 	}
 	
-	private void createProvisioningConnection(BPELPlan buildPlan, TemplateBuildPlan relationshipPlan, TemplateBuildPlan source, TemplateBuildPlan target) {
+	private void createProvisioningConnection(BPELPlan buildPlan, BPELScopeActivity relationshipPlan, BPELScopeActivity source, BPELScopeActivity target) {
 		
 		// determine base type of relationshiptemplate
 		QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
@@ -761,33 +761,33 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 		// add scopes for the region
 		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplates) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
+			BPELScopeActivity newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
 			newTemplate.setNodeTemplate(nodeTemplate);
 			plan.addTemplateBuildPlan(newTemplate);
 		}
 		
 		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplates) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, plan);
+			BPELScopeActivity newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, plan);
 			newTemplate.setRelationshipTemplate(relationshipTemplate);
 			plan.addTemplateBuildPlan(newTemplate);
 		}
 		
 		// add scopes for each node selected strategically at runtime
 		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes.values()) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
+			BPELScopeActivity newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
 			newTemplate.setNodeTemplate(nodeTemplate);
 			plan.addTemplateBuildPlan(newTemplate);
 		}
 		
 		// add scopes for all templates selected recursively at runtime
 		for (AbstractNodeTemplate nodeTemplate : scalingPlanDefinition.nodeTemplatesRecursiveSelection) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
+			BPELScopeActivity newTemplate = this.scopeHandler.createTemplateBuildPlan(nodeTemplate, plan);
 			newTemplate.setNodeTemplate(nodeTemplate);
 			plan.addTemplateBuildPlan(newTemplate);
 		}
 		
 		for (AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
-			TemplateBuildPlan newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, plan);
+			BPELScopeActivity newTemplate = this.scopeHandler.createTemplateBuildPlan(relationshipTemplate, plan);
 			newTemplate.setRelationshipTemplate(relationshipTemplate);
 			plan.addTemplateBuildPlan(newTemplate);
 		}

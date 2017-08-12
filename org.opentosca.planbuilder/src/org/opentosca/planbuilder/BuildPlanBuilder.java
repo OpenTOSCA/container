@@ -34,7 +34,7 @@ import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -160,13 +160,13 @@ public class BuildPlanBuilder extends IPlanBuilder {
 				// create empty templateplans for each template and add them to
 				// buildplan
 				for (AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-					TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newBuildPlan);
+					BPELScopeActivity newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newBuildPlan);
 					newTemplate.setNodeTemplate(nodeTemplate);
 					newBuildPlan.addTemplateBuildPlan(newTemplate);
 				}
 				
 				for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
-					TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newBuildPlan);
+					BPELScopeActivity newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newBuildPlan);
 					newTemplate.setRelationshipTemplate(relationshipTemplate);
 					newBuildPlan.addTemplateBuildPlan(newTemplate);
 				}
@@ -252,7 +252,7 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 */
 	private void runPlugins(BPELPlan buildPlan, PropertyMap map) {
 		
-		for (TemplateBuildPlan templatePlan : buildPlan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				// handling nodetemplate
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
@@ -460,14 +460,14 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 *            provision
 	 */
 	private void initializeDependenciesInBuildPlan(BPELPlan buildPlan) {
-		for (TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
+		for (BPELScopeActivity relationshipPlan : this.planHandler.getRelationshipTemplatePlans(buildPlan)) {
 			// determine base type of relationshiptemplate
 			QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
 			
 			// determine source and target of relationshiptemplate AND REVERSE
 			// the edge !
-			TemplateBuildPlan target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), buildPlan);
-			TemplateBuildPlan source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), buildPlan);
+			BPELScopeActivity target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), buildPlan);
+			BPELScopeActivity source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), buildPlan);
 			
 			// set dependencies inside buildplan (the links in the flow)
 			// according to the basetype

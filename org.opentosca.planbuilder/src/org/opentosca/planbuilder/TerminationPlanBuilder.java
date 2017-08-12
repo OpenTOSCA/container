@@ -27,7 +27,7 @@ import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -122,13 +122,13 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 				// create empty templateplans for each template and add them to
 				// buildplan
 				for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-					final TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newTerminationPlan);
+					final BPELScopeActivity newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newTerminationPlan);
 					newTemplate.setNodeTemplate(nodeTemplate);
 					newTerminationPlan.addTemplateBuildPlan(newTemplate);
 				}
 				
 				for (final AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
-					final TemplateBuildPlan newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newTerminationPlan);
+					final BPELScopeActivity newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newTerminationPlan);
 					newTemplate.setRelationshipTemplate(relationshipTemplate);
 					newTerminationPlan.addTemplateBuildPlan(newTemplate);
 				}
@@ -197,7 +197,7 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 		 * achieve termination, we just terminate each VM and Docker Container
 		 * we can find
 		 */
-		for (final TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+		for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			// we handle only nodeTemplates..
 			if (templatePlan.getNodeTemplate() != null) {
 				// .. that are VM nodeTypes
@@ -359,13 +359,13 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 	 *            provision
 	 */
 	private void initializeConnectionsInTerminationPlan(final BPELPlan plan) {
-		for (final TemplateBuildPlan relationshipPlan : this.planHandler.getRelationshipTemplatePlans(plan)) {
+		for (final BPELScopeActivity relationshipPlan : this.planHandler.getRelationshipTemplatePlans(plan)) {
 			// determine base type of relationshiptemplate
 			final QName baseType = Utils.getRelationshipBaseType(relationshipPlan.getRelationshipTemplate());
 			
 			// determine source and target of relationshiptemplate
-			final TemplateBuildPlan source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), plan);
-			final TemplateBuildPlan target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), plan);
+			final BPELScopeActivity source = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getSource().getId(), plan);
+			final BPELScopeActivity target = this.planHandler.getTemplateBuildPlanById(relationshipPlan.getRelationshipTemplate().getTarget().getId(), plan);
 			
 			// set dependencies inside buildplan (the links in the flow)
 			// according to the basetype

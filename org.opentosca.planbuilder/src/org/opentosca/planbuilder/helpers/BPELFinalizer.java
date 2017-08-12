@@ -17,7 +17,7 @@ import org.opentosca.planbuilder.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.handlers.ScopeHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -148,7 +148,7 @@ public class BPELFinalizer {
 		
 		this.makeSequential(buildPlan);
 		
-		for (TemplateBuildPlan templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
 			// check if any phase of this templatebuildplan has no child
 			// elements, if it's empty, add an empty activity
 			Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
@@ -244,13 +244,13 @@ public class BPELFinalizer {
 	 */
 	public void makeSequential(BPELPlan buildPlan) {
 		BPELFinalizer.LOG.debug("Starting to transform BuildPlan {} to sequential provsioning", buildPlan.getBpelProcessElement().getAttribute("name"));
-		List<TemplateBuildPlan> templateBuildPlans = buildPlan.getTemplateBuildPlans();
+		List<BPELScopeActivity> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 		
-		List<TemplateBuildPlan> sequentialOrder = this.calcTopologicalOrdering(templateBuildPlans);
+		List<BPELScopeActivity> sequentialOrder = this.calcTopologicalOrdering(templateBuildPlans);
 		
 		Collections.reverse(sequentialOrder);
 		
-		for (TemplateBuildPlan template : sequentialOrder) {
+		for (BPELScopeActivity template : sequentialOrder) {
 			BPELFinalizer.LOG.debug("Seq order: " + template.getBpelScopeElement().getAttribute("name"));
 		}
 		
@@ -259,18 +259,18 @@ public class BPELFinalizer {
 			this.buildPlanHandler.removeLink(link, buildPlan);
 		}
 		
-		for (TemplateBuildPlan templateBuildPlan : templateBuildPlans) {
+		for (BPELScopeActivity templateBuildPlan : templateBuildPlans) {
 			this.scopeHandler.removeSources(templateBuildPlan);
 			this.scopeHandler.removeTargets(templateBuildPlan);
 		}
 		
-		Iterator<TemplateBuildPlan> iter = sequentialOrder.iterator();
+		Iterator<BPELScopeActivity> iter = sequentialOrder.iterator();
 		if (iter.hasNext()) {
-			TemplateBuildPlan target = iter.next();
+			BPELScopeActivity target = iter.next();
 			BPELFinalizer.LOG.debug("Beginning connecting with " + target.getBpelScopeElement().getAttribute("name"));
 			int counter = 0;
 			while (iter.hasNext()) {
-				TemplateBuildPlan source = iter.next();
+				BPELScopeActivity source = iter.next();
 				BPELFinalizer.LOG.debug("Connecting source " + source.getBpelScopeElement().getAttribute("name") + " with target " + target.getBpelScopeElement().getAttribute("name"));
 				this.buildPlanHandler.addLink("seqEdge" + counter, buildPlan);
 				this.templateHandler.connect(source, target, "seqEdge" + counter);
@@ -281,26 +281,26 @@ public class BPELFinalizer {
 		
 	}
 	
-	private List<TemplateBuildPlan> calcTopologicalOrdering(List<TemplateBuildPlan> templateBuildPlans) {
+	private List<BPELScopeActivity> calcTopologicalOrdering(List<BPELScopeActivity> templateBuildPlans) {
 		// will contain the order at the end
-		List<TemplateBuildPlan> topologicalOrder = new ArrayList<TemplateBuildPlan>();
+		List<BPELScopeActivity> topologicalOrder = new ArrayList<BPELScopeActivity>();
 		
 		// init marks
-		Map<TemplateBuildPlan, TopologicalSortMarking> markings = new HashMap<TemplateBuildPlan, TopologicalSortMarking>();
+		Map<BPELScopeActivity, TopologicalSortMarking> markings = new HashMap<BPELScopeActivity, TopologicalSortMarking>();
 		
-		for (TemplateBuildPlan template : templateBuildPlans) {
+		for (BPELScopeActivity template : templateBuildPlans) {
 			markings.put(template, new TopologicalSortMarking());
 		}
 		
 		while (this.hasUnmarkedNode(markings)) {
-			TemplateBuildPlan templateBuildPlan = this.getUnmarkedNode(markings);
+			BPELScopeActivity templateBuildPlan = this.getUnmarkedNode(markings);
 			this.visitTopologicalOrdering(templateBuildPlan, markings, topologicalOrder);
 		}
 		
 		return topologicalOrder;
 	}
 	
-	private void visitTopologicalOrdering(TemplateBuildPlan templateBuildPlan, Map<TemplateBuildPlan, TopologicalSortMarking> markings, List<TemplateBuildPlan> topologicalOrder) {
+	private void visitTopologicalOrdering(BPELScopeActivity templateBuildPlan, Map<BPELScopeActivity, TopologicalSortMarking> markings, List<BPELScopeActivity> topologicalOrder) {
 		
 		if (markings.get(templateBuildPlan).tempMark == true) {
 			BPELFinalizer.LOG.error("Topological order detected cycle!");
@@ -308,7 +308,7 @@ public class BPELFinalizer {
 		}
 		if ((markings.get(templateBuildPlan).permMark == false) && (markings.get(templateBuildPlan).tempMark == false)) {
 			markings.get(templateBuildPlan).tempMark = true;
-			for (TemplateBuildPlan successor : this.templateHandler.getSuccessors(templateBuildPlan)) {
+			for (BPELScopeActivity successor : this.templateHandler.getSuccessors(templateBuildPlan)) {
 				this.visitTopologicalOrdering(successor, markings, topologicalOrder);
 			}
 			markings.get(templateBuildPlan).permMark = true;
@@ -317,7 +317,7 @@ public class BPELFinalizer {
 		}
 	}
 	
-	private boolean hasUnmarkedNode(Map<TemplateBuildPlan, TopologicalSortMarking> markings) {
+	private boolean hasUnmarkedNode(Map<BPELScopeActivity, TopologicalSortMarking> markings) {
 		for (TopologicalSortMarking marking : markings.values()) {
 			if ((marking.permMark == false) & (marking.tempMark == false)) {
 				return true;
@@ -326,8 +326,8 @@ public class BPELFinalizer {
 		return false;
 	}
 	
-	private TemplateBuildPlan getUnmarkedNode(Map<TemplateBuildPlan, TopologicalSortMarking> markings) {
-		for (TemplateBuildPlan plan : markings.keySet()) {
+	private BPELScopeActivity getUnmarkedNode(Map<BPELScopeActivity, TopologicalSortMarking> markings) {
+		for (BPELScopeActivity plan : markings.keySet()) {
 			if ((markings.get(plan).permMark == false) & (markings.get(plan).tempMark == false)) {
 				return plan;
 			}

@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class BPELScopeHandler {
 	 * @param buildPlan
 	 *            the BuildPlan to connect to TemplateBuildPlan to
 	 */
-	public void initializeXMLElements(TemplateBuildPlan newTemplateBuildPlan, BPELPlan buildPlan) {
+	public void initializeXMLElements(BPELScopeActivity newTemplateBuildPlan, BPELPlan buildPlan) {
 		// set the build plan of the new template buildplan
 		newTemplateBuildPlan.setBuildPlan(buildPlan);
 
@@ -110,7 +110,7 @@ public class BPELScopeHandler {
 	 * @param templateBuildPlan
 	 *            the TemplateBuildPlan to set the name for
 	 */
-	public void setName(String name, TemplateBuildPlan templateBuildPlan) {
+	public void setName(String name, BPELScopeActivity templateBuildPlan) {
 		BPELScopeHandler.LOG.debug("Setting name {} for TemplateBuildPlan", name);
 		// set scope name
 		templateBuildPlan.getBpelScopeElement().setAttribute("name", name + "_scope");
@@ -143,7 +143,7 @@ public class BPELScopeHandler {
 	 * @return true if setting partnerLink was successful, else false
 	 */
 	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole,
-			boolean initializePartnerRole, TemplateBuildPlan templateBuildPlan) {
+			boolean initializePartnerRole, BPELScopeActivity templateBuildPlan) {
 		BPELScopeHandler.LOG.debug(
 				"Trying to add partnerLink {} with partnerLinkType {}, myRole {}, partnerRole {} and initializePartnerRole {} on TemplateBuildPlan {}",
 				partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole),
@@ -185,7 +185,7 @@ public class BPELScopeHandler {
 	 * @return true if adding CorrelationSet was successful, else false
 	 */
 	public boolean addCorrelationSet(String correlationSetName, String propertyName,
-			TemplateBuildPlan templateBuildPlan) {
+			BPELScopeActivity templateBuildPlan) {
 		BPELScopeHandler.LOG.debug("Trying to add correlationSet {} with property {} to templateBuildPlan {}",
 				correlationSetName, propertyName, templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasCorrelationSet(correlationSetName, templateBuildPlan)) {
@@ -211,7 +211,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan to check on
 	 * @return true if the correlationSet is declared in the TemplateBuildPlan
 	 */
-	private boolean hasCorrelationSet(String correlationSetName, TemplateBuildPlan templateBuildPlan) {
+	private boolean hasCorrelationSet(String correlationSetName, BPELScopeActivity templateBuildPlan) {
 		return Utils.hasChildElementWithAttribute(templateBuildPlan.getBpelCorrelationSets(), "name",
 				correlationSetName);
 	}
@@ -225,7 +225,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan to add the Link to
 	 * @return true if adding the Link was successful, else false
 	 */
-	public boolean addSource(String linkName, TemplateBuildPlan templateBuildPlan) {
+	public boolean addSource(String linkName, BPELScopeActivity templateBuildPlan) {
 		BPELScopeHandler.LOG.debug("Trying to add link {} as source to TemplateBuildPlan {}", linkName,
 				templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasSource(linkName, templateBuildPlan)) {
@@ -254,7 +254,7 @@ public class BPELScopeHandler {
 	 * @return true if adding variable was successful, else false
 	 */
 	public boolean addVariable(String name, BPELPlan.VariableType variableType, QName declarationId,
-			TemplateBuildPlan templateBuildPlan) {
+			BPELScopeActivity templateBuildPlan) {
 		BPELScopeHandler.LOG.debug(
 				"Trying to add variable {} with of type {} and XML Schematype {} to TemplateBuildPlan {}", name,
 				variableType, declarationId.toString(), templateBuildPlan.getBpelScopeElement().getAttribute("name"));
@@ -299,7 +299,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan to add the link to
 	 * @return true if adding link was successful, else false
 	 */
-	public boolean addTarget(String linkName, TemplateBuildPlan templateBuildPlan) {
+	public boolean addTarget(String linkName, BPELScopeActivity templateBuildPlan) {
 		BPELScopeHandler.LOG.debug("Trying to add link {} as target to TemplateBuildPlan {}", linkName,
 				templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		if (this.hasTarget(linkName, templateBuildPlan)) {
@@ -324,7 +324,7 @@ public class BPELScopeHandler {
 	 * @return true if the given link is declared as source in the given
 	 *         TemplateBuildPlan
 	 */
-	public boolean hasSource(String name, TemplateBuildPlan templateBuildPlan) {
+	public boolean hasSource(String name, BPELScopeActivity templateBuildPlan) {
 		return Utils.hasChildElementWithAttribute(templateBuildPlan.getBpelSourcesElement(), "linkName", name);
 	}
 
@@ -338,7 +338,7 @@ public class BPELScopeHandler {
 	 * @return true if the given link is declared as target in the given
 	 *         TemplateBuildPlan
 	 */
-	public boolean hasTarget(String name, TemplateBuildPlan templateBuildPlan) {
+	public boolean hasTarget(String name, BPELScopeActivity templateBuildPlan) {
 		return Utils.hasChildElementWithAttribute(templateBuildPlan.getBpelTargetsElement(), "linkName", name);
 	}
 
@@ -353,7 +353,7 @@ public class BPELScopeHandler {
 	 * @return true if the given TemplateBuildPlan already has a partnerLink
 	 *         with the given name, else false
 	 */
-	private boolean hasPartnerlink(String name, TemplateBuildPlan templateBuildPlan) {
+	private boolean hasPartnerlink(String name, BPELScopeActivity templateBuildPlan) {
 		return Utils.hasChildElementWithAttribute(templateBuildPlan.getBpelPartnerLinksElement(), "name", name);
 	}
 
@@ -367,7 +367,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan to check on
 	 * @return true if the variableName is already used, else false
 	 */
-	private boolean hasVariable(String name, TemplateBuildPlan templateBuildPlan) {
+	private boolean hasVariable(String name, BPELScopeActivity templateBuildPlan) {
 		return Utils.hasChildElementWithAttribute(templateBuildPlan.getBpelVariablesElement(), "name", name);
 	}
 
@@ -378,7 +378,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan to check
 	 * @return true if the given TemplateBuildPlan is for a NodeTemplate
 	 */
-	public boolean isNodeTemplatePlan(TemplateBuildPlan template) {
+	public boolean isNodeTemplatePlan(BPELScopeActivity template) {
 		return template.getNodeTemplate() != null;
 	}
 
@@ -389,7 +389,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan to check
 	 * @return true if the given TemplateBuildPlan is for a RelationshipTemplate
 	 */
-	public boolean isRelationshipTemplatePlan(TemplateBuildPlan template) {
+	public boolean isRelationshipTemplatePlan(BPELScopeActivity template) {
 		return template.getRelationshipTemplate() != null;
 	}
 
@@ -402,7 +402,7 @@ public class BPELScopeHandler {
 	 * @return a List of String representing Links inside the sources element of
 	 *         the given TemplateBuildPlan
 	 */
-	public List<String> getLinksInSources(TemplateBuildPlan template) {
+	public List<String> getLinksInSources(BPELScopeActivity template) {
 		List<String> sourcesLinkNames = new ArrayList<String>();
 		if (template.getBpelSourcesElement() == null) {
 			return sourcesLinkNames;
@@ -428,7 +428,7 @@ public class BPELScopeHandler {
 	 * @return a List of Strings representing Links inside the targets element
 	 *         of the given TemplateBuildPlan
 	 */
-	public List<String> getLinksInTarget(TemplateBuildPlan template) {
+	public List<String> getLinksInTarget(BPELScopeActivity template) {
 		List<String> targetsLinkNames = new ArrayList<String>();
 		if (template.getBpelTargetsElement() == null) {
 			return targetsLinkNames;
@@ -453,7 +453,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan for that all source relations have to be
 	 *            removed
 	 */
-	public void removeSources(TemplateBuildPlan template) {
+	public void removeSources(BPELScopeActivity template) {
 		Element sources = template.getBpelSourcesElement();
 
 		if (sources != null) {
@@ -468,7 +468,7 @@ public class BPELScopeHandler {
 	 *            the TemplateBuildPlan for that all target relations have to be
 	 *            removed
 	 */
-	public void removeTargets(TemplateBuildPlan template) {
+	public void removeTargets(BPELScopeActivity template) {
 		Element targets = template.getBpelTargetsElement();
 		if (targets != null) {
 			BPELScopeHandler.removeAllChildNodes(targets);
@@ -498,7 +498,7 @@ public class BPELScopeHandler {
 	 * @return a List of Strings with the names of the variables defined inside
 	 *         the given templatePlan
 	 */
-	public List<String> getVariableNames(TemplateBuildPlan templatePlan) {
+	public List<String> getVariableNames(BPELScopeActivity templatePlan) {
 		List<String> varNames = new ArrayList<String>();
 		NodeList variableNodesList = templatePlan.getBpelVariablesElement().getChildNodes();
 

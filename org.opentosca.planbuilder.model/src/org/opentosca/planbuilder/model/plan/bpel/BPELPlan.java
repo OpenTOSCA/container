@@ -106,7 +106,7 @@ public class BPELPlan extends AbstractPlan{
 
 	// variable for TemplateBuildPlans, makes it easier or handlers and
 	// planbuilder to hold it here extra
-	private List<TemplateBuildPlan> templateBuildPlans = new ArrayList<TemplateBuildPlan>();
+	private List<BPELScopeActivity> templateBuildPlans = new ArrayList<BPELScopeActivity>();
 	// imported files of the whole buildplan, to keep track for export
 	private List<File> importedFiles;
 
@@ -178,7 +178,7 @@ public class BPELPlan extends AbstractPlan{
 	 * 
 	 * @return a List of TemplateBuildPlan
 	 */
-	public List<TemplateBuildPlan> getTemplateBuildPlans() {
+	public List<BPELScopeActivity> getTemplateBuildPlans() {
 		return this.templateBuildPlans;
 	}
 
@@ -189,7 +189,7 @@ public class BPELPlan extends AbstractPlan{
 	 *            a TemplateBuildPlan to add
 	 * @return true iff adding was successful
 	 */
-	public boolean addTemplateBuildPlan(TemplateBuildPlan template) {
+	public boolean addTemplateBuildPlan(BPELScopeActivity template) {
 		return this.templateBuildPlans.add(template);
 	}
 
@@ -199,7 +199,7 @@ public class BPELPlan extends AbstractPlan{
 	 * @param templateBuildPlans
 	 *            a List of TemplateBuildPlan
 	 */
-	public void setTemplateBuildPlans(List<TemplateBuildPlan> templateBuildPlans) {
+	public void setTemplateBuildPlans(List<BPELScopeActivity> templateBuildPlans) {
 		this.templateBuildPlans = templateBuildPlans;
 	}
 

@@ -12,7 +12,7 @@ import org.opentosca.planbuilder.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
@@ -56,7 +56,7 @@ public class NodeInstanceInitializer {
 	 */
 	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(BPELPlan plan, PropertyMap propMap) {
 		boolean check = true;
-		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null && templatePlan.getNodeTemplate().getProperties().getDOMElement() != null) {
 				check &= this.addPropertyVariableUpdateBasedOnNodeInstanceID(templatePlan, propMap);
 			}
@@ -64,7 +64,7 @@ public class NodeInstanceInitializer {
 		return check;
 	}
 	
-	public String findInstanceIdVarName(TemplateBuildPlan templatePlan) {
+	public String findInstanceIdVarName(BPELScopeActivity templatePlan) {
 		String templateId = "";
 		
 		if (templatePlan.getNodeTemplate() != null) {
@@ -95,7 +95,7 @@ public class NodeInstanceInitializer {
 	 * @param propMap a Mapping from NodeTemplate Properties to BPEL Variables
 	 * @return true if adding logic described above was successful
 	 */
-	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(TemplateBuildPlan templatePlan, PropertyMap propMap) {
+	public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(BPELScopeActivity templatePlan, PropertyMap propMap) {
 		// check if everything is available
 		if (templatePlan.getNodeTemplate() == null) {
 			return false;
@@ -167,7 +167,7 @@ public class NodeInstanceInitializer {
 	 */
 	public boolean addNodeInstanceIDVarToTemplatePlans(BPELPlan plan) {
 		boolean check = true;
-		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			check &= this.addInstanceIDVarToTemplatePlan(templatePlan);
 		}
 		return check;
@@ -179,7 +179,7 @@ public class NodeInstanceInitializer {
 	 * @param templatePlan a TemplatePlan
 	 * @return true iff adding a NodeInstanceID Var was successful
 	 */
-	public boolean addInstanceIDVarToTemplatePlan(TemplateBuildPlan templatePlan) {
+	public boolean addInstanceIDVarToTemplatePlan(BPELScopeActivity templatePlan) {
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
 		
@@ -205,7 +205,7 @@ public class NodeInstanceInitializer {
 	public boolean addNodeInstanceFindLogic(BPELPlan plan) {
 		boolean check = true;
 		
-		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null) {
 				check &= this.addInstanceFindLogic(templatePlan, ServiceInstanceVarKeyword, InstanceDataAPIUrlKeyword);
 			}
@@ -226,7 +226,7 @@ public class NodeInstanceInitializer {
 	 *            the instanceDataAPI
 	 * @return
 	 */
-	public boolean addInstanceFindLogic(TemplateBuildPlan templatePlan, String serviceInstanceIdVarName, String instanceDataUrlVarName) {
+	public boolean addInstanceFindLogic(BPELScopeActivity templatePlan, String serviceInstanceIdVarName, String instanceDataUrlVarName) {
 		// add XML Schema Namespace for the logic
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
 		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -263,7 +263,7 @@ public class NodeInstanceInitializer {
 	
 	public boolean addIfNullAbortCheck(BPELPlan plan, PropertyMap propMap) {
 		boolean check = true;
-		for (TemplateBuildPlan templatePlan : plan.getTemplateBuildPlans()) {
+		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			if (templatePlan.getNodeTemplate() != null && templatePlan.getNodeTemplate().getProperties() != null) {
 				check &= this.addIfNullAbortCheck(templatePlan, propMap);
 			}
@@ -271,7 +271,7 @@ public class NodeInstanceInitializer {
 		return check;
 	}
 	
-	public boolean addIfNullAbortCheck(TemplateBuildPlan templatePlan, PropertyMap propMap) {
+	public boolean addIfNullAbortCheck(BPELScopeActivity templatePlan, PropertyMap propMap) {
 		
 		for (String propLocalName : propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId()).keySet()) {
 			String bpelVarName = propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId()).get(propLocalName);

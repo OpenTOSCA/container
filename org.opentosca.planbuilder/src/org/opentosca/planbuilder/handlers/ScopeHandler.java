@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
-import org.opentosca.planbuilder.model.plan.bpel.TemplateBuildPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.slf4j.Logger;
@@ -44,8 +44,8 @@ public class ScopeHandler {
 	 * @param buildPlan the BuildPlan the TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlan skeleton
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(BPELPlan buildPlan) {
-		TemplateBuildPlan newTemplateBuildPlan = new TemplateBuildPlan();
+	public BPELScopeActivity createTemplateBuildPlan(BPELPlan buildPlan) {
+		BPELScopeActivity newTemplateBuildPlan = new BPELScopeActivity();
 		this.templateHandler.initializeXMLElements(newTemplateBuildPlan, buildPlan);
 		return newTemplateBuildPlan;
 	}
@@ -59,8 +59,8 @@ public class ScopeHandler {
 	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlann skeleton for the given NodeTemplate
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, BPELPlan buildPlan) {
-		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
+	public BPELScopeActivity createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, BPELPlan buildPlan) {
+		BPELScopeActivity templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
 		templatePlan.setNodeTemplate(nodeTemplate);
 		return templatePlan;
@@ -86,8 +86,8 @@ public class ScopeHandler {
 	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
 	 * @return a new TemplateBuildPlan skeleton
 	 */
-	public TemplateBuildPlan createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan buildPlan) {
-		TemplateBuildPlan templatePlan = this.createTemplateBuildPlan(buildPlan);
+	public BPELScopeActivity createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan buildPlan) {
+		BPELScopeActivity templatePlan = this.createTemplateBuildPlan(buildPlan);
 		this.templateHandler.setName(relationshipTemplate.getId(), templatePlan);
 		templatePlan.setRelationshipTemplate(relationshipTemplate);
 		return templatePlan;
@@ -101,13 +101,13 @@ public class ScopeHandler {
 	 * @return a List of TemplateBuildPlans that are Successors of the given
 	 *         TemplateBuildPlan
 	 */
-	public List<TemplateBuildPlan> getSuccessors(TemplateBuildPlan templatePlan) {
-		List<TemplateBuildPlan> successors = new ArrayList<TemplateBuildPlan>();
+	public List<BPELScopeActivity> getSuccessors(BPELScopeActivity templatePlan) {
+		List<BPELScopeActivity> successors = new ArrayList<BPELScopeActivity>();
 		
 		List<String> linkNamesInSources = this.templateHandler.getLinksInSources(templatePlan);
 		
 		for (String linkAsSource : linkNamesInSources) {
-			for (TemplateBuildPlan template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
+			for (BPELScopeActivity template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
 				List<String> linkNamesInTargets = this.templateHandler.getLinksInTarget(template);
 				if (linkNamesInTargets.contains(linkAsSource)) {
 					successors.add(template);
@@ -129,7 +129,7 @@ public class ScopeHandler {
 	 * @param templateBuildPlan the TemplateBuildPlan to add the partnerLink to
 	 * @return true iff adding partnerLink was successful
 	 */
-	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole, boolean initializePartnerRole, TemplateBuildPlan templateBuildPlan) {
+	public boolean addPartnerLink(String partnerLinkName, QName partnerLinkType, String myRole, String partnerRole, boolean initializePartnerRole, BPELScopeActivity templateBuildPlan) {
 		ScopeHandler.LOG.debug("Trying to add partnerLink {} with partnerLinkType {}, myRole {}, partnerRole {} and initializePartnerRole {} for TemplateBuildPlan {}", partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole), templateBuildPlan.getBpelScopeElement().getAttribute("name"));
 		return this.templateHandler.addPartnerLink(partnerLinkName, partnerLinkType, myRole, partnerRole, initializePartnerRole, templateBuildPlan);
 	}
@@ -141,12 +141,12 @@ public class ScopeHandler {
 	 * @return a List of TemplateBuildPlans that are predecessors of the given
 	 *         TemplateBuildPlan
 	 */
-	public List<TemplateBuildPlan> getPredecessors(TemplateBuildPlan templatePlan) {
-		List<TemplateBuildPlan> preds = new ArrayList<TemplateBuildPlan>();
+	public List<BPELScopeActivity> getPredecessors(BPELScopeActivity templatePlan) {
+		List<BPELScopeActivity> preds = new ArrayList<BPELScopeActivity>();
 		List<String> linkNamesInTargets = this.templateHandler.getLinksInTarget(templatePlan);
 		
 		for (String linkAsTarget : linkNamesInTargets) {
-			for (TemplateBuildPlan template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
+			for (BPELScopeActivity template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
 				List<String> linkNamesInSources = this.templateHandler.getLinksInSources(template);
 				if (linkNamesInSources.contains(linkAsTarget)) {
 					preds.add(template);
@@ -166,7 +166,7 @@ public class ScopeHandler {
 	 * @return true if connections between templates was sucessfully created,
 	 *         else false
 	 */
-	public boolean connect(TemplateBuildPlan source, TemplateBuildPlan target, String linkName) {
+	public boolean connect(BPELScopeActivity source, BPELScopeActivity target, String linkName) {
 		ScopeHandler.LOG.debug("Trying to connect TemplateBuildPlan {} as source with TemplateBuildPlan {} as target", source.getBpelScopeElement().getAttribute("name"), target.getBpelScopeElement().getAttribute("name"));
 		boolean check = true;
 		// if everything was successfully added return true
@@ -181,7 +181,7 @@ public class ScopeHandler {
 	 * 
 	 * @param template the TemplateBuildPlan to remove its relations
 	 */
-	public void removeAllConnetions(TemplateBuildPlan template) {
+	public void removeAllConnetions(BPELScopeActivity template) {
 		this.templateHandler.removeSources(template);
 		this.templateHandler.removeTargets(template);
 	}
