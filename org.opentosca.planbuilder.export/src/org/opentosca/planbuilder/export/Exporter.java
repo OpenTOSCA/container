@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.export;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.stream.FactoryConfigurationError;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
@@ -117,6 +119,8 @@ public class Exporter extends AbstractExporter {
 			final Definitions defs = this.parseDefinitionsFile(rootDefFile);
 			final List<TServiceTemplate> servTemps = this.getServiceTemplates(defs);
 			
+			
+			
 			List<TOSCAPlan> plansToExport = new ArrayList<TOSCAPlan>();
 			
 			// add plans element to servicetemplates
@@ -210,11 +214,21 @@ public class Exporter extends AbstractExporter {
 			// write new defs file
 			final File newDefsFile = new File(tempDir, mainDefFile.getPath());
 			newDefsFile.createNewFile();
+			
 			final JAXBContext jaxbContext = JAXBContext.newInstance(Definitions.class);
+			
 			final Marshaller m = jaxbContext.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			
+			FileWriter writer = new FileWriter(newDefsFile);
+					
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);			
 			// output to the console: m.marshal(defs, System.out);
-			m.marshal(defs, newDefsFile);
+			try {
+				m.marshal(defs, writer);
+			}  catch (FactoryConfigurationError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			// write plans
 			for (TOSCAPlan plan : plansToExport) {
@@ -235,8 +249,7 @@ public class Exporter extends AbstractExporter {
 				final Application appDesc = (Application) u.unmarshal(selfServiceDataXml);
 				
 				if (appDesc.getOptions() != null) {
-					// check if planInput etc. is set properly
-					int addedToOptions = 0;
+					// check if planInput etc. is set properly					
 					List<TOSCAPlan> exportedPlans = new ArrayList<TOSCAPlan>();
 					for (ApplicationOption option : appDesc.getOptions().getOption()) {
 						for (TOSCAPlan plan : plansToExport) {
@@ -246,8 +259,7 @@ public class Exporter extends AbstractExporter {
 									// but
 									// no file exists in the csar -> write one
 									final File planInputFile = new File(selfServiceDir, option.getPlanInputMessageUrl());
-									this.writePlanInputMessageInstance(plan, planInputFile);
-									addedToOptions++;
+									this.writePlanInputMessageInstance(plan, planInputFile);									
 									exportedPlans.add(plan);
 								}
 							}
@@ -525,4 +537,10 @@ public class Exporter extends AbstractExporter {
 		final String soapEnvelopeSuffix = "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
 		return soapEnvelopeSuffix;
 	}
+	
+
+	
+
+
+
 }

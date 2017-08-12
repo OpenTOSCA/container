@@ -10,6 +10,7 @@ package org.oasis_open.docs.tosca.ns._2011._12;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlNs;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -33,7 +34,8 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
-@XmlRootElement(name = "Definitions")
+
+@XmlRootElement(name = "Definitions", namespace = "http://docs.oasis-open.org/tosca/ns/2011/12")
 public class Definitions
     extends TDefinitions
 {
