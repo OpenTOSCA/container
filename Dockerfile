@@ -1,14 +1,10 @@
 FROM maven:3-jdk-8 as builder
 
-ARG GIT_REPO_URL=https://github.com/OpenTOSCA/container.git
-ARG GIT_BRANCH=master
-
 RUN rm /dev/random && ln -s /dev/urandom /dev/random
 
 WORKDIR /opt/opentosca/container
-
-RUN git clone --recursive --depth=1 ${GIT_REPO_URL} -b ${GIT_BRANCH} /opt/opentosca/container \
-    && mvn package
+COPY . /opt/opentosca/container
+RUN mvn package
 
 
 FROM openjdk:8
