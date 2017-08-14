@@ -35,6 +35,7 @@ import org.opentosca.container.api.legacy.resources.utilities.Utilities;
 import org.opentosca.container.api.legacy.resources.xlink.Reference;
 import org.opentosca.container.api.legacy.resources.xlink.References;
 import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
+import org.opentosca.container.core.impl.persistence.Converters;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.ServiceInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -120,9 +121,9 @@ public class ServiceTemplateInstancesResource {
 
     final List<ServiceInstance> serviceInstances =
         service.getServiceInstancesWithDetails(this.csarId, this.serviceTemplateID, null);
+
     // get all instance ids
-    if ((null == buildPlanCorrId) || buildPlanCorrId.equals("")
-        || !BuildCorrelationToInstanceMapping.instance.knowsCorrelationId(buildPlanCorrId)) {
+    if ((null == buildPlanCorrId) || buildPlanCorrId.isEmpty()) {
 
       // List<ServiceInstance> serviceInstances =
       // service.getServiceInstances(serviceInstanceIdURI,
@@ -154,17 +155,23 @@ public class ServiceTemplateInstancesResource {
     }
     // get instance id of plan correlation only
     else {
+      PlanInstanceRepository repo = new PlanInstanceRepository();
+      PlanInstance pi = repo.findByCorrelationId(buildPlanCorrId);
 
-      final int instanceId = BuildCorrelationToInstanceMapping.instance
-          .getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
-      for (ServiceInstance serviceInstance : serviceInstances) {
-        if (serviceInstance.getDBId() == instanceId) {
-          refs.getReference().add(new Reference(serviceInstance.getServiceInstanceID().toString(),
-              XLinkConstants.SIMPLE, Integer.toString(instanceId)));
-        }
-      }
+      ServiceTemplateInstance sti = pi.getServiceTemplateInstance();
+
+      ServiceInstance si = Converters.convert(sti);
+
+      // final int instanceId = BuildCorrelationToInstanceMapping.instance
+      // .getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
+      // for (ServiceInstance serviceInstance : serviceInstances) {
+      // if (serviceInstance.getDBId() == instanceId) {
+      refs.getReference().add(new Reference(si.getServiceInstanceID().toString(),
+          XLinkConstants.SIMPLE, Integer.toString(si.getDBId())));
+      // }
+      // }
       this.log.debug("Returning only the Service Template instance ID for correlation {} ({}).",
-          buildPlanCorrId, instanceId);
+          buildPlanCorrId, si.getServiceInstanceID());
 
       // URI urlToServiceInstance =
       // LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
