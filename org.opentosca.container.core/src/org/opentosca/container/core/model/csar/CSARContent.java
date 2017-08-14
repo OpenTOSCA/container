@@ -530,4 +530,8 @@ public class CSARContent implements IBrowseable {
     return topologyPicture;
 
   }
+
+  public AbstractDirectory getCsarRoot() {
+    return csarRoot;
+  }
 }
