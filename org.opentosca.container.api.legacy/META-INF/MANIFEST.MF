@@ -4,7 +4,9 @@ Bundle-Name: OpenTOSCA Container API (legacy)
 Bundle-SymbolicName: org.opentosca.container.api.legacy
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.container.api.legacy.Activator
-Import-Package: com.google.gson;version="2.2.4",
+Import-Package: com.fasterxml.jackson.core;version="2.6.2",
+ com.fasterxml.jackson.databind;version="2.6.2",
+ com.google.gson;version="2.2.4",
  javax.servlet;version="2.4.0",
  javax.servlet.http;version="3.1.0",
  javax.ws.rs;version="1.1.1",
@@ -29,7 +31,8 @@ Require-Bundle: org.opentosca.container.control;bundle-version="1.0.0",
  org.opentosca.planbuilder.integration;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
  org.opentosca.planbuilder.service;bundle-version="1.0.0",
- org.opentosca.container.portability;bundle-version="1.0.0"
+ org.opentosca.container.portability;bundle-version="1.0.0",
+ org.opentosca.container.core.impl
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.api.legacy,

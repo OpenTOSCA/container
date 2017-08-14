@@ -1,123 +1,88 @@
 package org.opentosca.container.api.dto;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.opentosca.container.core.model.instance.ServiceInstanceId;
-import org.opentosca.container.core.model.instance.State;
-import org.opentosca.container.core.tosca.extension.TParameter;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceEvent;
+import org.opentosca.container.core.next.model.PlanInstanceOutput;
+import org.opentosca.container.core.next.model.PlanInstanceState;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @XmlRootElement(name = "PlanInstance")
-@XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanInstanceDTO extends ResourceSupport {
-	
-	@XmlAttribute(name = "id")
-	private String id;
-	
-	@XmlAttribute(name = "state")
-	private State.Plan state;
 
-	@XmlElement(name = "OutputParameter")
-	@XmlElementWrapper(name = "OutputParameters")
-	private List<TParameter> output;
-
-	@XmlElement(name = "LogEntry")
-	@XmlElementWrapper(name = "Logs")
-	private List<LogEntry> logs;
-	
-	@JsonIgnore
-	private ServiceInstanceId serviceTemplateInstance;
-	
-	
-	public PlanInstanceDTO() {
-
-	}
-
-	public String getId() {
-		return this.id;
-	}
-
-	public void setId(final String id) {
-		this.id = id;
-	}
-
-	public State.Plan getState() {
-		return this.state;
-	}
-	
-	public void setState(final State.Plan state) {
-		this.state = state;
-	}
-	
-	public List<TParameter> getOutput() {
-		return this.output;
-	}
-	
-	public void setOutput(final List<TParameter> output) {
-		this.output = output;
-	}
-	
-	public List<LogEntry> getLogs() {
-		return this.logs;
-	}
-	
-	public void setLogs(final List<LogEntry> logs) {
-		this.logs = logs;
-	}
-
-	public ServiceInstanceId getServiceTemplateInstance() {
-		return this.serviceTemplateInstance;
-	}
-
-	public void setServiceTemplateInstance(final ServiceInstanceId serviceTemplateInstance) {
-		this.serviceTemplateInstance = serviceTemplateInstance;
-	}
+  @JsonIgnore
+  private PlanInstance pi;
 
 
-	@XmlRootElement(name = "LogEntry")
-	@XmlAccessorType(XmlAccessType.FIELD)
-	public static class LogEntry {
+  public PlanInstanceDTO() {
 
-		@XmlElement(name = "Timestamp")
-		private String timestamp;
+  }
 
-		@XmlElement(name = "Message")
-		private String message;
-		
-		
-		public LogEntry() {
-			
-		}
-		
-		public LogEntry(final String timestamp, final String message) {
-			this.timestamp = timestamp;
-			this.message = message;
-		}
-		
-		public String getTimestamp() {
-			return this.timestamp;
-		}
-		
-		public void setTimestamp(final String timestamp) {
-			this.timestamp = timestamp;
-		}
-		
-		public String getMessage() {
-			return this.message;
-		}
-		
-		public void setMessage(final String message) {
-			this.message = message;
-		}
-	}
+  public PlanInstanceDTO(PlanInstance pi) {
+    this.pi = pi;
+  }
+
+  @JsonProperty
+  @XmlAttribute(name = "id")
+  public String getId() {
+    return this.pi.getCorrelationId();
+  }
+
+  public void setId(final String id) {
+    this.pi.setCorrelationId(id);
+  }
+
+  @JsonProperty
+  @XmlAttribute(name = "state")
+  public PlanInstanceState getState() {
+    return this.pi.getState();
+  }
+
+  public void setState(final PlanInstanceState state) {
+    this.pi.setState(state);
+  }
+
+  @JsonProperty
+  @XmlElement(name = "OutputParameter")
+  @XmlElementWrapper(name = "OutputParameters")
+  public Collection<PlanInstanceOutput> getOutput() {
+    return this.pi.getOutputs();
+  }
+
+  public void setOutput(final Set<PlanInstanceOutput> outputs) {
+    this.pi.setOutputs(outputs);
+  }
+
+  @JsonProperty
+  @XmlElement(name = "LogEntry")
+  @XmlElementWrapper(name = "Logs")
+  public List<PlanInstanceEvent> getLogs() {
+    return this.pi.getEvents();
+  }
+
+  public void setLogs(final List<PlanInstanceEvent> logs) {
+    this.pi.setEvents(logs);
+  }
+
+  @JsonIgnore
+  public ServiceTemplateInstance getServiceTemplateInstance() {
+    return this.pi.getServiceTemplateInstance();
+  }
+
+  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+    this.pi.setServiceTemplateInstance(serviceTemplateInstance);
+  }
 }

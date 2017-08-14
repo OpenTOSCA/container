@@ -3,8 +3,6 @@ package org.opentosca.container.api.legacy.resources.csar.servicetemplate.instan
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.Iterator;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,13 +17,10 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.legacy.osgi.servicegetter.IOpenToscaControlServiceHandler;
 import org.opentosca.container.api.legacy.osgi.servicegetter.InstanceDataServiceHandler;
-import org.opentosca.container.api.legacy.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances.plans.PlanInstances;
 import org.opentosca.container.api.legacy.resources.csar.servicetemplate.nodetemplate.NodeTemplatesResource;
 import org.opentosca.container.api.legacy.resources.csar.servicetemplate.relationshiptemplate.RelationshipTemplatesResource;
-import org.opentosca.container.api.legacy.resources.utilities.JSONUtils;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
 import org.opentosca.container.api.legacy.resources.utilities.Utilities;
 import org.opentosca.container.api.legacy.resources.xlink.Reference;
@@ -34,16 +29,10 @@ import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.service.IInstanceDataService;
-import org.opentosca.container.core.tosca.extension.TParameterDTO;
-import org.opentosca.container.core.tosca.extension.TPlanDTO;
-import org.opentosca.container.core.tosca.model.TBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 /**
  *
@@ -51,202 +40,233 @@ import com.google.gson.JsonParser;
  *
  */
 public class ServiceTemplateInstanceResource {
-	
-	private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
 
-	private final CSARID csarId;
-	private final QName serviceTemplateID;
-	private final int serviceTemplateInstanceId;
-	
-	
-	public ServiceTemplateInstanceResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId) {
-		this.csarId = csarId;
-		this.serviceTemplateID = serviceTemplateID;
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-	}
+  private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
 
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context final UriInfo uriInfo) {
+  private final CSARID csarId;
+  private final QName serviceTemplateID;
+  private final int serviceTemplateInstanceId;
 
-		final References idr = this.getRefs(uriInfo);
 
-		if (null == idr) {
-			Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
+  public ServiceTemplateInstanceResource(final CSARID csarId, final QName serviceTemplateID,
+      final int serviceTemplateInstanceId) {
+    this.csarId = csarId;
+    this.serviceTemplateID = serviceTemplateID;
+    this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+  }
 
-		return Response.ok(idr.getXMLString()).build();
-	}
+  @GET
+  @Produces(MediaType.APPLICATION_XML)
+  public Response doGetXML(@Context final UriInfo uriInfo) {
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@Context final UriInfo uriInfo) {
+    final References idr = this.getRefs(uriInfo);
 
-		final References idr = this.getRefs(uriInfo);
+    if (null == idr) {
+      Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    }
 
-		if (null == idr) {
-			Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
+    return Response.ok(idr.getXMLString()).build();
+  }
 
-		return Response.ok(idr.getJSONString()).build();
-	}
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response doGetJSON(@Context final UriInfo uriInfo) {
 
-	public References getRefs(final UriInfo uriInfo) {
+    final References idr = this.getRefs(uriInfo);
 
-		final References refs = new References();
+    if (null == idr) {
+      Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    }
 
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "NodeTemplates"), XLinkConstants.SIMPLE, "NodeTemplates"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "PlanInstances"), XLinkConstants.SIMPLE, "PlanInstances"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "Properties"), XLinkConstants.SIMPLE, "Properties"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "State"), XLinkConstants.SIMPLE, "State"));
-		refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "RelationshipTemplates"), XLinkConstants.SIMPLE, "RelationshipTemplates"));
+    return Response.ok(idr.getJSONString()).build();
+  }
 
-		// selflink
-		refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+  public References getRefs(final UriInfo uriInfo) {
 
-		return refs;
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// return null;
-		// }
-	}
+    final References refs = new References();
 
-	@DELETE
-	public Response deleteServiceInstance() {
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		service.deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(this.serviceTemplateInstanceId));
-		return Response.noContent().build();
-	}
+    refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "NodeTemplates"),
+        XLinkConstants.SIMPLE, "NodeTemplates"));
+    refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "PlanInstances"),
+        XLinkConstants.SIMPLE, "PlanInstances"));
+    refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "Properties"),
+        XLinkConstants.SIMPLE, "Properties"));
+    refs.getReference()
+        .add(new Reference(Utilities.buildURI(uriInfo, "State"), XLinkConstants.SIMPLE, "State"));
+    refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "RelationshipTemplates"),
+        XLinkConstants.SIMPLE, "RelationshipTemplates"));
 
-	@Path("NodeTemplates")
-	public Object getNodeTemplates() {
-		return new NodeTemplatesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
-	}
+    // selflink
+    refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(),
+        XLinkConstants.SIMPLE, XLinkConstants.SELF));
 
-	@Path("RelationshipTemplates")
-	public Object getRelationshipTemplates() {
-		return new RelationshipTemplatesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
-	}
-	
-	@Path("/Properties")
-	public Object getProperties() {
-		return new ServiceTemplateInstancePropertiesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
-	}
+    return refs;
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return null;
+    // }
+  }
 
-	@Path("/State")
-	public Object getState() {
-		return new ServiceTemplateInstanceStateResource(this.serviceTemplateInstanceId);
-	}
+  @DELETE
+  public Response deleteServiceInstance() {
+    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+    service
+        .deleteServiceInstance(IdConverter.serviceInstanceIDtoURI(this.serviceTemplateInstanceId));
+    return Response.noContent().build();
+  }
 
-	@Path("/PlanInstances")
-	public Object getPlanInstances() {
-		return new PlanInstances(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
-	}
+  @Path("NodeTemplates")
+  public Object getNodeTemplates() {
+    return new NodeTemplatesResource(this.csarId, this.serviceTemplateID,
+        this.serviceTemplateInstanceId);
+  }
 
-	// @Path("/NodeTemplates")
-	// public Object getNodeInstances() {
-	// return new NodeTemplateInstancesResource(csarId, serviceTemplateID,
-	// serviceTemplateInstanceId);
-	// }
+  @Path("RelationshipTemplates")
+  public Object getRelationshipTemplates() {
+    return new RelationshipTemplatesResource(this.csarId, this.serviceTemplateID,
+        this.serviceTemplateInstanceId);
+  }
 
-	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
-	 *
-	 * @param planElement the BUILD PublicPlan
-	 * @return Response
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
-	 */
-	@POST
-	@Consumes(ResourceConstants.TEXT_PLAIN)
-	@Produces(ResourceConstants.APPLICATION_JSON)
-	public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json) throws URISyntaxException, UnsupportedEncodingException {
-		final String url = this.postManagementPlanJSON(uriInfo, json);
-		final JsonObject ret = new JsonObject();
-		ret.addProperty("PlanURL", url);
-		return Response.created(new URI(url)).entity(ret.toString()).build();
-	}
+  @Path("/Properties")
+  public Object getProperties() {
+    return new ServiceTemplateInstancePropertiesResource(this.csarId, this.serviceTemplateID,
+        this.serviceTemplateInstanceId);
+  }
 
-	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
-	 *
-	 * @param planElement the BUILD PublicPlan
-	 * @return Response
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
-	 */
-	@POST
-	@Consumes(ResourceConstants.TEXT_PLAIN)
-	@Produces(ResourceConstants.TOSCA_XML)
-	public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json) throws URISyntaxException, UnsupportedEncodingException {
+  @Path("/State")
+  public Object getState() {
+    return new ServiceTemplateInstanceStateResource(this.serviceTemplateInstanceId);
+  }
 
-		final String url = this.postManagementPlanJSON(uriInfo, json);
-		// return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
-		return Response.created(new URI(url)).build();
-	}
+  @Path("/PlanInstances")
+  public Object getPlanInstances() {
+    return new PlanInstances(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId);
+  }
 
-	/**
-	 * PUT for BUILD plans which have no CSAR-Instance-ID yet.
-	 *
-	 * @param planElement the BUILD PublicPlan
-	 * @return Response
-	 * @throws UnsupportedEncodingException
-	 */
-	private String postManagementPlanJSON(final UriInfo uriInfo, final String json) throws UnsupportedEncodingException {
+  // @Path("/NodeTemplates")
+  // public Object getNodeInstances() {
+  // return new NodeTemplateInstancesResource(csarId, serviceTemplateID,
+  // serviceTemplateInstanceId);
+  // }
 
-		this.log.debug("Received a build plan for CSAR " + this.csarId + "\npassed entity:\n   " + json);
+  /**
+   * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+   *
+   * @param planElement the BUILD PublicPlan
+   * @return Response
+   * @throws URISyntaxException
+   * @throws UnsupportedEncodingException
+   */
+  @POST
+  @Consumes(ResourceConstants.TEXT_PLAIN)
+  @Produces(ResourceConstants.APPLICATION_JSON)
+  public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json)
+      throws URISyntaxException, UnsupportedEncodingException {
+    final String url = this.postManagementPlanJSON(uriInfo, json);
+    final JsonObject ret = new JsonObject();
+    ret.addProperty("PlanURL", url);
+    return Response.created(new URI(url)).entity(ret.toString()).build();
+  }
 
-		final JsonParser parser = new JsonParser();
-		final JsonObject object = parser.parse(json).getAsJsonObject();
+  /**
+   * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+   *
+   * @param planElement the BUILD PublicPlan
+   * @return Response
+   * @throws URISyntaxException
+   * @throws UnsupportedEncodingException
+   */
+  @POST
+  @Consumes(ResourceConstants.TEXT_PLAIN)
+  @Produces(ResourceConstants.TOSCA_XML)
+  public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json)
+      throws URISyntaxException, UnsupportedEncodingException {
 
-		this.log.trace(JSONUtils.withoutQuotationMarks(object.get("ID").toString()));
+    final String url = this.postManagementPlanJSON(uriInfo, json);
+    // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+    return Response.created(new URI(url)).build();
+  }
 
-		final TPlanDTO plan = new TPlanDTO();
+  /**
+   * PUT for BUILD plans which have no CSAR-Instance-ID yet.
+   *
+   * @param planElement the BUILD PublicPlan
+   * @return Response
+   * @throws UnsupportedEncodingException
+   */
+  @Deprecated
+  private String postManagementPlanJSON(final UriInfo uriInfo, final String json)
+      throws UnsupportedEncodingException {
 
-		plan.setId(new QName(JSONUtils.withoutQuotationMarks(object.get("ID").toString())));
-		plan.setName(JSONUtils.withoutQuotationMarks(object.get("Name").toString()));
-		plan.setPlanType(JSONUtils.withoutQuotationMarks(object.get("PlanType").toString()));
-		plan.setPlanLanguage(JSONUtils.withoutQuotationMarks(object.get("PlanLanguage").toString()));
+    throw new UnsupportedOperationException();
 
-		JsonArray array = object.get("InputParameters").getAsJsonArray();
-		Iterator<JsonElement> iterator = array.iterator();
-		while (iterator.hasNext()) {
-			final TParameterDTO para = new TParameterDTO();
-			final JsonObject tmp = iterator.next().getAsJsonObject();
-			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
-			// if a parameter value is not set, just add "" as value
-			if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
-				para.setValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
-			} else {
-				para.setValue("");
-			}
-			plan.getInputParameters().getInputParameter().add(para);
-		}
-		array = object.get("OutputParameters").getAsJsonArray();
-		iterator = array.iterator();
-		while (iterator.hasNext()) {
-			final TParameterDTO para = new TParameterDTO();
-			final JsonObject tmp = iterator.next().getAsJsonObject();
-			para.setName(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
-			para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
-			para.setType(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
-			plan.getOutputParameters().getOutputParameter().add(para);
-		}
-
-		final String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getNamespaceOfPlan(this.csarId, plan.getId().getLocalPart());
-		plan.setId(new QName(namespace, plan.getId().getLocalPart()));
-
-		this.log.debug("Post of the Plan " + plan.getId());
-
-		final String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, plan);
-
-		this.log.debug("Return correlation ID of running plan: " + correlationID);
-
-		final String url = uriInfo.getBaseUri().toString() + "CSARs/" + this.csarId.getFileName() + "/ServiceTemplates/" + URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8") + "/ServiceTemplateInstances/" + this.serviceTemplateInstanceId + "/PlanInstances/" + correlationID;
-
-		return url;
-
-	}
+    // this.log
+    // .debug("Received a build plan for CSAR " + this.csarId + "\npassed entity:\n " + json);
+    //
+    // final JsonParser parser = new JsonParser();
+    // final JsonObject object = parser.parse(json).getAsJsonObject();
+    //
+    // this.log.trace(JSONUtils.withoutQuotationMarks(object.get("ID").toString()));
+    //
+    // final TPlanDTO plan = new TPlanDTO();
+    //
+    // plan.setId(new QName(JSONUtils.withoutQuotationMarks(object.get("ID").toString())));
+    // plan.setName(JSONUtils.withoutQuotationMarks(object.get("Name").toString()));
+    // plan.setPlanType(JSONUtils.withoutQuotationMarks(object.get("PlanType").toString()));
+    // plan.setPlanLanguage(JSONUtils.withoutQuotationMarks(object.get("PlanLanguage").toString()));
+    //
+    // JsonArray array = object.get("InputParameters").getAsJsonArray();
+    // Iterator<JsonElement> iterator = array.iterator();
+    // while (iterator.hasNext()) {
+    // final TParameterDTO para = new TParameterDTO();
+    // final JsonObject tmp = iterator.next().getAsJsonObject();
+    // para.setName(JSONUtils.withoutQuotationMarks(
+    // tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
+    // para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(
+    // tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
+    // para.setType(JSONUtils.withoutQuotationMarks(
+    // tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
+    // // if a parameter value is not set, just add "" as value
+    // if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
+    // para.setValue(JSONUtils.withoutQuotationMarks(
+    // tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
+    // } else {
+    // para.setValue("");
+    // }
+    // plan.getInputParameters().getInputParameter().add(para);
+    // }
+    // array = object.get("OutputParameters").getAsJsonArray();
+    // iterator = array.iterator();
+    // while (iterator.hasNext()) {
+    // final TParameterDTO para = new TParameterDTO();
+    // final JsonObject tmp = iterator.next().getAsJsonObject();
+    // para.setName(JSONUtils.withoutQuotationMarks(
+    // tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
+    // para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(
+    // tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
+    // para.setType(JSONUtils.withoutQuotationMarks(
+    // tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
+    // plan.getOutputParameters().getOutputParameter().add(para);
+    // }
+    //
+    // final String namespace =
+    // ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+    // .getNamespaceOfPlan(this.csarId, plan.getId().getLocalPart());
+    // plan.setId(new QName(namespace, plan.getId().getLocalPart()));
+    //
+    // this.log.debug("Post of the Plan " + plan.getId());
+    //
+    // final String correlationID =
+    // IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(
+    // this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, plan);
+    //
+    // this.log.debug("Return correlation ID of running plan: " + correlationID);
+    //
+    // final String url = uriInfo.getBaseUri().toString() + "CSARs/" + this.csarId.getFileName()
+    // + "/ServiceTemplates/" + URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8")
+    // + "/ServiceTemplateInstances/" + this.serviceTemplateInstanceId + "/PlanInstances/"
+    // + correlationID;
+    //
+    // return url;
+  }
 }

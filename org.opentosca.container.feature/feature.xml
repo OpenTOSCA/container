@@ -488,13 +488,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.apache.derby"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.felix.gogo.command"
          download-size="0"
          install-size="0"
@@ -1261,13 +1254,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.gemini.dbaccess.derby"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.gemini.dbaccess.util"
          download-size="0"
          install-size="0"
@@ -1339,6 +1325,20 @@
 
    <plugin
          id="dk.nykredit.jackson.dataformat.jackson-dataformat-hal"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.gemini.dbaccess.h2"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.h2"
          download-size="0"
          install-size="0"
          version="0.0.0"
