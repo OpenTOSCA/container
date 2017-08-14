@@ -285,8 +285,8 @@ public class TerminationPlanBuilder extends IPlanBuilder {
 	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
 	 */
 	@Override
-	public List<BPELPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-		final List<BPELPlan> plans = new ArrayList<>();
+	public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
+		final List<AbstractPlan> plans = new ArrayList<>();
 		for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			QName serviceTemplateId;
 			// targetNamespace attribute doesn't has to be set, so we check it

@@ -213,8 +213,8 @@ public class BuildPlanBuilder extends IPlanBuilder {
 	 * org.opentosca.planbuilder.model.tosca.AbstractDefinitions)
 	 */
 	@Override
-	public List<BPELPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-		List<BPELPlan> plans = new ArrayList<BPELPlan>();
+	public List<AbstractPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+		List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			QName serviceTemplateId;
 			// targetNamespace attribute doesn't has to be set, so we check it

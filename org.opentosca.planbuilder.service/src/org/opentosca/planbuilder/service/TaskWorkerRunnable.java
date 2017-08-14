@@ -21,6 +21,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.service.Util.SelfServiceOptionWrapper;
 import org.opentosca.planbuilder.service.model.PlanGenerationState;
@@ -134,7 +135,7 @@ public class TaskWorkerRunnable implements Runnable {
 			return;
 		}
 		
-		List<BPELPlan> buildPlans = Util.startPlanBuilder(csarId);
+		List<AbstractPlan> buildPlans = Util.startPlanBuilder(csarId);
 		
 		if (buildPlans.size() <= 0) {
 			this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
@@ -145,7 +146,7 @@ public class TaskWorkerRunnable implements Runnable {
 		}
 
 		// write to tmp dir, only generating one plan
-		final File planTmpFile = Util.writePlan2TmpFolder(buildPlans.get(0));
+		final File planTmpFile = Util.writePlan2TmpFolder((BPELPlan)buildPlans.get(0));
 
 		this.state.currentState = PlanGenerationStates.PLANGENERATED;
 		this.state.currentMessage = "Stored and generated Plan";
@@ -199,7 +200,7 @@ public class TaskWorkerRunnable implements Runnable {
 					planLocation = locationHeader.getValue();
 				}
 				
-				BPELPlan buildPlan = buildPlans.get(0);
+				BPELPlan buildPlan = (BPELPlan)buildPlans.get(0);
 				/*
 				 * http://localhost:8080/winery/servicetemplates/http%253A%252F%
 				 * 252F example
@@ -293,7 +294,7 @@ public class TaskWorkerRunnable implements Runnable {
 			final URL optionsUrl = new URL(this.state.getCsarUrl(), "selfserviceportal/options/");
 			LOG.debug("Sending options to " + optionsUrl.toString());
 
-			final SelfServiceOptionWrapper option = Util.generateSelfServiceOption(buildPlans.get(0));
+			final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan)buildPlans.get(0));
 
 			// send plan back
 			final MultipartEntity mpOptionEntity = new MultipartEntity();

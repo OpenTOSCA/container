@@ -72,7 +72,7 @@ public class PlanHandler {
 	 */
 	public boolean addImportedFile(File file, BPELPlan buildPlan) {
 		return buildPlan.addImportedFile(file);
-	}
+	}	
 	
 	/**
 	 * Creates a Plan with an empty skeleton for the given ServiceTemplate

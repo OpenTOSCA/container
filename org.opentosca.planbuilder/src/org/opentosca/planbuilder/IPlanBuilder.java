@@ -5,13 +5,10 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
@@ -43,7 +40,7 @@ public abstract class IPlanBuilder {
 	 *         ServiceTemplate denoted by the given QName isn't found inside the
 	 *         Definitions document null is returned instead
 	 */
-	abstract public BPELPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
+	abstract public AbstractPlan buildPlan(String csarName, AbstractDefinitions definitions, QName serviceTemplateId);
 	
 	/**
 	 * <p>
@@ -57,7 +54,7 @@ public abstract class IPlanBuilder {
 	 * @return a List of Build Plans for each ServiceTemplate contained inside
 	 *         the Definitions document
 	 */
-	abstract public List<BPELPlan> buildPlans(String csarName, AbstractDefinitions definitions);
+	abstract public List<AbstractPlan> buildPlans(String csarName, AbstractDefinitions definitions);
 	
 	/**
 	 * <p>
@@ -124,26 +121,4 @@ public abstract class IPlanBuilder {
 		}
 		return false;
 	}
-	
-	public BPELPlan createBPELPlan(String csarName, String processName, String processNamespace, AbstractPlan abstractPlan) {
-		
-		
-		
-		BPELPlan newScalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractPlan);
-		
-		
-		newScalingPlan.setCsarName(csarName);
-		
-		return newScalingPlan;
-	}
-	
-	public TemplatePlanContext createContext(AbstractRelationshipTemplate relationshipTemplate, BPELPlan plan, PropertyMap map) {
-		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map, plan.getServiceTemplate());
-	}
-	
-	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate, BPELPlan plan, PropertyMap map) {
-		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate());
-	}
-		
-	
 }

@@ -88,11 +88,23 @@ public class Exporter extends AbstractExporter {
 	 * @throws IOException is thrown when reading/writing to the given URI fails
 	 * @throws JAXBException is thrown when writing with JAXB fails
 	 */
-	public void export(URI destination, BPELPlan buildPlan) throws IOException, JAXBException {
-		this.simpleExporter.export(destination, buildPlan);
+	public void export(URI destination, AbstractPlan buildPlan) throws IOException, JAXBException {
+		this.simpleExporter.export(destination, (BPELPlan) buildPlan);
 	}
 	
-	public File export(List<BPELPlan> buildPlans, CSARID csarId) {
+	public File export(List<AbstractPlan> plans, CSARID csarId) {
+		List<BPELPlan> bpelPlans = new ArrayList<BPELPlan>();
+		
+		for (AbstractPlan plan : plans) {
+			if (plan instanceof BPELPlan) {
+				bpelPlans.add((BPELPlan) plan);
+			}
+		}
+		
+		return this.exportBPEL(bpelPlans, csarId);
+	}
+	
+	public File exportBPEL(List<BPELPlan> buildPlans, CSARID csarId) {
 		
 		CSARContent csarContent = null;
 		try {
@@ -119,8 +131,6 @@ public class Exporter extends AbstractExporter {
 			final File rootDefFile = mainDefFile.getFile().toFile();
 			final Definitions defs = this.parseDefinitionsFile(rootDefFile);
 			final List<TServiceTemplate> servTemps = this.getServiceTemplates(defs);
-			
-			
 			
 			List<BPELPlan> plansToExport = new ArrayList<BPELPlan>();
 			
@@ -221,12 +231,12 @@ public class Exporter extends AbstractExporter {
 			final Marshaller m = jaxbContext.createMarshaller();
 			
 			FileWriter writer = new FileWriter(newDefsFile);
-					
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);			
+			
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			// output to the console: m.marshal(defs, System.out);
 			try {
 				m.marshal(defs, writer);
-			}  catch (FactoryConfigurationError e) {
+			} catch (FactoryConfigurationError e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -250,7 +260,7 @@ public class Exporter extends AbstractExporter {
 				final Application appDesc = (Application) u.unmarshal(selfServiceDataXml);
 				
 				if (appDesc.getOptions() != null) {
-					// check if planInput etc. is set properly					
+					// check if planInput etc. is set properly
 					List<BPELPlan> exportedPlans = new ArrayList<BPELPlan>();
 					for (ApplicationOption option : appDesc.getOptions().getOption()) {
 						for (BPELPlan plan : plansToExport) {
@@ -260,7 +270,7 @@ public class Exporter extends AbstractExporter {
 									// but
 									// no file exists in the csar -> write one
 									final File planInputFile = new File(selfServiceDir, option.getPlanInputMessageUrl());
-									this.writePlanInputMessageInstance(plan, planInputFile);									
+									this.writePlanInputMessageInstance(plan, planInputFile);
 									exportedPlans.add(plan);
 								}
 							}
@@ -539,9 +549,4 @@ public class Exporter extends AbstractExporter {
 		return soapEnvelopeSuffix;
 	}
 	
-
-	
-
-
-
 }

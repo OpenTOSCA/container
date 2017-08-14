@@ -36,6 +36,7 @@ import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;

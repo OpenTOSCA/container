@@ -12,6 +12,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.opentosca.planbuilder.importer.context.impl.DefinitionsImpl;
 import org.opentosca.planbuilder.integration.layer.AbstractImporter;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.slf4j.Logger;
@@ -44,18 +45,18 @@ public class Importer extends AbstractImporter {
 	 * @param csarId the CSARID for the CSAR the BuildPlans should be generated
 	 * @return a List of BuildPlan
 	 */
-	public List<BPELPlan> importDefs(CSARID csarId) {
+	public List<AbstractPlan> importDefs(CSARID csarId) {
 		try {
 			CSARContent content = this.handler.getCSARContentForID(csarId);
 			AbstractDefinitions defs = this.createContext(content);
-			List<BPELPlan> plans = this.buildPlans(defs, csarId.getFileName());
+			List<AbstractPlan> plans = this.buildPlans(defs, csarId.getFileName());
 			return plans;
 		} catch (final UserException e) {
 			Importer.LOG.error("Some error within input", e);
 		} catch (final SystemException e) {
 			Importer.LOG.error("Some internal error", e);
 		}
-		return new ArrayList<BPELPlan>();
+		return new ArrayList<AbstractPlan>();
 	}
 	
 

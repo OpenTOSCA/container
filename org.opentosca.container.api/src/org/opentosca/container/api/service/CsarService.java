@@ -26,6 +26,7 @@ import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +163,7 @@ public class CsarService {
 		final Importer planBuilderImporter = new Importer();
 		final Exporter planBuilderExporter = new Exporter();
 
-		final List<BPELPlan> buildPlans = planBuilderImporter.importDefs(csarId);
+		final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csarId);
 
 		if (buildPlans.isEmpty()) {
 			return csarId;

@@ -9,7 +9,7 @@ import org.opentosca.planbuilder.IPlanBuilder;
 import org.opentosca.planbuilder.ScalingPlanBuilder;
 import org.opentosca.planbuilder.BuildPlanBuilder;
 import org.opentosca.planbuilder.TerminationPlanBuilder;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 
 /**
@@ -32,8 +32,8 @@ public abstract class AbstractImporter {
 	 *            contained in
 	 * @return a List of Plans
 	 */
-	public List<BPELPlan> buildPlans(AbstractDefinitions defs, String csarName) {
-		List<BPELPlan> plans = new ArrayList<BPELPlan>();
+	public List<AbstractPlan> buildPlans(AbstractDefinitions defs, String csarName) {
+		List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 		
 		IPlanBuilder buildPlanBuilder = new BuildPlanBuilder();
 		IPlanBuilder terminationPlanBuilder = new TerminationPlanBuilder();
@@ -55,7 +55,7 @@ public abstract class AbstractImporter {
 	 *            given Definitions Document
 	 * @return a BuildPlan if generating a BuildPlan was successful, else null
 	 */
-	public BPELPlan buildPlan(AbstractDefinitions defs, String csarName, QName serviceTemplate) {
+	public AbstractPlan buildPlan(AbstractDefinitions defs, String csarName, QName serviceTemplate) {
 		IPlanBuilder planBuilder = new BuildPlanBuilder();
 		return planBuilder.buildPlan(csarName, defs, serviceTemplate);
 	}

@@ -25,6 +25,7 @@ import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.export.VinothekKnownParameters;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -83,9 +84,9 @@ public class Util {
 	 * @param csarId the Id of the CSAR to generate plans for
 	 * @return a List of BuildPlans containing the generated BuildPlans
 	 */
-	public static List<BPELPlan> startPlanBuilder(CSARID csarId) {
+	public static List<AbstractPlan> startPlanBuilder(CSARID csarId) {
 		Importer planBuilderImporter = new Importer();
-		List<BPELPlan> plans = new ArrayList<BPELPlan>();
+		List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 		try {
 			final AbstractDefinitions defs = planBuilderImporter.createContext(ServiceRegistry.getCoreFileService().getCSAR(csarId));
 

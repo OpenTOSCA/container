@@ -245,8 +245,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 	}
 	
 	@Override
-	public List<BPELPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
-		List<BPELPlan> plans = new ArrayList<BPELPlan>();
+	public List<AbstractPlan> buildPlans(String csarName, AbstractDefinitions definitions) {
+		List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 		
 		for (AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
 			plans.addAll(this.buildScalingPlans(csarName, definitions, serviceTemplate.getQName()));
@@ -319,9 +319,19 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		return scalingPlans;
 	}
 	
+	public TemplatePlanContext createContext(AbstractRelationshipTemplate relationshipTemplate, BPELPlan plan, PropertyMap map) {
+		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(relationshipTemplate.getId(), plan), map, plan.getServiceTemplate());
+	}
+	
+	public TemplatePlanContext createContext(AbstractNodeTemplate nodeTemplate, BPELPlan plan, PropertyMap map) {
+		return new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(nodeTemplate.getId(), plan), map, plan.getServiceTemplate());
+	}
+	
 	private void addRecursiveInstanceSelection(BPELPlan plan, PropertyMap map, AbstractNodeTemplate nodeTemplate) {
 		// fetch nodeInstance Variable to store the result at the end
 		TemplatePlanContext nodeContext = this.createContext(nodeTemplate, plan, map);
+		
+		
 		String nodeInstanceVarName = this.findInstanceVar(nodeContext, nodeTemplate.getId(), true);
 		
 		// find first relationtemplate which is an infrastructure edge
