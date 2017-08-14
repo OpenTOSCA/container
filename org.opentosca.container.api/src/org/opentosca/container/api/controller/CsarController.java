@@ -99,8 +99,7 @@ public class CsarController {
     final CsarDTO csar = CsarDTO.Converter.convert(metadata);
 
     // Absolute URLs for icon and image
-    // TODO: Use new API endpoint
-    final String urlTemplate = "{0}containerapi/CSARs/{1}/Content/SELFSERVICE-Metadata/{2}";
+    final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
     final String iconUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(),
         id, csar.getIconUrl());
     final String imageUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(),
