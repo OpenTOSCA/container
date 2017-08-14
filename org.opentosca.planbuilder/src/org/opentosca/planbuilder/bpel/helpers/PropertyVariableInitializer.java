@@ -1,9 +1,9 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -28,7 +28,7 @@ public class PropertyVariableInitializer {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(PropertyVariableInitializer.class);
 	
-	private PlanHandler planHandler;
+	private BPELPlanHandler planHandler;
 	
 	
 	/**
@@ -108,7 +108,7 @@ public class PropertyVariableInitializer {
 	 * @param planHandler a BuildPlanHandler for the class
 	 * @param templateHandler a TemplateBuildPlanHandler for the class
 	 */
-	public PropertyVariableInitializer(PlanHandler planHandler) {
+	public PropertyVariableInitializer(BPELPlanHandler planHandler) {
 		this.planHandler = planHandler;
 	}
 	

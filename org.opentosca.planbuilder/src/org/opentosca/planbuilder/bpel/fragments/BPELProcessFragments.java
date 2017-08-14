@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.fragments;
+package org.opentosca.planbuilder.bpel.fragments;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +27,9 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class Fragments {
+public class BPELProcessFragments {
 	
-	private final static Logger LOG = LoggerFactory.getLogger(Fragments.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELProcessFragments.class);
 	
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
@@ -67,7 +67,7 @@ public class Fragments {
 	 * @throws ParserConfigurationException is thrown when initializing the DOM
 	 *             Parsers fails
 	 */
-	public Fragments() throws ParserConfigurationException {
+	public BPELProcessFragments() throws ParserConfigurationException {
 		this.docFactory = DocumentBuilderFactory.newInstance();
 		this.docFactory.setNamespaceAware(true);
 		this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -227,7 +227,7 @@ public class Fragments {
 	 * @return a String containing an XPath query
 	 */
 	public String createXPathQueryForURLRemoteFilePath(String artifactPath) {
-		Fragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
+		BPELProcessFragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
 		String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
 		return filePath;
 	}
@@ -376,8 +376,8 @@ public class Fragments {
 		
 		assignString += "</bpel:assign>";
 		
-		Fragments.LOG.debug("Generated following assign string:");
-		Fragments.LOG.debug(assignString);
+		BPELProcessFragments.LOG.debug("Generated following assign string:");
+		BPELProcessFragments.LOG.debug(assignString);
 		
 		return assignString;
 	}

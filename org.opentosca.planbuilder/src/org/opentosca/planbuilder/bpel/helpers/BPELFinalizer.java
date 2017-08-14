@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -13,9 +13,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.handlers.BPELScopeHandler;
-import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.handlers.ScopeHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.slf4j.Logger;
@@ -45,9 +44,8 @@ public class BPELFinalizer {
 	private final static Logger LOG = LoggerFactory.getLogger(BPELFinalizer.class);
 	
 	private DocumentBuilderFactory docFactory;
-	private DocumentBuilder docBuilder;
-	private ScopeHandler templateHandler = new ScopeHandler();
-	private PlanHandler buildPlanHandler;
+	private DocumentBuilder docBuilder;	
+	private BPELPlanHandler buildPlanHandler;
 	private BPELScopeHandler scopeHandler;
 	
 	
@@ -73,7 +71,7 @@ public class BPELFinalizer {
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
 			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			this.buildPlanHandler = new PlanHandler();
+			this.buildPlanHandler = new BPELPlanHandler();
 			this.scopeHandler = new BPELScopeHandler();
 		} catch (ParserConfigurationException e) {
 			BPELFinalizer.LOG.error("Initializing factories and handlers failed", e);
@@ -273,7 +271,7 @@ public class BPELFinalizer {
 				BPELScopeActivity source = iter.next();
 				BPELFinalizer.LOG.debug("Connecting source " + source.getBpelScopeElement().getAttribute("name") + " with target " + target.getBpelScopeElement().getAttribute("name"));
 				this.buildPlanHandler.addLink("seqEdge" + counter, buildPlan);
-				this.templateHandler.connect(source, target, "seqEdge" + counter);
+				this.scopeHandler.connect(source, target, "seqEdge" + counter);
 				counter++;
 				target = source;
 			}
@@ -308,7 +306,7 @@ public class BPELFinalizer {
 		}
 		if ((markings.get(templateBuildPlan).permMark == false) && (markings.get(templateBuildPlan).tempMark == false)) {
 			markings.get(templateBuildPlan).tempMark = true;
-			for (BPELScopeActivity successor : this.templateHandler.getSuccessors(templateBuildPlan)) {
+			for (BPELScopeActivity successor : this.scopeHandler.getSuccessors(templateBuildPlan)) {
 				this.visitTopologicalOrdering(successor, markings, topologicalOrder);
 			}
 			markings.get(templateBuildPlan).permMark = true;

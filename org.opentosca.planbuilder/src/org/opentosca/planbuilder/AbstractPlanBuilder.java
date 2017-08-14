@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.handlers.PlanHandler;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -15,13 +14,9 @@ import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class IPlanBuilder {
+public abstract class AbstractPlanBuilder {
 	
-	private final static Logger LOG = LoggerFactory.getLogger(IPlanBuilder.class);
-	
-	// handler for abstract plan operations
-	public PlanHandler planHandler;
-	
+	private final static Logger LOG = LoggerFactory.getLogger(AbstractPlanBuilder.class);
 	
 	/**
 	 * <p>
@@ -68,9 +63,9 @@ public abstract class IPlanBuilder {
 	 */
 	public IPlanBuilderTypePlugin findTypePlugin(AbstractNodeTemplate nodeTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			IPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
+			AbstractPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
 			if (plugin.canHandle(nodeTemplate)) {
-				IPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
+				AbstractPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
 				return plugin;
 			}
 		}
@@ -89,9 +84,9 @@ public abstract class IPlanBuilder {
 	 */
 	public IPlanBuilderTypePlugin findTypePlugin(AbstractRelationshipTemplate relationshipTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
-			IPlanBuilder.LOG.debug("Checking whether Type Plugin " + plugin.getID() + " can handle NodeTemplate " + relationshipTemplate.getId());
+			AbstractPlanBuilder.LOG.debug("Checking whether Type Plugin " + plugin.getID() + " can handle NodeTemplate " + relationshipTemplate.getId());
 			if (plugin.canHandle(relationshipTemplate)) {
-				IPlanBuilder.LOG.info("Found TypePlugin {} that can handle NodeTemplate {}", plugin.getID(), relationshipTemplate.getId());
+				AbstractPlanBuilder.LOG.info("Found TypePlugin {} that can handle NodeTemplate {}", plugin.getID(), relationshipTemplate.getId());
 				return plugin;
 			}
 		}
@@ -115,7 +110,7 @@ public abstract class IPlanBuilder {
 	public boolean handleWithTypePlugin(TemplatePlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
-				IPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
+				AbstractPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}", relationshipTemplate.getId(), plugin.getID());
 				return plugin.handle(context);
 			}
 		}

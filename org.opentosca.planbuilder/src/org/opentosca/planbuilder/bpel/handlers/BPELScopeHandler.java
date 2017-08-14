@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.handlers;
+package org.opentosca.planbuilder.bpel.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,8 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,7 @@ import org.w3c.dom.NodeList;
  */
 public class BPELScopeHandler {
 
-	private final static Logger LOG = LoggerFactory.getLogger(BPELScopeHandler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELScopeHandler.class);	
 
 	/**
 	 * Initializes XML Elements of the given TemplateBuildPlan and connects it
@@ -512,5 +514,138 @@ public class BPELScopeHandler {
 		}
 
 		return varNames;
+	}	
+
+	/**
+	 * Connects two TemplateBuildPlans (which are basically bpel scopes) with
+	 * the given link
+	 * 
+	 * @param source the TemplateBuildPlan which should be a source of the link
+	 * @param target the TemplateBuildPlan which should be a target of the link
+	 * @param linkName the name of the link used to connect the two templates
+	 * @return true if connections between templates was sucessfully created,
+	 *         else false
+	 */
+	public boolean connect(BPELScopeActivity source, BPELScopeActivity target, String linkName) {
+		BPELScopeHandler.LOG.debug("Trying to connect TemplateBuildPlan {} as source with TemplateBuildPlan {} as target", source.getBpelScopeElement().getAttribute("name"), target.getBpelScopeElement().getAttribute("name"));
+		boolean check = true;
+		// if everything was successfully added return true
+		check &= this.addSource(linkName, source);
+		check &= this.addTarget(linkName, target);
+		return check;
+	}
+
+	/**
+	 * Creates a TemplateBuildPlan for the given NodeTemplate connected to the
+	 * given BuildPlan
+	 * 
+	 * @param nodeTemplate the NodeTemplate the new TemplateBuildPlan should
+	 *            belong to
+	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
+	 * @return a new TemplateBuildPlann skeleton for the given NodeTemplate
+	 */
+	public BPELScopeActivity createTemplateBuildPlan(AbstractNodeTemplate nodeTemplate, BPELPlan buildPlan) {
+		BPELScopeActivity templatePlan = this.createTemplateBuildPlan(buildPlan);
+		this.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
+		templatePlan.setNodeTemplate(nodeTemplate);		
+		return templatePlan;
+	}
+
+	/**
+	 * Creates a new TemplateBuildPlan for the given RelationshipTemplate and
+	 * BuildPlan
+	 * 
+	 * @param relationshipTemplate the RelationshipTemplate the new
+	 *            TemplateBuildPlan should belong to
+	 * @param buildPlan the BuildPlan the new TemplateBuildPlan should belong to
+	 * @return a new TemplateBuildPlan skeleton
+	 */
+	public BPELScopeActivity createTemplateBuildPlan(AbstractRelationshipTemplate relationshipTemplate, BPELPlan buildPlan) {
+		BPELScopeActivity templatePlan = this.createTemplateBuildPlan(buildPlan);
+		this.setName(relationshipTemplate.getId(), templatePlan);
+		templatePlan.setRelationshipTemplate(relationshipTemplate);
+		return templatePlan;
+	}
+
+	/**
+	 * Creates a TemplateBuildPlan skeleton and connects it to the given
+	 * BuildPlan
+	 * 
+	 * @param buildPlan the BuildPlan the TemplateBuildPlan should belong to
+	 * @return a new TemplateBuildPlan skeleton
+	 */
+	public BPELScopeActivity createTemplateBuildPlan(BPELPlan buildPlan) {
+		BPELScopeActivity newTemplateBuildPlan = new BPELScopeActivity();
+		this.initializeXMLElements(newTemplateBuildPlan, buildPlan);
+		return newTemplateBuildPlan;
+	}
+
+	/**
+	 * Returns a valid NCName string
+	 * 
+	 * @param string a String to convert to valid NCName
+	 * @return a String which can be used as NCName
+	 */
+	public String getNCNameFromString(String string) {
+		// TODO check if this enough ;)
+		return string.replace(" ", "_");
+	}
+
+	/**
+	 * Returns the predecessors of the given TemplateBuildPlan
+	 * 
+	 * @param templatePlan the TemplateBuildPlan to get predecessors from
+	 * @return a List of TemplateBuildPlans that are predecessors of the given
+	 *         TemplateBuildPlan
+	 */
+	public List<BPELScopeActivity> getPredecessors(BPELScopeActivity templatePlan) {
+		List<BPELScopeActivity> preds = new ArrayList<BPELScopeActivity>();
+		List<String> linkNamesInTargets = this.getLinksInTarget(templatePlan);
+		
+		for (String linkAsTarget : linkNamesInTargets) {
+			for (BPELScopeActivity template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
+				List<String> linkNamesInSources = this.getLinksInSources(template);
+				if (linkNamesInSources.contains(linkAsTarget)) {
+					preds.add(template);
+				}
+			}
+		}
+		return preds;
+	}
+
+	/**
+	 * Returns all Successors of the given TemplateBuildPlan
+	 * 
+	 * @param templatePlan the TemplateBuildPlan whose Successors should be
+	 *            returned
+	 * @return a List of TemplateBuildPlans that are Successors of the given
+	 *         TemplateBuildPlan
+	 */
+	public List<BPELScopeActivity> getSuccessors(BPELScopeActivity templatePlan) {
+		List<BPELScopeActivity> successors = new ArrayList<BPELScopeActivity>();
+		
+		List<String> linkNamesInSources = this.getLinksInSources(templatePlan);
+		
+		for (String linkAsSource : linkNamesInSources) {
+			for (BPELScopeActivity template : templatePlan.getBuildPlan().getTemplateBuildPlans()) {
+				List<String> linkNamesInTargets = this.getLinksInTarget(template);
+				if (linkNamesInTargets.contains(linkAsSource)) {
+					successors.add(template);
+				}
+			}
+		}
+		
+		return successors;
+	}
+
+	/**
+	 * Removes all connections the given TemplateBuildPlan contains. All
+	 * source/target relations are removed from the given TemplateBuildPlan
+	 * 
+	 * @param template the TemplateBuildPlan to remove its relations
+	 */
+	public void removeAllConnetions(BPELScopeActivity template) {
+		this.removeSources(template);
+		this.removeTargets(template);
 	}
 }

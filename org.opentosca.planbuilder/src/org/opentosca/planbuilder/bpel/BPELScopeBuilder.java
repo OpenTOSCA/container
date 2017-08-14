@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder;
+package org.opentosca.planbuilder.bpel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.opentosca.planbuilder.helpers.TOSCAManagementInfrastructureNodeTemplate;
+import org.opentosca.planbuilder.bpel.helpers.TOSCAManagementInfrastructureNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  * 
  */
-public class TemplatePlanBuilder {
+public class BPELScopeBuilder {
 	
-	private final static Logger LOG = LoggerFactory.getLogger(TemplatePlanBuilder.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELScopeBuilder.class);
 	
 	
 	/**
@@ -461,8 +461,8 @@ public class TemplatePlanBuilder {
 		 *         TargetInterface of the given RelationshipTemplate, else false
 		 */
 		private boolean isValid(AbstractRelationshipTemplate relationshipTemplate) {
-			TemplatePlanBuilder.LOG.debug("Checking if the selected provisioning for relationshipTemplate {}", relationshipTemplate.getId());
-			TemplatePlanBuilder.LOG.debug(" with type {} is valid whether on the source or target interface", relationshipTemplate.getRelationshipType().getId().toString());
+			BPELScopeBuilder.LOG.debug("Checking if the selected provisioning for relationshipTemplate {}", relationshipTemplate.getId());
+			BPELScopeBuilder.LOG.debug(" with type {} is valid whether on the source or target interface", relationshipTemplate.getRelationshipType().getId().toString());
 			// check if any source interface matches the selected prov plugins
 			for (AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
 				int interfaceSize = iface.getOperations().size();
@@ -555,7 +555,7 @@ public class TemplatePlanBuilder {
 		 *         deployed, else false
 		 */
 		private boolean isValid() {
-			return TemplatePlanBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
+			return BPELScopeBuilder.calculateEffectiveDAs(this.nodeTemplate, this.impl).size() == this.das.size();
 		}
 	}
 	
@@ -767,16 +767,16 @@ public class TemplatePlanBuilder {
 		// check for IA Plugins
 		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry.getIaPlugins();
 		
-		TemplatePlanBuilder.calculateBestImplementationRelationIACandidates(relationshipTypeImpls, iaPlugins, infraNodes, chain, forSource);
+		BPELScopeBuilder.calculateBestImplementationRelationIACandidates(relationshipTypeImpls, iaPlugins, infraNodes, chain, forSource);
 		
 		// check for prov plugins
 		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry.getProvPlugins();
 		
-		TemplatePlanBuilder.calculateProvPlugins(chain, provPlugins);
+		BPELScopeBuilder.calculateProvPlugins(chain, provPlugins);
 		
-		TemplatePlanBuilder.filterIADACandidatesRelations(chain);
+		BPELScopeBuilder.filterIADACandidatesRelations(chain);
 		
-		TemplatePlanBuilder.reorderProvCandidates(chain);
+		BPELScopeBuilder.reorderProvCandidates(chain);
 		
 		return chain;
 	}
@@ -793,7 +793,7 @@ public class TemplatePlanBuilder {
 		List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate.getImplementations();
 		
 		if (nodeTypeImpls.isEmpty()) {
-			TemplatePlanBuilder.LOG.warn("No implementations available for NodeTemplate {} , can't generate Provisioning logic", nodeTemplate.getId());
+			BPELScopeBuilder.LOG.warn("No implementations available for NodeTemplate {} , can't generate Provisioning logic", nodeTemplate.getId());
 			return null;
 		}
 		
@@ -811,17 +811,17 @@ public class TemplatePlanBuilder {
 		// check for IA Plugins
 		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry.getIaPlugins();
 		
-		TemplatePlanBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
+		BPELScopeBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
 		// calculate nodeImpl candidates where all IAs of each can be
 		// provisioned
-		TemplatePlanBuilder.calculateBestImplementationIACandidates(nodeTypeImpls, iaPlugins, infraNodes, chain, interfaceName, operationName);
+		BPELScopeBuilder.calculateBestImplementationIACandidates(nodeTypeImpls, iaPlugins, infraNodes, chain, interfaceName, operationName);
 		for (IACandidateWrapper wrapper : chain.iaCandidates) {
 			int length = wrapper.ias.size();
 			for (int i = 0; i < length; i++) {
 				AbstractImplementationArtifact ia = wrapper.ias.get(i);
 				AbstractNodeTemplate infraNode = wrapper.infraNodes.get(i);
 				IPlanBuilderPlugin plugin = wrapper.plugins.get(i);
-				TemplatePlanBuilder.LOG.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}", ia.getName(), infraNode.getId(), plugin.getID());
+				BPELScopeBuilder.LOG.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}", ia.getName(), infraNode.getId(), plugin.getID());
 			}
 		}
 		
@@ -830,18 +830,18 @@ public class TemplatePlanBuilder {
 		
 		// search for prov plugins according to the chosen IA provisionings in
 		// the chain
-		TemplatePlanBuilder.calculateProvPlugins(chain, provPlugins, interfaceName, operationName);
+		BPELScopeBuilder.calculateProvPlugins(chain, provPlugins, interfaceName, operationName);
 		
 		// filter ia and da candidates where the operations can't be executed
-		TemplatePlanBuilder.filterIADACandidates(chain);
+		BPELScopeBuilder.filterIADACandidates(chain);
 		
 		// order provisioning candidates
-		TemplatePlanBuilder.reorderProvCandidates(chain);
+		BPELScopeBuilder.reorderProvCandidates(chain);
 		
 		// TODO consistency plugins
 		
 		// select provisioning
-		TemplatePlanBuilder.selectProvisioning(chain);
+		BPELScopeBuilder.selectProvisioning(chain);
 		
 		return chain;
 	}
@@ -858,7 +858,7 @@ public class TemplatePlanBuilder {
 		List<AbstractNodeTypeImplementation> nodeTypeImpls = nodeTemplate.getImplementations();
 		
 		if (nodeTypeImpls.isEmpty()) {
-			TemplatePlanBuilder.LOG.warn("No implementations available for NodeTemplate {} , can't generate Provisioning logic", nodeTemplate.getId());
+			BPELScopeBuilder.LOG.warn("No implementations available for NodeTemplate {} , can't generate Provisioning logic", nodeTemplate.getId());
 			return null;
 		}
 		
@@ -876,17 +876,17 @@ public class TemplatePlanBuilder {
 		// check for IA Plugins
 		List<IPlanBuilderPrePhaseIAPlugin> iaPlugins = PluginRegistry.getIaPlugins();
 		
-		TemplatePlanBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
+		BPELScopeBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
 		// calculate nodeImpl candidates where all IAs of each can be
 		// provisioned
-		TemplatePlanBuilder.calculateBestImplementationIACandidates(nodeTypeImpls, iaPlugins, infraNodes, chain);
+		BPELScopeBuilder.calculateBestImplementationIACandidates(nodeTypeImpls, iaPlugins, infraNodes, chain);
 		for (IACandidateWrapper wrapper : chain.iaCandidates) {
 			int length = wrapper.ias.size();
 			for (int i = 0; i < length; i++) {
 				AbstractImplementationArtifact ia = wrapper.ias.get(i);
 				AbstractNodeTemplate infraNode = wrapper.infraNodes.get(i);
 				IPlanBuilderPlugin plugin = wrapper.plugins.get(i);
-				TemplatePlanBuilder.LOG.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}", ia.getName(), infraNode.getId(), plugin.getID());
+				BPELScopeBuilder.LOG.debug("Found IA {} for deployment on the InfraNode {} with the Plugin {}", ia.getName(), infraNode.getId(), plugin.getID());
 			}
 		}
 		
@@ -895,38 +895,38 @@ public class TemplatePlanBuilder {
 		
 		// calculate nodeImpl candidates where all DAs of each can be
 		// provisioned
-		TemplatePlanBuilder.calculateBestImplementationDACandidates(nodeTemplate, nodeTypeImpls, daPlugins, infraNodes, chain);
+		BPELScopeBuilder.calculateBestImplementationDACandidates(nodeTemplate, nodeTypeImpls, daPlugins, infraNodes, chain);
 		for (DACandidateWrapper wrapper : chain.daCandidates) {
 			int length = wrapper.das.size();
 			for (int i = 0; i < length; i++) {
 				AbstractDeploymentArtifact da = wrapper.das.get(i);
 				AbstractNodeTemplate infraNode = wrapper.infraNodes.get(i);
 				IPlanBuilderPlugin plugin = wrapper.plugins.get(i);
-				TemplatePlanBuilder.LOG.debug("Found DA {} for deployment on the InfraNode {} with the Plugin {}", da.getName(), infraNode.getId(), plugin.getID());
+				BPELScopeBuilder.LOG.debug("Found DA {} for deployment on the InfraNode {} with the Plugin {}", da.getName(), infraNode.getId(), plugin.getID());
 			}
 		}
 		
 		// filter for nodeTypeImpl Candidates where both DAs and IAs can
 		// be provisioned
-		TemplatePlanBuilder.filterIncompatibleIADACandidates(chain);
+		BPELScopeBuilder.filterIncompatibleIADACandidates(chain);
 		
 		// check for prov plugins
 		List<IPlanBuilderProvPhaseOperationPlugin> provPlugins = PluginRegistry.getProvPlugins();
 		
 		// search for prov plugins according to the chosen IA provisionings in
 		// the chain
-		TemplatePlanBuilder.calculateProvPlugins(chain, provPlugins);
+		BPELScopeBuilder.calculateProvPlugins(chain, provPlugins);
 		
 		// filter ia and da candidates where the operations can't be executed
-		TemplatePlanBuilder.filterIADACandidates(chain);
+		BPELScopeBuilder.filterIADACandidates(chain);
 		
 		// order provisioning candidates
-		TemplatePlanBuilder.reorderProvCandidates(chain);
+		BPELScopeBuilder.reorderProvCandidates(chain);
 		
 		// TODO consistency plugins
 		
 		// select provisioning
-		TemplatePlanBuilder.selectProvisioning(chain);
+		BPELScopeBuilder.selectProvisioning(chain);
 		
 		return chain;
 	}
@@ -1100,13 +1100,13 @@ public class TemplatePlanBuilder {
 				}
 				for (IPlanBuilderProvPhaseOperationPlugin plugin : provPlugins) {
 					if (chain.nodeTemplate != null) {
-						if (plugin.canHandle(ia.getArtifactType()) && (TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia) != null)) {
+						if (plugin.canHandle(ia.getArtifactType()) && (BPELScopeBuilder.getOperationForIa(chain.nodeTemplate, ia) != null)) {
 							
-							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia), ia, plugin);
+							provCandidate.add(BPELScopeBuilder.getOperationForIa(chain.nodeTemplate, ia), ia, plugin);
 						}
 					} else {
-						if (plugin.canHandle(ia.getArtifactType()) && (TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia) != null)) {
-							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia), ia, plugin);
+						if (plugin.canHandle(ia.getArtifactType()) && (BPELScopeBuilder.getOperationForIa(chain.relationshipTemplate, ia) != null)) {
+							provCandidate.add(BPELScopeBuilder.getOperationForIa(chain.relationshipTemplate, ia), ia, plugin);
 						}
 					}
 				}
@@ -1139,13 +1139,13 @@ public class TemplatePlanBuilder {
 			for (AbstractImplementationArtifact ia : candidate.ias) {
 				for (IPlanBuilderProvPhaseOperationPlugin plugin : provPlugins) {
 					if (chain.nodeTemplate != null) {
-						if (plugin.canHandle(ia.getArtifactType()) && (TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia) != null)) {
+						if (plugin.canHandle(ia.getArtifactType()) && (BPELScopeBuilder.getOperationForIa(chain.nodeTemplate, ia) != null)) {
 							
-							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.nodeTemplate, ia), ia, plugin);
+							provCandidate.add(BPELScopeBuilder.getOperationForIa(chain.nodeTemplate, ia), ia, plugin);
 						}
 					} else {
-						if (plugin.canHandle(ia.getArtifactType()) && (TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia) != null)) {
-							provCandidate.add(TemplatePlanBuilder.getOperationForIa(chain.relationshipTemplate, ia), ia, plugin);
+						if (plugin.canHandle(ia.getArtifactType()) && (BPELScopeBuilder.getOperationForIa(chain.relationshipTemplate, ia) != null)) {
+							provCandidate.add(BPELScopeBuilder.getOperationForIa(chain.relationshipTemplate, ia), ia, plugin);
 						}
 					}
 				}
@@ -1301,29 +1301,29 @@ public class TemplatePlanBuilder {
 		List<DACandidateWrapper> candidates = new ArrayList<DACandidateWrapper>();
 		
 		for (AbstractNodeTypeImplementation impl : impls) {
-			TemplatePlanBuilder.LOG.debug("Checking DAs of NodeTypeImpl {} and NodeTemplate {}", impl.getName(), nodeTemplate.getId());
+			BPELScopeBuilder.LOG.debug("Checking DAs of NodeTypeImpl {} and NodeTemplate {}", impl.getName(), nodeTemplate.getId());
 			DACandidateWrapper candidate = new DACandidateWrapper(nodeTemplate, impl);
 			
-			List<AbstractDeploymentArtifact> effectiveDAs = TemplatePlanBuilder.calculateEffectiveDAs(nodeTemplate, impl);
+			List<AbstractDeploymentArtifact> effectiveDAs = BPELScopeBuilder.calculateEffectiveDAs(nodeTemplate, impl);
 			
 			for (AbstractDeploymentArtifact da : effectiveDAs) {
-				TemplatePlanBuilder.LOG.debug("Checking whether DA {} can be deployed", da.getName());
+				BPELScopeBuilder.LOG.debug("Checking whether DA {} can be deployed", da.getName());
 				for (AbstractNodeTemplate infraNode : infraNodes) {
-					TemplatePlanBuilder.LOG.debug("Checking if DA {} can be deployed on InfraNode {}", da.getName(), infraNode.getId());
+					BPELScopeBuilder.LOG.debug("Checking if DA {} can be deployed on InfraNode {}", da.getName(), infraNode.getId());
 					for (IPlanBuilderPrePhaseDAPlugin plugin : plugins) {
-						TemplatePlanBuilder.LOG.debug("Checking with Plugin {}", plugin.getID());
+						BPELScopeBuilder.LOG.debug("Checking with Plugin {}", plugin.getID());
 						if (plugin.canHandle(da, infraNode.getType())) {
-							TemplatePlanBuilder.LOG.debug("Adding Plugin, can handle DA on InfraNode");
+							BPELScopeBuilder.LOG.debug("Adding Plugin, can handle DA on InfraNode");
 							candidate.add(da, infraNode, plugin);
 						}
 					}
 				}
 			}
 			if (candidate.isValid()) {
-				TemplatePlanBuilder.LOG.debug("Generated Candidate was valid, adding to all Candidates");
+				BPELScopeBuilder.LOG.debug("Generated Candidate was valid, adding to all Candidates");
 				candidates.add(candidate);
 			} else {
-				TemplatePlanBuilder.LOG.debug("Generated Candidate was invalid, don't add to all Candidates");
+				BPELScopeBuilder.LOG.debug("Generated Candidate was invalid, don't add to all Candidates");
 			}
 		}
 		chain.daCandidates = candidates;
@@ -1356,7 +1356,7 @@ public class TemplatePlanBuilder {
 					continue;
 				}
 				
-				TemplatePlanBuilder.LOG.debug("Checking whether IA {} can be deployed on a specific Infrastructure Node", ia.getName());
+				BPELScopeBuilder.LOG.debug("Checking whether IA {} can be deployed on a specific Infrastructure Node", ia.getName());
 				for (AbstractNodeTemplate infraNode : infraNodes) {
 					// check if any plugin can handle installing the ia on the
 					// infraNode
@@ -1370,9 +1370,9 @@ public class TemplatePlanBuilder {
 			// check if all ias of the implementation can be provisioned
 			if (candidate.isValid(interfaceName, operationName)) {
 				candidates.add(candidate);
-				TemplatePlanBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
+				BPELScopeBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
 			} else {
-				TemplatePlanBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
+				BPELScopeBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
 			}
 		}
 		chain.iaCandidates = candidates;
@@ -1398,7 +1398,7 @@ public class TemplatePlanBuilder {
 			IACandidateWrapper candidate = new IACandidateWrapper(impl);
 			// match the ias of the implementation with the infrastructure nodes
 			for (AbstractImplementationArtifact ia : impl.getImplementationArtifacts()) {
-				TemplatePlanBuilder.LOG.debug("Checking whether IA {} can be deployed on a specific Infrastructure Node", ia.getName());
+				BPELScopeBuilder.LOG.debug("Checking whether IA {} can be deployed on a specific Infrastructure Node", ia.getName());
 				for (AbstractNodeTemplate infraNode : infraNodes) {
 					// check if any plugin can handle installing the ia on the
 					// infraNode
@@ -1412,9 +1412,9 @@ public class TemplatePlanBuilder {
 			// check if all ias of the implementation can be provisioned
 			if (candidate.isValid()) {
 				candidates.add(candidate);
-				TemplatePlanBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
+				BPELScopeBuilder.LOG.debug("IA Candidate is valid, adding to candidate list");
 			} else {
-				TemplatePlanBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
+				BPELScopeBuilder.LOG.debug("IA Candidate is invalid, discarding candidate");
 			}
 		}
 		chain.iaCandidates = candidates;
@@ -1461,11 +1461,11 @@ public class TemplatePlanBuilder {
 			for (AbstractImplementationArtifact ia : impl.getImplementationArtifacts()) {
 				if (forSource) {
 					// check if ia implements source interfaces
-					if (!TemplatePlanBuilder.checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate)) {
+					if (!BPELScopeBuilder.checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate)) {
 						continue;
 					}
 				} else {
-					if (TemplatePlanBuilder.checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate)) {
+					if (BPELScopeBuilder.checkIfIaImplementsSrcIface(ia, chain.relationshipTemplate)) {
 						continue;
 					}
 				}

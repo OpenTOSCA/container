@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,10 +7,9 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -32,16 +31,16 @@ public class ServiceInstanceInitializer {
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 	
-	private Fragments fragments;
+	private BPELProcessFragments fragments;
 	
-	private PlanHandler planHandler;
+	private BPELPlanHandler planHandler;
 	private BPELPlanHandler bpelProcessHandler;
 	
 	
 	public ServiceInstanceInitializer() throws ParserConfigurationException {
-		this.planHandler = new PlanHandler();
+		this.planHandler = new BPELPlanHandler();
 		this.bpelProcessHandler = new BPELPlanHandler();
-		this.fragments = new Fragments();
+		this.fragments = new BPELProcessFragments();
 	}
 	
 	/**

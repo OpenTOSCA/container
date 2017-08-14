@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.fragments.Fragments;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -56,7 +56,7 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 		
 		// add assign from input to nodeInstanceVar
 		try {
-			Node assignFromInputToNodeInstanceIdVar = new Fragments().generateAssignFromInputMessageToStringVariableAsNode(inputFieldName, nodeInstanceVarName);
+			Node assignFromInputToNodeInstanceIdVar = new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode(inputFieldName, nodeInstanceVarName);
 			assignFromInputToNodeInstanceIdVar = context.importNode(assignFromInputToNodeInstanceIdVar);
 			context.getPrePhaseElement().appendChild(assignFromInputToNodeInstanceIdVar);
 		} catch (IOException e) {

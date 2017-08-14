@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.fragments.Fragments;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -67,12 +67,12 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 		context.addVariable(responseVarName, BPELPlan.VariableType.MESSAGE, anyTypeDeclId);
 		
 		try {
-			Node getRelationInstance = new Fragments().generateBPEL4RESTLightGETonURLAsNode(relationTemplateInstnaceVar, responseVarName);
+			Node getRelationInstance = new BPELProcessFragments().generateBPEL4RESTLightGETonURLAsNode(relationTemplateInstnaceVar, responseVarName);
 			getRelationInstance = context.importNode(getRelationInstance);
 			context.getPrePhaseElement().appendChild(getRelationInstance);
 			
 			String xpath2Query = "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
-			Node fetchSourceInstance = new Fragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query, nodeTemplateInstanceVar);
+			Node fetchSourceInstance = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query, nodeTemplateInstanceVar);
 			fetchSourceInstance = context.importNode(fetchSourceInstance);
 			context.getPrePhaseElement().appendChild(fetchSourceInstance);
 			

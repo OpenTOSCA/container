@@ -15,7 +15,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.opentosca.planbuilder.fragments.Fragments.Util;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -201,7 +201,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 				try {
 					
 					// assign prestate to state variable
-					org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+					org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 					Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(), "string('" + preState + "')", stateVarName);
 					assignNode = context.importNode(assignNode);
 					lastSetState = preState;
@@ -213,7 +213,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 					
 					// create REST Put activity
 					String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
-					Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+					Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 					extActiv = context.importNode(extActiv);
 					
 					// send the state before the assign of the invoker request
@@ -231,7 +231,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 			if (postState != null) {
 				try {
 					// create state assign activity
-					org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+					org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 					Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignNodeState_" + operationName + "_" + System.currentTimeMillis(), "string('" + postState + "')", stateVarName);
 					assignNode = context.importNode(assignNode);
 					
@@ -256,7 +256,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 					
 					// create PUT activity
 					String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
-					Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+					Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 					extActiv = context.importNode(extActiv);
 					
 					// insert REST call after the assign
@@ -371,7 +371,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		try {
 			// create bpel extension activity and append
 			String bpelString = this.fragments.generateBPEL4RESTLightNodeInstancePOST(serviceInstanceVarName, context.getNodeTemplate().getId(), restCallResponseVarName);
-			Node createNodeInstanceExActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node createNodeInstanceExActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			createNodeInstanceExActiv = context.importNode(createNodeInstanceExActiv);
 			context.getPrePhaseElement().appendChild(createNodeInstanceExActiv);
 		} catch (IOException e2) {
@@ -396,7 +396,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		try {
 			// save nodeInstance url from response
 			String bpelString = this.fragments.generateAssignFromNodeInstancePOSTResponseToStringVar(nodeInstanceURLVarName, restCallResponseVarName);
-			Node assignNodeInstanceUrl = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node assignNodeInstanceUrl = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			assignNodeInstanceUrl = context.importNode(assignNodeInstanceUrl);
 			context.getPrePhaseElement().appendChild(assignNodeInstanceUrl);
 		} catch (IOException e2) {
@@ -407,14 +407,14 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		
 		try {
 			// update state variable to uninstalled
-			org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+			org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitNodeState" + System.currentTimeMillis(), "string('uninstalled')", stateVarName);
 			assignNode = context.importNode(assignNode);
 			context.getPrePhaseElement().appendChild(assignNode);
 			
 			// send state to api
 			String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
-			Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			extActiv = context.importNode(extActiv);
 			context.getPrePhaseElement().appendChild(extActiv);
 		} catch (IOException e2) {
@@ -455,7 +455,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 				try {
 					
 					// assign prestate to state variable
-					org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+					org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 					Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(), "string('" + preState + "')", stateVarName);
 					assignNode = context.importNode(assignNode);
 					lastSetState = preState;
@@ -467,7 +467,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 					
 					// create REST Put activity
 					String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
-					Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+					Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 					extActiv = context.importNode(extActiv);
 					
 					// send the state before the assign of the invoker request
@@ -485,7 +485,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 			if (postState != null) {
 				try {
 					// create state assign activity
-					org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+					org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 					Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignNodeState_" + operationName + "_" + System.currentTimeMillis(), "string('" + postState + "')", stateVarName);
 					assignNode = context.importNode(assignNode);
 					
@@ -510,7 +510,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 					
 					// create PUT activity
 					String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
-					Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+					Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 					extActiv = context.importNode(extActiv);
 					
 					// insert REST call after the assign
@@ -534,13 +534,13 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		if (lastSetState.equals("uninstalled")) {
 			try {
 				// set state
-				org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+				org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 				Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignFinalNodeState" + System.currentTimeMillis(), "string('" + InstanceStates.getNextStableOperationState(lastSetState) + "')", stateVarName);
 				assignNode = context.importNode(assignNode);
 				
 				// create PUT activity
 				String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName, stateVarName);
-				Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+				Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 				extActiv = context.importNode(extActiv);
 				
 				context.getPostPhaseElement().appendChild(assignNode);
@@ -666,7 +666,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		try {
 			// create bpel extension activity and append
 			String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceInstanceVarName, context.getRelationshipTemplate().getId(), restCallResponseVarName, sourceInstanceVarName, targetInstanceVarName);
-			Node createRelationInstanceExActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node createRelationInstanceExActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
 			injectionPreElement.appendChild(createRelationInstanceExActiv);
 		} catch (IOException e2) {
@@ -692,7 +692,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		try {
 			// save relationInstance url from response
 			String bpelString = this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(relationInstanceURLVarName, restCallResponseVarName);
-			Node assignRelationInstanceUrl = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node assignRelationInstanceUrl = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			assignRelationInstanceUrl = context.importNode(assignRelationInstanceUrl);
 			injectionPreElement.appendChild(assignRelationInstanceUrl);
 		} catch (IOException e2) {
@@ -708,14 +708,14 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		
 		try {
 			// update state variable to uninstalled
-			org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+			org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitRelationState" + System.currentTimeMillis(), "string('" + lastSetState + "')", stateVarName);
 			assignNode = context.importNode(assignNode);
 			injectionPreElement.appendChild(assignNode);
 			
 			// send state to api
 			String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName, stateVarName);
-			Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			extActiv = context.importNode(extActiv);
 			injectionPreElement.appendChild(extActiv);
 		} catch (IOException e2) {
@@ -728,13 +728,13 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		
 		try {
 			// set state
-			org.opentosca.planbuilder.fragments.Fragments frag = new org.opentosca.planbuilder.fragments.Fragments();
+			org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignFinalNodeState" + System.currentTimeMillis(), "string('initialized')", stateVarName);
 			assignNode = context.importNode(assignNode);
 			
 			// create PUT activity
 			String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName, stateVarName);
-			Node extActiv = org.opentosca.planbuilder.fragments.Fragments.Util.string2dom(bpelString);
+			Node extActiv = org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util.string2dom(bpelString);
 			extActiv = context.importNode(extActiv);
 			
 			injectionPostElement.appendChild(assignNode);

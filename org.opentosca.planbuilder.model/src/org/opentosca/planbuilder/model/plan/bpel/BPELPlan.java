@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
@@ -121,6 +120,8 @@ public class BPELPlan extends AbstractPlan{
 	private GenericWsdlWrapper processWsdl = null;
 
 	int internalCounterId = 0;
+
+	private Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap;	
 
 	public static String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 	
@@ -518,4 +519,11 @@ public class BPELPlan extends AbstractPlan{
 		this.internalCounterId = id;
 	}
 
+	public void setAbstract2BPELMapping(Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap) {
+		this.abstract2bpelMap = abstract2bpelMap;		
+	}
+	
+	public Map<AbstractActivity, BPELScopeActivity> getAbstract2BPEL(){
+		return this.abstract2bpelMap;
+	}
 }

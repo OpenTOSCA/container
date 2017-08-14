@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,10 +10,9 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -32,17 +31,15 @@ import org.xml.sax.SAXException;
  */
 public class NodeInstanceSelector {
 	
-	private Fragments bpelFragments;
-	private BPELPlanHandler bpelProcessHandler;
-	private PlanHandler planHandler;
+	private BPELProcessFragments bpelFragments;
+	private BPELPlanHandler bpelProcessHandler;	
 	private ServiceInstanceInitializer serviceInstanceInitializer;
 	
 	
 	public NodeInstanceSelector() {
 		try {
-			this.bpelFragments = new Fragments();
-			this.bpelProcessHandler = new BPELPlanHandler();
-			this.planHandler = new PlanHandler();
+			this.bpelFragments = new BPELProcessFragments();
+			this.bpelProcessHandler = new BPELPlanHandler();			
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
@@ -61,8 +58,8 @@ public class NodeInstanceSelector {
 		String nodeInstancesCountVarName = "nodeInstancesCountVar" + System.currentTimeMillis();
 		String relationInstancesCountVarName = "nodeInstancesCountVar" + System.currentTimeMillis();
 		
-		this.planHandler.addIntegerVariable(nodeInstancesCountVarName, plan);
-		this.planHandler.addIntegerVariable(relationInstancesCountVarName, plan);
+		this.bpelProcessHandler.addIntegerVariable(nodeInstancesCountVarName, plan);
+		this.bpelProcessHandler.addIntegerVariable(relationInstancesCountVarName, plan);
 		
 		// fetch serviceInstance VarName
 		String serviceInstanceVarName = this.serviceInstanceInitializer.getServiceInstanceVariableName(plan);
@@ -153,7 +150,7 @@ public class NodeInstanceSelector {
 			
 			String nodeInstanceIDVarName = null;
 			try {
-				nodeInstanceIDVarName = new NodeInstanceInitializer().findInstanceIdVarName(plan, nodeTemplate.getId());
+				nodeInstanceIDVarName = new NodeInstanceInitializer(this.bpelProcessHandler).findInstanceIdVarName(plan, nodeTemplate.getId());
 			} catch (ParserConfigurationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

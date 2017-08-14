@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
-import org.opentosca.planbuilder.fragments.Fragments;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
@@ -39,13 +39,13 @@ import org.xml.sax.SAXException;
 public class Handler {
 
 	private final Plugin invokerPlugin = new Plugin();
-	private Fragments planBuilderFragments;
+	private BPELProcessFragments planBuilderFragments;
 	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
 	
 	
 	public Handler() {
 		try {
-			this.planBuilderFragments = new Fragments();
+			this.planBuilderFragments = new BPELProcessFragments();
 		} catch (final ParserConfigurationException e) {
 			Handler.LOG.error("Couldn't initialize planBuilderFragments class");
 			e.printStackTrace();

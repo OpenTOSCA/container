@@ -11,6 +11,7 @@ Export-Package: org.apache.ode.activityrecovery,
  org.opentosca.planbuilder.model.tosca
 Import-Package: org.apache.commons.io;version="2.2.0",
  org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
+ org.opentosca.planbuilder.model.plan.bpel,
  org.osgi.framework;version="1.6.0"
 Bundle-ClassPath: .,
  META-INF/resources/

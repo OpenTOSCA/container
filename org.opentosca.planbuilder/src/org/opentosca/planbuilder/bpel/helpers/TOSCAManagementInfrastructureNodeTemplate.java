@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.util.ArrayList;
 import java.util.List;

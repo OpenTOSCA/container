@@ -1,10 +1,12 @@
-package org.opentosca.planbuilder.handlers;
+package org.opentosca.planbuilder.bpel.handlers;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -12,7 +14,21 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
+import org.apache.ode.schemas.dd._2007._03.ObjectFactory;
+import org.apache.ode.schemas.dd._2007._03.TDeployment;
+import org.apache.ode.schemas.dd._2007._03.TDeployment.Process;
+import org.apache.ode.schemas.dd._2007._03.TInvoke;
+import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
+import org.apache.ode.schemas.dd._2007._03.TProvide;
+import org.apache.ode.schemas.dd._2007._03.TService;
+import org.opentosca.planbuilder.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
+import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +57,13 @@ public class BPELPlanHandler {
 	private final static Logger LOG = LoggerFactory.getLogger(BPELPlanHandler.class);
 
 	private DocumentBuilderFactory documentBuilderFactory;
-	private DocumentBuilder documentBuilder;
+	private DocumentBuilder documentBuilder;	
+	
+	private NodeInstanceInitializer instanceInit;
+
+	private ObjectFactory ddFactory;
+
+	private BPELScopeHandler bpelScopeHandler;	
 
 	/**
 	 * Default Constructor
@@ -53,7 +75,10 @@ public class BPELPlanHandler {
 	public BPELPlanHandler() throws ParserConfigurationException {
 		this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		this.documentBuilderFactory.setNamespaceAware(true);
-		this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
+		this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();		
+		this.bpelScopeHandler = new BPELScopeHandler();
+		this.ddFactory = new ObjectFactory();
+		this.instanceInit = new NodeInstanceInitializer(this);		
 	}
 
 	/**
@@ -794,5 +819,450 @@ public class BPELPlanHandler {
 		}
 		return names;
 	}
+
+	/**
+	 * Registers and imports a file on a global level into the given BuildPlan
+	 * 
+	 * @param file the file with absolute location to add on a global level
+	 * @param buildPlan the BuildPlan to add the file to
+	 * @return true if adding the file was successful, else false
+	 */
+	public boolean addImportedFile(File file, BPELPlan buildPlan) {
+		return buildPlan.addImportedFile(file);
+	}
+
+	/**
+	 * Adds an import to the given BuildPlan
+	 * 
+	 * @param namespace the namespace of the import
+	 * @param location the location attribute of the import
+	 * @param importType the importType of the import
+	 * @param buildPlan the BuildPlan to add the import to
+	 * @return true if adding the import was successful, else false
+	 */
+	public boolean addImportToBpel(String namespace, String location, String importType, BPELPlan buildPlan) {
+		BPELPlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}", namespace, location, importType, buildPlan.getBpelProcessElement().getAttribute("name"));
+		if (importType.equals(BPELPlan.ImportType.WSDL.toString())) {
+			return this.addImports(namespace, location, BPELPlan.ImportType.WSDL, buildPlan);
+		} else if (importType.equals(BPELPlan.ImportType.XSD.toString())) {
+			return this.addImports(namespace, location, BPELPlan.ImportType.XSD, buildPlan);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Adds an integer variable to the given plan on the global level
+	 * 
+	 * @param name a name for the variable (no duplicate check)
+	 * @param plan the plan to add the variable to
+	 * @return true iff adding the variable was successful
+	 */
+	public boolean addIntegerVariable(String name, BPELPlan plan) {
+		return this.addVariable(name, BPELPlan.VariableType.TYPE, new QName("http://www.w3.org/2001/XMLSchema", "integer", "xsd"), plan);
+	}
+
+	/**
+	 * Adds an invoke element to the deployment deskriptor of the given
+	 * BuildPlan
+	 * 
+	 * @param partnerLinkName the name of the partnerLink the invoke will use
+	 * @param serviceName the name of the service that will be invoked
+	 * @param portName the port of the invoke
+	 * @param buildPlan the BuildPlan to add the invoke to
+	 * @return true if adding the invoke to the deployment deskriptor was
+	 *         successful, else false
+	 */
+	
+	public boolean addInvokeToDeploy(String partnerLinkName, QName serviceName, String portName, BPELPlan buildPlan) {
+		BPELPlanHandler.LOG.debug("Adding invoke with partnerLink {}, service {} and port {} to BuildPlan {}", partnerLinkName, serviceName.toString(), portName, buildPlan.getBpelProcessElement().getAttribute("name"));
+		
+		for (TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
+			if (inv.getPartnerLink().equals(partnerLinkName)) {
+				BPELPlanHandler.LOG.warn("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name", partnerLinkName, serviceName.toString(), portName);
+				return false;
+			}
+		}
+		// set invoke
+		TInvoke invoke = this.ddFactory.createTInvoke();
+		invoke.setPartnerLink(partnerLinkName);
+		
+		// set service
+		TService service = this.ddFactory.createTService();
+		service.setName(serviceName);
+		service.setPort(portName);
+		
+		invoke.setService(service);
+		
+		buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke().add(invoke);
+		
+		BPELPlanHandler.LOG.debug("Adding invoke was successful");
+		return true;
+	}
+
+	/**
+	 * Adds a propertyVariable to the buildPlan
+	 * 
+	 * @param name the name of the propertyVariable
+	 * @param plan the BuildPlan to add the propertyVariable to
+	 * @return true if adding the PropertyVariable to the BuildPlan, else false
+	 */
+	public boolean addPropertyVariable(String name, BPELPlan buildPlan) {
+		return this.addVariable("prop_" + name, BPELPlan.VariableType.TYPE, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"), buildPlan);
+	}
+
+	/**
+	 * Adds a provide element to the deployment deskriptor of the given
+	 * BuildPlan
+	 * 
+	 * @param partnerLinkName the name of the partnerlink the provide uses
+	 * @param serviceName the service name the provide uses
+	 * @param portName the port name the provide uses
+	 * @param buildPlan the BuildPlan to add the provide to
+	 * @return true if adding the provide to the deployment deskriptor was
+	 *         successful, else false
+	 */
+	public boolean addProvideToDeploy(String partnerLinkName, QName serviceName, String portName, BPELPlan buildPlan) {
+		BPELPlanHandler.LOG.debug("Trying to add provide with partnerLink {}, service {} and port {} to BuildPlan {}", partnerLinkName, serviceName.toString(), portName, buildPlan.getBpelProcessElement().getAttribute("name"));
+		for (TProvide inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide()) {
+			if (inv.getPartnerLink().equals(partnerLinkName)) {
+				BPELPlanHandler.LOG.warn("Adding provide failed");
+				return false;
+			}
+		}
+		// set invoke
+		TProvide provide = this.ddFactory.createTProvide();
+		provide.setPartnerLink(partnerLinkName);
+		
+		// set service
+		TService service = this.ddFactory.createTService();
+		service.setName(serviceName);
+		service.setPort(portName);
+		
+		provide.setService(service);
+		
+		buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide().add(provide);
+		BPELPlanHandler.LOG.debug("Adding provide was successful");
+		return true;
+		
+	}
+
+	/**
+	 * Adds a Element of type string to the RequestMessage of the given
+	 * BuildPlan
+	 * 
+	 * @param elementName the localName of the element
+	 * @param buildPlan the BuildPlan to add the element to
+	 * @return true if adding the element to RequestMessage was successful, else
+	 *         false
+	 */
+	public boolean addStringElementToPlanRequest(String elementName, BPELPlan buildPlan) {
+		return buildPlan.getWsdl().addElementToRequestMessage(elementName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+	}
+
+	/**
+	 * Adds a element of type string to the ResponseMessage of the given
+	 * BuildPlan
+	 * 
+	 * @param elementName the localName of the element
+	 * @param buildPlan the BuildPlan to add the element to
+	 * @return true if adding the element to the ResponseMessage was successful,
+	 *         else false
+	 */
+	public boolean addStringElementToPlanResponse(String elementName, BPELPlan buildPlan) {
+		return buildPlan.getWsdl().addElementToResponseMessage(elementName, new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+	}
+
+	/**
+	 * Creates a Plan with an empty skeleton for the given ServiceTemplate
+	 * 
+	 * @param serviceTemplate the ServiceTemplate to generate a Plan Skeleton
+	 *            for
+	 * @return an empty Plan Skeleton
+	 */
+	public BPELPlan createEmptyBPELPlan(String processNamespace, String processName, AbstractPlan abstractPlan) {
+		BPELPlanHandler.LOG.debug("Creating BuildPlan for ServiceTemplate {}", abstractPlan.getServiceTemplate().getQName().toString());
+		
+		BPELPlan buildPlan =  new BPELPlan(abstractPlan.getId(), abstractPlan.getType(), abstractPlan.getDefinitions(), abstractPlan.getServiceTemplate(), abstractPlan.getActivites(),abstractPlan.getLinks());;
+								
+		// init wsdl doc
+		try {
+			buildPlan.setProcessWsdl(new GenericWsdlWrapper(abstractPlan.getType()));
+		} catch (IOException e) {
+			BPELPlanHandler.LOG.error("Internal error while initializing WSDL for BuildPlan", e);
+		}
+		
+		this.initializeXMLElements(buildPlan);
+		
+		// add new deployment deskriptor
+		buildPlan.setDeploymentDeskriptor(new Deploy());
+		
+		// set name of process and wsdl
+		this.setId(processNamespace, processName, buildPlan);
+		this.setWsdlId(processNamespace, processName, buildPlan);
+		
+		// add import for the process wsdl
+		this.addImports(processNamespace, buildPlan.getWsdl().getFileName(), BPELPlan.ImportType.WSDL, buildPlan);
+		
+		// add partnerlink to the process. note/FIXME?: the partnerlinktype of
+		// the process itself is alread initialized with setting the name of the
+		// process wsdl
+		//
+		// e.g.<bpel:partnerLink name="client"
+		// partnerLinkType="tns:bamoodlebuildplan"
+		// myRole="bamoodlebuildplanProvider"
+		// partnerRole="bamoodlebuildplanRequester" />
+		this.addPartnerLink("client", new QName(processNamespace, processName, "tns"), processName + "Provider", processName + "Requester", true, buildPlan);
+		
+		// add input and output variables
+		//
+		// e.g.
+		// <!-- Reference to the message passed as input during initiation -->
+		// <bpel:variable name="input"
+		// messageType="tns:bamoodlebuildplanRequestMessage" />
+		//
+		// <!-- Reference to the message that will be sent back to the requester
+		// during
+		// callback -->
+		// <bpel:variable name="VmApache_Endpoint" type="ns1:string" />
+		// <bpel:variable name="VmMySql_Endpoint" type="ns1:string"/>
+		// <bpel:variable name="output"
+		// messageType="tns:bamoodlebuildplanResponseMessage" />
+		
+		this.addVariable("input", BPELPlan.VariableType.MESSAGE, new QName(processNamespace, processName + "RequestMessage", "tns"), buildPlan);
+		this.addVariable("output", BPELPlan.VariableType.MESSAGE, new QName(processNamespace, processName + "ResponseMessage", "tns"), buildPlan);
+		
+		// set the receive and callback invoke elements
+		// <bpel:receive name="receiveInput" partnerLink="client"
+		// portType="tns:bamoodlebuildplan" operation="initiate"
+		// variable="input"
+		// createInstance="yes" />
+		//
+		// <bpel:invoke name="callbackClient"
+		// partnerLink="client"
+		// portType="tns:bamoodlebuildplanCallback"
+		// operation="onResult"
+		// inputVariable="output"
+		// />
+		Element receiveElement = buildPlan.getBpelMainSequenceReceiveElement();
+		this.setAttribute(receiveElement, "name", "receiveInput");
+		
+		switch (abstractPlan.getType()) {
+		case TERMINATE:
+			this.setAttribute(receiveElement, "operation", "terminate");
+			break;
+		// if we don't know what kind of plan this is -> ManagementPlan
+		default:
+		case BUILD:
+		case MANAGE:
+			this.setAttribute(receiveElement, "operation", "initiate");
+			break;
+		}
+		
+		this.setAttribute(receiveElement, "variable", "input");
+		this.setAttribute(receiveElement, "createInstance", "yes");
+		this.setAttribute(receiveElement, "partnerLink", "client");
+		this.setAttribute(receiveElement, "portType", "tns:" + processName);
+		
+		Element invokeElement = buildPlan.getBpelMainSequenceCallbackInvokeElement();
+		this.setAttribute(invokeElement, "name", "callbackClient");
+		this.setAttribute(invokeElement, "partnerLink", "client");
+		// FIXME serious hack here
+		this.setAttribute(invokeElement, "portType", "tns:" + processName + "Callback");
+		this.setAttribute(invokeElement, "operation", "onResult");
+		this.setAttribute(invokeElement, "inputVariable", "output");
+		
+		// set deployment deskriptor
+		Deploy deployment = buildPlan.getDeploymentDeskriptor();
+		List<TDeployment.Process> processes = deployment.getProcess();
+		
+		// generate process element and set name
+		TDeployment.Process process = this.ddFactory.createTDeploymentProcess();
+		process.setName(new QName(processNamespace, processName));
+		
+		TProcessEvents events = this.ddFactory.createTProcessEvents();
+		events.setGenerate("all");
+		process.setProcessEvents(events);
+		
+		// get invokes, generate invoke for callback, add to invokes
+		List<TInvoke> invokes = process.getInvoke();
+		TInvoke callbackInvoke = this.ddFactory.createTInvoke();
+		callbackInvoke.setPartnerLink("client");
+		// create "callbackservice"
+		TService callbackService = this.ddFactory.createTService();
+		// example servicename : Wordpress_buildPlanServiceCallback
+		callbackService.setName(new QName(processNamespace, processName + "ServiceCallback"));
+		callbackService.setPort(processName + "PortCallbackPort");
+		callbackInvoke.setService(callbackService);
+		invokes.add(callbackInvoke);
+		
+		// get provides, generate provide element, add to process
+		List<TProvide> provides = process.getProvide();
+		TProvide provide = this.ddFactory.createTProvide();
+		provide.setPartnerLink("client");
+		TService provideService = this.ddFactory.createTService();
+		provideService.setName(new QName(processNamespace, processName + "Service"));
+		provideService.setPort(processName + "Port");
+		provide.setService(provideService);
+		
+		provides.add(provide);
+		
+		// add process to processes
+		processes.add(process);
+		
+		return buildPlan;
+	}
+
+	/**
+	 * Returns a List of Strings which represent all Links declared in the given
+	 * BuildPlan
+	 * 
+	 * @param buildPlan the BuildPlan whose declared Links should be returned
+	 * @return a List of Strings containing all Links of the given BuildPlan
+	 */
+	public List<String> getAllLinks(BPELPlan buildPlan) {
+		Element flowLinks = buildPlan.getBpelMainFlowLinksElement();
+		List<String> linkNames = new ArrayList<String>();
+		NodeList children = flowLinks.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			if (children.item(i).getNodeName().equals("link")) {
+				linkNames.add(children.item(i).getAttributes().getNamedItem("name").getNodeValue());
+			}
+			if (children.item(i).getLocalName().equals("link")) {
+				linkNames.add(children.item(i).getAttributes().getNamedItem("name").getNodeValue());
+			}
+		}
+		return linkNames;
+	}
+
+	/**
+	 * Returns all TemplateBuildPlans of the given BuildPlan which handle
+	 * RelationshipTemplates
+	 * 
+	 * @param buildPlan the BuildPlan to get the TemplateBuildPlans from
+	 * @return a List of TemplateBuildPlans which handle RelationshipTemplates
+	 */
+	public List<BPELScopeActivity> getRelationshipTemplatePlans(BPELPlan buildPlan) {
+		List<BPELScopeActivity> relationshipPlans = new ArrayList<BPELScopeActivity>();
+		for (BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
+			if (this.bpelScopeHandler.isRelationshipTemplatePlan(template)) {
+				relationshipPlans.add(template);
+			}
+		}
+		return relationshipPlans;
+	}
+
+	/**
+	 * Returns a TemplateBuildPlan which handles the Template with the given id
+	 * 
+	 * @param id the id of template inside a TopologyTemplate
+	 * @param buildPlan the BuildPlan to look in
+	 * @return a TemplateBuildPlan if it handles a Template with the given id,
+	 *         else null
+	 */
+	public BPELScopeActivity getTemplateBuildPlanById(String id, BPELPlan buildPlan) {
+		for (BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
+			// FIXME it looks a bit hacky.. it looks even more hacky if you look
+			// at getRelationshipTemplatePlans(..), the ifs
+			if ((template.getNodeTemplate() != null) && template.getNodeTemplate().getId().equals(id)) {
+				return template;
+			}
+			if ((template.getRelationshipTemplate() != null) && template.getRelationshipTemplate().getId().equals(id)) {
+				return template;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns if the given import is already imported in the given BuildPlan
+	 * 
+	 * @param namespace the namespace of the import
+	 * @param location the location of the import
+	 * @param importType the importType of the import
+	 * @param buildPlan the BuildPlan to look inside for the import
+	 * @return true if the import is already present in the given BuildPlan,
+	 *         else false
+	 */
+	public boolean hasImport(String namespace, String location, String importType, BPELPlan buildPlan) {
+		if (importType.equals(BPELPlan.ImportType.WSDL.toString())) {
+			return this.hasImport(namespace, location, BPELPlan.ImportType.WSDL, buildPlan);
+		} else if (importType.equals(BPELPlan.ImportType.XSD.toString())) {
+			return this.hasImport(namespace, location, BPELPlan.ImportType.XSD, buildPlan);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Adds a copy to the main assign of the given BuildPlan to initialize the
+	 * variable
+	 * 
+	 * @param propertyName the name of the propertyVariable
+	 * @param value the value to initialize the variable with
+	 * @param buildPlan the BuildPlan to add the copy to
+	 * @return true if adding the copy was successful, else false
+	 */
+	public boolean initializePropertyVariable(String propertyName, String value, BPELPlan buildPlan) {
+		return this.assignVariableStringValue("prop_" + propertyName, value, buildPlan);
+	}
+
+	/**
+	 * Registers an extension in the given BuildPlan
+	 * 
+	 * @param namespace the namespace of the extension
+	 * @param mustUnderstand sets if the extension must be understood
+	 * @param buildPlan the BuildPlan to add to the given BuildPlan
+	 * @return true if adding the extension was successful, else false
+	 */
+	public boolean registerExtension(String namespace, boolean mustUnderstand, BPELPlan buildPlan) {
+		return this.addExtension(namespace, mustUnderstand, buildPlan);
+	}
+
+	public void initializeBPELSkeleton(BPELPlan plan, final String csarName) {
+		plan.setCsarName(csarName);
+		
+		Map<AbstractActivity,BPELScopeActivity> abstract2bpelMap = new HashMap<AbstractActivity,BPELScopeActivity>();
+		
+		
+		for(AbstractActivity activity : plan.getActivites()) {
+			if(activity instanceof ANodeTemplateActivity) {
+				ANodeTemplateActivity ntActivity = (ANodeTemplateActivity) activity;				
+				BPELScopeActivity newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(ntActivity.getNodeTemplate(), plan);
+				plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
+				abstract2bpelMap.put(ntActivity, newEmpty3SequenceScopeBPELActivity);
+			} else if (activity instanceof ARelationshipTemplateActivity) {
+				ARelationshipTemplateActivity rtActivity = (ARelationshipTemplateActivity) activity;
+				BPELScopeActivity newEmpty3SequenceScopeBPELActivity = this.bpelScopeHandler.createTemplateBuildPlan(rtActivity.getRelationshipTemplate(), plan);
+				plan.addTemplateBuildPlan(newEmpty3SequenceScopeBPELActivity);
+				abstract2bpelMap.put(rtActivity, newEmpty3SequenceScopeBPELActivity);
+			}
+		}
+		
+		plan.setAbstract2BPELMapping(abstract2bpelMap);
+		
+		
+		this.instanceInit.addNodeInstanceIDVarToTemplatePlans(plan);
+		
+		// connect the templates
+		this.initializeConnectionsAsLinkInBPELPlan(plan);				
+	}
+
+	private void initializeConnectionsAsLinkInBPELPlan(BPELPlan plan) {
+		for(AbstractActivity activity : plan.getLinks().keySet()) {
+			BPELScopeActivity source = plan.getAbstract2BPEL().get(activity);
+			BPELScopeActivity target = plan.getAbstract2BPEL().get(plan.getLinks().get(activity));
+			
+			if(source == null | target == null) {
+				continue;
+			}
+			
+			String linkName = "connection_" +  ((source.getNodeTemplate() != null) ? source.getNodeTemplate().getId() : source.getRelationshipTemplate().getId()) + "_" + ((target.getNodeTemplate() != null) ? target.getNodeTemplate().getId() : target.getRelationshipTemplate().getId());			
+			this.addLink(linkName, plan);
+						
+			this.bpelScopeHandler.connect(source, target, linkName);
+				
+		}
+	}	
 
 }

@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -7,7 +7,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.handlers.PlanHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,14 +17,14 @@ import org.xml.sax.SAXException;
 
 public class CorrelationIDInitializer {
 	
-	private PlanHandler buildPlanHandler;
+	private BPELPlanHandler buildPlanHandler;
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
 	
 	
 	public CorrelationIDInitializer() {
 		try {
-			this.buildPlanHandler = new PlanHandler();
+			this.buildPlanHandler = new BPELPlanHandler();
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
 			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

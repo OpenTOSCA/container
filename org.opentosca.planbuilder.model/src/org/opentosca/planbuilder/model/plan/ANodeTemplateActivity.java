@@ -19,7 +19,7 @@ public class ANodeTemplateActivity extends AbstractActivity {
 		this.nodeTemplate = nodeTemplate;
 	}
 	
-	public AbstractNodeTemplate getAbstractNodeTemplate() {
+	public AbstractNodeTemplate getNodeTemplate() {
 		return this.nodeTemplate;
 	}
 	

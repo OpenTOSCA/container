@@ -17,7 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Properties;
-import org.opentosca.planbuilder.fragments.Fragments;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -78,8 +78,8 @@ public class Handler {
 		}
 		
 		try {
-			Node assignInputToVar = new Fragments().generateAssignFromInputMessageToStringVariableAsNode("CorrelationID", correlationIdVar.getName());
-			Node logPOSTNode = new Fragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(serviceInstanceURLVar, logMessageVarName, correlationIdVar.getName());
+			Node assignInputToVar = new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode("CorrelationID", correlationIdVar.getName());
+			Node logPOSTNode = new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(serviceInstanceURLVar, logMessageVarName, correlationIdVar.getName());
 			assignInputToVar = context.importNode(assignInputToVar);
 			logPOSTNode = context.importNode(logPOSTNode);
 			

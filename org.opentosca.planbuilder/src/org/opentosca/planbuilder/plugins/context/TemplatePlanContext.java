@@ -17,13 +17,11 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.TemplatePlanBuilder;
-import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
-import org.opentosca.planbuilder.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.handlers.BPELScopeHandler;
-import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.handlers.ScopeHandler;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.bpel.BPELScopeBuilder;
+import org.opentosca.planbuilder.bpel.BPELScopeBuilder.ProvisioningChain;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELScopeHandler;
+import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -58,9 +56,8 @@ public class TemplatePlanContext {
 	private BPELScopeActivity templateBuildPlan;
 	private AbstractServiceTemplate serviceTemplate;
 
-	private PlanHandler buildPlanHandler;
-	private BPELPlanHandler bpelProcessHandler;
-	private ScopeHandler templateHandler;
+	private BPELPlanHandler buildPlanHandler;
+	private BPELPlanHandler bpelProcessHandler;	
 	private BPELScopeHandler bpelTemplateHandler;
 
 	private Map<String, String> namespaceMap;
@@ -83,12 +80,11 @@ public class TemplatePlanContext {
 		this.serviceTemplate = serviceTemplateId;
 		
 		try {
-			this.buildPlanHandler = new PlanHandler();
+			this.buildPlanHandler = new BPELPlanHandler();
 			this.bpelProcessHandler = new BPELPlanHandler();
 		} catch (ParserConfigurationException e) {
 			TemplatePlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
-		}
-		this.templateHandler = new ScopeHandler();
+		}		
 		this.bpelTemplateHandler = new BPELScopeHandler();
 		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
@@ -312,7 +308,7 @@ public class TemplatePlanContext {
 		// here we set the qname with namespace of the plan "ba.example"
 		QName partnerType = new QName(this.planNamespace, partnerLinkType, "tns");
 		check &= this.addPLtoDeploy(partnerLinkName, partnerLinkType);
-		check &= this.templateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole, initializePartnerRole, this.templateBuildPlan);
+		check &= this.bpelTemplateHandler.addPartnerLink(partnerLinkName, partnerType, myRole, partnerRole, initializePartnerRole, this.templateBuildPlan);
 		return check;
 	}
 	
@@ -1330,7 +1326,7 @@ public class TemplatePlanContext {
 	 */
 	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName, Map<AbstractParameter, Variable> param2propertyMapping) {
 		
-		ProvisioningChain chain = TemplatePlanBuilder.createProvisioningCall(nodeTemplate, interfaceName, operationName);
+		ProvisioningChain chain = BPELScopeBuilder.createProvisioningCall(nodeTemplate, interfaceName, operationName);
 		if (chain == null) {
 			return false;
 		}

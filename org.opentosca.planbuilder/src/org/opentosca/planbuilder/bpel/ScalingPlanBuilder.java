@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder;
+package org.opentosca.planbuilder.bpel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,17 +14,19 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.TemplatePlanBuilder.ProvisioningChain;
-import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.PlanHandler;
-import org.opentosca.planbuilder.handlers.ScopeHandler;
-import org.opentosca.planbuilder.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.helpers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.helpers.NodeInstanceInitializer;
-import org.opentosca.planbuilder.helpers.PropertyMappingsToOutputInitializer;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer;
-import org.opentosca.planbuilder.helpers.ServiceInstanceInitializer;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
+import org.opentosca.planbuilder.AbstractPlanBuilder;
+import org.opentosca.planbuilder.bpel.BPELScopeBuilder.ProvisioningChain;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELScopeHandler;
+import org.opentosca.planbuilder.bpel.helpers.BPELFinalizer;
+import org.opentosca.planbuilder.bpel.helpers.CorrelationIDInitializer;
+import org.opentosca.planbuilder.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.bpel.helpers.PropertyMappingsToOutputInitializer;
+import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer;
+import org.opentosca.planbuilder.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -54,12 +56,12 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class ScalingPlanBuilder extends IPlanBuilder {
+public class ScalingPlanBuilder extends AbstractPlanBuilder {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ScalingPlanBuilder.class);
 	
 	// handler for abstract templatebuildplan operations
-	private ScopeHandler scopeHandler;
+	private BPELScopeHandler scopeHandler;
 	
 	// class for initializing properties inside the plan
 	private PropertyVariableInitializer propertyInitializer;
@@ -75,18 +77,20 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 	
 	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 	
+	private BPELPlanHandler planHandler;
+	
 	// accepted operations for provisioning
 	private List<String> opNames = new ArrayList<String>();
 	
 	
 	public ScalingPlanBuilder() {
 		try {
-			this.planHandler = new PlanHandler();
+			this.planHandler = new BPELPlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 		} catch (ParserConfigurationException e) {
 			ScalingPlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
-		this.scopeHandler = new ScopeHandler();
+		this.scopeHandler = new BPELScopeHandler();
 		// TODO seems ugly
 		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		
@@ -284,7 +288,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 			AbstractPlan abstractScaleOutPlan =this.generateSOG(new QName(processNamespace,processName).toString(), definitions, serviceTemplate, scalingPlanDefinition);
 			
 			
-			BPELPlan scalingPlan = this.planHandler.createBPELPlan(processNamespace, processName, abstractScaleOutPlan);
+			BPELPlan scalingPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractScaleOutPlan);
 			
 			this.addNodeAndRelationScopes(scalingPlan, scalingPlanDefinition);
 			
@@ -349,7 +353,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 		// fetch relationInstance data
 		try {
-			Node fetchRelationInstanceData = new Fragments().createRESTDeleteOnURLBPELVarAsNode(relationInstanceVarName, responseVarName);
+			Node fetchRelationInstanceData = new BPELProcessFragments().createRESTDeleteOnURLBPELVarAsNode(relationInstanceVarName, responseVarName);
 			fetchRelationInstanceData = nodeContext.importNode(fetchRelationInstanceData);
 			nodeContext.getPrePhaseElement().appendChild(fetchRelationInstanceData);
 		} catch (IOException e1) {
@@ -369,7 +373,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 		String xpathQuery = "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
 		try {
-			Node queryNodeInstanceUrl = new Fragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchNodeInstance" + System.currentTimeMillis(), xpathQuery, nodeInstanceVarName);
+			Node queryNodeInstanceUrl = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchNodeInstance" + System.currentTimeMillis(), xpathQuery, nodeInstanceVarName);
 			queryNodeInstanceUrl = nodeContext.importNode(queryNodeInstanceUrl);
 			nodeContext.getPrePhaseElement().appendChild(queryNodeInstanceUrl);
 		} catch (IOException e) {
@@ -418,7 +422,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		relationContext.addVariable(responseVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId);
 		
 		try {
-			Node requestRelationInstance = new Fragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName, relationshipTemplate.getId(), responseVarName, nodeTemplateInstanceVarName);
+			Node requestRelationInstance = new BPELProcessFragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName, relationshipTemplate.getId(), responseVarName, nodeTemplateInstanceVarName);
 			requestRelationInstance = relationContext.importNode(requestRelationInstance);
 			relationContext.getPrePhaseElement().appendChild(requestRelationInstance);
 		} catch (IOException e) {
@@ -436,7 +440,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 		// set relationInstnace variable of the relationship templates' scope
 		try {
-			new Fragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchRelationInstance" + System.currentTimeMillis(), xpathQuery, relationshipTemplateInstanceVarName);
+			new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchRelationInstance" + System.currentTimeMillis(), xpathQuery, relationshipTemplateInstanceVarName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -479,8 +483,8 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		// TODO implement fallback
 		if (this.findTypePlugin(relationshipTemplate) == null) {
 			ScalingPlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
-			ProvisioningChain sourceChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, true);
-			ProvisioningChain targetChain = TemplatePlanBuilder.createProvisioningChain(relationshipTemplate, false);
+			ProvisioningChain sourceChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, true);
+			ProvisioningChain targetChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, false);
 			
 			// first execute provisioning on target, then on source
 			if (targetChain != null) {
@@ -515,7 +519,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
 		if (plugin == null) {
 			ScalingPlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
-			ProvisioningChain chain = TemplatePlanBuilder.createProvisioningChain(nodeTemplate);
+			ProvisioningChain chain = BPELScopeBuilder.createProvisioningChain(nodeTemplate);
 			if (chain == null) {
 				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 			} else {
@@ -543,7 +547,7 @@ public class ScalingPlanBuilder extends IPlanBuilder {
 		
 		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
 		
-		BuildPlanBuilder buildPlanBuilder = new BuildPlanBuilder();
+		AbstractBuildPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
 		
 		AbstractPlan abstractScaleOutPlan = buildPlanBuilder.generatePOG(id, defintions, serviceTemplate, scalingPlanDefinition.nodeTemplates, scalingPlanDefinition.relationshipTemplates);
 		

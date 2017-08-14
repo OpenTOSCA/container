@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.helpers;
+package org.opentosca.planbuilder.bpel.helpers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,10 +7,10 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.planbuilder.fragments.Fragments;
-import org.opentosca.planbuilder.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.handlers.BPELScopeHandler;
-import org.opentosca.planbuilder.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.handlers.BPELScopeHandler;
+import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
@@ -35,13 +35,13 @@ public class NodeInstanceInitializer {
 	
 	private BPELScopeHandler bpelTemplateScopeHandler;
 	
-	private Fragments bpelFragments;
+	private BPELProcessFragments bpelFragments;
 	
 	
-	public NodeInstanceInitializer() throws ParserConfigurationException {
-		this.bpelProcessHandler = new BPELPlanHandler();
+	public NodeInstanceInitializer(BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {		
 		this.bpelTemplateScopeHandler = new BPELScopeHandler();
-		this.bpelFragments = new Fragments();
+		this.bpelFragments = new BPELProcessFragments();
+		this.bpelProcessHandler = bpelProcessHandler;
 	}
 	
 	/**
