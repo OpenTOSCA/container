@@ -1,14 +1,10 @@
 FROM maven:3-jdk-8 as builder
 
-ARG GIT_REPO_URL=https://github.com/OpenTOSCA/container.git
-ARG GIT_BRANCH=master
-
 RUN rm /dev/random && ln -s /dev/urandom /dev/random
 
 WORKDIR /opt/opentosca/container
-
-RUN git clone --recursive --depth=1 ${GIT_REPO_URL} -b ${GIT_BRANCH} /opt/opentosca/container \
-    && mvn package
+COPY . /opt/opentosca/container
+RUN mvn package
 
 
 FROM openjdk:8
@@ -16,7 +12,10 @@ LABEL maintainer "Johannes Wettinger <jowettinger@gmail.com>, Michael Wurster <m
 
 ARG DOCKERIZE_VERSION=v0.3.0
 
-ENV REMOTE_HOSTNAME container
+ENV CONTAINER_HOSTNAME localhost
+ENV CONTAINER_REPOSITORY_HOSTNAME localhost
+ENV ENGINE_PLAN_HOSTNAME localhost
+ENV ENGINE_IA_HOSTNAME localhost
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \

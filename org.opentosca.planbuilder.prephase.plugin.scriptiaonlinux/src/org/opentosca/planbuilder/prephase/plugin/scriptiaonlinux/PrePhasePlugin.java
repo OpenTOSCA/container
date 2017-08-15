@@ -74,7 +74,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 
 	@Override
 	public boolean canHandle(final AbstractImplementationArtifact ia, final AbstractNodeType infrastructureNodeType) {
-		final QName type = ia.getArtifactType();
+		final QName type = ia.getArtifactType();		
 		PrePhasePlugin.LOG.debug("Checking if type: " + type.toString() + " and infrastructure nodeType: " + infrastructureNodeType.getId().toString() + " can be handled");
 
 		for (final QName nodeType : Utils.getNodeTypeHierarchy(infrastructureNodeType)) {
