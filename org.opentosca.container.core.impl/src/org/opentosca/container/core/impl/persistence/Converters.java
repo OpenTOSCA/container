@@ -1,5 +1,6 @@
 package org.opentosca.container.core.impl.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -80,11 +81,11 @@ public abstract class Converters {
     ni.setNodeInstanceID();
     ni.setState(Enums.valueOf(State.Node.class, object.getState().toString()));
     ni.setCreated(object.getCreatedAt());
-    NodeTemplateInstanceProperty prop =
-        object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
-            .collect(Collectors.reducing((a, b) -> null)).get();
-    if (prop != null) {
-      ni.setProperties((Document) converter.convertDataValueToObjectValue(prop.getValue(), null));
+    List<NodeTemplateInstanceProperty> props = object.getProperties().stream()
+        .filter(p -> p.getName().equalsIgnoreCase("xml")).collect(Collectors.toList());
+    if (props != null && !props.isEmpty() && props.get(0) != null) {
+      ni.setProperties(
+          (Document) converter.convertDataValueToObjectValue(props.get(0).getValue(), null));
     }
     return ni;
   }
