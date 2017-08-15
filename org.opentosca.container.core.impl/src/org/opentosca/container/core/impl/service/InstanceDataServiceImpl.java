@@ -272,6 +272,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         String[] segments = serviceInstanceID.getPath().split("/");
         id = Integer.valueOf(segments[segments.length - 1]);
       }
+      logger.info("Using ID: {}", id);
       Optional<ServiceTemplateInstance> sti = serviceTemplateInstanceRepo.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         ServiceTemplateInstance i = sti.get();
