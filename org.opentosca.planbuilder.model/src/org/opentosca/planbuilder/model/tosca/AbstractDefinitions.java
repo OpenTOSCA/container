@@ -34,8 +34,7 @@ public abstract class AbstractDefinitions {
 	public abstract String getName();
 
 	/**
-	 * Returns a List of the ServiceTemplates this TOSCA Definitions has
-	 * declared
+	 * Returns a List of the ServiceTemplates this TOSCA Definitions has declared
 	 *
 	 * @return a List of AbstractServiceTemplates
 	 */
@@ -57,16 +56,14 @@ public abstract class AbstractDefinitions {
 	public abstract List<AbstractNodeTypeImplementation> getNodeTypeImplementations();
 
 	/**
-	 * Returns a List of the RelationshipTypes this TOSCA Definitions has
-	 * declared
+	 * Returns a List of the RelationshipTypes this TOSCA Definitions has declared
 	 *
 	 * @return a List of AbstractRelationshipType
 	 */
 	public abstract List<AbstractRelationshipType> getRelationshipTypes();
 
 	/**
-	 * Return a List of the ArtifactTemplates this TOSCA Definitions has
-	 * declared
+	 * Return a List of the ArtifactTemplates this TOSCA Definitions has declared
 	 *
 	 * @return a List of AbstractArtifactTemplates
 	 */
@@ -89,17 +86,19 @@ public abstract class AbstractDefinitions {
 	/**
 	 * Returns an absolute Path for the given AbstractArtifactReference
 	 *
-	 * @param ref an AbstractArtifactReference
+	 * @param ref
+	 *            an AbstractArtifactReference
 	 * @return a File containing an absolute path to the given ArtifactReference
 	 */
 	public abstract File getAbsolutePathOfArtifactReference(AbstractArtifactReference ref);
 
 	/**
-	 * Returns a RelationshipType for the given QName. This method looks trough
-	 * the whole Definitions space, which means the search looks trough the
-	 * imported Definitions of this Definitions.
+	 * Returns a RelationshipType for the given QName. This method looks trough the
+	 * whole Definitions space, which means the search looks trough the imported
+	 * Definitions of this Definitions.
 	 *
-	 * @param relationshipTypeId a QName
+	 * @param relationshipTypeId
+	 *            a QName
 	 * @return an AbstractRelationshipType, if nothing was found null
 	 */
 	public AbstractRelationshipType getRelationshipType(QName relationshipTypeId) {
@@ -114,11 +113,12 @@ public abstract class AbstractDefinitions {
 	}
 
 	/**
-	 * Returns a NodeType for the given QName, This method looks trough the
-	 * whole Definitions space, which means the search looks trough the imported
+	 * Returns a NodeType for the given QName, This method looks trough the whole
+	 * Definitions space, which means the search looks trough the imported
 	 * Definitions of this Definitions
 	 *
-	 * @param nodeTypeId a QName
+	 * @param nodeTypeId
+	 *            a QName
 	 * @return an AbstractNodeType, if nothing was found null
 	 */
 	public AbstractNodeType getNodeType(QName nodeTypeId) {
@@ -130,13 +130,13 @@ public abstract class AbstractDefinitions {
 		return null;
 	}
 
-
 	/**
-	 * Returns a ArtifactTemplate for the given QName, This method looks trough
-	 * the whole Definitions space, which means the search looks trough the
-	 * imported Definitions of this Definitions
+	 * Returns a ArtifactTemplate for the given QName, This method looks trough the
+	 * whole Definitions space, which means the search looks trough the imported
+	 * Definitions of this Definitions
 	 *
-	 * @param qname a QName
+	 * @param qname
+	 *            a QName
 	 * @return an AbstractArtifactTemplate, if nothing was found null
 	 */
 	public AbstractArtifactTemplate getArtifactTemplate(QName qname) {
@@ -154,10 +154,18 @@ public abstract class AbstractDefinitions {
 	}
 
 	/**
-	 * Returns a List of all RelationshipTypeImplemenations this TOSCA
-	 * Definitions has defined
+	 * Returns a List of all RelationshipTypeImplemenations this TOSCA Definitions
+	 * has defined
 	 *
 	 * @return a List of AbstractRelationshipTypeImplementation
 	 */
 	public abstract List<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations();
+
+	/**
+	 * Returns all {@link AbstractArtifactType} objects of this
+	 * {@link AbstractDefinitions} obj.
+	 * 
+	 * @return a {@link List} of {@link AbstractArtifactType}
+	 */
+	public abstract List<AbstractArtifactType> getArtifactTypes();
 }
