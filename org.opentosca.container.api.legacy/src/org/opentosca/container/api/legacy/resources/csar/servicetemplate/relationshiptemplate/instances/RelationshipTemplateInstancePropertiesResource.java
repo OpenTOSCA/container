@@ -32,67 +32,80 @@ import org.w3c.dom.Document;
  */
 public class RelationshipTemplateInstancePropertiesResource {
 
-	private final int relationInstanceID;
+  private final int relationInstanceID;
 
 
-	public RelationshipTemplateInstancePropertiesResource(final int id) {
-		this.relationInstanceID = id;
-	}
+  public RelationshipTemplateInstancePropertiesResource(final int id) {
+    this.relationInstanceID = id;
+  }
 
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@QueryParam("property") final List<String> propertiesList) {
+  @GET
+  @Produces(MediaType.APPLICATION_XML)
+  public Response doGetXML(@QueryParam("property") final List<String> propertiesList) {
 
-		final Document idr = this.getProperties(propertiesList);
+    final Document idr = this.getProperties(propertiesList);
 
-		return Response.ok(idr).build();
-	}
+    if (idr == null) {
+      return Response.noContent().build();
+    }
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@QueryParam("property") final List<String> propertiesList) {
+    return Response.ok(idr).build();
+  }
 
-		final Document idr = this.getProperties(propertiesList);
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response doGetJSON(@QueryParam("property") final List<String> propertiesList) {
 
-		return Response.ok(new JSONUtils().xmlToGenericJsonObject(idr.getChildNodes()).toString()).build();
-	}
+    final Document idr = this.getProperties(propertiesList);
 
-	public Document getProperties(final List<String> propertiesList) {
-		final List<QName> qnameList = new ArrayList<>();
+    if (idr == null) {
+      return Response.noContent().build();
+    }
 
-		// convert all String in propertyList to qnames
-		try {
-			if (propertiesList != null) {
-				for (final String stringValue : propertiesList) {
-					qnameList.add(QName.valueOf(stringValue));
-				}
-			}
-		} catch (final Exception e) {
-			throw new GenericRestException(Status.BAD_REQUEST, "error converting one of the properties-parameters: " + e.getMessage());
-		}
+    return Response.ok(new JSONUtils().xmlToGenericJsonObject(idr.getChildNodes()).toString())
+        .build();
+  }
 
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		try {
-			final Document properties = service.getRelationInstanceProperties(IdConverter.relationInstanceIDtoURI(this.relationInstanceID), qnameList);
-			return properties;
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
-		}
-	}
+  public Document getProperties(final List<String> propertiesList) {
+    final List<QName> qnameList = new ArrayList<>();
 
-	@PUT
-	@Produces(MediaType.APPLICATION_XML)
-	@Consumes(MediaType.APPLICATION_XML)
-	public Response setProperties(@Context final UriInfo uriInfo, final Document xml) {
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		try {
-			service.setRelationInstanceProperties(IdConverter.relationInstanceIDtoURI(this.relationInstanceID), xml);
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
-		}
-		final SimpleXLink xLink = new SimpleXLink(uriInfo.getAbsolutePath(), "RelationInstance: " + this.relationInstanceID + " Properties");
-		return Response.ok(xLink).build();
+    // convert all String in propertyList to qnames
+    try {
+      if (propertiesList != null) {
+        for (final String stringValue : propertiesList) {
+          qnameList.add(QName.valueOf(stringValue));
+        }
+      }
+    } catch (final Exception e) {
+      throw new GenericRestException(Status.BAD_REQUEST,
+          "error converting one of the properties-parameters: " + e.getMessage());
+    }
 
-	}
+    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+    try {
+      final Document properties = service.getRelationInstanceProperties(
+          IdConverter.relationInstanceIDtoURI(this.relationInstanceID), qnameList);
+      return properties;
+    } catch (final ReferenceNotFoundException e) {
+      throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
+    }
+  }
+
+  @PUT
+  @Produces(MediaType.APPLICATION_XML)
+  @Consumes(MediaType.APPLICATION_XML)
+  public Response setProperties(@Context final UriInfo uriInfo, final Document xml) {
+    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+    try {
+      service.setRelationInstanceProperties(
+          IdConverter.relationInstanceIDtoURI(this.relationInstanceID), xml);
+    } catch (final ReferenceNotFoundException e) {
+      throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
+    }
+    final SimpleXLink xLink = new SimpleXLink(uriInfo.getAbsolutePath(),
+        "RelationInstance: " + this.relationInstanceID + " Properties");
+    return Response.ok(xLink).build();
+
+  }
 
 }
