@@ -251,4 +251,11 @@ public class RelationInstance {
     this.relationshipType = relationshipType;
   }
 
+  public static String getGetrelationinstances() {
+    return getRelationInstances;
+  }
+
+  public static String getGetrelationinstancesquery() {
+    return getRelationInstancesQuery;
+  }
 }

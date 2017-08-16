@@ -47,6 +47,10 @@ public class RelationshipTemplateInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
+  @Convert("QNameConverter")
+  @Column(name = "TEMPLATE_TYPE", nullable = false)
+  private QName templateType;
+
 
   public RelationshipTemplateInstance() {
 
@@ -106,5 +110,13 @@ public class RelationshipTemplateInstance extends PersistenceObject {
 
   public void setTemplateId(QName templateId) {
     this.templateId = templateId;
+  }
+
+  public QName getTemplateType() {
+    return templateType;
+  }
+
+  public void setTemplateType(QName templateType) {
+    this.templateType = templateType;
   }
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.jws.WebMethod;
@@ -38,8 +39,10 @@ import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
 import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.IInstanceDataService;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
@@ -53,6 +56,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * The InstanceDataService.<br>
@@ -60,8 +64,6 @@ import com.google.common.collect.Lists;
  * CSARs. It relies on the ToscaEngine to get its information about existence of those and for
  * values for the default properties of created instances.
  */
-// TODO: should this be moved to own package to encapsulate WebService from
-// internal service? Think so!
 @Deprecated
 @WebService(name = "InstanceDataService")
 @SOAPBinding(style = SOAPBinding.Style.RPC)
@@ -71,11 +73,12 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
   public static IToscaEngineService toscaEngineService;
 
-  private static ServiceTemplateInstanceRepository serviceTemplateInstanceRepo =
+  private final ServiceTemplateInstanceRepository serviceRepository =
       new ServiceTemplateInstanceRepository();
-  private static NodeTemplateInstanceRepository nodeTemplateInstanceRepo =
+  private final NodeTemplateInstanceRepository nodeRepository =
       new NodeTemplateInstanceRepository();
-
+  private final RelationshipTemplateInstanceRepository relationshipRepository =
+      new RelationshipTemplateInstanceRepository();
 
   // used for persistence
   private final ServiceInstanceDAO siDAO = new ServiceInstanceDAO();
@@ -99,7 +102,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         id = Integer.valueOf(segments[segments.length - 1]);
       }
       logger.info("Using serviceInstanceID: {}", id);
-      Optional<ServiceTemplateInstance> sti = serviceTemplateInstanceRepo.find(DaoUtil.toLong(id));
+      Optional<ServiceTemplateInstance> sti = serviceRepository.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         logger.info("Single Result: {}", sti);
         return Lists.newArrayList(Converters.convert(sti.get()));
@@ -111,7 +114,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     if (serviceTemplateId != null) {
       logger.info("Using serviceTemplateId: {}", serviceTemplateId);
       Collection<ServiceTemplateInstance> result =
-          serviceTemplateInstanceRepo.findByTemplateId(serviceTemplateId);
+          serviceRepository.findByTemplateId(serviceTemplateId);
       if (result != null) {
         logger.info("Result: {}", result.size());
         return result.stream().map(sti -> Converters.convert(sti)).collect(Collectors.toList());
@@ -133,7 +136,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     if (serviceTemplateInstanceID != null) {
       Optional<ServiceTemplateInstance> sti =
-          serviceTemplateInstanceRepo.find(DaoUtil.toLong(serviceTemplateInstanceID));
+          serviceRepository.find(DaoUtil.toLong(serviceTemplateInstanceID));
       if (sti.isPresent()) {
         logger.info("Single Result: {}", sti);
         return Lists.newArrayList(Converters.convert(sti.get()));
@@ -144,7 +147,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     if (serviceTemplateId != null) {
       Collection<ServiceTemplateInstance> result =
-          serviceTemplateInstanceRepo.findByTemplateId(serviceTemplateId);
+          serviceRepository.findByTemplateId(serviceTemplateId);
       if (result != null) {
         logger.info("Result: {}", result.size());
         return result.stream().map(sti -> Converters.convert(sti)).collect(Collectors.toList());
@@ -248,7 +251,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     if (nodeInstanceID != null) {
       Integer id = IdConverter.nodeInstanceUriToID(nodeInstanceID);
-      Optional<NodeTemplateInstance> nti = nodeTemplateInstanceRepo.find(DaoUtil.toLong(id));
+      Optional<NodeTemplateInstance> nti = nodeRepository.find(DaoUtil.toLong(id));
       if (nti.isPresent()) {
         logger.info("Single Result: {}", nti);
         return Lists.newArrayList(Converters.convert(nti.get()));
@@ -258,8 +261,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     }
 
     if (nodeTemplateID != null) {
-      Collection<NodeTemplateInstance> result =
-          nodeTemplateInstanceRepo.findByTemplateId(nodeTemplateID);
+      Collection<NodeTemplateInstance> result = nodeRepository.findByTemplateId(nodeTemplateID);
       if (result != null) {
         logger.info("Result: {}", result.size());
         return result.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());
@@ -273,7 +275,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         id = Integer.valueOf(segments[segments.length - 1]);
       }
       logger.info("Using ID: {}", id);
-      Optional<ServiceTemplateInstance> sti = serviceTemplateInstanceRepo.find(DaoUtil.toLong(id));
+      Optional<ServiceTemplateInstance> sti = serviceRepository.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         ServiceTemplateInstance i = sti.get();
         Collection<NodeTemplateInstance> result = i.getNodeTemplateInstances();
@@ -300,9 +302,57 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     logger.info("getRelationInstances(): {}", relationshipTemplateName);
     logger.info("getRelationInstances(): {}", serviceInstanceID);
 
-    return Lists.newArrayList(this.createRelationInstance(null, null, 0, null, null, null));
-    // return this.riDAO.getRelationInstances(serviceInstanceID, relationshipTemplateID,
-    // relationshipTemplateName, relationInstanceID);
+    if (relationInstanceID != null) {
+      Integer id = IdConverter.relationInstanceUriToID(relationInstanceID);
+      if (id == null) {
+        String[] segments = relationInstanceID.getPath().split("/");
+        id = Integer.valueOf(segments[segments.length - 1]);
+      }
+      Optional<RelationshipTemplateInstance> nti = relationshipRepository.find(DaoUtil.toLong(id));
+      if (nti.isPresent()) {
+        logger.info("Single Result: {}", nti);
+        return Lists.newArrayList(Converters.convert(nti.get()));
+      } else {
+        logger.info("NOT FOUND");
+      }
+    }
+
+    if (relationshipTemplateID != null) {
+      Collection<RelationshipTemplateInstance> result =
+          relationshipRepository.findByTemplateId(relationshipTemplateID);
+      if (result != null) {
+        logger.info("Result: {}", result.size());
+        return result.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());
+      }
+    }
+
+    if (serviceInstanceID != null) {
+      Set<RelationshipTemplateInstance> rels = Sets.newHashSet();
+      Integer id = IdConverter.serviceInstanceUriToID(serviceInstanceID);
+      if (id == null) {
+        String[] segments = serviceInstanceID.getPath().split("/");
+        id = Integer.valueOf(segments[segments.length - 1]);
+      }
+      logger.info("Using ID: {}", id);
+      Optional<ServiceTemplateInstance> sti = serviceRepository.find(DaoUtil.toLong(id));
+      if (sti.isPresent()) {
+        ServiceTemplateInstance i = sti.get();
+        Collection<NodeTemplateInstance> result = i.getNodeTemplateInstances();
+        if (result != null) {
+          for (NodeTemplateInstance nti : result) {
+            rels.addAll(nti.getSourceRelations());
+            rels.addAll(nti.getTargetRelations());
+          }
+          logger.info("Result: {}", rels.size());
+          return rels.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());
+        }
+      } else {
+        logger.info("NOT FOUND");
+      }
+    }
+
+    return this.riDAO.getRelationInstances(serviceInstanceID, relationshipTemplateID,
+        relationshipTemplateName, relationInstanceID);
   }
 
   @Override
@@ -506,8 +556,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     logger.info("getRelationInstanceState(): {}", relationInstanceID);
 
     final List<RelationInstance> relationInstances =
-        // this.riDAO.getRelationInstances(null, null, null, relationInstanceID);
-        Lists.newArrayList(this.createRelationInstance(null, null, 0, null, null, null));
+        getRelationInstances(relationInstanceID, null, null, null);
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format(
           "Failed to get State of RelationInstance: '%s' - does it exist?", relationInstanceID);
@@ -604,8 +653,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     logger.info("getRelationInstanceProperties(): {}", propertiesList);
 
     final List<RelationInstance> relationInstances =
-        // this.getRelationInstances(relationInstanceID, null, null, null);
-        Lists.newArrayList(this.createRelationInstance(null, null, 0, null, null, null));
+        getRelationInstances(relationInstanceID, null, null, null);
 
     if ((relationInstances == null) || (relationInstances.size() != 1)) {
       final String msg = String.format("Failed to retrieve NodeInstance: '%s'", relationInstanceID);
