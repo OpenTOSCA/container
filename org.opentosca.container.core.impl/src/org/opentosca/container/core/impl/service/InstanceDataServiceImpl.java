@@ -456,7 +456,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     // set default properties
     relationInstance.setProperties(propertiesOfRelationshipTemplate);
-    this.riDAO.saveRelationInstance(relationInstance);
+    relationInstance = this.riDAO.saveRelationInstance(relationInstance);
 
     return relationInstance;
   }
