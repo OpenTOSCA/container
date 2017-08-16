@@ -3,7 +3,6 @@ package org.opentosca.container.core.impl.service;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,6 @@ import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.RelationInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
-import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
@@ -101,7 +99,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         String[] segments = serviceInstanceID.getPath().split("/");
         id = Integer.valueOf(segments[segments.length - 1]);
       }
-      logger.info("Using serviceInstanceID: {}", id);
+      logger.info("Using ServiceTemplate Instance ID: {}", id);
       Optional<ServiceTemplateInstance> sti = serviceRepository.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         logger.info("Single Result: {}", sti);
@@ -251,6 +249,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
     if (nodeInstanceID != null) {
       Integer id = IdConverter.nodeInstanceUriToID(nodeInstanceID);
+      if (id == null) {
+        String[] segments = serviceInstanceID.getPath().split("/");
+        id = Integer.valueOf(segments[segments.length - 1]);
+      }
+      logger.info("Using NodeTemplate Instance ID: {}", id);
       Optional<NodeTemplateInstance> nti = nodeRepository.find(DaoUtil.toLong(id));
       if (nti.isPresent()) {
         logger.info("Single Result: {}", nti);
@@ -274,7 +277,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         String[] segments = serviceInstanceID.getPath().split("/");
         id = Integer.valueOf(segments[segments.length - 1]);
       }
-      logger.info("Using ID: {}", id);
+      logger.info("Using ServiceTemplate Instance ID: {}", id);
       Optional<ServiceTemplateInstance> sti = serviceRepository.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         ServiceTemplateInstance i = sti.get();
@@ -308,6 +311,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         String[] segments = relationInstanceID.getPath().split("/");
         id = Integer.valueOf(segments[segments.length - 1]);
       }
+      logger.info("Using RelationshipTemplate Instance ID: {}", id);
       Optional<RelationshipTemplateInstance> nti = relationshipRepository.find(DaoUtil.toLong(id));
       if (nti.isPresent()) {
         logger.info("Single Result: {}", nti);
@@ -333,7 +337,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         String[] segments = serviceInstanceID.getPath().split("/");
         id = Integer.valueOf(segments[segments.length - 1]);
       }
-      logger.info("Using ID: {}", id);
+      logger.info("Using ServiceTemplate Instance ID: {}", id);
       Optional<ServiceTemplateInstance> sti = serviceRepository.find(DaoUtil.toLong(id));
       if (sti.isPresent()) {
         ServiceTemplateInstance i = sti.get();
@@ -427,79 +431,33 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
     logger.info("createRelationInstance(): {}", sourceInstanceId);
     logger.info("createRelationInstance(): {}", targetInstanceId);
 
-    // logger.debug(
-    // "Retrieve Node Template \"{{}}\":\"{}\" for csar \"{}\", Service Template \"{}\" instance
-    // \"{}\"",
-    // relationshipTemplateID.getNamespaceURI(), relationshipTemplateID.getLocalPart(), csarId,
-    // serviceTemplateId, serviceTemplateInstanceID);
+    final String relationshipTemplateName = InstanceDataServiceImpl.toscaEngineService
+        .getNameOfReference(csarId, relationshipTemplateID);
 
-    // final List<ServiceInstance> serviceInstances =
-    // getServiceInstancesWithDetails(csarId, serviceTemplateId, serviceTemplateInstanceID);
-    // if ((serviceInstances == null) || (serviceInstances.size() != 1)) {
-    // final String msg = String.format(
-    // "Failed to create NodeInstance: ServiceInstance: '%s' - could not be retrieved",
-    // serviceTemplateInstanceID);
-    // InstanceDataServiceImpl.logger.warn(msg);
-    // throw new ReferenceNotFoundException(msg);
-    // }
-    // final ServiceInstance serviceInstance = serviceInstances.get(0);
-    //
-    // // check if nodeTemplate exists
-    //
-    // if (!InstanceDataServiceImpl.toscaEngineService.doesRelationshipTemplateExist(csarId,
-    // serviceTemplateId, relationshipTemplateID.getLocalPart())) {
-    // final String msg = String.format(
-    // "Failed to create RelationInstance: RelationshipTemplate: csar: %s serviceTemplateID: %s ,
-    // relationshipTemplateID: '%s' - could not be retrieved / does not exists",
-    // serviceInstance.getCSAR_ID(), serviceInstance.getServiceTemplateID(),
-    // relationshipTemplateID);
-    // InstanceDataServiceImpl.logger.warn(msg);
-    // throw new ReferenceNotFoundException(msg);
-    // }
-    //
-    // final String relationshipTemplateName = InstanceDataServiceImpl.toscaEngineService
-    // .getNameOfReference(csarId, relationshipTemplateID);
-    //
-    // // use localparts because serviceInstance QName namespace HAS to be the
-    // // same as the namespace of the nodeInstance
-    // final QName nodeTypeOfNodeTemplate =
-    // InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
-    // serviceTemplateId, relationshipTemplateID.getLocalPart());
-    //
-    // // use localparts because serviceInstance QName namespace HAS to be the
-    // // same as the namespace of the nodeInstance
-    // final Document propertiesOfRelationshipTemplate =
-    // InstanceDataServiceImpl.toscaEngineService.getPropertiesOfRelationshipTemplate(csarId,
-    // serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
-    //
-    // if (this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-    // URI.create(sourceInstanceId)).isEmpty()) {
-    // throw new ReferenceNotFoundException("Referenced source nodeInstance not found");
-    // }
-    // if (this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-    // URI.create(targetInstanceId)).isEmpty()) {
-    // throw new ReferenceNotFoundException("Referenced target nodeInstance not found");
-    // }
-    //
-    // final NodeInstance sourceInstance =
-    // this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-    // URI.create(sourceInstanceId)).get(0);
-    // final NodeInstance targetInstance =
-    // this.niDAO.getNodeInstances(serviceInstance.getServiceInstanceID(), null, null,
-    // URI.create(targetInstanceId)).get(0);
-    //
-    // final RelationInstance relationInstance =
-    // new RelationInstance(relationshipTemplateID, relationshipTemplateName,
-    // nodeTypeOfNodeTemplate, serviceInstance, sourceInstance, targetInstance);
-    // // set default properties
-    // relationInstance.setProperties(propertiesOfRelationshipTemplate);
-    // this.riDAO.saveRelationInstance(relationInstance);
-    // FIXME: Do not overwrite this once we fully support relationship instances
-    RelationInstance relationInstance = new RelationInstance();
-    relationInstance.setId(100);
-    relationInstance.setCreated(new Date());
-    relationInstance.setState(State.Relationship.INITIAL);
-    relationInstance.setRelationshipType(QName.valueOf("Dummy Relation"));
+    // use localparts because serviceInstance QName namespace HAS to be the
+    // same as the namespace of the nodeInstance
+    final QName nodeTypeOfNodeTemplate =
+        InstanceDataServiceImpl.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
+            serviceTemplateId, relationshipTemplateID.getLocalPart());
+
+    // use localparts because serviceInstance QName namespace HAS to be the
+    // same as the namespace of the nodeInstance
+    final Document propertiesOfRelationshipTemplate =
+        InstanceDataServiceImpl.toscaEngineService.getPropertiesOfRelationshipTemplate(csarId,
+            serviceTemplateId, relationshipTemplateID.getLocalPart().toString());
+
+    final NodeInstance sourceInstance =
+        getNodeInstances(URI.create(sourceInstanceId), null, null, null).get(0);
+    final NodeInstance targetInstance =
+        getNodeInstances(URI.create(targetInstanceId), null, null, null).get(0);
+
+    RelationInstance relationInstance = new RelationInstance(relationshipTemplateID,
+        relationshipTemplateName, nodeTypeOfNodeTemplate, null, sourceInstance, targetInstance);
+
+    // set default properties
+    relationInstance.setProperties(propertiesOfRelationshipTemplate);
+    this.riDAO.saveRelationInstance(relationInstance);
+
     return relationInstance;
   }
 

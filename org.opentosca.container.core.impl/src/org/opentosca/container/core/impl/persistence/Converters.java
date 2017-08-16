@@ -150,7 +150,7 @@ public abstract class Converters {
     if (source != null && sti == null) {
       sti = source.getServiceTemplateInstance();
     }
-    NodeTemplateInstance target = object.getSource();
+    NodeTemplateInstance target = object.getTarget();
     if (target != null && sti == null) {
       sti = target.getServiceTemplateInstance();
     }
@@ -163,6 +163,7 @@ public abstract class Converters {
     if (target != null) {
       ri.setTargetInstance(convert(target));
     }
+    ri.setRelationInstanceID();
     ri.setState(Enums.valueOf(State.Relationship.class, object.getState().toString()));
     ri.setCreated(object.getCreatedAt());
     List<RelationshipTemplateInstanceProperty> props = object.getProperties().stream()

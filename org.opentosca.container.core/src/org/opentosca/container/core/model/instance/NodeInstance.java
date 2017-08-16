@@ -170,7 +170,7 @@ public class NodeInstance {
               + URLEncoder.encode(URLEncoder
                   .encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8")
               + "/Instances/" + this.serviceInstance.getDBId() + "/NodeTemplates/"
-              + this.nodeTemplateName + "/Instances/" + this.id);
+              + this.nodeTemplateID.getLocalPart() + "/Instances/" + this.id);
 
     } catch (final URISyntaxException e) {
       e.printStackTrace();
