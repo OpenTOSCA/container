@@ -33,11 +33,17 @@ public abstract class AbstractArtifactTemplate {
 	public abstract String getName();
 	
 	/**
-	 * Returns the ArtifactType of this ArtifactTemplate
+	 * Returns the ArtifactType of this {@link AbstractArtifactTemplate} as {@link QName}
 	 * 
 	 * @return a QName representing the ArtifactType of this ArtifactTemplate
 	 */
 	public abstract QName getArtifactType();
+	
+	/**
+	 * Returns the ArtifactType of this {@link AbstractArtifactTemplate} as {@link AbstractArtifactType}
+	 * @return
+	 */
+	public abstract AbstractArtifactType getAbstractArtifactType();
 	
 	/**
 	 * Returns the Properties of thie ArtifactTemplate
@@ -60,5 +66,5 @@ public abstract class AbstractArtifactTemplate {
 	 * @return a List of DOM nodes representing additionaly elements defined on
 	 *         this nodeType
 	 */
-	public abstract List<Node> getAdditionalElements();
+	public abstract List<Node> getAdditionalElements();	
 }
