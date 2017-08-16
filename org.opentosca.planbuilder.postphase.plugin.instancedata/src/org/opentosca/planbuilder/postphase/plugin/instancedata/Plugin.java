@@ -30,7 +30,8 @@ public class Plugin implements IPlanBuilderPostPhasePlugin {
 	
 	@Override
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
-		if(context.getPlanType().equals(AbstractPlan.PlanType.BUILD)) {
+		// TODO FIXME this is a huge assumption right now! Not all management plans need instance handling for provisioning
+		if(context.getPlanType().equals(AbstractPlan.PlanType.BUILD) || context.getPlanType().equals(AbstractPlan.PlanType.MANAGE)) {
 			return this.handler.handleBuild(context, nodeTemplate);
 		} else {
 			return this.handler.handleTerminate(context, nodeTemplate);

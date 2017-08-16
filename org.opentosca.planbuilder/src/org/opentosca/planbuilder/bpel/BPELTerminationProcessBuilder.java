@@ -103,6 +103,9 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				
 				BPELPlan newTerminationPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan);
 				
+				newTerminationPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
+				newTerminationPlan.setTOSCAOperationname("terminate");
+				
 				this.planHandler.initializeBPELSkeleton(newTerminationPlan, csarName);
 								
 				

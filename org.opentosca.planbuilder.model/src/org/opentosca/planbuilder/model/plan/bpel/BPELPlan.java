@@ -125,6 +125,34 @@ public class BPELPlan extends AbstractPlan{
 
 	public static String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 	
+	private String toscaInterfaceName = null;
+	private String toscaOperationName = null;
+	
+	
+	public void setTOSCAInterfaceName(String name) {
+		this.toscaInterfaceName = name;
+	}
+	
+	public void setTOSCAOperationname(String name) {
+		this.toscaOperationName = name;
+	}
+	
+	public String getTOSCAInterfaceName() {
+		if(this.toscaInterfaceName != null) {
+			return this.toscaInterfaceName;
+		} else {
+			return this.bpelProcessElement.getAttribute("name");
+		}
+	}
+	
+	public String getTOSCAOperationName() {
+		if(this.toscaOperationName != null) {
+			return this.toscaOperationName;
+		} else {
+			return this.getBpelMainSequenceReceiveElement().getAttribute("operation");
+		}
+	}
+	
 	/**
 	 * Returns the csar file name this BuildPlan belongs to
 	 * 

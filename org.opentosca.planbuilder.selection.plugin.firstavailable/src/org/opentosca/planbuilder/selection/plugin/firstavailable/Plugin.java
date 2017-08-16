@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -52,29 +53,33 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 	public boolean handle(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies) {
 		// fetch instance variables
 		String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
+		String serviceInstanceIDVar = null;
+		try {
+			serviceInstanceIDVar = new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames());
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
-		List<AbstractRelationshipTemplate> relations = Utils.getOutgoingInfrastructureEdges(nodeTemplate);
-		
-		if (relations.isEmpty()) {
+		if(nodeTemplateInstanceVar == null | serviceInstanceIDVar == null) {
 			return false;
 		}
 		
-		AbstractRelationshipTemplate relation = relations.get(0);
-		String relationTemplateInstnaceVar = this.findInstanceVar(context, relation.getId(), false);
-		
-		String responseVarName = "selectFirstInstance_" + nodeTemplate.getId() + "_FetchRelationInstance_" + relation.getId() + "_" + System.currentTimeMillis();
-		QName anyTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "any", "xsd"));
-		context.addVariable(responseVarName, BPELPlan.VariableType.MESSAGE, anyTypeDeclId);
+				
+		String responseVarName = "selectFirstInstance_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
+		QName anyTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
+		context.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
 		
 		try {
-			Node getRelationInstance = new BPELProcessFragments().generateBPEL4RESTLightGETonURLAsNode(relationTemplateInstnaceVar, responseVarName);
-			getRelationInstance = context.importNode(getRelationInstance);
-			context.getPrePhaseElement().appendChild(getRelationInstance);
 			
-			String xpath2Query = "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
-			Node fetchSourceInstance = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query, nodeTemplateInstanceVar);
-			fetchSourceInstance = context.importNode(fetchSourceInstance);
-			context.getPrePhaseElement().appendChild(fetchSourceInstance);
+			Node getNodeInstances = new BPELProcessFragments().createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(), serviceInstanceIDVar, responseVarName);			
+			getNodeInstances = context.importNode(getNodeInstances);
+			context.getPrePhaseElement().appendChild(getNodeInstances);
+			
+			String xpath2Query = "//*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']][1]/@*[local-name()='href']/string()";
+			Node fetchNodeInstance = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query, nodeTemplateInstanceVar);
+			fetchNodeInstance = context.importNode(fetchNodeInstance);
+			context.getPrePhaseElement().appendChild(fetchNodeInstance);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -88,7 +93,7 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 		}
 		
 		return true;
-	}
+	}	
 	
 	private String findInstanceVar(TemplatePlanContext context, String templateId, boolean isNode) {
 		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";

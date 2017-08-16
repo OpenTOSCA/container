@@ -104,7 +104,7 @@ public class Exporter extends AbstractExporter {
 		return this.exportBPEL(bpelPlans, csarId);
 	}
 	
-	public File exportBPEL(List<BPELPlan> buildPlans, CSARID csarId) {
+	public File exportBPEL(List<BPELPlan> plans, CSARID csarId) {
 		
 		CSARContent csarContent = null;
 		try {
@@ -135,71 +135,67 @@ public class Exporter extends AbstractExporter {
 			List<BPELPlan> plansToExport = new ArrayList<BPELPlan>();
 			
 			// add plans element to servicetemplates
-			for (BPELPlan buildPlan : buildPlans) {
-				for (TServiceTemplate serviceTemplate : servTemps) {
-					if (buildPlan.getServiceTemplate().getQName().equals(this.buildQName(defs, serviceTemplate))) {
+			for (TServiceTemplate serviceTemplate : servTemps) {
+				TPlans toscaPlansElement = serviceTemplate.getPlans();
+				if (toscaPlansElement == null) {
+					toscaPlansElement = this.toscaFactory.createTPlans();
+					serviceTemplate.setPlans(toscaPlansElement);
+				}
+				List<TPlan> planList = toscaPlansElement.getPlan();
+				
+				// add the plan as an operation to the boundary
+				// definitions
+				TBoundaryDefinitions boundary = serviceTemplate.getBoundaryDefinitions();
+				if (boundary == null) {
+					boundary = this.toscaFactory.createTBoundaryDefinitions();
+					serviceTemplate.setBoundaryDefinitions(boundary);
+				}
+				
+				org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces ifaces = boundary.getInterfaces();
+				
+				if (ifaces == null) {
+					ifaces = this.toscaFactory.createTBoundaryDefinitionsInterfaces();
+					boundary.setInterfaces(ifaces);
+				}
+				
+				for (BPELPlan plan : plans) {
+					if (plan.getServiceTemplate().getQName().equals(this.buildQName(defs, serviceTemplate))) {
 						
-						TPlans plans = serviceTemplate.getPlans();
-						if (plans == null) {
-							plans = this.toscaFactory.createTPlans();
-							serviceTemplate.setPlans(plans);
-						}
-						final List<TPlan> planList = plans.getPlan();
-						final TPlan generatedPlanElement = this.generateTPlanElement(buildPlan);
+						final TPlan generatedPlanElement = this.generateTPlanElement(plan);
 						planList.add(generatedPlanElement);
-						plansToExport.add(buildPlan);
-						
-						// add the plan as an operation to the boundary
-						// definitions
-						TBoundaryDefinitions boundary = serviceTemplate.getBoundaryDefinitions();
-						if (boundary == null) {
-							boundary = this.toscaFactory.createTBoundaryDefinitions();
-							serviceTemplate.setBoundaryDefinitions(boundary);
-						}
-						
-						org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces iface = boundary.getInterfaces();
-						
-						if (iface == null) {
-							iface = this.toscaFactory.createTBoundaryDefinitionsInterfaces();
-							boundary.setInterfaces(iface);
-						}
+						plansToExport.add(plan);
+												
 						
 						TExportedInterface exportedIface = null;
 						
 						// find already set openTOSCA lifecycle interface
-						for (final TExportedInterface exIface : iface.getInterface()) {
-							if ((exIface.getName() != null) && exIface.getName().equals("OpenTOSCA-Lifecycle-Interface")) {
+						for (final TExportedInterface exIface : ifaces.getInterface()) {
+							
+							if ((exIface.getName() != null) && exIface.getName().equals(plan.getTOSCAInterfaceName())) {
 								exportedIface = exIface;
 							}
 						}
 						
 						if (exportedIface == null) {
 							exportedIface = this.toscaFactory.createTExportedInterface();
-							exportedIface.setName("OpenTOSCA-Lifecycle-Interface");
-							iface.getInterface().add(exportedIface);
+							exportedIface.setName(plan.getTOSCAInterfaceName());
+							ifaces.getInterface().add(exportedIface);
 						}
 						
 						boolean alreadySpecified = false;
 						for (final TExportedOperation op : exportedIface.getOperation()) {
-							if (buildPlan.getType().equals(AbstractPlan.PlanType.BUILD) & op.getName().equals("initiate")) {
-								alreadySpecified = true;
-							} else if (buildPlan.getType().equals(AbstractPlan.PlanType.TERMINATE) & op.getName().equals("terminate")) {
+							if (op.getName().equals(plan.getTOSCAOperationName())) {
 								alreadySpecified = true;
 							}
 						}
 						
 						if (!alreadySpecified) {
-							final TExportedOperation op = this.toscaFactory.createTExportedOperation();
-							if (buildPlan.getType().equals(AbstractPlan.PlanType.BUILD)) {
-								op.setName("initiate");
-							} else if (buildPlan.getType().equals(AbstractPlan.PlanType.TERMINATE)) {
-								op.setName("terminate");
-							}
-							final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan plan = this.toscaFactory.createTExportedOperationPlan();
-							
-							plan.setPlanRef(generatedPlanElement);
-							op.setPlan(plan);
-							exportedIface.getOperation().add(op);
+							final TExportedOperation newOp = this.toscaFactory.createTExportedOperation();
+							newOp.setName(plan.getTOSCAOperationName());
+							final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan newPlanRefElement = this.toscaFactory.createTExportedOperationPlan();
+							newPlanRefElement.setPlanRef(generatedPlanElement);
+							newOp.setPlan(newPlanRefElement);
+							exportedIface.getOperation().add(newOp);
 						}
 					}
 				}

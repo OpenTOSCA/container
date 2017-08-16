@@ -30,10 +30,26 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 				
 		this.generatePOGActivitesAndLinks(activities, links, mapping, nodeTemplates, relationshipTemplates);
 				
+		//this.cleanLooseEdges(links);
+		
 		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 			
 		};
 		return plan;
+	}
+	
+	private void cleanLooseEdges(Map<AbstractActivity, AbstractActivity> links) {
+		List<AbstractActivity> keysToRemove = new ArrayList<>();
+		
+		for(AbstractActivity key : links.keySet()) {
+			if(key == null) {
+				keysToRemove.add(key);
+			} else if(links.get(key) == null) {
+				keysToRemove.add(key);
+			}
+		}
+		
+		keysToRemove.forEach(key -> links.remove(key));
 	}
 
 	public AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate) {

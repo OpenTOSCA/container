@@ -1344,4 +1344,25 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.opentosca.planbuilder.selection.plugin.firstavailable"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.selection.plugin.input"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.selection.plugin.mosquitto.workload"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

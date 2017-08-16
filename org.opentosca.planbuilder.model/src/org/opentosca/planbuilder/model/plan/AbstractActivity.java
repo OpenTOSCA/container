@@ -13,7 +13,7 @@ public abstract class AbstractActivity {
 		this.type = type;
 	}
 	
-	private String getId() {
+	public String getId() {
 		return this.id;
 	}
 	

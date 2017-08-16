@@ -1242,7 +1242,7 @@ public class BPELPlanHandler {
 		plan.setAbstract2BPELMapping(abstract2bpelMap);
 		
 		
-		this.instanceInit.addNodeInstanceIDVarToTemplatePlans(plan);
+		this.instanceInit.addInstanceIDVarToTemplatePlans(plan);
 		
 		// connect the templates
 		this.initializeConnectionsAsLinkInBPELPlan(plan);				

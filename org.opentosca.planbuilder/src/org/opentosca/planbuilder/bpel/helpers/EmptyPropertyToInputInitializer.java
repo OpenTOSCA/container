@@ -29,15 +29,14 @@ import org.xml.sax.SAXException;
  */
 public class EmptyPropertyToInputInitializer {
 	
-	public void initializeEmptyPropertiesAsInputParam(BPELPlan buildPlan, PropertyMap propMap) {
-		
-		for (BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
+	public void initializeEmptyPropertiesAsInputParam(List<BPELScopeActivity> bpelActivities, BPELPlan plan, PropertyMap propMap) {
+		for (BPELScopeActivity templatePlan : bpelActivities) {
 			if (templatePlan.getNodeTemplate() != null) {
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
 				List<AbstractNodeTemplate> hostingNodes = new ArrayList<AbstractNodeTemplate>();
 				Utils.getNodesFromNodeToSink(nodeTemplate, hostingNodes);
 				
-				TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, buildPlan.getServiceTemplate());
+				TemplatePlanContext context = new TemplatePlanContext(templatePlan, propMap, plan.getServiceTemplate());
 				
 				if (propMap.getPropertyMappingMap(nodeTemplate.getId()) == null) {
 					// nodeTemplate doesn't have props defined
@@ -65,16 +64,16 @@ public class EmptyPropertyToInputInitializer {
 						}
 						
 						if (!matched) {
-							this.addToPlanInput(buildPlan, propLocalName, var, context);
+							this.addToPlanInput(plan, propLocalName, var, context);
 						}
 					} else {
 						String content = Utils.getVariableContent(var, context);
 						if (content.startsWith("get_input")) {
 							if (content.contains("get_input:")) {
 								content = content.replace("get_input:", "").trim();
-								this.addToPlanInput(buildPlan, content, var, context);
+								this.addToPlanInput(plan, content, var, context);
 							} else {
-								this.addToPlanInput(buildPlan, propLocalName, var, context);
+								this.addToPlanInput(plan, propLocalName, var, context);
 							}
 						}
 					}
@@ -82,6 +81,10 @@ public class EmptyPropertyToInputInitializer {
 			}
 		}
 		
+	}
+	
+	public void initializeEmptyPropertiesAsInputParam(BPELPlan buildPlan, PropertyMap propMap) {
+		this.initializeEmptyPropertiesAsInputParam(buildPlan.getTemplateBuildPlans(), buildPlan, propMap);
 	}
 	
 	/**

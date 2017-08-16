@@ -433,10 +433,9 @@ public class Utils {
 	}
 	
 	public static List<AbstractRelationshipTemplate> getIngoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
-		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
-		
+		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();						
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-			for (QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+			for (QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {				
 				boolean match = false;
 				for (QName relationshipType : relationshipTypes) {
 					if (relationshipTypeHierarchyMember.equals(relationshipType)) {

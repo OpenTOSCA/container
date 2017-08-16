@@ -210,6 +210,9 @@
       <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.selection.plugin.firstavailable" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.selection.plugin.input" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.selection.plugin.mosquitto.workload" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="0" />
@@ -235,5 +238,12 @@
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

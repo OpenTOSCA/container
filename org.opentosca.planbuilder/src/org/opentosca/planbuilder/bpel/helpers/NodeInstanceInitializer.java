@@ -165,7 +165,7 @@ public class NodeInstanceInitializer {
 	 * @param plan a plan with TemplatePlans
 	 * @return
 	 */
-	public boolean addNodeInstanceIDVarToTemplatePlans(BPELPlan plan) {
+	public boolean addInstanceIDVarToTemplatePlans(BPELPlan plan) {
 		boolean check = true;
 		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 			check &= this.addInstanceIDVarToTemplatePlan(templatePlan);

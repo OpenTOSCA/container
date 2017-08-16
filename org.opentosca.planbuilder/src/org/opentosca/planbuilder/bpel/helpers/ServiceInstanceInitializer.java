@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.bpel.helpers;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,15 +92,17 @@ public class ServiceInstanceInitializer {
 		
 	}
 	
-	public String getServiceInstanceVariableName(BPELPlan plan) {
-		String serviceInstanceVarName = null;
-		
-		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+	public String getServiceInstanceVariableName(Collection<String> names) {
+		for (String varName : names) {
 			if (varName.contains(ServiceInstanceInitializer.ServiceInstanceVarKeyword)) {
-				serviceInstanceVarName = varName;
+				return varName;
 			}
 		}
-		return serviceInstanceVarName;
+		return null;
+	}
+	
+	public String getServiceInstanceVariableName(BPELPlan plan) {
+		return this.getServiceInstanceVariableName(this.bpelProcessHandler.getMainVariableNames(plan));		
 	}
 	
 	public boolean appendSetServiceInstanceState(BPELPlan plan, Element insertBeforeElement, String state) {

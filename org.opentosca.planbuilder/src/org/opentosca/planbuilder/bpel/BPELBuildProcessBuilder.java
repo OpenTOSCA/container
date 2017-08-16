@@ -146,6 +146,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				
 				BPELPlan newBuildPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan);
 				
+				newBuildPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
+				newBuildPlan.setTOSCAOperationname("initiate");
+				
 				this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
 //				newBuildPlan.setCsarName(csarName);
 				
