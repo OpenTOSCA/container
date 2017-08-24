@@ -335,6 +335,8 @@ public class CSARsResource {
 		
 		this.control.invokeTOSCAProcessing(csarID);
 		
+		boolean toscaProcessed = true;
+		
 		if (ModelUtils.hasOpenRequirements(csarID)) {
 			// return a 406 with location to ServiceTemplate in local Winery in
 			// Body
@@ -366,9 +368,11 @@ public class CSARsResource {
 			
 			csarID = this.startPlanBuilder(csarID);
 			
+			toscaProcessed = false;
+			
 		}
 		
-		this.processTOSCA(csarID, true);
+		this.processTOSCA(csarID, toscaProcessed);
 		
 		if (csarID != null) {
 			CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());

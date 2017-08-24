@@ -9,6 +9,7 @@ import org.oasis_open.docs.tosca.ns._2011._12.TArtifactReference;
 import org.oasis_open.docs.tosca.ns._2011._12.TArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.w3c.dom.Node;
 
@@ -23,18 +24,19 @@ import org.w3c.dom.Node;
  * 
  */
 public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
-	
+
 	private DefinitionsImpl defs;
 	private TArtifactTemplate template;
 	private AbstractProperties props;
 	private List<AbstractArtifactReference> references;
-	
-	
+
 	/**
 	 * Constructor
 	 * 
-	 * @param artifactTemplate a JAXB TArtifactTemplate
-	 * @param definitions a DefinitionsImpl for finding various data
+	 * @param artifactTemplate
+	 *            a JAXB TArtifactTemplate
+	 * @param definitions
+	 *            a DefinitionsImpl for finding various data
 	 */
 	public ArtifactTemplateImpl(TArtifactTemplate artifactTemplate, DefinitionsImpl definitions) {
 		this.defs = definitions;
@@ -45,7 +47,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 		this.references = new ArrayList<AbstractArtifactReference>();
 		this.setUp();
 	}
-	
+
 	/**
 	 * Initializes the ArtifactReferences inside this ArtifactTemplate
 	 */
@@ -56,7 +58,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -64,7 +66,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 	public AbstractProperties getProperties() {
 		return this.props;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -72,7 +74,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 	public List<AbstractArtifactReference> getArtifactReferences() {
 		return this.references;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -80,7 +82,7 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 	public String getId() {
 		return this.template.getId();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -88,26 +90,36 @@ public class ArtifactTemplateImpl extends AbstractArtifactTemplate {
 	public String getName() {
 		return this.template.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public QName getArtifactType() {
-		return this.getArtifactType();
+		return this.template.getType();
 	}
 
 	@Override
 	public List<Node> getAdditionalElements() {
 		List<Node> nodes = new ArrayList<Node>();
-		
-		for(Object obj : this.template.getAny()){
-			if(obj instanceof Node && ((Node)obj).getNodeType() == Node.ELEMENT_NODE){
-				nodes.add((Node)obj);
+
+		for (Object obj : this.template.getAny()) {
+			if (obj instanceof Node && ((Node) obj).getNodeType() == Node.ELEMENT_NODE) {
+				nodes.add((Node) obj);
 			}
 		}
-		
+
 		return nodes;
 	}
-	
+
+	@Override
+	public AbstractArtifactType getAbstractArtifactType() {
+		for (AbstractArtifactType absArtType : this.defs.getAllArtifactTypes()) {
+			if (absArtType.getId().equals(this.template.getType())) {
+				return absArtType;
+			}
+		}
+		return null;
+	}
+
 }

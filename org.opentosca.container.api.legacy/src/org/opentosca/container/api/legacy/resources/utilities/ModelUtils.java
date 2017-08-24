@@ -47,22 +47,22 @@ public class ModelUtils {
 	}
 	
 	public static boolean hasBuildPlan(CSARID csarId) throws UserException, SystemException {
-		QName serviceTemplateId = ModelUtils.getEntryServiceTemplate(csarId);
-		
 		Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarId);
 		
 		if (plans == null)
 			return false;
 		
-		return plans.containsKey(PlanTypes.BUILD);
+		return (plans.containsKey(PlanTypes.BUILD) & !plans.get(PlanTypes.BUILD).isEmpty()) ? true : false;
 	}
 	
-	public static boolean hasTerminationPlan(CSARID csarId) throws UserException, SystemException {
-		QName serviceTemplateId = ModelUtils.getEntryServiceTemplate(csarId);
-		
+	public static boolean hasTerminationPlan(CSARID csarId) throws UserException, SystemException {		
 		Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarId);
 		
-		return plans.containsKey(PlanTypes.TERMINATION);
+		if (plans == null)
+			return false;
+		
+		
+		return (plans.containsKey(PlanTypes.TERMINATION) & !plans.get(PlanTypes.TERMINATION).isEmpty()) ? true : false;
 	}
 	
 	public static QName getEntryServiceTemplate(CSARID csarId) throws UserException, SystemException {
