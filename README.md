@@ -23,7 +23,7 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 - Then, in the (sub-)project `target-definition` open the file `target-definition.target` and click `Set as Target Platform` (top right).
 - To start the container, in (sub-)project `org.opentosca.container.product` open the `*.product` file and run the application.
 
-## Haftung
+## Haftungsausschluss
 
 Dies ist ein Forschungsprototyp.
 Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, entgangene Nutzungen, Verlust von Daten und Informationen, Finanzierungsaufwendungen sowie sonstige Vermögens- und Folgeschäden ist, außer in Fällen von grober Fahrlässigkeit, Vorsatz und Personenschäden ausgeschlossen.
