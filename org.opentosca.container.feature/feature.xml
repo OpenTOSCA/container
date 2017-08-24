@@ -803,6 +803,13 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+         
+   <plugin
+         id="org.opentosca.container.connector.ode"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.opentosca.container.connector.winery"
@@ -882,7 +889,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.container.engine.plan.plugin.bpelwso2"
+         id="org.opentosca.container.engine.plan.plugin.bpel"
          download-size="0"
          install-size="0"
          version="0.0.0"

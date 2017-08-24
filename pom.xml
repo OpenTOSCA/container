@@ -111,6 +111,7 @@
     <module>org.opentosca.container.application</module>
     <module>org.opentosca.container.config.logging</module>
     <module>org.opentosca.container.connector.bps</module>
+    <module>org.opentosca.container.connector.ode</module>
     <module>org.opentosca.container.connector.winery</module>
     <module>org.opentosca.container.control</module>
     <module>org.opentosca.container.core</module>
@@ -119,7 +120,7 @@
     <module>org.opentosca.container.feature</module>
     <module>org.opentosca.container.product</module>
     <module>org.opentosca.container.engine.plan</module>
-    <module>org.opentosca.container.engine.plan.plugin.bpelwso2</module>
+    <module>org.opentosca.container.engine.plan.plugin.bpel</module>
     <module>org.opentosca.container.engine.plan.plugin.camunda</module>
     <module>org.opentosca.container.portability</module>
     <module>org.opentosca.container.engine.ia</module>
