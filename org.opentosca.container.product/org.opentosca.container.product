@@ -20,7 +20,6 @@
    <windowImages/>
 
    <launcher name="OpenTOSCA">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -196,7 +195,7 @@
       <plugin id="org.opentosca.container.engine.ia.plugin.script" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.ia.plugin.tomcat" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.plan" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.container.engine.plan.plugin.bpelwso2" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.plan.plugin.bpel" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="5" />
@@ -228,10 +227,11 @@
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.password" value="4Syq5MQeedIDzzP6BG7b" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://localhost:8080" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.username" value="tcManager" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.password" value="admin" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.services.url" value="http://localhost:9763/services" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.url" value="https://localhost:9443" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.username" value="admin" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.engine" value="ODE" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.password" value="" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.services.url" value="http://localhost:8080/ode/processes" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.url" value="http://localhost:8080/ode" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.username" value="" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>
