@@ -185,7 +185,7 @@ public class RelationInstance {
    */
   @PostLoad
   @PostPersist
-  private void setRelationInstanceID() {
+  public void setRelationInstanceID() {
     try {
       this.relationInstanceID =
           new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID()
@@ -193,7 +193,7 @@ public class RelationInstance {
               + URLEncoder.encode(URLEncoder
                   .encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8")
               + "/Instances/" + this.serviceInstance.getDBId() + "/RelationshipTemplates/"
-              + this.relationshipTemplateName + "/Instances/" + this.id);
+              + this.relationshipTemplateID.getLocalPart() + "/Instances/" + this.id);
 
     } catch (final URISyntaxException e) {
       e.printStackTrace();
@@ -251,4 +251,11 @@ public class RelationInstance {
     this.relationshipType = relationshipType;
   }
 
+  public static String getGetrelationinstances() {
+    return getRelationInstances;
+  }
+
+  public static String getGetrelationinstancesquery() {
+    return getRelationInstancesQuery;
+  }
 }

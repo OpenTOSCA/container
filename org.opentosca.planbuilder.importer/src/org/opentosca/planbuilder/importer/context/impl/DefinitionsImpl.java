@@ -14,6 +14,7 @@ import javax.xml.bind.Unmarshaller;
 import org.oasis_open.docs.tosca.ns._2011._12.Definitions;
 import org.oasis_open.docs.tosca.ns._2011._12.ObjectFactory;
 import org.oasis_open.docs.tosca.ns._2011._12.TArtifactTemplate;
+import org.oasis_open.docs.tosca.ns._2011._12.TArtifactType;
 import org.oasis_open.docs.tosca.ns._2011._12.TExtensibleElements;
 import org.oasis_open.docs.tosca.ns._2011._12.TImport;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeType;
@@ -25,6 +26,7 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
@@ -58,6 +60,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	private List<AbstractRelationshipType> relationshipTypes = null;
 	private List<AbstractRelationshipTypeImplementation> relationshipTypeImpls = null;
 	private List<AbstractArtifactTemplate> artifactTemplates = null;
+	private List<AbstractArtifactType> artifactTypes = null;
 	
 	
 	/**
@@ -94,6 +97,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		this.relationshipTypes = new ArrayList<>();
 		this.relationshipTypeImpls = new ArrayList<>();
 		this.artifactTemplates = new ArrayList<>();
+		this.artifactTypes = new ArrayList<>();
 		this.initTypesAndTemplates();
 		
 		if (isEntryDefinitions) {
@@ -227,6 +231,9 @@ public class DefinitionsImpl extends AbstractDefinitions {
 			if (element instanceof TArtifactTemplate) {
 				this.addArtifactTemplate(new ArtifactTemplateImpl((TArtifactTemplate) element, this));
 			}
+			if(element instanceof TArtifactType) {
+				this.addArtifactType(new ArtifactTypeImpl(this, (TArtifactType)element));
+			}
 		}
 		
 		if (this.definitions.getTypes() != null) {
@@ -247,6 +254,14 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	 */
 	public void addArtifactTemplate(final AbstractArtifactTemplate artifactTemplate) {
 		this.artifactTemplates.add(artifactTemplate);
+	}
+	
+	/**
+	 * Adds the given {@link AbstractArtifactType} to this {@link DefinitionsImpl}
+	 * @param artifactType an {@link AbstractArtifactType}
+	 */
+	public void addArtifactType(final AbstractArtifactType artifactType) {
+		this.artifactTypes.add(artifactType);
 	}
 	
 	/**
@@ -453,7 +468,23 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		for (final DefinitionsImpl def : this.allFoundDefinitions) {
 			relationshipTypes.addAll(def.getRelationshipTypes());
 		}
+		
 		return relationshipTypes;
+	}	
+	
+	protected List<AbstractArtifactType> getAllArtifactTypes(){
+		final List<AbstractArtifactType> artifactTypes = new ArrayList<>();
+		
+		for (final DefinitionsImpl def : this.allFoundDefinitions) {
+			artifactTypes.addAll(def.getArtifactTypes());
+		}
+		
+		return artifactTypes;
+	}
+
+	@Override
+	public List<AbstractArtifactType> getArtifactTypes() {		
+		return this.artifactTypes;
 	}
 	
 }
