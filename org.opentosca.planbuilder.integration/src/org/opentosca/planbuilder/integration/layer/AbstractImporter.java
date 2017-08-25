@@ -7,7 +7,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.bpel.BPELBuildProcessBuilder;
-import org.opentosca.planbuilder.bpel.ScalingPlanBuilder;
+import org.opentosca.planbuilder.bpel.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.bpel.BPELTerminationProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -37,7 +37,7 @@ public abstract class AbstractImporter {
 		
 		AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
 		AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
-		AbstractPlanBuilder scalingPlanBuilder = new ScalingPlanBuilder();
+		AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
 		
 		plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));

@@ -42,7 +42,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	
 	// handler for abstract buildplan operations
 	private BPELPlanHandler planHandler;
-		
+	
 	// class for initializing properties inside the build plan
 	private final PropertyVariableInitializer propertyInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
@@ -53,11 +53,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	// some provisioning logic and they must be filled with empty elements)
 	private final BPELFinalizer finalizer;
 	
-	
 	// accepted operations for provisioning
 	private final List<String> opNames = new ArrayList<>();
-			
-	private final CorrelationIDInitializer idInit = new CorrelationIDInitializer();	
+	
+	private final CorrelationIDInitializer idInit = new CorrelationIDInitializer();
+	
 	
 	/**
 	 * <p>
@@ -66,13 +66,13 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	 */
 	public BPELTerminationProcessBuilder() {
 		try {
-			this.planHandler = new BPELPlanHandler();			
+			this.planHandler = new BPELPlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 			this.nodeInstanceInitializer = new NodeInstanceInitializer(this.planHandler);
 		} catch (final ParserConfigurationException e) {
 			BPELTerminationProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
-		}		
-		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);		
+		}
+		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		this.finalizer = new BPELFinalizer();
 		this.opNames.add("stop");
 		this.opNames.add("uninstall");
@@ -101,30 +101,37 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				
 				final AbstractPlan newAbstractTerminationPlan = this.generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 				
-				BPELPlan newTerminationPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan);
+				BPELPlan newTerminationPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan, "terminate");
 				
 				newTerminationPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
 				newTerminationPlan.setTOSCAOperationname("terminate");
 				
 				this.planHandler.initializeBPELSkeleton(newTerminationPlan, csarName);
-								
 				
 				// create empty templateplans for each template and add them to
 				// buildplan
-//				for (final AbstractNodeTemplate nodeTemplate : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
-//					final BPELScopeActivity newTemplate = this.templateHandler.createTemplateBuildPlan(nodeTemplate, newTerminationPlan);
-//					newTemplate.setNodeTemplate(nodeTemplate);
-//					newTerminationPlan.addTemplateBuildPlan(newTemplate);
-//				}
-//				
-//				for (final AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
-//					final BPELScopeActivity newTemplate = this.templateHandler.createTemplateBuildPlan(relationshipTemplate, newTerminationPlan);
-//					newTemplate.setRelationshipTemplate(relationshipTemplate);
-//					newTerminationPlan.addTemplateBuildPlan(newTemplate);
-//				}
-//				
-//				// connect the templates
-//				this.initializeConnectionsInTerminationPlan(newTerminationPlan);
+				// for (final AbstractNodeTemplate nodeTemplate :
+				// serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+				// final BPELScopeActivity newTemplate =
+				// this.templateHandler.createTemplateBuildPlan(nodeTemplate,
+				// newTerminationPlan);
+				// newTemplate.setNodeTemplate(nodeTemplate);
+				// newTerminationPlan.addTemplateBuildPlan(newTemplate);
+				// }
+				//
+				// for (final AbstractRelationshipTemplate relationshipTemplate
+				// :
+				// serviceTemplate.getTopologyTemplate().getRelationshipTemplates())
+				// {
+				// final BPELScopeActivity newTemplate =
+				// this.templateHandler.createTemplateBuildPlan(relationshipTemplate,
+				// newTerminationPlan);
+				// newTemplate.setRelationshipTemplate(relationshipTemplate);
+				// newTerminationPlan.addTemplateBuildPlan(newTemplate);
+				// }
+				//
+				// // connect the templates
+				// this.initializeConnectionsInTerminationPlan(newTerminationPlan);
 				
 				final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
 				
@@ -137,16 +144,21 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(newTerminationPlan);
 				this.serviceInstanceInitializer.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 				
-				this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan);
+				this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan, "?state=STARTED");
 				this.nodeInstanceInitializer.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan, propMap);
 				
-				// TODO add null/empty check of property variables, as the
-				// templatePlan should abort when the properties aren't set with
-				// values
-				// this.nodeInstanceInitializer.addIfNullAbortCheck(newTerminationPlan,
-				// propMap);
+				// TODO Create a for loop over the three sequences inside the
+				// flow to iterate for the instance count deleting one instance
+				// at a time
 				
-				this.runPlugins(newTerminationPlan, propMap);
+				List<BPELScopeActivity> changedActivities = this.runPlugins(newTerminationPlan, propMap);
+				
+				for (BPELScopeActivity activ : changedActivities) {
+					if(activ.getNodeTemplate() != null) {
+						final TemplatePlanContext context = new TemplatePlanContext(activ, propMap, newTerminationPlan.getServiceTemplate());
+						this.nodeInstanceInitializer.appendCountInstancesLogic(context, activ.getNodeTemplate());
+					}
+				}
 				
 				// TODO we need to wrap the pre-, prov- and post-phase sequences
 				// into a forEach activity that iterates over all nodeInstances
@@ -170,6 +182,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 		BPELTerminationProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
 	}
+		
 	
 	/**
 	 * This method will execute plugins on each TemplatePlan inside the given
@@ -180,7 +193,9 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	 * @param propMap a PropertyMapping from NodeTemplate to Properties to
 	 *            BPELVariables
 	 */
-	private void runPlugins(final BPELPlan plan, final PropertyMap propMap) {
+	private List<BPELScopeActivity> runPlugins(final BPELPlan plan, final PropertyMap propMap) {
+		
+		List<BPELScopeActivity> changedActivities = new ArrayList<>();
 		/*
 		 * TODO/FIXME until we decided whether we allow type plugins that
 		 * achieve termination, we just terminate each VM and Docker Container
@@ -201,6 +216,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 							// node
 							
 							context.executeOperation(infraNode, org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER, org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM, null);
+							changedActivities.add(templatePlan);
 						}
 					}
 					
@@ -219,6 +235,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 					for (final AbstractNodeTemplate node : nodes) {
 						if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType().getId())) {
 							context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER, null);
+							changedActivities.add(templatePlan);
 						}
 					}
 					
@@ -236,7 +253,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 			}
 			
 		}
-		
+		return changedActivities;
 	}
 	
 	private boolean isDockerContainer(AbstractNodeTemplate nodeTemplate) {

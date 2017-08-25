@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.bpel.ScalingPlanBuilder;
+import org.opentosca.planbuilder.bpel.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.model.tosca.AbstractCapability;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;

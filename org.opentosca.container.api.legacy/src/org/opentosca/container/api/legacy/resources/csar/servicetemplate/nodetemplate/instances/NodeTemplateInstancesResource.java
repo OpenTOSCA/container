@@ -9,6 +9,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -34,6 +35,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.IdConverter;
 import org.opentosca.container.core.model.instance.NodeInstance;
 import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.service.IInstanceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +69,9 @@ public class NodeTemplateInstancesResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context final UriInfo uriInfo) {
+	public Response doGetXML(@Context final UriInfo uriInfo, @QueryParam("state") final String state) {
 		
-		final References idr = this.getRefs(uriInfo);
+		final References idr = this.getRefs(uriInfo, state);
 		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -82,7 +84,7 @@ public class NodeTemplateInstancesResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response doGetJSON(@Context final UriInfo uriInfo) {
 		
-		final References idr = this.getRefs(uriInfo);
+		final References idr = this.getRefs(uriInfo, null);
 		
 		if (null == idr) {
 			Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -91,7 +93,7 @@ public class NodeTemplateInstancesResource {
 		return Response.ok(idr.getJSONString()).build();
 	}
 
-	public References getRefs(final UriInfo uriInfo) {
+	public References getRefs(final UriInfo uriInfo, String state) {
 		final References refs = new References();
 		
 		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
@@ -119,6 +121,9 @@ public class NodeTemplateInstancesResource {
 				// // build simpleXLink with the nodeInstanceID as LinkText
 				// nodeInstanceLinks.add(new SimpleXLink(uriToNodeInstance,
 				// nodeInstance.getNodeInstanceID().toString()));
+				if(state != null && !nodeInstance.getState().equals(State.Node.valueOf(state))) {
+					continue;
+				}
 				
 				final QName nodeId = nodeInstance.getNodeTemplateID();
 				final int nodeInstanceId = nodeInstance.getId();

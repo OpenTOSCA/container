@@ -379,7 +379,7 @@ public class TemplatePlanContext {
 				if (((portType1 != null) & (portType2 != null)) && (this.containsPortType(portType1, wsdlFile) & this.containsPortType(portType2, wsdlFile))) {
 					// portType1 resembles a service to provide
 					List<Service> services = this.getServicesInWSDLFile(wsdlFile, portType1);
-					List<Port> ports = this.getPortsFromService(services.get(0), portType1);
+					List<Port> ports = this.getPortsFromService(services.get(0), portType1);					
 					this.buildPlanHandler.addProvideToDeploy(partnerLinkName, services.get(0).getQName(), ports.get(0).getName(), buildPlan);
 					
 					// portType2 resembles a service to invoke
@@ -1293,6 +1293,7 @@ public class TemplatePlanContext {
 		
 	}
 	
+		
 	/**
 	 * Generates a bpel string variable with the given name + "_" +
 	 * randomPositiveInt.

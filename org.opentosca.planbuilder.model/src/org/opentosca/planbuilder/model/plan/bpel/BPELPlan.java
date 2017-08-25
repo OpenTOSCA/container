@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -107,7 +108,7 @@ public class BPELPlan extends AbstractPlan{
 	// planbuilder to hold it here extra
 	private List<BPELScopeActivity> templateBuildPlans = new ArrayList<BPELScopeActivity>();
 	// imported files of the whole buildplan, to keep track for export
-	private List<File> importedFiles;
+	private Set<File> importedFiles;
 
 	// var for apache ode deployment deskriptor
 	private Deploy deploymentDeskriptor;
@@ -123,7 +124,9 @@ public class BPELPlan extends AbstractPlan{
 
 	private Map<AbstractActivity, BPELScopeActivity> abstract2bpelMap;	
 
-	public static String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
+	public static final String bpelNamespace = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
+	
+	public static final String xpath2Namespace = "urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0";
 	
 	private String toscaInterfaceName = null;
 	private String toscaOperationName = null;
@@ -177,7 +180,7 @@ public class BPELPlan extends AbstractPlan{
 	 * 
 	 * @return a List of File
 	 */
-	public List<File> getImportedFiles() {
+	public Set<File> getImportedFiles() {
 		return this.importedFiles;
 	}
 
@@ -187,7 +190,7 @@ public class BPELPlan extends AbstractPlan{
 	 * @param files
 	 *            a List of File
 	 */
-	public void setImportedFiles(List<File> files) {
+	public void setImportedFiles(Set<File> files) {
 		this.importedFiles = files;
 	}
 

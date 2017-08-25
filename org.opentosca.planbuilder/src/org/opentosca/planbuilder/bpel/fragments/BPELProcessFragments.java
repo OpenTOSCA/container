@@ -495,8 +495,8 @@ public class BPELProcessFragments {
 	 * BPELRESTExtension to fetch the InstanceData from an OpenTOSCA Container
 	 * instanceDataAPI
 	 *
-	 * @param instanceDataUrlVar the name of the variable holding an URL to a
-	 *            instanceDataAPI
+	 * @param serviceInstanceUrlVar the name of the variable holding an URL to a
+	 *            serviceInstance
 	 * @param responseVarName the name of the variable holding the response of
 	 *            the request (must be xsd:anyType)
 	 * @param templateId the id of the template the instance belongs to
@@ -507,8 +507,8 @@ public class BPELProcessFragments {
 	 * @return a String containing a BPEL Fragment
 	 * @throws IOException is thrown when reading internal files fails
 	 */
-	public String createRESTExtensionGETForNodeInstanceDataAsString(String instanceDataUrlVar, String responseVarName,
-			String templateId) throws IOException {
+	public String createRESTExtensionGETForNodeInstanceDataAsString(String serviceInstanceUrlVar, String responseVarName,
+			String templateId, String query) throws IOException {
 		// <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId,
 		// $serviceInstanceUrlVarName, $templateType -->
 
@@ -518,9 +518,15 @@ public class BPELProcessFragments {
 				.getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
-		template = template.replaceAll("\\$InstanceDataURLVar", instanceDataUrlVar);
+		template = template.replaceAll("\\$InstanceDataURLVar", serviceInstanceUrlVar);
 		template = template.replaceAll("\\$ResponseVarName", responseVarName);
 		template = template.replaceAll("\\$templateId", templateId);
+		
+		if(query != null) {
+			template = template.replace("?query", query);
+		} else {
+			template = template.replace("?query", "");
+		}
 
 		return template;
 	}
@@ -595,8 +601,8 @@ public class BPELProcessFragments {
 	 * BPELRESTExtension to fetch the InstanceData from an OpenTOSCA Container
 	 * instanceDataAPI
 	 *
-	 * @param instanceDataUrlVar the name of the variable holding an URL to a
-	 *            instanceDataAPI
+	 * @param serviceInstanceUrlVar the name of the variable holding an URL to a
+	 *            serviceInstance
 	 * @param responseVarName the name of the variable holding the response of
 	 *            the request (must be xsd:anyType)
 	 * @param templateId the id of the template the instance belongs to
@@ -608,10 +614,10 @@ public class BPELProcessFragments {
 	 * @throws IOException is thrown when reading internal files fails
 	 * @throws SAXException is thrown when parsing internal files fails
 	 */
-	public Node createRESTExtensionGETForNodeInstanceDataAsNode(String instanceDataUrlVar, String responseVarName,
-			String templateId) throws SAXException, IOException {
-		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(instanceDataUrlVar,
-				responseVarName, templateId);
+	public Node createRESTExtensionGETForNodeInstanceDataAsNode(String serviceInstanceUrlVar, String responseVarName,
+			String templateId, String query) throws SAXException, IOException {
+		String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(serviceInstanceUrlVar,
+				responseVarName, templateId, query);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);

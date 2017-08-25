@@ -51,6 +51,46 @@ public class Fragments {
 	}
 	
 	/**
+	 * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to
+	 * request on.
+	 *
+	 * @param bpelVarName the variable containing an URL
+	 * @param responseVarName the variable to hold the response
+	 * @return a String containing a BPEL4RESTLight Activity
+	 * @throws IOException is thrown when reading internal files fails
+	 */
+	public String createRESTDeleteOnURLBPELVarAsString(String bpelVarName, String responseVarName) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightDELETE.xml");
+		// <!-- $urlVarName, $ResponseVarName -->
+		
+		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+		
+		String template = FileUtils.readFileToString(bpelFragmentFile);
+		template = template.replace("$urlVarName", bpelVarName);
+		template = template.replace("$ResponseVarName", responseVarName);
+		
+		return template;
+	}
+	
+	/**
+	 * Creates a BPEL4RESTLight DELETE Activity with the given BPELVar as Url to
+	 * request on.
+	 *
+	 * @param bpelVarName the variable containing an URL
+	 * @param responseVarName the variable to hold the response
+	 * @return a String containing a BPEL4RESTLight Activity
+	 * @throws IOException is thrown when reading internal files fails
+	 * @throws SAXException is thrown when parsing internal files fails
+	 */
+	public Node createRESTDeleteOnURLBPELVarAsNode(String bpelVarName, String responseVarName) throws IOException, SAXException {
+		String templateString = this.createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+	
+	/**
 	 * Generates a BPEL4RESTLight extension activity that sets the instance
 	 * state of the given nodeInstance with the contents of the given string
 	 * variable

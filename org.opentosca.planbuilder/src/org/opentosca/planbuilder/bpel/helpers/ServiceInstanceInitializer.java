@@ -102,7 +102,7 @@ public class ServiceInstanceInitializer {
 	}
 	
 	public String getServiceInstanceVariableName(BPELPlan plan) {
-		return this.getServiceInstanceVariableName(this.bpelProcessHandler.getMainVariableNames(plan));		
+		return this.getServiceInstanceVariableName(this.bpelProcessHandler.getMainVariableNames(plan));
 	}
 	
 	public boolean appendSetServiceInstanceState(BPELPlan plan, Element insertBeforeElement, String state) {
@@ -238,7 +238,7 @@ public class ServiceInstanceInitializer {
 			
 			// find nodeInstance with query at instanceDataAPI
 			try {
-				Node nodeInstanceGETNode = this.fragments.createRESTExtensionGETForNodeInstanceDataAsNode(ServiceInstanceInitializer.ServiceInstanceVarKeyword, restCallResponseVarName, templatePlan.getNodeTemplate().getId());
+				Node nodeInstanceGETNode = this.fragments.createRESTExtensionGETForNodeInstanceDataAsNode(ServiceInstanceInitializer.ServiceInstanceVarKeyword, restCallResponseVarName, templatePlan.getNodeTemplate().getId(), null);
 				nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
 				plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode, plan.getBpelMainFlowElement());
 			} catch (SAXException e) {

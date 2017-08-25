@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -91,7 +92,7 @@ public class SimpleFileExporter {
 			return false;
 		}
 		// fetch imported files
-		final List<File> importedFiles = buildPlan.getImportedFiles();
+		final Set<File> importedFiles = buildPlan.getImportedFiles();
 		
 		SimpleFileExporter.LOG.debug("BuildPlan has following files attached");
 		for (final File file : importedFiles) {
@@ -140,10 +141,14 @@ public class SimpleFileExporter {
 					final File fileLocationInDir = new File(tempFolder, fileName);
 					FileUtils.copyFile(importedFile, fileLocationInDir);
 					
+					LOG.debug("Adding " + fileLocationInDir + " to files to export");
 					exportedFiles.add(fileLocationInDir);
 				}
 			}
 		}
+		
+		LOG.debug("Imported files:" + importedFiles);
+		LOG.debug("Exported files:" + exportedFiles);
 		
 		// write deploy.xml
 		SimpleFileExporter.LOG.debug("Starting marshalling");
@@ -202,6 +207,8 @@ public class SimpleFileExporter {
 		final Map<QName, QName> invokedServicesToRewrite = new HashMap<>();
 		final Map<QName, QName> providedServicesToRewrite = new HashMap<>();
 		
+		LOG.debug("Starting to determine services to rewrite");
+		LOG.debug("Starting to determine invoked services");
 		for (final TInvoke invoke : invokes) {
 			if (invoke.getPartnerLink().equals("client")) {
 				continue;
@@ -212,6 +219,7 @@ public class SimpleFileExporter {
 			
 			final QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart() + System.currentTimeMillis());
 			
+			LOG.debug("Adding " + serviceName + " to be rewrited to " + renamedServiceName);
 			invokedServicesToRewrite.put(serviceName, renamedServiceName);
 			
 			service.setName(renamedServiceName);
@@ -219,6 +227,7 @@ public class SimpleFileExporter {
 			invoke.setService(service);
 		}
 		
+		LOG.debug("Starting to determine provided services");				
 		for (final TProvide provide : provides) {
 			if (provide.getPartnerLink().equals("client")) {
 				continue;
@@ -229,19 +238,25 @@ public class SimpleFileExporter {
 			
 			final QName renamedServiceName = new QName(serviceName.getNamespaceURI(), csarName + serviceName.getLocalPart() + System.currentTimeMillis());
 			
+			LOG.debug("Adding " + serviceName + " to be rewrited to " + renamedServiceName);
 			providedServicesToRewrite.put(serviceName, renamedServiceName);
 			
 			service.setName(renamedServiceName);
 			
 			provide.setService(service);
 		}
-		
-		this.rewriteServices(providedServicesToRewrite, writer, reader, referencedFiles);
+				
 		this.rewriteServices(invokedServicesToRewrite, writer, reader, referencedFiles);
+		this.rewriteServices(providedServicesToRewrite, writer, reader, referencedFiles);
 		
 	}
 	
 	private void rewriteServices(Map<QName, QName> servicesToRewrite, WSDLWriter writer, WSDLReader reader, final List<File> referencedFiles) throws WSDLException, FileNotFoundException {
+		
+		LOG.debug("Rewriting service names:");
+		LOG.debug("Files referenced:" + referencedFiles);
+		LOG.debug("Services to rewrite:" + servicesToRewrite);
+		
 		for (final QName serviceName : servicesToRewrite.keySet()) {
 			
 			for (final File file : referencedFiles) {

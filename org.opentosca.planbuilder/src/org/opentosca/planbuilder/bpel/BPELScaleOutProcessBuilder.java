@@ -56,9 +56,9 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class ScalingPlanBuilder extends AbstractScaleOutPlanBuilder {
+public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 	
-	private final static Logger LOG = LoggerFactory.getLogger(ScalingPlanBuilder.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELScaleOutProcessBuilder.class);
 	
 	
 	// class for initializing properties inside the plan
@@ -83,13 +83,13 @@ public class ScalingPlanBuilder extends AbstractScaleOutPlanBuilder {
 	private List<String> opNames = new ArrayList<String>();
 	
 	
-	public ScalingPlanBuilder() {
+	public BPELScaleOutProcessBuilder() {
 		try {
 			this.planHandler = new BPELPlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 			this.instanceInitializer = new NodeInstanceInitializer(planHandler);
 		} catch (ParserConfigurationException e) {
-			ScalingPlanBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
+			BPELScaleOutProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}				
 		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		
@@ -144,7 +144,7 @@ public class ScalingPlanBuilder extends AbstractScaleOutPlanBuilder {
 			
 			this.printGraph(abstractScaleOutPlan);
 			
-			BPELPlan bpelScaleOutProcess = this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractScaleOutPlan);
+			BPELPlan bpelScaleOutProcess = this.planHandler.createEmptyBPELPlan(processNamespace, processName, abstractScaleOutPlan, "scale-out");
 			
 			bpelScaleOutProcess.setTOSCAInterfaceName(scalingPlanDefinition.name);
 			bpelScaleOutProcess.setTOSCAOperationname("scale-out");
@@ -404,24 +404,24 @@ public class ScalingPlanBuilder extends AbstractScaleOutPlanBuilder {
 		// TemplateBuildPlan is broken here!
 		// TODO implement fallback
 		if (this.findTypePlugin(relationshipTemplate) == null) {
-			ScalingPlanBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
+			BPELScaleOutProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
 			ProvisioningChain sourceChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, true);
 			ProvisioningChain targetChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, false);
 			
 			// first execute provisioning on target, then on source
 			if (targetChain != null) {
-				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+				BPELScaleOutProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 				targetChain.executeIAProvisioning(context);
 				targetChain.executeOperationProvisioning(context, this.opNames);
 			}
 			
 			if (sourceChain != null) {
-				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+				BPELScaleOutProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 				sourceChain.executeIAProvisioning(context);
 				sourceChain.executeOperationProvisioning(context, this.opNames);
 			}
 		} else {
-			ScalingPlanBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+			BPELScaleOutProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
 			this.handleWithTypePlugin(context, relationshipTemplate);
 		}
 		
@@ -440,18 +440,18 @@ public class ScalingPlanBuilder extends AbstractScaleOutPlanBuilder {
 		// TemplateBuildPlan is broken!
 		IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
 		if (plugin == null) {
-			ScalingPlanBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
+			BPELScaleOutProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
 			ProvisioningChain chain = BPELScopeBuilder.createProvisioningChain(nodeTemplate);
 			if (chain == null) {
-				ScalingPlanBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+				BPELScaleOutProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 			} else {
-				ScalingPlanBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+				BPELScaleOutProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 				chain.executeIAProvisioning(context);
 				chain.executeDAProvisioning(context);
 				chain.executeOperationProvisioning(context, this.opNames);
 			}
 		} else {
-			ScalingPlanBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
+			BPELScaleOutProcessBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
 			plugin.handle(context);
 		}
 		

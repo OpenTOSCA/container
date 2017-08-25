@@ -18,24 +18,28 @@ public class InstanceStates {
 		operationPreStates = new HashMap<String, String>();
 		operationPostStates = new HashMap<String, String>();
 
+		/*
+		 * INITIAL, CREATING, CREATED, CONFIGURING, CONFIGURED, STARTING, STARTED, STOPPING, STOPPED, DELETING, DELETED, ERROR
+		 */
+		
 		// lifecycle
-		operationPreStates.put("install", "installing");
-		operationPreStates.put("uninstall", "uninstalling");
+		operationPreStates.put("install", "creating");
+		operationPreStates.put("uninstall", "deleting");
 		operationPreStates.put("configure", "configuring");
 		operationPreStates.put("start", "starting");
 		operationPreStates.put("stop", "stopping");
 
-		operationPostStates.put("install", "installed");
-		operationPostStates.put("uninstall", "uninstalled");
+		operationPostStates.put("install", "created");
+		operationPostStates.put("uninstall", "initial");
 		operationPostStates.put("configure", "configured");
 		operationPostStates.put("start", "started");
 		operationPostStates.put("stop", "stopped");
 
 		// VM's
 		operationPreStates.put("createVM", "starting");
-		operationPreStates.put("waitForAvailability", "pending");
+		operationPreStates.put("waitForAvailability", "starting");
 
-		operationPostStates.put("createVM", "pending");
+		operationPostStates.put("createVM", "configured");
 		operationPostStates.put("waitForAvailability", "started");
 		
 		// Docker
@@ -73,12 +77,15 @@ public class InstanceStates {
 	public static String getNextStableOperationState(String state) {
 
 		if (operationPreStates.containsValue(state)) {
+			/*
+			 * INITIAL, CREATING, CREATED, CONFIGURING, CONFIGURED, STARTING, STARTED, STOPPING, STOPPED, DELETING, DELETED, ERROR
+			 */
 			// given state is unstable
 			switch (state) {
-			case "installing":
-				return "installed";
-			case "uninstalling":
-				return "uninstalled";
+			case "creating":
+				return "created";
+			case "deleting":
+				return "deleted";
 			case "configuring":
 				return "configured";
 			case "starting":
@@ -91,9 +98,9 @@ public class InstanceStates {
 		} else if (operationPostStates.containsValue(state)) {
 			// given state is stable
 			switch (state) {
-			case "uninstalled":
-				return "installed";
-			case "installed":
+			case "initial":
+				return "created";
+			case "created":
 				return "configured";
 			case "configured":
 				return "started";

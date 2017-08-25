@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.FileHandler;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -98,14 +100,19 @@ public class Handler {
 		}
 	}
 	
+	
+	
 	public boolean handle(final TemplatePlanContext context, final AbstractOperation operation, final AbstractImplementationArtifact ia) throws IOException {
+		File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
+		File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
 		// register wsdls and xsd
-		final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), this.resHandler.getServiceInvokerWSDLFile());
-		final QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), this.resHandler.getServiceInvokerWSDLFile());
+		final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
+		final QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
+		
 		
 		// atleast the xsd should be imported now in the plan
-		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), this.resHandler.getServiceInvokerXSDFile());
-		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), this.resHandler.getServiceInvokerXSDFile());
+		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), xsdFile);
+		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), xsdFile);
 		
 		final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncRequestMessageType());
 		final String InputMessagePartName = this.resHandler.getServiceInvokerAsyncRequestMessagePart();
@@ -326,13 +333,17 @@ public class Handler {
 	}
 	
 	public boolean handle(final TemplatePlanContext context, final String templateId, final boolean isNodeTemplate, final String operationName, final String interfaceName, final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput, final Map<String, Variable> internalExternalPropsOutput, final boolean appendToPrePhase) throws IOException {
+		
+		File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
+		File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
 		// register wsdls and xsd
-		final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), this.resHandler.getServiceInvokerWSDLFile());
-		final QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), this.resHandler.getServiceInvokerWSDLFile());
+		final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
+		final QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
+		
 		
 		// atleast the xsd should be imported now in the plan
-		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), this.resHandler.getServiceInvokerXSDFile());
-		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), this.resHandler.getServiceInvokerXSDFile());
+		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), xsdFile);
+		context.registerType(this.resHandler.getServiceInvokerAsyncResponseXSDType(), xsdFile);
 		
 		final QName InputMessageId = context.importQName(this.resHandler.getServiceInvokerAsyncRequestMessageType());
 		final String InputMessagePartName = this.resHandler.getServiceInvokerAsyncRequestMessagePart();

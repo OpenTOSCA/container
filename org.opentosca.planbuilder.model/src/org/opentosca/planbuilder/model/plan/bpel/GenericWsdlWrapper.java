@@ -180,7 +180,7 @@ public class GenericWsdlWrapper {
 	 * @throws IOException
 	 *             is thrown when reading the internal file fails
 	 */
-	public GenericWsdlWrapper(BPELPlan.PlanType planType) throws IOException {
+	public GenericWsdlWrapper(BPELPlan.PlanType planType, String inputOperationName) throws IOException {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
 				.getResource("genericProcessWsdl.wsdl");
 		File genericWsdlFile = new File(FileLocator.toFileURL(url).getPath());
@@ -190,18 +190,8 @@ public class GenericWsdlWrapper {
 		this.inputMessageLocalNames = new ArrayList<String>();
 		this.outputMessageLocalNames = new ArrayList<String>();
 		this.properties = new ArrayList<String>();
-
-		switch (planType) {
-		case BUILD:
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
-					"initiate");
-		case MANAGE:
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
-					"initiate");
-		case TERMINATE:
-			this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
-					"terminate");
-		}
+		this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
+				inputOperationName);
 	}
 
 	/**

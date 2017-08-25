@@ -7,6 +7,8 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.helpers.NodeInstanceInitializer;
 import org.opentosca.planbuilder.bpel.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -35,6 +37,7 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 	private static final String firstAvailableSelectionStrategy = "FirstInstance";
 	
 	
+	
 	@Override
 	public String getID() {
 		return "OpenTOSCA First Available Selection Plugin";
@@ -61,22 +64,22 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 			e1.printStackTrace();
 		}
 		
-		if(nodeTemplateInstanceVar == null | serviceInstanceIDVar == null) {
+		if (nodeTemplateInstanceVar == null | serviceInstanceIDVar == null) {
 			return false;
 		}
 		
-				
 		String responseVarName = "selectFirstInstance_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
 		QName anyTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
 		context.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
 		
 		try {
 			
-			Node getNodeInstances = new BPELProcessFragments().createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(), serviceInstanceIDVar, responseVarName);			
+			// TODO SELECT THE FIRST STARTED INSTANCE (use get with query, is already in fragments)
+			Node getNodeInstances = new BPELProcessFragments().createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(), serviceInstanceIDVar, responseVarName);
 			getNodeInstances = context.importNode(getNodeInstances);
 			context.getPrePhaseElement().appendChild(getNodeInstances);
 			
-			String xpath2Query = "//*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']][1]/@*[local-name()='href']/string()";
+			String xpath2Query = "$" + responseVarName + "/*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']][1]/@*[local-name()='href']/string()";
 			Node fetchNodeInstance = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query, nodeTemplateInstanceVar);
 			fetchNodeInstance = context.importNode(fetchNodeInstance);
 			context.getPrePhaseElement().appendChild(fetchNodeInstance);
@@ -92,8 +95,19 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 			e.printStackTrace();
 		}
 		
+		try {
+			final NodeInstanceInitializer nodeInit = new NodeInstanceInitializer(new BPELPlanHandler());
+			
+			nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 		return true;
-	}	
+	}
 	
 	private String findInstanceVar(TemplatePlanContext context, String templateId, boolean isNode) {
 		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";

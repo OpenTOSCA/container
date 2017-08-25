@@ -174,7 +174,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		// we'll use this later when we determine that the handle Node doesn't
 		// have lifecycle operations. Without this check all nodes without
 		// lifecycle (or cloud prov operations) will be in an uninstalled state
-		String lastSetState = "uninstalled";
+		String lastSetState = "deleted";
 		
 		/*
 		 * Prov Phase code
@@ -325,6 +325,22 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 				return false;
 			}
 		}
+		
+//		try {
+//			Node deleteNode = this.fragments.createRESTDeleteOnURLBPELVarAsNode(nodeInstanceURLVarName, restCallResponseVarName);
+//			
+//			deleteNode = context.importNode(deleteNode);
+//			
+//			context.getPostPhaseElement().appendChild(deleteNode);
+//			
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return false;
+//		} catch (SAXException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return true;
 	}
 	
@@ -408,7 +424,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		try {
 			// update state variable to uninstalled
 			org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
-			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitNodeState" + System.currentTimeMillis(), "string('uninstalled')", stateVarName);
+			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitNodeState" + System.currentTimeMillis(), "string('initial')", stateVarName);
 			assignNode = context.importNode(assignNode);
 			context.getPrePhaseElement().appendChild(assignNode);
 			
@@ -428,7 +444,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		// we'll use this later when we determine that the handle Node doesn't
 		// have lifecycle operations. Without this check all nodes without
 		// lifecycle (or cloud prov operations) will be in an uninstalled state
-		String lastSetState = "uninstalled";
+		String lastSetState = "initial";
 		
 		/*
 		 * Prov Phase code
@@ -439,6 +455,8 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		Element provisioningPhaseElement = context.getProvisioningPhaseElement();
 		List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
 		
+		List<String> operationNames = new ArrayList<>();
+		
 		// for each assign element we fetch the operation name, determine the
 		// pre and post states, and append the pre state before the found assign
 		// and the post state after the receive of the invoker iteraction
@@ -446,6 +464,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 			
 			// fetch operationName from literal contents
 			String operationName = this.fetchOperationName(assignContentElement);
+			operationNames.add(operationName);
 			// determine pre and post state for operation
 			String preState = InstanceStates.getOperationPreState(operationName);
 			String postState = InstanceStates.getOperationPostState(operationName);
@@ -531,11 +550,16 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		 * Post Phase code
 		 */
 		
-		if (lastSetState.equals("uninstalled")) {
+		if (lastSetState.equals("initial")) {
 			try {
 				// set state
+				String nextState = InstanceStates.getNextStableOperationState(lastSetState);
+				// if this node never was handled by lifecycle ops we just set it to started
+				if(operationNames.isEmpty()) {
+					nextState = "started";
+				}
 				org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
-				Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignFinalNodeState" + System.currentTimeMillis(), "string('" + InstanceStates.getNextStableOperationState(lastSetState) + "')", stateVarName);
+				Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignFinalNodeState" + System.currentTimeMillis(), "string('" + nextState + "')", stateVarName);
 				assignNode = context.importNode(assignNode);
 				
 				// create PUT activity

@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Map;
+import java.util.logging.FileHandler;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -59,10 +61,32 @@ public class ResourceHandler {
 	 * @return a File containing the absolute path to the WSDL file
 	 * @throws IOException is thrown when reading internal files fails
 	 */
-	public File getServiceInvokerWSDLFile() throws IOException {
+	public File getServiceInvokerWSDLFile(File invokerXsdFile, int id) throws IOException {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("invoker.wsdl");
 		File wsdlFile = new File(FileLocator.toFileURL(url).getPath());
-		return wsdlFile;
+		
+		File tempFile = this.createNewTempFile(wsdlFile, id);
+		
+		String fileName = invokerXsdFile.getName();
+		
+		FileUtils.write(tempFile, FileUtils.readFileToString(tempFile).replaceAll("invoker.xsd", fileName));
+		
+		return tempFile;
+	}
+	
+	public File createNewTempFile(File file, int id) throws IOException {
+		File tempFile = Files.createTempFile(file.getName().split("\\.")[0] + id, "." +file.getName().split("\\.")[1]).toFile();
+		
+		FileUtils.copyFile(file, tempFile);
+		return tempFile;
+	}
+	
+	public File getServiceInvokerXSDFile(int id) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("invoker.xsd");
+		File xsdFile = new File(FileLocator.toFileURL(url).getPath());
+		File tempFile = this.createNewTempFile(xsdFile, id);
+		return tempFile;
+		
 	}
 	
 	public QName getServiceInvokerPortType() {
@@ -95,13 +119,6 @@ public class ResourceHandler {
 	
 	public String getServiceInvokerAsyncResponseMessagePart() {
 		return "invokeResponse";
-	}
-	
-	public File getServiceInvokerXSDFile() throws IOException {
-		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("invoker.xsd");
-		File xsdFile = new File(FileLocator.toFileURL(url).getPath());
-		return xsdFile;
-		
 	}
 	
 	public String generateInvokerRequestMessageInitAssignTemplate(String csarName, QName serviceTemplateId, String serviceInstanceIdVarName, String operationName, String messageId, String requestVarName, String requestVarPartName, String iface, boolean isNodeTemplate, String templateId, Map<String, Variable> internalExternalProps) throws IOException {
