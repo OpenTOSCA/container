@@ -350,20 +350,20 @@ public class Utils {
 		relationshipTemplates.addAll(list);
 	}
 
-	
-	public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(final AbstractNodeTemplate nodeTemplate) {
+	public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(
+			final AbstractNodeTemplate nodeTemplate) {
 		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
-		
+
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 			List<QName> types = Utils.getRelationshipTypeHierarchy(relation.getRelationshipType());
-			if (types.contains(TOSCABASETYPE_DEPENDSON) | types.contains(TOSCABASETYPE_DEPLOYEDON) | types.contains(TOSCABASETYPE_HOSTEDON)) {
+			if (types.contains(TOSCABASETYPE_DEPENDSON) | types.contains(TOSCABASETYPE_DEPLOYEDON)
+					| types.contains(TOSCABASETYPE_HOSTEDON)) {
 				relations.add(relation);
 			}
 		}
-		
+
 		return relations;
 	}
-	
 
 	/**
 	 * Adds the InfrastructureEdges of the given NodeTemplate to the given List
@@ -396,21 +396,22 @@ public class Utils {
 	}
 
 	public static boolean isInfrastructureRelationshipType(QName relationshipType) {
-		if (relationshipType.equals(Utils.TOSCABASETYPE_DEPENDSON) | relationshipType.equals(Utils.TOSCABASETYPE_HOSTEDON) | relationshipType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
+		if (relationshipType.equals(Utils.TOSCABASETYPE_DEPENDSON)
+				| relationshipType.equals(Utils.TOSCABASETYPE_HOSTEDON)
+				| relationshipType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public static boolean isCommunicationRelationshipType(QName relationshipType) {
-		if(relationshipType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+		if (relationshipType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
 
 	/**
 	 * Returns all NodeTemplates from the given RelationshipTemplate going along all
@@ -437,20 +438,20 @@ public class Utils {
 		Utils.cleanDuplciates(nodes);
 	}
 
-	public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate, QName relationshipType, final List<AbstractNodeTemplate> nodes) {
+	public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate,
+			QName relationshipType, final List<AbstractNodeTemplate> nodes) {
 		final AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
 		nodes.add(nodeTemplate);
 		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
-			
+
 			if (Utils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType()).contains(relationshipType)) {
-				
+
 				Utils.getNodesFromRelationToSink(outgoingTemplate, relationshipType, nodes);
 			}
-			
+
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-	
 
 	/**
 	 * Returns all NodeTemplates from the given NodeTemplate going along the path of
@@ -476,12 +477,13 @@ public class Utils {
 		Utils.cleanDuplciates(nodes);
 	}
 
-	
-	public static List<AbstractRelationshipTemplate> getOutgoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
+	public static List<AbstractRelationshipTemplate> getOutgoingRelations(AbstractNodeTemplate nodeTemplate,
+			QName... relationshipTypes) {
 		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
-		
+
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-			for (QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
+			for (QName relationshipTypeHierarchyMember : Utils
+					.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
 				boolean match = false;
 				for (QName relationshipType : relationshipTypes) {
 					if (relationshipTypeHierarchyMember.equals(relationshipType)) {
@@ -494,14 +496,16 @@ public class Utils {
 				}
 			}
 		}
-		
+
 		return relations;
 	}
-	
-	public static List<AbstractRelationshipTemplate> getIngoingRelations(AbstractNodeTemplate nodeTemplate, QName... relationshipTypes) {
-		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();						
+
+	public static List<AbstractRelationshipTemplate> getIngoingRelations(AbstractNodeTemplate nodeTemplate,
+			QName... relationshipTypes) {
+		List<AbstractRelationshipTemplate> relations = new ArrayList<AbstractRelationshipTemplate>();
 		for (AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-			for (QName relationshipTypeHierarchyMember : Utils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {				
+			for (QName relationshipTypeHierarchyMember : Utils
+					.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
 				boolean match = false;
 				for (QName relationshipType : relationshipTypes) {
 					if (relationshipTypeHierarchyMember.equals(relationshipType)) {
@@ -514,11 +518,12 @@ public class Utils {
 				}
 			}
 		}
-		
+
 		return relations;
 	}
-	
-	public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate, QName relationshipType, final List<AbstractNodeTemplate> nodes) {
+
+	public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate, QName relationshipType,
+			final List<AbstractNodeTemplate> nodes) {
 		nodes.add(nodeTemplate);
 		for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
 			if (Utils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType()).contains(relationshipType)) {
@@ -530,7 +535,6 @@ public class Utils {
 		}
 		Utils.cleanDuplciates(nodes);
 	}
-	
 
 	/**
 	 * Adds the InfrastructureEdges of the given RelationshipTemplate to the given
@@ -658,7 +662,8 @@ public class Utils {
 					if (child.getNodeType() != 1) {
 						continue;
 					}
-					if (variable.getName().contains(child.getLocalName())) {
+					String variableName = variable.getName();
+					if (variable.getName().endsWith("_" + child.getLocalName())) {
 						// check if content is empty
 						return children.item(i).getTextContent();
 					}
@@ -670,7 +675,7 @@ public class Utils {
 			if (relation.getId().equals(variable.getTemplateId())) {
 				final NodeList children = relation.getProperties().getDOMElement().getChildNodes();
 				for (int i = 0; i < children.getLength(); i++) {
-					if (variable.getName().contains(children.item(i).getLocalName())) {
+					if (variable.getName().endsWith(children.item(i).getLocalName())) {
 						// check if content is empty
 						return children.item(i).getTextContent();
 					}

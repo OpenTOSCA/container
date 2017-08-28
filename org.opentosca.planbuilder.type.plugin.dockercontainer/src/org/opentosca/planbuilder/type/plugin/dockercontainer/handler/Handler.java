@@ -181,11 +181,12 @@ public class Handler {
 
 		createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
 		createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
-		createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
+		createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);		
 
 		if (sshPortVar != null) {
 			// we expect a sshPort back -> add to output handling
 			createDEInternalExternalPropsOutput.put("SSHPort", sshPortVar);
+			createDEInternalExternalPropsInput.put("SSHPort", sshPortVar);
 		}
 
 		if (containerIpVar != null) {
