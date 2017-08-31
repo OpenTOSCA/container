@@ -147,6 +147,11 @@ public class Utils {
 			return true;
 		}
 		
+		if (nodeType.equals(Types.dockerEngineNodeType)) {
+			return true;
+		}
+		
+		
 		return false;
 	}
 	

@@ -3,8 +3,10 @@ package org.opentosca.planbuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -12,6 +14,7 @@ import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -24,11 +27,12 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 
 	public AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate, Collection<AbstractNodeTemplate> nodeTemplates, Collection<AbstractRelationshipTemplate> relationshipTemplates) {
 		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
-		Map<AbstractActivity, AbstractActivity> links = new HashMap<AbstractActivity, AbstractActivity>();
+		Set<Link> links = new HashSet<Link>();
 		
-		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+		Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+		Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<AbstractRelationshipTemplate, AbstractActivity>();
 				
-		this.generatePOGActivitesAndLinks(activities, links, mapping, nodeTemplates, relationshipTemplates);
+		this.generatePOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping, relationshipTemplates);
 				
 		//this.cleanLooseEdges(links);
 		
@@ -55,13 +59,14 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 	public AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate) {
 		
 		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
-		Map<AbstractActivity, AbstractActivity> links = new HashMap<AbstractActivity, AbstractActivity>();
+		Set<Link> links = new HashSet<Link>();
 		
-		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+		Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+		Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<AbstractRelationshipTemplate, AbstractActivity>();
 		
 		final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 		
-		this.generatePOGActivitesAndLinks(activities, links, mapping, topology.getNodeTemplates(), topology.getRelationshipTemplates());
+		this.generatePOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping, topology.getRelationshipTemplates());
 		
 		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 			
@@ -69,24 +74,28 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 		return plan;
 	}
 	
-	private void generatePOGActivitesAndLinks(Collection<AbstractActivity> activities, Map<AbstractActivity, AbstractActivity> links, Map<AbstractNodeTemplate, AbstractActivity> mapping, Collection<AbstractNodeTemplate> nodeTemplates, Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+	private void generatePOGActivitesAndLinks(Collection<AbstractActivity> activities, Set<Link> links, Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping, Collection<AbstractNodeTemplate> nodeTemplates, Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping, Collection<AbstractRelationshipTemplate> relationshipTemplates) {
 		for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
 			AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity", "PROVISIONING", nodeTemplate);
 			activities.add(activity);
-			mapping.put(nodeTemplate, activity);
+			nodeActivityMapping.put(nodeTemplate, activity);
+		}
+		
+		for(AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
+			AbstractActivity activity = new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
+			activities.add(activity);
+			relationActivityMapping.put(relationshipTemplate, activity);
 		}
 		
 		for (AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
-			AbstractActivity activity = new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
-			activities.add(activity);
-			
+			AbstractActivity activity = relationActivityMapping.get(relationshipTemplate);
 			QName baseType = Utils.getRelationshipBaseType(relationshipTemplate);
 			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
-				links.put(mapping.get(relationshipTemplate.getSource()), activity);
-				links.put(mapping.get(relationshipTemplate.getTarget()), activity);
+				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
+				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));				
 			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
-				links.put(mapping.get(relationshipTemplate.getTarget()), activity);
-				links.put(activity, mapping.get(relationshipTemplate.getSource()));
+				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
+				links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));				
 			}
 			
 		}

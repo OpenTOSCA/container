@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
  */
 public class BPELPlan extends AbstractPlan{
 
-	public BPELPlan(String id, PlanType type, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Map<AbstractActivity, AbstractActivity> links) {
+	public BPELPlan(String id, PlanType type, AbstractDefinitions definitions, AbstractServiceTemplate serviceTemplate, Collection<AbstractActivity> activities, Set<Link> links) {
 		super(id, type, definitions, serviceTemplate, activities, links); 
 	}
 

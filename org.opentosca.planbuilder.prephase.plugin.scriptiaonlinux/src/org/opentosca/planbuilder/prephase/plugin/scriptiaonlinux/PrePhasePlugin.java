@@ -163,9 +163,9 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			isSupportedArtifactType |= true;
 		}
 
-		// we can deploy only on ubuntu nodes
+		// we can deploy on debian nodes (ubuntu, rasbpian, docker containers based on debian,..) 
 		if (!org.opentosca.container.core.tosca.convention.Utils
-				.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
+				.isSupportedInfrastructureNodeType(infrastructureNodeType)) {			
 			return false;
 		}
 

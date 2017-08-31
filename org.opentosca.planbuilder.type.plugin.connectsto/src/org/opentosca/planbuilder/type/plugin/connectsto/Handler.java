@@ -208,13 +208,13 @@ public class Handler {
 			return false;
 		}
 		
-		for (final AbstractNodeTypeImplementation nodeImpl : connectToNode.getImplementations()) {
-			for (final AbstractImplementationArtifact ia : nodeImpl.getImplementationArtifacts()) {
-				if (ia.getInterfaceName().equals(connectsToIface.getName()) && (ia.getOperationName() != null) && ia.getOperationName().equals(connectsToOp.getName())) {
+//		for (final AbstractNodeTypeImplementation nodeImpl : connectToNode.getImplementations()) {
+//			for (final AbstractImplementationArtifact ia : nodeImpl.getImplementationArtifacts()) {
+//				if (ia.getInterfaceName().equals(connectsToIface.getName()) && (ia.getOperationName() != null) && ia.getOperationName().equals(connectsToOp.getName())) {
 					templateContext.executeOperation(connectToNode, connectsToIface.getName(), connectsToOp.getName(), param2propertyMapping);
-				}
-			}
-		}
+//				}
+//			}
+//		}
 		
 		return true;
 		

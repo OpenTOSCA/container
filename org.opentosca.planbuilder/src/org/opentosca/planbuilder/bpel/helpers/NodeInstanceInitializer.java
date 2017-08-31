@@ -70,15 +70,15 @@ public class NodeInstanceInitializer {
 		return check;
 	}
 	
-	public String appendCountInstancesLogic(TemplatePlanContext context) {
+	public String appendCountInstancesLogic(TemplatePlanContext context, String query) {
 		if (context.getNodeTemplate() == null) {
 			return this.appendCountInstancesLogic(context, context.getRelationshipTemplate());
 		} else {
-			return this.appendCountInstancesLogic(context, context.getNodeTemplate());
+			return this.appendCountInstancesLogic(context, context.getNodeTemplate(),query);
 		}
 	}
 	
-	public String appendCountInstancesLogic(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+	public String appendCountInstancesLogic(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate, String query) {
 		
 		
 		String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -104,7 +104,7 @@ public class NodeInstanceInitializer {
 		
 		try {
 			
-			Node getNodeInstancesREST = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames()), responseVarName, nodeTemplate.getId(), "?state=STARTED");
+			Node getNodeInstancesREST = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames()), responseVarName, nodeTemplate.getId(), query);
 			getNodeInstancesREST = context.importNode(getNodeInstancesREST);
 			templateMainSequeceNode.appendChild(getNodeInstancesREST);
 			

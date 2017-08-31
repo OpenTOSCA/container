@@ -18,7 +18,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.bpel.BPELScopeBuilder;
-import org.opentosca.planbuilder.bpel.BPELScopeBuilder.ProvisioningChain;
+import org.opentosca.planbuilder.bpel.OperationChain;
 import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
@@ -1327,7 +1327,7 @@ public class TemplatePlanContext {
 	 */
 	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName, Map<AbstractParameter, Variable> param2propertyMapping) {
 		
-		ProvisioningChain chain = BPELScopeBuilder.createProvisioningCall(nodeTemplate, interfaceName, operationName);
+		OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
 		if (chain == null) {
 			return false;
 		}

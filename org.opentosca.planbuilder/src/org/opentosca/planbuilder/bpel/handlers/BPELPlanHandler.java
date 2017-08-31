@@ -27,6 +27,7 @@ import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
@@ -1127,9 +1128,9 @@ public class BPELPlanHandler {
 	}
 	
 	private void initializeConnectionsAsLinkInBPELPlan(BPELPlan plan) {
-		for (AbstractActivity activity : plan.getLinks().keySet()) {
-			BPELScopeActivity source = plan.getAbstract2BPEL().get(activity);
-			BPELScopeActivity target = plan.getAbstract2BPEL().get(plan.getLinks().get(activity));
+		for (Link link : plan.getLinks()) {
+			BPELScopeActivity source = plan.getAbstract2BPEL().get(link.getSrcActiv());
+			BPELScopeActivity target = plan.getAbstract2BPEL().get(link.getTrgActiv());
 			
 			if (source == null | target == null) {
 				continue;

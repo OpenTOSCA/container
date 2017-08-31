@@ -15,7 +15,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.AbstractPlanBuilder;
-import org.opentosca.planbuilder.bpel.BPELScopeBuilder.ProvisioningChain;
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util;
 import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.bpel.helpers.BPELFinalizer;
@@ -142,7 +141,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				
 				AbstractPlan buildPlan = this.generatePOG(new QName(processNamespace,processName).toString(), definitions, serviceTemplate);
 				
-								
+				LOG.debug("Generated the following abstract prov plan: ");
+				LOG.debug(buildPlan.toString());
 				
 				BPELPlan newBuildPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName, buildPlan, "initiate");
 				
@@ -259,7 +259,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
 				if (plugin == null) {
 					BPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
-					ProvisioningChain chain = BPELScopeBuilder.createProvisioningChain(nodeTemplate);
+					OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
 					if (chain == null) {
 						BPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 					} else {
@@ -290,8 +290,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				// TODO implement fallback
 				if (!this.canGenericPluginHandle(relationshipTemplate)) {
 					BPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
-					ProvisioningChain sourceChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, true);
-					ProvisioningChain targetChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, false);
+					OperationChain sourceChain = BPELScopeBuilder.createOperationChain(relationshipTemplate, true);
+					OperationChain targetChain = BPELScopeBuilder.createOperationChain(relationshipTemplate, false);
 					
 					// first execute provisioning on target, then on source
 					if (targetChain != null) {

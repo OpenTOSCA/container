@@ -16,7 +16,6 @@ import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.AbstractScaleOutPlanBuilder;
 import org.opentosca.planbuilder.ScalingPlanDefinition;
 import org.opentosca.planbuilder.ScalingPlanDefinition.AnnotatedAbstractNodeTemplate;
-import org.opentosca.planbuilder.bpel.BPELScopeBuilder.ProvisioningChain;
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.bpel.handlers.BPELScopeHandler;
@@ -30,6 +29,7 @@ import org.opentosca.planbuilder.bpel.helpers.ServiceInstanceInitializer;
 import org.opentosca.planbuilder.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -225,20 +225,16 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 		}
 		
 		LOG.debug("Links: ");
-		for (AbstractActivity source : abstractScaleOutPlan.getLinks().keySet()) {
-			String srcId;
-			String trgtId;
-			
-			if (source != null) {
-				srcId = source.getId();
-			} else {
-				srcId = null;
+		for (Link link : abstractScaleOutPlan.getLinks()) {
+			String srcId = null;
+			String trgtId = null;
+									
+			if(link.getSrcActiv()!= null) {
+				srcId = link.getSrcActiv().getId();
 			}
 			
-			if (abstractScaleOutPlan.getLinks().get(source) != null) {
-				trgtId = abstractScaleOutPlan.getLinks().get(source).getId();
-			} else {
-				trgtId = null;
+			if(link.getTrgActiv()!= null) {
+				trgtId = link.getTrgActiv().getId();
 			}
 			
 			LOG.debug("(" + srcId + ", " + trgtId + ")");
@@ -405,8 +401,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 		// TODO implement fallback
 		if (this.findTypePlugin(relationshipTemplate) == null) {
 			BPELScaleOutProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
-			ProvisioningChain sourceChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, true);
-			ProvisioningChain targetChain = BPELScopeBuilder.createProvisioningChain(relationshipTemplate, false);
+			OperationChain sourceChain = BPELScopeBuilder.createOperationChain(relationshipTemplate, true);
+			OperationChain targetChain = BPELScopeBuilder.createOperationChain(relationshipTemplate, false);
 			
 			// first execute provisioning on target, then on source
 			if (targetChain != null) {
@@ -441,7 +437,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 		IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
 		if (plugin == null) {
 			BPELScaleOutProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
-			ProvisioningChain chain = BPELScopeBuilder.createProvisioningChain(nodeTemplate);
+			OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
 			if (chain == null) {
 				BPELScaleOutProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
 			} else {

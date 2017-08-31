@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -54,7 +55,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
 			
 			if(paths.isEmpty()) {
 				for(AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
-					abstractScaleOutPlan.getLinks().put(activity, this.findRelationshipTemplateActivity(new ArrayList<AbstractActivity>(abstractScaleOutPlan.getActivites()), relation, "PROVISIONING"));
+					abstractScaleOutPlan.getLinks().add(new Link(activity, this.findRelationshipTemplateActivity(new ArrayList<AbstractActivity>(abstractScaleOutPlan.getActivites()), relation, "PROVISIONING")));
 				}
 			}
 						
@@ -69,8 +70,8 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
 					abstractScaleOutPlan.getActivites().add(recursiveSourceNodeActivity);
 					abstractScaleOutPlan.getActivites().add(recursiveTargetNodeActivity);
 					
-					abstractScaleOutPlan.getLinks().put(recursiveRelationActivity, recursiveTargetNodeActivity);
-					abstractScaleOutPlan.getLinks().put(recursiveSourceNodeActivity, recursiveRelationActivity);
+					abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, recursiveTargetNodeActivity));
+					abstractScaleOutPlan.getLinks().add(new Link(recursiveSourceNodeActivity, recursiveRelationActivity));
 				}
 				
 				for (AbstractRelationshipTemplate relationshipTemplate : serviceTemplate.getTopologyTemplate().getRelationshipTemplates()) {
@@ -83,7 +84,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
 						
 						AbstractActivity recursiveRelationActivity = this.findRelationshipTemplateActivity(new ArrayList<AbstractActivity>(abstractScaleOutPlan.getActivites()), path.get(path.size() - 1), "RECURSIVESELECTION");
 						
-						abstractScaleOutPlan.getLinks().put(recursiveRelationActivity, provRelationActivity);
+						abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, provRelationActivity));
 					}
 				}								
 			}

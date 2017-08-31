@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.model.plan;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -22,6 +23,30 @@ public abstract class AbstractPlan {
 		BUILD, MANAGE, TERMINATE
 	}
 	
+	public static class Link{
+		private final AbstractActivity srcActiv;
+		private final AbstractActivity trgActiv;
+		
+		public Link(AbstractActivity srcActiv, AbstractActivity trgActiv) {
+			this.srcActiv = srcActiv;
+			this.trgActiv = trgActiv;
+		}
+		
+		public AbstractActivity getSrcActiv() {
+			return this.srcActiv;
+		}
+		
+		public AbstractActivity getTrgActiv() {
+			return this.trgActiv;
+		}
+		
+		@Override
+		public String toString() {
+			return "{Src: " + this.srcActiv.getId() + " Trgt: " + this.trgActiv.getId() + "}";
+		}
+		
+	}
+	
 	
 	private AbstractServiceTemplate serviceTemplate;
 	
@@ -31,12 +56,12 @@ public abstract class AbstractPlan {
 	
 	private final Collection<AbstractActivity> activites;
 	
-	private final Map<AbstractActivity, AbstractActivity> links;
+	private final Set<Link> links;
 	
 	private final String id;
 	
 	
-	public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities, final Map<AbstractActivity, AbstractActivity> links) {
+	public AbstractPlan(final String id, final PlanType type, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate, final Collection<AbstractActivity> activities, final Set<Link> links) {
 		this.id = id;
 		this.type = type;
 		this.definitions = definitions;
@@ -88,8 +113,27 @@ public abstract class AbstractPlan {
 		return activites;
 	}
 
-	public Map<AbstractActivity, AbstractActivity> getLinks() {
+	public Set<Link> getLinks() {
 		return links;
+	}
+	
+	@Override
+	public String toString() {
+		String toString = "Plan: "+ this.id + " Type: " + this.type + " ServiceTemplate: " + this.serviceTemplate.getId();
+		
+		toString += "Activities: ";
+		
+		for(AbstractActivity actic : this.activites) {
+			toString += "{Id: " + actic.getId() + " Type: " + actic.getType() + "}";
+		}
+		
+		toString += "Links: ";
+		
+		for(Link link: this.links) {
+			toString += link.toString();
+		}
+		
+		return toString;
 	}
 	
 }

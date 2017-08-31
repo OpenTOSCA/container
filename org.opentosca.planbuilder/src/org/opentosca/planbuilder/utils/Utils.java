@@ -259,20 +259,21 @@ public class Utils {
 			final List<AbstractNodeTemplate> infrastructureNodes) {
 		Utils.LOG.debug(
 				"BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + Utils.getNodeBaseType(nodeTemplate));
-
-		if (org.opentosca.container.core.tosca.convention.Utils
-				.isSupportedInfrastructureNodeType(Utils.getNodeBaseType(nodeTemplate))
-				|| org.opentosca.container.core.tosca.convention.Utils
-						.isSupportedCloudProviderNodeType(Utils.getNodeBaseType(nodeTemplate))) {
-			Utils.LOG.debug("Found infrastructure node: " + nodeTemplate.getId());
-			infrastructureNodes.add(nodeTemplate);
-		}
+		
 		for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 			Utils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
 			if (Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPENDSON)
 					|| Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_HOSTEDON)
 					|| Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 				Utils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
+				
+				if (org.opentosca.container.core.tosca.convention.Utils
+						.isSupportedInfrastructureNodeType(Utils.getNodeBaseType(relation.getTarget()))
+						|| org.opentosca.container.core.tosca.convention.Utils
+								.isSupportedCloudProviderNodeType(Utils.getNodeBaseType(relation.getTarget()))) {
+					Utils.LOG.debug("Found infrastructure node: " + relation.getTarget().getId());
+					infrastructureNodes.add(relation.getTarget());
+				}
 				Utils.getInfrastructureNodes(relation.getTarget(), infrastructureNodes);
 			}
 		}

@@ -144,7 +144,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(newTerminationPlan);
 				this.serviceInstanceInitializer.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 				
-				this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan, "?state=STARTED");
+				this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan, "?state=STARTED,CREATED,CONFIGURED");
 				this.nodeInstanceInitializer.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan, propMap);
 				
 				// TODO Create a for loop over the three sequences inside the
@@ -156,7 +156,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				for (BPELScopeActivity activ : changedActivities) {
 					if(activ.getNodeTemplate() != null) {
 						final TemplatePlanContext context = new TemplatePlanContext(activ, propMap, newTerminationPlan.getServiceTemplate());
-						this.nodeInstanceInitializer.appendCountInstancesLogic(context, activ.getNodeTemplate());
+						this.nodeInstanceInitializer.appendCountInstancesLogic(context, activ.getNodeTemplate(),"?state=STARTED,CREATED,CONFIGURED");
 					}
 				}
 				
