@@ -46,7 +46,11 @@ import org.opentosca.container.core.service.ICoreFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @Path("/csars")
+@Api(value = "/csars")
 public class CsarController {
 
   private static Logger logger = LoggerFactory.getLogger(CsarController.class);
@@ -68,6 +72,7 @@ public class CsarController {
 
   @GET
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get all CSARS", response = CsarDTO.class, responseContainer = "List")
   public Response getCsars() {
 
     final CsarListDTO list = new CsarListDTO();
