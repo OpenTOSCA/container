@@ -6,6 +6,8 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
+import org.opentosca.planbuilder.bpel.helpers.NodeInstanceInitializer;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -70,7 +72,14 @@ public class Plugin implements IScalingPlanBuilderSelectionPlugin {
 			e.printStackTrace();
 		}
 		
-		return false;
+		try {
+			new NodeInstanceInitializer(new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return true;
 	}
 	
 	private String findInstanceVar(TemplatePlanContext context, String templateId, boolean isNode) {
