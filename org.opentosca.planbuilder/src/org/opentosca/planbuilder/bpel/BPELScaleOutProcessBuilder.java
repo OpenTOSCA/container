@@ -190,9 +190,17 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 			for (AnnotatedAbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
 				IScalingPlanBuilderSelectionPlugin selectionPlugin = this.findSelectionPlugin(stratNodeTemplate);
 				if (selectionPlugin != null) {					
-					selectionPlugin.handle(new TemplatePlanContext(this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess), propMap, serviceTemplate), (AbstractNodeTemplate) stratNodeTemplate, new ArrayList<String>(stratNodeTemplate.getAnnotations()));
+					BPELScopeActivity scope = this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
+					selectionPlugin.handle(new TemplatePlanContext(scope, propMap, serviceTemplate), (AbstractNodeTemplate) stratNodeTemplate, new ArrayList<String>(stratNodeTemplate.getAnnotations()));
+					this.addNodeInstanceIdToOutput(scope);
 				}
 			}
+			
+			
+			
+			
+			
+			
 			
 			this.finalizer.finalize(bpelScaleOutProcess);
 			
@@ -201,6 +209,27 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 		}
 		
 		return scalingPlans;
+	}
+	
+	private boolean addNodeInstanceIdToOutput(BPELScopeActivity activ) {
+		String inputName = "";
+		if(activ.getNodeTemplate() != null) {
+			inputName = "ProvisionedInstance_" + activ.getNodeTemplate().getId();		
+		} else {
+			inputName = "ProvisionedInstance_" + activ.getRelationshipTemplate().getId();
+		}
+		
+		this.planHandler.addStringElementToPlanRequest(inputName, activ.getBuildPlan());
+		
+		try {
+			 String varName = new NodeInstanceInitializer(planHandler).findInstanceIdVarName(activ);
+			 this.planHandler.assginOutputWithVariableValue(varName, inputName, activ.getBuildPlan());
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 	
 	private IScalingPlanBuilderSelectionPlugin findSelectionPlugin(AnnotatedAbstractNodeTemplate stratNodeTemplate) {
