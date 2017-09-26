@@ -26,7 +26,7 @@ public class Activator implements BundleActivator {
 				bundleContext.getBundle().getVersion());
 		context = bundleContext;
 		
-		String processEngine = Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpel.engine");
+		String processEngine = context.getProperty("org.opentosca.container.engine.plan.plugin.bpel.engine");
 		if (processEngine != null) {
 			Settings.setSetting("org.opentosca.container.engine.plan.plugin.bpel.engine", processEngine);
 		}

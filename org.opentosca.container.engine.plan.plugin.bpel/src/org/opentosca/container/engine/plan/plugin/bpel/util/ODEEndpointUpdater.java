@@ -32,6 +32,7 @@ import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
+import org.opentosca.container.engine.plan.plugin.bpel.BpelPlanEnginePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,18 +73,21 @@ public class ODEEndpointUpdater {
 	private static ICoreEndpointService oldEndpointService;
 
 	private String servicesRoot;
+	// @hahnml: The type of plan engine used (BPS or ODE)
+	private String engineType;
 
 	// private static IToscaEngineService toscaEngineService = null;
 
 	/**
-	 * Contructor
-	 *
+	 * Contructor *
+	 * 
 	 * @throws WSDLException
 	 *             if no instance of WSDLFactory was found
 	 */
-	public ODEEndpointUpdater(String servicesRoot) throws WSDLException {
+	public ODEEndpointUpdater(String servicesRoot, String engineType) throws WSDLException {
 		this.factory = WSDLFactory.newInstance();
 		this.servicesRoot = servicesRoot;
+		this.engineType = engineType;
 	}
 
 	/**
@@ -257,7 +261,18 @@ public class ODEEndpointUpdater {
 			for (final TProvide provide : process.getProvide()) {
 				final QName serviceName = provide.getService().getName();
 				// add only qnames which aren't from the plan itself
-				if (!serviceName.getNamespaceURI().equals(process.getName().getNamespaceURI())) {
+				
+				// @hahnml: TODO: Why is this relevant? The problem with this statement is, that
+				// the plan generator assigns to provided services address like http://[IP]:8080
+				// which is fine for WSO2 BPS but won't work for Apache ODE. ODE rejects the
+				// deployment if the service addresses do not follow the following pattern:
+				// http://[IP]:[Port]/ode/processes/[ServiceName].
+				// Added an engine type check so that for ODE, also the provided process service ports are added.
+				if (this.engineType.equals(BpelPlanEnginePlugin.BPS_ENGINE)) {
+					if (!serviceName.getNamespaceURI().equals(process.getName().getNamespaceURI())) {
+						ports.add(new QName(serviceName.getNamespaceURI(), provide.getService().getPort()));
+					}
+				} else {
 					ports.add(new QName(serviceName.getNamespaceURI(), provide.getService().getPort()));
 				}
 			}
