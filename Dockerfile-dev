@@ -33,8 +33,18 @@ RUN ln -s /opt/opentosca/container/OpenTOSCA /usr/local/bin/opentosca-container 
     && chmod +x /usr/local/bin/opentosca-container
 
 ADD docker/config.ini.tpl /opt/opentosca/container/config.ini.tpl
+ADD docker/OpenTOSCA.ini /opt/opentosca/container/OpenTOSCA.ini
 
-EXPOSE 1337
+EXPOSE 1337 8001
 
 CMD dockerize -template /opt/opentosca/container/config.ini.tpl:/opt/opentosca/container/configuration/config.ini \
     /usr/local/bin/opentosca-container
+
+#
+# This Dockerfile enables remote debugging of the OpenTOSCA container implementation running inside a Docker container.
+# 
+# Manually build by running:
+#
+#   docker build -t opentosca/container-dev .
+#
+# 

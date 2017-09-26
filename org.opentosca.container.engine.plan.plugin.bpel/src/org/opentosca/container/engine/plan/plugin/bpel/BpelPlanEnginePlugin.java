@@ -237,7 +237,7 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 		// changing endpoints in WSDLs
 		ODEEndpointUpdater odeUpdater;
 		try {
-			odeUpdater = new ODEEndpointUpdater(SERVICESURL);
+			odeUpdater = new ODEEndpointUpdater(SERVICESURL, ENGINE);
 			portType = odeUpdater.getPortType(planContents);
 			if (!odeUpdater.changeEndpoints(planContents, csarId)) {
 				BpelPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed",
