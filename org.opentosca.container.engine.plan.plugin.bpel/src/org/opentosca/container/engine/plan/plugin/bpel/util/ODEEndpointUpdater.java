@@ -262,10 +262,9 @@ public class ODEEndpointUpdater {
 				final QName serviceName = provide.getService().getName();
 				// add only qnames which aren't from the plan itself
 				
-				// @hahnml: TODO: Why is this relevant? The problem with this statement is, that
-				// the plan generator assigns to provided services address like http://[IP]:8080
+				// @hahnml: The plan generator assigns to provided services addresses like http://[IP]:8080
 				// which is fine for WSO2 BPS but won't work for Apache ODE. ODE rejects the
-				// deployment if the service addresses do not follow the following pattern:
+				// deployment if the service addresses do not follow the following schema:
 				// http://[IP]:[Port]/ode/processes/[ServiceName].
 				// Added an engine type check so that for ODE, also the provided process service ports are added.
 				if (this.engineType.equals(BpelPlanEnginePlugin.BPS_ENGINE)) {

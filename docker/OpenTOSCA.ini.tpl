@@ -10,5 +10,4 @@ plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.401.v20161122-1740
 -Dosgi.noShutdown=true
 -Dorg.osgi.service.http.port=1337
 -DREFRESH_BUNDLES=false
--Xdebug
--Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
+{{ .Env.CONTAINER_JAVA_OPTS }}

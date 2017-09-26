@@ -33,8 +33,10 @@ RUN ln -s /opt/opentosca/container/OpenTOSCA /usr/local/bin/opentosca-container 
     && chmod +x /usr/local/bin/opentosca-container
 
 ADD docker/config.ini.tpl /opt/opentosca/container/config.ini.tpl
+ADD docker/OpenTOSCA.ini.tpl /opt/opentosca/container/OpenTOSCA.ini.tpl
 
 EXPOSE 1337
 
 CMD dockerize -template /opt/opentosca/container/config.ini.tpl:/opt/opentosca/container/configuration/config.ini \
+    -template /opt/opentosca/container/OpenTOSCA.ini.tpl:/opt/opentosca/container/OpenTOSCA.ini \
     /usr/local/bin/opentosca-container
