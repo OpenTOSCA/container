@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.plugins.context;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +56,11 @@ public class TemplatePlanContext {
 	
 	private BPELScopeActivity templateBuildPlan;
 	private AbstractServiceTemplate serviceTemplate;
-
+	
 	private BPELPlanHandler buildPlanHandler;
-	private BPELPlanHandler bpelProcessHandler;	
+	private BPELPlanHandler bpelProcessHandler;
 	private BPELScopeHandler bpelTemplateHandler;
-
+	
 	private Map<String, String> namespaceMap;
 	private PropertyMap propertyMap;
 	
@@ -84,7 +85,7 @@ public class TemplatePlanContext {
 			this.bpelProcessHandler = new BPELPlanHandler();
 		} catch (ParserConfigurationException e) {
 			TemplatePlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
-		}		
+		}
 		this.bpelTemplateHandler = new BPELScopeHandler();
 		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
@@ -176,8 +177,8 @@ public class TemplatePlanContext {
 	 * @return a List of AbstractNodeTemplate
 	 */
 	public List<AbstractNodeTemplate> getNodeTemplates() {
-		// find the serviceTemplate		
-		return this.templateBuildPlan.getBuildPlan().getServiceTemplate().getTopologyTemplate().getNodeTemplates();		
+		// find the serviceTemplate
+		return this.templateBuildPlan.getBuildPlan().getServiceTemplate().getTopologyTemplate().getNodeTemplates();
 	}
 	
 	/**
@@ -379,7 +380,7 @@ public class TemplatePlanContext {
 				if (((portType1 != null) & (portType2 != null)) && (this.containsPortType(portType1, wsdlFile) & this.containsPortType(portType2, wsdlFile))) {
 					// portType1 resembles a service to provide
 					List<Service> services = this.getServicesInWSDLFile(wsdlFile, portType1);
-					List<Port> ports = this.getPortsFromService(services.get(0), portType1);					
+					List<Port> ports = this.getPortsFromService(services.get(0), portType1);
 					this.buildPlanHandler.addProvideToDeploy(partnerLinkName, services.get(0).getQName(), ports.get(0).getName(), buildPlan);
 					
 					// portType2 resembles a service to invoke
@@ -960,6 +961,24 @@ public class TemplatePlanContext {
 	}
 	
 	
+	public Collection<Variable> getPropertyVariables(AbstractNodeTemplate nodeTemplate) {
+		Collection<Variable> variables = new ArrayList<Variable>();
+		
+		if (nodeTemplate.getProperties() == null || nodeTemplate.getProperties().getDOMElement() == null) {
+			return null;
+		}
+		
+		NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
+		for (int index = 0; index < propertyNodes.getLength(); index++) {
+			Node propertyNode = propertyNodes.item(index);
+			if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+				variables.add(new Variable(nodeTemplate.getId(), this.getVariableNameOfProperty(nodeTemplate.getId(), propertyNode.getLocalName())));
+			}
+		}
+		
+		return variables;
+	}
+	
 	/**
 	 * Returns a Variable object that represents a property inside the given
 	 * nodeTemplate with the given name
@@ -1293,7 +1312,6 @@ public class TemplatePlanContext {
 		
 	}
 	
-		
 	/**
 	 * Generates a bpel string variable with the given name + "_" +
 	 * randomPositiveInt.
@@ -1358,6 +1376,52 @@ public class TemplatePlanContext {
 			chain.executeOperationProvisioning(context, opNames);
 		} else {
 			chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
+		}
+		
+		// re-set the orginal configuration of the templateBuildPlan
+		this.templateBuildPlan.setNodeTemplate(nodeBackup);
+		this.templateBuildPlan.setRelationshipTemplate(relationBackup);
+		
+		return true;
+	}
+	
+	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName, Map<AbstractParameter, Variable> param2propertyMapping, Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+		
+		OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
+		if (chain == null) {
+			return false;
+		}
+		
+		List<String> opNames = new ArrayList<String>();
+		opNames.add(operationName);
+		
+		/*
+		 * create a new templatePlanContext that combines the requested
+		 * nodeTemplate and the scope of this context
+		 */
+		// backup nodes
+		AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+		AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+		
+		// create context from this context and set the given nodeTemplate as
+		// the node for the scope
+		TemplatePlanContext context = new TemplatePlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+		
+		context.templateBuildPlan.setNodeTemplate(nodeTemplate);
+		context.templateBuildPlan.setRelationshipTemplate(null);
+		
+		/*
+		 * chain.executeIAProvisioning(context);
+		 * chain.executeDAProvisioning(context);
+		 */
+		if (param2propertyMapping == null) {
+			chain.executeOperationProvisioning(context, opNames);
+		} else {			
+			if (param2propertyOutputMapping == null) {				
+				chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
+			} else {
+				chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping);
+			}
 		}
 		
 		// re-set the orginal configuration of the templateBuildPlan

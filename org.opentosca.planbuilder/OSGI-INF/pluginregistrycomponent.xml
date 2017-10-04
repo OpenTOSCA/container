@@ -7,4 +7,7 @@
    <reference bind="bindProvPhaseOperationPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin" name="IPlanBuilderProvPhaseOperationPlugin" policy="dynamic" unbind="unbindProvPhaseOperationPlugin"/>
    <reference bind="bindGenericPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin" name="IPlanBuilderGenericPlugin" policy="dynamic" unbind="unbindGenericPlugin"/>
    <reference bind="bindSelectionPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin" name="IScalingPlanBuilderSelectionPlugin" policy="dynamic" unbind="unbindSelectionPlugin"/>
+   <reference bind="bindPolicyAwarePlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin" name="IPlanBuilderPolicyAwareTypePlugin" policy="dynamic" unbind="unbindPolicyAwarePlugin"/>
+   <reference bind="bindPolicyAwarePostPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin" name="IPlanBuilderPolicyAwarePostPhasePlugin" policy="dynamic" unbind="unbindPolicyAwarePostPlugin"/>
+   
 </scr:component>

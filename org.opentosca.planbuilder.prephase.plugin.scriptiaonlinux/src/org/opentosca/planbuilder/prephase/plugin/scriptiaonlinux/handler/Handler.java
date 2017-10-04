@@ -90,7 +90,6 @@ public class Handler {
 	 * @return true iff adding the logic was successful
 	 */
 	private boolean handle(final TemplatePlanContext templateContext, final List<AbstractArtifactReference> refs, final String artifactName, final AbstractNodeTemplate nodeTemplate) {
-
 		LOG.debug("Handling DA upload with");
 		String refsString = "";
 		for (final AbstractArtifactReference ref : refs) {

@@ -256,7 +256,7 @@ public class Handler {
 		
 		LOG.debug("Found following Ubuntu Node " + ubuntuNodeTemplate.getId() + " of Type " + ubuntuNodeTemplate.getType().getId().toString());
 		
-		Variable instanceIdPropWrapper = null;
+		Variable instanceIdPropWrapper = null;		
 		
 		for (final String instanceIdName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineInstanceIdPropertyNames()) {
 			// find InstanceId Property inside ubuntu nodeTemplate

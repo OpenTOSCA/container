@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -9,6 +10,8 @@ public class Activator implements BundleActivator {
 	
 	private static BundleContext context;
 	private ServiceRegistration registration;
+	private ServiceRegistration registration2;
+	private Plugin plugin = null;
 	
 	
 	static BundleContext getContext() {
@@ -25,7 +28,9 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(), new Plugin(), null);
+		this.plugin = new Plugin();
+		this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(), this.plugin, null);
+		this.registration2 = Activator.context.registerService(IPlanBuilderPolicyAwarePostPhasePlugin.class.getName(), this.plugin, null);
 		
 	}
 	
@@ -39,6 +44,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
 		this.registration.unregister();
+		this.registration2.unregister();
 	}
 	
 }

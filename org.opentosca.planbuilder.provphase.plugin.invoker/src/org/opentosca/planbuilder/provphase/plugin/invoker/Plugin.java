@@ -195,4 +195,34 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin, IPlanBuilde
 		}
 	}
 
+	@Override
+	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia, Map<AbstractParameter, Variable> param2propertyMapping, Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
+		String templateId = "";
+		boolean isNodeTemplate = false;
+		if(context.getNodeTemplate() != null){
+			templateId = context.getNodeTemplate().getId();
+			isNodeTemplate = true;
+		}else {
+			templateId = context.getRelationshipTemplate().getId();
+		}
+		
+		Map<String, Variable> inputParams = new HashMap<String,Variable>();
+		Map<String, Variable> outputParams = new HashMap<String,Variable>();
+		
+		for(AbstractParameter key : param2propertyMapping.keySet()){
+			inputParams.put(key.getName(), param2propertyMapping.get(key));
+		}
+		for(AbstractParameter key : param2PropertyOutputMapping.keySet()){
+			outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
+		}
+		
+		try {
+			return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(), null, inputParams, outputParams, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+
 }

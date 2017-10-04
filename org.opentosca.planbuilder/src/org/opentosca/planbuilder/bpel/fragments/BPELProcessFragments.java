@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -195,6 +196,34 @@ public class BPELProcessFragments {
 		return doc.getFirstChild();
 	}
 
+	public Node createIfTrueThrowsError(String xpath, QName faultName) {
+		Document doc = this.docBuilder.newDocument();
+		
+		Element ifElement = doc.createElementNS(BPELPlan.bpelNamespace, "if");
+		
+		Element conditionElement = doc.createElementNS(BPELPlan.bpelNamespace, "condition");
+		
+		conditionElement.setAttribute("expressionLanguage", BPELPlan.xpath2Namespace);
+		
+		
+		Text textSectionValue = doc.createTextNode(xpath);
+		conditionElement.appendChild(textSectionValue);
+		
+		ifElement.appendChild(conditionElement);
+		
+		
+		Element throwElement = doc.createElementNS(BPELPlan.bpelNamespace, "throw");
+		
+		String nsPrefix = "ns" + System.currentTimeMillis();
+		
+		throwElement.setAttribute("xmlns:" + nsPrefix, faultName.getNamespaceURI());
+		
+		throwElement.setAttribute("faultName", nsPrefix + ":" + faultName.getLocalPart());
+		
+		ifElement.appendChild(throwElement);
+		
+		return ifElement;
+	}
 
 	/**
 	 * Loads a BPEL Assign fragment which queries the csarEntrypath from the

@@ -73,9 +73,9 @@ public class OperationChain {
 	 * appropiate plugins set in the candidate
 	 * </p>
 	 * 
-	 * @param context a TemplatePlanContext which is initialized for either
-	 *            a NodeTemplate or RelationshipTemplate this
-	 *            ProvisioningChain belongs to
+	 * @param context a TemplatePlanContext which is initialized for either a
+	 *            NodeTemplate or RelationshipTemplate this ProvisioningChain
+	 *            belongs to
 	 * @return returns false only when execution of a plugin inside the
 	 *         IACandidate failed, else true. There may be no IACandidate
 	 *         available, because there is no need for IA's to provision. In
@@ -101,9 +101,9 @@ public class OperationChain {
 	 * appropiate plugins set in the candidate
 	 * </p>
 	 * 
-	 * @param context a TemplatePlanContext which is initialized for either
-	 *            a NodeTemplate or RelationshipTemplate this
-	 *            ProvisioningChain belongs to
+	 * @param context a TemplatePlanContext which is initialized for either a
+	 *            NodeTemplate or RelationshipTemplate this ProvisioningChain
+	 *            belongs to
 	 * @return returns false only when execution of a plugin inside the
 	 *         DACandidate failed, else true. There may be no IACandidate
 	 *         available, because there is no need for DA's to provision. In
@@ -125,19 +125,18 @@ public class OperationChain {
 	
 	/**
 	 * <p>
-	 * Executes the first found ProvisioningCandidate to execute
-	 * provisioning operations with the appropiate plugins set in the
-	 * candidate
+	 * Executes the first found ProvisioningCandidate to execute provisioning
+	 * operations with the appropiate plugins set in the candidate
 	 * </p>
 	 * 
 	 * <p>
-	 * <b>Info:</b> A ProvisioningCandidate may not have an appropiate order
-	 * of operations set
+	 * <b>Info:</b> A ProvisioningCandidate may not have an appropiate order of
+	 * operations set
 	 * </p>
 	 * 
-	 * @param context a TemplatePlanContext which is initialized for either
-	 *            a NodeTemplate or RelationshipTemplate this
-	 *            ProvisioningChain belongs to
+	 * @param context a TemplatePlanContext which is initialized for either a
+	 *            NodeTemplate or RelationshipTemplate this ProvisioningChain
+	 *            belongs to
 	 * @return returns false only when execution of a plugin inside the
 	 *         ProvisioningCandidate failed, else true. There may be no
 	 *         ProvisioningCandidate available, because there is no need for
@@ -159,17 +158,17 @@ public class OperationChain {
 	
 	/**
 	 * <p>
-	 * Executes the first found ProvisioningCandidate to execute
-	 * provisioning operations with the appropiate plugins set in the
-	 * candidate. The order of calling each operation provisioning is
-	 * represented in the given list of strings
+	 * Executes the first found ProvisioningCandidate to execute provisioning
+	 * operations with the appropiate plugins set in the candidate. The order of
+	 * calling each operation provisioning is represented in the given list of
+	 * strings
 	 * </p>
 	 * 
-	 * @param context a TemplatePlanContext which is initialized for either
-	 *            a NodeTemplate or RelationshipTemplate this
-	 *            ProvisioningChain belongs to
-	 * @param operationNames a List of String denoting an order of
-	 *            operations (name attribute)
+	 * @param context a TemplatePlanContext which is initialized for either a
+	 *            NodeTemplate or RelationshipTemplate this ProvisioningChain
+	 *            belongs to
+	 * @param operationNames a List of String denoting an order of operations
+	 *            (name attribute)
 	 * @return returns false only when execution of a plugin inside the
 	 *         ProvisioningCandidate failed, else true. There may be no
 	 *         ProvisioningCandidate available, because there is no need for
@@ -224,6 +223,93 @@ public class OperationChain {
 		return this.daCandidates.get(candidateIndex).das;
 	}
 	
+	public boolean executeOperationProvisioning(TemplatePlanContext context, List<String> operationNames, Map<AbstractParameter, Variable> param2propertyMapping, Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+		int checkCount = 0;
+		if (!this.provCandidates.isEmpty()) {
+			OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
+			Map<String, Integer> order = new HashMap<String, Integer>();
+			// check for index of prov candidates
+			for (String opName : operationNames) {
+				for (Integer index = 0; index < provCandidate.ops.size(); index++) {
+					AbstractOperation op = provCandidate.ops.get(index);
+					if (op instanceof InterfaceDummy) {
+						if (((InterfaceDummy) op).getOperation(opName) != null) {
+							order.put(opName, index);
+						}
+					} else {
+						if (opName.equals(op.getName())) {
+							order.put(opName, index);
+						}
+					}
+				}
+			}
+			
+			for (String opName : operationNames) {
+				Integer index = order.get(opName);
+				if (index == null) {
+					continue;
+				}
+				AbstractOperation op = provCandidate.ops.get(index);
+				if (op instanceof InterfaceDummy) {
+					boolean matched = true;
+					for (String opname : operationNames) {
+						if (((InterfaceDummy) op).getOperation(opname) == null) {
+							matched = false;
+							break;
+						}
+					}
+					if (!matched) {
+						continue;
+					}
+				} else {
+					if (!operationNames.contains(op.getName())) {
+						// if the operation isn't mentioned in operationName
+						// list, don't execute the operation
+						continue;
+					}
+				}
+				AbstractImplementationArtifact ia = provCandidate.ias.get(index);
+				IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
+				
+				if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
+					IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
+					if (!(op instanceof InterfaceDummy)) {
+						if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
+							checkCount++;
+						}
+					} else {
+						AbstractOperation dummyOp = new AbstractOperation() {
+							
+							private String operationName = opName;
+							private InterfaceDummy iface = (InterfaceDummy) op;
+							
+							@Override
+							public List<AbstractParameter> getOutputParameters() {								
+								return this.iface.getOperation(this.operationName).getOutputParameters();
+							}
+							
+							@Override
+							public String getName() {
+								return this.operationName;
+							}
+							
+							@Override
+							public List<AbstractParameter> getInputParameters() {
+								return this.iface.getOperation(this.operationName).getInputParameters();
+							}
+						};
+						if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, param2propertyOutputMapping)) {
+							checkCount++;
+						}
+					}
+				}
+				
+			}
+		}
+		return checkCount == operationNames.size();
+		
+	}
+	
 	public boolean executeOperationProvisioning(TemplatePlanContext context, List<String> operationNames, Map<AbstractParameter, Variable> param2propertyMapping) {
 		int checkCount = 0;
 		if (!this.provCandidates.isEmpty()) {
@@ -255,8 +341,34 @@ public class OperationChain {
 				
 				if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
 					IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
-					if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
-						checkCount++;
+					if (!(op instanceof InterfaceDummy)) {
+						if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
+							checkCount++;
+						}
+					} else {
+						AbstractOperation dummyOp = new AbstractOperation() {
+							
+							private String operationName = opName;
+							private InterfaceDummy iface = (InterfaceDummy) op;
+							
+							@Override
+							public List<AbstractParameter> getOutputParameters() {								
+								return this.iface.getOperation(this.operationName).getOutputParameters();
+							}
+							
+							@Override
+							public String getName() {
+								return this.operationName;
+							}
+							
+							@Override
+							public List<AbstractParameter> getInputParameters() {
+								return this.iface.getOperation(this.operationName).getInputParameters();
+							}
+						};
+						if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping)) {
+							checkCount++;
+						}
 					}
 				}
 				

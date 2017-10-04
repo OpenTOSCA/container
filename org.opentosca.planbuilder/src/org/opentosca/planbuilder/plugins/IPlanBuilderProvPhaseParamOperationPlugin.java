@@ -42,5 +42,8 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin extends IPlanBuilderP
 	 */
 	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
 			Map<AbstractParameter, Variable> param2propertyMapping);
+	
+	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
+			Map<AbstractParameter, Variable> param2propertyMapping, Map<AbstractParameter, Variable> param2PropertyOutputMapping);
 
 }

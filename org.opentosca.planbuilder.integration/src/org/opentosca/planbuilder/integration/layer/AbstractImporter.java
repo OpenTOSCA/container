@@ -9,8 +9,10 @@ import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.bpel.BPELBuildProcessBuilder;
 import org.opentosca.planbuilder.bpel.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.bpel.BPELTerminationProcessBuilder;
+import org.opentosca.planbuilder.bpel.PolicyAwareBPELBuildProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * <p>
@@ -35,7 +37,14 @@ public abstract class AbstractImporter {
 	public List<AbstractPlan> buildPlans(AbstractDefinitions defs, String csarName) {
 		List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
 		
-		AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
+		AbstractPlanBuilder buildPlanBuilder;
+		
+		if(!this.hasPolicies(defs)) {
+			buildPlanBuilder = new BPELBuildProcessBuilder();
+		} else {
+			buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
+		}
+		
 		AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
 		AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
 		
@@ -43,6 +52,17 @@ public abstract class AbstractImporter {
 		plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
 		plans.addAll(terminationPlanBuilder.buildPlans(csarName, defs));
 		return plans;
+	}
+	
+	private boolean hasPolicies(AbstractDefinitions defs) {
+		
+		for(AbstractServiceTemplate serv :defs.getServiceTemplates()) {
+			if(serv.getTags() != null && serv.getTags().containsKey("policies")) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**

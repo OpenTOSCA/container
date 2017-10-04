@@ -2,7 +2,10 @@ package org.opentosca.planbuilder.bpel;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,7 +18,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.AbstractPlanBuilder;
-import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util;
 import org.opentosca.planbuilder.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.bpel.helpers.BPELFinalizer;
@@ -34,6 +36,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
@@ -57,9 +61,9 @@ import org.slf4j.LoggerFactory;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
+public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	
-	final static Logger LOG = LoggerFactory.getLogger(BPELBuildProcessBuilder.class);	
+	final static Logger LOG = LoggerFactory.getLogger(PolicyAwareBPELBuildProcessBuilder.class);
 	
 	// class for initializing properties inside the plan
 	private PropertyVariableInitializer propertyInitializer;
@@ -76,8 +80,6 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	
 	private BPELPlanHandler planHandler;
 	private NodeInstanceInitializer instanceInit;
-		
-	
 	
 	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 	
@@ -89,14 +91,14 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	 * Default Constructor
 	 * </p>
 	 */
-	public BPELBuildProcessBuilder() {
-		try {			
+	public PolicyAwareBPELBuildProcessBuilder() {
+		try {
 			this.planHandler = new BPELPlanHandler();
 			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
 			this.instanceInit = new NodeInstanceInitializer(this.planHandler);
 		} catch (ParserConfigurationException e) {
-			BPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
-		}		
+			PolicyAwareBPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
+		}
 		// TODO seems ugly
 		this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
 		this.propertyOutputInitializer = new PropertyMappingsToOutputInitializer();
@@ -140,7 +142,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				String processName = serviceTemplate.getId() + "_buildPlan";
 				String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 				
-				AbstractPlan buildPlan = this.generatePOG(new QName(processNamespace,processName).toString(), definitions, serviceTemplate);
+				AbstractPlan buildPlan = this.generatePOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 				
 				LOG.debug("Generated the following abstract prov plan: ");
 				LOG.debug(buildPlan.toString());
@@ -151,6 +153,31 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				newBuildPlan.setTOSCAOperationname("initiate");
 				
 				this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+				// newBuildPlan.setCsarName(csarName);
+				
+				// create empty templateplans for each template and add them to
+				// buildplan
+				// for (AbstractNodeTemplate nodeTemplate :
+				// serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+				// BPELScopeActivity newTemplate =
+				// this.templateHandler.createTemplateBuildPlan(nodeTemplate,
+				// newBuildPlan);
+				// newTemplate.setNodeTemplate(nodeTemplate);
+				// newBuildPlan.addTemplateBuildPlan(newTemplate);
+				// }
+				//
+				// for (AbstractRelationshipTemplate relationshipTemplate :
+				// serviceTemplate.getTopologyTemplate().getRelationshipTemplates())
+				// {
+				// BPELScopeActivity newTemplate =
+				// this.templateHandler.createTemplateBuildPlan(relationshipTemplate,
+				// newBuildPlan);
+				// newTemplate.setRelationshipTemplate(relationshipTemplate);
+				// newBuildPlan.addTemplateBuildPlan(newTemplate);
+				// }
+				//
+				// // connect the templates
+				// this.initializeDependenciesInBuildPlan(newBuildPlan);
 				
 				this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true, newBuildPlan);
 				
@@ -163,13 +190,11 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				// initialize instanceData handling
 				this.serviceInstanceInitializer.initializeInstanceDataFromInput(newBuildPlan);
 				
-				
-				
-				
-				
 				this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
 				
-				this.runPlugins(newBuildPlan, propMap);
+				Map<AbstractNodeTemplate, Collection<String>> mapNode2Policies = this.fetchNodeTemplate2PolicyMap(serviceTemplate);
+				
+				this.runPlugins(newBuildPlan, propMap, mapNode2Policies);
 				
 				this.idInit.addCorrellationID(newBuildPlan);
 				
@@ -177,13 +202,66 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan, newBuildPlan.getBpelMainSequenceOutputAssignElement(), "CREATED");
 				
 				this.finalizer.finalize(newBuildPlan);
-				BPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");
-				BPELBuildProcessBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
+				PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");
+				PolicyAwareBPELBuildProcessBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
 				return newBuildPlan;
 			}
 		}
-		BPELBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateId.toString(), definitions.getId(), csarName);
+		PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}", serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
+	}
+	
+	private AbstractNodeTemplate findNodeTemplate(AbstractServiceTemplate serviceTemplate, String nodeTemplateId) {
+		for (AbstractNodeTemplate node : serviceTemplate.getTopologyTemplate().getNodeTemplates()) {
+			if (node.getId().equals(nodeTemplateId)) {
+				return node;
+			}
+		}
+		return null;
+	}
+	
+	private Map<AbstractNodeTemplate, Collection<String>> fetchNodeTemplate2PolicyMap(AbstractServiceTemplate serviceTemplate) {
+		String policiesVal = serviceTemplate.getTags().get("policies");
+		Map<AbstractNodeTemplate, Collection<String>> mapNode2Policies = new HashMap<AbstractNodeTemplate, Collection<String>>();
+		
+		if (policiesVal == null || policiesVal.trim().isEmpty()) {
+			return mapNode2Policies;
+		}
+		
+		String[] items = policiesVal.split(";");
+		
+		if (items.length == 0) {
+			return mapNode2Policies;
+		}
+		
+		for (String item : items) {
+			if (!item.contains("[") | !item.contains("[")) {
+				continue;
+			} else {
+				String[] keyValSplit = item.split("\\[");
+				String nodeTemplateId = keyValSplit[0];
+				AbstractNodeTemplate node = this.findNodeTemplate(serviceTemplate, nodeTemplateId);
+				
+				if (node == null) {
+					continue;
+				}
+				
+				String policiesList = keyValSplit[1].substring(0, keyValSplit[1].length() - 1);
+				String[] policies = policiesList.split(",");
+				Collection<String> policiesCollection = new ArrayList<>();
+				for (String policy : policies) {
+					if (policy.trim().isEmpty()) {
+						continue;
+					} else {
+						policiesCollection.add(policy.trim());
+					}
+				}
+				
+				mapNode2Policies.put(node, policiesCollection);
+			}
+		}
+		
+		return mapNode2Policies;
 	}
 	
 	/*
@@ -205,15 +283,15 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 			}
 			
 			if (!serviceTemplate.hasBuildPlan()) {
-				BPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplateId.toString());
+				PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan", serviceTemplateId.toString());
 				BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
 				
 				if (newBuildPlan != null) {
-					BPELBuildProcessBuilder.LOG.debug("Created BuildPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
+					PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
 					plans.add(newBuildPlan);
 				}
 			} else {
-				BPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed", serviceTemplateId.toString());
+				PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has BuildPlan, no generation needed", serviceTemplateId.toString());
 			}
 		}
 		return plans;
@@ -230,40 +308,75 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	 * @param map a PropertyMap which contains mappings from Template to
 	 *            Property and to variable name of inside the BuidlPlan
 	 */
-	private void runPlugins(BPELPlan buildPlan, PropertyMap map) {
-		
+	private boolean runPlugins(BPELPlan buildPlan, PropertyMap map, Map<AbstractNodeTemplate, Collection<String>> node2PolicyMap) {		
 		for (BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
+			boolean handled = false;
 			if (templatePlan.getNodeTemplate() != null) {
 				// handling nodetemplate
 				AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-				BPELBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
+				PolicyAwareBPELBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
 				TemplatePlanContext context = new TemplatePlanContext(templatePlan, map, buildPlan.getServiceTemplate());
 				// check if we have a generic plugin to handle the template
 				// Note: if a generic plugin fails during execution the
 				// TemplateBuildPlan is broken!
-				IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
-				if (plugin == null) {
-					BPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
-					OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
-					if (chain == null) {
-						BPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+				
+
+				
+				if (node2PolicyMap.get(nodeTemplate) == null) {
+					IPlanBuilderTypePlugin plugin = this.findTypePlugin(nodeTemplate);
+					if (plugin == null) {
+						PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
+						OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
+						if (chain == null) {
+							PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+						} else {
+							PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+							chain.executeIAProvisioning(context);
+							chain.executeDAProvisioning(context);
+							chain.executeOperationProvisioning(context, this.opNames);
+							handled = true;
+						}
 					} else {
-						BPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
-						chain.executeIAProvisioning(context);
-						chain.executeDAProvisioning(context);
-						chain.executeOperationProvisioning(context, this.opNames);
+						PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
+						handled = plugin.handle(context);
+						
+					}
+					
+					for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+						if (postPhasePlugin.canHandle(nodeTemplate)) {
+							handled = postPhasePlugin.handle(context, nodeTemplate);
+						}
 					}
 				} else {
-					BPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic plugin", nodeTemplate.getId());
-					plugin.handle(context);
-				}
-				
-				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
-					if (postPhasePlugin.canHandle(nodeTemplate)) {
-						postPhasePlugin.handle(context, nodeTemplate);
+					// policy aware handling
+					IPlanBuilderPolicyAwareTypePlugin policyPlugin = this.findPolicyAwareTypePlugin(nodeTemplate, node2PolicyMap.get(nodeTemplate));
+					if (policyPlugin == null) {
+						PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain", nodeTemplate.getId());
+						OperationChain chain = BPELScopeBuilder.createOperationChain(nodeTemplate);
+						if (chain == null) {
+							PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+						} else {
+							PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created ProvisioningChain for NodeTemplate {}", nodeTemplate.getId());
+							chain.executeIAProvisioning(context);
+							chain.executeDAProvisioning(context);
+							chain.executeOperationProvisioning(context, this.opNames);
+						}
+					} else {
+						PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling NodeTemplate {} with generic policy aware plugin", nodeTemplate.getId());
+						handled = policyPlugin.handle(context,node2PolicyMap.get(nodeTemplate));
 					}
+					
+					for (IPlanBuilderPolicyAwarePostPhasePlugin postPhasePlugin : PluginRegistry.getPolicyAwarePostPlugins()) {
+						if (postPhasePlugin.canHandle(nodeTemplate, node2PolicyMap.get(nodeTemplate))) {
+							handled = postPhasePlugin.handle(context, nodeTemplate, node2PolicyMap.get(nodeTemplate));
+						}
+					}
+					
 				}
 				
+				if(!handled) {
+					return handled;
+				}
 			} else {
 				// handling relationshiptemplate
 				AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
@@ -274,34 +387,36 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 				// TemplateBuildPlan is broken here!
 				// TODO implement fallback
 				if (!this.canGenericPluginHandle(relationshipTemplate)) {
-					BPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
+					PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains", relationshipTemplate.getId());
 					OperationChain sourceChain = BPELScopeBuilder.createOperationChain(relationshipTemplate, true);
 					OperationChain targetChain = BPELScopeBuilder.createOperationChain(relationshipTemplate, false);
 					
 					// first execute provisioning on target, then on source
 					if (targetChain != null) {
-						BPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+						PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for TargetInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						targetChain.executeIAProvisioning(context);
 						targetChain.executeOperationProvisioning(context, this.opNames);
 					}
 					
 					if (sourceChain != null) {
-						BPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
+						PolicyAwareBPELBuildProcessBuilder.LOG.warn("Couldn't create ProvisioningChain for SourceInterface of RelationshipTemplate {}", relationshipTemplate.getId());
 						sourceChain.executeIAProvisioning(context);
 						sourceChain.executeOperationProvisioning(context, this.opNames);
 					}
+					handled = true;
 				} else {
-					BPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
-					this.handleWithTypePlugin(context, relationshipTemplate);
+					PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin", relationshipTemplate.getId());
+					handled = this.handleWithTypePlugin(context, relationshipTemplate);
 				}
 				
 				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
 					if (postPhasePlugin.canHandle(relationshipTemplate)) {
-						postPhasePlugin.handle(context, relationshipTemplate);
+						handled = postPhasePlugin.handle(context, relationshipTemplate);
 					}
 				}
-			}
+			}			
 		}
+		return true;
 	}
 	
 	/**
@@ -318,7 +433,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	private boolean canGenericPluginHandle(AbstractRelationshipTemplate relationshipTemplate) {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
-				BPELBuildProcessBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}", plugin.getID(), relationshipTemplate.getId());
+				PolicyAwareBPELBuildProcessBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}", plugin.getID(), relationshipTemplate.getId());
 				return true;
 			}
 		}
@@ -351,7 +466,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 			writer.flush();
 			return writer.toString();
 		} catch (TransformerException ex) {
-			BPELBuildProcessBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
+			PolicyAwareBPELBuildProcessBuilder.LOG.error("Couldn't transform DOM Document to a String", ex);
 			return null;
 		}
 	}

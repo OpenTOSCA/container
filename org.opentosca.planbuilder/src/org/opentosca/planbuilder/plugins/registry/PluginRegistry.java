@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
@@ -23,10 +25,12 @@ import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
 public class PluginRegistry {
 	
 	private static List<IPlanBuilderPostPhasePlugin> postPhasePlugins = new ArrayList<IPlanBuilderPostPhasePlugin>();
+	private static List<IPlanBuilderPolicyAwarePostPhasePlugin> policyAwarePostPhasePlugins = new ArrayList<IPlanBuilderPolicyAwarePostPhasePlugin>();	
 	private static List<IPlanBuilderPrePhaseDAPlugin> prePhaseDaPlugins = new ArrayList<IPlanBuilderPrePhaseDAPlugin>();
 	private static List<IPlanBuilderPrePhaseIAPlugin> prePhaseIAPlugins = new ArrayList<IPlanBuilderPrePhaseIAPlugin>();
 	private static List<IPlanBuilderProvPhaseOperationPlugin> provPhaseOperationPlugins = new ArrayList<IPlanBuilderProvPhaseOperationPlugin>();
 	private static List<IPlanBuilderTypePlugin> genericPlugins = new ArrayList<IPlanBuilderTypePlugin>();
+	private static List<IPlanBuilderPolicyAwareTypePlugin> genericPolicyAwarePlugins = new ArrayList<IPlanBuilderPolicyAwareTypePlugin>();
 	private static List<IScalingPlanBuilderSelectionPlugin> selectionPlugins = new ArrayList<IScalingPlanBuilderSelectionPlugin>();
 	
 	
@@ -77,12 +81,25 @@ public class PluginRegistry {
 	}
 	
 	/**
+	 * Returns all registered PostPhasePlugins
+	 * 
+	 * @return a List of IPlanBuilderPostPhasePlugin
+	 */
+	public static List<IPlanBuilderPolicyAwarePostPhasePlugin> getPolicyAwarePostPlugins() {
+		return PluginRegistry.policyAwarePostPhasePlugins;
+	}
+	
+	/**
 	 * Returns all registered SelectionPlugins
 	 * 
 	 * @return a List of IScalingPlanBuilderSelectionPlugin
 	 */
 	public static List<IScalingPlanBuilderSelectionPlugin> getSelectionPlugins() {
 		return PluginRegistry.selectionPlugins;
+	}
+	
+	public static List<IPlanBuilderPolicyAwareTypePlugin> getGenericPolicyAwarePlugins() {
+		return genericPolicyAwarePlugins;
 	}
 	
 	/**
@@ -239,6 +256,59 @@ public class PluginRegistry {
 		}
 		if (toRemove != null) {
 			PluginRegistry.selectionPlugins.remove(toRemove);
+		}
+	}
+	
+	/**
+	 * Registers a Plugin in this registry
+	 * 
+	 * @param policyPlugin a IPlanBuilderPolicyAwareTypePlugin to register
+	 */
+	protected static void bindPolicyAwarePlugin(IPlanBuilderPolicyAwareTypePlugin policyPlugin) {
+		PluginRegistry.genericPolicyAwarePlugins.add(policyPlugin);
+	}
+	
+	/**
+	 * De-registers a Plugin in this registry
+	 * 
+	 * @param policyPlugin a IPlanBuilderPolicyAwareTypePlugin to de-register
+	 */
+	protected static void unbindPolicyAwarePlugin(IPlanBuilderPolicyAwareTypePlugin policyPlugin) {
+		IPlanBuilderPolicyAwareTypePlugin toRemove = null;
+		for (IPlanBuilderPolicyAwareTypePlugin plugin : PluginRegistry.genericPolicyAwarePlugins) {
+			if (plugin.getID().equals(policyPlugin.getID())) {
+				toRemove = plugin;
+			}
+		}
+		if (toRemove != null) {
+			PluginRegistry.genericPolicyAwarePlugins.remove(toRemove);
+		}
+	}
+	
+	
+	/**
+	 * Registers a Plugin in this registry
+	 * 
+	 * @param policyPlugin a IPlanBuilderPolicyAwareTypePlugin to register
+	 */
+	protected static void bindPolicyAwarePostPlugin(IPlanBuilderPolicyAwarePostPhasePlugin policyPlugin) {
+		PluginRegistry.policyAwarePostPhasePlugins.add(policyPlugin);
+	}
+	
+	/**
+	 * De-registers a Plugin in this registry
+	 * 
+	 * @param policyPlugin a IPlanBuilderPolicyAwareTypePlugin to de-register
+	 */
+	protected static void unbindPolicyAwarePostPlugin(IPlanBuilderPolicyAwarePostPhasePlugin policyPlugin) {
+		IPlanBuilderPolicyAwarePostPhasePlugin toRemove = null;
+		for (IPlanBuilderPolicyAwarePostPhasePlugin plugin : PluginRegistry.policyAwarePostPhasePlugins) {
+			if (plugin.getID().equals(policyPlugin.getID())) {
+				toRemove = plugin;
+			}
+		}
+		if (toRemove != null) {
+			PluginRegistry.policyAwarePostPhasePlugins.remove(toRemove);
 		}
 	}
 	

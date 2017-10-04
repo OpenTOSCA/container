@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.postphase.plugin.instancedata;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,14 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments.Util;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
@@ -43,16 +48,18 @@ import org.xml.sax.SAXException;
 public class Handler {
 	
 	private Fragments fragments;
+	private org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments bpelFrags;
 	
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
-	private XPathFactory xPathfactory = XPathFactory.newInstance();;
+	private XPathFactory xPathfactory = XPathFactory.newInstance();
 	
 	
 	public Handler() {
 		
 		try {
 			this.fragments = new Fragments();
+			this.bpelFrags = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -126,9 +133,8 @@ public class Handler {
 		return instanceURLVarName;
 	}
 	
-	
 	public boolean handleTerminate(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
-boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
+		boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		
 		String serviceInstanceVarName = this.getServiceInstanceVarName(context);
 		if (serviceInstanceVarName == null) {
@@ -153,7 +159,6 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 			return false;
 		}
 		
-		
 		String nodeInstanceURLVarName = "";
 		
 		if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
@@ -166,10 +171,6 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		if (nodeInstanceURLVarName == null) {
 			return false;
 		}
-		
-	
-		
-		
 		
 		// we'll use this later when we determine that the handle Node doesn't
 		// have lifecycle operations. Without this check all nodes without
@@ -326,21 +327,23 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 			}
 		}
 		
-//		try {
-//			Node deleteNode = this.fragments.createRESTDeleteOnURLBPELVarAsNode(nodeInstanceURLVarName, restCallResponseVarName);
-//			
-//			deleteNode = context.importNode(deleteNode);
-//			
-//			context.getPostPhaseElement().appendChild(deleteNode);
-//			
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return false;
-//		} catch (SAXException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// try {
+		// Node deleteNode =
+		// this.fragments.createRESTDeleteOnURLBPELVarAsNode(nodeInstanceURLVarName,
+		// restCallResponseVarName);
+		//
+		// deleteNode = context.importNode(deleteNode);
+		//
+		// context.getPostPhaseElement().appendChild(deleteNode);
+		//
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// return false;
+		// } catch (SAXException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		return true;
 	}
 	
@@ -424,7 +427,7 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		try {
 			// update state variable to uninstalled
 			org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
-			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitNodeState" + System.currentTimeMillis(), "string('initial')", stateVarName);
+			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode("assignInitNodeState" + System.currentTimeMillis(), "string('initial')", stateVarName);			
 			assignNode = context.importNode(assignNode);
 			context.getPrePhaseElement().appendChild(assignNode);
 			
@@ -554,8 +557,9 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 			try {
 				// set state
 				String nextState = InstanceStates.getNextStableOperationState(lastSetState);
-				// if this node never was handled by lifecycle ops we just set it to started
-				if(operationNames.isEmpty()) {
+				// if this node never was handled by lifecycle ops we just set
+				// it to started
+				if (operationNames.isEmpty()) {
 					nextState = "started";
 				}
 				org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments frag = new org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments();
@@ -969,5 +973,158 @@ boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 		}
 		
 		return true;
+	}
+	
+	public boolean handlePasswordCheck(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+		
+		// find properties which store passwords
+		// find their variables
+		Collection<Variable> pwVariables = new ArrayList<Variable>();
+		Collection<Variable> variables = context.getPropertyVariables(nodeTemplate);
+		
+		for (Variable var : variables) {
+			if (var.getName().contains("Password")) {
+				pwVariables.add(var);
+			}
+		}
+		
+		// find runScript method
+		
+		AbstractNodeTemplate node = this.findRunScriptNode(nodeTemplate);
+		
+		if (node == null) {
+			return false;
+		}
+		
+		Map<AbstractParameter, Variable> inputParams = new HashMap<AbstractParameter, Variable>();
+		
+		String cmdStringName = "checkPasswordScript_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
+		String cmdStringVal = this.createPlaceHolderPwCheckCmdString(pwVariables);
+		Variable cmdVar = context.createGlobalStringVariable(cmdStringName, cmdStringVal);
+		
+		 
+		String xPathReplacementCmd = this.createPlaceholderReplaceingXPath(cmdVar.getName(), pwVariables);
+		
+		
+		
+		try {
+			Node assignPlaceholder = this.bpelFrags.createAssignXpathQueryToStringVarFragmentAsNode("replacePlaceholdersOfPWCheck" + System.currentTimeMillis(), xPathReplacementCmd, cmdVar.getName());
+			assignPlaceholder = context.importNode(assignPlaceholder);
+			context.getProvisioningPhaseElement().appendChild(assignPlaceholder);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		inputParams.put(new AbstractParameter() {
+			
+			@Override
+			public boolean isRequired() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public String getType() {
+				// TODO Auto-generated method stub
+				return "xs:String";
+			}
+			
+			@Override
+			public String getName() {
+				// TODO Auto-generated method stub
+				return "Script";
+			}
+		}, cmdVar);
+		
+		Map<AbstractParameter, Variable> outputParams = new HashMap<AbstractParameter, Variable>();
+		
+		String outputVarName = "pwCheckResult" + System.currentTimeMillis();
+		
+		
+		Variable outputVar = context.createGlobalStringVariable(outputVarName, "");
+		
+		outputParams.put(new AbstractParameter() {
+			
+			@Override
+			public boolean isRequired() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public String getType() {
+				// TODO Auto-generated method stub
+				return "xs:String";
+			}
+			
+			@Override
+			public String getName() {
+				// TODO Auto-generated method stub
+				return "ScriptResult";
+			}
+		}, outputVar);
+		
+		
+		
+		// generate call to method
+		context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams, outputParams);
+		
+		// check result and eventually throw error
+		
+		Node ifTrueThrowError = this.bpelFrags.createIfTrueThrowsError("contains($"+ outputVar.getName()+",'false')", new QName("http://opentosca.org/plans/faults", "PasswordWeak"));
+		ifTrueThrowError = context.importNode(ifTrueThrowError);
+		context.getProvisioningPhaseElement().appendChild(ifTrueThrowError);
+		
+		
+		return true;
+	}
+	
+	private String createPlaceholderReplaceingXPath(String cmdStringName,Collection<Variable> pwVariables) {
+		String xpath = "$"+cmdStringName+",";
+		
+		for (Variable var : pwVariables) {
+			xpath = "replace(" + xpath;
+			xpath += "'" + var.getName() + "'," + "$" + var.getName() + ")";			
+		}
+		
+		return xpath;
+	}
+	
+	private String createPlaceHolderPwCheckCmdString(Collection<Variable> pwVariables) {
+		/*
+		 * if echo "$candidate_password" | grep -Eq "$strong_pw_regex"; then
+		 * echo strong else echo weak fi
+		 */
+		String cmdString = "";
+		
+		for (Variable var : pwVariables) {
+			cmdString += "if echo \"" + var.getName() + "\" | grep -Eq \"(?=^.{8,255}$)((?=.*\\d)(?!.*\\s)(?=.*[A-Z])(?=.*[a-z]))^.*\"; then : else echo \"false\" fi;";
+		}
+		
+		return cmdString;
+	}
+	
+	protected AbstractNodeTemplate findRunScriptNode(AbstractNodeTemplate nodeTemplate) {
+		List<AbstractNodeTemplate> infraNodes = new ArrayList<AbstractNodeTemplate>();
+		
+		Utils.getInfrastructureNodes(nodeTemplate, infraNodes);
+		
+		for (AbstractNodeTemplate node : infraNodes) {
+			for (AbstractInterface iface : node.getType().getInterfaces()) {
+				if (iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM) | iface.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
+					for (AbstractOperation op : iface.getOperations()) {
+						if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT) | op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)) {
+							return node;
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 }

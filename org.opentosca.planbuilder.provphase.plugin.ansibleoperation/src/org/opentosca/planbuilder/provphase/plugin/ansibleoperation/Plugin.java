@@ -60,4 +60,9 @@ public class Plugin implements IPlanBuilderProvPhaseOperationPlugin, IPlanBuilde
 		return this.handler.handle(context, operation, ia, param2propertyMapping);
 	}
 
+	@Override
+	public boolean handle(TemplatePlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia, Map<AbstractParameter, Variable> param2propertyMapping, Map<AbstractParameter, Variable> param2PropertyOutputMapping) {		
+		return false;
+	}
+
 }

@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -8,6 +9,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
@@ -65,6 +67,27 @@ public abstract class AbstractPlanBuilder {
 		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
 			AbstractPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
 			if (plugin.canHandle(nodeTemplate)) {
+				AbstractPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
+				return plugin;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * <p>
+	 * Checks whether there is any generic plugin, that can handle the given
+	 * NodeTemplate
+	 * </p>
+	 *
+	 * @param nodeTemplate an AbstractNodeTemplate denoting a NodeTemplate
+	 * @return true if there is any generic plugin which can handle the given
+	 *         NodeTemplate, else false
+	 */
+	public IPlanBuilderPolicyAwareTypePlugin findPolicyAwareTypePlugin(AbstractNodeTemplate nodeTemplate, Collection<String> policies) {
+		for (IPlanBuilderPolicyAwareTypePlugin plugin : PluginRegistry.getGenericPolicyAwarePlugins()) {
+			AbstractPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID() + " can handle NodeTemplate " + nodeTemplate.getId());
+			if (plugin.canHandle(nodeTemplate,policies)) {
 				AbstractPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(), nodeTemplate.getId());
 				return plugin;
 			}
