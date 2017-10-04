@@ -1,204 +1,163 @@
-Dokumentation Plan Builder
+Documentation Plan Builder
 
-Im OpenTOSCA-Container werden, in der Tosca Runtime, aus bereitgestellte
-CSAR-Dateien vom Plan Builder Build- und Termination- Pläne im BPEL
-Format generiert. Diese BPEL- Pläne durchlaufen vorgegebene Abläufe,
-anhand derer Aktivitäten durchgeführt werden.
+The OpenTOSCA-Container uses the Tosca Runtime to generate build and termination plans, in BPEL format, out of given CSAR-Files.
+These BPEL-plans run through given procedures to perform activities.
 
-![](media/image1.png){width="6.5in" height="1.8118055555555554in"}
+![CSARtoBPEL](graphics/CSARtoBPEL.png)
 
-Im Folgenden werden der Build- und der Termination-Plan erklärt und die
-verwendeten PlugIns vorgestellt.
+The following documentation describes the build and termination plans and will give you a brief overview over the used plugins.
 
 ***Build Plan***
 
-Ein Build Plan beschreibt die Aktivitäten, die zum Erstellen eines
-Service benötigt werden. Dabei beinhaltet er die einzelnen Komponenten
-und ihre Instanzen. Die Instanzen definieren dabei die Build-Reihenfolge
-der Komponenten. Folgendes Beispiel zeigt den Aufbau eines Cloud-Service
-und seinen dazugehörigen Build-Plan als Baumstruktur:
+A BuildPlan describes the needed activities to create a service.
+Therefor the plan contains single components and instances.
+The instances define build sequences of components.
+In the following example, the structure of a Cloud-Service, and his belonging BuildPlan, is shown in a tree structure.
 
-![](media/image2.png){width="5.833333333333333in"
-height="4.249109798775153in"}
+![BuildTree](graphics/Build-Tree.png)
 
-Abbildung 1a zeigt den gewünschten Aufbau eines Cloud-Service. Dabei
-stellen die Kanten die Instanzen und die Knoten die Komponenten des
-Service dar. Es gibt zwei unterschiedliche Instanzen:
+The graphic shows a requested structure of the Cloud-Service.
+Instances are represented by edges and components by nodes.
+There are two different types of instances:
 
--   hostedOn: Auf einer bestehenden Komponente wird eine weitere
-    Komponente instanziiert. Dies bedeutet in diesem Beispiel, dass
-    zuerst eine VM existieren muss, um darauf einen Server zu starten.
+-   hostedOn: A component will be instantiated based on another existing component.
+    In the given example a VM is required to start a server on top of it.
 
--   connectTo: Ein Service kann aus mehreren, unabhängigen
-    Servicekomponenten bestehen. Diese benötigen zum Zeitpunkt ihres
-    Erstellens separate Abläufe, die parallel ausgeführt werden können.
-    So kann die Baumstruktur eines Build Plans mehrere Pfade enthalten.
-    Die einzelnen Stacks eines Service werden durch die
-    connectTo-Instanz synchronisiert und zusammengeführt. In diesem
-    Beispiel gibt es zwei separate Pfade (Application-Pfad und
-    Datenbankpfad), die durch die connectTo-Instanz zusammengefasst und
-    synchronisiert werden.
+-   connectTo: A service can contain multiple, independent service components.
+    By the time of their compilation, they need separate and parallelized procedures. 
+	  To realize the parallelization, a tree structure of a BuildPlan can contain multiple paths. 
+    The single stacks of a service are synchronized and brought together by the connectTo-instance.
+    In the given example, the connectTo-instance synchronizes two separate paths, the Application-Path and the Database-Path.
 
-Liegt ein Buid-Plan vor, kann ein Service automatisiert gestartet
-werden.
+If a BuildPlan is given, a service can start automatically.
 
 ***Termination Plan***
 
-Ein Termination-Plan definiert die Aktivitäten und deren Reihenfolge zum
-Herunterfahren eines Service. Im Prinzip arbeitet der Termination Plan
-die einzelnen Komponenten und Instanzen entgegengesetzt zum Build-Plan
-ab. Dabei wird zuerst die Synchronisierung der einzelnen Pfade
-aufgehoben. Danach werden die einzelnen Komponenten innerhalb der Pfade
-Schritt für Schritt heruntergefahren.
+A termination plan defines activities and their order of execution to shutdown the server.
+The termination plan terminates the single components and instances opposed to the build plan.
+Therefor the synchronization of the single paths must be terminated first.
+Afterwards, the single components in the different paths can be terminated step by step.
 
-Die Servicekomponenten des Beispiels werden zuerst anhand der
-connectTo-Instanz desynchronisiert. Daraufhin können die Komponenten der
-einzelnen Pfade nach und nach heruntergefahren werden.
+As described above, the service components in the example are desynchronized via the connectTo instance.
+The shutdown of the components and paths can be done subsequently.
 
-***Grundlagen***
+***Basics***
 
-Allgemein besteht der Vorteil bei der Verwendung von Build- und
-Termination-Plänen darin, dass anhand einzelner Befehle komplexe
-Prozesse automatisiert ausgeführt werden. Letztendlich liegen die Pläne
-als BPEL-Datei vor.
+In general, the advantage of build and termination plans is the possibility to execute complex processes automatically by single instructions.
+In the end, the plans are available as a BPEL-file.
 
-![](media/image3.png){width="4.520833333333333in"
-height="2.819284776902887in"}
 
-Für jede Komponente benötigt man unterschiedliche Aktivitäten zum
-Beispiel zum Starten oder Beenden der Komponenten. Dabei definiert jede
-Aktivität ein BPEL-Flow. Innerhalb des BPEL-Flows definiert der Scope in
-welchem Zusammenhang die Aktivitäten ausgeführt werden. Beispielsweise
-ist für das Starten einer VM, der Scope die VM selbst. So definiert jede
-Instanz und Komponenten ihre eigenen Aktivitäten mit
-pre-/provisioning-/post-Phase. Diese Phasen werden in BPEL als Sequenzen
-dargestellt.
+![VMBPELActivity](graphics/startStopVMmitBPELFlow.png)
 
-Die Umsetzung des Codes wird anhand einer SkeletonCompletion (anhand
-eines PlugIn-Systems) realisiert. (Parametrisierung des Service)
+Every component require different activities, e.g. for start-up or shutdown.
+Each activity is described as a BPEL flow, where also the runtime scope of the activity is defined.
+For example the scope to start a VM is the VM itself.
+Every single instance and component defines their own activities with pre-/provisioning- and/or post-phase.
+These phases are represented as sequences in the BPEL description.
+
+The code-conversion is realized by a SkeletonCompletion based on a plugin (parametrization of the service).
 
 **Skeleton Completion**
 
-Im PlanBuilder PlugIn system wird durch die Skeleton Completion ein
-eingegebenes Skelet eines PlugIns vervollständigt, um es später in
-OpenTOSCA ausführen zu können. Das PlugIn ist dabei wie folgt aufgebaut:
+Skeleton Completion is part of the PlanBuilders' plugin system.
+It prepares (completes) a given skeleton for the execution in the OpenTOSCA Runtime.
+The structure of the PlugIn is build as follows:
 
-![](media/image4.png){width="4.920426509186352in"
-height="1.846826334208224in"}
+![ProvisioningTerminals](graphics/ProvisioningTerminals.png)
 
-Die Bool-Variablen beschreiben, welche Templates innerhalb des PlugIns
-verwendet werden können. Sollten Sie dabei anzeigen, dass die Templates
-nicht handhabbar sind, ist eine weitere Bearbeitung nicht möglich. Die
-Handle-Methoden beschreiben wie ein Template gehandhabt wird.
+The bool variables describes which templates can be used inside the plugin.
+If the bool variable shows that the template cannot be handled, an ongoing treatment is impossible.
+The use of a template is described in the handle method.
 
 ***Lifecycle-Plugin-System***
 
-Neben der Skeleton Completion, können über das Lifecycle-PlugIn-System
-NodeTemplates verarbeitet werden. Das System versteht lediglich Node
-Templates der folgenden Form:
+Besides the skeleton completion, the lifecycle-plugin-system can also process node templates.
+The only limitation is, that the system only deals with node templates of the following form as input:
 
-![](media/image5.png){width="2.0134339457567805in"
-height="0.7708333333333334in"}
+![NodeTemplateForm](graphics/NodeTemplate_Form.png)
 
-Das PlugIn akzeptiert dabei Operationen in einer festen Reihenfolge,
-erlaubt jedoch vordefinierte Skips. NodeTemplates halten sich dabei an
-folgende, festvorgegebene Reihenfolge: install configure start
+The PlugIn accepts operations in a fixed sequence but permits predefined skips.
+The node templates have to follow this sequence:
+- install 
+- configure 
+- start
 
-Auf diese Weise kann durch Eingabe eines NodeTypes samt seiner Methoden
-der dazugehörige Code generiert werden. Je nach Definition der Methoden
-des NodeTypes erfolgt ein passender Funktionsaufruf.
+This way, the corresponding code can be generated by entering a node type and its methods.
 
-![](media/image6.png){width="2.1979166666666665in"
-height="1.2711701662292214in"}
+According to the definition of the node types methods an appropriate function call is made afterwards.
 
-Grafik ändern auf OneNote-Version
+![NodeTypeImplementation](graphics/NT.NodeTypeImplementation.png)
 
-Der oben beschriebene Ablauf findet dabei in der Provisioning Phase des
-Lifecycle-Systems statt. Operationen können Webservices, Code oder
-typisierte Objekte, die hier verarbeitet werden können, sein.
+The sequence described above proceeds in the provisioning phase of the lifecycle-system.
+Operations can be webservices, code or typed objects.
 
-Das Lifecycle-System hat 3 Plugin-Arten, die verschiedene Methoden
-beinhalten:
-
--   DeploymentArtifact-Plugin
+The lifecycle system has 3 different plugin-types, which also contain different methods:
+ 
+-   DeploymentArtifact-Plugin (DA)
 
     -   (public) canHandle(ArtifactType, Impl)
-
     -   (public) Handle(DeploymentArtifact)
 
--   ImplementationArtifact-Plugin
+-   ImplementationArtifact-Plugin (IA)
 
-    -   (public) canHandle(ArtifactType) Die war-files werden dabei auf
-        einem TOSCARuntime Tomcat ausgeführt
+    -   (public) canHandle(ArtifactType): War-files are executed inside a TOSCARuntime in Tomcat.
 
 -   Provisioning Plugin
 
-    -   (Public) canHandle(ArtifactType) Das DA kann dabei typenabhängig
-        auf einem Infrastructure Node des gleichen Typs installiert
-        werden.
-
-Die oben genannten Plug-Ins durchlaufen während ihrer Laufzeit
-verschiedene Phasen.
+    -   (public) canHandle(ArtifactType): The DA can be installed on an infrastructure node of the same type.
+	
+The plugins mentioned above pass different phases in their runtime:
 
 1.  PrePhase
 
-In der PrePhase werden sowohl DA- als auch IA-Uploads durchgeführt. Das
-Plug-In versteht DAs, diese stellen nach dem Upload Suplugins dar.
+    The PrePhase executes DA as well as IA uploads.
+    The plugin also handles DAs which are outlined as subplugins after the upload.
 
-1.  ProvPhase
+2.  ProvPhase
 
-Die ProvPhase ruft Operation auf. Versteht das Sub-Plug-In diese, werden
-die Operationen basierend auf ArtifactTemplates in Code umgewandelt. Bei
-der Verwendung von bereits bekannten, vordefinierten ArtifactTypes, ist
-lediglich die Definition der Operationen notwendig. Es existieren
-vordefinierte Konfigurationen für bestimmte Typen.
+    The provisioning phase calls different operations.
+    If the subplugin is able to understand and process these operations, they will be converted into code based on the artifact template.
+    For specific types there are also different predefined configurations.
 
-Nach der Durchführung der Operationen werden die CSAR-Files auf die VM
-repliziert. Properties im NT werden dabei als Variablen in das
-Main-BPEL-File gesetzt.
+    After the execution of operations, the CSAR-files are replicated on the VM.
+    Properties in the node type are set as variables in the main-BPEL-file.
 
-1.  PostPhase
+3.  PostPhase
 
-Nach der Konfiguration startet während der Runtime die PostPhase.
-Hierbei werden Variablen gesetzt, die zu Beginn der Laufzeit noch nicht
-definiert wurden. (IP's, API's, Properties updaten).
+    After configuration, post phase starts during the runtime.
+    Varibales, that have not yet been defined (ip's, api's, update properties ), are set at this point.
+
 
 ***Ubuntu-Plug-In***
 
 TopologyContext Plan Completion
 
-![](media/image7.png){width="2.1875in" height="2.4241283902012247in"}
-proPhase:
+![UbuntuPlugIn](graphics/Ubuntu.png)
 
--   startVM
-
--   waitForAvailability
-
-Der Cloud Provider überprüft, ob Ubuntu aktiv ist und fährt danach im
-Ubuntu- Scope die VM hoch.
+The cloud provider checks whether Ubuntu is active and then boots the VM within the Ubuntu scope.
 
 ***DockerContainer***
 
-![](media/image8.png){width="6.5in" height="3.4319444444444445in"}
+![DockerContainer](graphics/DockerContainer.png)
 
 ***ConnectsTo-Type-Plug-In***
 
-Topology Context PlanCompletion
+Topology Context
 
-![](media/image9.png){width="1.6256944444444446in"
-height="0.6770833333333334in"}![](media/image10.png){width="2.908653762029746in"
-height="1.71875in"}
+![ConnectPlugInTopology](graphics/connectPlugInTopology.png)
 
-Das connectTo-Plug-In behandelt nicht die Nodes, sondern die Relationen.
-Hierdurch ergibt sich die Synchronisierung der einzelnen Dienste.
+PlanCompletion
 
-Einfacher Java-Code wird dabei direkt in BPEL umgewandelt. Sobald der
-Java-Code jedoch bereits einfache if, else-Bedingungen beinhaltet, ist
-eine automatische Umwandlung nicht mehr möglich.
+![ConnectPlugInTopology](graphics/connectPlugInPlanCompletion.png)
+
+The connectTo plugin handles the relations instead of the nodes.
+This results in a synchronization of the individual services.
+
+Simple Java code is converted directly into BPEL.
+However, as soon as the Java code contains some simple if-else-clauses, automatic conversion is no longer possible.
 
 ***Invoker-Plug-In***
 
-![](media/image11.png){width="5.75in" height="2.7625798337707788in"}
+![InvokerPlugIn](graphics/Invoker.png)
 
-Das Invoker-Plug-In stellt einen speziellen Lifecycle dar, der
-unabhängig von den vorangegangen Plug-Ins aufgerufen wird.
+The invoker plugin constitutes a special lifecycle, which is invoked independently from previous plugins.
