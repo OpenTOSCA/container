@@ -4,6 +4,7 @@
 <product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentoscacontainer" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
+      <win32>/org.opentosca.container.product/config.ini</win32>
    </configIni>
 
    <launcherArgs>
@@ -21,6 +22,7 @@
    <windowImages/>
 
    <launcher name="OpenTOSCA">
+      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -227,15 +229,15 @@
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <plugin id="stax2-api" autoStart="true" startLevel="0" />
       <plugin id="woodstox-core-asl" autoStart="true" startLevel="0" />
-      <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8081/winery" />
+      <property name="org.opentosca.container.connector.winery.url" value="http://192.168.0.20:8080/winery" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.password" value="admin" />
-      <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://localhost:8080" />
+      <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://192.168.0.20:8080" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.username" value="admin" />
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.password" value="admin" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.services.url" value="http://localhost:9763/services" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.url" value="https://localhost:9443" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.services.url" value="http://192.168.0.20:9763/services" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.url" value="https://192.168.0.20:9443" />
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.username" value="admin" />
-      <property name="org.opentosca.container.hostname" value="localhost" />
+      <property name="org.opentosca.container.hostname" value="192.168.0.27" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>
 

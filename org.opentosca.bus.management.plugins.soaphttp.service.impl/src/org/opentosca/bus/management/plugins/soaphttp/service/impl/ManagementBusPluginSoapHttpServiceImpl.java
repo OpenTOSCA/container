@@ -71,6 +71,8 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		final Object params = message.getBody();
 		final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
 		String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
+		endpoint= endpoint.replace("engine-plan","192.168.0.20");
+		LOG.warn("endpoint:"+endpoint);
 		final Boolean hastOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
 		final String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
 		
@@ -91,6 +93,8 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		}
 		
 		headers.put("endpoint", endpoint.replace("?wsdl", ""));
+		
+		//headers.put("DeploymentArtefacts")
 		
 		Document document = null;
 		
