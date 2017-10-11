@@ -12,5 +12,6 @@ import javax.xml.namespace.QName;
 public class PluginConstants {
 
 	public final static QName dockerContainerNodeType = new QName("http://opentosca.org/nodetype", "DockerContainer");
-	public final static QName dockerContainerArtefactType = new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
+	public final static QName dockerContainerArtefactTypeOld = new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
+	public final static QName dockerContainerArtefactType = new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
 }
