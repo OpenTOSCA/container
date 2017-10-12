@@ -1,0 +1,24 @@
+FROM armv7/armhf-ubuntu
+LABEL maintainer "Benjamin Weder <Benjamin.Weder@web.de>"
+
+ARG GIT_REPO_URL=https://github.com/OpenTOSCA/container.git
+ARG GIT_BRANCH=master
+
+RUN apt-get update -qq && apt-get install -qqy software-properties-common
+RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+  add-apt-repository -y ppa:webupd8team/java && \
+  apt-get update -qq && \
+  apt-get install -qqy oracle-java8-installer
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+
+RUN apt-get update && apt-get install -qqy git && apt-get install -qqy maven
+
+WORKDIR /opt/opentosca-container
+RUN git clone --recursive --depth=1 ${GIT_REPO_URL} -b ${GIT_BRANCH} /opt/opentosca-container \
+    && mvn package
+    
+EXPOSE 1337
+
+# Find the equinox launcher jar in the product and execute on startup
+CMD java -Declipse.ignoreApp=true -Dosgi.noShutdown=true -Dorg.osgi.service.http.port=1337 \
+    -jar $(find /opt/opentosca-container/org.opentosca.container.product/target/products/org.opentosca.container.product/linux/gtk/x86/plugins -type f -name "org.eclipse.equinox.launcher_*.jar")
