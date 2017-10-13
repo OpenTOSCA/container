@@ -1,5 +1,15 @@
 package org.opentosca.planbuilder.type.plugin.dockercontainer.handler;
 
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.CONTAINER_ID;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.CONTAINER_IMAGE;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.CONTAINER_IP;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.CONTAINER_PORT;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.CONTAINER_PORTS;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.DOCKER_ENGINE_URL;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.IMAGE_LOCATION;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.PORT;
+import static org.opentosca.planbuilder.type.plugin.dockercontainer.handler.DockerContainerConstants.SSH_PORT;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +27,7 @@ import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.Plugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.PluginConstants;
+import org.opentosca.planbuilder.type.plugin.dockercontainer.utils.DockerContainerUtils;
 import org.opentosca.planbuilder.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +47,7 @@ import org.xml.sax.SAXException;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public class Handler {
+public class BPELDockerContainerHandler {
 
 	private final Plugin invokerPlugin = new Plugin();
 	private BPELProcessFragments planBuilderFragments;

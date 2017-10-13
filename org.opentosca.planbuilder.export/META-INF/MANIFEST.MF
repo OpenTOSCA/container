@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.opentosca.planbuilder.export
 Bundle-Version: 2.0.0.qualifier
 Test-Suite: org.opentosca.planbuilder.export.test.TestSuite2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.ibm.wsdl,
+Import-Package: com.fasterxml.jackson.core.json;version="2.6.2",
+ com.fasterxml.jackson.databind;version="2.6.2",
+ com.ibm.wsdl,
  javax.wsdl;version="1.6.0",
  javax.wsdl.factory;version="1.6.0",
  javax.wsdl.xml;version="1.6.0",

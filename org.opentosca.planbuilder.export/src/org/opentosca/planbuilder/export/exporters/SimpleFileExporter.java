@@ -6,10 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.wsdl.Definition;
@@ -36,10 +34,10 @@ import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
-import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpmn4tosca.BPMN4ToscaPlan;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -48,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.ibm.wsdl.ServiceImpl;
 
 /**
@@ -194,27 +194,27 @@ public class SimpleFileExporter {
 		service.zip(tempFolder, new File(destination));
 		return true;
 	}
-	
-	private class Mapping{
+
+	private class Mapping {
 		private final QName key;
 		private final QName val;
-		
-		
+
 		protected Mapping(final QName key, final QName val) {
 			this.key = key;
 			this.val = val;
 		}
+
 		@Override
 		public boolean equals(Object obj) {
-			
-			if(obj instanceof Mapping) {
+
+			if (obj instanceof Mapping) {
 				Mapping map = (Mapping) obj;
 				return map.key.equals(this.key) && map.val.equals(this.val);
 			}
-			
+
 			return super.equals(obj);
 		}
-		
+
 		@Override
 		public String toString() {
 			return key.toString() + val.toString();
@@ -234,7 +234,7 @@ public class SimpleFileExporter {
 		final List<TProvide> provides = deploy.getProcess().get(0).getProvide();
 
 		// the services and their new name the dd uses, excluding the client
-		// services, will be added here		
+		// services, will be added here
 		final Set<Mapping> invokedServicesToRewrite = new HashSet<>();
 		final Set<Mapping> providedServicesToRewrite = new HashSet<>();
 
@@ -378,4 +378,22 @@ public class SimpleFileExporter {
 		final StreamResult result = new StreamResult(new FileOutputStream(destination));
 		transformer.transform(source, result);
 	}
+
+	public void export(File destination, BPMN4ToscaPlan plan) {
+		final ObjectMapper objectMapper = new ObjectMapper();
+		try {
+
+			if (destination.exists()) {
+				destination.delete();
+			}
+
+			destination.createNewFile();
+
+			objectMapper.writer(SerializationFeature.INDENT_OUTPUT).writeValue(destination, plan.getElements());
+			LOG.debug("Wrote bpmn4tosca file into {}", destination);
+		} catch (Exception e) {
+			LOG.error("Could not write bpmn4tosca file", e);
+		}
+	}
+
 }

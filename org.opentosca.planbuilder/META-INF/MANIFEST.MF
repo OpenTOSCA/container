@@ -21,11 +21,14 @@ Export-Package: org.opentosca.planbuilder,
  org.opentosca.planbuilder.bpel.fragments,
  org.opentosca.planbuilder.bpel.handlers,
  org.opentosca.planbuilder.bpel.helpers,
+ org.opentosca.planbuilder.bpmn4tosca,
+ org.opentosca.planbuilder.bpmn4tosca.helpers,
  org.opentosca.planbuilder.plugins,
  org.opentosca.planbuilder.plugins.context,
  org.opentosca.planbuilder.plugins.registry,
  org.opentosca.planbuilder.utils
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0"
+ org.opentosca.planbuilder.model;bundle-version="1.0.0",
+ org.opentosca.planbuilder.provphase.plugin.invoker
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy

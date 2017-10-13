@@ -14,7 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
-import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
@@ -259,14 +258,14 @@ public class Utils {
 			final List<AbstractNodeTemplate> infrastructureNodes) {
 		Utils.LOG.debug(
 				"BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + Utils.getNodeBaseType(nodeTemplate));
-		
+
 		for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 			Utils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
 			if (Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPENDSON)
 					|| Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_HOSTEDON)
 					|| Utils.getRelationshipBaseType(relation).equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 				Utils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
-				
+
 				if (org.opentosca.container.core.tosca.convention.Utils
 						.isSupportedInfrastructureNodeType(Utils.getNodeBaseType(relation.getTarget()))
 						|| org.opentosca.container.core.tosca.convention.Utils
