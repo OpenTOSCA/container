@@ -21,6 +21,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
@@ -28,6 +29,7 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.selfservice.Application;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.glassfish.jersey.server.Uri;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
@@ -48,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
 
 @Path("/csars")
 @Api(value = "/csars")
@@ -96,6 +99,7 @@ public class CsarController {
   @GET
   @Path("/{id}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get Metadata for CSARs", response = CsarDTO.class)
   public Response getCsar(@PathParam("id") final String id) {
 
     final CSARContent csarContent = this.csarService.findById(id);
@@ -137,6 +141,9 @@ public class CsarController {
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Uploads CSAR file", response = Response.class)
+  @ApiResponse(code = 400, message ="Bad request")
+  //ResponseBuilder.class correct response type?
   public Response uploadFile(@FormDataParam("file") final InputStream is,
       @FormDataParam("file") final FormDataContentDisposition file)
       throws IOException, URISyntaxException, UserException, SystemException {
@@ -152,6 +159,7 @@ public class CsarController {
   @POST
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value ="Handle upload Request for CSAR file", notes = "return status", response = Response.class)
   public Response upload(final CsarUploadRequest request) {
 
     if (request == null) {
@@ -175,6 +183,8 @@ public class CsarController {
     }
   }
 
+  @ApiOperation(value = "Handle CSAR upload ", notes="handles missing requirements", response = Response.class)
+  @ApiResponse(code = 406, message = "CSAR is not acceptable")
   private Response handleCsarUpload(final String filename, final InputStream is) {
 
     final File file = this.csarService.storeTemporaryFile(filename, is);
@@ -264,6 +274,7 @@ public class CsarController {
 
   @DELETE
   @Path("/{id}")
+  @ApiOperation(value = "Delete CSAR File by ID", response = Response.class)
   public Response delete(@PathParam("id") final String id) {
 
     final CSARContent csarContent = this.csarService.findById(id);

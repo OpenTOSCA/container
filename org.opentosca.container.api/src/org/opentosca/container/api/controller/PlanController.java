@@ -17,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
@@ -45,6 +46,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+
+
+// @Api (value = "/csars") 
 public class PlanController {
 
   private static Logger logger = LoggerFactory.getLogger(PlanController.class);
@@ -72,6 +79,7 @@ public class PlanController {
 
   @GET
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get Build Plans from CSARs", response = PlanDTO.class, responseContainer = "List")
   public Response getPlans(@Context final UriInfo uriInfo) {
 
     final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
@@ -94,6 +102,7 @@ public class PlanController {
   @GET
   @Path("/{plan}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get Build Plans from CSARs", response = PlanDTO.class, responseContainer = "List")
   public Response getPlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo) {
 
     final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
@@ -120,6 +129,7 @@ public class PlanController {
   @GET
   @Path("/{plan}/instances")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get plan instances from CSAR", response = PlanInstanceDTO.class, responseContainer = "List")
   public Response getPlanInstances(@PathParam("plan") final String plan,
       @Context final UriInfo uriInfo) {
 
@@ -177,6 +187,8 @@ public class PlanController {
   @Path("/{plan}/instances")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "invoke plans by CSARId", response = Response.class)
+  @ApiResponse(code = 400, message = "Bad Request - no parameters given")
   public Response invokePlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo,
       final List<TParameter> parameters) {
 
@@ -223,6 +235,8 @@ public class PlanController {
   @GET
   @Path("/{plan}/instances/{instance}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "get plan Instances by CSARId", response = PlanInstanceDTO.class, responseContainer = "List")
+  @ApiResponse(code = 404, message = "Not Found - Plan Instance not found")
   public Response getPlanInstance(@PathParam("plan") final String plan,
       @PathParam("instance") final String instance, @Context final UriInfo uriInfo) {
 

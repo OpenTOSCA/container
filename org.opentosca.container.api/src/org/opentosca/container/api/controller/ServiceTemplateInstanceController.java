@@ -32,7 +32,11 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/instances")
+@Api(value = "/csars/{csar}/servicetemplates/{servicetemplate}/instances")
 public class ServiceTemplateInstanceController {
 
   private static Logger logger = LoggerFactory.getLogger(ServiceTemplateInstanceController.class);
@@ -52,6 +56,7 @@ public class ServiceTemplateInstanceController {
 
   @GET
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get an instance of a service template", response = ServiceTemplateInstanceDTO.class, responseContainer = "List")
   public Response getServiceTemplateInstances(@PathParam("csar") final String csar,
       @PathParam("servicetemplate") final String servicetemplate) {
 
@@ -94,6 +99,7 @@ public class ServiceTemplateInstanceController {
   @GET
   @Path("/{id}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get service template instance by CSAR", response = ServiceTemplateInstanceDTO.class, responseContainer = "List")
   public Response getServiceTemplateInstance(@PathParam("csar") final String csar,
       @PathParam("servicetemplate") final String servicetemplate,
       @PathParam("id") final Integer id) {
@@ -136,6 +142,9 @@ public class ServiceTemplateInstanceController {
 
     return Response.ok(dto).build();
   }
+
+
+  //get Management Plans if CSAR-ID exists [MK]
 
   @Path("/{id}/managementplans")
   public PlanController getManagementPlans(@PathParam("csar") final String csar,

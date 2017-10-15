@@ -26,9 +26,13 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @Path("/csars/{csar}/servicetemplates")
+@Api(value = "/csars/{csar}/servicetemplates")
 public class ServiceTemplateController {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
 
 	@Context
@@ -38,16 +42,17 @@ public class ServiceTemplateController {
 	private Request request;
 
 	private CsarService csarService;
-	
+
 	private PlanService planService;
-	
+
 	private InstanceService instanceService;
 
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Get Service Templates from CSAR", response = ServiceTemplateDTO.class, responseContainer = "List")
 	public Response getServiceTemplates(@PathParam("csar") final String csar) {
-		
+
 		final CSARContent csarContent = this.csarService.findById(csar);
 		final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
 
@@ -60,13 +65,14 @@ public class ServiceTemplateController {
 		}
 
 		list.add(Link.fromUri(this.uriInfo.getAbsolutePath()).rel("self").build());
-		
+
 		return Response.ok(list).build();
 	}
-	
+
 	@GET
 	@Path("/{servicetemplate}")
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Get service templates from CSAR", response = Link.class, responseContainer = "List")
 	public Response getServiceTemplate(@PathParam("csar") final String csar, @PathParam("servicetemplate") final String servicetemplate) {
 
 		final CSARContent csarContent = this.csarService.findById(csar);
@@ -80,26 +86,57 @@ public class ServiceTemplateController {
 		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("boundarydefinitions").build())).rel("boundarydefinitions").build());
 		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("buildplans").build())).rel("buildplans").build());
 		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
-		
+
 		return Response.ok(links).build();
 	}
-	
+
 	@Path("/{servicetemplate}/buildplans")
 	public PlanController getBuildPlans(@PathParam("csar") final String csar, @PathParam("servicetemplate") final String servicetemplate) {
-		
+
 		final CSARContent csarContent = this.csarService.findById(csar);
 		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
 			logger.info("Service template \"" + servicetemplate + "\" could not be found");
 			throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
 		}
-		
+
 		return new PlanController(csarContent.getCSARID(), QName.valueOf(servicetemplate), null, this.planService, this.instanceService, PlanTypes.BUILD);
 	}
 
+  // answer to management status if CSAR-ID doesn't exist
+  // postManagementPlan from api.legacy, linked to a method at *.api
+  // transfer postManagementPlan from api.legacy.*.serviceTemplateInstanceRessource to *.api.src.opentosca.container.api.service.InstanceService or *.PlanService (better)
+  //
+  // What about *.CsarService.findByID POST in exception?
+  // [MK]
+  //
+  // Code from *.api.legacy for later moving to *.api 
+	/*
+	@POST
+  @Consumes(ResourceConstants.TEXT_PLAIN)
+  @Produces(ResourceConstants.APPLICATION_JSON)
+  public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json)
+      throws URISyntaxException, UnsupportedEncodingException {
+    final String url = this.postManagementPlanJSON(uriInfo, json);
+    final JsonObject ret = new JsonObject();
+    ret.addProperty("PlanURL", url);
+    return Response.created(new URI(url)).entity(ret.toString()).build();
+  }
+
+   @POST
+  @Consumes(ResourceConstants.TEXT_PLAIN)
+  @Produces(ResourceConstants.TOSCA_XML)
+  public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json)
+      throws URISyntaxException, UnsupportedEncodingException {
+
+    final String url = this.postManagementPlanJSON(uriInfo, json);
+    // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+    return Response.created(new URI(url)).build();
+  }
+	 */
 	public void setCsarService(final CsarService csarService) {
 		this.csarService = csarService;
 	}
-	
+
 	public void setPlanService(final PlanService planService) {
 		this.planService = planService;
 	}
