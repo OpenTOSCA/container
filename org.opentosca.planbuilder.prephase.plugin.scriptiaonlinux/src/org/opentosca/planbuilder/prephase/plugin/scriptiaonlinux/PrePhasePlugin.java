@@ -49,6 +49,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	private final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
 	private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artefacttypes",
 			"DockerContainerArtefact");
+	
+	private final QName nodeMCUBinary = new QName("http://opentosca.org/artifacttypes", "NodeMCUBinary");
 
 	private final Handler handler = new Handler();
 
@@ -168,6 +170,11 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			isSupportedArtifactType |= true;
 		}
 
+		if(this.nodeMCUBinary.equals(artifactType)){
+			LOG.debug("Got:"+ nodeMCUBinary.getLocalPart());
+			return true;
+		}
+		
 		// we can deploy on debian nodes (ubuntu, rasbpian, docker containers based on debian,..) 
 		if (!org.opentosca.container.core.tosca.convention.Utils
 				.isSupportedInfrastructureNodeType(infrastructureNodeType)) {			

@@ -1,16 +1,21 @@
 package org.opentosca.bus.management.api.soaphttp.processor;
 
 import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.headers.Header;
 import org.opentosca.bus.management.api.soaphttp.Activator;
@@ -21,7 +26,12 @@ import org.opentosca.bus.management.api.soaphttp.model.InvokePlan;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ResolvedArtifacts;
+import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -99,6 +109,63 @@ public class RequestProcessor implements Processor {
 
 			final String relationshipTemplateID = invokeIaRequest.getRelationshipTemplateID();
 			exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
+			
+			//Support new Deployment Artifact Header
+			
+			
+			final Message message = exchange.getIn();
+			
+			ServiceReference<?> servRef = Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
+			IToscaEngineService toscaEngineService = (IToscaEngineService) Activator.bundleContext.getService(servRef);
+//				Map<String, Object> headersMap = message.getHeaders();
+//				LOG.error("Size:" + headersMap.size());
+//				for (String key : headersMap.keySet()) {
+//					if (headersMap.get(key) != null) {
+//						LOG.error("key:" + key + " " + headersMap.get(key).toString());
+//					} else {
+//						LOG.error("key:" + key + " null");
+//					}
+//				}
+			LOG.error("nodeTemplateId:" + nodeTemplateID);
+				//String serviceTemplateNamespaceURI = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.name(), String.class);
+				QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
+				ResolvedArtifacts resolvedArtifacts = toscaEngineService
+						.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
+				List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+				LOG.error("Deployment Artifacts");
+				LOG.debug("resolvedDaSize:"+resolvedDAs.size());
+				URL serviceInstanceIDUrl = new URL(serviceInstanceID);
+				HashMap<String,HashMap<String,String>> DAs = new HashMap<String,HashMap<String,String>>();  
+				for (ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
+					LOG.error("DA name:" + resolvedDeploymentArtifact.getName());
+					String DAname = resolvedDeploymentArtifact.getName();
+					HashMap<String,String> DAfiles = new HashMap<String,String>();
+					DAs.put(DAname, DAfiles);
+					for(String s: resolvedDeploymentArtifact.getReferences()){
+						LOG.error("DA getReferences:" + s);
+						String url= serviceInstanceIDUrl.getProtocol()+"://"+serviceInstanceIDUrl.getHost()+":"+serviceInstanceIDUrl.getPort()+"/csars/"+csarIDString+"/content/";
+						String urlWithDa =url +s;
+						
+						LOG.error(urlWithDa);
+						DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
+						//DAfiles.add(uriWithDa);
+					}
+				}
+				exchange.getIn().setHeader(MBHeader.TEST_HEADER.name(),DAs);
+				//SERVICEINSTANCEID_URI
+				LOG.error("serviceInstanceID:"+serviceInstanceID);
+				
+				
+				//serviceInstanceIDUrl.get
+				LOG.error("OPENTOSCA_CONTAINER_HOSTNAME:"+Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+				LOG.error("OPENTOSCA_CONTAINER_PORT:"+Settings.OPENTOSCA_CONTAINER_PORT);
+				LOG.error("serviceTemplateIDNamespaceURI:"+serviceTemplateIDNamespaceURI);
+				//LOG.error("URI:"+serviceInstanceIDUrl.getProtocol()+"://"+serviceInstanceIDUrl.getHost()+":"+serviceInstanceIDUrl.getPort()+"/csars/"+serviceTemplateID.getLocalPart()+"/content/");
+				LOG.error("Deployment Artifacts");
+			
+				 //Ende
+				 
+				 
 
 			interfaceName = invokeIaRequest.getInterfaceName();
 

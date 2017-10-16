@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,6 +22,11 @@ import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
 import org.opentosca.bus.management.plugins.soaphttp.service.impl.route.AsyncRoute;
 import org.opentosca.bus.management.plugins.soaphttp.service.impl.util.Messages;
 import org.opentosca.bus.management.utils.MBUtils;
+import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ResolvedArtifacts;
+import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -93,9 +99,35 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		}
 		
 		headers.put("endpoint", endpoint.replace("?wsdl", ""));
-		
-		//headers.put("DeploymentArtefacts")
-		
+//		LOG.error("operationNameTest:"+ operationName);
+//		//if (operationName.equals("install")) {
+//			LOG.error("hgfdghgefef");
+//			ServiceReference<?> servRef = Activator.bundleContext
+//					.getServiceReference(IToscaEngineService.class.getName());
+//			IToscaEngineService toscaEngineService = (IToscaEngineService) Activator.bundleContext.getService(servRef);
+//			String nodeTemplateId = message.getHeader(MBHeader.NODETEMPLATEID_STRING.name(), String.class);
+//			Map<String, Object> headersMap = message.getHeaders();
+//			LOG.error("Size:" + headersMap.size());
+//			for (String key : headersMap.keySet()) {
+//				if (headersMap.get(key) != null) {
+//					LOG.error("key:" + key + " " + headersMap.get(key).toString());
+//				} else {
+//					LOG.error("key:" + key + " null");
+//				}
+//			}
+//			LOG.error("nodeTemplateId:" + nodeTemplateId);
+//			String serviceTemplateNamespaceURI = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.name(), String.class);
+//			QName nodeTemplateQName = new QName(serviceTemplateNamespaceURI, nodeTemplateId);
+//			ResolvedArtifacts resolvedArtifacts = toscaEngineService
+//					.getResolvedArtifactsOfNodeTemplate(new CSARID(csarID), nodeTemplateQName);
+//			List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+//			LOG.error("Deployment Artifacts");
+//			for (ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
+//				LOG.error("DA name:" + resolvedDeploymentArtifact.getName());
+//			}
+//			LOG.error("Deployment Artifacts");
+			// headers.put("DeploymentArtefacts")
+		//}
 		Document document = null;
 		
 		ManagementBusPluginSoapHttpServiceImpl.LOG.info("Creating invocation message.");
