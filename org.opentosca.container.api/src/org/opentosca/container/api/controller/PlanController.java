@@ -50,8 +50,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 
-
-// @Api (value = "/csars") 
 public class PlanController {
 
   private static Logger logger = LoggerFactory.getLogger(PlanController.class);

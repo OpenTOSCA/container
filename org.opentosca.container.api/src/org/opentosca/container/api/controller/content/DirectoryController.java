@@ -22,6 +22,8 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.ApiOperation;
+
 public class DirectoryController {
 
   private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
@@ -37,6 +39,7 @@ public class DirectoryController {
 
   @GET
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @ApiOperation(value = "Get links", response = ResourceSupport.class)
   public Response getLinks(@Context final UriInfo uriInfo) {
     ResourceSupport dto = new ResourceSupport();
     for (final AbstractDirectory directory : this.directory.getDirectories()) {

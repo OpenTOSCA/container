@@ -27,7 +27,11 @@ import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.ResourceSupport;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @Path("/")
+@Api("/")
 public class RootController {
 	
 	@Context
@@ -36,6 +40,7 @@ public class RootController {
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Get Root for CSAR", response = ResourceSupport.class, responseContainer = "List")
 	public Response getRoot() {
 		final ResourceSupport links = new ResourceSupport();
 		links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());

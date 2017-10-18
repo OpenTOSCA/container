@@ -99,7 +99,7 @@ public class ServiceTemplateInstanceController {
   @GET
   @Path("/{id}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  @ApiOperation(value = "Get service template instance by CSAR", response = ServiceTemplateInstanceDTO.class, responseContainer = "List")
+  @ApiOperation(value = "Get service template instance by CSAR", response = ServiceTemplateInstanceDTO.class)
   public Response getServiceTemplateInstance(@PathParam("csar") final String csar,
       @PathParam("servicetemplate") final String servicetemplate,
       @PathParam("id") final Integer id) {
@@ -143,8 +143,6 @@ public class ServiceTemplateInstanceController {
     return Response.ok(dto).build();
   }
 
-
-  //get Management Plans if CSAR-ID exists [MK]
 
   @Path("/{id}/managementplans")
   public PlanController getManagementPlans(@PathParam("csar") final String csar,

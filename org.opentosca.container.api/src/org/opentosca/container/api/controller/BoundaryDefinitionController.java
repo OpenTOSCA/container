@@ -38,7 +38,11 @@ import org.opentosca.container.core.tosca.model.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
+@Api("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
 public class BoundaryDefinitionController {
 
 	private final Logger logger = LoggerFactory.getLogger(CsarController.class);
@@ -59,6 +63,7 @@ public class BoundaryDefinitionController {
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Get Boundary Definitions for CSAR", response = ResourceSupport.class, responseContainer = "List")
 	public Response getBoundaryDefinitions(@PathParam("csar") final String csar,
 			@PathParam("servicetemplate") final String servicetemplate) {
 		
@@ -87,6 +92,7 @@ public class BoundaryDefinitionController {
 	@GET
 	@Path("/properties")
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Get Properties of the CSAR file", response = PropertiesDTO.class, responseContainer = "List")
 	public Response getProperties(@PathParam("csar") final String csar,
 			@PathParam("servicetemplate") final String servicetemplate) {
 		
@@ -116,6 +122,7 @@ public class BoundaryDefinitionController {
 	@GET
 	@Path("/interfaces")
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Get interfaces of the CSAR file", response = InterfaceDTO.class, responseContainer = "List")
 	public Response getInterfaces(@PathParam("csar") final String csar,
 			@PathParam("servicetemplate") final String servicetemplate) {
 		

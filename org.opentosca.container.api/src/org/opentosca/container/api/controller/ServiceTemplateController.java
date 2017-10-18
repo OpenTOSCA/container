@@ -72,7 +72,7 @@ public class ServiceTemplateController {
 	@GET
 	@Path("/{servicetemplate}")
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	@ApiOperation(value = "Get service templates from CSAR", response = Link.class, responseContainer = "List")
+	@ApiOperation(value = "Get service templates from CSAR", response = ResourceSupport.class, responseContainer = "List")
 	public Response getServiceTemplate(@PathParam("csar") final String csar, @PathParam("servicetemplate") final String servicetemplate) {
 
 		final CSARContent csarContent = this.csarService.findById(csar);
@@ -102,37 +102,6 @@ public class ServiceTemplateController {
 		return new PlanController(csarContent.getCSARID(), QName.valueOf(servicetemplate), null, this.planService, this.instanceService, PlanTypes.BUILD);
 	}
 
-  // answer to management status if CSAR-ID doesn't exist
-  // postManagementPlan from api.legacy, linked to a method at *.api
-  // transfer postManagementPlan from api.legacy.*.serviceTemplateInstanceRessource to *.api.src.opentosca.container.api.service.InstanceService or *.PlanService (better)
-  //
-  // What about *.CsarService.findByID POST in exception?
-  // [MK]
-  //
-  // Code from *.api.legacy for later moving to *.api 
-	/*
-	@POST
-  @Consumes(ResourceConstants.TEXT_PLAIN)
-  @Produces(ResourceConstants.APPLICATION_JSON)
-  public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json)
-      throws URISyntaxException, UnsupportedEncodingException {
-    final String url = this.postManagementPlanJSON(uriInfo, json);
-    final JsonObject ret = new JsonObject();
-    ret.addProperty("PlanURL", url);
-    return Response.created(new URI(url)).entity(ret.toString()).build();
-  }
-
-   @POST
-  @Consumes(ResourceConstants.TEXT_PLAIN)
-  @Produces(ResourceConstants.TOSCA_XML)
-  public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json)
-      throws URISyntaxException, UnsupportedEncodingException {
-
-    final String url = this.postManagementPlanJSON(uriInfo, json);
-    // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
-    return Response.created(new URI(url)).build();
-  }
-	 */
 	public void setCsarService(final CsarService csarService) {
 		this.csarService = csarService;
 	}

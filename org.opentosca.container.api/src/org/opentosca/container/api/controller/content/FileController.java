@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import io.swagger.annotations.ApiOperation;
+
 public class FileController {
 
   private static Logger logger = LoggerFactory.getLogger(FileController.class);
@@ -41,6 +43,7 @@ public class FileController {
 
   @GET
   @Produces({MediaType.APPLICATION_OCTET_STREAM, "image/*"})
+  @ApiOperation(value = "Tries to get file")
   public Response getFile() {
     logger.info("Attempt to get file: \"{}\"", this.file.getPath());
     try {
