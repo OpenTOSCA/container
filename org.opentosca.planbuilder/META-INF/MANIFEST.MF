@@ -28,7 +28,6 @@ Export-Package: org.opentosca.planbuilder,
  org.opentosca.planbuilder.plugins.registry,
  org.opentosca.planbuilder.utils
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.provphase.plugin.invoker
+ org.opentosca.planbuilder.model;bundle-version="1.0.0"
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy

@@ -51,14 +51,14 @@ public class BPELDockerContainerHandler {
 
 	private final Plugin invokerPlugin = new Plugin();
 	private BPELProcessFragments planBuilderFragments;
-	private final static Logger LOG = LoggerFactory.getLogger(Handler.class);
+	private final static Logger LOG = LoggerFactory.getLogger(BPELDockerContainerHandler.class);
 	
 	
-	public Handler() {
+	public BPELDockerContainerHandler() {
 		try {
 			this.planBuilderFragments = new BPELProcessFragments();
 		} catch (final ParserConfigurationException e) {
-			Handler.LOG.error("Couldn't initialize planBuilderFragments class");
+			BPELDockerContainerHandler.LOG.error("Couldn't initialize planBuilderFragments class");
 			e.printStackTrace();
 		}
 	}
@@ -72,7 +72,7 @@ public class BPELDockerContainerHandler {
 	 */
 	public boolean handle(final TemplatePlanContext templateContext) {
 		if (templateContext.getNodeTemplate() == null) {
-			Handler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
+			BPELDockerContainerHandler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
 			return false;
 		}
 
@@ -83,7 +83,7 @@ public class BPELDockerContainerHandler {
 		final Variable portVar = templateContext.getPropertyVariable(nodeTemplate, "Port");
 
 		if ((containerPortVar == null) | (portVar == null)) {
-			Handler.LOG.error("Couldn't fetch Property variables ContainerPort or Port");
+			BPELDockerContainerHandler.LOG.error("Couldn't fetch Property variables ContainerPort or Port");
 			return false;
 		}				
 		
@@ -115,7 +115,7 @@ public class BPELDockerContainerHandler {
 		final AbstractNodeTemplate dockerEngineNode = this.getDockerEngineNode(nodeTemplate);
 
 		if (dockerEngineNode == null) {
-			Handler.LOG.error("Couldn't fetch DockerEngineNode to install given DockerContainer NodeTemplate");
+			BPELDockerContainerHandler.LOG.error("Couldn't fetch DockerEngineNode to install given DockerContainer NodeTemplate");
 			return false;
 		}
 
