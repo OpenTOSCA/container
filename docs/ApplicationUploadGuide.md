@@ -1,4 +1,4 @@
-## How to upload an application##
+## How to upload an application
 
 - Go to [opentosca2](localhost:8088/#/applications)
 - Click on **Upload New Application**
