@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,6 +38,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.google.gson.Gson;
 
 /**
  * Request-Processor of the Management Bus-SOAP/HTTP-API.<br>
@@ -151,7 +155,10 @@ public class RequestProcessor implements Processor {
 						//DAfiles.add(uriWithDa);
 					}
 				}
-				exchange.getIn().setHeader(MBHeader.TEST_HEADER.name(),DAs);
+//				Header header = new Header(MBHeader.DEPLOYMENT_ARTIFACTS.name(),
+//				DAs,new DataBinding(UserCredentials.class));
+				Gson gson = new Gson();
+				exchange.getIn().setHeader(MBHeader.DEPLOYMENT_ARTIFACTS.name(),gson.toJson(DAs));
 				//SERVICEINSTANCEID_URI
 				LOG.error("serviceInstanceID:"+serviceInstanceID);
 				
