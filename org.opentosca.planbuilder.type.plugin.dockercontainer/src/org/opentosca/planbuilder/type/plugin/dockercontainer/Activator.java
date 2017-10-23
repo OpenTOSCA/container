@@ -8,7 +8,8 @@ import org.osgi.framework.ServiceRegistration;
 public class Activator implements BundleActivator {
 	
 	private static BundleContext context;
-	private ServiceRegistration registration;
+	private ServiceRegistration dockerContainerPluginRegistration;
+	private ServiceRegistration OpenMTCdockerContainerPluginRegistration;
 	
 	
 	static BundleContext getContext() {
@@ -25,7 +26,8 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		this.registration = Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), new Plugin(), null);
+		this.dockerContainerPluginRegistration = Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), new Plugin(), null);
+		this.OpenMTCdockerContainerPluginRegistration= Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), new OpenMTCDockerContainerPlugin(), null);
 		
 	}
 	
@@ -38,7 +40,7 @@ public class Activator implements BundleActivator {
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		Activator.context = null;
-		this.registration.unregister();
+		this.dockerContainerPluginRegistration.unregister();
 	}
 	
 }

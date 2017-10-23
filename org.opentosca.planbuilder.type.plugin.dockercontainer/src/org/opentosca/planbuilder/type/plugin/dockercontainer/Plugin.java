@@ -2,11 +2,13 @@ package org.opentosca.planbuilder.type.plugin.dockercontainer;
 
 import javax.xml.soap.Node;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.plugins.context.TemplatePlanContext;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.handler.Handler;
+import org.opentosca.planbuilder.utils.Utils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -62,6 +64,11 @@ public class Plugin implements IPlanBuilderTypePlugin {
 		if(nodeTemplate.getProperties() == null){
 			return false;
 		}
+		
+		if(!Utils.getNodeTypeHierarchy(nodeTemplate.getType()).contains(Types.dockerContainerNodeType)) {
+			return false;
+		}
+		
 		Element propertyElement = nodeTemplate.getProperties().getDOMElement();
 		NodeList childNodeList = propertyElement.getChildNodes();
 		
