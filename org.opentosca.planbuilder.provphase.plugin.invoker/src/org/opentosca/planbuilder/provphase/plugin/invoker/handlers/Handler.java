@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Properties;
+import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -100,15 +101,12 @@ public class Handler {
 		}
 	}
 	
-	
-	
 	public boolean handle(final TemplatePlanContext context, final AbstractOperation operation, final AbstractImplementationArtifact ia) throws IOException {
 		File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
 		File wsdlFile = this.resHandler.getServiceInvokerWSDLFile(xsdFile, context.getIdForNames());
 		// register wsdls and xsd
 		final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
 		final QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
-		
 		
 		// atleast the xsd should be imported now in the plan
 		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), xsdFile);
@@ -171,25 +169,23 @@ public class Handler {
 		final Map<String, Variable> internalExternalPropsOutput = new HashMap<>();
 		
 		for (final AbstractParameter para : operation.getInputParameters()) {
-			Variable propWrapper = context.getPropertyVariable(para.getName());
-			if (propWrapper == null) {
-				propWrapper = context.getPropertyVariable(para.getName(), true);
-				if (propWrapper == null) {
-					propWrapper = context.getPropertyVariable(para.getName(), false);
+			Variable propWrapper = null;
+			// if this param is ambigious, search for the alternatives to match against
+			if(Utils.isSupportedVirtualMachineIPProperty(para.getName())) {
+				for(String propAlt : Utils.getSupportedVirtualMachineIPPropertyNames()) {
+					propWrapper = this.findVar(context, propAlt);
+					if(propWrapper != null) {
+						break;
+					}
 				}
-			}
-			
+			} else {
+				propWrapper = this.findVar(context, para.getName());
+			}			
 			internalExternalPropsInput.put(para.getName(), propWrapper);
 		}
 		
 		for (final AbstractParameter para : operation.getOutputParameters()) {
-			Variable propWrapper = context.getPropertyVariable(para.getName());
-			if (propWrapper == null) {
-				propWrapper = context.getPropertyVariable(para.getName(), true);
-				if (propWrapper == null) {
-					propWrapper = context.getPropertyVariable(para.getName(), false);
-				}
-			}
+			Variable propWrapper = this.findVar(context, para.getName());
 			internalExternalPropsOutput.put(para.getName(), propWrapper);
 		}
 		
@@ -262,7 +258,6 @@ public class Handler {
 			messageIdInit = context.importNode(messageIdInit);
 			assignNode.appendChild(messageIdInit);
 			
-			
 			Node replyToCopy = this.resHandler.generateReplyToCopyAsNode(partnerLinkName, requestVariableName, InputMessagePartName, "ReplyTo");
 			replyToCopy = context.importNode(replyToCopy);
 			assignNode.appendChild(replyToCopy);
@@ -332,6 +327,17 @@ public class Handler {
 		return true;
 	}
 	
+	private Variable findVar(TemplatePlanContext context, String propName) {
+		Variable propWrapper = context.getPropertyVariable(propName);
+		if (propWrapper == null) {
+			propWrapper = context.getPropertyVariable(propName, true);
+			if (propWrapper == null) {
+				propWrapper = context.getPropertyVariable(propName, false);
+			}
+		}
+		return propWrapper;
+	}
+	
 	public boolean handle(final TemplatePlanContext context, final String templateId, final boolean isNodeTemplate, final String operationName, final String interfaceName, final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput, final Map<String, Variable> internalExternalPropsOutput, final boolean appendToPrePhase) throws IOException {
 		
 		File xsdFile = this.resHandler.getServiceInvokerXSDFile(context.getIdForNames());
@@ -339,7 +345,6 @@ public class Handler {
 		// register wsdls and xsd
 		final QName invokerPortType = context.registerPortType(this.resHandler.getServiceInvokerPortType(), wsdlFile);
 		final QName invokerCallbackPortType = context.registerPortType(this.resHandler.getServiceInvokerCallbackPortType(), wsdlFile);
-		
 		
 		// atleast the xsd should be imported now in the plan
 		context.registerType(this.resHandler.getServiceInvokerAsyncRequestXSDType(), xsdFile);
@@ -438,7 +443,6 @@ public class Handler {
 			Node messageIdInit = this.resHandler.generateMessageIdInitAsNode(requestVariableName, InputMessagePartName, templateId + ":" + interfaceName + ":" + operationName + ":");
 			messageIdInit = context.importNode(messageIdInit);
 			assignNode.appendChild(messageIdInit);
-			
 			
 			if (appendToPrePhase) {
 				context.getPrePhaseElement().appendChild(assignNode);
