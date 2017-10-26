@@ -4,15 +4,15 @@
 
 <!-- toc -->
 
-- [Architektur](#architektur)
-- [Erweiterung von TOSCA, Code-Generierung und Umsetzung durch den Application Bus](#erweiterung-von-tosca-code-generierung-und-umsetzung-durch-den-application-bus)
-  * [Entwicklung einer durch den Application Bus aufzurufenden Anwendung](#entwicklung-einer-durch-den-application-bus-aufzurufenden-anwendung)
-  * [Entwicklung einer den Application Bus nutzenden Anwendung](#entwicklung-einer-den-application-bus-nutzenden-anwendung)
-  * [Setup einer den Application Bus nutzenden Anwendung](#setup-einer-den-application-bus-nutzenden-anwendung)
-  * [Kommunikation einer aufrufenden Anwendung mit dem Application Bus](#kommunikation-einer-aufrufenden-anwendung-mit-dem-application-bus)
-  * [Kommunikation des Application Bus mit einer aufzurufenden Anwendung](#kommunikation-des-application-bus-mit-einer-aufzurufenden-anwendung)
-- [Implementierung](#implementierung)
-  * [Application Bus Konstanten und Exceptions](#application-bus-konstanten-und-exceptions)
+- [Architecture](#architecture)
+- [Expansion of TOSCA, code generation and implementation by the Application Bus](#expansion-of-tosca-code-generation-and-implementation-by-the-application-bus)
+  * [Development of an application that is invoked by the Application Bus](#development-of-an-application-that-is-invoked-by-the-application-bus)
+  * [Development of an application that uses the Application Bus](#development-of-an-application-that-uses-the-application-bus)
+  * [Setup of an application that uses the Application Bus](#setup-of-an-application-that-uses-the-application-bus)
+  * [Communication between Application Bus and an invoking application](#communication-between-application-bus-and-an-invoking-application)
+  * [Communication between Application Bus and an invoked application](#communication-between-application-bus-and-an-invoked-application)
+- [Implementation](#implementation)
+  * [Application Bus constants and exceptions](#application-bus-constants-and-exceptions)
   * [Application Bus SOAP/HTTP API](#application-bus-soaphttp-api)
   * [Application Bus JSON/HTTP API](#application-bus-jsonhttp-api)
   * [Application Bus REST/HTTP API](#application-bus-resthttp-api)
@@ -23,109 +23,97 @@
 
 <!-- tocstop -->
 
-## Architektur
+## Architecture
 
-In diesem Kapitel wird die Architektur des im Rahmen dieser Arbeit entwickelten Application Bus vorgestellt. 
-Dabei wird zum einen auf die Architektur des Application Bus selbst als auch auf die resultierende Architektur von OpenTOSCA eingegangen.
-
-In Abbildung 12 wird die Architektur des Application Bus dargestellt.
-Links in der Abbildung sind beispielhafte APIs zur Nutzung des Application Bus aufgeführt (siehe Abschnitt 9.2, 9.3 und 9.4). 
-Durch diese APIs wird die Funktionalität des Application Bus anderen Komponenten und Anwendungen zur Verfügung gestellt.
-Die Abbildung zeigt beispielsweise eine SOAP sowie eine REST API. 
-Weiterhin können beliebige weitere APIs, auch während der Laufzeit, hinzugefügt werden und damit die Anzahl an unterstützten Protokollen und Standards erhöht werden.
-
-Die zentrale Komponente innerhalb des Application Bus ist die *Application Bus Engine* (siehe Abschnitt 9.5). 
-Hier werden zum Aufruf einer gewünschten Operation benötigte Informationen gesammelt beziehungsweise ermittelt. 
-Beispielsweise wird in der Application Bus Engine der Endpoint der aufzurufenden Anwendung bestimmt. 
-Weiterhin wird ermittelt welches Application Bus Plugin zur Verfügung steht, also im Container installiert und gestartet ist. 
-Außerdem wird anhand der im TOSCA-Modell vorhandenen Informationen (siehe dazu Kapitel 8) ein Plugin bestimmt, dass den Aufruf bewerkstelligen kann. 
-Hierzu ist die Application Bus Engine mit anderen benötigten Komponente des OpenTOSCA Containers wie der TOSCA Engine sowie dem Instance Data Service verbunden. 
-Per Instance Data Service können Instanzdaten gespeichert und abgefragt werden. So können zum Beispiel IP-Adressen deployter Anwendungskomponenten dort von Plänen abgelegt werden und diese dadurch anderen OpenTOSCA-Komponenten wie beispielweise dem Application Bus zugänglich gemacht werden.
+This is a visualization of the Application Buses architecture with some example APIs to the left.
+Those APIs provided the functionality of the Application Bus to other components and applications.
+Pictured here are a SOAP and a REST API.
+Further APIs can be added, even during the run time, to increase the number of supported protocols and standards. 
+The central component of the Application Bus is the [Application Bus Engine](#application-bus-engine)
+The information needed to invoke an operation is determined and collected here. 
+The Application Bus engine is used, for example to determine the endpoint of the invoked application.
+Availability of the Application Bus plugin, meaning which plugin is installed and started in the container, is also determined.
+The information provided by the TOSCA model is used to determine a plugin that is capable of the invocation.
+Which is why the Application Bus engine is connected to the necessary components of the OpenTosca container like the TOSCA Engine and the Instance Data Service. 
+The Instance Data Service is used to query for and save instance data.
+IP addresses of deployed application components can be stored there, this makes them available to other OpenTOSCA components, for example the Application Bus.
 
 ![ApplicationBusArchitektur](graphics/ApplicationBusArchitektur.png)
 
-**Abbildung 12: Application Bus Architektur**
+**Application Bus Architecture**
 
-Im rechten Bereich der Abbildung sind die Application Bus Plugins dargestellt (siehe Abschnitt 9.6). 
-Die Plugins sind für den Aufruf der spezifizierten Operation einer Anwendung zuständig und stellen ebenfalls Unterstützung für verschiedene Standards und Protokolle --*Invocation-Type* genannt -- zur Verfügung. 
-Wiederum sind hier beispielhaft ein SOAP sowie ein REST Plugin aufgeführt.
-Jedoch können auch hier, analog zu den APIs, beliebige neue Plugins noch zur Laufzeit hinzugefügt werden. 
-Die Verwaltung der Plugins übernimmt die Application Bus Engine durch ein dafür ausgelegtes und auf OSGi (siehe Abschnitt 2.4) basierendes Plugin-System.
-
-Abbildung 12 zeigt weiterhin die Verbindung der einzelnen Komponenten innerhalb der Application Bus Engine durch Camel (siehe Abschnitt 2.7).
-Die schwarzen Punkte stellen dabei die von der jeweiligen Komponente definierten Endpunkte dar. 
-Die gestrichelten Linien stellen weiterhin die Camel Routen zur Verbindung dieser Endpunkte dar.
-
-In dem hier aufgezeigten Beispiel sind jeweils die gleichen Typen (SOAP und REST) an APIs und Plugins vorhanden. 
-Dies ist jedoch nicht obligatorisch. Die zur Verwendung des Application Bus genutzte API muss nicht identisch mit dem für den Aufruf einer Operation einer Anwendung genutztem Plugin sein. 
-Eine Anwendung kann somit beispielsweise den Application Bus per REST API ansprechen, wohingegen der effektive Aufruf der Operation einer anderen Anwendung per SOAP Plugin erfolgt.
+Displayed on the right hand side are the [Application Bus plugins](#application-bus-jsonhttp-plugin).
+Plugins are responsible for the invocation of specified operations of an application and provide support for different standards and protocols -- called *Invocation-Type* --.
+Again exemplified with a SOAP and REST plugin.
+New plugins can be added even during the run time, similarly to APIs. 
+The Application Bus engine, which features a OSGi based plugin system designed for this purpose, is responsible for plugin management. 
+Also demonstrated in this figure is the connection of the individual components within the Application Bus engine through Camel.
+The black dots represent the endpoints defined by the respective component.
+The dotted lines represent the Camel routes to connect the endpoints.
+The same types (SOAP and REST) of APIs and plugins are present in this example.
+This is however not obligatory. 
+The API utilized to use the Application Bus does not have to be identical with the plugin used to invoke the operation of an application.
+One Application can call on the Application Bus with REST API, while the invocation of an operation from a different application can be via SOAP plugin. 
 
 ![KommunikationsdiagrammApplicationBus](graphics/KommunikationsdiagrammApplicationBus.png)
 
-**Abbildung 13:Kommunikationsdiagramm des Application Bus**
+**Communication diagram of the Application Bus**
 
-Abbildung 13 stellt den Aufbau des Application Bus als Kommunikationsdiagramm dar. 
-Das Diagramm zeigt den zentralen Charakter der Application Bus Engine, die einerseits sowohl mit benötigten Komponenten des OpenTOSCA Containers kommuniziert sowie andererseits als Bindeglied zwischen den verschiedenen APIs und Plugins fungiert.
-Abbildung 13 zeigt weiterhin die beispielhafte Nutzung des Application Bus durch eine Anwendung (A) sowie den Aufruf einer Anwendung (B) durch ein Application Bus Plugin.
+Pictured here is the Application Buses structure with a communication diagram.
+Shown is the central character of the Application Bus engine, as it is needed to communicate with the necessary components of the OpenTOSCA container as well as its role as link between different APIs and plugins.
+An example usage of the Application Bus by an application (A), as well as the invocation of an application (B) through the Application Bus plugin is also depicted.
 
 ![OpenTOSCAArchitekturApplicationBus](graphics/OpenTOSCAArchitekturApplicationBus.png)
 
-**Abbildung 14: OpenTOSCA Architektur mit Application Bus**
+**OpenTOSCA Architecture with Application Bus**
 
-Abbildung 14 stellt die erweiterte Gesamtarchitektur von OpenTOSCA, im Vergleich zu Abbildung 2, mit integriertem Application Bus dar. 
-Zu erkennen ist, dass die Komponenten auf der rechten Seite der Abbildung (IA-Engine, Management Bus, Application Bus sowie Plan-Engine) jeweils mit einem eigenen Plugin-System ausgestattet sind. 
-Dadurch kann die Funktionalität jeder einzelner Komponente sowie von OpenTOSCA insgesamt einfach erweitert werden. 
-Darüber hinaus bringt die Verwendung eines einheitlichen Plugin-Systems eine besser Wartbarkeit des Containers mit sich.
+This figure shows the expanded complete architecture of OpenTOSCA with integrated Application Bus.
+All components on the right (IA-Engine, Management Bus, Application Bus and Plan-Engine) each have their own plugin system.
+This makes it easy to expand the functionality of each individual component as well as OpenTOSCA as a whole.
+Usage of a unified plugin system also improves the containers maintainability. 
 
-## Erweiterung von TOSCA, Code-Generierung und Umsetzung durch den Application Bus
+## Expansion of TOSCA, code generation and implementation by the Application Bus
 
-In Kapitel 6 wurde bereits ein grober Überblick über die Funktionsweise des Application Bus gegeben. 
-In diesem Kapitel wird daher anhand eines Beispielszenarios die Nutzung und Funktionsweise des Application Bus detailliert vorgestellt. 
-Dabei werden von der Entwicklung einer Anwendung, über das Deployment dieser durch OpenTOSCA bis hin zum Aufruf der Anwendung mittels des Application Bus wichtige Teilschritte näher betrachtet. 
-Hierzu wird im folgenden Beispielszenario die Application Bus SOAP/HTTP API (siehe Abschnitt 9.2) sowie das Application Bus JSON/HTTP Plugin (siehe Abschnitt 9.6) als Beispiele für eine API sowie für ein Plugin genutzt. 
-Der konzeptionelle Ablauf bei der Nutzung einer anderen API beziehungsweise eines anderen Plugins ist mit dem hier gezeigten vergleichbar.
+In the following the usage and functionality of the Application Bus gets explained in more detail with an example. 
+This entails taking a closer look at the steps necessary to implement an application, deploy it with OpenTOSCA and finally invoking it with the Application Bus.
+This scenario uses a [Application Bus SOAP/HTTP API](#application-bus-soaphttp-api) and a [Application Bus JSON/HTTP Plugin](#application-bus-jsonhttp-plugin) as examples for an Application Bus API and plugin.
+The procedure stays comparable with the usage of different APIs and plugins.
 
 ![Beispielszenario](graphics/Beispielszenario.png)
 
-**Abbildung 15: Beispielszenario**
+**Example scenario**
+This depicts the scenario used to explain the usage and functionality of the Application Bus.
+The application *HausSteuerung* invokes the operation *getTemp* from the *TempSensors* application. 
+The application HausSteuerung knows neither the endpoint of the application TempSensor nor how to invoke it, for this the Application Bus is needed.
+Both application in this example are implemented as Web Application Archives (WAR).
+However any other implementation is conceptually possible. 
 
-Abbildung 15 veranschaulicht das zur Erläuterung der Nutzung und Funktionsweise des Application Bus verwendete Szenario. 
-Die Abbildung zeigt, dass eine Anwendung *HausSteuerung* die Operation *getTemp* der Anwendung *TempSensors* aufrufen soll. 
-Da die Anwendung HausSteuerung jedoch weder den Endpunkt der Anwendung TempSensors kennt, noch weiß, wie sie aufgerufen werden kann, wird der Application Bus hierfür benötigt. 
-In diesem Beispiel sind die beiden Anwendungen als Web Application Archives (WAR) implementiert. 
-Es sind jedoch konzeptionell auch beliebige andere Implementierungen möglich.
+Following along with the scenarios process these points are addressed in order:
+What has to be noted when developing an application, in this case TempSensors, that is to be invoked by the Application Bus. 
+What is important for the reversed case, development of an application that uses the Application Bus, the HausSteuerung application. 
+In both cases the possibility to support development with code generation is also considered. 
+How to configure application that uses the Application Bus after deployment.
+How the application (HausSteuerung) communicates with the Application Bus.
+And how the Application Bus communicates with the application (TempSensors). 
 
-Dem Ablauf des Beispielszenarios folgend ist dieses Kapitel wie folgt gegliedert: 
-In Abschnitt 8.1 wird erläutert, was bei der Entwicklung einer durch den Application Bus aufzurufenden Anwendung (hier: TempSensors) beachtet werden muss. 
-Anschließend wird analog dazu in Abschnitt 8.2 gezeigt, was bei der Entwicklung einer den Application Bus nutzenden Anwendung (hier: HausSteuerung) beachtet werden muss. 
-In beiden Fällen wird dabei auch auf die mögliche Unterstützung durch Code-Generierung eingegangen. 
-In Abschnitt 8.3 wird anschließend das nach dem Deployment erforderliche Einrichten der Application Bus nutzenden Anwendung (hier: HausSteuerung) erklärt. 
-Im darauf folgenden Abschnitt 8.4 wird die Kommunikation einer Anwendung (hier: HausSteuerung) mit dem Application Bus erläutert. 
-In Abschnitt 8.5 wird schließlich die Kommunikation des Application Bus mit der aufzurufenden Anwendung (hier: TempSensors) vorgestellt.
+### Development of an application that is invoked by the Application Bus
+How is an application made invokable by the Application Bus?
+Which prerequisites the application has to have, how code generation can be used as support and what expansions for TOSCA are necessary. 
+The application TempSensors is used to illustrate this.
+Prior to deploying an application with the OpenTOSCA container it has to be implemented.
+The [Application Bus Stub Generator](#application-bus-stub-generator) can generate the code skeletons of associated methods for an application that was modeled with TOSCA.
+The generation of TOSCA elements from an existing application has been planed for but is not yet implemented.  
 
-### Entwicklung einer durch den Application Bus aufzurufenden Anwendung
+![GenerierungCodeSkelett](graphics/GenerierungCodeSkelett.png)
 
-In diesem Abschnitt wird erklärt, wie eine Anwendung für den Application Bus aufrufbar gemacht wird. 
-Dabei wird erläutert welche Voraussetzungen die Anwendung dafür erfüllen muss, wie Code-Generierung zur Unterstützung genutzt werden kann und welche Erweiterungen in TOSCA dafür notwendig sind. 
-Als Beispielanwendung wird hierzu die im zuvor geschilderten Beispielszenario vorgestellte TempSensors Anwendung verwendet.
-
-Bevor eine Anwendung mittels des OpenTOSCA Containers deployt werden kann, muss sie zuerst implementiert werden. 
-Wie bereits in der in Kapitel 6 definierten Methode zur Entwicklung TOSCA-basierter Cloud-Anwendungen gezeigt, wird der Entwickler dabei schon unterstützt.
-Mit dem Application Bus Stub Generator (siehe Abschnitt 9.8) können aus einer mittels TOSCA modellierten Anwendung die Code-Skelette der dazugehörigen Methoden generiert werden (siehe Abbildung 16). 
-Noch nicht implementiert, aber konzeptionell vorgesehen, ist auch das generieren der TOSCA Elemente aus einer bereits bestehenden Anwendung.
-
-![GenerierungCodeSkelett](graphics/GenerierungCodeSkelettTOSCA.png)
-
-**Abbildung 16: Generierung eines Code-Skelettes aus TOSCA**
-
-Listing 2 zeigt eine beispielhafte Modellierung der *TempSensors* Anwendung mittels TOSCA. 
-In dem dargestellten Beispiel bietet die Anwendung eine Operation *getTemp* (Zeile 6) an. 
-Weiterhin definiert die Operation einen Eingabeparameter *sensorID* (Zeile 10) sowie einen Rückgabeparameter *temperature* (Zeile 13). 
-Um Anwendungsoperationen von Managementoperationen -- welche von Implementation Artifacts implementiert werden -- unterscheiden zu können, wurde der TOSCA Standard mit einem speziell für OpenTOSCA vorgesehenen Element erweitert. 
-Zusätzlich zu dem bereits standardmäßig vorhandenen *Interfaces* Element, welches für die Managementoperationen genutzt wird, wurde das *ApplicationInterfaces* Element (Zeile 3) eingeführt um darin Anwendungsoperationen zusammenzufassen.
+**Generating a code skeleton from TOSCA**
+This is an example of modeling the application *TempSensors* with TOSCA.
+The application offers an operation *getTemp*, this operation defines the input parameter *sensorID* as well as the return parameter *temperature*  
+The TOSCA standard was expanded with an element created specifically for OpenTOSCA, to distinguish application operations from management operations, which are implemented with implementation artifacts.
+TOSCA already has the *Interfaces* element, which is used for management operations, the *ApplicationInterfaces*  is the new element used to sum up application operations. 
 
 ```xml
-<NodeType name="TempSnesorsApplication">
+<NodeType name="TempSensorsApplication">
     ...
     <opentosca:ApplicationInterfaces
         xmlns:opentosca="http://www.uni-stuttgart.de/opentosca">
@@ -145,15 +133,13 @@ Zusätzlich zu dem bereits standardmäßig vorhandenen *Interfaces* Element, wel
 </NodeType>
 ```
 
-**Listing 2: Beispielhafte Modellierung von Anwendungsoperationen in erweitertem TOSCA**
+**Exemplary modeling of application operations in expanded TOSCA**
 
-
-Listing 3 zeigt das mittels Application Bus Stub Generator generierte Code-Skelett der modellierten Anwendungsoperation. 
-Der Entwickler der Anwendung kann dieses Code-Skelett nutzen und die generierte Methode mit der gewünschten Anwendungslogik füllen. 
-Man sieht anhand des Beispiels wie die TOSCA-Elemente in Java Code überführt werden. 
-Der Name des Interfaces innerhalb TOSCA (Zeile 5) wird zu dem Klassenname in Java (Zeile 1). 
-Die in TOSCA modellierte Operation (Zeile 6) wird zur Methode (Zeile 6) und Input- und OutputParameter (Zeilen 10 und 13) werden zu Eingabe- und Rückgabewerten (Zeilen 6 und 8). 
-Optionale Dokumentationen werden ebenfalls von TOSCA (Zeilen 7 und 8) in Java (Zeilen 3-5) überführt.
+The developer can use these code skeletons and fill out the generated method with the desired application logic. 
+This example demonstrates how TOSCA elements can be transferred into java code. 
+The name of the interface in TOSCA becomes the class name in java. 
+The operation modeled with TOSCA becomes the method and Input- and OutputParameter become input parameters and output values. 
+Optional documentation gets mapped from TOSCA to java as well. 
 
 ```java
 public class TempSensors{
@@ -168,17 +154,15 @@ public class TempSensors{
 }
 ```
 
-**Listing 3: Aus TOSCA generiertes Code-Skelett einer Anwendungsoperation**
-
-Damit die angebotenen Operationen einer Anwendung durch den Application Bus aufgerufen werden können, muss die Anwendung eine Web Service Schnittstelle anbieten. 
-Diese Schnittstelle wird dann von einem passenden Application Bus Plugin zur Kommunikation verwendet. 
-Im Rahmen dieser Arbeit wurde eine generische Web Service Schnittstelle, *Application Bus Proxy* genannt (siehe Abschnitt 9.7), für als WAR implementierte Anwendungen entwickelt. 
-Der Proxy ist in Abbildung 16 als AB-Proxy.jar zu erkennen. 
-Der ansonsten fertig implementierten Anwendung muss abschließend dieser Proxy hinzugefügt werden und ist dann bereit deployt zu werden (siehe Kapitel 6).
-
-Um später das zur Web Service Schnittstelle passende Application Bus Plugin sowie den Endpunkt der Schnittstelle bestimmen zu können, müssen in der dazugehörigen TOSCA Definition noch bestimmte Informationen angegeben werden. 
-Diese Informationen werden in den Properties (siehe Listing 4) eines *ArtifactTemplates*, welches von einem *DeploymentArtifact* referenziert wird, definiert. 
-Das *DeploymentArtifact* wiederum gehört zur *NodeTypeImplementation* des eigentlichen *NodeTypes*.
+**Code skeleton of an application operation modeled from TOSCA**
+The application has to have a web service interface, otherwise the Application Bus is unable to invoke its operations.
+This interface gets used, with an appropriate Application Bus plugin, to communicate. 
+The generic web service interface, called  [Application Bus Proxy](#application-bus-proxy), developed here can be used for applications implemented as WARs. 
+It appears in figures as AB-Proxy.jar. 
+This proxy must be added to the otherwise complete application before deployment. 
+To be able to determine the appropriate Application Bus plugin for the web service interface and the interfaces endpoint additional information has to be added to the TOSCA definition.
+This information is to be defined in the properties of a *ArtifactTemplate*, which is referenced by a *DeploymentArtifact*. 
+The *DeploymentArtifact* in turn is part of the *NodeTypeImplementation* of the *NodeType*. 
 
 
 ```xml
@@ -186,46 +170,41 @@ Das *DeploymentArtifact* wiederum gehört zur *NodeTypeImplementation* des eigen
     <opentosca:Endpoint> /TempSensorsApp</opentosca:Endpoint>
     <opentosa:InvocationType>JSON/HTTP</opentosa:InvocationType>
     <opentosca:ApplicationInterfaceInformations>
-        <opentosca:ApllicationInterfaceInformation
+        <opentosca:ApplicationInterfaceInformation
             name="TempSensors" class="org.sensor.TempSensors"/>
     </opentosca:ApplicationInterfaceInformations>
 </opentosca:ApplicationInterfacesproperties>
 ```
 
-**Listing 4: ArtifactTemplate Properties**
+**ArtifactTemplate Properties**
+This shows the required data.
+Right now this information has to be added by hand in the respective TOSCA definitions.
+In future  it should be possible to generate this information at least in parts. 
+*Endpoint* denotates the default relative endpoint of the application. 
+This is needed to determine the absolute endpoint of the web service interface.
+The *InvocationType* is also defined here, it determines how the interface can be used and which is the correct Application Bus plugin.
+In this case the Application Bus JSON/HTTP plugin has to be used.
+The fully qualified class name (here *org.sensor.TempSensors*) must also be specified, which implements the operations of the respective interface (here *TempSensors*).
+This is necessary because the Application Bus proxy, if the application is implemented as WAR, calls the desired method per reflection which requires the qualified class name. 
+More details about the proxy and its implementation can be found below.
 
-Listing 4 zeigt die benötigten Daten. Aktuell müssen diese Informationen noch per Hand in die jeweilige TOSCA-Definition eingetragen werden. 
-Zukünftig sollen diese Informationen -- zumindest teilweise -- jedoch auch generiert werden können. 
-Per *Endpoint* (Zeile 2) wird der standardmäßige relative Endpunkt der Anwendung angegeben. 
-Dieser wird zur Bestimmung des absoluten Endpunkts der Web Service Schnittstelle benötigt. 
-In Zeile 3 wird der *InvocationType* festgelegt. 
-Dieser legt fest, auf welche Art die Schnittstelle genutzt werden kann und wird zur Bestimmung des richtigen Application Bus Plugins benötigt. 
-In diesem Fall müsste beispielsweise das Application Bus JSON/HTTP Plugin (siehe Abschnitt 9.6) genutzt werden.
+### Development of an application that uses the Application Bus
 
-In diesem Beispielszenario muss weiterhin in Zeile 6 der voll qualifizierte Name der Klasse (hier *org.sensor.TempSensors*), welche die Operationen des jeweiligen Interfaces (hier *TempSensors*) implementiert, angegeben werden. 
-Dies ist nötig, da der Application Bus Proxy -- im Falle von als WAR implementierten Anwendungen -- die gewünschte Methode per Reflection aufruft und dafür der qualifizierte Klassenname benötigt wird. 
-Der in diesem Beispielszenario verwendete Proxy sowie dessen Implementierung werden detaillierter in Abschnitt 9.7 vorgestellt.
-
-### Entwicklung einer den Application Bus nutzenden Anwendung
-
-In diesem Abschnitt wird erläutert, wie eine Anwendung (HausSteuerung im Beispielszenario) den Application Bus nutzen kann, welche Bedingungen hierzu erfüllt sein müssen und wie Code-Generierung zur Unterstützung verwendet werden kann.
-
-Damit eine Anwendung mit dem Application Bus kommunizieren kann, muss sie gegen eine verfügbare Application Bus API (siehe Abschnitt 9.2, 9.3 und 9.4) programmiert werden. 
-Neben der Möglichkeit dies per Hand zu tun, kann auch wieder der Application Bus Stub Generator zur Hilfe genommen werden. 
-Im in diesem Kapitel genutzten Beispielszenario (siehe Abbildung 15) soll die Anwendung HausSteuerung die Operation getTemp der Anwendung TempSensors aufrufen. 
-Wie Abbildung 17 zeigt, lässt sich zur einfacheren Verwendung der Operation getTemp, aus der TOSCA Definition der Anwendung TempSensors (siehe Listing 2) ein betriebsbereiter Stub der Operation generieren. 
-Dieser Stub ist bereits gegen eine Application Bus API programmiert. 
-Dadurch kann die Operation getTemp innerhalb der Anwendung HausSteuerung verwendet werden als wäre sie lokal verfügbar und die Kommunikation mit dem Application Bus wird hinter einer separaten Kommunikationsschicht verborgen.
+To be able to communicate with the Application Bus the application has to be programmed against an available Application Bus API.
+This can be done manually as well as with the Application Bus stub generator. 
+To illustrate this the application HausSteuerung shall invoke the operation getTemp from the TempSensors application. 
+An operational stub of the operation can be generated from the TOSCA definition of the TempSensors application, this simplifies the use of the getTemp operation. 
+This stub is already programmed against the Application Bus API. 
+Now the operation getTemp can be used within the application HausSteuerung as if it were available locally and the communication with the Application Bus is hidden with a separate communication layer. 
 
 ![StubsKommunikationApplicationBus](graphics/StubsKommunkationApplicationBus.png)
 
-**Abbildung 17: Verwendung eines generierten Stubs zur Kommunikation mit dem Application Bus**
-
-Listing 5 zeigt einen solchen generierten Stub. 
-Die im Stub enthaltene Methode getTemp kann innerhalb der Anwendung HausSteuerung als normale lokale Java Methode verwendet werden. 
-Innerhalb der generierten getTemp Methode wird die *invoke* Methode der abstrakten Klasse *ApplicationBusClient* (ABClient in Abbildung 17) aufgerufen (Zeile 9).
-Dabei werden die zum Aufruf benötigten Informationen wie Name des *NodeTemplates*, Namen des *ApplicationInterfaces* und der *Operation* sowie Eingabeparameter übergeben (Zeilen 9 und 10). 
-Die Kommunikation mit dem Application Bus (siehe Abschnitt 8.4) erfolgt schließlich durch die generische ApplicationBusClient Klasse.
+** Usage of a generated stub to communicate with the Application Bus**
+This shows a generated stub.
+The stub contains the method getTemp which can be used within the HausSteuerung application as a normal local java method. 
+The *invoke* method of the abstract class *ApplicationBusClient* is called inside the generated getTemp method. 
+The information necessary for the invocation like the name of the *NodeTemplate*, *Operation* and names of the *ApplicationInterfaces* as well as input parameters is transferred.
+Communication with the application bis is achieved with the generic ApplicationBusClient class. 
 
 ```java
 public class TempSensors extends Application Bus Client{
@@ -235,50 +214,43 @@ public class TempSensors extends Application Bus Client{
     public static Integer getTemp(String sensorID){
         HashMap<String, Object> params = new HashMap<>();
         params.put("sensorID", sensorID);
-        Integer temperature = invoke("TempSnesorsAppTemplate",
+        Integer temperature = invoke("TempSensorsAppTemplate",
             "TempSensors", "getTemp", params);
         return temperature;
     }
 }
 ```
 
-**Listing 5: Aus TOSCA generierter Stub**
+**Stub generated from TOSCA**
 
-### Setup einer den Application Bus nutzenden Anwendung
-
-In diesem Abschnitt wird erläutert, wie eine Anwendung (HausSteuerung im Beispielszenario) nach ihrem Deplyoment eingerichtet werden muss, um mit dem Application Bus kommunizieren zu können.
-
-Damit eine Anwendung mit dem Application Bus kommunizieren kann, benötigt sie den Endpunkt des OpenTOSCA Containers. 
-Da dieser nicht zwingend bereits zur Entwicklungszeit verfügbar ist, muss er der Anwendung nach ihrem Deployment mitgeteilt werden. 
-Hierzu wird von dem in der Anwendung verwendeten Application Bus Stub (siehe vorherigen Abschnitt) eine Web Service Schnittstelle angeboten, worüber nach dem Deployment durch OpenTOSCA der Endpunkt des Containers durch einen Plan (siehe Abschnitt 2.3) mitgeteilt werden kann. 
-Dieses sogenannte *Setup* der Anwendung wird in Abbildung 18 gezeigt.
-
-Da es mehrere Instanzen einer aufzurufenden Anwendung geben kann, muss beim Setup der Anwendung -- neben dem OpenTOSCA Endpunkt -- ebenfalls eine Instanz-ID der aufzurufenden Anwendung mitgeteilt werden. 
-Dies kann entweder in Form der *NodeInstanceID* oder der *ServiceInstanceID* erfolgen. 
-Dadurch kann eine Instanz der Anwendung später vom Application Bus eindeutig identifiziert werden. 
-Wie genau der Application Bus diese Instanz-IDs verwendet, wird in Abschnitt 9.5 näher erläutert.
+### Setup of an application that uses the Application Bus
+How to configure an application after deployment to be able to communicate with the Application Bus?
+To be able to communicate with the Application Bus an application requires the endpoint of the OpenTOSCA container.
+During development this endpoint is not always already available and has to be transmitted to the application after deployment. 
+The Application Bus stub offers a web service interface that can be used after deployment with OpenTOSCA to transmit, via a plan, the containers endpoint. 
+This so called *Setup* is shown below.
+In addition to the OpenTOSCA endpoint the instance ID of the application has to be transmitted for the setup, because multiple instances of an application can exist. 
+The ID can be either in the form of the *NodeInstanceID* or the *ServiceInstanceID*. 
+This makes the definite identification by the Application Bus possible.
+For a more in depth look into the usage of instance IDs by the Application Bus see below. 
 
 ![SetupApplicationBusAnwendung](graphics/SetupApplicationBusAnwendung.png)
 
-**Abbildung 18: Setup einer den Application Bus nutzenden Anwendung**
+**Setup of an application that uses the Application Bus**
 
-### Kommunikation einer aufrufenden Anwendung mit dem Application Bus
-
-In diesem Abschnitt wird die Kommunikation einer Anwendung (HausSteuerung im Beispielszenario) mit dem Application Bus vorgestellt (siehe Abbildung 19). 
-Beispielhaft wird hierfür die Application Bus SOAP/HTTP API (siehe Abschnitt 9.2) verwendet. 
-Da ein einheitliches Protokoll zur Kommunikation (siehe Abbildung 6) verwendet wird, ist der grundsätzliche Ablauf mit der Verwendung einer anderen Application Bus API vergleichbar.
+### Communication between Application Bus and an invoking application
+The example of the HausSteuerung application and the Application Bus SOAP/HTTP API is used to demonstrate communication between application and Application Bus. 
+Because a unified protocol is used for communication, the process is comparable between different Application Bus APIs.
 
 ![KommunikationAnwendungApplicationBus](graphics/KommunikationAnwendungApplicationBus.png)
 
-**Abbildung 19: Kommunikation einer Anwendung mit dem Application Bus**
-
-Nachdem eine Anwendung von OpenTOSCA deployt und anschließend per Setup eingerichtet wurde, kann sie mit dem Application Bus kommunizieren.
-Listing 6 zeigt die beispielhafte Nutzung des Application Bus per Application Bus SOAP API. 
-Zeile 7 zeigt die *ServiceInstanceID*, welche zuvor, wie bereits erläutert, der Anwendung nach dem Deployment per Plan mitgeteilt wurde. 
-In Zeile 8 sieht man die Angabe des *NodeTemplates*.
-Durch die Angabe von *ServiceInstanceID* und *NodeTemplateID* kann eine Instanz der aufzurufenden Anwendung eindeutig identifiziert werden. 
-Es ist auch möglich, anstelle von *ServiceInstanceID* und *NodeTemplateID*, nur die *NodeInstanceID* der aufzurufenden Anwendung zu übergeben.
-Listing 6 zeigt weiterhin wie die aufzurufende Operation (Zeile 10), das zur Operation gehörende Interface (Zeile 9) sowie die Übergabeparameter (Zeilen 12 -- 18) angegeben werden.
+**Communication of an application with the Application Bus**
+After an application has been deployed with OpenTOSCA and configured it can communicate with the Application Bus.
+The API used in the example is the Application Bus SOAP API.
+Also included is the *ServiceInstanceID* which has been transmitted via a plan after deployment and the *NodeTemplateID*.
+Both IDs in combination make it possible to identify the instance the invoked application.
+Instead of passing *ServiceInstanceID* and *NodeTemplateID* only the *NodeInstanceID* of the invoked application can be passed. 
+Also shown is how the operation, its interface and the parameters are specified.
 
 ```xml
 <soapenv:Envelope
@@ -304,12 +276,12 @@ Listing 6 zeigt weiterhin wie die aufzurufende Operation (Zeile 10), das zur Ope
 </soapenv:Envelope>
 ```
 
-**Listing 6: Request an die Application Bus SOAP API zum Aufruf einer Operation**
+** Application Bus SOAP API request to invoke an operation**
 
-Anschließend wird der Request von der Application Bus Engine überprüft, ob alle benötigten Informationen übergeben wurden. 
-Falls dies nicht der Fall ist wird eine Fehlermeldung an den Aufrufer zurückgegeben.
-Andernfalls wird dem Aufrufer, da die asynchrone Kommunikation per Polling realisiert wird, eine *RequestID* zurückgegeben. Listing 7 zeigt eine positive Antwort zurück an den Aufrufer. 
-In Zeile 5 ist die RequestID festgelegt, welche für das Polling sowie der Abfrage des Ergebnisses benötigt wird.
+Finally the Application Bus engine checks the request for completeness.
+If the request is incomplete an error message is returned to the invoker. 
+If the request is complete a *RequestID* is returned, because the asynchronous communication is realized with polling.
+Shown here is a positive answer to the invoker in which the *RequestID* is determined, which is required for polling and to query for the result. 
 
 ```xml
 <soap:Envelope xmlns:soap="...">
@@ -322,16 +294,13 @@ In Zeile 5 ist die RequestID festgelegt, welche für das Polling sowie der Abfra
 </soap:Envelope>
 ```
 
-**Listing 7: Reply von der Application Bus SOAP API**
+**Application Bus SOAP API reply**
 
-Parallel zur Rückgabe der RequestID wird im Application Bus mit der Bearbeitung der Anfrage begonnen. 
-Beispielsweise bestimmt der Application Bus anhand der übergebenen Daten und mit Hilfe der TOSCA Engine sowie dem Instance Data Service, den Endpunkt der aufzurufenden Anwendung beziehungsweise des Application Bus Proxys. 
-Details zur konkreten Implementierung werden in Kapitel 9 näher betrachtet. 
-Die Kommunikation mit der aufzurufenden Anwendung durch ein zuvor bestimmtes Application Bus Plugin wird in Abschnitt 8.5 vorgestellt.
-
-Während der Application Bus noch mit der Bearbeitung des in Listing 6 definierten Aufrufs beschäftigt ist, kann der Aufrufer per Polling bereits den Status der Bearbeitung abfragen. 
-Listing 8 stellt einen solchen Polling-Request dar. 
-In Zeile 7 sieht man die von dem Application Bus in Listing 7 zurückgegebene RequestID zur Identifikation des Aufrufes.
+In parallel with the return of the RequestID the Application Bus begins to work on the query.
+The Application Bus determines based on the transferred data, with the help of the TOSCA engine and the instance data service, the endpoint of the invoked application respectively the Application Bus proxys endpoint. 
+More on the actual implementation and communication of an application with an Application Bus plugin later.  
+The invoker can poll the processing status,  while the Application Bus is still working on the invocation.
+This is what such a polling request looks like. 
 
 ```xml
 <soapenv:Envelope
@@ -346,12 +315,13 @@ In Zeile 7 sieht man die von dem Application Bus in Listing 7 zurückgegebene Re
 </soapenv:Envelope>
 ```
 
-**Listing 8: Polling-Request an den Application Bus zur Abfrage des Bearbeitungsstatus**
+**Polling request to determine processing status**
 
-Listing 9 zeigt die Antwort der Application Bus SOAP/HTTP API eines solchen Polling-Requests. 
-In diesem Fall wird in Zeile 5 *true* zurückgegeben, was bedeutet, dass die Bearbeitung abgeschlossen ist und das Ergebnis abgefragt werden kann. 
-Falls die Bearbeitung noch nicht abgeschlossen ist, wird dementsprechend *false* zurückgegeben und der Client muss weiter pollen. 
-Falls die RequestID innerhalb des Application Bus unbekannt ist wird eine entsprechende Fehlermeldung an den Aufrufer zurückgegeben.
+If the polling request returns *true*  like here the process has concluded and the result can be requested.
+If the process has not yet concluded polling returns *false* and the client has to poll again. 
+If the RequestId is unknown within the Application Bus a appropriate error message is sent to the invoker.
+Similarly a error message is returned in the case of errors within the Application Bus, during invocation of the method through the Application Bus plugin or within of the operation itself.
+An answer of the Application Bus SOAP/HTTP API to a polling request looks like this.
 
 ```xml
 <soap:Envelope xmlns:soap="...">
@@ -364,11 +334,10 @@ Falls die RequestID innerhalb des Application Bus unbekannt ist wird eine entspr
 </soap:Envelope>
 ```
 
-**Listing 9: Polling-Response des Application Bus zurück an den Aufrufer**
+**Polling response from Application Bus to invoker**
 
-Nachdem der Bearbeitungsstatus abgefragt und mit true beantwortet wurde, kann vom Client das Ergebnis des ursprünglichen Operationsaufrufs abgefragt werden. 
-Listing 10 zeigt einen solchen Request zur Ergebnis-Abfrage. 
-In Zeile 7 ist wiederum die zur Identifikation benötigte RequestID zu sehen.
+Results of the original operation invocation can be requested by the client after the processing status has been requested and answered with true.
+This is what a result request looks like. 
 
 ```xml
 <soapenv:Envelope
@@ -383,12 +352,8 @@ In Zeile 7 ist wiederum die zur Identifikation benötigte RequestID zu sehen.
 </soapenv:Envelope>
 ```
 
-**Listing 10: Request an den Application Bus zur Abfrage des Ergebnisses eines Operationsaufrufs**
+**Request to query operation results**
 
-Listing 11 zeigt die Antwort der Application Bus SOAP/HTTP API. 
-In Zeile 5 ist das Ergebnis des Operationsaufrufs zu sehen. 
-Falls die bei der Anfrage übergebene RequestID unbekannt ist, wird dem Aufrufer eine entsprechende Fehlermeldung zurückgegeben. 
-Weiterhin wird im Falle eines Fehlers innerhalb des Application Bus, beim Aufruf der Methode durch ein Application Bus Plugin oder innerhalb der aufgerufenen Operation selbst, dem Aufrufer ebenfalls eine Fehlermeldung zurückgegeben.
 
 ```xml
 <soap:Envelope xmlns:soap="...">
@@ -402,21 +367,18 @@ Weiterhin wird im Falle eines Fehlers innerhalb des Application Bus, beim Aufruf
 
 ```
 
-**Listing 11: Responsedes Application Bus mit dem Ergebnis des Methodenaufrufs**
+**Application Bus response containing the result of the method invocation**
 
-### Kommunikation des Application Bus mit einer aufzurufenden Anwendung
+### Communication between Application Bus and an invoked application
 
-In diesem Abschnitt wird die Kommunikation des Application Bus mit einer aufzurufenden Anwendung (TempSensors im Beispielszenario) vorgestellt.
-Beispielhaft wird hierfür das zum Application Bus Proxy passende Application Bus JSON/HTTP Plugin verwendet (siehe Abbildung 20).
-
+How does the Application Bus communicate with a to be invoked application exemplified with the use of the TempSensors application from the example scenario.
+The Plugin matching the Application Bus Proxy that is used is the Application Bus JSON/HTTP Plugin.
 ![KommunikationApplicationBusAnwendung](graphics/KommunikationApplicationBusAnwendung.png)
 
-**Abbildung 20: Kommunikation des Application Bus mit einer aufzurufenden Anwendung**
+**Communication between Application Bus and application**
 
-Nachdem in der Application Bus Engine (siehe Abschnitt 9.5) alle benötigten Informationen gesammelt wurden, übernimmt das passende Application Bus Plugin die Kommunikation mit der aufzurufenden Anwendung. 
-Listing 12 zeigt die Nachricht des Application Bus JSON/HTTP Plugins an den Application Bus Proxy der aufzurufenden Anwendung. 
-In Zeile 3 ist die aufzurufende Methode *getTemp*, sowie in Zeile 4 die implementierende Klasse *org.sensor.SensorApp* (aus Listing 4) angegeben. 
-Weiterhin ist in Zeile 7 der Eingabeparameter *sensorID* mit dem Wert *HouseFront* angegeben.
+After collecting all the necessary information in the Application Bus engine communication with the application can be started via a suitable Application Bus plugin.
+This is what a message from the Application Bus JSON/HTTP plugin to the Application Bus proxy of the application looks like. 
 
 ```json
 {
@@ -430,67 +392,53 @@ Weiterhin ist in Zeile 7 der Eingabeparameter *sensorID* mit dem Wert *HouseFron
 }
 ```
 
-**Listing 12: Request des Application Bus JSON/HTTP Plugins an eine aufzurufende Anwendung**
+**Request from Application Bus JSON/HTTP plugin to the application**
+Communication between Application Bus JSON/HTTP plugin and the matching Application Bus proxy is also done with polling.
+A RequestID is returned to the Application Bus plugin after invocation of the proxy. 
+The RequestID can be used by the plugin to poll, if the processing has terminated yet and if so request the result, in regular intervals. 
+After the result has been requested it and the RequestID of the original invoker are stored in the Application Bus.  
+Now the result of the invoking application can be requested.
+Communication with the application that is to be invoked can be realized in a different way and is only dependent on the concrete implementation of the respective Application Bus plugin and matching proxy. 
+One possibility would be to implement a plugin that supports callbacks like enabled by SOAP.
 
-Die Kommunikation zwischen Application Bus JSON/HTTP Plugin und dem dazugehörigen Application Bus Proxy erfolgt ebenfalls per Polling. 
-Das Application Bus Plugin bekommt dafür nach dem Aufruf von dem Proxy ebenfalls eine RequestID zurückgegeben. 
-Mittels der RequestID kann das Plugin in regelmäßigen Abständen abfragen, ob die Bearbeitung beendet wurde und gegebenenfalls das Ergebnis abrufen. 
-Nachdem das Ergebnis abgefragt wurde, wird dieses im Application Bus zusammen mit der RequestID des ursprünglichen Aufrufers (5, siehe Listing 7) abgelegt.
-Anschließend kann das Ergebnis von der aufrufenden Anwendung (HausSteuerung im Beispielszenario) wie im vorherigen Abschnitt gezeigt, abgefragt werden.
+## Implementation
 
-Das im Rahmen dieser Arbeit implementierte Application Bus JSON/HTTP Plugin sowie der dazugehörige generische Application Bus Proxy verwenden ebenfalls das in Kapitel 4 vorgestellte Kommunikationsprotokoll. 
-Die detaillierte Implementierung wird jeweils in Abschnitt 9.6 sowie Abschnitt 9.7 vorgestellt. 
-Die Kommunikation mit der aufzurufenden Anwendung kann jedoch auch beliebig anders als hier gezeigt erfolgen und ist ausschließlich von der konkreten Implementierung des jeweiligen Application Bus Plugins sowie des dazugehörigen Proxys abhängig.
-Beispielsweise kann auch ein Plugin implementiert werden, dass Callbacks wie es zum Beispiel SOAP ermöglicht unterstützt.
 
-## Implementierung
+### Application Bus constants and exceptions
 
-In diesem Kapitel werden die Implementierungen des Application Bus und dessen Komponenten, sowie des Application Bus Stub Generators und Application Bus Proxys näher betrachtet.
-
-### Application Bus Konstanten und Exceptions
-
-In diesem Abschnitt werden die im Application Bus definierten und verwendeten Konstanten sowie Exceptions vorgestellt. 
-Zur besseren Verwaltung der Abhängigkeiten der einzelnen Application Bus Komponenten sind die Konstanten und Exceptions in einem separaten Bundle organisiert.
-
-Da die einzelnen Komponenten des Application Bus per Camel Endpoints und Routen (siehe Kapitel 7) miteinander verbunden sind und über Camel Exchange Messages kommunizieren, werden Konstanten zur Definition der Message Header benötigt. 
-Dadurch können alle Komponenten des Application Bus benötigte Parameter auf eine einheitliche Weise ablegen beziehungsweise auslesen. 
-Tabelle 1 zeigt und erklärt die durch ein Enum definierten Konstanten des Application Bus. 
-In der ersten Spalte der Tabelle sind die einzelnen Konstanten gelistet. 
-Die zweite Spalte gibt an, ob die Konstante als Key oder als Value des Message Headers verwendet wird. 
-In der dritten Spalte der Tabelle wird die jeweilige Konstante näher beschrieben.
+The constants and exceptions are organized in a separate bundle, for easier dependency management of the individual Application Bus components. 
+Constants to define the message header are necessary because the components of the Application Bus are connected with camel endpoints and routes and communicate with camel exchange messages.
+This makes is possible for all components of the Application Bus to read and write parameters in a unified manner. 
+This offers a closer looked at the constants and if they are used as Key or Value in message headers. 
+Constants are listed in the first row, the second row specifies whether their used as key or value in the message header and the third row contains a short description. 
 
   
-| **Konstante**                      | **Verwendung** |  **Beschreibung**
+| **Constant**                       | **Usage** |  **Description**
 |------------------------------------|----------------|-------------------------------------------------------------------------------------------------------|
-| NODE_INSTANCE_ID_INT               | Key            |  Zur Angabe der NodeInstanceID                                                                        |
-| SERVICE_INSTANCE_ID_INT            | Key            |  Zur Angabe der ServiceInstanceID                                                                     |
-| NODE_TEMPLATE_ID                   | Key            |  Zur Angabe der NodeTemplateID                                                                        |
-| INTERFACE_NAME                     | Key            |  Zur Angabe des Interfaces                                                                            |
-| OPERATION_NAME                     | Key            |  Zur Angabe der Operation                                                                             |
-| APPLICATION_BUS_METHOD             | Key            |  Zur Angabe der Application Bus Methode (in Kombination mit einem der drei folgenden Werte als Value) |
-| APPLICATION_BUS_METHOD_INVOKE      | Value          |  Aufruf einer Operation                                                                               |
-| APPLICATION_BUS_METHOD_IS_FINISHED | Value          |  Status der Bearbeitung abfragen                                                                      |
-| APPLICATION_BUS_METHOD_GET_RESULT  | Value          |  Ergebnis eines Operationsaufrufes abfragen                                                           |
-| INVOCATION_ENDPOINT_URL            | Key            |  Zur Angabe des Endpoints                                                                             |
-| CLASS_NAME                         | Key            |  Zur Angabe der implementierenden Klasse                                                              |
- 
+| NODE_INSTANCE_ID_INT               | Key            |  Specification of NodeInstanceID                                                                      |
+| SERVICE_INSTANCE_ID_INT            | Key            |  Specification of ServiceInstanceID                                                                   |
+| NODE_TEMPLATE_ID                   | Key            |  Specification of NodeTemplateID                                                                      |
+| INTERFACE_NAME                     | Key            |  Specification of Interfaces                                                                          |
+| OPERATION_NAME                     | Key            |  Specification of Operations                                                                          |
+| APPLICATION_BUS_METHOD             | Key            |  Specification of Application Bus method (in combination with one of the following three values)      |
+| APPLICATION_BUS_METHOD_INVOKE      | Value          |  Invocation of an operation                                                                           |
+| APPLICATION_BUS_METHOD_IS_FINISHED | Value          |  Request process status			                                                                      |
+| APPLICATION_BUS_METHOD_GET_RESULT  | Value          |  Request result of an operation invocation                                                            |
+| INVOCATION_ENDPOINT_URL            | Key            |  Specification of Endpoints                                                                           |
+| CLASS_NAME                         | Key            |  Specification of implementing class	                                                              |
 
-**Tabelle 1: Definierte Konstanten, deren Beschreibung und Verwendung innerhalb des Application Bus**
 
-Neben den gezeigten Konstanten sind noch zwei verschiedene Exceptions definiert. 
-Zum einen die *ApplicationBusInternalException* für auftretende Fehler innerhalb des Application Bus sowie zum anderen die *ApplicationBusExternalException* für Fehler die extern auftreten.
-Beispielsweise in einer aufgerufenen Anwendung oder während der Kommunikation. 
-Die Unterscheidung von internen und externen Fehlern wird für die Rückgabe einer passenden Fehlermeldung durch die jeweilige Application Bus API benötigt.
+Besides the constants two different exceptions are also defined.
+The *ApplicationBusInternalException* to be used for errors that occur inside the Application Bus as well as the *ApplicationBusExternalException* for external errors. 
+For example in an invoked application or during communication.
+It is necessary to differentiate between internal and external errors so that the appropriate error message can be returned by the Application Bus API. 
 
 ### Application Bus SOAP/HTTP API
-
-In diesem Abschnitt wird die Implementierung der Application Bus SOAP/HTTP API vorgestellt. 
-Da in Kapitel 8 bereits ein Überblick über die Schnittstelle an sich gegeben wurde, wird hier vor allem auf die Verwendung von Camel bei der Umsetzung der API eingegangen.
-
-Listing 13 zeigt konzeptionell die mit Camel definierte Route und Endpoints der Application Bus SOAP/HTTP API. 
-In Zeile 1 wird der Endpunkt zur Nutzung der API definiert. 
-Man sieht, dass die Camel *CXF* Komponente hierzu genutzt wird und der SOAP Web Service auf *http://0.0.0.0:8084/appBus* gestartet wird. 
-Weitere, hier zur Vereinfachung verborgene, benötigte Informationen sind zum Beispiel die verwendete WSDL-Datei sowie der Service und Port Name des Web Services.
+Now to take a closer look at the implementation for the Application Bus SOAP/HTTP API.
+API is implemented with Camel. 
+This is how a route and endpoints of the Application Bus SOAP/HTTP API are defined with camel.
+The endpoint to use the API is defined with the camel "CXF" component and the SOAP Web Service is started on *http://0.0.0.0:8084/appBus*.
+Not included here is the information about the WSDL file used nor the service and port name of the web service. 
 
 ```java
 String SOAP_Endpoint = "cxf:http://0.0.0.0:8084/appBus?wsdlURL=...";
@@ -506,43 +454,38 @@ from("direct:handleException").throwException(
 from("direct:handleResponse").process(responseProcessor).marshall(jaxb);
 ```
 
-**Listing 13: Routes der Application Bus SOAP/HTTP API**
+**Routes of the Application Bus SOAP/HTTP API**
+For simplification the routes of the API are split into 3 sub routes.
+The *SOAP\_ENDPOINT* is used as entry point for the route. 
+Afterwards the received SOAP message is unmarshalled and processed with the *RequestProcessor*.
+The transferred parameters are filed respectively as header of the exchange message and in the body the input parameters for the operations to be invoked.
+If the processing status or the operation result are to be requested, the transmitted *RequestID* is added to the body of the exchange message.
+There is a check in place to see if the Application Bus engine is running, or rather if the API has been bound as service and if its endpoint is available.
+The endpoint of the Application Bus engine can be requested by the API in the bind method via a method defined in the engine interface. 
+This makes it so that API and engine are only loosely linked and multiple different endpoints and consecutively different camel components can easily be used. 
+If the Application Bus engine is available the exchange message is forwarded to its endpoint *APP\_BUS\_ENDPOINT* for further processing. 
+If not a *ApplicationBusInternalException* is thrown. 
 
-Von Zeile 2 bis 10 ist die Route der API definiert, die sich zur Vereinfach nochmals in drei Unterrouten unterteilt. 
-In Zeile 2 sieht man den vorherig definierten *SOAP\_ENDPOINT* als Einstiegspunkt der Route.
-Anschließend wird die erhaltene SOAP Message unmarshallt und danach in dem *RequestProcessor* bearbeitet. 
-Dabei werden die übergebenen Parameter gemäß der in Abschnitt 9.1 gezeigten Konstanten als Header der Exchange Message abgelegt, beziehungsweise die für die aufzurufende Operation vorgesehenen Eingabeparameter in den Body der Exchange Message gelegt. 
-Falls der Status der Bearbeitung oder das Ergebnis eines Operationsaufrufes abgefragt werden soll, wird die übermittelte *RequestID* in den Body der Exchange Message gelegt.
+Independent of the occurrence of errors along the route a response to the invoker has to be generated.
+The *ResponseProcessor* converts the exchange message into a marshallable object, marshalls it and sends it as SOAP message back to the invoker. 
+The Application Bus SOAP/HTTP API offers three operations.
 
-In Zeile 3 wird überprüft, ob die Application Bus Engine läuft, beziehungsweise von der API als Service gebunden wurde (siehe Abschnitt 2.4) und ihr Endpunkt verfügbar ist. 
-Der Endpunkt der Application Bus Engine kann von der API in der Bind-Methode über eine durch das Engine-Interface festgelegt Methode abgefragt werden. 
-Dadurch sind API und Engine lose voneinander gekoppelt und es können verschiedene Endpoints und dadurch verschiedene Camel Komponenten einfach genutzt werden. 
-Ist die Application Bus Engine verfügbar wird die Exchange Message zur weiteren Bearbeitung an ihren Endpunkt (*APP\_BUS\_ENDPOINT*) weitergeleitet (Zeile 4). 
-Falls nicht, wird eine *ApplicationBusInternalException* geworfen (Zeilen 7-9).
+1. An operation to invoke a method of a different application that has been deployed with OpenTOSCA.
+2. An operation to request the process status of a method invocation, because polling is used. 
+3. An operation to request the result of a concluded method invocation.
 
-Unabhängig davon ob irgendwo innerhalb der Route ein Fehler aufgetreten ist, muss die Antwort zurück an den Aufrufer generiert werden. 
-Dies erfolgt in Zeile 10. Dabei wird zuerst im *ResponseProcessor* die Exchange Message in ein marschall-fähiges Objekt umgewandelt, anschließend gemarshallt und als SOAP Message zurück an den Aufrufer gesendet.
-
-Wie in Kapitel 8 bereits gezeigt wurde, bietet die Application Bus SOAP/HTTP API drei Operationen an. 
-1. Eine Operation zum Aufruf einer Methode einer anderen durch OpenTOSCA deployten Anwendung. 
-2. Da Polling eingesetzt wird, eine Operation zum Abfragen des Status der Bearbeitung eines zuvor getätigten Methodenaufrufes. 
-3. Eine Operation zum Abfragen des Ergebnisses eines zuvor getätigten und abgeschlossenen Methodenaufrufes. 
-
-Im Falle von 1. wird als Antwort eine *RequestID* zur Identifikation des Aufrufes zurückgegeben. 
-Im Falle von 2. wird abhängig des Status der Bearbeitung *true* oder *false* zurückgegeben. 
-Und im Falle von 3. wird das entsprechende Ergebnis des Methodenaufrufes zurückgegeben.
+In the case of 1. the *RequestID* is return as answer to identify the invoker.
+In the case of 2. either *true* or *false* is returned dependent on whether the process has finished or not.
+In the case of 3. the result of the method invocation is returned.
 
 ### Application Bus JSON/HTTP API
 
-In diesem Abschnitt wird die Implementierung der Application Bus JSON/HTTP API näher betrachtet. 
-Dabei wird sowohl auf die Nutzung von Camel zur Umsetzung der API als auch auf das von der API erwartete Nachrichtenformat eingegangen.
-
-Die Application Bus JSON/HTTP API bietet eine Lo-RESTful-Web Service Schnittstelle (siehe Abschnitt 2.2) zur Nutzung des Application Bus an.
-Als Datenformat wird JSON unterstützt. 
-Listing 14 zeigt konzeptionell die per Camel definierten Routes und Endpoints der Application Bus JSON/HTTP API. 
-In Zeile 1 ist der initiale Endpunkt definiert. 
-Wie man sieht, wird zur Realisierung der API die Camel *Restlet* Komponente genutzt und die API wird auf Port 8083 betrieben. 
-Zum Aufruf einer Operation einer anderen Anwendung müssen die benötigten Parameter als Content-Type application/json formatiert und per HTTP-POST Methode (definiert in Zeile 2) an */OTABService/v1/appInvoker* geschickt werden.
+How can Camel be used to realize the API and what message format does the API expect.
+The Application Bus JSON/HTTP API offers a Lo-REST-ful web service interface to use the Application Bus with.
+The supported data format is JSON.
+Shown here is how routes and the endpoints of the Application Bus JSON/HTTP API are defined with Camel. 
+To realized the API the Camel *Restlet* component is used and the API operates on Port 8083.
+To invoke an operation of a different application the parameters have to be formatted as content type application/json and sent as HTTP-POST method, to */OATBService/v1/appInvoker*. 
 
 ```java
 1   String ENDPOINT = "restlet:http://0.0.0.0:8083/OTABService/v1/appInvoker";
@@ -572,15 +515,14 @@ Zum Aufruf einer Operation einer anderen Anwendung müssen die benötigten Param
 
 ```
 
-**Listing 14: Routes der Application Bus JSON/HTTP API**
+**Routes of the Application Bus JSON/HTTP API**
 
-Listing 15 zeigt den zum in Kapitel 8 vorgestellten Beispielszenario passenden Request. 
-Falls kein Fehler auftritt, antwortet die Application Bus JSON/HTTP API mit HTTP-Statuscode 202 (Accepted) und der Polling-Adresse im Location-Header.
-
-Listing 14 zeigt weiterhin in Zeile 6, dass zum Abfragen des Bearbeitungsstatus ein HTTP-GET an */OTABService/v1/appInvoker/activeRequests/{id}* geschickt werden muss.
-Wobei *{id}* hier als Platzhalter für die *RequestID* steht. 
-Die Adresse wird auch über den Location-Header von der API als Antwort auf ein Invoke-Request zurückgegeben. Falls die Bearbeitung abgeschlossen ist, wird eine Antwort mit HTTP-Statuscode 303 (See Other) und der Adresse zum Abrufen des Ergebnisses im Location-Header zurückgegeben. 
-Falls nicht, wird eine Antwort mit HTTP-Statuscode 200 (OK) und Inhalt *{\"status\": \"PENDING\"}* zurückgegeben.
+If no error occurs the Application Bus JSON/HTTP API answers with the HTTP status code 202 (accepted) and the polling address in the location header. 
+To request the processing status a HTTP-GET has to be sent to */OTABService/v1/appInvoker/activeRequests/{id}*.
+Where *{id}* is a placeholder for *RequestID*
+The address is also returned via the location header by the API as response to an invoke request. 
+If the processing has finished an answer with the HTTP status code 303 (see other) and the address to request the result in the location header is returned.
+If not an answer with the HTTP status code 200 (ok) and content *{\"status\": \"PENDING\"}* is returned. 
 
 ```json
 1   {
@@ -597,29 +539,27 @@ Falls nicht, wird eine Antwort mit HTTP-Statuscode 200 (OK) und Inhalt *{\"statu
 
 ```
 
-**Listing 15: Request an die Application Bus JSON/HTTP API zum Aufruf einer Operation**
+**Request to the Application Bus JSON/HTTP API to invoke an operation**
 
-In Listing 14 ist in Zeile 10 weiterhin zu sehen, dass zum Abfragen des Ergebnisses eines zuvor getätigten Operationsaufrufes ein HTTP-GET an */OTABService/v1/appInvoker/activeRequests/{id}/response* geschickt werden muss (*{id}* wieder Platzhalter für die *RequestID)*. 
-Wie bereits erwähnt, wird diese Adresse auch beim Abfragen des Bearbeitungsstatus per Location-Header an den Aufrufer zurückgegeben. 
-Als Antwort wird eine Nachricht mit HTTP-Statuscode 200 (OK) und des Ergebnisses wiederum als Content-Type application/json an den Aufrufer zurückgegeben.
-
-Bei auftretenden Fehlern, wie beispielsweise einem Invoke-Request mit nicht korrekt formatiertem JOSN Inhalt oder einer unbekannten RequestID beim Abfragen des Bearbeitungsstatus wird dem Aufrufer eine Antwort mit entsprechendem HTTP-Statuscode und einer passenden Fehlermeldung zurückgegeben. 
-Weiterhin ist in Zeile 15 von Listing 14 auch der bereits von der Application Bus SOAP/HTTP API (siehe Abschnitt 9.2) bekannte Check zur Überprüfung, ob die Application Bus Engine läuft und gebunden wurde, zu sehen. 
-Falls nicht wird ebenfalls eine entsprechende Fehlermeldung (Zeile 19) an den Aufrufer zurückgegeben.
+To request the result of a previously made operation invocation a HTTP-GET has to be sent to */OTABService/v1/appInvoker/activeRequests/{id}/response*, with *{id}* again being a placeholder for *RequestID*
+This is the same address that is returned in the location header to the invoker when requesting the process status. 
+A message with the HTTP status code 200 (ok) and the result is returned as content type application/json to the invoker. 
+If an error occurs, for example an invoke request with incorrectly formatted JSON content or an unknown RequestID while requesting the processing status an appropriate HTTP status code and error message are returned to the invoker.
+Also included is the check of the Application Bus SOAP/HTTP API to verify if the Application Bus engine is running and bound.
+If not an appropriate error message is returned. 
 
 ### Application Bus REST/HTTP API
 
-In diesem Abschnitt wird die Implementierung der Application Bus REST/HTTP API vorgestellt. 
-Dabei wird vor allem auf das Design der Schnittstelle und die Unterschiede zur Application Bus JSON/HTTP API eingegangen.
+How is the Application Bus REST/HTTP API implemented and what are the differences compared with the Application Bus JSON/HTTP API.
+The Application Bus REST/HTTP API offers a Lo-RESTful web service interface to use the Application Bus, just like the Application Bus JSON/HTTP API.
+The supported data formats are JSON and XML. 
+Different to the JSON/HTTP API only the input parameters of the operation to be invoked are transmitted in the message body. 
+Other necessary data to determine the application or rather the operation can be selected from the URI. 
 
-Die Application Bus REST/HTTP API bietet wie die Application Bus JSON/HTTP API (siehe Abschnitt 9.3) eine Lo-RESTful-Web Service Schnittstelle zur Nutzung des Application Bus an. 
-Als Datenformat wird ebenfalls JSON sowie zusätzlich XML unterstützt. 
-Anders als bei der JSON/HTTP API werden hier jedoch nur die Eingabeparameter der aufzurufenden Operation im Body der Nachricht übergeben. 
-Die anderen, zur Bestimmung der aufzurufenden Anwendung beziehungsweise Operation benötigten Daten, können aus der URI ausgelesen werden.
-
-Listing 16 zeigt einen Beispielaufruf mit den aus Kapitel 8 bekannten Werten. Der Aufruf wird per HTTP-POST an die API gesendet. 
-In der URI sind die aus dem Beispielszenario bereits bekannten Informationen wie *ServiceInstanceID* (*12*), *NodeTemplate* (*TempSensorsAppTemplate*), *Interface* (*TempSensors*) sowie die aufzurufende *Operation* (*getTemp*) zu sehen. 
-Weiterhin ist der für die *Operation* getTemp vorgesehene Eingabeparameter *sensorID* im Body der Nachricht zu sehen.
+Shown here is an example invocation.
+The invocation is sent to the API with HTTP-POST.
+Information such as *ServiceInstanceID* (*12*), *NodeTemplate* (*TempSensorsAppTemplate*), *Interface* (*TempSensors*) as well as the operation to be invoked (*getTemp*) are found in the URI.
+The input parameter *sensorID* can be found in the message body.
 
 ```
 POST 
@@ -631,10 +571,10 @@ POST
 
 ```
 
-**Listing : Request an die Application Bus REST/HTTP API zum Aufruf einer Operation mit Angabe der ServiceInstanceID**
+**Request to the Application Bus REST/HTTP API to invoke an operation with specification of the ServiceInstanceID**
 
-Anstelle die aufzurufende Anwendung per ServiceInstanceID sowie NodeTemplate zu spezifizieren, kann dies auch per *NodeInstanceID* erfolgen. 
-Listing 17 zeigt ein Beispiel hierfür.
+Instead of specifying the application with ServiceInstanceID and NodeTemplate *NodeInstanceID* can be used.
+
 ```
 POST 
 /NodeInstances/42/ApplicationInterfaces/TempSensors/Operations/getTemp
@@ -644,70 +584,60 @@ POST
 
 ```
 
-**Listing 17: Request an die Application Bus REST/HTTP API zum Aufruf einer Operation mit Angabe der NodeInstanceID**
-
-Das Überprüfen des Bearbeitungsstatus sowie das Abfragen des Ergebnisses des Operationsaufrufs verläuft identisch wie es bereits für die Application Bus JSON/HTTP API vorgestellt wurde. 
-So muss zum Abfragen des Bearbeitungsstatus eine HTTP-GET Anfrage an die per Location-Header zurückgegebene Adresse gesendet werden. 
-Falls die Bearbeitung noch nicht beendet wurde, muss dies bis zur Beendigung der Bearbeitung wiederholt werden. 
-Wenn die Bearbeitung schließlich beendet ist, wird hier ebenfalls der HTTP-Statuscode 303 (See Other) und die Adresse zum Abrufen des Ergebnisses im Location-Header zurückgegeben. 
-Zum Abrufen des Ergebnisses muss weiterhin per Accept-Header der gewünschte MIME-Type (XML oder JSON) angegeben werden.
+**Request to the Application Bus REST/HTTP API to invoke an operation with a specified NodeInstanceID**
+Requesting of processing status and results of the operation invocation is identical to the Application Bus JSON/HTTP API.
+The request processing status a HTTP-GET request has to be sent to the address returned in the location header. 
+If the processing has not finished this has to be repeated until it is. 
+When the processing has finished the HTTP status code 303 (see other) and the address from where to request the result is returned in the location header. 
+The request the result the desired MIME type (XML or JSON) has to be specified in the accept header. 
 
 ### Application Bus Engine
 
-In diesem Abschnitt wird die Implementierung der Application Bus Engine vorgestellt. 
-Dabei wird unter anderem die Nutzung von Camel sowie die Verwaltung der Application Bus Plugins näher betrachtet. 
-Weiterhin wird der Bearbeitungsablauf innerhalb der Engine vorgestellt.
+How is the Application Bus Engine implemented, how is Camel used and how are the Application Bus Plugins managed?
+One of the tasks of the Application Bus Engine is to acquire the information necessary to invoke a method from an application deployed with OpenTOSCA.
+Furthermore it administrates the polling queue as well as the results returned by the plugins of the invoked application. 
 
-Eine der Aufgaben der Application Bus Engine ist es, die für den Aufruf einer Methode einer durch OpenTOSCA deployten Anwendung benötigte Informationen zu besorgen. 
-Weiterhin verwaltet die Engine sowohl die Polling-Queue als auch die von den Plugins zurückgegebenen Ergebnisse der aufgerufenen Anwendungen.
-
-Abbildung 21 gibt einen grafischen Überblick über die mit Camel implementierte Route der Application Bus Engine. 
-Zuerst wird überprüft, ob eine Methode aufgerufen werden soll, der Bearbeitungsstatus eines Aufrufes abgefragt werden soll oder das Ergebnis eines vorherigen Aufrufs abgefragt werden soll. 
-Die Exchange Message wird dann dementsprechend geroutet und bearbeitet. 
-So wird beispielsweise, falls der Bearbeitungsstatus abgefragt werden soll, die Exchange Message an den *isFinishedProcessor* weitergeleitet. 
-Dort wird anschließend überprüft, ob die Bearbeitung für die übermittelte *RequestID* abgeschlossen ist und davon abhängig *true* oder *false* zurückgegeben.
-Falls das Ergebnis eines Aufrufes abgefragt werden soll, wird die Exchange Message an den *getResultProcessor* weitergeleitet. 
-Dort wird das, für die angegebene RequestID abgelegte Ergebnis, beziehungsweise -- im Falle eines aufgetretenen Fehlers -- eine Exception zurückgegeben.
+This is a graphical overview of the route of the Application Bus Engine implemented with Camel.
+The first check is if a method is to be invoked, the processing status of an invocation is to be requested or the result of a prior invocation is to be requested. 
+The exchange message is routed and processed accordingly.
+If the request is for the processing status the exchange message is routed to the *isFinishedProcessor*. 
+There the process for the transmitted *RequestID* is checked for completion and *true* or *false* is returned.
+If the result of an invocation is requested the exchange message is routed to the *getResultProcessor*.
+There the result filed for the specified RequestID, or in case of an error an exception is returned. 
 
 ![RoutingApplicationBusEngine](graphics/RoutingApplicationBusEngine.png)
 
-**Abbildung 21: Grafisch veranschaulichtes Routing innerhalb der Application Bus Engine**
+**Routing within the Application Bus Engine**
+The invocation of a method from an another application is much more complex.
+First the engine verifies if all required parameters have been specified.
+This is done so that in case something is missing an error message can be sent immediately. 
+If all required parameters are specified the RequestID to identify the invocation is generated. 
+Now the route is split into two sub routes which are processed in parallel. 
 
-Soll dagegen eine Methode einer anderen Anwendung aufgerufen werden, ist die Bearbeitung innerhalb der Application Bus Engine deutlich komplexer.
-Die Engine überprüft in diesem Fall zuerst, ob alle benötigten Parameter (siehe Abschnitt 9.1) spezifiziert wurden. 
-Dies wird gemacht, um dem Aufrufer in diesem Fall sofort eine entsprechende Fehlermeldung zurückgeben zu können. 
-Falls alle benötigten Parameter angegeben sind, wird die zur Identifikation des Aufrufes genutzte RequestID generiert. 
-Anschließend spaltet sich die Route in zwei Unterrouten auf und die Bearbeitung wird parallel fortgesetzt.
-
-In der einen Unterroute wird die RequestID in der Polling-Queue (*isFinishedQueue* in der Abbildung) abgelegt und als *false* -- also noch nicht fertig bearbeitet -- markiert. 
-Daraufhin wird die zuvor generierte und nun auch in der Engine bekannte RequestID an den Aufrufer zurückgegeben.
-
-In der anderen Unterroute wird die Exchange Message zuerst an den *InvokeProcessor* weitergeleitet. 
-Dort wird mit Hilfe der Tosca Engine und dem Instance Data Service unter anderem der Endpunkt der aufzurufenden Anwendung sowie das dafür benötigte Application Bus Plugin bestimmt. 
-Die Implementierung des InvokeProcessor wird in Abbildung 22 dargestellt und später in diesem Kapitel näher betrachtet.
-
-Nachdem die weiteren für den Aufruf benötigten Informationen gesammelt wurden, wird anschließend der Endpunkt des für den Aufruf benötigten Plugins aus der Plugin-Registry abgefragt und die Exchange Message dorthin weitergeleitet. 
-Die Bearbeitung innerhalb eines Application Bus Plugins wird in Abschnitt 9.6 vorgestellt. 
-Nachdem das Plugin den Methodenaufruf abgeschlossen und ein Ergebnis zurückgegeben hat, wird dieses wiederum zusammen mit der entsprechenden RequestID abgespeichert und anschließend in der Polling-Queue der Bearbeitungsstatus auf *true* gesetzt.
+One sub route stores the RequestID in the polling queue and marks it as *false*, since the processing has not terminated yet.
+Then the previously generated RequestID, which is now known to the engine, is returned to the invoker. 
+With other sub route the exchange message gets forwarded to the *InvokeProcessor*.
+Where the endpoint of the application and the Application Bus plugin necessary are determined with the TOSCA engine and the instance data service. 
+The implementation of the InvokeProcessor is shown below. 
+After all information required for the invocation has been gathered the endpoint for the plugin required for the invocation is requested from the plugin registry and the exchange message forwarded to that endpoint.
+More on the processing within the Application Bus Plugin later. 
+Once the plugin has completed the method invocation and returned a result, the result is stored together with the RequestID and the processing status in the polling queue is set to *true*. 
 
 ![BearbeitungsablaufInvokeProcessor](graphics/BearbeitungsablaufInvokeProcessor.png)
 
-**Abbildung 22: Bearbeitungsablauf innerhalb des Invoke-Processors**
+**Processing sequence within the Invoke-Processor**
+After the information has been read from the headers of the exchange message the instance data service is used to determine the specified *NodeInstance* and corresponding *NodeType*.
+Afterwards the required Application Bus properties are sought. 
+These properties define the relative endpoint of the application, the *InvocationType*, meaning which Application Bus plugin is required for the invocation, as well as information like which class implements the invoked operations. 
+Because properties can be defined in any *ArtifactTemplate* of the *DeploymentArtifacts* of a to *NodeType* belonging *NodeTypeImplementation* these have to be searched first until the properties are found. 
+The required information can be determined once the properties are found.
+Subsequently the address of the application has to be determined.
+To achieve this in the topology starting with the original *NodeTemplate* is followed along the *HostedOn* dependencies until a NodeTemplate defines the fixed defined properties to specify the address. 
+The current properties with the current address of the application are requested, with the instance data service, and the endpoint of the application is determined. 
+The InvocationType is used to determine the plugin required for the invocation. 
 
-In Abbildung 22 wird dargestellt, wie die zum Aufruf einer Anwendung benötigten Informationen, durch den InvokeProcessor bestimmt werden.
-Nachdem die vorhanden Informationen aus den Headern der Exchange Message ausgelesen wurden, wird zuerst mit Hilfe des Instance Data Services die dadurch spezifizierte *NodeInstance* und damit der dazugehörige *NodeType* bestimmt. 
-Anschließend werden die benötigten Application Bus Properties gesucht. 
-Diese Properties definieren den relativen Endpunkt der Anwendung, den *InvocationType* -- also welches Application Bus Plugin zum Aufruf benötigt wird -- sowie weitere Informationen wie beispielsweise die Klasse, welche die aufzurufende Operation implementiert. 
-Ein Beispiel für solche Application Bus Properties wurde bereits in Listing 4 gezeigt. 
-Da diese Properties in einem beliebigen *ArtifactTemplate* eines *DeploymentArtifacts* einer zum *NodeType* gehörigen *NodeTypeImplementation* definiert sein kann, müssen diese zunächst, bis die Properties gefunden wurden, durchsucht werden. 
-Werden die Properties gefunden, werden die benötigten Informationen bestimmt.
-Anschließend muss noch die Adresse der aufzurufenden Anwendung herausgefunden werden. 
-Dafür werden in der Topologie von dem ursprünglichen *NodeTemplate* ausgehend solange *HostedOn*-Abhängigkeiten verfolgt bis ein NodeTemplate die fest definierten Properties zur Angabe der Adresse definiert hat. 
-Per Instance Data Service werden dann die aktuellen Properties mit der aktuellen Adresse der aufzurufenden Anwendung abgefragt und anschließend der Endpunkt der Anwendung bestimmt. 
-Außerdem wird mit Hilfe des InvocationTypes das für den Aufruf benötigte Plugin bestimmt (siehe 8.1).
-
-Wie in Kapitel 3 beschrieben, ist das Hinzufügen von Plugins zum Erweitern der durch den Application Bus unterstützten Standards und Protokolle eine wichtige Anforderung. 
-Diese wird durch das dafür genutzte Plugin-System realisiert, welches nun folgend erläutert wird.
+An important requirement is the adding of plugins to expand the standards and protocols of the Application Bus.
+This is done with the following plugin system. 
 
 ```java
 1    public interface IApplicationBusPluginService {
@@ -726,48 +656,42 @@ Diese wird durch das dafür genutzte Plugin-System realisiert, welches nun folge
 
 ```
 
-**Listing 18: Application Bus Plugin Interface**
+**Application Bus Plugin Interface**
 
-Das verwendete Plugin-System wird durch die Nutzung von Declarative Services (siehe Abschnitt 2.4) ermöglicht. 
-Hierfür müssen die Application Bus Plugins das in Listing 18 dargestellte Interface implementieren und es als Service anbieten. 
-Das Interface definiert zwei Methoden. 
-Die erste Methode *getSupportedInvocationTypes* (Zeile 6) wird verwendet um die vom Plugin unterstützten InvocationTypes zu übergeben.
-Die zweite Methode *getRoutingEndpoint* (Zeile 11) wird zur Übergabe des Camel Endpoints des jeweiligen Plugins genutzt. 
-Dieser Endpunkt gibt den Einstiegspunkt zur Route des Plugins an. 
-Beim Binden des Services durch die Application Bus Engine werden die beiden Methoden aufgerufen und die InvocationTypes zusammen mit dem dazugehörigen Endpunkt abgespeichert.
-Die Engine kann dann bei Bedarf den zu einem InvocationType gehörigen Endpunkt abfragen und die Exchange Message dorthin weiterleiten. 
-Dieses Verfahren ermöglicht zum einen das dynamische Verwalten von startenden und stoppenden Plugins sowie zum anderen die Verwendung unterschiedlicher Camel Komponenten zur Kommunikation zwischen der Application Bus Engine und den verschiedenen Application Bus Plugins.
+The plugin system used is made possible with the usage of declarative services.
+The Application Bus plugins have to implement the interface shown here and offer it as a service. 
+The interfaces defines two methods. 
+The method *getSupportedInvocationTypes* is used to transfer the InvocationTypes supported by the plugin. 
+The method *getRoutingEndpoint* is used to transfer the Camel endpoints of the respective plugin.
+This endpoint specifies the entry point for the plugins route. 
+During binding of the service with the Application Bus engine both methods are called and the InvocationTypes and the associated endpoint are stored. 
+The engine can request the endpoint of an InvocationType and forward the exchange message there.
+This process makes it possible to administrate starting and stopping plugins dynamically and the usage of different camel components to communicate between the Application Bus engine and the various Application Bus plugins. 
 
 ### Application Bus JSON/HTTP Plugin
-
-In diesem Abschnitt wird das Application Bus JSON/HTTP Plugin genauer vorgestellt. 
-Aufgabe des Plugins ist es, eine Operation einer durch OpenTOSCA deployten Anwendung aufzurufen.
-
-Damit das Plugin mit der aufzurufenden Anwendung kommunizieren kann, wird wie in Kapitel 8 bereits erläutert, das zum Plugin passende Gegenstück in Form des Application Bus Proxys (siehe nächsten Abschnitt) benötigt. 
-Der Proxy bietet eine Schnittstelle an, gegen die das Plugin programmiert ist. 
-Das hier verwendete Kommunikationsprotokoll entspricht dem in Abbildung 6 vorgestellten Protokoll. 
-Tabelle 2 stellt die angebotene Schnittstelle schematisch dar.
+ 
+The task of the plugin is to invoke an operation of an application that is deployed with OpenTOSCA.
+To be able to communicate with the application the matching counterpart in the form of the Application Bus Proxy is necessary.
+The proxy offers an interface that the plugin is programmed against. 
+This offers a schematic view of the interface. 
 
   
-  | **Methode** | **URL**                                    | **Inhalt**                                    | **Rückgabe**                                                                                                                                        |
+  | **Method**  | **URL**                                    | **Content**                                   | **Return**                                                                                                                                        |
   |             | (/OTABProxy/v1/...)                        |                                               |                                                                                                                                                     |        
   |-------------| -------------------------------------------| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-  | POST        | /appInvoker                                | Klassenname, Operationsname, Eingabeparameter | Statuscode 202 (Accepted) & Verweis im Location-Header auf /activeRequests/{id}                                                                     |
-  | GET         | /appInvoker /activeRequests/{id}           |                                               | *Falls fertig:* Statuscode 303 (See Other) & Verweis im Location-Header auf /response   *Falls nicht fertig: Statuscode 200 (OK) & Pending im Body* |
-  | GET         | /appInvoker /activeRequests/{id} /response |                                               | Ergebnis des Methodenaufrufs                                                                                                                        |
+  | POST        | /appInvoker                                | class name, operation name, input parameter   | status code 202 (accepted) & reference to /activeRequests/{id} in the location header                                                                       |
+  | GET         | /appInvoker /activeRequests/{id}           |                                               | *If complete:* status code 303 (see other) & reference to /response in the location header  *If incomplete*: statuscode 200 (OK) & pending in Body* |
+  | GET         | /appInvoker /activeRequests/{id} /response |                                               | result of method call                                                                                                                      |
 
-**Tabelle 2: Schnittstelle des Application Bus Proxys**
 
-Listing 19 zeigt den konzeptionellen Aufbau der im Plugin implementierten Route. 
-Der Einstiegspunkt der Route (*ENDPOINT*) ist in Zeile 1 zu sehen. 
-Über diesen Endpunkt sendet die Application Bus Engine die Exchange Messages an das Plugin. 
-Woher die Engine die Endpunkte der Plugins kennt wurde in  Abschnitt 9.5 erläutert. 
-Im *RequestProcessor* (Zeile 2) wird aus den übergebenen Informationen die entsprechende JSON Nachricht (siehe Listing 12 für eine solche Beispielnachricht) erstellt. 
-Anschließend werden benötigte Header wie die verwendete HTTP-Methode (Zeile 3), der Content-Type (Zeile 4) sowie die aufzurufende URL (Zeile 5) gesetzt und die Nachricht verschickt. 
-*to(“<http://dummyhost>“)* wird hier nur verwendet, um Camel mitzuteilen, die HTTP-Komponente zum Verschicken der Nachricht zu nutzen. 
-Der richtige Endpunkt wird aus dem zuvor gesetzten Header ausgelesen. 
-Falls die dann erhaltende Antwort den vorgesehen Statuscode (202) aufweist (Zeile 7), wird die per Location-Header übergebene Polling-Adresse als neuer Endpunkt gesetzt (Zeile 8) und an die Polling-Unterroute weitergeleitet (Zeile 9). 
-Andernfalls tritt das, hier zur Vereinfachung weggelassene, Exception-Handling in Kraft (Zeile 11).
+*ENDPOINT* is the entry point for the route.
+The Application Bus Engine sends the exchange message to the plugin via this endpoint. 
+The *RequestProcessor* creates a JSON message from the transmitted information. 
+Now the required header, the HTTP method used, the content type and the URL to be invoked are set and the message is sent. 
+*to(“<http://dummyhost>“)* is only used to inform Camel to use the HTTP component to send the message.
+The correct endpoint is read from the previously set header. 
+If the answer contains the intended status code (202) the polling address transmitted by the location header is set as the new endpoint and forwarded to the polling sub route. 
+Otherwise the exception handling comes into effect. 
 
 ```json
 1   from(ENDPOINT)
@@ -793,54 +717,43 @@ Andernfalls tritt das, hier zur Vereinfachung weggelassene, Exception-Handling i
 
 ```
 
-** Listing 19: Route des Application Bus JSON/HTTP Plugins **
-
-Für das Polling wird ein HTTP-GET an die zuvor gesetzte Adresse geschickt (Zeile 13). 
-Anschließend wird anhand der erhaltenen Antwort überprüft, ob die Bearbeitung abgeschlossen ist (Zeile 17) oder nicht (Zeile 15).
-Falls die Bearbeitung nicht abgeschlossen ist -- die Antwort hat den Statuscode 200 und enthält *{“status“ : “PENDING“}* im Body -- wird fünf Sekunden gewartet (Zeile 15) und dann erneut gepollt. 
-Falls dagegen die Bearbeitung abgeschlossen ist wird im *ResponseProcessor* (Zeile 17) aus der erhaltenen JSON Nachricht das Ergebnis des Methodenaufrufs ausgelesen und an die Engine zurückgegeben.
-
-Zu beachten ist, dass wenn die Bearbeitung fertig ist, der per Statuscode 303 initiierte Redirect automatisch an die im Location-Header angegebene Adresse durchgeführt wird und daher in der Route nicht gesondert zu sehen ist. 
-Weiterhin wird im Falle einer nicht vorhergesehenen Antwort oder eines Fehlers wiederum das Exception-Handling aktiviert (Zeile 19).
+** Route of the Application Bus JSON/HTTP Plugin **
+A HTTP-GET is sent to the address set earlier, for polling.
+The received answer is used to determine whether the processing is terminated or not. 
+If it is not terminated, the answer has the status code 200 and the body contains *{“status“ : “PENDING“}*, there is a five second wait before polling again.
+If it is terminated the *ResponseProcessor* is used to read the result of the method call from the received JSON message and return it to the engine.
+If the processing is terminated the redirect initiated by the status code 303 automatically goes to the address specified in the location header and is not visible separately in the route.
+In the case of an unexpected answer or an error the exception handling comes into effect.
 
 ### Application Bus Proxy
+The proxy can be added to an application prior to deployment with the OpenTOSCA container, to make its methods available to other applications.
+The proxy used here is meant to be used with applications implemented as WARs and can be viewed as a reference implementation. 
 
-In diesem Abschnitt wird der Application Bus Proxy vorgestellt. 
-Der Proxy kann einer Anwendung vor dem Deployment durch den OpenTOSCA Container hinzugefügt werden, um damit ihre Methoden für andere Anwendungen nutzbar zu machen. 
-Der hier vorgestellte Proxy ist für die Verwendung in einer als WAR implementierten Anwendung vorgesehen und kann als eine Referenzimplementierung angesehen werden.
-
-Im vorherigen Abschnitt wurde bereits in Tabelle 2 die vom Proxy angebotene Schnittstelle dargestellt und die Nutzung dieser beschrieben.
-Der Proxy erhält von dem -- zum Proxy kompatiblen -- Application Bus JSON/HTTP Plugin den Name der aufzurufenden Methode, den qualifizierten Name der implementierenden Klasse sowie die Eingabeparameter übermittelt. 
-Als Antwort wird eine zur Identifikation des Aufrufs genutzte *RequestID* zurückgegeben. 
-Parallel dazu wird per Reflection die geforderte Methode mit den übergebenen Parametern aufgerufen und anschließend das Ergebnis zwischengespeichert. 
-Mit der entsprechenden RequestID kann das Ergebnis dann abgefragt werden. 
-Abbildung 23 zeigt die Funktionsweise des Application Bus Proxys als Kommunikationspartner des Application Bus sowie die Verwendung der übergebenen Informationen zur Bestimmung der per Reflection aufzurufenden Methode. 
-Das durch die Schnittstelle vorgesehene Polling und Abfragen des Ergebnisses erfolgt wie bereits im vorherigen Abschnitt beschrieben.
+To proxy receives the name of the method to be called from the compatible Application Bus JSON/HTTP plugin, the qualified name of the implemented class and the input parameter.
+As answer the *RequestID* to identify the caller is used. 
+The requested method with the transferred parameters is called in parallel with reflection and the result is cached. 
+The RequestID can then be used to request the result. 
+Shown here is the functionality of the Application Bus Proxy as communication partner of the Application Bus as well as the usage of the transferred information to determine the method to be called with reflection. 
+How the polling and requesting of results works in the interface has been covered above. 
 
 ![FunktionsweiseApplicationBusProxy](graphics/FunktionsweiseApplicationBusProxy.png)
 
-**Abbildung 23: Funktionsweise des Application Bus Proxys**
+**Functionality of the Application Bus Proxys**
 
 ### Application Bus Stub Generator
-
-In diesem Abschnitt wird der Application Bus Stub Generator vorgestellt.
-In Kapitel 8 wurde bereits ein Überblick über den Funktionsumfang des Generators gegeben. 
-Daher wird in diesem Abschnitt vor allem die Implementierung des Generators näher betrachtet.
-
-In der aktuellen Implementierung kann der Application Bus Stub Generator nur Stubs und Code-Skelette für Java generieren. 
-Das Generieren für andere Programmiersprachen ist jedoch konzeptionell ebenso möglich.
-Abbildung 24 zeigt den Workflow innerhalb des Application Bus Stub Generators. 
-Als Eingabe bekommt der Generator eine oder mehrere TOSCA-Dateien sowie einen Speicherort zum Ablegen der generierten .jar(s) übergeben. 
-Im ersten Schritt werden die übergebenen Tosca-Dateien geparst. Anschließend wird nach *NodeTypes* mit definierten Anwendungsoperationen (siehe Listing 2) gesucht. 
-Weiterhin werden alle *NodeTemplates* von jedem dieser NodeTypes bestimmt und zusammen mit den jeweils definierten Interfaces an die Generator-Komponente weitergegeben. 
-Dort wird für jedes definierte Interface eine .java-Klasse mit den im Interface enthaltenen Operationen generiert. 
-Der Name des jeweiligen Interfaces wird dabei auch als Name der dazugehörigen Klasse verwendet. 
-Abhängig davon ob ein reines Code-Skelett oder ein bereits gegen die Application Bus JSON/HTTP API programmierter Stub generiert werden soll, dienen Listing 3 beziehungsweise Listing 5 hierfür als Beispiel. 
-In der Compiler-Komponente werden die zuvor generierten .java-Klassen kompiliert. 
-Im letzten Schritt werden die zum jeweiligen NodeTemplate dazugehörigen Klassen zusammengefasst und als .jar an dem anfangs festgelegten Ort abgespeichert.
-Als Name der .jar wird dabei der Name des jeweiligen NodeTemplates verwendet.
+The Application Bus Stub Generator in its current implementation can only generate stubs and code skeletons for java.
+Generation for other programming languages is however conceptional possible. 
+Shown here is the workflow within the Application Bus Stub Generator.
+The generator receives one or more TOSCA files and a memory location to store the generated .jar(s) as input. 
+In the first step the transferred TOSCA files are parsed.
+Afterwards *NodeTypes* with defined application operations are searched for. 
+For each of the NodeTypes all *NodeTemplates* are determined and passed to the generator component, together with the defined interfaces. 
+There a .java class is generated for each interface with all the operations contain in the interface. 
+The name of the interface is used as the class name. 
+The compiler component compiles the generated .java classes. 
+As a last step all classes of a NodeTemplate are combined as a .jar and stored at the previously established location. 
+The name of the NodeTemplate is used as the .jar name.
 
 ![WorkflowApplicationBusStubGenerators](graphics/WorkflowApplicationBusStubGenerators.png)
 
-**Abbildung 24: Workflow des Application Bus Stub Generators**
-
+**Workflow of the Application Bus Stub Generators**

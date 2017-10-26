@@ -38,7 +38,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			"ArchiveArtifact");
 	private final QName bpelArchiveArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
 			"BPEL");
-	private final QName warArtifactType = new QName("http://www.example.com/ToscaTypes", "WAR");
+	private final QName warArtifactTypeOld = new QName("http://www.example.com/ToscaTypes", "WAR");
+	private final QName warArtifactType = new QName("http://opentosca.org/artifacttypes", "WAR");
 	private final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
 	private final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes",
 			"ConfigurationArtifact");
@@ -46,9 +47,11 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 
 	private final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
 	private final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
-	private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artefacttypes",
+	private final QName dockerContainerArtefactTypeOld = new QName("http://opentosca.org/artefacttypes",
 			"DockerContainerArtefact");
-
+	private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artifacttypes",
+			"DockerContainerArtifact");
+	
 	private final Handler handler = new Handler();
 
 	/**
@@ -113,7 +116,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
 			final boolean isDA) {
 
-		if (!isDA && this.warArtifactType.equals(artifactType) && infrastructureNodeType
+		if (!isDA && (this.warArtifactType.equals(artifactType) || this.warArtifactTypeOld.equals(artifactType)) && infrastructureNodeType
 				.equals(new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
 			// WARs are deployed as environment-centric artifacts -> doesn't
 			// need to be deployed on a node inside the topology, instead we
@@ -147,6 +150,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			isSupportedArtifactType |= true;
 		}
 
+		if (this.warArtifactTypeOld.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
+
 		if (this.sqlArtifactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
@@ -155,6 +162,10 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			isSupportedArtifactType |= true;
 		}
 
+		if (this.dockerContainerArtefactTypeOld.equals(artifactType)) {
+			isSupportedArtifactType |= true;
+		}
+		
 		if (this.dockerContainerArtefactType.equals(artifactType)) {
 			isSupportedArtifactType |= true;
 		}
@@ -178,7 +189,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	@Override
 	public boolean handle(final TemplatePlanContext context, final AbstractImplementationArtifact ia,
 			final AbstractNodeTemplate nodeTemplate) {
-		if (ia.getArtifactType().equals(this.warArtifactType)) {
+		QName type = ia.getArtifactType();
+		if (type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld)) {
 			// provisioning of IA that are webservice war files, is in the
 			// responsibility of
 			// the opentosca IA Engine. We just let the planbuilder know that
@@ -196,7 +208,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 	public boolean handle(final TemplatePlanContext context, final AbstractDeploymentArtifact da,
 			final AbstractNodeTemplate nodeTemplate) {
 
-		if (da.getArtifactType().equals(this.dockerContainerArtefactType)) {
+		if (da.getArtifactType().equals(this.dockerContainerArtefactType) || da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
 			return true;
 		}
 

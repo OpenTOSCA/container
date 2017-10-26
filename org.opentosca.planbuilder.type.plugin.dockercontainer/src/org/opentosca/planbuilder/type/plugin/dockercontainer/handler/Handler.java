@@ -208,14 +208,14 @@ public class Handler {
 	
 	public AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
 		for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-			if (da.getArtifactType().equals(PluginConstants.dockerContainerArtefactType)) {
+			if (da.getArtifactType().equals(PluginConstants.dockerContainerArtefactType) || da.getArtifactType().equals(PluginConstants.dockerContainerArtefactTypeOld)) {
 				return da;
 			}
 		}
 		
 		for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
 			for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-				if (da.getArtifactType().equals(PluginConstants.dockerContainerArtefactType)) {
+				if (da.getArtifactType().equals(PluginConstants.dockerContainerArtefactType) || da.getArtifactType().equals(PluginConstants.dockerContainerArtefactTypeOld)) {
 					return da;
 				}
 			}
