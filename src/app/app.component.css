@@ -1,0 +1,16 @@
+#paper {
+  height: 300px;
+  width:120px;
+  border: 1px solid;
+  border-style: dotted;
+  background-color: rgba(20, 0, 153, 0.1);
+}
+
+#paper2{
+  width: 500px;
+  height: 200px;
+}
+
+#test{
+  display: inline-flex;
+}
