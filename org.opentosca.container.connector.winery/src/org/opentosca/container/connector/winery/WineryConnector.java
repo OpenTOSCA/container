@@ -104,7 +104,7 @@ public class WineryConnector {
 		MultipartEntity entity = new MultipartEntity();
 
 		ContentBody fileBody = new FileBody(file);
-		ContentBody overwriteBody = new StringBody("true");
+		ContentBody overwriteBody = new StringBody("false");
 
 		FormBodyPart filePart = new FormBodyPart("file", fileBody);
 		FormBodyPart overwritePart = new FormBodyPart("overwrite", overwriteBody);
