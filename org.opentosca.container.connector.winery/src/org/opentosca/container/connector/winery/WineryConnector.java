@@ -51,6 +51,7 @@ public class WineryConnector {
 
 	public WineryConnector() {
 		this.wineryPath = Settings.getSetting("org.opentosca.container.connector.winery.url");
+		LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
 		if (!this.wineryPath.endsWith("/")) {
 			this.wineryPath = this.wineryPath + "/";
 		}
@@ -60,9 +61,10 @@ public class WineryConnector {
 
 		HttpGet get = new HttpGet();
 		get.setHeader("Accept", "application/json");
-
 		try {
-			get.setURI(new URI(this.wineryPath + "servicetemplates"));
+			URI serviceTemplatesUri = new URI(this.wineryPath + "servicetemplates");
+			LOG.debug("Checking if winery is available at " + serviceTemplatesUri.toString());
+			get.setURI(serviceTemplatesUri);
 			HttpResponse resp = this.client.execute(get);
 
 			EntityUtils.consume(resp.getEntity());
@@ -89,6 +91,7 @@ public class WineryConnector {
 
 	public URI getServiceTemplateURI(QName serviceTemplateId) {
 		try {
+			LOG.debug("Trying to fetch URI to Service Template" + serviceTemplateId.toString());
 			return new URI(this.wineryPath + "servicetemplates/" + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/" + serviceTemplateId.getLocalPart());
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
@@ -101,7 +104,7 @@ public class WineryConnector {
 		MultipartEntity entity = new MultipartEntity();
 
 		ContentBody fileBody = new FileBody(file);
-		ContentBody overwriteBody = new StringBody("true");
+		ContentBody overwriteBody = new StringBody("false");
 
 		FormBodyPart filePart = new FormBodyPart("file", fileBody);
 		FormBodyPart overwritePart = new FormBodyPart("overwrite", overwriteBody);
