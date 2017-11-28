@@ -44,3 +44,575 @@ Systems - Applications of Parallel and Distributed Systems (IPVS/AS) of
 the University of Stuttgart from 2011 to 2012.
 For more information see http://www.iaas.uni-stuttgart.de
 and http://www.ipvs.uni-stuttgart.de/as.html
+
+== Declared Project Licenses
+
+This program and the accompanying materials are made available under the
+terms of  the Apache Software License 2.0 which is available at https://www.apache.org/licenses/LICENSE-2.0.
+
+== Source Code
+
+* https://github.com/OpenTOSCA/container
+
+== Copyright Holders
+
+Copyright (c) 2012-2017 University of Stuttgart
+Copyright (c) 2014-2015 Tobias Binz
+Copyright (c) 2012-2017 Uwe Breitenbücher
+Copyright (c) 2012-2017 Florian Haupt // TODO Check
+Copyright (c) 2012-2017 Oliver Kopp
+Copyright (c) 2012-2017 Alexander Nowak // TODO Check
+Copyright (c) 2012-2017 Sebastian Wagner // TODO Check
+Copyright (c) 2012-2017 Tim Waizenegger // TODO Check
+Copyright (c) 2012-2017 Marcus Eisele  // TODO Check
+Copyright (c) 2012-2017 Kálmán Képes // TODO Check
+Copyright (c) 2012-2017 Michael Zimmermann // TODO Check
+Copyright (c) 2012-2017 Rene Trefft // TODO Check
+Copyright (c) 2012-2017 Christian Endres // TODO Check
+Copyright (c) 2012-2017 Matthias Fetzer // TODO Check
+Copyright (c) 2012-2017 Markus Fischer // TODO Check
+Copyright (c) 2012-2017 Nedim Karaoğuz // TODO Check
+// TODO ...
+
+== Third-party Content
+
+ch.qos.logback.classic Version: 1.1.2.v20160208-0839
+* License: EPL-1.0
+* Project: https://github.com/qos-ch/logback
+
+ch.qos.logback.core Version: 1.1.2.v20160208-0839
+* License: EPL-1.0
+* Project: https://github.com/qos-ch/logback
+
+ch.qos.logback.slf4j Version: 1.1.2.v20160301-0943
+* License: EPL-1.0
+* Project: https://github.com/qos-ch/logback
+
+com.eclipsesource.jaxrs.jersey-min Version: 2.22.2
+* License: EPL-1.0
+* Project: https://github.com/hstaudacher/osgi-jax-rs-connector
+
+com.eclipsesource.jaxrs.publisher Version: 5.3.1.201602281253
+* License: EPL-1.0
+* Project: https://github.com/hstaudacher/osgi-jax-rs-connector
+
+com.fasterxml.jackson.core.jackson-annotations Version: 2.6.2.v20161117-2150
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.fasterxml.jackson.core.jackson-core Version: 2.6.2.v20161117-2150
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.fasterxml.jackson.core.jackson-databind Version: 2.6.2.v20161117-2150
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.fasterxml.jackson.dataformat.jackson-dataformat-yaml Version: 2.5.0.v201504151636
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.fasterxml.jackson.jaxrs.jackson-jaxrs-base Version: 2.6.2.v20161117-2150
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.fasterxml.jackson.jaxrs.jackson-jaxrs-json-provider Version: 2.6.2.v20161117-2150
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.fasterxml.jackson.module.jackson-module-jaxb-annotations Version: 2.5.0.v201504151636
+* License: Apache-2.0
+* Project: https://github.com/FasterXML
+
+com.google.gson Version: 2.2.4
+* License: Apache-2.0
+* Project: https://github.com/google/gson
+
+com.google.guava Version: 15.0.0.v201403281430
+* License: Apache-2.0
+* Project: https://github.com/google/guava
+
+com.google.inject Version: 3.0.0.v201605172100
+* License: Apache-2.0
+* Project: https://github.com/google/guice
+
+com.googlecode.json-simple Version: 1.1.0
+* License: Apache-2.0
+* Project: https://github.com/fangyidong/json-simple
+
+com.predic8.soa-model-core Version: 1.2.2
+* License: Apache-2.0
+* Project: https://github.com/membrane/soa-model
+
+com.springsource.util.common Version: 2.0.0.RELEASE
+* License: Apache-2.0
+* Project: http://grepcode.com/file/repository.springsource.com/com.springsource.util/com.springsource.util.common/2.0.0/com/springsource/util/common/Tree.java#Tree
+
+com.springsource.util.osgi Version: 2.0.0.RELEASE
+* License: Apache-2.0
+* Project: http://grepcode.com/snapshot/repository.springsource.com/com.springsource.util/com.springsource.util.osgi/2.0.0/
+
+com.springsource.util.parser.manifest Version: 2.0.0.RELEASE
+* License: Apache-2.0
+* Project: http://grepcode.com/snapshot/repository.springsource.com/com.springsource.util/com.springsource.util.parser.manifest/2.0.0
+
+com.sun.jersey.client Version: 1.17.1
+* License: CDDL-1.1
+* Project: https://github.com/jersey/jersey
+
+com.sun.jersey.core Version: 1.17.1
+* License: CDDL-1.1
+* Project: https://github.com/jersey/jersey
+
+dk.nykredit.jackson.dataformat.jackson-dataformat-hal Version: 1.0.1
+* License: MIT
+* Project: https://github.com/Nykredit/jackson-dataformat-hal
+
+filesystem Version: 1.7.3
+* License: Apache-2.0
+* Project: https://github.com/jclouds/jclouds
+
+groovy-all Version: 1.8.6
+* License: Apache-2.0
+* Project: https://github.com/apache/groovy
+
+javax.activation Version: 1.1.0.v201108011116
+* License: CDDL-1.1
+* Project: https://github.com/kohsuke/javax.activation
+
+javax.annotation Version: 1.2.0.v201602091430
+* License: CDDL-1.1
+* Project: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/6-b14/javax/annotation/Resource.java
+
+javax.inject Version: 1.0.0.v20091030
+* License: Apache-2.0
+* Project: https://github.com/javax-inject/javax-inject
+
+javax.mail Version: 1.4.0.v201005080615
+* License: CDDL
+* Project: https://github.com/javaee/javamail
+
+javax.persistence Version: 2.1.1.v201509150925
+* License: CDDL
+* Project: https://github.com/eclipse/javax.persistence
+
+javax.servlet Version: 3.1.0.v201410161800
+* License: CDDL
+* Project: http://grepcode.com/file/repo1.maven.org/maven2/javax.servlet/servlet-api/2.5/javax/servlet/http/HttpServlet.java
+
+javax.wsdl Version: 1.6.2.v201012040545
+* License: CPL v1.0
+* Project: https://mvnrepository.com/artifact/wsdl4j/wsdl4j/1.6.3
+
+javax.xml Version: 1.3.4.v201005080400
+* License: CDDL
+* Project: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/6-b14/javax/xml/
+
+javax.xml.stream Version: 1.0.1.v201004272200
+* License: CDDL
+* Project: http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/6-b14/javax/xml/stream
+
+jclouds-blobstore Version: 1.7.3
+* License: Apache-2.0
+* Project: https://github.com/jclouds/jclouds
+
+jclouds-core Version: 1.7.3
+* License: Apache-2.0
+* Project: https://github.com/jclouds/jclouds
+
+jclouds-slf4j Version: 1.7.3
+* License: Apache-2.0
+* Project: https://github.com/jclouds/jclouds
+
+org.apache.aries.blueprint.api Version: 1.0.0
+* License: Apache-2.0
+* Project: https://github.com/apache/aries
+
+org.apache.aries.blueprint.core Version: 1.4.4
+* License: Apache-2.0
+* Project: https://github.com/apache/aries
+
+org.apache.aries.proxy.api Version: 1.0.0
+* License: Apache-2.0
+* Project: https://github.com/apache/aries
+
+org.apache.aries.util Version: 1.0.0
+* License: Apache-2.0
+* Project: https://github.com/apache/aries
+
+org.apache.camel.camel-blueprint Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-core Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-core-osgi Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-core-xml Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-cxf Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-cxf-transport Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-http Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-http-common Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-jaxb Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-jetty Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-jetty-common Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-jetty9 Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-restlet Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-spring Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.camel.camel-stream Version: 2.18.3
+* License: Apache-2.0
+* Project: https://github.com/apache/camel
+
+org.apache.commons.codec Version: 1.9.0.v20170208-1614
+* License: Apache-2.0
+* Project: https://github.com/apache/commons-codec
+
+org.apache.commons.httpclient Version: 3.1.0.v201012070820
+* License: Apache-2.0
+* Project: http://hc.apache.org/httpclient-3.x/
+
+org.apache.commons.io Version: 2.2.0.v201405211200
+* License: Apache-2.0
+* Project: https://github.com/apache/commons-io
+
+org.apache.cxf.cxf-core Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-bindings-soap Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-bindings-xml Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-databinding-jaxb Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-frontend-jaxrs Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-frontend-jaxws Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-frontend-simple Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-rs-client Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-transports-http Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-transports-http-jetty Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.cxf.cxf-rt-wsdl Version: 3.1.10
+* License: Apache-2.0
+* Project: https://github.com/apache/cxf
+
+org.apache.felix.gogo.command Version: 0.10.0.v201209301215
+* License: Apache-2.0
+* Project: https://github.com/apache/felix
+
+org.apache.felix.gogo.runtime Version: 0.10.0.v201209301036
+* License: Apache-2.0
+* Project: https://github.com/apache/felix
+
+org.apache.felix.gogo.shell Version: 0.10.0.v201212101605
+* License: Apache-2.0
+* Project: https://github.com/apache/felix
+
+org.apache.httpcomponents.httpclient Version: 4.5.2.v20170210-0925
+* License: Apache-2.0
+* Project: https://github.com/apache/httpcomponents-client
+
+org.apache.httpcomponents.httpcore Version: 4.4.6.v20170210-0925
+* License: Apache-2.0
+* Project: https://github.com/apache/httpcomponents-core
+
+org.apache.neethi Version: 3.0.3
+* License: Apache-2.0
+* Project: https://github.com/apache/webservices-neethi
+
+org.apache.servicemix.bundles.spring-aop Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.servicemix.bundles.spring-beans Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.servicemix.bundles.spring-beans.source Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.servicemix.bundles.spring-context Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.servicemix.bundles.spring-core Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.servicemix.bundles.spring-expression Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.servicemix.bundles.spring-tx Version: 4.3.7.RELEASE_1
+* License: Apache-2.0
+* Project: https://github.com/apache/servicemix-bundles
+
+org.apache.ws.xmlschema.core Version: 2.2.1
+* License: Apache-2.0
+* Project: https://github.com/apache/webservices-xmlschema
+
+org.eclipse.core.contenttype Version: 3.5.100.v20160418-1621
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipse/platform-core/
+
+org.eclipse.core.jobs Version: 3.8.0.v20160509-0411
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipse/platform-core/
+
+org.eclipse.core.runtime Version: 3.12.0.v20160606-1342
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipse/platform-core/
+
+org.eclipse.equinox.app Version: 1.3.400.v20150715-1528
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.cm Version: 1.1.200.v20160324-1850
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.common Version: 3.8.0.v20160509-1230
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.console Version: 1.1.200.v20150929-1405
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.ds Version: 1.4.400.v20160226-2036
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.event Version: 1.3.200.v20160324-1850
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.http.jetty Version: 3.3.0.v20160324-1850
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.http.servlet Version: 1.3.1.v20160808-1329
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.preferences Version: 3.6.1.v20160815-1406
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.registry Version: 3.6.100.v20160223-2218
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.simpleconfigurator Version: 1.1.200.v20160504-1450
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.equinox.util Version: 1.0.500.v20130404-1337
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.gemini.dbaccess.h2 Version: 1.1.0.RELEASE
+* License: EPL-1.0
+* Project: https://www.eclipse.org/gemini/
+
+org.eclipse.gemini.dbaccess.util Version: 1.1.0.RELEASE
+* License: EPL-1.0
+* Project: https://www.eclipse.org/gemini/
+
+org.eclipse.gemini.jpa Version: 1.2.0.M1
+* License: EPL-1.0
+* Project: https://www.eclipse.org/gemini/
+
+org.eclipse.jetty.client Version: 9.2.19.v20160908
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.continuation Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.http Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.io Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.jmx Version: 9.2.19.v20160908
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.security Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.server Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.servlet Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.servlets Version: 9.2.19.v20160908
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.jetty.util Version: 9.3.9.v20160517
+* License: EPL-1.0
+* Project: https://www.eclipse.org/jetty/
+
+org.eclipse.osgi Version: 3.11.3.v20170209-1843
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.osgi.services Version: 3.5.100.v20160504-1419
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.osgi.util Version: 3.3.100.v20150423-1351
+* License: EPL-1.0
+* Project: https://projects.eclipse.org/projects/rt.equinox
+
+org.eclipse.persistence.antlr Version: 3.2.0.v201302191141
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipselink/
+
+org.eclipse.persistence.asm Version: 5.0.1.v201405080102
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipselink/
+
+org.eclipse.persistence.core Version: 2.6.3.v20160428-59c81c5
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipselink/
+
+org.eclipse.persistence.jpa Version: 2.6.3.v20160428-59c81c5
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipselink/
+
+org.eclipse.persistence.jpa.jpql Version: 2.6.3.v20160428-59c81c5
+* License: EPL-1.0
+* Project: https://www.eclipse.org/eclipselink/
+
+org.glassfish.jersey.bundles.repackaged.jersey-guava Version: 2.22.1.v20161103-1916
+* License: CDDL
+* Project: https://jersey.github.io/
+
+org.glassfish.jersey.ext.entityfiltering Version: 2.22.1.v20161103-0227
+* License: CDDL v1.1
+* Project: https://jersey.github.io/
+
+org.glassfish.jersey.media.jersey-media-json-jackson Version: 2.22.1.v20161117-2005
+* License: CDDL v1.1
+* Project: https://jersey.github.io/
+
+org.h2 Version: 1.3.168.v201212121212
+* License: EPL-1.0
+* Project: https://github.com/h2database/h2database
+
+org.restlet.jee.org.restlet Version: 2.3.6
+* License: Apache-2.0
+* Project: https://github.com/restlet/restlet-framework-java
+
+org.restlet.jee.org.restlet.ext.httpclient Version: 2.3.6
+* License: Apache-2.0
+* Project: https://github.com/restlet/restlet-framework-java
+
+org.slf4j.api Version: 1.7.10.v20170224-1220
+* License: MIT
+* Project: https://github.com/qos-ch/slf4j
+
+org.slf4j.apis.jcl Version: 1.7.10.v20160208-0839
+* License: MIT
+* Project: https://github.com/qos-ch/slf4j
+
+org.slf4j.apis.log4j Version: 1.7.10.v20160208-0839
+* License: MIT
+* Project: https://github.com/qos-ch/slf4j
+
+org.slf4j.bridge.jul Version: 1.7.10.v20160208-0839
+* License: MIT
+* Project: https://github.com/qos-ch/slf4j
+
+osgi.enterprise Version: 4.2.0.201003190513
+* License: Apache-2.0
+* Project: https://www.osgi.org/
+
+stax2-api Version: 3.1.4
+* License: Apache-2.0
+* Project: https://github.com/FasterXML/stax2-api
+
+woodstox-core-asl Version: 4.4.1
+* License: Apache-2.0
+* Project: https://github.com/FasterXML/woodstox
+
+== Cryptography
+
+Content may contain encryption software. The country in which you are currently
+may have restrictions on the import, possession, and use, and/or re-export to
+another country, of encryption software. BEFORE using any encryption software,
+please check the country's laws, regulations and policies concerning the import,
+possession, or use, and re-export of encryption software, to see if this is
+permitted.
