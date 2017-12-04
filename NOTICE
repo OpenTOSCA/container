@@ -10,6 +10,11 @@ Technology (http://www.bmwi.de/EN/root.html) as part of the CloudCycle
 project (01MD11023).
 For more information see http://www.cloudcycle.org/en/
 
+This work has been supported by the the Federal Ministry of Economics and
+Technology (http://www.bmwi.de/EN/root.html) as part of the Migrate
+project (01ME11055).
+For more information see http://www.migrate-it2green.de/
+
 This product includes software from the project "Instance data management for Open-
 TOSCA" which was originally developed by Marcus Eisele as a bachelor thesis at the
 Institute of Architecture of Application Systems (IAAS) of the University of Stuttgart from
@@ -57,23 +62,28 @@ terms of  the Apache Software License 2.0 which is available at https://www.apac
 == Copyright Holders
 
 Copyright (c) 2012-2017 University of Stuttgart
-Copyright (c) 2014-2015 Tobias Binz
-Copyright (c) 2012-2017 Uwe Breitenbücher
-Copyright (c) 2012-2017 Florian Haupt // TODO Check
+Copyright (c) 2012-2017 Christian Endres
+Copyright (c) 2012-2017 Florian Haupt
+Copyright (c) 2016-2017 Johannes Wettinger
+Copyright (c) 2012-2017 Kálmán Képes
+Copyright (c) 2012-2017 Michael Zimmermann
+Copyright (c) 2012-2017 Markus Fischer
 Copyright (c) 2012-2017 Oliver Kopp
-Copyright (c) 2012-2017 Alexander Nowak // TODO Check
-Copyright (c) 2012-2017 Sebastian Wagner // TODO Check
-Copyright (c) 2012-2017 Tim Waizenegger // TODO Check
-Copyright (c) 2012-2017 Marcus Eisele  // TODO Check
-Copyright (c) 2012-2017 Kálmán Képes // TODO Check
-Copyright (c) 2012-2017 Michael Zimmermann // TODO Check
-Copyright (c) 2012-2017 Rene Trefft // TODO Check
-Copyright (c) 2012-2017 Christian Endres // TODO Check
-Copyright (c) 2012-2017 Matthias Fetzer // TODO Check
-Copyright (c) 2012-2017 Markus Fischer // TODO Check
-Copyright (c) 2012-2017 Nedim Karaoğuz // TODO Check
+Copyright (c) 2012-2017 Tim Waizenegger
+Copyright (c) 2012-2017 Uwe Breitenbücher
+Copyright (c) 2017 Anita Armbruster
+Copyright (c) 2017 Ana Silva
+Copyright (c) 2017 Karoline Saatkamp
 Copyright (c) 2017 Michael Wurster
-// TODO ...
+Copyright (c) 2017 Senait Berhe
+Copyright (c) 2017 Tobias Wältken
+Copyright (c) 2012-2016 Sebastian Wagner
+Copyright (c) 2014-2015 Tobias Binz
+Copyright (c) 2012-2014 Alexander Nowak
+Copyright (c) 2012-2013 Marcus Eisele
+Copyright (c) 2012-2013 Matthias Fetzer
+Copyright (c) 2012-2013 Nedim Karaoğuz
+Copyright (c) 2012-2013 Rene Trefft
 
 == Third-party Content
 
