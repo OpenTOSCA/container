@@ -200,11 +200,13 @@
       <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.core" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.core.bpel" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.model" autoStart="false" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="0" />

@@ -1,44 +1,45 @@
 package org.opentosca.planbuilder.selection.plugin.mosquitto.workload;
 
-import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.selection.plugin.mosquitto.workload.bpel.BPELMosquittoSelectionPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator {
-	
-	private static BundleContext context;
-	private ServiceRegistration registration;
-	
-	
-	static BundleContext getContext() {
-		return Activator.context;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
-	 * )
-	 */
-	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
-		this.registration = Activator.context.registerService(IScalingPlanBuilderSelectionPlugin.class.getName(), new Plugin(), null);
-		
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
-		this.registration.unregister();
-	}
-	
+
+    private static BundleContext context;
+
+    private ServiceRegistration registration;
+
+    static BundleContext getContext() {
+	return Activator.context;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
+     */
+    @Override
+    public void start(BundleContext bundleContext) throws Exception {
+	Activator.context = bundleContext;
+	this.registration = Activator.context.registerService(IScalingPlanBuilderSelectionPlugin.class.getName(),
+		new BPELMosquittoSelectionPlugin(), null);
+
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void stop(BundleContext bundleContext) throws Exception {
+	Activator.context = null;
+	this.registration.unregister();
+    }
+
 }

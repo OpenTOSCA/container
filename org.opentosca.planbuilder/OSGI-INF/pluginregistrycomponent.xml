@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.planbuilder.PluginRegistry">
-   <implementation class="org.opentosca.planbuilder.plugins.registry.PluginRegistry"/>
-   <reference bind="bindPostPhasePlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin" name="IPlanBuilderPostPhasePlugin" policy="dynamic" unbind="unbindPostPhasePlugin"/>
-   <reference bind="bindPrePhaseDaPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin" name="IPlanBuilderPrePhaseDAPlugin" policy="dynamic" unbind="unbindPrePhaseDaPlugin"/>
-   <reference bind="bindPrePhaseIaPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin" name="IPlanBuilderPrePhaseIAPlugin" policy="dynamic" unbind="unbindPrePhaseIaPlugin"/>
-   <reference bind="bindProvPhaseOperationPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin" name="IPlanBuilderProvPhaseOperationPlugin" policy="dynamic" unbind="unbindProvPhaseOperationPlugin"/>
-   <reference bind="bindGenericPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin" name="IPlanBuilderGenericPlugin" policy="dynamic" unbind="unbindGenericPlugin"/>
-   <reference bind="bindSelectionPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin" name="IScalingPlanBuilderSelectionPlugin" policy="dynamic" unbind="unbindSelectionPlugin"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.planbuilder.core.plugins.registry.PluginRegistry">
+   <implementation class="org.opentosca.planbuilder.core.plugins.registry.PluginRegistry"/>
+   <reference bind="bindPostPhasePlugin" cardinality="0..n" interface="org.opentosca.planbuilder.core.plugins.IPlanBuilderPostPhasePlugin" name="IPlanBuilderPostPhasePlugin" policy="dynamic" unbind="unbindPostPhasePlugin"/>
+   <reference bind="bindPrePhaseDaPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseDAPlugin" name="IPlanBuilderPrePhaseDAPlugin" policy="dynamic" unbind="unbindPrePhaseDaPlugin"/>
+   <reference bind="bindPrePhaseIaPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseIAPlugin" name="IPlanBuilderPrePhaseIAPlugin" policy="dynamic" unbind="unbindPrePhaseIaPlugin"/>
+   <reference bind="bindProvPhaseOperationPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin" name="IPlanBuilderProvPhaseOperationPlugin" policy="dynamic" unbind="unbindProvPhaseOperationPlugin"/>
+   <reference bind="bindGenericPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin" name="IPlanBuilderGenericPlugin" policy="dynamic" unbind="unbindGenericPlugin"/>
+   <reference bind="bindSelectionPlugin" cardinality="0..n" interface="org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin" name="IScalingPlanBuilderSelectionPlugin" policy="dynamic" unbind="unbindSelectionPlugin"/>
 </scr:component>
