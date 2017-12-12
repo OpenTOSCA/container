@@ -42,7 +42,6 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 	public final static QName openMTCGatewayDockerContainerNodeType = new QName("http://opentosca.org/nodetypes", "OpenMTCDockerContainerGateway");
 	public final static QName openMTCProtocolAdapterDockerContainerNodeType = new QName("http://opentosca.org/nodetypes", "OpenMTCDockerContainerProtocolAdapter");
 	
-	
 	private BPELProcessFragments planBuilderFragments;
 	
 	
@@ -54,7 +53,6 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 			e.printStackTrace();
 		}
 	}
-	
 	
 	@Override
 	public String getID() {
@@ -78,11 +76,10 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 		return false;
 	}
 	
-	
 	private AbstractNodeTemplate getAdapterForNode(final AbstractNodeTemplate protocolAdapterNodeTemplate) {
 		
-		for(AbstractRelationshipTemplate outgoingRelation : protocolAdapterNodeTemplate.getOutgoingRelations()) {
-			if(outgoingRelation.getType().getLocalPart().contains("AdapterFor")) {
+		for (AbstractRelationshipTemplate outgoingRelation : protocolAdapterNodeTemplate.getOutgoingRelations()) {
+			if (outgoingRelation.getType().getLocalPart().contains("AdapterFor")) {
 				return outgoingRelation.getTarget();
 			}
 		}
@@ -237,7 +234,7 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 		// we can only handle nodeTemplates
 		return false;
 	}
-
+	
 	/**
 	 * Adds BPEL code to the given TemplateContext which installs and starts an
 	 * OpenMTC Gateway on an available DockerEngine
@@ -270,15 +267,32 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 		
 		final Variable tenantIdVar = templateContext.getPropertyVariable(nodeTemplate, "TenantID");
 		final Variable instanceIdVar = templateContext.getPropertyVariable(nodeTemplate, "InstanceID");
+		final Variable onem2mspIdVar = templateContext.getPropertyVariable(nodeTemplate, "ONEM2MSPID");
 		
-		if (tenantIdVar == null | instanceIdVar == null) {
+		if (tenantIdVar == null | instanceIdVar == null | onem2mspIdVar == null) {
 			return false;
+		}
+		
+		/*
+		 * Fetch own external IP
+		 */
+		Variable ownIp = null;
+		
+		for (AbstractNodeTemplate infraNode : templateContext.getInfrastructureNodes()) {
+			for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+				ownIp = templateContext.getPropertyVariable(infraNode, serverIpName);
+				if (ownIp != null) {
+					break;
+				}
+			}
 		}
 		
 		// check if there is a backend
 		Variable backendIpVar = null;
+		Variable backendCSEIdVar = null;
 		if (backendNodeTemplate != null) {
 			backendIpVar = templateContext.getPropertyVariable(backendNodeTemplate, "IP");
+			backendCSEIdVar = templateContext.getPropertyVariable(backendNodeTemplate, "ONEM2MCSEID");
 		}
 		
 		final Variable portMappingVar = templateContext.createGlobalStringVariable("dockerContainerPortMappings" + System.currentTimeMillis(), "");
@@ -289,11 +303,12 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 			assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
 			templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 			
-			String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;ONEM2M_REGISTRATION_DISABLED=false;ONEM2M_NOTIFICATION_DISABLED=false;ONEM2M_SP_ID=smartorchestra.de;ONEM2M_REMOTE_CSE_ID=smartorchestra.de')";
+			String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;ONEM2M_REGISTRATION_DISABLED=false;ONEM2M_NOTIFICATION_DISABLED=false;ONEM2M_SP_ID=',$" + onem2mspIdVar.getName() + ",';EXTERNAL_IP=',$" + ownIp.getName() + ")";
 			
 			if (backendNodeTemplate != null) {
 				envVarXpathQuery = envVarXpathQuery.substring(0, envVarXpathQuery.length() - 1);
-				envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_POA=',$" + backendIpVar.getName() + ")";
+				envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_POA=',$" + backendIpVar.getName();
+				envVarXpathQuery += ",';ONEM2M_REMOTE_CSE_ID=',$" + backendCSEIdVar.getName() + ")";
 			}
 			
 			// assign environment variable mappings
@@ -340,7 +355,7 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 		
 		return false;
 	}
-
+	
 	/**
 	 * Adds BPEL code to the given TemplateContext which installs and starts an
 	 * OpenMTC Gateway on an available DockerEngine
@@ -413,7 +428,7 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 			assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
 			templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 			
-			String envVarConcatXpathQuery = "concat('EP=http://',$" + gatewayContainerIpVar.getName() + ",':',$" + gatewayContainerPortVar.getName() + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];DEVICE_MAPPINGS={\"',$"+ sensorDeviceId.getName()+ ",'_1\": \"Hof\", \"',$"+sensorDeviceId.getName() +",'_2\": \"Hof\"};SIM=false')";
+			String envVarConcatXpathQuery = "concat('EP=http://',$" + gatewayContainerIpVar.getName() + ",':',$" + gatewayContainerPortVar.getName() + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];DEVICE_MAPPINGS={\"',$" + sensorDeviceId.getName() + ",'_1\": \"Hof\", \"',$" + sensorDeviceId.getName() + ",'_2\": \"Hof\"};SIM=false')";
 			
 			// assign environment variable mappings
 			assignContainerPortsNode = this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables", envVarConcatXpathQuery, envMappingVar.getName());
