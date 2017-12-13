@@ -428,7 +428,7 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 			assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
 			templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
 			
-			String envVarConcatXpathQuery = "concat('EP=http://',$" + gatewayContainerIpVar.getName() + ",':',$" + gatewayContainerPortVar.getName() + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];DEVICE_MAPPINGS={\"',$" + sensorDeviceId.getName() + ",'_1\": \"Hof\", \"',$" + sensorDeviceId.getName() + ",'_2\": \"Hof\"};SIM=false')";
+			String envVarConcatXpathQuery = "concat('EP=http://',$" + gatewayContainerIpVar.getName() + ",':',$" + gatewayContainerPortVar.getName() + ",';','ORIGINATOR_PRE=//smartorchestra.de/',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;DEVICES=[];DEVICE_MAPPINGS={\"',$" + sensorDeviceId.getName() + ",'_1\": \"Hof\", \"',$" + sensorDeviceId.getName() + ",'_2\": \"Hof\"};SIM=true')";
 			
 			// assign environment variable mappings
 			assignContainerPortsNode = this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables", envVarConcatXpathQuery, envMappingVar.getName());

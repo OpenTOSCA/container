@@ -960,6 +960,20 @@ public class TemplatePlanContext {
 	}
 	
 	
+	public List<Variable> getPropertyVariables(AbstractNodeTemplate nodeTemplate) {
+		List<Variable> vars = new ArrayList<Variable>();
+		
+		Map<String,String> propMap = this.propertyMap.getPropertyMappingMap(nodeTemplate.getId());
+	
+		for(String localName : propMap.keySet()) {
+			Variable var = this.getPropertyVariable(nodeTemplate, localName);
+			if(var != null) {
+				vars.add(var);
+			}
+		}
+		return vars;
+	}
+	
 	/**
 	 * Returns a Variable object that represents a property inside the given
 	 * nodeTemplate with the given name
@@ -982,6 +996,18 @@ public class TemplatePlanContext {
 		}
 		
 		return null;
+	}
+	
+	public List<String> getPropertyNames(AbstractNodeTemplate nodeTemplate) {
+		List<String> propertyNames = new ArrayList<String>();
+		NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
+		for (int index = 0; index < propertyNodes.getLength(); index++) {
+			Node propertyNode = propertyNodes.item(index);
+			if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+				propertyNames.add(propertyNode.getLocalName());
+			}
+		}
+		return propertyNames;
 	}
 	
 	public Variable getPropertyVariable(AbstractRelationshipTemplate relationshipTemplate, String propertyName) {

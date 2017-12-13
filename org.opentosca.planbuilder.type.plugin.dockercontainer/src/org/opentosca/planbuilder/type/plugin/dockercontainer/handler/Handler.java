@@ -110,13 +110,55 @@ public class Handler {
 			// handle with DA -> construct URL to the DockerImage .zip
 			
 			final AbstractDeploymentArtifact da = this.fetchFirstDockerContainerDA(nodeTemplate);
-			this.handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar, null, null, null);
+			this.handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar, this.fetchEnvironmentVariables(templateContext, nodeTemplate), null, null);
 		} else {
 			// handle with imageId
 			return this.handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar, dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar);
 		}
 		
 		return true;
+	}
+	
+	private Variable fetchEnvironmentVariables(TemplatePlanContext context, AbstractNodeTemplate nodeTemplate) {
+						
+		List<String> propertyNames = context.getPropertyNames(nodeTemplate);
+		
+		// String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName() + ",'~',$" + instanceIdVar.getName() + ",';LOGGING_LEVEL=INFO;ONEM2M_REGISTRATION_DISABLED=false;ONEM2M_NOTIFICATION_DISABLED=false;ONEM2M_SP_ID=',$" + onem2mspIdVar.getName() + ",';EXTERNAL_IP=',$" + ownIp.getName() + ")";
+		
+		String envVarXpathQuery = "concat(";
+		
+		boolean foundEnvVar = false;
+		for(String propName : propertyNames) {			
+			if(propName.startsWith("ENV_")) {
+				Variable propVar = context.getPropertyVariable(nodeTemplate, propName);
+				foundEnvVar = true;
+				String envVarName = propName.replaceFirst("ENV_", "");
+				envVarXpathQuery += "'" + envVarName + "=',$" + propVar.getName() +",';',";
+			}
+		}
+		
+		if(!foundEnvVar) {
+			return null;
+		}
+		
+		envVarXpathQuery = envVarXpathQuery.substring(0, envVarXpathQuery.length() - 1);
+		envVarXpathQuery += ")";
+		
+		final Variable envMappingVar = context.createGlobalStringVariable("dockerContainerEnvironmentMappings" + System.currentTimeMillis(), "");		
+		
+		try {
+			Node  assignContainerEnvNode = this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignEnvironmentVariables", envVarXpathQuery, envMappingVar.getName());
+			assignContainerEnvNode = context.importNode(assignContainerEnvNode);
+			context.getProvisioningPhaseElement().appendChild(assignContainerEnvNode);			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return envMappingVar;
 	}
 	
 	 protected boolean handleWithImageId(TemplatePlanContext context, AbstractNodeTemplate dockerEngineNode, Variable containerImageVar, Variable portMappingVar, Variable dockerEngineUrlVar, Variable sshPortVar, Variable containerIpVar, Variable containerIdVar) {
