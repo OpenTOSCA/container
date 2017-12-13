@@ -409,17 +409,7 @@ public class OpenMTCDockerContainerPlugin extends Handler implements IPlanBuilde
 			Node assignContainerPortsNode = this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPortMapping", "concat($" + containerPortVar.getName() + ",',',$" + portVar.getName() + ")", portMappingVar.getName());
 			assignContainerPortsNode = templateContext.importNode(assignContainerPortsNode);
 			templateContext.getProvisioningPhaseElement().appendChild(assignContainerPortsNode);
-			
-			/*
-			 * -e "EP=http://gateway:8000" \ -e "LOGGING_LEVEL=INFO" \ -e
-			 * "DEVICES=[]" \ -e 'DEVICE_MAPPINGS={
-			 * \"S300TH_1\": \"Wohnzimmer\", \"S300TH_2\": \"Bad\", \"S300TH_3\": \"Kinderzimmer\"
-			 * }' \ --device=/dev/ttyACM0:/dev/ttyACM0 \ -e "SIM=false" \ -e
-			 * "ORIGINATOR_PRE=//openmtc.org/Lutz~HomeCleoPi" \
-			 * 
-			 * EP=http://dacb38303742:8000
-			 */
-			
+						
 			// read the container ID from within properties
 			
 			String queryContainerIdXpath = "substring-before($" + gatewayContainerIdsVar.getName() + ", ';')";
