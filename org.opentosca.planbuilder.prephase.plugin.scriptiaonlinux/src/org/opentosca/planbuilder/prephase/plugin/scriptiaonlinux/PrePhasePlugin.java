@@ -51,7 +51,7 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			"DockerContainerArtefact");
 	
 	private final QName nodeMCUBinary = new QName("http://opentosca.org/artifacttypes", "NodeMCU_Binary");
-	private final QName nodeMCUBinaryOld = new QName("http://opentosca.org/artifacttypes", "NodeMCUBinary");
+	private final QName linuxContainer = new QName("http://opentosca.org/artifacttypes", "LinuxContainer");
 	
 	private final Handler handler = new Handler();
 
@@ -175,7 +175,8 @@ public class PrePhasePlugin implements IPlanBuilderPrePhaseIAPlugin, IPlanBuilde
 			LOG.debug("Got:"+ nodeMCUBinary.getLocalPart());
 			return true;
 		}
-		if(this.nodeMCUBinaryOld.equals(artifactType)){
+		
+		if(this.linuxContainer.equals(artifactType)){
 			LOG.debug("Got:"+ nodeMCUBinary.getLocalPart());
 			return true;
 		}

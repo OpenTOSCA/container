@@ -77,8 +77,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		final Object params = message.getBody();
 		final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
 		String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
-		endpoint= endpoint.replace("engine-plan","192.168.0.20");
-		LOG.warn("endpoint:"+endpoint);
+
 		final Boolean hastOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
 		final String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
 		
@@ -99,35 +98,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		}
 		
 		headers.put("endpoint", endpoint.replace("?wsdl", ""));
-//		LOG.error("operationNameTest:"+ operationName);
-//		//if (operationName.equals("install")) {
-//			LOG.error("hgfdghgefef");
-//			ServiceReference<?> servRef = Activator.bundleContext
-//					.getServiceReference(IToscaEngineService.class.getName());
-//			IToscaEngineService toscaEngineService = (IToscaEngineService) Activator.bundleContext.getService(servRef);
-//			String nodeTemplateId = message.getHeader(MBHeader.NODETEMPLATEID_STRING.name(), String.class);
-//			Map<String, Object> headersMap = message.getHeaders();
-//			LOG.error("Size:" + headersMap.size());
-//			for (String key : headersMap.keySet()) {
-//				if (headersMap.get(key) != null) {
-//					LOG.error("key:" + key + " " + headersMap.get(key).toString());
-//				} else {
-//					LOG.error("key:" + key + " null");
-//				}
-//			}
-//			LOG.error("nodeTemplateId:" + nodeTemplateId);
-//			String serviceTemplateNamespaceURI = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.name(), String.class);
-//			QName nodeTemplateQName = new QName(serviceTemplateNamespaceURI, nodeTemplateId);
-//			ResolvedArtifacts resolvedArtifacts = toscaEngineService
-//					.getResolvedArtifactsOfNodeTemplate(new CSARID(csarID), nodeTemplateQName);
-//			List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
-//			LOG.error("Deployment Artifacts");
-//			for (ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
-//				LOG.error("DA name:" + resolvedDeploymentArtifact.getName());
-//			}
-//			LOG.error("Deployment Artifacts");
-			// headers.put("DeploymentArtefacts")
-		//}
+		
 		Document document = null;
 		
 		ManagementBusPluginSoapHttpServiceImpl.LOG.info("Creating invocation message.");

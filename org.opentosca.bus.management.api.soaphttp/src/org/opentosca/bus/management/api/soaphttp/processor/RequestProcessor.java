@@ -114,65 +114,40 @@ public class RequestProcessor implements Processor {
 			final String relationshipTemplateID = invokeIaRequest.getRelationshipTemplateID();
 			exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
 			
-			//Support new Deployment Artifact Header
-			
-			
+			//Support new Deployment Artifact Header			
 			final Message message = exchange.getIn();
-			
-			ServiceReference<?> servRef = Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
+
+			ServiceReference<?> servRef = Activator.bundleContext
+					.getServiceReference(IToscaEngineService.class.getName());
 			IToscaEngineService toscaEngineService = (IToscaEngineService) Activator.bundleContext.getService(servRef);
-//				Map<String, Object> headersMap = message.getHeaders();
-//				LOG.error("Size:" + headersMap.size());
-//				for (String key : headersMap.keySet()) {
-//					if (headersMap.get(key) != null) {
-//						LOG.error("key:" + key + " " + headersMap.get(key).toString());
-//					} else {
-//						LOG.error("key:" + key + " null");
-//					}
-//				}
-			LOG.error("nodeTemplateId:" + nodeTemplateID);
-				//String serviceTemplateNamespaceURI = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.name(), String.class);
-				QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
-				ResolvedArtifacts resolvedArtifacts = toscaEngineService
-						.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
-				List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
-				LOG.error("Deployment Artifacts");
-				LOG.debug("resolvedDaSize:"+resolvedDAs.size());
-				URL serviceInstanceIDUrl = new URL(serviceInstanceID);
-				HashMap<String,HashMap<String,String>> DAs = new HashMap<String,HashMap<String,String>>();  
-				for (ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
-					LOG.error("DA name:" + resolvedDeploymentArtifact.getName());
-					String DAname = resolvedDeploymentArtifact.getName();
-					HashMap<String,String> DAfiles = new HashMap<String,String>();
-					DAs.put(DAname, DAfiles);
-					for(String s: resolvedDeploymentArtifact.getReferences()){
-						LOG.error("DA getReferences:" + s);
-						String url= serviceInstanceIDUrl.getProtocol()+"://"+serviceInstanceIDUrl.getHost()+":"+serviceInstanceIDUrl.getPort()+"/csars/"+csarIDString+"/content/";
-						String urlWithDa =url +s;
-						
-						LOG.error(urlWithDa);
-						DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
-						//DAfiles.add(uriWithDa);
-					}
+			QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
+			ResolvedArtifacts resolvedArtifacts = toscaEngineService
+					.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
+			List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+			URL serviceInstanceIDUrl = new URL(serviceInstanceID);
+			HashMap<QName, HashMap<String, String>> DAs = new HashMap<QName, HashMap<String, String>>();
+			for (ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
+				LOG.info("DA name:" + resolvedDeploymentArtifact.getName());
+				QName DAname = resolvedDeploymentArtifact.getType();
+				HashMap<String, String> DAfiles = new HashMap<String, String>();
+				DAs.put(DAname, DAfiles);
+				for (String s : resolvedDeploymentArtifact.getReferences()) {
+					LOG.info("DA getReferences:" + s);
+					String url = serviceInstanceIDUrl.getProtocol() + "://" + serviceInstanceIDUrl.getHost() + ":"
+							+ serviceInstanceIDUrl.getPort() + "/csars/" + csarIDString + "/content/";
+					String urlWithDa = url + s;
+
+					LOG.info(urlWithDa);
+					DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
+
 				}
-//				Header header = new Header(MBHeader.DEPLOYMENT_ARTIFACTS.name(),
-//				DAs,new DataBinding(UserCredentials.class));
-				Gson gson = new Gson();
-				exchange.getIn().setHeader(MBHeader.DEPLOYMENT_ARTIFACTS.name(),gson.toJson(DAs));
-				//SERVICEINSTANCEID_URI
-				LOG.error("serviceInstanceID:"+serviceInstanceID);
-				
-				
-				//serviceInstanceIDUrl.get
-				LOG.error("OPENTOSCA_CONTAINER_HOSTNAME:"+Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-				LOG.error("OPENTOSCA_CONTAINER_PORT:"+Settings.OPENTOSCA_CONTAINER_PORT);
-				LOG.error("serviceTemplateIDNamespaceURI:"+serviceTemplateIDNamespaceURI);
-				//LOG.error("URI:"+serviceInstanceIDUrl.getProtocol()+"://"+serviceInstanceIDUrl.getHost()+":"+serviceInstanceIDUrl.getPort()+"/csars/"+serviceTemplateID.getLocalPart()+"/content/");
-				LOG.error("Deployment Artifacts");
-			
-				 //Ende
-				 
-				 
+			}
+			Gson gson = new Gson();
+			exchange.getIn().setHeader(MBHeader.DEPLOYMENT_ARTIFACTS.name(), gson.toJson(DAs));
+			LOG.info("serviceInstanceID:" + serviceInstanceID);
+			LOG.info("OPENTOSCA_CONTAINER_HOSTNAME:" + Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+			LOG.info("OPENTOSCA_CONTAINER_PORT:" + Settings.OPENTOSCA_CONTAINER_PORT);
+			LOG.info("serviceTemplateIDNamespaceURI:" + serviceTemplateIDNamespaceURI);
 
 			interfaceName = invokeIaRequest.getInterfaceName();
 
