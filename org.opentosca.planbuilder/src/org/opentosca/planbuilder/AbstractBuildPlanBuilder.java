@@ -20,88 +20,99 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractTopologyTemplate;
-import org.opentosca.planbuilder.utils.Utils;
-
+import org.opentosca.planbuilder.model.utils.ModelUtils;;
 
 public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 
-	public AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate, Collection<AbstractNodeTemplate> nodeTemplates, Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+	public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
+			final AbstractServiceTemplate serviceTemplate, Collection<AbstractNodeTemplate> nodeTemplates,
+			Collection<AbstractRelationshipTemplate> relationshipTemplates) {
 		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
 		Set<Link> links = new HashSet<Link>();
-		
+
 		Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
 		Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<AbstractRelationshipTemplate, AbstractActivity>();
-				
-		this.generatePOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping, relationshipTemplates);
-				
-		//this.cleanLooseEdges(links);
-		
-		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
-			
+
+		generatePOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
+				relationshipTemplates);
+
+		// this.cleanLooseEdges(links);
+
+		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities,
+				links) {
+
 		};
 		return plan;
 	}
-	
+
 	private void cleanLooseEdges(Map<AbstractActivity, AbstractActivity> links) {
 		List<AbstractActivity> keysToRemove = new ArrayList<>();
-		
-		for(AbstractActivity key : links.keySet()) {
-			if(key == null) {
+
+		for (AbstractActivity key : links.keySet()) {
+			if (key == null) {
 				keysToRemove.add(key);
-			} else if(links.get(key) == null) {
+			} else if (links.get(key) == null) {
 				keysToRemove.add(key);
 			}
 		}
-		
+
 		keysToRemove.forEach(key -> links.remove(key));
 	}
 
-	public AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions, final AbstractServiceTemplate serviceTemplate) {
-		
+	public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
+			final AbstractServiceTemplate serviceTemplate) {
+
 		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
 		Set<Link> links = new HashSet<Link>();
-		
+
 		Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
 		Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<AbstractRelationshipTemplate, AbstractActivity>();
-		
+
 		final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
-		
-		this.generatePOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping, topology.getRelationshipTemplates());
-		
-		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
-			
+
+		generatePOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
+				topology.getRelationshipTemplates());
+
+		AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities,
+				links) {
+
 		};
 		return plan;
 	}
-	
-	private void generatePOGActivitesAndLinks(Collection<AbstractActivity> activities, Set<Link> links, Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping, Collection<AbstractNodeTemplate> nodeTemplates, Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping, Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+
+	private static void generatePOGActivitesAndLinks(Collection<AbstractActivity> activities, Set<Link> links,
+			Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping,
+			Collection<AbstractNodeTemplate> nodeTemplates,
+			Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
+			Collection<AbstractRelationshipTemplate> relationshipTemplates) {
 		for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-			AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity", "PROVISIONING", nodeTemplate);
+			AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
+					"PROVISIONING", nodeTemplate);
 			activities.add(activity);
 			nodeActivityMapping.put(nodeTemplate, activity);
 		}
-		
-		for(AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
-			AbstractActivity activity = new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
+
+		for (AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
+			AbstractActivity activity = new ARelationshipTemplateActivity(
+					relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
 			activities.add(activity);
 			relationActivityMapping.put(relationshipTemplate, activity);
 		}
-		
+
 		for (AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
 			AbstractActivity activity = relationActivityMapping.get(relationshipTemplate);
-			QName baseType = Utils.getRelationshipBaseType(relationshipTemplate);
-			if (baseType.equals(Utils.TOSCABASETYPE_CONNECTSTO)) {
+			QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+			if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
 				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getSource()), activity));
-				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));				
-			} else if (baseType.equals(Utils.TOSCABASETYPE_DEPENDSON) | baseType.equals(Utils.TOSCABASETYPE_HOSTEDON) | baseType.equals(Utils.TOSCABASETYPE_DEPLOYEDON)) {
 				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
-				links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));				
+			} else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
+					| baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
+					| baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
+				links.add(new Link(nodeActivityMapping.get(relationshipTemplate.getTarget()), activity));
+				links.add(new Link(activity, nodeActivityMapping.get(relationshipTemplate.getSource())));
 			}
-			
+
 		}
 	}
 
-
-		
-	
 }

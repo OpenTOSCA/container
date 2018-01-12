@@ -1,9 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenTOSCA Generic Invoker Plugin
+Bundle-Name: OpenTOSCA Core Ubuntu VM Plugin
 Bundle-SymbolicName: org.opentosca.planbuilder.type.plugin.ubuntuvm
 Bundle-Version: 2.0.0.qualifier
-Bundle-Activator: org.opentosca.planbuilder.type.plugin.ubuntuvm.Activator
 Bundle-Vendor: OpenTOSCA
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
@@ -11,7 +10,11 @@ Import-Package: org.apache.commons.io;version="2.2.0",
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .
+Export-Package: org.opentosca.planbuilder.type.plugin.ubuntuvm.core,
+ org.opentosca.planbuilder.type.plugin.ubuntuvm.core.handler
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="1.0.0"
+ org.opentosca.planbuilder.core;bundle-version="2.0.0",
+ org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0",
+ org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="2.0.0"
+Bundle-Activator: org.opentosca.planbuilder.type.plugin.ubuntuvm.Activator
