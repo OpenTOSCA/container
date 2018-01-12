@@ -1,163 +1,45 @@
-Documentation Plan Builder
+## OpenTOSCA Plan Builder
+In the following sections we will describe how the OpenTOSCA Runtime (OpenTOSCA Container) enables the provisioning and de-provisioning of TOSCA Topologies. The main concept of the (de)provisioning is based on generating the logic that executes the  scripts or invokes the web services attached to the Node/Relationship Type Implementations packaged within a CSAR. The OpenTOSCA Plan Builder currently supports the generation of so-called Build, Termination and Scale-Out Plans in the workflow language BPEL 2.0. In the following subsections we will describe the architecture and concepts to generate these in an abstract manner.
 
-The OpenTOSCA-Container uses the Tosca Runtime to generate build and termination plans, in BPEL format, out of given CSAR-Files.
-These BPEL-plans run through given procedures to perform activities.
+# Overview System Archtecture
+The generation of a plan is based on a plugin-based architecture (See Overview Figure) for different abstraction levels and languages. The Plan Builder component is responsible for generating an abstract high-level control flow of a plan, based on the type of plan to be generated (See Section Build Plans, Termination Plans and Scale-Out Plans) and the Toplogy Template inside a given CSAR archive (See CSAR in Overview figure).The abstract control flow is then transformed into a language-dependent Skeleton, such as a BPEL process, which has the same flow of activities but contains placeholders instead. After the creation of a skeleton, its placeholders are then replaced by executable code from the appropriate plugins, that either can understand a Node Type or Relationship Type and genreate the needed code (See Type Plugins in Overview figure) or the types implement the expected Lifecycle operations, such as install, start and stop (See Lifecycle Plugins in Overview figure). When the creation of code and replacement of placeholder activities is finished, the now executable plan is injected into the original CSAR for further processing and usage.
 
-![CSARtoBPEL](graphics/CSARtoBPEL.png)
+![Plan Builder Overview](graphics/overview.png)
 
-The following documentation describes the build and termination plans and will give you a brief overview over the used plugins.
+# Build Plans
+A Build Plan is a Plan that is able to install, deploy and provision the modelled Node- and Relationship Templates of a given Topology Template (See Figure Build Plan Generation). The Plan Builder is able to generate these like described in the following:
 
-***Build Plan***
+![Build Plan Generation](graphics/buildplans.png)
 
-A BuildPlan describes the needed activities to create a service.
-Therefor the plan contains single components and instances.
-The instances define build sequences of components.
-In the following example, the structure of a Cloud-Service, and his belonging BuildPlan, is shown in a tree structure.
+##### 1. Build Plan Abstract Control Flow Generation
+The abstract control flow of a Build Plan contains for each Node- and Relationship Template an abstract provisioning activity (See Abstract Control Flow). The order of these activities is based on the Relationship Template's type between the Node Templates. For example, the DBMS is installed after the VM is created, as the DBMS is **hostedOn** on the VM in the topology. Another example is that the App and DB is connected after both are startet, because they are connected by a **connectTo** relationship.
+##### 2. Build Plan Skeleton Generation
+The generated control flow from the previous step is afterwards transformed into code of a particular language, with the constraint that the original control flow is preserved (e.g. by empty bpel:scope activities in BPEL). How such a skeleton is generated and in what form is implementation dependant, hence the lower level plugins are bound to specifics of such a skeleton generator. For example the Skeleton already can have placeholders for instance variables etc. which plug-ing from the next step can use.
+##### 3. Build Plan Completion
+In the last step the Type and Lifecycle Plugins are used to generate low level code that is able to fullfill the abstract task of provisioning each Node- and Relationship Template in an executable manner. The Type Plugins understand a single Node- or Relationship Type and can generate code for the target language to provision the understood type. On the other hand, a lifecycle plugin doesn't understand the Node- or Relationship Types, instead it uses the interfaces defined on those and generates code to invoke the operations in a pre defined manner (e.g. invoke install, configure, start,..).
 
-![BuildTree](graphics/Build-Tree.png)
+# Termination Plans
+ A Termination Plan is a Plan that is able to deinstall, undeploy and deprovisioning the modelled Node- and Relationship Template of a given Topology Template (See Figure Termination Plan Generation). The Plan Builder is able to generate these like described in the following:
 
-The graphic shows a requested structure of the Cloud-Service.
-Instances are represented by edges and components by nodes.
-There are two different types of instances:
+![Termination Plan Generation](graphics/terminationplans.png)
 
--   hostedOn: A component will be instantiated based on another existing component.
-    In the given example a VM is required to start a server on top of it.
+##### 1. Termination Plan Abstract Control Flow Generation
+The abstract control flow of a Termination Plan contains for each Node- and Relationship Template and abstract termination activity. The order of these activities is based on the Relationship Template's type between the Node Template, but in reverse order of a Build Plan (See Build Plans section). For example, the DBMS is remove before the VM is stopped as the DBMS is **hostedOn** the VM.
+##### 2. Termination Plan Skeleton Generation
+The generated control flow from the previous step is afterwards transformed into code of a particular language, with the constraint that the original control flow is preserved (e.g. by empty bpel:scope activities in BPEL). How such a skeleton is generated and in what form is implementation dependant, hence the lower level plugins are bound to specifics of such a skeleton generator. For example the Skeleton already can have placeholders for instance variables etc. which plug-ing from the next step can use. This step is similar to the Build Plan Skeletons but with an additional for loop around the placeholders, as for each created instance of a Node- or Relationship Template the termination activity must be executed.
+ ##### 3. Termination Plan Completion
+ In the last step the Type and Lifecycle Plugins are used to generate low level code that is able to fullfill the abstract task of terminating each Node- and Relationship Template instance in an executable manner. The Type Plugins understand a single Node- or Relationship Type and can generate code for the target language to terminate an instance of the understood type. On the other hand, a lifecycle plugin doesn't understand the Node- or Relationship Types, instead it uses the interfaces defined on those and generates code to invoke the operations in a pre defined manner (e.g. invoke stop, uninstall,..).
 
--   connectTo: A service can contain multiple, independent service components.
-    By the time of their compilation, they need separate and parallelized procedures. 
-	  To realize the parallelization, a tree structure of a BuildPlan can contain multiple paths. 
-    The single stacks of a service are synchronized and brought together by the connectTo-instance.
-    In the given example, the connectTo-instance synchronizes two separate paths, the Application-Path and the Database-Path.
+# Scale-Out Plans
+A Scale-Out Plan is a Plan that is able to provisionin a single instance of of a set of Node- and Relationship Templates of a given Topology Template with such a pre-defined set, which we call region. E.g. in the Scale-Out Plan figure the goal is to create a new instance of the App Node Template, hence scaling-out the application. The application is a member of a region and the Nodes that are connected to such a region must be annotated with a so-called Selection Strategy, that specifies with which algorithm an instance selection shall occur. The Plan Builder is able to generate Scale-Out Plans from Topology Templates with these regions as described in the following:
 
-If a BuildPlan is given, a service can start automatically.
+![Scale-Out Plan Generation](graphics/scaleoutplans.png)
 
-***Termination Plan***
-
-A termination plan defines activities and their order of execution to shutdown the server.
-The termination plan terminates the single components and instances opposed to the build plan.
-Therefor the synchronization of the single paths must be terminated first.
-Afterwards, the single components in the different paths can be terminated step by step.
-
-As described above, the service components in the example are desynchronized via the connectTo instance.
-The shutdown of the components and paths can be done subsequently.
-
-***Basics***
-
-In general, the advantage of build and termination plans is the possibility to execute complex processes automatically by single instructions.
-In the end, the plans are available as a BPEL-file.
-
-
-![VMBPELActivity](graphics/startStopVMmitBPELFlow.png)
-
-Every component require different activities, e.g. for start-up or shutdown.
-Each activity is described as a BPEL flow, where also the runtime scope of the activity is defined.
-For example the scope to start a VM is the VM itself.
-Every single instance and component defines their own activities with pre-/provisioning- and/or post-phase.
-These phases are represented as sequences in the BPEL description.
-
-The code-conversion is realized by a SkeletonCompletion based on a plugin (parametrization of the service).
-
-**Skeleton Completion**
-
-Skeleton Completion is part of the PlanBuilders' plugin system.
-It prepares (completes) a given skeleton for the execution in the OpenTOSCA Runtime.
-The structure of the PlugIn is build as follows:
-
-![ProvisioningTerminals](graphics/ProvisioningTerminals.png)
-
-The bool variables describes which templates can be used inside the plugin.
-If the bool variable shows that the template cannot be handled, an ongoing treatment is impossible.
-The use of a template is described in the handle method.
-
-***Lifecycle-Plugin-System***
-
-Besides the skeleton completion, the lifecycle-plugin-system can also process node templates.
-The only limitation is, that the system only deals with node templates of the following form as input:
-
-![NodeTemplateForm](graphics/NodeTemplate_Form.png)
-
-The PlugIn accepts operations in a fixed sequence but permits predefined skips.
-The node templates have to follow this sequence:
-- install 
-- configure 
-- start
-
-This way, the corresponding code can be generated by entering a node type and its methods.
-
-According to the definition of the node types methods an appropriate function call is made afterwards.
-
-![NodeTypeImplementation](graphics/NT.NodeTypeImplementation.png)
-
-The sequence described above proceeds in the provisioning phase of the lifecycle-system.
-Operations can be webservices, code or typed objects.
-
-The lifecycle system has 3 different plugin-types, which also contain different methods:
- 
--   DeploymentArtifact-Plugin (DA)
-
-    -   (public) canHandle(ArtifactType, Impl)
-    -   (public) Handle(DeploymentArtifact)
-
--   ImplementationArtifact-Plugin (IA)
-
-    -   (public) canHandle(ArtifactType): War-files are executed inside a TOSCARuntime in Tomcat.
-
--   Provisioning Plugin
-
-    -   (public) canHandle(ArtifactType): The DA can be installed on an infrastructure node of the same type.
-	
-The plugins mentioned above pass different phases in their runtime:
-
-1.  PrePhase
-
-    The PrePhase executes DA as well as IA uploads.
-    The plugin also handles DAs which are outlined as subplugins after the upload.
-
-2.  ProvPhase
-
-    The provisioning phase calls different operations.
-    If the subplugin is able to understand and process these operations, they will be converted into code based on the artifact template.
-    For specific types there are also different predefined configurations.
-
-    After the execution of operations, the CSAR-files are replicated on the VM.
-    Properties in the node type are set as variables in the main-BPEL-file.
-
-3.  PostPhase
-
-    After configuration, post phase starts during the runtime.
-    Varibales, that have not yet been defined (ip's, api's, update properties ), are set at this point.
-
-
-***Ubuntu-Plug-In***
-
-TopologyContext Plan Completion
-
-![UbuntuPlugIn](graphics/Ubuntu.png)
-
-The cloud provider checks whether Ubuntu is active and then boots the VM within the Ubuntu scope.
-
-***DockerContainer***
-
-![DockerContainer](graphics/DockerContainer.png)
-
-***ConnectsTo-Type-Plug-In***
-
-Topology Context
-
-![ConnectPlugInTopology](graphics/connectPlugInTopology.png)
-
-PlanCompletion
-
-![ConnectPlugInTopology](graphics/connectPlugInPlanCompletion.png)
-
-The connectTo plugin handles the relations instead of the nodes.
-This results in a synchronization of the individual services.
-
-Simple Java code is converted directly into BPEL.
-However, as soon as the Java code contains some simple if-else-clauses, automatic conversion is no longer possible.
-
-***Invoker-Plug-In***
-
-![InvokerPlugIn](graphics/Invoker.png)
-
-The invoker plugin constitutes a special lifecycle, which is invoked independently from previous plugins.
+##### 1. Scale-Out Plan Abstract Control Flow Generation
+The Abstract Control Flow of Scale-Out Plan is generated based on the Topology Templates structure and the defined region.
+First, for each Node Template that is annotated with a Selection Strategy (DB and Serv in the figure) a Strategic Selection Activity is added to the control flow. In these activities an instance of the annotated Node Templates is selected at runtime. Afterwards, for each outgoing hostedOn relation of these strategically selected nodes a path of activities is added to the abstract control flow graph (Select DB instance, find hostedOn instance, find DBMS instance,..) to fetch possibly needed data for the scale-out of the application. After all these instance selection activities are generated, the nodes and relations inside the region are handled by adding abstract provisioning activities with the same order as in the generation of Build Plans is added.
+##### 2. Scale-Out Plan Skeleton Generation
+The generated control flow from the previous step is afterwards transformed into code of a particular language, with the constraint that the original control flow is preserved (e.g. by empty bpel:scope activities in BPEL). How such a skeleton is generated and in what form is implementation dependant, hence the lower level plugins are bound to specifics of such a skeleton generator. For example the Skeleton already can have placeholders for instance variables etc. which plug-ing from the next step can use. This step is similar to the Build Plan Skeletons Generation step.
+##### 3. Termination Plan Completion
+n the last step the Type and Lifecycle Plugins are used to generate low level code that is able to fullfill the abstract task of provisioning each Node- and Relationship Template of the region (Create hostedOn, Install App,..) in an executable manner. The Type Plugins understand a single Node- or Relationship Type and can generate code for the target language to terminate an instance of the understood type. On the other hand, a lifecycle plugin doesn't understand the Node- or Relationship Types, instead it uses the interfaces defined on those and generates code to invoke the operations in a pre defined manner (e.g. invoke stop, uninstall,..).
+In addition to the provisioning of the region the selection activities (Select DB, Find DBMS,..) are completed with code in two flavors. The strategically selected nodes (DB and Serv) must be selected according to the annotated Selection Strategy which is understood by so-called Selection Plugin, which understands the Node Type and the Selection Strategy type. These plugins generate code that implement the annotated strategy for the given type. The other flavor of instance selection is a recursive instance selection, where the instance must be selected according to the previously selected instances. E.g. After the DB instance was selected the hostedOn Relationship Template instance must be connected to it, the DBMS instance must be connected to the hostedOn relation, and so on. These selections are generic and are generated by the Plan Builders BPEL skeleton plugin itself.
