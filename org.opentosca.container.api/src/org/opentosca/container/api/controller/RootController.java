@@ -29,9 +29,24 @@ import org.opentosca.container.api.dto.ResourceSupport;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Contact;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
 
 @Path("/")
 @Api("/")
+@SwaggerDefinition(
+        info = @Info(
+        		title = "A Swagger test API",
+                description = "This API only exist to test swagger support",
+                version = "1.0",  
+                termsOfService = "share and care",
+                contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org"),
+                license = @License(name = "Apache License, Version 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")),
+        basePath = "/",
+        host = "localhost:1337"
+)
 public class RootController {
 	
 	@Context

@@ -42,7 +42,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
-@Api("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
+@Api("/")
 public class BoundaryDefinitionController {
 
 	private final Logger logger = LoggerFactory.getLogger(CsarController.class);

@@ -53,7 +53,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 
 @Path("/csars")
-@Api(value = "/csars")
+@Api(value = "/")
 public class CsarController {
 
   private static Logger logger = LoggerFactory.getLogger(CsarController.class);
@@ -143,6 +143,7 @@ public class CsarController {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @ApiOperation(value = "Uploads CSAR file", response = Response.class)
   @ApiResponse(code = 400, message ="Bad request")
+  
   //ResponseBuilder.class correct response type?
   public Response uploadFile(@FormDataParam("file") final InputStream is,
       @FormDataParam("file") final FormDataContentDisposition file)

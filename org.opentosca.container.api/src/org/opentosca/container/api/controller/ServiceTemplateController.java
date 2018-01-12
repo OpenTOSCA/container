@@ -30,7 +30,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Path("/csars/{csar}/servicetemplates")
-@Api(value = "/csars/{csar}/servicetemplates")
+@Api(value = "/")
 public class ServiceTemplateController {
 
 	private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
@@ -91,7 +91,7 @@ public class ServiceTemplateController {
 	}
 
 	@Path("/{servicetemplate}/buildplans")
-	public PlanController getBuildPlans(@PathParam("csar") final String csar, @PathParam("servicetemplate") final String servicetemplate) {
+	public BuildPlanController getBuildPlans(@PathParam("csar") final String csar, @PathParam("servicetemplate") final String servicetemplate) {
 
 		final CSARContent csarContent = this.csarService.findById(csar);
 		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -99,7 +99,7 @@ public class ServiceTemplateController {
 			throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
 		}
 
-		return new PlanController(csarContent.getCSARID(), QName.valueOf(servicetemplate), null, this.planService, this.instanceService, PlanTypes.BUILD);
+		return new BuildPlanController(csarContent.getCSARID(), QName.valueOf(servicetemplate), null, this.planService);
 	}
 
 	public void setCsarService(final CsarService csarService) {

@@ -65,7 +65,7 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
 
     // Jersey Configuration
     this.configurator(bundleContext);
-    this.configureSwagger(bundleContext);
+
     this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
     this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
     this.services.add(bundleContext.registerService(PlainTextMessageBodyWriter.class,
@@ -114,28 +114,9 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
     properties.put("root", "/");
 
     config.update(properties);
+    //context.ungetService(configAdminRef);
   }
 
-  private void configureSwagger(final BundleContext context) throws Exception {
-    ServiceReference<?> reference = context.getServiceReference(ConfigurationAdmin.class.getName());
-    ConfigurationAdmin configAdmin = (ConfigurationAdmin) context.getService(reference);
-    Configuration configuration =
-        configAdmin.getConfiguration("com.eclipsesource.jaxrs.swagger.config", null);
-
-    final Dictionary<String, Object> properties = new Hashtable<>();
-
-    properties.put("swagger.basePath", "/");
-    properties.put("swagger.host", "localhost:1337");
-    properties.put("swagger.info.title", "A Swagger test API");
-    properties.put("swagger.info.description", "This API only exist to test swagger support");
-    properties.put("swagger.info.version", "1.0");
-    properties.put("swagger.info.contact.name", "OpenTOSCA");
-    properties.put("swagger.info.contact.url", "http://opentosca.org");
-    properties.put("swagger.info.license.name", "Apache License, Version 2.0");
-    properties.put("swagger.info.license.url", "https://www.apache.org/licenses/LICENSE-2.0");
-    configuration.update(properties);
-    context.ungetService(reference);
-  }
 
   @Override
   public Map<String, Object> getProperties() {

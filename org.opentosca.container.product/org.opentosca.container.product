@@ -46,7 +46,9 @@
       <plugin id="ch.qos.logback.classic" autoStart="true" startLevel="0" />
       <plugin id="ch.qos.logback.core" autoStart="true" startLevel="0" />
       <plugin id="com.eclipsesource.jaxrs.jersey-min" autoStart="true" startLevel="0" />
+      <plugin id="com.eclipsesource.jaxrs.provider.swagger" autoStart="true" startLevel="0" />
       <plugin id="com.eclipsesource.jaxrs.publisher" autoStart="true" startLevel="0" />
+      <plugin id="com.eclipsesource.jaxrs.swagger-all" autoStart="true" startLevel="0" />
       <plugin id="com.fasterxml.jackson.core.jackson-annotations" autoStart="true" startLevel="0" />
       <plugin id="com.fasterxml.jackson.core.jackson-core" autoStart="true" startLevel="0" />
       <plugin id="com.fasterxml.jackson.core.jackson-databind" autoStart="true" startLevel="0" />
