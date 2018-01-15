@@ -330,7 +330,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				BPELTerminationProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
 				BPELPlanContext context = new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
-				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+				for (IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 					if (postPhasePlugin.canHandle(nodeTemplate)) {
 						postPhasePlugin.handle(context, nodeTemplate);
 					}

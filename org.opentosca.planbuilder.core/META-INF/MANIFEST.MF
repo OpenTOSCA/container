@@ -15,3 +15,5 @@ Bundle-ClassPath: .
 Export-Package: org.opentosca.planbuilder.core.plugins,
  org.opentosca.planbuilder.core.plugins.registry,
  org.opentosca.planbuilder.core.plugins.context
+Bundle-Activator: org.opentosca.planbuilder.core.plugins.activator.Activator
+Bundle-ActivationPolicy: lazy

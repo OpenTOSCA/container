@@ -107,9 +107,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	 * @return integer denoting the count of plugins
 	 */
 	public int registeredPlugins() {
-		return PluginRegistry.getGenericPlugins().size() + PluginRegistry.getDaPlugins().size()
-				+ PluginRegistry.getIaPlugins().size() + PluginRegistry.getPostPlugins().size()
-				+ PluginRegistry.getProvPlugins().size();
+		return this.pluginRegistry.getGenericPlugins().size() + this.pluginRegistry.getDaPlugins().size()
+				+ this.pluginRegistry.getIaPlugins().size() + this.pluginRegistry.getPostPlugins().size()
+				+ this.pluginRegistry.getProvPlugins().size();
 	}
 
 	/*
@@ -290,7 +290,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 					plugin.handle(context);
 				}
 
-				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+				for (IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 					if (postPhasePlugin.canHandle(nodeTemplate)) {
 						postPhasePlugin.handle(context, nodeTemplate);
 					}
@@ -334,7 +334,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 					this.handleWithTypePlugin(context, relationshipTemplate);
 				}
 
-				for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+				for (IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 					if (postPhasePlugin.canHandle(relationshipTemplate)) {
 						postPhasePlugin.handle(context, relationshipTemplate);
 					}
@@ -355,7 +355,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	 *         RelationshipTemplate, else false
 	 */
 	private boolean canGenericPluginHandle(AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
+		for (IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
 				BPELBuildProcessBuilder.LOG.info("Found GenericPlugin {} thath can handle RelationshipTemplate {}",
 						plugin.getID(), relationshipTemplate.getId());

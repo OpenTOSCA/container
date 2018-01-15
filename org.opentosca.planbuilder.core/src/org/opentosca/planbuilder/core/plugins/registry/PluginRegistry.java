@@ -10,6 +10,7 @@ import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.core.plugins.activator.Activator;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -28,8 +29,8 @@ import org.osgi.framework.ServiceReference;
  */
 public class PluginRegistry {
 
-	private static BundleContext getCtx() {
-		return FrameworkUtil.getBundle(PluginRegistry.class).getBundleContext();
+	private BundleContext getCtx() {
+		return Activator.ctx;
 	}
 
 	/**
@@ -37,7 +38,7 @@ public class PluginRegistry {
 	 * 
 	 * @return a List of IPlanBuilderTypePlugin
 	 */
-	public static List<IPlanBuilderTypePlugin<?>> getGenericPlugins() {
+	public List<IPlanBuilderTypePlugin<?>> getGenericPlugins() {
 		List<IPlanBuilderTypePlugin<?>> plugins = new ArrayList<IPlanBuilderTypePlugin<?>>();
 		BundleContext ctx = getCtx();
 		try {
@@ -61,7 +62,7 @@ public class PluginRegistry {
 	 * 
 	 * @return a List of IPlanBuilderProvPhaseOperationPlugin
 	 */
-	public static List<IPlanBuilderProvPhaseOperationPlugin<?>> getProvPlugins() {
+	public List<IPlanBuilderProvPhaseOperationPlugin<?>> getProvPlugins() {
 		List<IPlanBuilderProvPhaseOperationPlugin<?>> plugins = new ArrayList<IPlanBuilderProvPhaseOperationPlugin<?>>();
 
 		BundleContext ctx = getCtx();
@@ -88,7 +89,7 @@ public class PluginRegistry {
 	 * 
 	 * @return a List of IPlanBuilderPrePhaseIAPlugin
 	 */
-	public static List<IPlanBuilderPrePhaseIAPlugin<?>> getIaPlugins() {
+	public List<IPlanBuilderPrePhaseIAPlugin<?>> getIaPlugins() {
 		List<IPlanBuilderPrePhaseIAPlugin<?>> plugins = new ArrayList<IPlanBuilderPrePhaseIAPlugin<?>>();
 
 		BundleContext ctx = getCtx();
@@ -115,7 +116,7 @@ public class PluginRegistry {
 	 * 
 	 * @return a List of IPlanBuilderPrePhaseDAPlugin
 	 */
-	public static List<IPlanBuilderPrePhaseDAPlugin<?>> getDaPlugins() {
+	public List<IPlanBuilderPrePhaseDAPlugin<?>> getDaPlugins() {
 		List<IPlanBuilderPrePhaseDAPlugin<?>> plugins = new ArrayList<IPlanBuilderPrePhaseDAPlugin<?>>();
 
 		BundleContext ctx = getCtx();
@@ -142,7 +143,7 @@ public class PluginRegistry {
 	 * 
 	 * @return a List of IPlanBuilderPostPhasePlugin
 	 */
-	public static List<IPlanBuilderPostPhasePlugin<?>> getPostPlugins() {
+	public List<IPlanBuilderPostPhasePlugin<?>> getPostPlugins() {
 		List<IPlanBuilderPostPhasePlugin<?>> plugins = new ArrayList<IPlanBuilderPostPhasePlugin<?>>();
 
 		BundleContext ctx = getCtx();
@@ -169,7 +170,7 @@ public class PluginRegistry {
 	 * 
 	 * @return a List of IScalingPlanBuilderSelectionPlugin
 	 */
-	public static List<IScalingPlanBuilderSelectionPlugin<?>> getSelectionPlugins() {
+	public List<IScalingPlanBuilderSelectionPlugin<?>> getSelectionPlugins() {
 		List<IScalingPlanBuilderSelectionPlugin<?>> plugins = new ArrayList<IScalingPlanBuilderSelectionPlugin<?>>();
 
 		BundleContext ctx = getCtx();

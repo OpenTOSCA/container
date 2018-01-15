@@ -49,6 +49,8 @@ public class BPELScopeBuilder {
 
 	final static Logger LOG = LoggerFactory.getLogger(BPELScopeBuilder.class);
 
+	private static PluginRegistry pluginRegistry = new PluginRegistry();
+	
 	/**
 	 * <p>
 	 * Filters IA and DA Candidates inside the given ProvisioningChain. Filtering
@@ -105,13 +107,13 @@ public class BPELScopeBuilder {
 		ModelUtils.getInfrastructureNodes(relationshipTemplate, infraNodes, forSource);
 
 		// check for IA Plugins
-		List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = PluginRegistry.getIaPlugins();
+		List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = BPELScopeBuilder.pluginRegistry.getIaPlugins();
 
 		BPELScopeBuilder.calculateBestImplementationRelationIACandidates(relationshipTypeImpls, iaPlugins, infraNodes,
 				chain, forSource);
 
 		// check for prov plugins
-		List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = PluginRegistry.getProvPlugins();
+		List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = BPELScopeBuilder.pluginRegistry.getProvPlugins();
 
 		BPELScopeBuilder.calculateProvPlugins(chain, provPlugins);
 
@@ -153,7 +155,7 @@ public class BPELScopeBuilder {
 		infraNodes.add(new TOSCAManagementInfrastructureNodeTemplate());
 
 		// check for IA Plugins
-		List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = PluginRegistry.getIaPlugins();
+		List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = BPELScopeBuilder.pluginRegistry.getIaPlugins();
 
 		BPELScopeBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
 		// calculate nodeImpl candidates where all IAs of each can be
@@ -172,7 +174,7 @@ public class BPELScopeBuilder {
 		}
 
 		// check for prov plugins
-		List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = PluginRegistry.getProvPlugins();
+		List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = BPELScopeBuilder.pluginRegistry.getProvPlugins();
 
 		// search for prov plugins according to the chosen IA provisionings in
 		// the chain
@@ -222,7 +224,7 @@ public class BPELScopeBuilder {
 		infraNodes.add(new TOSCAManagementInfrastructureNodeTemplate());
 
 		// check for IA Plugins
-		List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = PluginRegistry.getIaPlugins();
+		List<IPlanBuilderPrePhaseIAPlugin<?>> iaPlugins = BPELScopeBuilder.pluginRegistry.getIaPlugins();
 
 		BPELScopeBuilder.LOG.debug("Calculating best IA candidates for nodeTemplate {} ", nodeTemplate.getId());
 		// calculate nodeImpl candidates where all IAs of each can be
@@ -240,7 +242,7 @@ public class BPELScopeBuilder {
 		}
 
 		// check for DA Plugins
-		List<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins = PluginRegistry.getDaPlugins();
+		List<IPlanBuilderPrePhaseDAPlugin<?>> daPlugins = BPELScopeBuilder.pluginRegistry.getDaPlugins();
 
 		// calculate nodeImpl candidates where all DAs of each can be
 		// provisioned
@@ -262,7 +264,7 @@ public class BPELScopeBuilder {
 		BPELScopeBuilder.filterIncompatibleIADACandidates(chain);
 
 		// check for prov plugins
-		List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = PluginRegistry.getProvPlugins();
+		List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins = BPELScopeBuilder.pluginRegistry.getProvPlugins();
 
 		// search for prov plugins according to the chosen IA provisionings in
 		// the chain

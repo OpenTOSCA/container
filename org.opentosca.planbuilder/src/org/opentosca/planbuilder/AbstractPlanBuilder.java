@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPlanBuilder {
+	
+	protected final PluginRegistry pluginRegistry = new PluginRegistry();
 
 	private final static Logger LOG = LoggerFactory.getLogger(AbstractPlanBuilder.class);
 
@@ -65,7 +67,7 @@ public abstract class AbstractPlanBuilder {
 	 *         NodeTemplate, else false
 	 */
 	public IPlanBuilderTypePlugin findTypePlugin(AbstractNodeTemplate nodeTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
+		for (IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
 			AbstractPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID()
 					+ " can handle NodeTemplate " + nodeTemplate.getId());
 			if (plugin.canHandle(nodeTemplate)) {
@@ -89,7 +91,7 @@ public abstract class AbstractPlanBuilder {
 	 *         NodeTemplate, else false
 	 */
 	public IPlanBuilderTypePlugin findTypePlugin(AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
+		for (IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
 			AbstractPlanBuilder.LOG.debug("Checking whether Type Plugin " + plugin.getID() + " can handle NodeTemplate "
 					+ relationshipTemplate.getId());
 			if (plugin.canHandle(relationshipTemplate)) {
@@ -116,7 +118,7 @@ public abstract class AbstractPlanBuilder {
 	 *         given RelationshipTemplate and execution was successful, else false
 	 */
 	public boolean handleWithTypePlugin(PlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
-		for (IPlanBuilderTypePlugin plugin : PluginRegistry.getGenericPlugins()) {
+		for (IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
 			if (plugin.canHandle(relationshipTemplate)) {
 				AbstractPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}",
 						relationshipTemplate.getId(), plugin.getID());

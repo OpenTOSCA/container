@@ -530,7 +530,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
 	private IScalingPlanBuilderSelectionPlugin findSelectionPlugin(AnnotatedAbstractNodeTemplate stratNodeTemplate) {
 
-		for (IScalingPlanBuilderSelectionPlugin plugin : PluginRegistry.getSelectionPlugins()) {
+		for (IScalingPlanBuilderSelectionPlugin plugin : this.pluginRegistry.getSelectionPlugins()) {
 			List<String> a = new ArrayList<>(stratNodeTemplate.getAnnotations());
 			if (plugin.canHandle(stratNodeTemplate, a)) {
 				return plugin;
@@ -623,7 +623,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 			plugin.handle(context);
 		}
 
-		for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+		for (IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 			if (postPhasePlugin.canHandle(nodeTemplate)) {
 				postPhasePlugin.handle(context, nodeTemplate);
 			}
@@ -668,7 +668,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 			this.handleWithTypePlugin(context, relationshipTemplate);
 		}
 
-		for (IPlanBuilderPostPhasePlugin postPhasePlugin : PluginRegistry.getPostPlugins()) {
+		for (IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
 			if (postPhasePlugin.canHandle(relationshipTemplate)) {
 				postPhasePlugin.handle(context, relationshipTemplate);
 			}
