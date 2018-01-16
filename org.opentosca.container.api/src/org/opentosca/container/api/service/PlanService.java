@@ -284,7 +284,7 @@ public class PlanService {
 		}
 
 		/*
-		 * Add paramater "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the
+		 * Add parameter "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the
 		 * plan engine
 		 */
 		if (serviceTemplateInstanceId != null) {
