@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -54,10 +55,13 @@ public class NodeTemplateInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_TYPE", nullable = false)
   private QName templateType;
 
+  @OrderBy("createdAt DESC")
+  @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+  private List<VerificationResult> verificationResults = Lists.newArrayList();
 
-  public NodeTemplateInstance() {
 
-  }
+  public NodeTemplateInstance() {}
+
 
   public NodeTemplateInstanceState getState() {
     return this.state;
@@ -130,7 +134,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     return templateId;
   }
 
-  public void setTemplateId(QName templateId) {
+  public void setTemplateId(final QName templateId) {
     this.templateId = templateId;
   }
 
@@ -138,7 +142,22 @@ public class NodeTemplateInstance extends PersistenceObject {
     return templateType;
   }
 
-  public void setTemplateType(QName templateType) {
+  public void setTemplateType(final QName templateType) {
     this.templateType = templateType;
+  }
+
+  public List<VerificationResult> getVerificationResults() {
+    return verificationResults;
+  }
+
+  public void setVerificationResults(final List<VerificationResult> verificationResults) {
+    this.verificationResults = verificationResults;
+  }
+
+  public void addVerificationResult(final VerificationResult verificationResult) {
+    this.verificationResults.add(verificationResult);
+    if (verificationResult.getNodeTemplateInstance() != this) {
+      verificationResult.setNodeTemplateInstance(this);
+    }
   }
 }

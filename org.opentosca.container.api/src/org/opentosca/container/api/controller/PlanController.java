@@ -71,7 +71,7 @@ public class PlanController {
   }
 
   @GET
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces(MediaType.APPLICATION_JSON)
   public Response getPlans(@Context final UriInfo uriInfo) {
 
     final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
@@ -93,7 +93,7 @@ public class PlanController {
 
   @GET
   @Path("/{plan}")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces(MediaType.APPLICATION_JSON)
   public Response getPlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo) {
 
     final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
@@ -119,7 +119,7 @@ public class PlanController {
 
   @GET
   @Path("/{plan}/instances")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces(MediaType.APPLICATION_JSON)
   public Response getPlanInstances(@PathParam("plan") final String plan,
       @Context final UriInfo uriInfo) {
 
@@ -176,7 +176,7 @@ public class PlanController {
   @POST
   @Path("/{plan}/instances")
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces(MediaType.APPLICATION_JSON)
   public Response invokePlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo,
       final List<TParameter> parameters) {
 
@@ -222,7 +222,7 @@ public class PlanController {
 
   @GET
   @Path("/{plan}/instances/{instance}")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces(MediaType.APPLICATION_JSON)
   public Response getPlanInstance(@PathParam("plan") final String plan,
       @PathParam("instance") final String instance, @Context final UriInfo uriInfo) {
 

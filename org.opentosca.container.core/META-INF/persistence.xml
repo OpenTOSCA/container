@@ -18,6 +18,9 @@
     <class>org.opentosca.container.core.next.model.PlanInstanceEvent</class>
     <class>org.opentosca.container.core.next.model.PlanInstanceOutput</class>
     <class>org.opentosca.container.core.next.model.PlanInstanceInput</class>
+    
+    <class>org.opentosca.container.core.next.model.Verification</class>
+    <class>org.opentosca.container.core.next.model.VerificationResult</class>
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.core.model.csar.CSARContent</class>
@@ -31,7 +34,7 @@
 
     <properties>
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
-      <!-- <property name="javax.persistence.jdbc.url" value="jdbc:h2:file:~/opentosca/db;AUTO_SERVER=TRUE"/> -->
+      <!-- <property name="javax.persistence.jdbc.url" value="jdbc:h2:file:~/db/opentosca;AUTO_SERVER=TRUE"/> -->
       <!-- <property name="javax.persistence.jdbc.user" value=""/> -->
       <!-- <property name="javax.persistence.jdbc.password" value=""/> -->
       <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform" />

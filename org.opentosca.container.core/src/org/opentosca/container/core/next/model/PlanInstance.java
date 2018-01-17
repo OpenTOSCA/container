@@ -66,6 +66,10 @@ public class PlanInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
+  @OrderBy("createdAt DESC")
+  @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
+  private List<Verification> verifications = Lists.newArrayList();
+
 
   public PlanInstance() {
 
@@ -75,7 +79,7 @@ public class PlanInstance extends PersistenceObject {
     return correlationId;
   }
 
-  public void setCorrelationId(String correlationId) {
+  public void setCorrelationId(final String correlationId) {
     this.correlationId = correlationId;
   }
 
@@ -124,7 +128,7 @@ public class PlanInstance extends PersistenceObject {
     return inputs;
   }
 
-  public void setInputs(Set<PlanInstanceInput> inputs) {
+  public void setInputs(final Set<PlanInstanceInput> inputs) {
     this.inputs = inputs;
   }
 
@@ -169,7 +173,22 @@ public class PlanInstance extends PersistenceObject {
     return templateId;
   }
 
-  public void setTemplateId(QName templateId) {
+  public void setTemplateId(final QName templateId) {
     this.templateId = templateId;
+  }
+
+  public List<Verification> getVerifications() {
+    return this.verifications;
+  }
+
+  public void setVerifications(final List<Verification> verifications) {
+    this.verifications = verifications;
+  }
+
+  public void addVerification(final Verification verification) {
+    this.verifications.add(verification);
+    if (verification.getPlanInstance() != this) {
+      verification.setPlanInstance(this);
+    }
   }
 }

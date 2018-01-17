@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.deployment.verification.job.PingJob">
+   <implementation class="org.opentosca.deployment.verification.job.PingJob"/>
+   <service>
+      <provide interface="org.opentosca.deployment.verification.VerificationJob"/>
+   </service>
+</scr:component>

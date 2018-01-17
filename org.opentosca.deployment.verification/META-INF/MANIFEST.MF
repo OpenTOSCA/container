@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Deployment Verification
+Bundle-SymbolicName: org.opentosca.deployment.verification
+Bundle-Version: 2.0.0.qualifier
+Bundle-Activator: org.opentosca.deployment.verification.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.common.base;version="15.0.0",
+ com.google.common.collect;version="15.0.0",
+ com.google.common.util.concurrent;version="15.0.0",
+ org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.2"
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.opentosca.planbuilder.model,
+ org.opentosca.container.core
+Service-Component: OSGI-INF/*
+Export-Package: org.opentosca.deployment.verification

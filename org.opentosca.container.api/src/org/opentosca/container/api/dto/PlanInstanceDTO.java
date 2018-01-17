@@ -8,9 +8,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
+import org.opentosca.container.core.next.model.PlanInstanceInput;
 import org.opentosca.container.core.next.model.PlanInstanceOutput;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
@@ -62,8 +64,19 @@ public class PlanInstanceDTO extends ResourceSupport {
     return this.pi.getOutputs();
   }
 
-  public void setOutput(final Set<PlanInstanceOutput> outputs) {
-    this.pi.setOutputs(outputs);
+  public void setOutput(final Set<PlanInstanceOutput> output) {
+    this.pi.setOutputs(output);
+  }
+
+  @JsonProperty
+  @XmlElement(name = "InputParameter")
+  @XmlElementWrapper(name = "InputParameters")
+  public Collection<PlanInstanceInput> getInput() {
+    return this.pi.getInputs();
+  }
+
+  public void setInput(final Set<PlanInstanceInput> input) {
+    this.pi.setInputs(input);
   }
 
   @JsonProperty
@@ -78,6 +91,7 @@ public class PlanInstanceDTO extends ResourceSupport {
   }
 
   @JsonIgnore
+  @XmlTransient
   public ServiceTemplateInstance getServiceTemplateInstance() {
     return this.pi.getServiceTemplateInstance();
   }
