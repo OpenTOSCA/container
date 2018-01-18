@@ -27,7 +27,6 @@ import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
-import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

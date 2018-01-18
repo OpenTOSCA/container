@@ -6,14 +6,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
@@ -22,7 +20,6 @@ import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.model.csar.CSARContent;
-import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +57,11 @@ public class ServiceTemplateController {
 			final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO();
 			serviceTemplate.setId(name);
 			serviceTemplate.setName(name);
-			serviceTemplate.add(Link.fromUri(this.uriInfo.getAbsolutePathBuilder().path("{name}").build(UriComponent.encode(name, UriComponent.Type.PATH_SEGMENT))).rel("self").build());
+			serviceTemplate.add(UriUtils.generateSubResourceSelfLink(this.uriInfo, name));
 			list.add(serviceTemplate);
 		}
 
-		list.add(Link.fromUri(this.uriInfo.getAbsolutePath()).rel("self").build());
+		list.add(UriUtils.generateSelfLink(this.uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -82,10 +79,11 @@ public class ServiceTemplateController {
 		}
 
 		final ResourceSupport links = new ResourceSupport();
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("instances").build())).rel("instances").build());
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("boundarydefinitions").build())).rel("boundarydefinitions").build());
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("buildplans").build())).rel("buildplans").build());
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+		links.add(UriUtils.generateGroupSubResourceLink(this.uriInfo, "insatances"));
+		links.add(UriUtils.generateGroupSubResourceLink(this.uriInfo,"boundarydefinitions"));
+		links.add(UriUtils.generateGroupSubResourceLink(this.uriInfo,"buildplans"));
+		links.add(UriUtils.generateGroupSubResourceLink(this.uriInfo,"nodetemplates"));
+		links.add(UriUtils.generateSelfLink(this.uriInfo));
 
 		return Response.ok(links).build();
 	}

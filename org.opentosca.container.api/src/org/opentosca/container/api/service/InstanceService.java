@@ -11,6 +11,10 @@ import org.opentosca.container.core.service.IInstanceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides a facade to the IInstanceDataService service which allows accessing information regarding service template instances
+ * and node template instances
+ */
 public class InstanceService {
 	
 	private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
@@ -39,7 +43,9 @@ public class InstanceService {
 		}
 		throw new NotFoundException("Instance <" + id + "> of ServiceTemplate \"" + serviceTemplate + "\" in CSAR \"" + csarId + "\" not found");
 	}
-
+	
+	/*Service Injection*/
+	/*******************/
 	public void setInstanceDataService(final IInstanceDataService instanceDataService) {
 		this.instanceDataService = instanceDataService;
 	}
