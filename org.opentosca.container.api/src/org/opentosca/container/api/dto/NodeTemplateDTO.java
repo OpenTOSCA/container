@@ -15,10 +15,10 @@ public class NodeTemplateDTO extends ResourceSupport {
 	@XmlAttribute(name = "id")
 	private String id;
 	
-	@XmlElement(name = "name")
+	@XmlElement(name = "Name")
 	private String name;
 	
-	@XmlElement(name = "nodeType")
+	@XmlElement(name = "NodeType")
 	private String nodeType;
 
 	public String getId() {

@@ -7,34 +7,52 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
+import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.util.UriUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
-@Path("/csars/{csar}/servicetemplates/{servicetemplate}/nodetemplates")
-@Api("/")
+@Api
 public class NodeTemplateController {
-	//injected service
-	private NodeTemplateService nodeTemplateService;
+	private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
+
+	@PathParam("csar")
+	String csarId;
+
+	@PathParam("servicetemplate")
+	String serviceTemplateId;
 
 	@Context
-	private UriInfo uriInfo;
+	UriInfo uriInfo;
+	
+	@Context
+	ResourceContext resourceContext;
+
+	private NodeTemplateService nodeTemplateService;
+	private InstanceService instanceService;
+
+	public NodeTemplateController(NodeTemplateService nodeTemplateService, InstanceService instanceService) {
+		this.nodeTemplateService = nodeTemplateService;
+		this.instanceService = instanceService;
+	}
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get all node templates of a specific service template", response = NodeTemplateDTO.class, responseContainer = "List")
-	public Response getNodeTemplates(@PathParam("csar") final String csarId,
-			@PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
+	public Response getNodeTemplates() throws NotFoundException {
 
 		// this validates that the CSAR contains the service template
 		final List<NodeTemplateDTO> nodeTemplateIds = this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId,
@@ -42,12 +60,12 @@ public class NodeTemplateController {
 		final NodeTemplateListDTO list = new NodeTemplateListDTO();
 
 		for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
-			nodeTemplate.add(UriUtils.generateSubResourceSelfLink(this.uriInfo, nodeTemplate.getId()));
-			
+			nodeTemplate.add(UriUtils.generateSubResourceLink(uriInfo, nodeTemplate.getId(), true, "self"));
+
 			list.add(nodeTemplate);
 		}
 
-		list.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+		list.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -56,23 +74,39 @@ public class NodeTemplateController {
 	@Path("/{nodetemplate}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get a specific node template by its id", response = NodeTemplateDTO.class)
-	public Response getNodeTemplate(@PathParam("csar") final String csarId,
-			@PathParam("servicetemplate") final String serviceTemplateId,
-			@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
+	public Response getNodeTemplate(@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
 		final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateId,
 				nodeTemplateId);
 
-		result.add(UriUtils.generateGroupSubResourceLink(this.uriInfo, "instances"));
-		result.add(UriUtils.generateSelfLink(this.uriInfo));
+		result.add(UriUtils.generateSubResourceLink(uriInfo, "instances", false, "instances"));
+		result.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(result).build();
+	}
+
+	@Path("/{nodetemplate}/instances")
+	public NodeTemplateInstanceController getInstances(
+			@ApiParam(hidden=true)@PathParam("nodetemplate") final String nodeTemplateId) {
+		if (!this.nodeTemplateService.hasNodeTemplate(csarId, serviceTemplateId, nodeTemplateId)) {
+			logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
+			throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
+		}
+
+		NodeTemplateInstanceController child = new NodeTemplateInstanceController(instanceService);
+		this.resourceContext.initResource(child);//this initializes @Context fields in the sub-resource
+		
+		return child; 
 	}
 
 	/* Service Injection */
 	/*********************/
 	public void setNodeTemplateService(NodeTemplateService nodeTemplateService) {
 		this.nodeTemplateService = nodeTemplateService;
+	}
+
+	public void setInstanceService(InstanceService instanceService) {
+		this.instanceService = instanceService;
 	}
 
 }

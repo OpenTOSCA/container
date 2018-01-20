@@ -1,52 +1,77 @@
 package org.opentosca.container.api.service;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.instance.ServiceInstance;
-import org.opentosca.container.core.service.IInstanceDataService;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides a facade to the IInstanceDataService service which allows accessing information regarding service template instances
- * and node template instances
+ * Allows access to instance information for service templates and node templates.
  */
 public class InstanceService {
 	
 	private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
 	
-	private IInstanceDataService instanceDataService;
+	private final ServiceTemplateInstanceRepository serviecTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
+	private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository = new NodeTemplateInstanceRepository();
 	
-	
-	public List<ServiceInstance> getServiceTemplateInstances(final CSARID id, final String serviceTemplate) {
-		return this.getServiceTemplateInstances(id, QName.valueOf(serviceTemplate));
+	public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final String serviceTemplate) {
+		return this.getServiceTemplateInstances(QName.valueOf(serviceTemplate));
 	}
 
-	public List<ServiceInstance> getServiceTemplateInstances(final CSARID id, final QName serviceTemplate) {
-		logger.debug("Requesting instances of ServiceTemplate \"{}\" in CSAR \"{}\"...", serviceTemplate, id);
-		return this.instanceDataService.getServiceInstancesWithDetails(id, serviceTemplate, null);
+	public Collection<ServiceTemplateInstance> getServiceTemplateInstances(final QName serviceTemplate) {
+		logger.debug("Requesting instances of ServiceTemplate \"{}\"...", serviceTemplate);
+		return this.serviecTemplateInstanceRepository.findByTemplateId(serviceTemplate);
 	}
 
-	public ServiceInstance getServiceTemplateInstance(final Integer id, final CSARID csarId, final String serviceTemplate) {
-		return this.getServiceTemplateInstance(id, csarId, QName.valueOf(serviceTemplate));
+	public ServiceTemplateInstance getServiceTemplateInstance(final Integer id) {
+		return this.getServiceTemplateInstance(new Long(id.intValue()));
 	}
 
-	public ServiceInstance getServiceTemplateInstance(final Integer id, final CSARID csarId, final QName serviceTemplate) {
-		logger.debug("Requesting instance <{}> of ServiceTemplate \"{}\" in CSAR \"{}\"...", id, serviceTemplate, csarId);
-		final List<ServiceInstance> instances = this.instanceDataService.getServiceInstancesWithDetails(csarId, serviceTemplate, id);
-		if (instances.size() == 1) {
-			return instances.get(0);
+	public ServiceTemplateInstance getServiceTemplateInstance(final Long id) {
+		logger.debug("Requesting service template instance <{}>...", id);
+		Optional<ServiceTemplateInstance> instance = this.serviecTemplateInstanceRepository.find(id);
+
+		if (instance.isPresent()) {
+			return instance.get();
 		}
-		throw new NotFoundException("Instance <" + id + "> of ServiceTemplate \"" + serviceTemplate + "\" in CSAR \"" + csarId + "\" not found");
+		
+		logger.debug("Service Template Instance <" + id + "> not found.");
+		throw new NotFoundException("Service Template Instance <" + id + "> not found.");
 	}
 	
-	/*Service Injection*/
-	/*******************/
-	public void setInstanceDataService(final IInstanceDataService instanceDataService) {
-		this.instanceDataService = instanceDataService;
+	public Collection<NodeTemplateInstance> getNodeTemplateInstances(final String nodeTemplate) {
+		return this.getNodeTemplateInstances(QName.valueOf(nodeTemplate));
 	}
+
+	public Collection<NodeTemplateInstance> getNodeTemplateInstances(final QName nodeTemplate) {
+		logger.debug("Requesting instances of NodeTemplate \"{}\"...", nodeTemplate);
+		return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplate);
+	}
+
+	public NodeTemplateInstance getNodeTemplateInstance(final Integer id) {
+		return this.getNodeTemplateInstance(new Long(id.intValue()));
+	}
+
+	public NodeTemplateInstance getNodeTemplateInstance(final Long id) {
+		logger.debug("Requesting node template instance <{}>...", id);
+		Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.find(id);
+
+		if (instance.isPresent()) {
+			return instance.get();
+		}
+		
+		logger.debug("Node Template Instance <" + id + "> not found.");
+		throw new NotFoundException("Node Template Instance <" + id + "> not found.");
+	}
+	
+	
 }

@@ -14,6 +14,15 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+/**
+ * Provides data access functionality to retrieve node templates based on a
+ * service template. Throughout the class, it is assumed that the passed service
+ * template id belongs to passed CSAR, i.e., it is assumed that a check that
+ * this is true is performed earlier.
+ * 
+ * @author Ghareeb Falazi
+ *
+ */
 public class NodeTemplateService {
 	private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
 
@@ -29,17 +38,9 @@ public class NodeTemplateService {
 	 *            The id of the service template within the given CSAR
 	 * @return A collection of node templates stored within the given service
 	 *         template.
-	 * @throws NotFoundException
-	 *             if the CSAR does not contain the specified service template id
 	 */
-	public List<NodeTemplateDTO> getNodeTemplatesOfServiceTemplate(String csarId, String serviceTemplateId)
-			throws NotFoundException {
+	public List<NodeTemplateDTO> getNodeTemplatesOfServiceTemplate(String csarId, String serviceTemplateId) {
 		final CSARContent csarContent = this.csarService.findById(csarId);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
-
 		final List<String> nodeTemplateIds = toscaEngineService
 				.getNodeTemplatesOfServiceTemplate(csarContent.getCSARID(), QName.valueOf(serviceTemplateId));
 		final List<NodeTemplateDTO> nodeTemplates = Lists.newArrayList();
@@ -65,9 +66,8 @@ public class NodeTemplateService {
 	 *            specified service template
 	 * @return The node template specified by the given id
 	 * @throws NotFoundException
-	 *             If either the CSAR does not contain the specified service
-	 *             template or if the service template does not contain the
-	 *             specified node template
+	 *             If the service template does not contain the specified node
+	 *             template
 	 */
 	public NodeTemplateDTO getNodeTemplateById(String csarId, String serviceTemplateId, String nodeTemplateId)
 			throws NotFoundException {
@@ -75,24 +75,17 @@ public class NodeTemplateService {
 		final CSARID idOfCsar = csarContent.getCSARID();
 		final QName serviceTemplateQName = QName.valueOf(serviceTemplateId);
 
-		if (!this.csarService.hasServiceTemplate(idOfCsar, serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
-
 		if (!this.toscaEngineService.getNodeTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
 				.contains(nodeTemplateId)) {
 			logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + nodeTemplateId + "\" could not be found");
+			throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
 		}
 
 		return createNodeTemplate(idOfCsar, serviceTemplateQName, nodeTemplateId);
-
 	}
 
 	/**
 	 * Checks whether the specified service template contains a given node template.
-	 * It also checks that the CSAR contains the service template
 	 * 
 	 * @param csarId
 	 *            The id of the CSAR
@@ -105,11 +98,7 @@ public class NodeTemplateService {
 	 *         <code>false</code>
 	 */
 	public boolean hasNodeTemplate(String csarId, String serviceTemplateId, String nodeTemplateId) {
-		try {
-			return this.getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateId).contains(nodeTemplateId);
-		} catch (NotFoundException e) {
-			return false;
-		}
+		return this.getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateId).contains(nodeTemplateId);
 	}
 
 	private NodeTemplateDTO createNodeTemplate(CSARID csarId, QName serviceTemplateId, String nodeTemplateId) {
@@ -132,16 +121,9 @@ public class NodeTemplateService {
 	 *            the id of the service template within the given CSAR
 	 * @return A collection of node template ids stored within the given service
 	 *         template.
-	 * @throws NotFoundException
-	 *             if the CSAR does not contain the specified service template id
 	 */
-	private List<String> getNodeTemplateIdsOfServiceTemplate(String csarId, String serviceTemplateId)
-			throws NotFoundException {
+	private List<String> getNodeTemplateIdsOfServiceTemplate(String csarId, String serviceTemplateId) {
 		final CSARContent csarContent = this.csarService.findById(csarId);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
 
 		return toscaEngineService.getNodeTemplatesOfServiceTemplate(csarContent.getCSARID(),
 				QName.valueOf(serviceTemplateId));

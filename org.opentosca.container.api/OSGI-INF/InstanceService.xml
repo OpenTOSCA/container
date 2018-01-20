@@ -4,5 +4,4 @@
    <service>
       <provide interface="org.opentosca.container.api.service.InstanceService"/>
    </service>
-   <reference bind="setInstanceDataService" cardinality="1..1" interface="org.opentosca.container.core.service.IInstanceDataService" name="IInstanceDataService" policy="static"/>
 </scr:component>
