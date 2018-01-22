@@ -12,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
@@ -37,7 +38,7 @@ public class NodeTemplateController {
 
 	@Context
 	UriInfo uriInfo;
-	
+
 	@Context
 	ResourceContext resourceContext;
 
@@ -76,8 +77,8 @@ public class NodeTemplateController {
 	@ApiOperation(value = "Get a specific node template by its id", response = NodeTemplateDTO.class)
 	public Response getNodeTemplate(@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
-		final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId, serviceTemplateId,
-				nodeTemplateId);
+		final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId,
+				QName.valueOf(serviceTemplateId), QName.valueOf(nodeTemplateId));
 
 		result.add(UriUtils.generateSubResourceLink(uriInfo, "instances", false, "instances"));
 		result.add(UriUtils.generateSelfLink(uriInfo));
@@ -87,16 +88,16 @@ public class NodeTemplateController {
 
 	@Path("/{nodetemplate}/instances")
 	public NodeTemplateInstanceController getInstances(
-			@ApiParam(hidden=true)@PathParam("nodetemplate") final String nodeTemplateId) {
-		if (!this.nodeTemplateService.hasNodeTemplate(csarId, serviceTemplateId, nodeTemplateId)) {
+			@ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
+		if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId),  QName.valueOf(nodeTemplateId))) {
 			logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
 			throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
 		}
 
 		NodeTemplateInstanceController child = new NodeTemplateInstanceController(instanceService);
-		this.resourceContext.initResource(child);//this initializes @Context fields in the sub-resource
-		
-		return child; 
+		this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+
+		return child;
 	}
 
 	/* Service Injection */

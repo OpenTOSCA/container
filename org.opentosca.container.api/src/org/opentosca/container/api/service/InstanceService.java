@@ -48,13 +48,13 @@ public class InstanceService {
 		throw new NotFoundException("Service Template Instance <" + id + "> not found.");
 	}
 	
-	public Collection<NodeTemplateInstance> getNodeTemplateInstances(final String nodeTemplate) {
-		return this.getNodeTemplateInstances(QName.valueOf(nodeTemplate));
+	public Collection<NodeTemplateInstance> getNodeTemplateInstances(final String nodeTemplateQName) {
+		return this.getNodeTemplateInstances(QName.valueOf(nodeTemplateQName));
 	}
 
-	public Collection<NodeTemplateInstance> getNodeTemplateInstances(final QName nodeTemplate) {
-		logger.debug("Requesting instances of NodeTemplate \"{}\"...", nodeTemplate);
-		return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplate);
+	public Collection<NodeTemplateInstance> getNodeTemplateInstances(final QName nodeTemplateQName) {
+		logger.debug("Requesting instances of NodeTemplate \"{}\"...", nodeTemplateQName);
+		return this.nodeTemplateInstanceRepository.findByTemplateId(nodeTemplateQName);
 	}
 
 	public NodeTemplateInstance getNodeTemplateInstance(final Integer id) {
