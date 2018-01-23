@@ -63,6 +63,7 @@ Export-Package: org.opentosca.container.core,
  org.opentosca.container.core.next.model,
  org.opentosca.container.core.next.repository,
  org.opentosca.container.core.next.utils,
+ org.opentosca.container.core.next.xml,
  org.opentosca.container.core.service,
  org.opentosca.container.core.service.internal
 Meta-Persistence: META-INF/persistence.xml

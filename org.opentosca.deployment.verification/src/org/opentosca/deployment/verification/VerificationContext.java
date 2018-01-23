@@ -89,7 +89,7 @@ public class VerificationContext {
   }
 
   public void setVerificationResults(final List<VerificationResult> verificationResults) {
-    this.verification.setVerificationResults(verificationResults);
+    verificationResults.stream().forEach(this.verification::addVerificationResult);
     this.verification.setPlanInstance(this.planInstance);
   }
 }

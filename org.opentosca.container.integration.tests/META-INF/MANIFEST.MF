@@ -30,6 +30,4 @@ Import-Package: com.google.common.collect,
  org.osgi.util.tracker;version="1.4.0",
  org.slf4j;version="1.7.2"
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.opentosca.container.integration.tests.Activator
-Bundle-ClassPath: .,
- META-INF/resources/
+Bundle-ClassPath: .

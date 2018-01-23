@@ -35,7 +35,7 @@ public class VerificationExecutor {
 
   public VerificationExecutor(final int threadPoolSize) {
     final ThreadFactory threadFactory =
-        new ThreadFactoryBuilder().setNameFormat("Thread-%d").setDaemon(true).build();
+        new ThreadFactoryBuilder().setNameFormat("job-pool-%d").setDaemon(true).build();
     this.executor = Executors.newFixedThreadPool(threadPoolSize, threadFactory);
   }
 
@@ -90,17 +90,21 @@ public class VerificationExecutor {
     final long start = System.currentTimeMillis();
     return CompletableFuture.supplyAsync(() -> {
       final long d = System.currentTimeMillis() - start;
-      logger.info("Job \"{}\" for node template \"{}\" spent {}ms in queue",
-          job.getClass().getSimpleName(), nodeTemplate.getId(), d);
+      logger.info("Job \"{}\" for node template instance \"{}\" ({}) spent {}ms in queue",
+          job.getClass().getSimpleName(), nodeTemplateInstance.getId(), nodeTemplate.getId(), d);
       return job.execute(context, nodeTemplate, nodeTemplateInstance);
     }, this.executor);
   }
 
-  protected void bindJob(final VerificationJob job) {
+  public Set<VerificationJob> getJobs() {
+    return jobs;
+  }
+
+  public void bindJob(final VerificationJob job) {
     jobs.add(job);
   }
 
-  protected void unbindJob(final VerificationJob job) {
+  public void unbindJob(final VerificationJob job) {
     jobs.remove(job);
   }
 }

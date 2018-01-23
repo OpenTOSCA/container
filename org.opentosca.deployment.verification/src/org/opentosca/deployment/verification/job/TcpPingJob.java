@@ -31,6 +31,6 @@ public class TcpPingJob implements VerificationJob {
 
   @Override
   public boolean canExecute(AbstractNodeTemplate nodeTemplate) {
-    return true;
+    return false;
   }
 }

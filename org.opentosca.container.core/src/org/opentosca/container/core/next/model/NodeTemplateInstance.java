@@ -2,7 +2,9 @@ package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,8 +19,10 @@ import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
+import org.opentosca.container.core.next.xml.PlanPropertyParser;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Entity
@@ -87,6 +91,22 @@ public class NodeTemplateInstance extends PersistenceObject {
     if (property.getNodeTemplateInstance() != this) {
       property.setNodeTemplateInstance(this);
     }
+  }
+
+  /*
+   * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+   * parse this XML and return a Map<String, String>.
+   */
+  public Map<String, String> getPlanProperties() {
+    Map<String, String> properties = Maps.newHashMap();
+    final NodeTemplateInstanceProperty prop =
+        this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+            .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+    if (prop != null) {
+      final PlanPropertyParser parser = new PlanPropertyParser();
+      properties = parser.parse(prop.getValue());
+    }
+    return properties;
   }
 
   public ServiceTemplateInstance getServiceTemplateInstance() {

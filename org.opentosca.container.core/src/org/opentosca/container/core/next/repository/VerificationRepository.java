@@ -1,8 +1,10 @@
 package org.opentosca.container.core.next.repository;
 
-public class VerificationRepository extends JpaRepository<VerificationRepository> {
+import org.opentosca.container.core.next.model.Verification;
+
+public class VerificationRepository extends JpaRepository<Verification> {
 
   public VerificationRepository() {
-    super(VerificationRepository.class);
+    super(Verification.class);
   }
 }
