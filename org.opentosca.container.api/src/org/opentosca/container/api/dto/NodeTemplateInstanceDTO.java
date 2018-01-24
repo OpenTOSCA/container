@@ -14,7 +14,6 @@ import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 // TODO: Add Properties
-// TODO: Add State
 @XmlRootElement(name = "NodeTemplateInstance")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)

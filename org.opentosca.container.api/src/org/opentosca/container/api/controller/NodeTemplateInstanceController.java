@@ -2,8 +2,10 @@ package org.opentosca.container.api.controller;
 
 import java.util.Collection;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -11,6 +13,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
@@ -18,24 +21,25 @@ import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api()
 public class NodeTemplateInstanceController {
-	@PathParam("nodetemplate") 
+	@PathParam("nodetemplate")
 	String nodetemplate;
-	
+
 	@Context
 	UriInfo uriInfo;
 
 	private static Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
 
 	private InstanceService instanceService;
-
 
 	public NodeTemplateInstanceController(InstanceService instanceService) {
 		this.instanceService = instanceService;
@@ -72,11 +76,64 @@ public class NodeTemplateInstanceController {
 		final NodeTemplateInstance instance = this.resolveInstance(id, nodetemplate);
 		final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
 
+		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtils.generateSubResourceLink(uriInfo, "properties", false, "properties"));
 		dto.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 	}
 
+	@GET
+	@Path("/{id}/state")
+	@Produces({ MediaType.TEXT_PLAIN })
+	@ApiOperation(value = "Get the state of a node template instance identified by its id.", response = String.class)
+	public Response getNodeTemplateInstanceState(@PathParam("id") final Integer id) {
+		final NodeTemplateInstanceState state = this.instanceService.getNodeTemplateInstanceState(id);
+
+		return Response.ok(state.toString()).build();
+	}
+
+	@PUT
+	@Path("/{id}/state")
+	@Consumes({MediaType.TEXT_PLAIN})
+	@ApiOperation(value = "Changes the state of a node template instance identified by its id.", response = Response.class)
+	public Response updateNodeTemplateInstanceState(@PathParam("id") final Integer id, final String request) {
+
+		try {
+			this.instanceService.setNodeTemplateInstanceState(id, request);
+		} catch (IllegalArgumentException e) { // this handles a null request too
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		return Response.ok().build();
+	}
+	
+	@GET
+	@Path("/{id}/properties")
+	@Produces({ MediaType.APPLICATION_XML })
+	@ApiOperation(value = "Get the set of properties of a node template instance identified by its id.", response = Document.class)
+	public Response getNodeTemplateInstanceProperties(@PathParam("id") final Integer id) {
+		final Document properties = this.instanceService.getNodeTemplateInstanceProperties(id);
+
+		return Response.ok(properties).build();
+	}
+	
+	@PUT
+	@Path("/{id}/properties")
+	@Consumes({MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.", response = Response.class)
+	public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Integer id, final Document request) {
+
+		try {
+			this.instanceService.setNodeTemplateInstanceProperties(id, request);
+		} catch (IllegalArgumentException e) { // this handles a null request too
+			return Response.status(Status.BAD_REQUEST).build();
+		} catch (ReflectiveOperationException e) {
+			return Response.serverError().build();
+		}
+		
+		return Response.ok().build();
+	}
 
 	/**
 	 * Gets a reference to the node template instance. Ensures that the instance

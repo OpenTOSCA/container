@@ -3,8 +3,10 @@ package org.opentosca.container.api.controller;
 import java.net.URI;
 import java.util.Collection;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -12,6 +14,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
@@ -23,9 +26,11 @@ import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -93,8 +98,9 @@ public class ServiceTemplateInstanceController {
 		final URI uri = uriInfo.getBaseUriBuilder().path(path).build(this.csarId, this.serviceTemplateId,
 				pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
 		dto.add(Link.fromUri(UriUtils.encode(uri)).rel("build_plan_instance").build());
-
 		dto.add(UriUtils.generateSubResourceLink(uriInfo, "managementplans", false, "managementplans"));
+		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtils.generateSubResourceLink(uriInfo, "properties", false, "properties"));
 		dto.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
@@ -106,6 +112,58 @@ public class ServiceTemplateInstanceController {
 
 		return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id, this.planService,
 				PlanTypes.TERMINATION);
+	}
+	
+	@GET
+	@Path("/{id}/state")
+	@Produces({ MediaType.TEXT_PLAIN })
+	@ApiOperation(value = "Get the state of a service template instance identified by its id.", response = String.class)
+	public Response getServiceTemplateInstanceState(@PathParam("id") final Integer id) {
+		final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
+
+		return Response.ok(state.toString()).build();
+	}
+
+	@PUT
+	@Path("/{id}/state")
+	@Consumes({MediaType.TEXT_PLAIN})
+	@ApiOperation(value = "Changes the state of a service template instance identified by its id.", response = Response.class)
+	public Response updateServiceTemplateInstanceState(@PathParam("id") final Integer id, final String request) {
+
+		try {
+			this.instanceService.setServiceTemplateInstanceState(id, request);
+		} catch (IllegalArgumentException e) { // this handles a null request too
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+		
+		return Response.ok().build();
+	}
+	
+	@GET
+	@Path("/{id}/properties")
+	@Produces({ MediaType.APPLICATION_XML })
+	@ApiOperation(value = "Get the set of properties of a service template instance identified by its id.", response = Document.class)
+	public Response getServiceTemplateInstanceProperties(@PathParam("id") final Integer id) {
+		final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
+
+		return Response.ok(properties).build();
+	}
+	
+	@PUT
+	@Path("/{id}/properties")
+	@Consumes({MediaType.APPLICATION_XML})
+	@ApiOperation(value = "Changes the set of properties of a service template instance identified by its id.", response = Response.class)
+	public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Integer id, final Document request) {
+
+		try {
+			this.instanceService.setServiceTemplateInstanceProperties(id, request);
+		} catch (IllegalArgumentException e) { // this handles a null request too
+			return Response.status(Status.BAD_REQUEST).build();
+		} catch (ReflectiveOperationException e) {
+			return Response.serverError().build();
+		}
+		
+		return Response.ok().build();
 	}
 
 	/**
