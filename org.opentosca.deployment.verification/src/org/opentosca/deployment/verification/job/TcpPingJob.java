@@ -10,7 +10,6 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.VerificationResult;
 import org.opentosca.container.core.next.xml.DomUtil;
 import org.opentosca.deployment.verification.VerificationContext;
-import org.opentosca.deployment.verification.VerificationJob;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,7 +17,7 @@ import org.w3c.dom.NodeList;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
-public class TcpPingJob implements VerificationJob {
+public class TcpPingJob implements NodeTemplateJob {
 
   @Override
   public VerificationResult execute(final VerificationContext context,
@@ -62,7 +61,8 @@ public class TcpPingJob implements VerificationJob {
   }
 
   @Override
-  public boolean canExecute(AbstractNodeTemplate nodeTemplate) {
+  public boolean canExecute(final AbstractNodeTemplate nodeTemplate) {
+
     final Element el = nodeTemplate.getProperties().getDOMElement();
     final NodeList nodes = el.getChildNodes();
 

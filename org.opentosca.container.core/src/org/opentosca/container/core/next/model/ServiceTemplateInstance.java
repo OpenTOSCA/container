@@ -1,7 +1,9 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,8 +17,10 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Entity
@@ -125,5 +129,21 @@ public class ServiceTemplateInstance extends PersistenceObject {
     if (property.getServiceTemplateInstance() != this) {
       property.setServiceTemplateInstance(this);
     }
+  }
+
+  /*
+   * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+   * parse this XML and return a Map<String, String>.
+   */
+  public Map<String, String> getPropertiesAsMap() {
+    Map<String, String> properties = Maps.newHashMap();
+    final ServiceTemplateInstanceProperty prop =
+        this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+            .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+    if (prop != null) {
+      final PropertyParser parser = new PropertyParser();
+      properties = parser.parse(prop.getValue());
+    }
+    return properties;
   }
 }

@@ -2,12 +2,13 @@ package org.opentosca.container.core.next.xml;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Map;
 
 import org.junit.Test;
 
-public class PlanPropertyParserTest {
+public class PropertyParserTest {
 
   @Test
   public void testParseDockerContainerProperties() {
@@ -17,7 +18,7 @@ public class PlanPropertyParserTest {
             + "  <SSHPort>32768</SSHPort>\r\n"
             + "  <ContainerID>c1db84b59d41bf4312995a426de33d59119bc34ee27474f7a1e382650223936e;1efb0e8cc574e5e0ca4b13ad3e9684dd40a7cd47b4fcc7d1d93211dd9e38aa83</ContainerID>\r\n"
             + "  <ContainerIP>dind</ContainerIP></ns12:Properties>";
-    final PlanPropertyParser parser = new PlanPropertyParser();
+    final PropertyParser parser = new PropertyParser();
     final Map<String, String> properties = parser.parse(xml);
     assertThat(properties.size(), is(5));
     assertThat(properties.get("ContainerPort"), is("80"));
@@ -43,7 +44,7 @@ public class PlanPropertyParserTest {
         + "    xmlns:ty=\"http://opentosca.org/nodetypes\" \r\n"
         + "    xmlns:winery=\"http://www.opentosca.org/winery/extensions/tosca/2013/02/12\">\r\n"
         + "</ns12:Properties>";
-    final PlanPropertyParser parser = new PlanPropertyParser();
+    final PropertyParser parser = new PropertyParser();
     final Map<String, String> properties = parser.parse(xml);
     assertThat(properties.size(), is(0));
   }
@@ -53,12 +54,35 @@ public class PlanPropertyParserTest {
     final String xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><ns11:DockerEngine_Properties xmlns:ns11=\"http://opentosca.org/nodetypes/properties\" xmlns=\"http://opentosca.org/nodetypes/properties\" xmlns:nodetypes=\"http://opentosca.org/nodetypes\" xmlns:ns10=\"http://www.eclipse.org/winery/model/selfservice\" xmlns:ns5=\"http://opentosca.org/nodetypes\" xmlns:selfservice=\"http://www.eclipse.org/winery/model/selfservice\" xmlns:testwineryopentoscaorg=\"http://test.winery.opentosca.org\" xmlns:tosca=\"http://docs.oasis-open.org/tosca/ns/2011/12\" xmlns:ty=\"http://opentosca.org/nodetypes\" xmlns:winery=\"http://www.opentosca.org/winery/extensions/tosca/2013/02/12\">\r\n"
             + "  <DockerEngineURL>tcp://dind:2375</DockerEngineURL>\r\n"
-            + "  <DockerEngineCertificate/><Test/>\r\n"
+            + "  <DockerEngineCertificate/>   <Test/>   \r\n"
             + "            </ns11:DockerEngine_Properties>";
-    final PlanPropertyParser parser = new PlanPropertyParser();
+    final PropertyParser parser = new PropertyParser();
     final Map<String, String> properties = parser.parse(xml);
-    assertThat(properties.size(), is(3));
+    assertThat(properties.size(), is(1));
     assertThat(properties.get("DockerEngineURL"), is("tcp://dind:2375"));
-    assertThat(properties.get("DockerEngineCertificate"), is(""));
+    assertThat(properties.get("DockerEngineCertificate"), is(nullValue()));
+    assertThat(properties.get("Test"), is(nullValue()));
+  }
+
+  @Test
+  public void testServiceTemplateProperties() {
+    final String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><ns0:selfserviceApplicationUrl xmlns:ns0=\"http://www.eclipse.org/winery/model/selfservice\" xmlns=\"http://docs.oasis-open.org/tosca/ns/2011/12\" xmlns:ns10=\"http://www.eclipse.org/winery/model/selfservice\" xmlns:selfservice=\"http://www.eclipse.org/winery/model/selfservice\" xmlns:testwineryopentoscaorg=\"http://test.winery.opentosca.org\" xmlns:tosca=\"http://docs.oasis-open.org/tosca/ns/2011/12\" xmlns:winery=\"http://www.opentosca.org/winery/extensions/tosca/2013/02/12\">http://dind:9990</ns0:selfserviceApplicationUrl>";
+    final PropertyParser parser = new PropertyParser();
+    final Map<String, String> properties = parser.parse(xml);
+    assertThat(properties.size(), is(1));
+    assertThat(properties.get("selfserviceApplicationUrl"), is("http://dind:9990"));
+    assertThat(properties.get("selfserviceapplicationurl"), is("http://dind:9990"));
+  }
+
+  @Test
+  public void testEmptyServiceTemplateProperties() {
+    final String xml =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><ns0:selfserviceApplicationUrl xmlns:ns0=\"http://www.eclipse.org/winery/model/selfservice\" xmlns=\"http://docs.oasis-open.org/tosca/ns/2011/12\" xmlns:ns10=\"http://www.eclipse.org/winery/model/selfservice\" xmlns:selfservice=\"http://www.eclipse.org/winery/model/selfservice\" xmlns:testwineryopentoscaorg=\"http://test.winery.opentosca.org\" xmlns:tosca=\"http://docs.oasis-open.org/tosca/ns/2011/12\" xmlns:winery=\"http://www.opentosca.org/winery/extensions/tosca/2013/02/12\"/>";
+    final PropertyParser parser = new PropertyParser();
+    final Map<String, String> properties = parser.parse(xml);
+    assertThat(properties.size(), is(0));
+    assertThat(properties.get("selfserviceApplicationUrl"), is(nullValue()));
+    assertThat(properties.get("selfserviceapplicationurl"), is(nullValue()));
   }
 }

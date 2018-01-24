@@ -4,5 +4,6 @@
    <service>
       <provide interface="org.opentosca.deployment.verification.VerificationExecutor"/>
    </service>
-   <reference bind="bindJob" cardinality="0..n" interface="org.opentosca.deployment.verification.VerificationJob" name="VerificationJob" policy="dynamic" unbind="unbindJob"/>
+   <reference bind="bindNodeTemplateJob" cardinality="0..n" interface="org.opentosca.deployment.verification.job.NodeTemplateJob" name="NodeTemplateJob" policy="dynamic" unbind="unbindNodeTemplateJob"/>
+   <reference bind="bindServiceTemplateJob" cardinality="0..n" interface="org.opentosca.deployment.verification.job.ServiceTemplateJob" name="ServiceTemplateJob" policy="dynamic" unbind="unbindServiceTemplateJob"/>
 </scr:component>

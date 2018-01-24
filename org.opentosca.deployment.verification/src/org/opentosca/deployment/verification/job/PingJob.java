@@ -7,7 +7,6 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.VerificationResult;
 import org.opentosca.container.core.next.xml.DomUtil;
 import org.opentosca.deployment.verification.VerificationContext;
-import org.opentosca.deployment.verification.VerificationJob;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,7 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Strings;
 
-public class PingJob implements VerificationJob {
+public class PingJob implements NodeTemplateJob {
 
   private static Logger logger = LoggerFactory.getLogger(PingJob.class);
 
@@ -29,7 +28,7 @@ public class PingJob implements VerificationJob {
     result.setNodeTemplateInstance(nodeTemplateInstance);
     result.start();
 
-    final Map<String, String> properties = nodeTemplateInstance.getPlanProperties();
+    final Map<String, String> properties = nodeTemplateInstance.getPropertiesAsMap();
     final String hostname = Jobs.resolveHostname(properties);
     if (Strings.isNullOrEmpty(hostname)) {
       result.append("Could not determine appropriate hostname.");
@@ -57,6 +56,7 @@ public class PingJob implements VerificationJob {
 
   @Override
   public boolean canExecute(final AbstractNodeTemplate nodeTemplate) {
+
     final Element el = nodeTemplate.getProperties().getDOMElement();
     final NodeList nodes = el.getChildNodes();
 

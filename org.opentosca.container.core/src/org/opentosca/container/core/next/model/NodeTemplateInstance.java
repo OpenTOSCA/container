@@ -19,7 +19,7 @@ import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
-import org.opentosca.container.core.next.xml.PlanPropertyParser;
+import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -97,13 +97,13 @@ public class NodeTemplateInstance extends PersistenceObject {
    * Currently, the plan writes all properties as one XML document into the database. Therefore, we
    * parse this XML and return a Map<String, String>.
    */
-  public Map<String, String> getPlanProperties() {
+  public Map<String, String> getPropertiesAsMap() {
     Map<String, String> properties = Maps.newHashMap();
     final NodeTemplateInstanceProperty prop =
         this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
             .collect(Collectors.reducing((a, b) -> null)).orElse(null);
     if (prop != null) {
-      final PlanPropertyParser parser = new PlanPropertyParser();
+      final PropertyParser parser = new PropertyParser();
       properties = parser.parse(prop.getValue());
     }
     return properties;

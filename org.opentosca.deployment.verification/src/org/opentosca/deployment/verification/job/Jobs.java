@@ -26,6 +26,9 @@ public abstract class Jobs {
       hostname = properties.get("host");
     }
     if (Strings.isNullOrEmpty(hostname)) {
+      hostname = properties.get("vmip");
+    }
+    if (Strings.isNullOrEmpty(hostname)) {
       hostname = properties.get("ipaddress");
     }
     if (Strings.isNullOrEmpty(hostname)) {
@@ -39,6 +42,12 @@ public abstract class Jobs {
 
   public static Integer resolvePort(final Map<String, String> properties) {
     String port = properties.get("port");
+    if (Strings.isNullOrEmpty(port)) {
+      port = properties.get("sshport");
+    }
+    if (Strings.isNullOrEmpty(port)) {
+      port = properties.get("dbmsport");
+    }
     return Ints.tryParse(port);
   }
 
@@ -69,7 +78,11 @@ public abstract class Jobs {
   }
 
   public static Map<String, String> mergePlanProperties(final Set<NodeTemplateInstance> nodes) {
-    return nodes.stream().map(n -> n.getPlanProperties()).collect(HashMap::new, Map::putAll,
+    return nodes.stream().map(n -> n.getPropertiesAsMap()).collect(HashMap::new, Map::putAll,
         Map::putAll);
+  }
+
+  public static String resolveUrl(final Map<String, String> properties) {
+    return properties.get("selfserviceapplicationurl");
   }
 }

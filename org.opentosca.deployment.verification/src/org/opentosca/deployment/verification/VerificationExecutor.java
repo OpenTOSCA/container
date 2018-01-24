@@ -10,8 +10,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.VerificationResult;
+import org.opentosca.deployment.verification.job.NodeTemplateJob;
+import org.opentosca.deployment.verification.job.ServiceTemplateJob;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +28,8 @@ public class VerificationExecutor {
 
   private static Logger logger = LoggerFactory.getLogger(VerificationExecutor.class);
 
-  private final Set<VerificationJob> jobs = Sets.newHashSet();
+  private final Set<NodeTemplateJob> nodeTemplateJobs = Sets.newHashSet();
+  private final Set<ServiceTemplateJob> serviceTemplateJobs = Sets.newHashSet();
 
   private final ExecutorService executor;
 
@@ -50,13 +55,24 @@ public class VerificationExecutor {
     final List<CompletableFuture<VerificationResult>> futures = Lists.newArrayList();
     // ... and submit jobs based on node templates
     for (NodeTemplateInstance nodeTemplateInstance : context.getNodeTemplateInstances()) {
-      for (VerificationJob job : jobs) {
+      for (NodeTemplateJob job : nodeTemplateJobs) {
         final AbstractNodeTemplate nodeTemplate = context.getNodeTemplate(nodeTemplateInstance);
         if (job.canExecute(nodeTemplate)) {
           logger.info("Schedule job \"{}\" for node template instance \"{}\" ({})...",
               job.getClass().getSimpleName(), nodeTemplateInstance.getId(), nodeTemplate.getId());
           futures.add(this.submit(job, context, nodeTemplate, nodeTemplateInstance));
         }
+      }
+    }
+    // ... and based on service templates
+    for (ServiceTemplateJob job : serviceTemplateJobs) {
+      final AbstractServiceTemplate serviceTemplate = context.getServiceTemplate();
+      final ServiceTemplateInstance serviceTemplateInstance = context.getServiceTemplateInstance();
+      if (job.canExecute(serviceTemplate)) {
+        logger.info("Schedule job \"{}\" for service template instance \"{}\" ({})...",
+            job.getClass().getSimpleName(), serviceTemplateInstance.getId(),
+            serviceTemplate.getId());
+        futures.add(this.submit(job, context, serviceTemplate, serviceTemplateInstance));
       }
     }
 
@@ -84,7 +100,7 @@ public class VerificationExecutor {
     }
   }
 
-  private CompletableFuture<VerificationResult> submit(final VerificationJob job,
+  private CompletableFuture<VerificationResult> submit(final NodeTemplateJob job,
       final VerificationContext context, final AbstractNodeTemplate nodeTemplate,
       final NodeTemplateInstance nodeTemplateInstance) {
     final long start = System.currentTimeMillis();
@@ -96,15 +112,32 @@ public class VerificationExecutor {
     }, this.executor);
   }
 
-  public Set<VerificationJob> getJobs() {
-    return jobs;
+  private CompletableFuture<VerificationResult> submit(final ServiceTemplateJob job,
+      final VerificationContext context, final AbstractServiceTemplate serviceTemplate,
+      final ServiceTemplateInstance serviceTemplateInstance) {
+    final long start = System.currentTimeMillis();
+    return CompletableFuture.supplyAsync(() -> {
+      final long d = System.currentTimeMillis() - start;
+      logger.info("Job \"{}\" for service template instance \"{}\" ({}) spent {}ms in queue",
+          job.getClass().getSimpleName(), serviceTemplateInstance.getId(), serviceTemplate.getId(),
+          d);
+      return job.execute(context, serviceTemplate, serviceTemplateInstance);
+    }, this.executor);
   }
 
-  public void bindJob(final VerificationJob job) {
-    jobs.add(job);
+  public void bindNodeTemplateJob(final NodeTemplateJob job) {
+    nodeTemplateJobs.add(job);
   }
 
-  public void unbindJob(final VerificationJob job) {
-    jobs.remove(job);
+  public void unbindNodeTemplateJob(final NodeTemplateJob job) {
+    nodeTemplateJobs.remove(job);
+  }
+
+  public void bindServiceTemplateJob(final ServiceTemplateJob job) {
+    serviceTemplateJobs.add(job);
+  }
+
+  public void unbindServiceTemplateJob(final ServiceTemplateJob job) {
+    serviceTemplateJobs.remove(job);
   }
 }
