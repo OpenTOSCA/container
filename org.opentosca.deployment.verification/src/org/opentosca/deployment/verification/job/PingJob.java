@@ -30,22 +30,9 @@ public class PingJob implements VerificationJob {
     result.start();
 
     final Map<String, String> properties = nodeTemplateInstance.getPlanProperties();
-
-    String hostname = properties.get("hostname");
+    final String hostname = Jobs.resolveHostname(properties);
     if (Strings.isNullOrEmpty(hostname)) {
-      hostname = properties.get("host");
-    }
-    if (Strings.isNullOrEmpty(hostname)) {
-      hostname = properties.get("ipaddress");
-    }
-    if (Strings.isNullOrEmpty(hostname)) {
-      hostname = properties.get("ip_address");
-    }
-    if (Strings.isNullOrEmpty(hostname)) {
-      hostname = properties.get("containerip");
-    }
-    if (Strings.isNullOrEmpty(hostname)) {
-      result.append("Could not determine appropriate hostname to verify.");
+      result.append("Could not determine appropriate hostname.");
       result.failed();
       return result;
     }

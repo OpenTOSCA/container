@@ -45,11 +45,11 @@ public class NodeTemplateInstance extends PersistenceObject {
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   private ServiceTemplateInstance serviceTemplateInstance;
 
-  @OneToMany(mappedBy = "source")
-  private Collection<RelationshipTemplateInstance> sourceRelations = Lists.newArrayList();
-
   @OneToMany(mappedBy = "target")
-  private Collection<RelationshipTemplateInstance> targetRelations = Lists.newArrayList();
+  private Collection<RelationshipTemplateInstance> incomingRelations = Lists.newArrayList();
+
+  @OneToMany(mappedBy = "source")
+  private Collection<RelationshipTemplateInstance> outgoingRelations = Lists.newArrayList();
 
   @Convert("QNameConverter")
   @Column(name = "TEMPLATE_ID", nullable = false)
@@ -120,33 +120,35 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
   }
 
-  public Collection<RelationshipTemplateInstance> getSourceRelations() {
-    return this.sourceRelations;
+  public Collection<RelationshipTemplateInstance> getIncomingRelations() {
+    return this.incomingRelations;
   }
 
-  public void setSourceRelations(final Collection<RelationshipTemplateInstance> sourceRelations) {
-    this.sourceRelations = sourceRelations;
+  public void setIncomingRelations(
+      final Collection<RelationshipTemplateInstance> incomingRelations) {
+    this.incomingRelations = incomingRelations;
   }
 
-  public void addSourceRelation(final RelationshipTemplateInstance sourceRelation) {
-    this.sourceRelations.add(sourceRelation);
-    if (sourceRelation.getSource() != this) {
-      sourceRelation.setSource(this);
+  public void addIncomingRelation(final RelationshipTemplateInstance incomingRelation) {
+    this.incomingRelations.add(incomingRelation);
+    if (incomingRelation.getTarget() != this) {
+      incomingRelation.setTarget(this);
     }
   }
 
-  public Collection<RelationshipTemplateInstance> getTargetRelations() {
-    return this.targetRelations;
+  public Collection<RelationshipTemplateInstance> getOutgoingRelations() {
+    return this.outgoingRelations;
   }
 
-  public void setTargetRelations(final Collection<RelationshipTemplateInstance> targetRelations) {
-    this.targetRelations = targetRelations;
+  public void setOutgoingRelations(
+      final Collection<RelationshipTemplateInstance> outgoingRelations) {
+    this.outgoingRelations = outgoingRelations;
   }
 
-  public void addTargetRelation(final RelationshipTemplateInstance targetRelation) {
-    this.targetRelations.add(targetRelation);
-    if (targetRelation.getTarget() != this) {
-      targetRelation.setTarget(this);
+  public void addOutgoingRelation(final RelationshipTemplateInstance outgoingRelation) {
+    this.outgoingRelations.add(outgoingRelation);
+    if (outgoingRelation.getSource() != this) {
+      outgoingRelation.setSource(this);
     }
   }
 
