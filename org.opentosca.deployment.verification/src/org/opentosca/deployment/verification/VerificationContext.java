@@ -17,17 +17,7 @@ public class VerificationContext {
 
   private AbstractServiceTemplate serviceTemplate;
   private ServiceTemplateInstance serviceTemplateInstance;
-
-  private Verification verification = new Verification();
-
-
-  public VerificationContext() {}
-
-  public VerificationContext(final AbstractServiceTemplate serviceTemplate,
-      final ServiceTemplateInstance serviceTemplateInstance) {
-    this.serviceTemplate = serviceTemplate;
-    this.serviceTemplateInstance = serviceTemplateInstance;
-  }
+  private Verification verification;
 
 
   public AbstractServiceTemplate getServiceTemplate() {
@@ -46,8 +36,15 @@ public class VerificationContext {
     }
   }
 
-  public void setServiceTemplateInstance(ServiceTemplateInstance serviceTemplateInstance) {
+  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
     this.serviceTemplateInstance = serviceTemplateInstance;
+  }
+
+  public void setVerification(final Verification verification) {
+    this.verification = verification;
+    if (this.serviceTemplateInstance != null) {
+      this.verification.setServiceTemplateInstance(this.serviceTemplateInstance);
+    }
   }
 
   public Verification getVerification() {
@@ -55,37 +52,39 @@ public class VerificationContext {
   }
 
   public void setVerificationResults(final List<VerificationResult> verificationResults) {
+    if (verification == null) {
+      throw new IllegalStateException();
+    }
     verificationResults.stream().forEach(this.verification::addVerificationResult);
-    this.verification.setServiceTemplateInstance(this.serviceTemplateInstance);
+    if (this.serviceTemplateInstance != null) {
+      this.verification.setServiceTemplateInstance(this.serviceTemplateInstance);
+    }
   }
 
   public Collection<AbstractNodeTemplate> getNodeTemplates() {
-    if (this.serviceTemplate != null) {
-      return this.serviceTemplate.getTopologyTemplate().getNodeTemplates();
-    } else {
+    if (this.serviceTemplate == null) {
       throw new IllegalStateException();
     }
+    return this.serviceTemplate.getTopologyTemplate().getNodeTemplates();
   }
 
   public Collection<NodeTemplateInstance> getNodeTemplateInstances() {
-    if (this.serviceTemplateInstance != null) {
-      return this.serviceTemplateInstance.getNodeTemplateInstances();
-    } else {
+    if (this.serviceTemplateInstance == null) {
       throw new IllegalStateException();
     }
+    return this.serviceTemplateInstance.getNodeTemplateInstances();
   }
 
   public Collection<PlanInstanceOutput> getBuildPlanOutput() {
-    if (this.serviceTemplateInstance != null) {
-      final PlanInstance plan = this.serviceTemplateInstance.getPlanInstances().stream()
-          .filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
-      if (plan == null) {
-        throw new IllegalStateException();
-      }
-      return plan.getOutputs();
-    } else {
+    if (this.serviceTemplateInstance == null) {
       throw new IllegalStateException();
     }
+    final PlanInstance plan = this.serviceTemplateInstance.getPlanInstances().stream()
+        .filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
+    if (plan == null) {
+      throw new IllegalStateException();
+    }
+    return plan.getOutputs();
   }
 
   public AbstractNodeTemplate getNodeTemplate(final NodeTemplateInstance nodeTemplateInstance) {

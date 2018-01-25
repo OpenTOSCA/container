@@ -200,6 +200,7 @@
       <plugin id="org.opentosca.container.engine.plan.plugin.bpelwso2" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.deployment.verification" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="0" />

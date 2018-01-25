@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -30,6 +32,10 @@ public class Verification extends PersistenceObject {
   @Column(nullable = false)
   @Temporal(TemporalType.TIMESTAMP)
   private Date timestamp;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private VerificationState state = VerificationState.UNKNOWN;
 
   @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "verification", cascade = {CascadeType.ALL})
@@ -58,6 +64,14 @@ public class Verification extends PersistenceObject {
 
   public void setTimestamp(final Date timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public VerificationState getState() {
+    return state;
+  }
+
+  public void setState(final VerificationState state) {
+    this.state = state;
   }
 
   public List<VerificationResult> getVerificationResults() {

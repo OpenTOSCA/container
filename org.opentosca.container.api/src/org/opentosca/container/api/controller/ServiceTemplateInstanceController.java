@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,6 +34,7 @@ import org.opentosca.container.core.next.model.Verification;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.VerificationRepository;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.opentosca.deployment.verification.VerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,8 @@ public class ServiceTemplateInstanceController {
   private InstanceService instanceService;
 
   private PlanService planService;
+
+  private VerificationService verificationService;
 
 
   @GET
@@ -240,6 +244,37 @@ public class ServiceTemplateInstanceController {
     return Response.ok(response).build();
   }
 
+
+  @POST
+  @Path("/{id}/verifications")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response createVerification(@PathParam("csar") final String csar,
+      @PathParam("servicetemplate") final String servicetemplate,
+      @PathParam("id") final Integer id) {
+
+    final CSARContent csarContent = this.csarService.findById(csar);
+    if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+      logger.info("Service template \"" + servicetemplate + "\" could not be found");
+      throw new NotFoundException(
+          "Service template \"" + servicetemplate + "\" could not be found");
+    }
+
+    // TODO: Check if instance belongs to CSAR and Service Template
+    final ServiceTemplateInstance sti =
+        new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+    if (sti == null) {
+      logger.info("Service template instance \"" + id + "\" of template \"" + servicetemplate
+          + "\" could not be found");
+      throw new NotFoundException("Service template instance \"" + id + "\" of template \""
+          + servicetemplate + "\" could not be found");
+    }
+
+    final Verification result = verificationService.run(csarContent.getCSARID(), sti);
+    final URI location =
+        uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
+    return Response.created(UriUtils.encode(location)).build();
+  }
+
   public void setCsarService(final CsarService csarService) {
     this.csarService = csarService;
   }
@@ -250,5 +285,9 @@ public class ServiceTemplateInstanceController {
 
   public void setPlanService(final PlanService planService) {
     this.planService = planService;
+  }
+
+  public void setVerificationService(final VerificationService verificationService) {
+    this.verificationService = verificationService;
   }
 }

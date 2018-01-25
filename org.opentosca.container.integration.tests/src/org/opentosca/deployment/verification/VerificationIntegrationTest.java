@@ -31,7 +31,7 @@ public class VerificationIntegrationTest {
   private static final String CSAR_NAME = "MyTinyToDo_Bare_Docker.csar";
 
   private final CSARID csar = new CSARID(CSAR_NAME);
-  private final VerificationRepository verificationRepository = new VerificationRepository();
+  private final VerificationRepository repository = new VerificationRepository();
 
   private VerificationExecutor executor;
 
@@ -62,18 +62,20 @@ public class VerificationIntegrationTest {
             .collect(Collectors.toList())) {
 
           // Prepare the verification
+          final Verification result = new Verification();
+          result.setServiceTemplateInstance(instance);
+          repository.add(result);
+
+          // Prepare the context
           final VerificationContext context = new VerificationContext();
           context.setServiceTemplate(template);
           context.setServiceTemplateInstance(instance);
+          context.setVerification(result);
 
           // Execute the verification
-          executor.verify(context);
-
-          // TODO: Evaluate the result
-          final Verification result = context.getVerification();
-
-          // Put it to the database
-          verificationRepository.add(result);
+          executor.verify(context).join();
+          executor.shutdown();
+          repository.update(result);
         }
       }
     }

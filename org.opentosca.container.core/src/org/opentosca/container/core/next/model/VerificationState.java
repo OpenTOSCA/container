@@ -1,5 +1,5 @@
 package org.opentosca.container.core.next.model;
 
 public enum VerificationState {
-  FAILED, SUCCESS, UNKNOWN
+  STARTED, FINISHED, FAILED, SUCCESS, UNKNOWN
 }
