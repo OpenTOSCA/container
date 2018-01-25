@@ -910,6 +910,13 @@
          unpack="false"/>
 
    <plugin
+         id="org.opentosca.planbuilder.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="org.opentosca.planbuilder.csarhandler"
          download-size="0"
          install-size="0"
@@ -979,6 +986,7 @@
          version="0.0.0"
          unpack="false"/>
 
+
    <plugin
          id="org.opentosca.planbuilder.service"
          download-size="0"
@@ -1006,6 +1014,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
 
    <plugin
          id="org.opentosca.planbuilder.type.plugin.ubuntuvm"
@@ -1360,6 +1369,13 @@
 
    <plugin
          id="org.opentosca.planbuilder.selection.plugin.mosquitto.workload"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.core.bpel"
          download-size="0"
          install-size="0"
          version="0.0.0"

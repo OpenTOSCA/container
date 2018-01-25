@@ -21,4 +21,6 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.planbuilder;bundle-version="1.0.0",
  org.opentosca.planbuilder.integration;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.csarhandler
+ org.opentosca.planbuilder.csarhandler,
+ org.opentosca.planbuilder.core;bundle-version="2.0.0",
+ org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0"

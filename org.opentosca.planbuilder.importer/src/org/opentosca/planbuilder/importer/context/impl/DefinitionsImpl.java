@@ -19,6 +19,7 @@ import org.oasis_open.docs.tosca.ns._2011._12.TExtensibleElements;
 import org.oasis_open.docs.tosca.ns._2011._12.TImport;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeType;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeTypeImplementation;
+import org.oasis_open.docs.tosca.ns._2011._12.TPolicyType;
 import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipType;
 import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipTypeImplementation;
 import org.oasis_open.docs.tosca.ns._2011._12.TServiceTemplate;
@@ -30,6 +31,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
+import org.opentosca.planbuilder.model.tosca.AbstractPolicyType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
@@ -47,9 +49,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DefinitionsImpl extends AbstractDefinitions {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(DefinitionsImpl.class);
-	
+
 	private final Definitions definitions;
 	private List<DefinitionsImpl> referencedDefinitions = null;
 	private Set<DefinitionsImpl> allFoundDefinitions = null;
@@ -61,24 +63,27 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	private List<AbstractRelationshipTypeImplementation> relationshipTypeImpls = null;
 	private List<AbstractArtifactTemplate> artifactTemplates = null;
 	private List<AbstractArtifactType> artifactTypes = null;
-	
-	
+	private List<AbstractPolicyType> policyTypes = null;
+
 	/**
-	 * Constructor with a Definitions file as File Object and all referenced
-	 * File Artifacts as a File List
+	 * Constructor with a Definitions file as File Object and all referenced File
+	 * Artifacts as a File List
 	 *
-	 * @param mainDefFile the File of the TOSCA Definitions to load as
-	 *            DefinitionsImpl
-	 * @param filesInCsar a list of Files referenced by the given Definitions
-	 * @param isEntryDefinitions gives information whether the given definitions
-	 *            document is an entry definition
+	 * @param mainDefFile
+	 *            the File of the TOSCA Definitions to load as DefinitionsImpl
+	 * @param filesInCsar
+	 *            a list of Files referenced by the given Definitions
+	 * @param isEntryDefinitions
+	 *            gives information whether the given definitions document is an
+	 *            entry definition
 	 */
-	public DefinitionsImpl(final AbstractFile mainDefFile, final Set<AbstractFile> filesInCsar, final boolean isEntryDefinitions) {
+	public DefinitionsImpl(final AbstractFile mainDefFile, final Set<AbstractFile> filesInCsar,
+			final boolean isEntryDefinitions) {
 		DefinitionsImpl.LOG.debug("Initializing DefinitionsImpl");
 		this.definitions = this.parseDefinitionsFile(mainDefFile);
 		this.filesInCsar = filesInCsar;
 		this.referencedDefinitions = new ArrayList<>();
-		
+
 		// resolve imported definitions
 		// TODO XSD,WSDL they are just checked with the file ending
 		for (final AbstractFile def : this.resolveImportedDefinitions()) {
@@ -89,7 +94,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 			DefinitionsImpl.LOG.debug("Adding DefintionsImpl with file location {}", def.getPath());
 			this.referencedDefinitions.add(new DefinitionsImpl(def, this.filesInCsar, false));
 		}
-		
+
 		this.allFoundDefinitions = this.findAllDefinitions();
 		this.serviceTemplates = new ArrayList<>();
 		this.nodeTypes = new ArrayList<>();
@@ -98,17 +103,18 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		this.relationshipTypeImpls = new ArrayList<>();
 		this.artifactTemplates = new ArrayList<>();
 		this.artifactTypes = new ArrayList<>();
+		this.policyTypes = new ArrayList<>();
 		this.initTypesAndTemplates();
-		
+
 		if (isEntryDefinitions) {
 			this.updateDefinitionsReferences(this.allFoundDefinitions);
 		}
-		
+
 	}
-	
+
 	/**
-	 * Resolves TOSCA Definitions imports for this DefinitionsImpl by
-	 * initializing imported Definitions as another DefinitionsImpl each.
+	 * Resolves TOSCA Definitions imports for this DefinitionsImpl by initializing
+	 * imported Definitions as another DefinitionsImpl each.
 	 *
 	 * @return a List of Files of the resolved, referenced Definitions
 	 */
@@ -117,35 +123,38 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		DefinitionsImpl.LOG.debug("Checking import elements in JAXB Definitions object");
 		if (this.definitions.getImport() != null) {
 			for (final TImport imported : this.definitions.getImport()) {
-				DefinitionsImpl.LOG.debug("Check import element with namespace: {} location: {} importType: {}", imported.getNamespace(), imported.getLocation(), imported.getImportType());
+				DefinitionsImpl.LOG.debug("Check import element with namespace: {} location: {} importType: {}",
+						imported.getNamespace(), imported.getLocation(), imported.getImportType());
 				// check if importtype is tosca ns, the location is set (else
 				// there's nothing to parse) and just for looks the string
 				// shouldn't
 				// be empty
-				if (imported.getImportType().equals("http://docs.oasis-open.org/tosca/ns/2011/12") && (imported.getLocation() != null) && !imported.getLocation().equals("")) {
+				if (imported.getImportType().equals("http://docs.oasis-open.org/tosca/ns/2011/12")
+						&& (imported.getLocation() != null) && !imported.getLocation().equals("")) {
 					// found definitions import
 					// get it
 					// parse it
 					// add it
 					DefinitionsImpl.LOG.debug("Trying to add Definitions import");
 					importedDefinitions.add(this.getFileByLocation(imported.getLocation(), this.filesInCsar));
-					
+
 				}
-				
+
 			}
 		}
 		return importedDefinitions;
 	}
-	
+
 	/**
-	 * Searches through the given list of files, which contains the given
-	 * location.
+	 * Searches through the given list of files, which contains the given location.
 	 *
 	 *
-	 * @param location the location to look for as String
-	 * @param files a List of Files to look trough
-	 * @return if files.contains(file), where file.getPath().contains(location)
-	 *         is true, file is returned, else null
+	 * @param location
+	 *            the location to look for as String
+	 * @param files
+	 *            a List of Files to look trough
+	 * @return if files.contains(file), where file.getPath().contains(location) is
+	 *         true, file is returned, else null
 	 */
 	private AbstractFile getFileByLocation(final String location, final Set<AbstractFile> files) {
 		DefinitionsImpl.LOG.debug("Looking trough files to for given location: {}", location);
@@ -160,7 +169,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -168,51 +177,54 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractServiceTemplate> getServiceTemplates() {
 		return this.serviceTemplates;
 	}
-	
+
 	/**
 	 * Adds an AbstractServiceTemplate to this DefinitionsImpl
 	 *
-	 * @param serviceTemplate an AbstractServiceTemplate to add to
+	 * @param serviceTemplate
+	 *            an AbstractServiceTemplate to add to
 	 */
 	public void addServiceTemplate(final AbstractServiceTemplate serviceTemplate) {
 		this.serviceTemplates.add(serviceTemplate);
 	}
-	
+
 	/**
 	 * Adds a List of AbstractServiceTemplate to this DefinitionsImpl
 	 *
-	 * @param serviceTemplates a List of AbstractServiceTemplate to add to this
-	 *            DefinitionsImpl
+	 * @param serviceTemplates
+	 *            a List of AbstractServiceTemplate to add to this DefinitionsImpl
 	 */
 	public void addServiceTemplates(final List<AbstractServiceTemplate> serviceTemplates) {
 		this.serviceTemplates = serviceTemplates;
 	}
-	
+
 	/**
 	 * Adds an AbstractNodeType to this DefinitionsImpl
 	 *
-	 * @param nodeType a AbstractNodeType to add to this DefinitionsImpl
+	 * @param nodeType
+	 *            a AbstractNodeType to add to this DefinitionsImpl
 	 */
 	public void addNodeType(final AbstractNodeType nodeType) {
 		this.nodeTypes.add(nodeType);
 	}
-	
+
 	/**
 	 * Adds an AbstractRelationshipType to this DefinitionsImpl
 	 *
-	 * @param relationshipType a AbstractRelationshipType to add to this
-	 *            DefinitionsImpl
+	 * @param relationshipType
+	 *            a AbstractRelationshipType to add to this DefinitionsImpl
 	 */
 	public void addRelationshipType(final AbstractRelationshipType relationshipType) {
 		this.relationshipTypes.add(relationshipType);
 	}
-	
+
 	/**
-	 * Initializes the types and templates given by the internal JAXB model,
-	 * into the higher level model of DefinitionsImpl
+	 * Initializes the types and templates given by the internal JAXB model, into
+	 * the higher level model of DefinitionsImpl
 	 */
 	private void initTypesAndTemplates() {
-		for (final TExtensibleElements element : this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+		for (final TExtensibleElements element : this.definitions
+				.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
 			if (element instanceof TServiceTemplate) {
 				this.addServiceTemplate(new ServiceTemplateImpl((TServiceTemplate) element, this));
 			}
@@ -226,16 +238,20 @@ public class DefinitionsImpl extends AbstractDefinitions {
 				this.addNodeTypeImplementation(new NodeTypeImplementationImpl((TNodeTypeImplementation) element, this));
 			}
 			if (element instanceof TRelationshipTypeImplementation) {
-				this.addRelationshipTypeImplementation(new RelationshipTypeImplementationImpl((TRelationshipTypeImplementation) element, this));
+				this.addRelationshipTypeImplementation(
+						new RelationshipTypeImplementationImpl((TRelationshipTypeImplementation) element, this));
 			}
 			if (element instanceof TArtifactTemplate) {
 				this.addArtifactTemplate(new ArtifactTemplateImpl((TArtifactTemplate) element, this));
 			}
-			if(element instanceof TArtifactType) {
-				this.addArtifactType(new ArtifactTypeImpl(this, (TArtifactType)element));
+			if (element instanceof TArtifactType) {
+				this.addArtifactType(new ArtifactTypeImpl(this, (TArtifactType) element));
+			}
+			if (element instanceof TPolicyType) {
+				this.addPolicyType(new AbstractPolicyTypeImpl((TPolicyType) element, this));
 			}
 		}
-		
+
 		if (this.definitions.getTypes() != null) {
 			for (final Object obj : this.definitions.getTypes().getAny()) {
 				if (obj instanceof TNodeType) {
@@ -243,47 +259,60 @@ public class DefinitionsImpl extends AbstractDefinitions {
 				}
 			}
 		}
-		
+
 	}
-	
+
+	/**
+	 * Adds an AbstractPolicyType to this DefinitionsImpl
+	 * 
+	 * @param policyType
+	 *            an AbstractPolicyType to add to this DefinitionsImpl
+	 */
+	public void addPolicyType(final AbstractPolicyType policyType) {
+		this.policyTypes.add(policyType);
+	}
+
 	/**
 	 * Adds an AbstractArtifactTemplate to this DefinitionsImpl
 	 *
-	 * @param artifactTemplate an AbstractArtifactTemplate to add to this
-	 *            DefinitionsImpl
+	 * @param artifactTemplate
+	 *            an AbstractArtifactTemplate to add to this DefinitionsImpl
 	 */
 	public void addArtifactTemplate(final AbstractArtifactTemplate artifactTemplate) {
 		this.artifactTemplates.add(artifactTemplate);
 	}
-	
+
 	/**
 	 * Adds the given {@link AbstractArtifactType} to this {@link DefinitionsImpl}
-	 * @param artifactType an {@link AbstractArtifactType}
+	 * 
+	 * @param artifactType
+	 *            an {@link AbstractArtifactType}
 	 */
 	public void addArtifactType(final AbstractArtifactType artifactType) {
 		this.artifactTypes.add(artifactType);
 	}
-	
+
 	/**
 	 * Adds an NodeTypeImplementationImpl to this DefinitionsImpl
 	 *
-	 * @param nodeTypeImplementationImpl an NodeTypeImplementationImpl to add to
-	 *            this DefinitionsImpl
+	 * @param nodeTypeImplementationImpl
+	 *            an NodeTypeImplementationImpl to add to this DefinitionsImpl
 	 */
 	public void addNodeTypeImplementation(final NodeTypeImplementationImpl nodeTypeImplementationImpl) {
 		this.nodeTypeImpls.add(nodeTypeImplementationImpl);
 	}
-	
+
 	/**
 	 * Adds an RelationshipTypeImplementationImpl to this DefinitionsImpl
 	 *
-	 * @param relationshipTypeImpl an RelationshipTypeImplementationImpl to add
-	 *            to this DefinitionsImpl
+	 * @param relationshipTypeImpl
+	 *            an RelationshipTypeImplementationImpl to add to this
+	 *            DefinitionsImpl
 	 */
 	public void addRelationshipTypeImplementation(final RelationshipTypeImplementationImpl relationshipTypeImpl) {
 		this.relationshipTypeImpls.add(relationshipTypeImpl);
 	}
-	
+
 	/**
 	 * Returns the JAXB Definitions class
 	 *
@@ -292,7 +321,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	protected Definitions getDefinitions() {
 		return this.definitions;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -300,7 +329,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractNodeType> getNodeTypes() {
 		return this.nodeTypes;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -308,7 +337,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractRelationshipType> getRelationshipTypes() {
 		return this.relationshipTypes;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -316,7 +345,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public String getTargetNamespace() {
 		return this.definitions.getTargetNamespace();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -324,18 +353,20 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractDefinitions> getImportedDefinitions() {
 		return (List<AbstractDefinitions>) (List<?>) this.referencedDefinitions;
 	}
-	
+
 	/**
 	 * Parses the given file to a JAXB Definitions class
 	 *
-	 * @param file a File denoting to a TOSCA Definitions file
-	 * @return a JAXB Definitions class object if parsing was without errors,
-	 *         else null
+	 * @param file
+	 *            a File denoting to a TOSCA Definitions file
+	 * @return a JAXB Definitions class object if parsing was without errors, else
+	 *         null
 	 */
 	private Definitions parseDefinitionsFile(final AbstractFile file) {
 		Definitions def = null;
 		try {
-			final JAXBContext jaxbContext = JAXBContext.newInstance("org.oasis_open.docs.tosca.ns._2011._12", ObjectFactory.class.getClassLoader());
+			final JAXBContext jaxbContext = JAXBContext.newInstance("org.oasis_open.docs.tosca.ns._2011._12",
+					ObjectFactory.class.getClassLoader());
 			final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			DefinitionsImpl.LOG.debug("Trying to parse file {} into JAXB object", file.getPath());
 			def = (Definitions) unmarshaller.unmarshal(new InputStreamReader(file.getFileAsInputStream()));
@@ -349,7 +380,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		}
 		return def;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -357,7 +388,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public String getId() {
 		return this.definitions.getId();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -365,7 +396,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public String getName() {
 		return this.definitions.getName();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -373,7 +404,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractNodeTypeImplementation> getNodeTypeImplementations() {
 		return this.nodeTypeImpls;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -381,7 +412,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractRelationshipTypeImplementation> getRelationshipTypeImplementations() {
 		return this.relationshipTypeImpls;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -389,7 +420,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	public List<AbstractArtifactTemplate> getArtifactTemplates() {
 		return this.artifactTemplates;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -408,39 +439,40 @@ public class DefinitionsImpl extends AbstractDefinitions {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Tries to find all definitions recursively trough imported definitions by
-	 * this definitions document
+	 * Tries to find all definitions recursively trough imported definitions by this
+	 * definitions document
 	 *
 	 * @return a Set of DefinitionsImpl
 	 */
 	private Set<DefinitionsImpl> findAllDefinitions() {
 		final Set<DefinitionsImpl> foundDefs = new HashSet<>();
-		
+
 		for (final DefinitionsImpl def : this.referencedDefinitions) {
 			foundDefs.add(def);
 			foundDefs.addAll(def.findAllDefinitions());
 		}
-		
+
 		foundDefs.add(this);
 		return foundDefs;
 	}
-	
+
 	/**
-	 * Updates all allFoundDefinitions set recursively trough out the topology
-	 * of the imports
+	 * Updates all allFoundDefinitions set recursively trough out the topology of
+	 * the imports
 	 *
-	 * @param updateSet a Set of DefinitionsImpl
+	 * @param updateSet
+	 *            a Set of DefinitionsImpl
 	 */
 	private void updateDefinitionsReferences(final Set<DefinitionsImpl> defs) {
-		
+
 		for (final DefinitionsImpl def : this.referencedDefinitions) {
 			def.updateDefinitionsReferences(defs);
 		}
 		this.allFoundDefinitions = defs;
 	}
-	
+
 	/**
 	 * Returns a List of all nodeTypes in the current csar context of this
 	 * definitions document
@@ -449,13 +481,28 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	 */
 	protected List<AbstractNodeType> getAllNodeTypes() {
 		final List<AbstractNodeType> nodeTypes = new ArrayList<>();
-		
+
 		for (final DefinitionsImpl def : this.allFoundDefinitions) {
 			nodeTypes.addAll(def.getNodeTypes());
 		}
 		return nodeTypes;
 	}
-	
+
+	/**
+	 * Returns a List of all policyTypes in the current csar context of this
+	 * definitions document
+	 * 
+	 * @return a List of PolicyTypes
+	 */
+	protected List<AbstractPolicyType> getAllPolicyTypes() {
+		final List<AbstractPolicyType> policyTypes = new ArrayList<>();
+
+		for (final DefinitionsImpl def : this.allFoundDefinitions) {
+			policyTypes.addAll(def.getPolicyTypes());
+		}
+		return policyTypes;
+	}
+
 	/**
 	 * Returns a List of all nodeTypes in the current csar context of this
 	 * definitions document
@@ -464,27 +511,32 @@ public class DefinitionsImpl extends AbstractDefinitions {
 	 */
 	protected List<AbstractRelationshipType> getAllRelationshipTypes() {
 		final List<AbstractRelationshipType> relationshipTypes = new ArrayList<>();
-		
+
 		for (final DefinitionsImpl def : this.allFoundDefinitions) {
 			relationshipTypes.addAll(def.getRelationshipTypes());
 		}
-		
+
 		return relationshipTypes;
-	}	
-	
-	protected List<AbstractArtifactType> getAllArtifactTypes(){
+	}
+
+	protected List<AbstractArtifactType> getAllArtifactTypes() {
 		final List<AbstractArtifactType> artifactTypes = new ArrayList<>();
-		
+
 		for (final DefinitionsImpl def : this.allFoundDefinitions) {
 			artifactTypes.addAll(def.getArtifactTypes());
 		}
-		
+
 		return artifactTypes;
 	}
 
 	@Override
-	public List<AbstractArtifactType> getArtifactTypes() {		
+	public List<AbstractArtifactType> getArtifactTypes() {
 		return this.artifactTypes;
 	}
-	
+
+	@Override
+	public List<AbstractPolicyType> getPolicyTypes() {
+		return this.policyTypes;
+	}
+
 }

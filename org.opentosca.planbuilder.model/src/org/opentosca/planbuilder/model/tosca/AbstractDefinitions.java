@@ -168,4 +168,13 @@ public abstract class AbstractDefinitions {
 	 * @return a {@link List} of {@link AbstractArtifactType}
 	 */
 	public abstract List<AbstractArtifactType> getArtifactTypes();
+
+	/**
+	 * Returns all {@link AbstractPolicyType} objects of this
+	 * {@link AbstractDefinitions} object.
+	 * 
+	 * @return
+	 */
+	public abstract List<AbstractPolicyType> getPolicyTypes();
+
 }
