@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata.core;
 
+import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -16,7 +17,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T> {
+public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T>, IPlanBuilderPolicyAwarePrePhasePlugin<T> {
 
 	private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
 

@@ -13,7 +13,7 @@ public class Activator implements BundleActivator {
 	private static BundleContext context;
 	private ServiceRegistration registration;
 	private ServiceRegistration registration2;
-	private Plugin plugin = null;
+	private BPELInstanceDataPlugin plugin = null;
 
 	static BundleContext getContext() {
 		return Activator.context;
@@ -28,7 +28,7 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		this.plugin = new Plugin();
+		this.plugin = new BPELInstanceDataPlugin();
 		this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(), this.plugin,
 				null);
 		this.registration2 = Activator.context.registerService(IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(),
