@@ -2,13 +2,17 @@ package org.opentosca.deployment.verification;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.InternalServerErrorException;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Verification;
 import org.opentosca.container.core.next.model.VerificationState;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.VerificationRepository;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -27,6 +31,54 @@ public class VerificationService {
 
   private VerificationExecutor executor;
 
+  /**
+   * Runs a deployment verification if a plan with the given correlation ID is in state FINISHED.
+   * 
+   * @param csarId The corresponding CSAR
+   * @param correlationId The correlation ID of a plan
+   */
+  public void runAfterPlan(final CSARID csarId, final String correlationId) {
+
+    logger.info("Trigger verification after plan has been finished; correlation_id={}, csar={}",
+        correlationId, csarId);
+
+    pool.submit(() -> {
+      long sleep = 1000;
+      long timeout = TimeUnit.MINUTES.toMillis(5);
+      long waited = 0;
+      while (true) {
+        PlanInstance pi = null;
+        boolean finished = false;
+        try {
+          pi = new PlanInstanceRepository().findByCorrelationId(correlationId);
+          finished = pi.getState().equals(PlanInstanceState.FINISHED);
+        } catch (Exception e) {
+          finished = false;
+        }
+        if (finished) {
+          run(csarId, pi.getServiceTemplateInstance());
+          break;
+        }
+        if (waited >= timeout) {
+          logger.warn("Timeout reached, verification has not been executed");
+          break;
+        }
+        try {
+          Thread.sleep(sleep);
+        } catch (InterruptedException e) {
+        }
+        waited += sleep;
+      }
+    });
+  }
+
+  /**
+   * Runs a deployment verification for a certain service template instance.
+   * 
+   * @param csarId The corresponding CSAR
+   * @param serviceTemplateInstance The service template instance
+   * @return The created Verification object
+   */
   public Verification run(final CSARID csarId,
       final ServiceTemplateInstance serviceTemplateInstance) {
 

@@ -20,3 +20,4 @@ Require-Bundle: org.opentosca.planbuilder;bundle-version="2.0.0",
 Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.deployment.verification,
  org.opentosca.deployment.verification.job
+Bundle-Activator: org.opentosca.deployment.verification.Activator

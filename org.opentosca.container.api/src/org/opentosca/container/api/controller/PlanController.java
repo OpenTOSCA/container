@@ -213,8 +213,8 @@ public class PlanController {
     }
 
     final TPlan p = this.planService.getPlan(plan, this.csarId);
-    final String correlationId =
-        this.planService.invokePlan(this.csarId, this.serviceTemplate, p, parameters);
+    final String correlationId = this.planService.invokePlan(this.csarId, this.serviceTemplate, p,
+        parameters, planTypes.contains(PlanTypes.BUILD));
     final URI location =
         UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
     return Response.created(location).build();

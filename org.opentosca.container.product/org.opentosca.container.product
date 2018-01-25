@@ -239,6 +239,7 @@
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.username" value="admin" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
+      <property name="org.opentosca.deployment.verification" value="false" />
    </configurations>
 
    <preferencesInfo>
