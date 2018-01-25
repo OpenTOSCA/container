@@ -21,6 +21,8 @@ import javax.xml.namespace.QName;
 import org.eclipse.persistence.annotations.Convert;
 import org.opentosca.container.core.next.xml.PropertyParser;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -39,6 +41,7 @@ public class NodeTemplateInstance extends PersistenceObject {
 
   @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+  @JsonIgnore
   private Set<NodeTemplateInstanceProperty> properties = Sets.newHashSet();
 
   @ManyToOne
@@ -61,6 +64,7 @@ public class NodeTemplateInstance extends PersistenceObject {
 
   @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+  @JsonIgnore
   private List<VerificationResult> verificationResults = Lists.newArrayList();
 
 
@@ -97,6 +101,7 @@ public class NodeTemplateInstance extends PersistenceObject {
    * Currently, the plan writes all properties as one XML document into the database. Therefore, we
    * parse this XML and return a Map<String, String>.
    */
+  @JsonProperty("properties")
   public Map<String, String> getPropertiesAsMap() {
     Map<String, String> properties = Maps.newHashMap();
     final NodeTemplateInstanceProperty prop =

@@ -36,15 +36,21 @@ public class Verification extends PersistenceObject {
   private List<VerificationResult> verificationResults = Lists.newArrayList();
 
   @ManyToOne
-  @JoinColumn(name = "PLAN_INSTANCE_ID")
+  @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   @JsonIgnore
-  private PlanInstance planInstance;
+  private ServiceTemplateInstance serviceTemplateInstance;
 
 
   public Verification() {
     this.timestamp = new Date();
   }
 
+
+  @Override
+  @JsonIgnore
+  public Long getId() {
+    return super.getId();
+  }
 
   public Date getTimestamp() {
     return timestamp;
@@ -69,23 +75,23 @@ public class Verification extends PersistenceObject {
     }
   }
 
-  public PlanInstance getPlanInstance() {
-    return this.planInstance;
+  public ServiceTemplateInstance getServiceTemplateInstance() {
+    return this.serviceTemplateInstance;
   }
 
-  public void setPlanInstance(final PlanInstance planInstance) {
-    this.planInstance = planInstance;
-    if (!planInstance.getVerifications().contains(this)) {
-      planInstance.getVerifications().add(this);
+  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+    this.serviceTemplateInstance = serviceTemplateInstance;
+    if (!serviceTemplateInstance.getVerifications().contains(this)) {
+      serviceTemplateInstance.getVerifications().add(this);
     }
   }
 
   public Map<String, Object> getStatistics() {
     final Map<String, Object> stats = Maps.newHashMap();
-    stats.put("jobs_total", this.verificationResults.size());
-    stats.put("jobs_success", this.countJobsByState(VerificationState.SUCCESS));
-    stats.put("jobs_failed", this.countJobsByState(VerificationState.FAILED));
-    stats.put("jobs_unknown", this.countJobsByState(VerificationState.UNKNOWN));
+    stats.put("total", this.verificationResults.size());
+    stats.put("success", this.countJobsByState(VerificationState.SUCCESS));
+    stats.put("failed", this.countJobsByState(VerificationState.FAILED));
+    stats.put("unknown", this.countJobsByState(VerificationState.UNKNOWN));
     return stats;
   }
 

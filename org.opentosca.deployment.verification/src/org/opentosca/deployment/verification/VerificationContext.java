@@ -6,6 +6,7 @@ import java.util.List;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceOutput;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Verification;
 import org.opentosca.container.core.next.model.VerificationResult;
@@ -15,8 +16,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 public class VerificationContext {
 
   private AbstractServiceTemplate serviceTemplate;
-
-  private PlanInstance planInstance;
+  private ServiceTemplateInstance serviceTemplateInstance;
 
   private Verification verification = new Verification();
 
@@ -24,9 +24,9 @@ public class VerificationContext {
   public VerificationContext() {}
 
   public VerificationContext(final AbstractServiceTemplate serviceTemplate,
-      final PlanInstance planInstance) {
+      final ServiceTemplateInstance serviceTemplateInstance) {
     this.serviceTemplate = serviceTemplate;
-    this.planInstance = planInstance;
+    this.serviceTemplateInstance = serviceTemplateInstance;
   }
 
 
@@ -38,16 +38,25 @@ public class VerificationContext {
     this.serviceTemplate = serviceTemplate;
   }
 
-  public PlanInstance getPlanInstance() {
-    return planInstance;
+  public ServiceTemplateInstance getServiceTemplateInstance() {
+    if (this.serviceTemplate != null) {
+      return this.serviceTemplateInstance;
+    } else {
+      throw new IllegalStateException();
+    }
   }
 
-  public void setPlanInstance(final PlanInstance planInstance) {
-    this.planInstance = planInstance;
+  public void setServiceTemplateInstance(ServiceTemplateInstance serviceTemplateInstance) {
+    this.serviceTemplateInstance = serviceTemplateInstance;
   }
 
   public Verification getVerification() {
     return verification;
+  }
+
+  public void setVerificationResults(final List<VerificationResult> verificationResults) {
+    verificationResults.stream().forEach(this.verification::addVerificationResult);
+    this.verification.setServiceTemplateInstance(this.serviceTemplateInstance);
   }
 
   public Collection<AbstractNodeTemplate> getNodeTemplates() {
@@ -58,25 +67,22 @@ public class VerificationContext {
     }
   }
 
-  public Collection<PlanInstanceOutput> getPlanOutput() {
-    if (this.planInstance != null) {
-      return this.planInstance.getOutputs();
-    } else {
-      throw new IllegalStateException();
-    }
-  }
-
-  public ServiceTemplateInstance getServiceTemplateInstance() {
-    if (this.planInstance != null) {
-      return this.planInstance.getServiceTemplateInstance();
-    } else {
-      throw new IllegalStateException();
-    }
-  }
-
   public Collection<NodeTemplateInstance> getNodeTemplateInstances() {
-    if (this.planInstance != null) {
-      return this.planInstance.getServiceTemplateInstance().getNodeTemplateInstances();
+    if (this.serviceTemplateInstance != null) {
+      return this.serviceTemplateInstance.getNodeTemplateInstances();
+    } else {
+      throw new IllegalStateException();
+    }
+  }
+
+  public Collection<PlanInstanceOutput> getBuildPlanOutput() {
+    if (this.serviceTemplateInstance != null) {
+      final PlanInstance plan = this.serviceTemplateInstance.getPlanInstances().stream()
+          .filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
+      if (plan == null) {
+        throw new IllegalStateException();
+      }
+      return plan.getOutputs();
     } else {
       throw new IllegalStateException();
     }
@@ -86,10 +92,5 @@ public class VerificationContext {
     return this.getNodeTemplates().stream()
         .filter(o -> o.getType().getId().equals(nodeTemplateInstance.getTemplateType())).findFirst()
         .orElseThrow(IllegalStateException::new);
-  }
-
-  public void setVerificationResults(final List<VerificationResult> verificationResults) {
-    verificationResults.stream().forEach(this.verification::addVerificationResult);
-    this.verification.setPlanInstance(this.planInstance);
   }
 }

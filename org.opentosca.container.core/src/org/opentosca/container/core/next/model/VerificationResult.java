@@ -15,6 +15,7 @@ import javax.persistence.TemporalType;
 import org.opentosca.container.core.next.utils.Consts;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = VerificationResult.TABLE_NAME)
@@ -48,8 +49,14 @@ public class VerificationResult extends PersistenceObject {
 
   @ManyToOne
   @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID")
-  @JsonIgnore
+  @JsonIgnoreProperties({"state", "service_template_instance", "incoming_relations",
+      "outgoing_relations"})
   private NodeTemplateInstance nodeTemplateInstance;
+
+  @ManyToOne
+  @JoinColumn(name = "SERVICEE_TEMPLATE_INSTANCE_ID")
+  @JsonIgnoreProperties({"state", "plan_instances", "node_template_instances",})
+  private ServiceTemplateInstance serviceTemplateInstance;
 
 
   public VerificationResult() {}
@@ -120,6 +127,17 @@ public class VerificationResult extends PersistenceObject {
     this.nodeTemplateInstance = nodeTemplateInstance;
     if (!nodeTemplateInstance.getVerificationResults().contains(this)) {
       nodeTemplateInstance.getVerificationResults().add(this);
+    }
+  }
+
+  public ServiceTemplateInstance getServiceTemplateInstance() {
+    return this.serviceTemplateInstance;
+  }
+
+  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+    this.serviceTemplateInstance = serviceTemplateInstance;
+    if (!serviceTemplateInstance.getVerificationResults().contains(this)) {
+      serviceTemplateInstance.getVerificationResults().add(this);
     }
   }
 

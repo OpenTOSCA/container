@@ -66,10 +66,6 @@ public class PlanInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_ID", nullable = false)
   private QName templateId;
 
-  @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-  private List<Verification> verifications = Lists.newArrayList();
-
 
   public PlanInstance() {
 
@@ -175,20 +171,5 @@ public class PlanInstance extends PersistenceObject {
 
   public void setTemplateId(final QName templateId) {
     this.templateId = templateId;
-  }
-
-  public List<Verification> getVerifications() {
-    return this.verifications;
-  }
-
-  public void setVerifications(final List<Verification> verifications) {
-    this.verifications = verifications;
-  }
-
-  public void addVerification(final Verification verification) {
-    this.verifications.add(verification);
-    if (verification.getPlanInstance() != this) {
-      verification.setPlanInstance(this);
-    }
   }
 }

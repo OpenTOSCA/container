@@ -49,7 +49,7 @@ public class VerificationExecutor {
 
     // Check context...
     Preconditions.checkNotNull(context.getServiceTemplate());
-    Preconditions.checkNotNull(context.getPlanInstance());
+    Preconditions.checkNotNull(context.getServiceTemplateInstance());
 
     // Prepare result...
     final List<CompletableFuture<VerificationResult>> futures = Lists.newArrayList();

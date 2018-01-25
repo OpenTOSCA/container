@@ -99,6 +99,7 @@
       <plugin id="org.apache.commons.codec" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.httpclient" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.io" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.commons.lang3" autoStart="true" startLevel="0" />
       <plugin id="org.apache.cxf.cxf-core" autoStart="true" startLevel="0" />
       <plugin id="org.apache.cxf.cxf-rt-bindings-soap" autoStart="true" startLevel="0" />
       <plugin id="org.apache.cxf.cxf-rt-bindings-xml" autoStart="true" startLevel="0" />

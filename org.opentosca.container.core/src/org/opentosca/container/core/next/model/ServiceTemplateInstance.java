@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +20,8 @@ import org.eclipse.persistence.annotations.Convert;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.xml.PropertyParser;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -51,7 +54,18 @@ public class ServiceTemplateInstance extends PersistenceObject {
 
   @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+  @JsonIgnore
   private Set<ServiceTemplateInstanceProperty> properties = Sets.newHashSet();
+
+  @OrderBy("createdAt DESC")
+  @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+  @JsonIgnore
+  private List<Verification> verifications = Lists.newArrayList();
+
+  @OrderBy("createdAt DESC")
+  @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+  @JsonIgnore
+  private List<VerificationResult> verificationResults = Lists.newArrayList();
 
 
   public ServiceTemplateInstance() {
@@ -135,6 +149,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
    * Currently, the plan writes all properties as one XML document into the database. Therefore, we
    * parse this XML and return a Map<String, String>.
    */
+  @JsonProperty("properties")
   public Map<String, String> getPropertiesAsMap() {
     Map<String, String> properties = Maps.newHashMap();
     final ServiceTemplateInstanceProperty prop =
@@ -145,5 +160,35 @@ public class ServiceTemplateInstance extends PersistenceObject {
       properties = parser.parse(prop.getValue());
     }
     return properties;
+  }
+
+  public List<Verification> getVerifications() {
+    return this.verifications;
+  }
+
+  public void setVerifications(final List<Verification> verifications) {
+    this.verifications = verifications;
+  }
+
+  public void addVerification(final Verification verification) {
+    this.verifications.add(verification);
+    if (verification.getServiceTemplateInstance() != this) {
+      verification.setServiceTemplateInstance(this);
+    }
+  }
+
+  public List<VerificationResult> getVerificationResults() {
+    return verificationResults;
+  }
+
+  public void setVerificationResults(final List<VerificationResult> verificationResults) {
+    this.verificationResults = verificationResults;
+  }
+
+  public void addVerificationResult(final VerificationResult verificationResult) {
+    this.verificationResults.add(verificationResult);
+    if (verificationResult.getServiceTemplateInstance() != this) {
+      verificationResult.setServiceTemplateInstance(this);
+    }
   }
 }
