@@ -11,6 +11,8 @@ import org.opentosca.container.core.next.model.VerificationResult;
 import org.opentosca.container.core.next.xml.DomUtil;
 import org.opentosca.deployment.verification.VerificationContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -18,6 +20,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 public class TcpPingJob implements NodeTemplateJob {
+
+  private static Logger logger = LoggerFactory.getLogger(TcpPingJob.class);
 
   @Override
   public VerificationResult execute(final VerificationContext context,
@@ -46,6 +50,7 @@ public class TcpPingJob implements NodeTemplateJob {
       result.failed();
       return result;
     }
+    logger.info("Determined hostname={} and port={}", hostname, port);
 
     try (Socket socket = new Socket()) {
       socket.connect(new InetSocketAddress(hostname, port), 1000);
@@ -57,6 +62,8 @@ public class TcpPingJob implements NodeTemplateJob {
           .append(String.format("Could not ping hostname \"%s\" on port \"%s\".", hostname, port));
       result.failed();
     }
+
+    logger.info("Job executed: {}", result);
     return result;
   }
 

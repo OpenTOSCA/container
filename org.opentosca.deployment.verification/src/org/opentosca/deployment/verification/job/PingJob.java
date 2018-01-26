@@ -51,6 +51,8 @@ public class PingJob implements NodeTemplateJob {
       result.append(String.format("Could not ping hostname \"%s\": " + e.getMessage(), hostname));
       result.failed();
     }
+
+    logger.info("Job executed: {}", result);
     return result;
   }
 

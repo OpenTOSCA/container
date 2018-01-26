@@ -80,10 +80,8 @@ public class VerificationContext {
       throw new IllegalStateException();
     }
     final PlanInstance plan = this.serviceTemplateInstance.getPlanInstances().stream()
-        .filter(p -> p.getType().equals(PlanType.BUILD)).findFirst().orElse(null);
-    if (plan == null) {
-      throw new IllegalStateException();
-    }
+        .filter(p -> p.getType().equals(PlanType.BUILD)).findFirst()
+        .orElseThrow(IllegalStateException::new);
     return plan.getOutputs();
   }
 

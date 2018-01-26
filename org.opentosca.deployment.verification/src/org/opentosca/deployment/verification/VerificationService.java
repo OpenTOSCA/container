@@ -1,5 +1,6 @@
 package org.opentosca.deployment.verification;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,7 @@ public class VerificationService {
 
     pool.submit(() -> {
       long sleep = 1000;
-      long timeout = TimeUnit.MINUTES.toMillis(5);
+      long timeout = TimeUnit.MINUTES.toMillis(15);
       long waited = 0;
       while (true) {
         PlanInstance pi = null;
@@ -86,11 +87,8 @@ public class VerificationService {
         serviceTemplateInstance.getId(), csarId);
 
     final AbstractDefinitions defs = importer.getMainDefinitions(csarId);
-    final AbstractServiceTemplate serviceTemplate =
-        defs.getServiceTemplates().stream().findFirst().orElse(null);
-    if (serviceTemplate == null) {
-      throw new InternalServerErrorException();
-    }
+    final AbstractServiceTemplate serviceTemplate = defs.getServiceTemplates().stream().findFirst()
+        .orElseThrow(InternalServerErrorException::new);
 
     // Prepare the verification
     final Verification result = new Verification();
@@ -106,8 +104,17 @@ public class VerificationService {
 
     // Execute the verification
     pool.submit(() -> {
-      executor.verify(context).join();
-      result.setState(VerificationState.FINISHED);
+      logger.info("Executing verification...");
+      final CompletableFuture<Void> future = executor.verify(context);
+      logger.info("Wait until verification jobs has been finished...");
+      try {
+        future.get();
+        logger.info("Verification jobs has been finished");
+        result.setState(VerificationState.FINISHED);
+      } catch (Exception e) {
+        logger.error("Verification jobs completed with exception: {}", e.getMessage(), e);
+        result.setState(VerificationState.FAILED);
+      }
       repository.update(result);
     });
     logger.info("Verification is running in background...");

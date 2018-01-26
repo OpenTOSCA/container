@@ -168,4 +168,10 @@ public class VerificationResult extends PersistenceObject {
     }
     this.state = VerificationState.SUCCESS;
   }
+
+  @Override
+  public String toString() {
+    return "[duration=" + (end.getTime() - start.getTime()) + ", state=" + state + ", output="
+        + output + "]";
+  }
 }
