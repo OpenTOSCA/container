@@ -8,7 +8,9 @@ Import-Package: com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  com.google.common.primitives;version="15.0.0",
  com.google.common.util.concurrent;version="15.0.0",
+ com.jcraft.jsch;version="0.1.54",
  javax.ws.rs;version="1.1.1",
+ org.apache.commons.io;version="2.2.0",
  org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.2"
 Bundle-ActivationPolicy: lazy

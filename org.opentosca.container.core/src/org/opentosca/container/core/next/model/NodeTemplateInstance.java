@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -25,7 +26,6 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Entity
@@ -104,7 +104,7 @@ public class NodeTemplateInstance extends PersistenceObject {
    */
   @JsonProperty("properties")
   public Map<String, String> getPropertiesAsMap() {
-    Map<String, String> properties = Maps.newHashMap();
+    Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     final NodeTemplateInstanceProperty prop =
         this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
             .collect(Collectors.reducing((a, b) -> null)).orElse(null);

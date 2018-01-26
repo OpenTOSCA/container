@@ -59,19 +59,23 @@ public class PingJob implements NodeTemplateJob {
   @Override
   public boolean canExecute(final AbstractNodeTemplate nodeTemplate) {
 
-    final Element el = nodeTemplate.getProperties().getDOMElement();
-    final NodeList nodes = el.getChildNodes();
+    if (nodeTemplate.getProperties() != null
+        && nodeTemplate.getProperties().getDOMElement() != null) {
 
-    /*
-     * This job can be executed if the node template contains a property regarding a hostname or IP
-     * address.
-     */
+      final Element el = nodeTemplate.getProperties().getDOMElement();
+      final NodeList nodes = el.getChildNodes();
 
-    if (DomUtil.matchesNodeName(".*host.*", nodes)) {
-      return true;
-    }
-    if (DomUtil.matchesNodeName(".*ip.*", nodes)) {
-      return true;
+      /*
+       * This job can be executed if the node template contains a property regarding a hostname or
+       * IP address.
+       */
+
+      if (DomUtil.matchesNodeName(".*host.*", nodes)) {
+        return true;
+      }
+      if (DomUtil.matchesNodeName(".*ip.*", nodes)) {
+        return true;
+      }
     }
     return false;
   }

@@ -41,7 +41,7 @@ public class TcpPingJob implements NodeTemplateJob {
 
     final List<Integer> ports = Jobs.resolvePort(properties);
     final String hostname = Jobs.resolveHostname(properties);
-    if (ports == null || ports.isEmpty()) { // <= 0 || port > 65535
+    if (ports == null || ports.isEmpty()) {
       result.append("Could not determine appropriate port.");
       result.failed();
       return result;
@@ -73,16 +73,20 @@ public class TcpPingJob implements NodeTemplateJob {
   @Override
   public boolean canExecute(final AbstractNodeTemplate nodeTemplate) {
 
-    final Element el = nodeTemplate.getProperties().getDOMElement();
-    final NodeList nodes = el.getChildNodes();
+    if (nodeTemplate.getProperties() != null
+        && nodeTemplate.getProperties().getDOMElement() != null) {
 
-    /*
-     * This job can be executed if the node template contains a property defining a port. The
-     * required hostname is determined from the topology graph during runtime.
-     */
+      final Element el = nodeTemplate.getProperties().getDOMElement();
+      final NodeList nodes = el.getChildNodes();
 
-    if (DomUtil.matchesNodeName(".*port.*", nodes)) {
-      return true;
+      /*
+       * This job can be executed if the node template contains a property defining a port. The
+       * required hostname is determined from the topology graph during runtime.
+       */
+
+      if (DomUtil.matchesNodeName(".*port.*", nodes)) {
+        return true;
+      }
     }
     return false;
   }

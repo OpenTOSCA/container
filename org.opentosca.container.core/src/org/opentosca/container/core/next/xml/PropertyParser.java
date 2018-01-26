@@ -4,20 +4,20 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
- * StAX parser to parse the properties from XML into a Map<String, String> structure.
+ * Parser to parse the properties from XML into a Map<String, String> structure.
  */
 public final class PropertyParser {
 
@@ -25,50 +25,39 @@ public final class PropertyParser {
 
   public Map<String, String> parse(final String xml) {
     final Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    final XMLEventReader reader = createReader(xml);
+    final Document document = createDocument(xml);
 
-    String currentName = null;
-    String currentValue = null;
+    // Optional, but recommended
+    // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+    document.getDocumentElement().normalize();
 
-    while (reader.hasNext()) {
-      try {
-        final XMLEvent event = reader.nextEvent();
-
-        switch (event.getEventType()) {
-
-          case XMLStreamConstants.START_ELEMENT:
-            final StartElement startElement = event.asStartElement();
-            currentName = startElement.getName().getLocalPart();
-            break;
-
-          case XMLStreamConstants.CHARACTERS:
-            final Characters characters = event.asCharacters();
-            currentValue = StringUtils.trimToNull(characters.getData());
-            if (currentValue == null) {
-              currentName = null;
-            }
-            break;
-
-          case XMLStreamConstants.END_ELEMENT:
-            if (currentName != null && currentValue != null) {
-              properties.put(currentName.toLowerCase(), currentValue);
-              currentName = null;
-              currentValue = null;
-            }
-            break;
-        }
-      } catch (XMLStreamException e) {
-        logger.error("Error parsing XML string", e);
+    final Element root = document.getDocumentElement();
+    final NodeList nodes = root.getChildNodes();
+    if (nodes.getLength() == 1) {
+      final String value = StringUtils.trimToNull(root.getTextContent());
+      if (value != null) {
+        properties.put(root.getLocalName().toLowerCase(), value);
       }
     }
+
+    for (int x = 0; x < nodes.getLength(); x++) {
+      final Node node = nodes.item(x);
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
+        properties.put(node.getLocalName().toLowerCase(),
+            StringUtils.trimToNull(DomUtil.getNodeValue(node)));
+      }
+    }
+
     return properties;
   }
 
-  private XMLEventReader createReader(final String xml) {
-    XMLInputFactory factory = XMLInputFactory.newInstance();
+  private Document createDocument(final String xml) {
     try {
-      return factory.createXMLEventReader(new StringReader(xml));
-    } catch (XMLStreamException e) {
+      final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      final DocumentBuilder builder = factory.newDocumentBuilder();
+      return builder.parse(new InputSource(new StringReader(xml)));
+    } catch (Exception e) {
       logger.error("Error parsing XML string", e);
       throw new RuntimeException(e);
     }

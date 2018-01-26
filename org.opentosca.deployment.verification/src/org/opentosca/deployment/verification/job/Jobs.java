@@ -1,9 +1,9 @@
 package org.opentosca.deployment.verification.job;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -76,7 +76,7 @@ public abstract class Jobs {
 
   public static synchronized Map<String, String> mergePlanProperties(
       final Set<NodeTemplateInstance> nodes) {
-    return nodes.stream().map(n -> n.getPropertiesAsMap()).collect(HashMap::new, Map::putAll,
+    return nodes.stream().map(n -> n.getPropertiesAsMap()).collect(TreeMap::new, Map::putAll,
         Map::putAll);
   }
 
