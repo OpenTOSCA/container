@@ -86,29 +86,27 @@ public class VerificationService {
     logger.info("Trigger verification for service template instance \"{}\" of CSAR \"{}\"",
         serviceTemplateInstance.getId(), csarId);
 
-    final AbstractDefinitions defs = importer.getMainDefinitions(csarId);
-    final AbstractServiceTemplate serviceTemplate = defs.getServiceTemplates().stream().findFirst()
-        .orElseThrow(InternalServerErrorException::new);
-
     // Prepare the verification
     final Verification result = new Verification();
     result.setServiceTemplateInstance(serviceTemplateInstance);
     result.setState(VerificationState.STARTED);
     repository.add(result);
 
-    // Prepare the context
-    final VerificationContext context = new VerificationContext();
-    context.setServiceTemplate(serviceTemplate);
-    context.setServiceTemplateInstance(serviceTemplateInstance);
-    context.setVerification(result);
-
     // Execute the verification
     pool.submit(() -> {
       logger.info("Executing verification...");
+      // Prepare the context
+      final AbstractDefinitions defs = importer.getMainDefinitions(csarId);
+      final AbstractServiceTemplate serviceTemplate = defs.getServiceTemplates().stream()
+          .findFirst().orElseThrow(InternalServerErrorException::new);
+      final VerificationContext context = new VerificationContext();
+      context.setServiceTemplate(serviceTemplate);
+      context.setServiceTemplateInstance(serviceTemplateInstance);
+      context.setVerification(result);
       final CompletableFuture<Void> future = executor.verify(context);
       logger.info("Wait until verification jobs has been finished...");
       try {
-        future.get();
+        future.join();
         logger.info("Verification jobs has been finished");
         result.setState(VerificationState.FINISHED);
       } catch (Exception e) {

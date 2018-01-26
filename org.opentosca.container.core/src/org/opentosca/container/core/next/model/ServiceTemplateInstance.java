@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -58,12 +59,12 @@ public class ServiceTemplateInstance extends PersistenceObject {
   private Set<ServiceTemplateInstanceProperty> properties = Sets.newHashSet();
 
   @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+  @OneToMany(mappedBy = "serviceTemplateInstance")
   @JsonIgnore
   private List<Verification> verifications = Lists.newArrayList();
 
   @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+  @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
   @JsonIgnore
   private List<VerificationResult> verificationResults = Lists.newArrayList();
 

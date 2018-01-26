@@ -19,7 +19,7 @@ public class HttpProbeJob implements ServiceTemplateJob {
   private static Logger logger = LoggerFactory.getLogger(HttpProbeJob.class);
 
   @Override
-  public VerificationResult execute(final VerificationContext context,
+  public synchronized VerificationResult execute(final VerificationContext context,
       final AbstractServiceTemplate serviceTemplate,
       final ServiceTemplateInstance serviceTemplateInstance) {
 

@@ -20,7 +20,7 @@ public class PingJob implements NodeTemplateJob {
   private static Logger logger = LoggerFactory.getLogger(PingJob.class);
 
   @Override
-  public VerificationResult execute(final VerificationContext context,
+  public synchronized VerificationResult execute(final VerificationContext context,
       final AbstractNodeTemplate nodeTemplate, final NodeTemplateInstance nodeTemplateInstance) {
 
     final VerificationResult result = new VerificationResult();

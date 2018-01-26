@@ -3,6 +3,7 @@ package org.opentosca.deployment.verification.job;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public class TcpPingJob implements NodeTemplateJob {
   private static Logger logger = LoggerFactory.getLogger(TcpPingJob.class);
 
   @Override
-  public VerificationResult execute(final VerificationContext context,
+  public synchronized VerificationResult execute(final VerificationContext context,
       final AbstractNodeTemplate nodeTemplate, final NodeTemplateInstance nodeTemplateInstance) {
 
     final VerificationResult result = new VerificationResult();
@@ -38,9 +39,9 @@ public class TcpPingJob implements NodeTemplateJob {
 
     final Map<String, String> properties = Jobs.mergePlanProperties(stackNodes);
 
-    final Integer port = Jobs.resolvePort(properties);
+    final List<Integer> ports = Jobs.resolvePort(properties);
     final String hostname = Jobs.resolveHostname(properties);
-    if (port == null || port <= 0 || port > 65535) {
+    if (ports == null || ports.isEmpty()) { // <= 0 || port > 65535
       result.append("Could not determine appropriate port.");
       result.failed();
       return result;
@@ -50,17 +51,19 @@ public class TcpPingJob implements NodeTemplateJob {
       result.failed();
       return result;
     }
-    logger.info("Determined hostname={} and port={}", hostname, port);
+    logger.info("Determined hostname={} and ports={}", hostname, ports);
 
-    try (Socket socket = new Socket()) {
-      socket.connect(new InetSocketAddress(hostname, port), 1000);
-      result.append(
-          String.format("Successfully pinged hostname \"%s\" on port \"%s\".", hostname, port));
-      result.success();
-    } catch (IOException e) {
-      result
-          .append(String.format("Could not ping hostname \"%s\" on port \"%s\".", hostname, port));
-      result.failed();
+    for (Integer port : ports) {
+      try (Socket socket = new Socket()) {
+        socket.connect(new InetSocketAddress(hostname, port), 1000);
+        result.append(
+            String.format("Successfully pinged hostname \"%s\" on port \"%s\".", hostname, port));
+        result.success();
+      } catch (IOException e) {
+        result.append(
+            String.format("Could not ping hostname \"%s\" on port \"%s\".", hostname, port));
+        result.failed();
+      }
     }
 
     logger.info("Job executed: {}", result);

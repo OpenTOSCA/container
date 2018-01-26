@@ -45,7 +45,9 @@
       <property name="eclipselink.connection-pool.initial" value="10" />
       <property name="eclipselink.jdbc.cache-statements" value="true" />
       <property name="eclipselink.jdbc.batch-writing" value="JDBC" />
-      <property name="eclipselink.weaving" value="false" />
+      <!-- <property name="eclipselink.weaving" value="false" /> -->
+      <!-- <property name="eclipselink.weaving.eager" value="true" /> -->
+      <!-- <property name="eclipselink.order-updates" value="true" /> -->
       <!-- Levels: ALL FINEST FINER FINE CONFIG INFO WARNING SEVERE OFF -->
       <property name="eclipselink.logging.level" value="SEVERE" />
       <property name="eclipselink.logging.timestamp" value="false" />

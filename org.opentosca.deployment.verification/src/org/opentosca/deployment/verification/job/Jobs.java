@@ -13,6 +13,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.utils.Utils;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
 /**
@@ -20,7 +21,7 @@ import com.google.common.primitives.Ints;
  */
 public abstract class Jobs {
 
-  public static String resolveHostname(final Map<String, String> properties) {
+  public static synchronized String resolveHostname(final Map<String, String> properties) {
     String hostname = properties.get("hostname");
     if (Strings.isNullOrEmpty(hostname)) {
       hostname = properties.get("host");
@@ -40,19 +41,15 @@ public abstract class Jobs {
     return hostname;
   }
 
-  public static Integer resolvePort(final Map<String, String> properties) {
-    String port = properties.get("port");
-    if (Strings.isNullOrEmpty(port)) {
-      port = properties.get("sshport");
-    }
-    if (Strings.isNullOrEmpty(port)) {
-      port = properties.get("dbmsport");
-    }
-    return Ints.tryParse(port);
+  public static synchronized List<Integer> resolvePort(final Map<String, String> properties) {
+    final Set<String> validKeys = Sets.newHashSet("port", "sshport", "dbmsport");
+    return properties.entrySet().stream().filter(e -> validKeys.contains(e.getKey()))
+        .map(e -> Ints.tryParse(e.getValue())).collect(Collectors.toList());
   }
 
-  public static void resolveInfrastructureNodes(final NodeTemplateInstance nodeTemplateInstance,
-      final VerificationContext context, final Set<NodeTemplateInstance> infrastructureNodes) {
+  public static synchronized void resolveInfrastructureNodes(
+      final NodeTemplateInstance nodeTemplateInstance, final VerificationContext context,
+      final Set<NodeTemplateInstance> infrastructureNodes) {
 
     List<RelationshipTemplateInstance> outgoingRelations =
         nodeTemplateInstance.getOutgoingRelations().stream()
@@ -77,12 +74,13 @@ public abstract class Jobs {
     }
   }
 
-  public static Map<String, String> mergePlanProperties(final Set<NodeTemplateInstance> nodes) {
+  public static synchronized Map<String, String> mergePlanProperties(
+      final Set<NodeTemplateInstance> nodes) {
     return nodes.stream().map(n -> n.getPropertiesAsMap()).collect(HashMap::new, Map::putAll,
         Map::putAll);
   }
 
-  public static String resolveUrl(final Map<String, String> properties) {
+  public static synchronized String resolveUrl(final Map<String, String> properties) {
     return properties.get("selfserviceapplicationurl");
   }
 }
