@@ -9,10 +9,14 @@ import org.opentosca.container.core.next.model.VerificationResult;
 import org.opentosca.container.core.next.xml.DomUtil;
 import org.opentosca.deployment.verification.VerificationContext;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class HttpProbeJob implements ServiceTemplateJob {
+
+  private static Logger logger = LoggerFactory.getLogger(HttpProbeJob.class);
 
   @Override
   public VerificationResult execute(final VerificationContext context,
@@ -26,6 +30,8 @@ public class HttpProbeJob implements ServiceTemplateJob {
 
     final Map<String, String> properties = serviceTemplateInstance.getPropertiesAsMap();
     final String url = Jobs.resolveUrl(properties);
+    logger.info("Determined URL: {}", url);
+
     try {
       final URL endpoint = new URL(url);
       final HttpURLConnection con = (HttpURLConnection) endpoint.openConnection();
@@ -47,22 +53,29 @@ public class HttpProbeJob implements ServiceTemplateJob {
       result.append(String.format("Could not connect to URL \"%s\": " + e.getMessage(), url));
       result.failed();
     }
+
+    logger.info("Job executed: {}", result);
     return result;
   }
 
   @Override
   public boolean canExecute(final AbstractServiceTemplate serviceTemplate) {
 
-    final Element el =
-        serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
-    if (el.hasChildNodes()) {
-      final NodeList nodes = el.getChildNodes();
-      if (DomUtil.matchesNodeName(".*selfserviceapplicationurl.*", nodes)) {
-        return true;
-      }
-    } else {
-      if (el.getLocalName().equalsIgnoreCase("selfserviceapplicationurl")) {
-        return true;
+    if (serviceTemplate.getBoundaryDefinitions() != null
+        && serviceTemplate.getBoundaryDefinitions().getProperties() != null
+        && serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null) {
+
+      final Element el =
+          serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
+      if (el.hasChildNodes()) {
+        final NodeList nodes = el.getChildNodes();
+        if (DomUtil.matchesNodeName(".*selfserviceapplicationurl.*", nodes)) {
+          return true;
+        }
+      } else {
+        if (el.getLocalName().equalsIgnoreCase("selfserviceapplicationurl")) {
+          return true;
+        }
       }
     }
     return false;
