@@ -10,7 +10,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.deployment.verification.VerificationContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.utils.Utils;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -53,9 +53,9 @@ public abstract class Jobs {
 
     List<RelationshipTemplateInstance> outgoingRelations =
         nodeTemplateInstance.getOutgoingRelations().stream()
-            .filter(r -> r.getTemplateType().equals(Utils.TOSCABASETYPE_DEPENDSON)
-                || r.getTemplateType().equals(Utils.TOSCABASETYPE_DEPLOYEDON)
-                || r.getTemplateType().equals(Utils.TOSCABASETYPE_HOSTEDON))
+            .filter(r -> r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
+                || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)
+                || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_HOSTEDON))
             .collect(Collectors.toList());
 
     for (RelationshipTemplateInstance r : outgoingRelations) {
@@ -64,9 +64,9 @@ public abstract class Jobs {
       final AbstractNodeTemplate targetTemplate = context.getNodeTemplate(target);
 
       if (org.opentosca.container.core.tosca.convention.Utils
-          .isSupportedInfrastructureNodeType(Utils.getNodeBaseType(targetTemplate))
+          .isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(targetTemplate))
           || org.opentosca.container.core.tosca.convention.Utils
-              .isSupportedCloudProviderNodeType(Utils.getNodeBaseType(targetTemplate))) {
+              .isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(targetTemplate))) {
         infrastructureNodes.add(target);
       }
 
