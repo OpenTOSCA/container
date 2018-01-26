@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: PlanBuilder Plugin for transfer skript artifact to a remote linux machine
+Bundle-Name: PlanBuilder Core Plugin for transfer skript artifact to a remote linux machine
 Bundle-SymbolicName: org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -10,11 +10,13 @@ Import-Package: org.apache.commons.io;version="2.2.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .,
  META-INF/resources/
-Bundle-Activator: org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.Activator
-Export-Package: org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux,
- org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.handler
+Export-Package: org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.core,
+ org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.core.handler
 Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.planbuilder;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="0.0.1"
+ org.opentosca.planbuilder.core,
+ org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0",
+ org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="2.0.0"
+Bundle-Activator: org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.Activator
