@@ -20,7 +20,9 @@ import org.osgi.framework.ServiceReference;
 public class Activator implements BundleActivator {
 
   @Override
-  public void start(final BundleContext bundleContext) throws Exception {}
+  public void start(final BundleContext bundleContext) throws Exception {
+    // not used
+  }
 
   @Override
   public void stop(final BundleContext bundleContext) throws Exception {

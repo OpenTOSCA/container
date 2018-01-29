@@ -59,7 +59,7 @@ public final class PropertyParser {
       return builder.parse(new InputSource(new StringReader(xml)));
     } catch (Exception e) {
       logger.error("Error parsing XML string", e);
-      throw new RuntimeException(e);
+      throw new IllegalArgumentException(e);
     }
   }
 }

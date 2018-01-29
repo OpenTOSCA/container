@@ -146,6 +146,8 @@ public class SshConnectJob implements NodeTemplateJob {
     }
 
     @Override
-    public void showMessage(final String message) {}
+    public void showMessage(final String message) {
+      // not used
+    }
   }
 }
