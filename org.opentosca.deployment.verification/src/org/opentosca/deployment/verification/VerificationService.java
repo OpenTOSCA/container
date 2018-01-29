@@ -45,7 +45,7 @@ public class VerificationService {
 
     pool.submit(() -> {
       long sleep = 1000;
-      long timeout = TimeUnit.MINUTES.toMillis(15);
+      long timeout = TimeUnit.MINUTES.toMillis(60);
       long waited = 0;
       while (true) {
         PlanInstance pi = null;
