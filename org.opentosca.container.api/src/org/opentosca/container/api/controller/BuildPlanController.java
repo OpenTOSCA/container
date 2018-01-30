@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.dto.PlanDTO;
-import org.opentosca.container.api.dto.PlanInstanceDTO;
+import org.opentosca.container.api.dto.plans.PlanDTO;
+import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
@@ -37,12 +37,12 @@ public class BuildPlanController {
 
 	private final CSARID csarId;
 	private final QName serviceTemplate;
-	private final Integer serviceTemplateInstanceId;
+	private final Long serviceTemplateInstanceId;
 
 	private final PlanTypes PLAN_TYPE = PlanTypes.BUILD;
 
 	public BuildPlanController(final CSARID csarId, final QName serviceTemplate,
-			final Integer serviceTemplateInstanceId, final PlanService planService) {
+			final Long serviceTemplateInstanceId, final PlanService planService) {
 		this.csarId = csarId;
 		this.serviceTemplate = serviceTemplate;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
@@ -69,8 +69,14 @@ public class BuildPlanController {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get build plan instances from CSAR", response = PlanInstanceDTO.class, responseContainer = "List")
 	public Response getBuildPlanInstances(@PathParam("plan") final String plan, @Context final UriInfo uriInfo) {
+		try
+		{
 		return this.planService.getPlanInstances(plan, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId,
 				PLAN_TYPE);
+		}catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	@POST

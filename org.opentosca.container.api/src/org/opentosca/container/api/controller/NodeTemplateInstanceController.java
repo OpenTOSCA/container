@@ -1,19 +1,22 @@
 package org.opentosca.container.api.controller;
 
+import java.net.URI;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
@@ -28,12 +31,19 @@ import org.w3c.dom.Document;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Api()
 public class NodeTemplateInstanceController {
 	@PathParam("nodetemplate")
 	String nodetemplate;
-
+	
+	@PathParam("csar")
+	String csar;
+	
+	@PathParam("servicetemplate")
+	String servicetemplate;
+	
 	@Context
 	UriInfo uriInfo;
 
@@ -49,8 +59,9 @@ public class NodeTemplateInstanceController {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceDTO.class, responseContainer = "List")
 	public Response getNodeTemplateInstances() {
+		final QName nodeTemplateQName = new QName(QName.valueOf(servicetemplate).getNamespaceURI(), nodetemplate);
 		final Collection<NodeTemplateInstance> nodeInstances = this.instanceService
-				.getNodeTemplateInstances(nodetemplate);
+				.getNodeTemplateInstances(nodeTemplateQName);
 		logger.debug("Found <{}> instances of NodeTemplate \"{}\" ", nodeInstances.size(), nodetemplate);
 
 		final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
@@ -67,13 +78,32 @@ public class NodeTemplateInstanceController {
 		return Response.ok(list).build();
 	}
 
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	@ApiOperation(value = "Create a new node template instance that belongs to a specific service template instance", response = Response.class)
+	public Response createNodeTemplateInstance(@Context final UriInfo uriInfo,
+			@ApiParam(required=true) @QueryParam("serviceTemplateInstanceId") final String serviceTemplateInstanceId) {
+		try {
+
+			final NodeTemplateInstance createdInstance = this.instanceService.createNewNodeTemplateInstance(csar,
+					servicetemplate, nodetemplate, Long.parseLong(serviceTemplateInstanceId));
+			final URI instanceURI = UriUtils.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+			return Response.ok(instanceURI).build();
+		} catch (IllegalArgumentException e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		} catch (InstantiationException | IllegalAccessException e) {
+			return Response.serverError().build();
+		}
+
+	}
+
 	@GET
 	@Path("/{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get a node template instance by id", response = NodeTemplateInstanceDTO.class)
-	public Response getNodeTemplateInstance(@PathParam("id") final Integer id) {
-
-		final NodeTemplateInstance instance = this.resolveInstance(id, nodetemplate);
+	public Response getNodeTemplateInstance(@PathParam("id") final Long id) {
+		
+		final NodeTemplateInstance instance = this.instanceService.resolveNodeTemplateInstance(servicetemplate, nodetemplate, id);
 		final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
 
 		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
@@ -83,78 +113,67 @@ public class NodeTemplateInstanceController {
 		return Response.ok(dto).build();
 	}
 
+	@DELETE
+	@Path("/{id}")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@ApiOperation(value = "Deletes a node template instance by id", response = Response.class)
+	public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
+		
+		this.instanceService.deleteNodeTemplateInstance(servicetemplate, nodetemplate, id);
+		return Response.noContent().build();
+	}
+
 	@GET
 	@Path("/{id}/state")
 	@Produces({ MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Get the state of a node template instance identified by its id.", response = String.class)
-	public Response getNodeTemplateInstanceState(@PathParam("id") final Integer id) {
-		final NodeTemplateInstanceState state = this.instanceService.getNodeTemplateInstanceState(id);
+	public Response getNodeTemplateInstanceState(@PathParam("id") final Long id) {
+		final NodeTemplateInstanceState state = this.instanceService.getNodeTemplateInstanceState(servicetemplate, nodetemplate, id);
 
 		return Response.ok(state.toString()).build();
 	}
 
 	@PUT
 	@Path("/{id}/state")
-	@Consumes({MediaType.TEXT_PLAIN})
+	@Consumes({ MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Changes the state of a node template instance identified by its id.", response = Response.class)
-	public Response updateNodeTemplateInstanceState(@PathParam("id") final Integer id, final String request) {
+	public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
 
 		try {
-			this.instanceService.setNodeTemplateInstanceState(id, request);
+			this.instanceService.setNodeTemplateInstanceState(servicetemplate, nodetemplate, id, request);
 		} catch (IllegalArgumentException e) { // this handles a null request too
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		
+
 		return Response.ok().build();
 	}
-	
+
 	@GET
 	@Path("/{id}/properties")
 	@Produces({ MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get the set of properties of a node template instance identified by its id.", response = Document.class)
-	public Response getNodeTemplateInstanceProperties(@PathParam("id") final Integer id) {
-		final Document properties = this.instanceService.getNodeTemplateInstanceProperties(id);
+	public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
+		final Document properties = this.instanceService.getNodeTemplateInstanceProperties(servicetemplate, nodetemplate, id);
 
 		return Response.ok(properties).build();
 	}
-	
+
 	@PUT
 	@Path("/{id}/properties")
-	@Consumes({MediaType.APPLICATION_XML})
+	@Consumes({ MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.", response = Response.class)
-	public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Integer id, final Document request) {
+	public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
 
 		try {
-			this.instanceService.setNodeTemplateInstanceProperties(id, request);
+			this.instanceService.setNodeTemplateInstanceProperties(servicetemplate, nodetemplate, id, request);
 		} catch (IllegalArgumentException e) { // this handles a null request too
 			return Response.status(Status.BAD_REQUEST).build();
 		} catch (ReflectiveOperationException e) {
 			return Response.serverError().build();
 		}
-		
-		return Response.ok().build();
+
+		return Response.ok(UriUtils.generateSelfURI(uriInfo)).build();
 	}
 
-	/**
-	 * Gets a reference to the node template instance. Ensures that the instance
-	 * actually belongs to the node template.
-	 * 
-	 * @param instanceId
-	 * @param templateId
-	 * @return
-	 * @throws NotFoundException
-	 *             if the instance does not belong to the node template
-	 */
-	private NodeTemplateInstance resolveInstance(Integer instanceId, String templateId) throws NotFoundException {
-		// We only need to check that the instance belongs to the template, the rest is
-		// guaranteed while this is a sub-resource
-		final NodeTemplateInstance instance = this.instanceService.getNodeTemplateInstance(instanceId);
-
-		if (!instance.getTemplateId().equals(QName.valueOf(templateId))) {
-			logger.info("Node template instance <{}> could not be found", instanceId);
-			throw new NotFoundException(String.format("Node template instance <{}> could not be found", instanceId));
-		}
-
-		return instance;
-	}
 }

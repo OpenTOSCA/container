@@ -32,37 +32,26 @@ public final class UriUtils {
 	}
 
 	public static Link generateSelfLink(final UriInfo uriInfo) {
-		return Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build();
+		return Link.fromUri(UriUtils.generateSelfURI(uriInfo)).rel("self").build();
+	}
+	
+	public static URI generateSelfURI(final UriInfo uriInfo) {
+		return UriUtils.encode(uriInfo.getAbsolutePath());
 	}
 
-//	public static Link generateGroupSubResourceLink(final UriInfo uriInfo, final String subResourceName) {
-//		return Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(subResourceName).build()))
-//				.rel(subResourceName).build();
-//	}
-//
-//	public static Link generateSubResourceSelfLink(final UriInfo uriInfo, final String subResourceId) {
-////		return Link.fromUri(uriInfo.getAbsolutePathBuilder().path("{resourceId}")
-////				.build(UriComponent.encode(subResourceId, UriComponent.Type.PATH_SEGMENT))).rel("self").build();
-//		
-//		return UriUtils.generateSubResourceLink(uriInfo, subResourceId, true, "self");
-//
-//	}
-//
-//	public static Link generateSubResourceLink(final UriInfo uriInfo, final String subResourceId) {
-////		return Link
-////				.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path("{resourceId}")
-////						.build(UriComponent.encode(subResourceId, UriComponent.Type.PATH_SEGMENT))))
-////				.rel(subResourceId).build();
-//		
-//		return UriUtils.generateSubResourceLink(uriInfo, subResourceId, true, subResourceId);
-//	}
 
 	public static Link generateSubResourceLink(final UriInfo uriInfo, final String subResource,
 			final boolean encodeSubResourcePathSegment, final String rel) {
+		final URI finalUri = UriUtils.generateSubResourceURI(uriInfo, subResource, encodeSubResourcePathSegment);
+			
+		return Link.fromUri(finalUri).rel(rel).build();
+	}
+	
+	public static URI generateSubResourceURI(final UriInfo uriInfo, final String subResource,
+			final boolean encodeSubResourcePathSegment) {
 		final UriBuilder uriBuilder = RuntimeDelegate.getInstance().createUriBuilder();
 		final URI absolutePathEncoded = UriUtils.encode(uriInfo.getAbsolutePath());
 		uriBuilder.path(absolutePathEncoded.toString());
-		//logger.debug("uriBuilder after adding the encoded absolutePath {}", uriBuilder.toString());
 		uriBuilder.path("{resourceId}");
 		URI finalUri;
 		
@@ -72,10 +61,9 @@ public final class UriUtils {
 			finalUri = uriBuilder.build(subResource);
 		}
 		
-		//logger.debug("uriBuilder result uri {}", finalUri);
-		
-		return Link.fromUri(finalUri).rel(rel).build();
+		return finalUri;
 	}
+	
 
 	private UriUtils() {
 		throw new UnsupportedOperationException();

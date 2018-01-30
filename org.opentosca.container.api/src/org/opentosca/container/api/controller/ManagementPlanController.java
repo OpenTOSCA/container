@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.dto.PlanDTO;
-import org.opentosca.container.api.dto.PlanInstanceDTO;
+import org.opentosca.container.api.dto.plans.PlanDTO;
+import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
@@ -39,12 +39,12 @@ public class ManagementPlanController {
 
 	private final CSARID csarId;
 	private final QName serviceTemplate;
-	private final Integer serviceTemplateInstanceId;
+	private final Long serviceTemplateInstanceId;
 	// At the moment the only supported management plan type is TERMINATION
 	private final PlanTypes[] planTypes;
 
 	public ManagementPlanController(final CSARID csarId, final QName serviceTemplate,
-			final Integer serviceTemplateInstanceId, final PlanService planService, final PlanTypes... planTypes) {
+			final Long serviceTemplateInstanceId, final PlanService planService, final PlanTypes... planTypes) {
 		this.csarId = csarId;
 		this.serviceTemplate = serviceTemplate;
 		this.serviceTemplateInstanceId = serviceTemplateInstanceId;

@@ -18,10 +18,10 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.glassfish.jersey.uri.UriComponent;
-import org.opentosca.container.api.dto.PlanDTO;
-import org.opentosca.container.api.dto.PlanInstanceDTO;
-import org.opentosca.container.api.dto.PlanInstanceListDTO;
-import org.opentosca.container.api.dto.PlanListDTO;
+import org.opentosca.container.api.dto.plans.PlanDTO;
+import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
+import org.opentosca.container.api.dto.plans.PlanInstanceListDTO;
+import org.opentosca.container.api.dto.plans.PlanListDTO;
 import org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances.BuildCorrelationToInstanceMapping;
 import org.opentosca.container.api.util.JsonUtil;
 import org.opentosca.container.api.util.UriUtils;
@@ -129,9 +129,9 @@ public class PlanService {
 		return this.instanceMapper.knowsCorrelationId(correlationId);
 	}
 
-	public Integer getServiceTemplateInstanceId(final String correlationId) {
+	public Long getServiceTemplateInstanceId(final String correlationId) {
 		if (this.hasPlanInstance(correlationId)) {
-			return this.instanceMapper.getServiceTemplateInstanceIdForBuildPlanCorrelation(correlationId);
+			return Long.valueOf((this.instanceMapper.getServiceTemplateInstanceIdForBuildPlanCorrelation(correlationId)));
 		}
 		return null;
 	}
@@ -215,7 +215,7 @@ public class PlanService {
 	}
 
 	public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
-			final QName serviceTemplate, final Integer serviceTemplateInstanceId, final PlanTypes... planTypes) {
+			final QName serviceTemplate, final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
 		if (!hasPlan(csarId, planTypes, plan)) {
 			logger.info("Plan \"" + plan + "\" could not be found");
@@ -227,7 +227,7 @@ public class PlanService {
 		final Collection<ServiceTemplateInstance> serviceInstances;
 		if (serviceTemplateInstanceId != null) {
 			serviceInstances = Lists.newArrayList();
-			serviceInstances.add(repo.find(Long.valueOf(serviceTemplateInstanceId)).get());
+			serviceInstances.add(repo.find(serviceTemplateInstanceId).get());
 		} else {
 			serviceInstances = repo.findByCsarId(csarId);
 		}
@@ -236,14 +236,14 @@ public class PlanService {
 		for (ServiceTemplateInstance sti : serviceInstances) {
 			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(
 					p -> !Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeEnumRepresentation(p.getType().toString())))
-					.map(p -> new PlanInstanceDTO(p)).collect(Collectors.toList());
+					.map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
 			planInstances.addAll(foo);
 		}
 
 		for (final PlanInstanceDTO pi : planInstances) {
 
 			// Add service template instance link
-			final Long id = pi.getServiceTemplateInstance().getId();
+			final Long id = pi.getServiceTemplateInstanceId();
 			if (id != null) {
 				final URI uri = uriInfo.getBaseUriBuilder()
 						.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
@@ -265,7 +265,7 @@ public class PlanService {
 	}
 
 	public Response invokePlan(final String plan, final UriInfo uriInfo, final List<TParameter> parameters,
-			final CSARID csarId, final QName serviceTemplate, final Integer serviceTemplateInstanceId,
+			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
 			final PlanTypes... planTypes) {
 
 		if (parameters == null) {
@@ -309,7 +309,7 @@ public class PlanService {
 	}
 
 	public Response getPlanInstance(final String plan, final String instance, final UriInfo uriInfo,
-			final CSARID csarId, final QName serviceTemplate, final Integer serviceTemplateInstanceId,
+			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
 			final PlanTypes... planTypes) {
 
 		if (!hasPlan(csarId, planTypes, plan)) {
@@ -323,7 +323,7 @@ public class PlanService {
 			return Response.status(Status.NOT_FOUND).entity("Plan instance '" + instance + "' not found").build();
 		}
 
-		final PlanInstanceDTO dto = new PlanInstanceDTO(pi);
+		final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
 
 		// Add service template instance link
 		final Long id = pi.getServiceTemplateInstance().getId();

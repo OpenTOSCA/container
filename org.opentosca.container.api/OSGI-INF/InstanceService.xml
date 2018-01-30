@@ -4,4 +4,6 @@
    <service>
       <provide interface="org.opentosca.container.api.service.InstanceService"/>
    </service>
+   <reference bind="setNodeTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.NodeTemplateService" name="NodeTemplateService" policy="static"/>
+   <reference bind="setRelationshipTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.RelationshipTemplateService" name="RelationshipTemplateService" policy="static"/>
 </scr:component>

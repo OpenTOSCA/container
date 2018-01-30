@@ -30,12 +30,6 @@ import io.swagger.annotations.ApiParam;
 public class NodeTemplateController {
 	private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
 
-	@PathParam("csar")
-	String csarId;
-
-	@PathParam("servicetemplate")
-	String serviceTemplateId;
-
 	@Context
 	UriInfo uriInfo;
 
@@ -53,7 +47,8 @@ public class NodeTemplateController {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get all node templates of a specific service template", response = NodeTemplateDTO.class, responseContainer = "List")
-	public Response getNodeTemplates() throws NotFoundException {
+	public Response getNodeTemplates(@PathParam("csar") String csarId,
+			@PathParam("servicetemplate") String serviceTemplateId) throws NotFoundException {
 
 		// this validates that the CSAR contains the service template
 		final List<NodeTemplateDTO> nodeTemplateIds = this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId,
@@ -75,10 +70,12 @@ public class NodeTemplateController {
 	@Path("/{nodetemplate}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get a specific node template by its id", response = NodeTemplateDTO.class)
-	public Response getNodeTemplate(@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
+	public Response getNodeTemplate(@PathParam("csar") String csarId,
+			@PathParam("servicetemplate") String serviceTemplateId,
+			@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
 		final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId,
-				QName.valueOf(serviceTemplateId), QName.valueOf(nodeTemplateId));
+				QName.valueOf(serviceTemplateId), nodeTemplateId);
 
 		result.add(UriUtils.generateSubResourceLink(uriInfo, "instances", false, "instances"));
 		result.add(UriUtils.generateSelfLink(uriInfo));
@@ -88,8 +85,11 @@ public class NodeTemplateController {
 
 	@Path("/{nodetemplate}/instances")
 	public NodeTemplateInstanceController getInstances(
+			@ApiParam(hidden = true) @PathParam("csar") String csarId,
+			@ApiParam(hidden = true) @PathParam("servicetemplate") String serviceTemplateId,
 			@ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
-		if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId),  QName.valueOf(nodeTemplateId))) {
+		if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId),
+				nodeTemplateId)) {
 			logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
 			throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
 		}

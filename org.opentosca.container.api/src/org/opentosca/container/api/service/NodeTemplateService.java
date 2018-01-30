@@ -11,13 +11,15 @@ import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import com.google.common.collect.Lists;
 
+//TODO it is assumed that the name of the node template is the same as its id.
 /**
  * Provides data access functionality to retrieve node templates based on a
  * service template. Throughout the class, it is assumed that the passed service
- * template id belongs to passed CSAR, i.e., it is assumed that a check that
+ * template id belongs to the passed CSAR, i.e., it is assumed that a check that
  * this is true is performed earlier.
  * 
  * @author Ghareeb Falazi
@@ -61,26 +63,26 @@ public class NodeTemplateService {
 	 *            The id of the CSAR
 	 * @param serviceTemplateQName
 	 *            The QName of the service template within the given CSAR
-	 * @param nodeTemplateQName
-	 *            The QName of the node template we want to get and that belongs to the
+	 * @param nodeTemplateId
+	 *            The id of the node template we want to get and that belongs to the
 	 *            specified service template
 	 * @return The node template specified by the given id
 	 * @throws NotFoundException
 	 *             If the service template does not contain the specified node
 	 *             template
 	 */
-	public NodeTemplateDTO getNodeTemplateById(String csarId, QName serviceTemplateQName, QName nodeTemplateQName)
+	public NodeTemplateDTO getNodeTemplateById(String csarId, QName serviceTemplateQName, String nodeTemplateId)
 			throws NotFoundException {
 		final CSARContent csarContent = this.csarService.findById(csarId);
 		final CSARID idOfCsar = csarContent.getCSARID();
 
 		if (!this.toscaEngineService.getNodeTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
-				.contains(nodeTemplateQName.getLocalPart())) {
-			logger.info("Node template \"" + nodeTemplateQName + "\" could not be found");
-			throw new NotFoundException("Node template \"" + nodeTemplateQName + "\" could not be found");
+				.contains(nodeTemplateId)) {
+			logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
+			throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
 		}
 
-		return createNodeTemplate(idOfCsar, serviceTemplateQName, nodeTemplateQName);
+		return createNodeTemplate(idOfCsar, serviceTemplateQName, nodeTemplateId);
 	}
 
 	/**
@@ -91,46 +93,52 @@ public class NodeTemplateService {
 	 * @param serviceTemplateQName
 	 *            the QName of the service template
 	 * @param nodeTemplateId
-	 *            the QName of the node template to check for
+	 *            the id of the node template to check for
 	 * @return <code>true</code> when the CSAR contains the service template and the
 	 *         service template contains the node template, otherwise
 	 *         <code>false</code>
 	 */
-	public boolean hasNodeTemplate(String csarId, QName serviceTemplateQName, QName nodeTemplateQName) {
-		return this.getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString()).contains(nodeTemplateQName.getLocalPart());
+	public boolean hasNodeTemplate(String csarId, QName serviceTemplateQName, String nodeTemplateId) {
+		return this.getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString()).contains(nodeTemplateId);
 	}
 	
-	//TODO Careful! this method assumes that the namespace of a node template is the same namespace as its parent service template!
+	
 	/**
-	 * Creates a new instance of the NodeTemplateDTO class. It constructs the
-	 * qualified name of the node template from its id and the namespace of the
-	 * service template. Furthermore, it fetches the qualified name of node type of
-	 * the node template.
-	 * 
+	 * Gets the properties (as an XML document) of a given node template.
 	 * @param csarId
 	 * @param serviceTemplateQName
 	 * @param nodeTemplateId
 	 * @return
 	 */
-	private NodeTemplateDTO createNodeTemplate(CSARID csarId, QName serviceTemplateQName, String nodeTemplateId) {
-		final QName nodeTemplateQName = new QName(serviceTemplateQName.getNamespaceURI(), nodeTemplateId); 
+	public Document getPropertiesOfNodeTemplate(String csarId, QName serviceTemplateQName, String nodeTemplateId) {
+		final CSARContent csarContent = this.csarService.findById(csarId);
+		final CSARID idOfCsar = csarContent.getCSARID();
 		
-		return this.createNodeTemplate(csarId, serviceTemplateQName, nodeTemplateQName);
+		if (!this.toscaEngineService.getNodeTemplatesOfServiceTemplate(idOfCsar, serviceTemplateQName)
+				.contains(nodeTemplateId)) {
+			logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
+			throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
+		}
+
+		final Document properties = this.toscaEngineService.getPropertiesOfNodeTemplate(idOfCsar, serviceTemplateQName, nodeTemplateId);
+			
+		return properties;
 	}
 	
+	//TODO Careful! this method assumes that the namespace of a node template is the same namespace as its parent service template!
 	/**
 	 * Creates a new instance of the NodeTemplateDTO class. It fetches the qualified name of node type of the node template.
 	 * @param csarId
 	 * @param serviceTemplateQName
-	 * @param nodeTemplateQName
+	 * @param nodeTemplateIde
 	 * @return
 	 */
-	private NodeTemplateDTO createNodeTemplate(CSARID csarId, QName serviceTemplateQName, QName nodeTemplateQName) {	
+	private NodeTemplateDTO createNodeTemplate(CSARID csarId, QName serviceTemplateQName, String nodeTemplateId) {	
 		final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
-		currentNodeTemplate.setId(nodeTemplateQName.toString());
-		currentNodeTemplate.setName(nodeTemplateQName.toString());
+		currentNodeTemplate.setId(nodeTemplateId);
+		currentNodeTemplate.setName(nodeTemplateId);
 		currentNodeTemplate.setNodeType(this.toscaEngineService
-				.getNodeTypeOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateQName.getLocalPart()).toString());
+				.getNodeTypeOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId).toString());
 
 		return currentNodeTemplate;
 	}

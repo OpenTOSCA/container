@@ -19,6 +19,7 @@ import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
+import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.slf4j.Logger;
@@ -50,6 +51,9 @@ public class ServiceTemplateController {
 	private InstanceService instanceService;
 
 	private NodeTemplateService nodeTemplateService;
+
+	private RelationshipTemplateService relationshipTemplateService;
+
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -92,6 +96,7 @@ public class ServiceTemplateController {
 		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
 		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
 		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "nodetemplates", false, "nodetemplates"));
+		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "relationshiptemplates", false, "relationshiptemplates"));
 		serviceTemplate.add(UriUtils.generateSelfLink(this.uriInfo));
 
 		return Response.ok(serviceTemplate).build();
@@ -124,6 +129,24 @@ public class ServiceTemplateController {
 		}
 
 		NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
+		resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
+
+		return child;
+	}
+	
+	// We hide the parameters from Swagger because otherwise they will be captured
+	// twice (here and in the sub-resource)
+	@Path("/{servicetemplate}/relationshiptemplates")
+	public RelationshipTemplateController getRelationshipTemplates(
+			@ApiParam(hidden = true) @PathParam("csar") final String csar,
+			@ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
+		final CSARContent csarContent = this.csarService.findById(csar);
+		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
+			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
+			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
+		}
+
+		RelationshipTemplateController child = new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
 		resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
 		return child;
@@ -161,6 +184,10 @@ public class ServiceTemplateController {
 
 	public void setNodeTemplateService(NodeTemplateService nodeTemplateService) {
 		this.nodeTemplateService = nodeTemplateService;
+	}
+	
+	public void setRelationshipTemplateService(RelationshipTemplateService relationshipTemplateService) {
+		this.relationshipTemplateService = relationshipTemplateService;
 	}
 
 }

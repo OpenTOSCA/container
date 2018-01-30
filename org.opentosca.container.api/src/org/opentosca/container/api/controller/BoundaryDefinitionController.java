@@ -18,12 +18,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.dto.PlanDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
+import org.opentosca.container.api.dto.plans.PlanDTO;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.engine.IToscaEngineService;

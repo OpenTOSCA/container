@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
@@ -84,7 +85,7 @@ public class ServiceTemplateInstanceController {
 	@Path("/{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get a service template instance by id", response = ServiceTemplateInstanceDTO.class)
-	public Response getServiceTemplateInstance(@PathParam("id") final Integer id) {
+	public Response getServiceTemplateInstance(@PathParam("id") final Long id) {
 
 		final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
 		final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
@@ -105,9 +106,18 @@ public class ServiceTemplateInstanceController {
 
 		return Response.ok(dto).build();
 	}
+	
+	@DELETE
+	@Path("/{id}")
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@ApiOperation(value = "Deletes a service template instance by id", response = Response.class)
+	public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
+		this.instanceService.deleteServiceTemplateInstance(id);
+		return Response.noContent().build();
+	}
 
 	@Path("/{id}/managementplans")
-	public ManagementPlanController getManagementPlans(@PathParam("id") final Integer id) {
+	public ManagementPlanController getManagementPlans(@PathParam("id") final Long id) {
 		final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
 
 		return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id, this.planService,
@@ -118,7 +128,7 @@ public class ServiceTemplateInstanceController {
 	@Path("/{id}/state")
 	@Produces({ MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Get the state of a service template instance identified by its id.", response = String.class)
-	public Response getServiceTemplateInstanceState(@PathParam("id") final Integer id) {
+	public Response getServiceTemplateInstanceState(@PathParam("id") final Long id) {
 		final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
 
 		return Response.ok(state.toString()).build();
@@ -128,7 +138,7 @@ public class ServiceTemplateInstanceController {
 	@Path("/{id}/state")
 	@Consumes({MediaType.TEXT_PLAIN})
 	@ApiOperation(value = "Changes the state of a service template instance identified by its id.", response = Response.class)
-	public Response updateServiceTemplateInstanceState(@PathParam("id") final Integer id, final String request) {
+	public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
 
 		try {
 			this.instanceService.setServiceTemplateInstanceState(id, request);
@@ -143,7 +153,7 @@ public class ServiceTemplateInstanceController {
 	@Path("/{id}/properties")
 	@Produces({ MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get the set of properties of a service template instance identified by its id.", response = Document.class)
-	public Response getServiceTemplateInstanceProperties(@PathParam("id") final Integer id) {
+	public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
 		final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
 
 		return Response.ok(properties).build();
@@ -152,8 +162,9 @@ public class ServiceTemplateInstanceController {
 	@PUT
 	@Path("/{id}/properties")
 	@Consumes({MediaType.APPLICATION_XML})
+	@Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Changes the set of properties of a service template instance identified by its id.", response = Response.class)
-	public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Integer id, final Document request) {
+	public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
 
 		try {
 			this.instanceService.setServiceTemplateInstanceProperties(id, request);
@@ -163,7 +174,7 @@ public class ServiceTemplateInstanceController {
 			return Response.serverError().build();
 		}
 		
-		return Response.ok().build();
+		return Response.ok(UriUtils.generateSelfURI(uriInfo)).build();
 	}
 
 	/**
@@ -176,7 +187,7 @@ public class ServiceTemplateInstanceController {
 	 * @throws NotFoundException
 	 *             if the instance does not belong to the service template
 	 */
-	private ServiceTemplateInstance resolveInstance(Integer instanceId, String templateId) throws NotFoundException {
+	private ServiceTemplateInstance resolveInstance(Long instanceId, String templateId) throws NotFoundException {
 		// We only need to check that the instance belongs to the template, the rest is
 		// guaranteed while this is a sub-resource
 		final ServiceTemplateInstance instance = this.instanceService.getServiceTemplateInstance(instanceId);

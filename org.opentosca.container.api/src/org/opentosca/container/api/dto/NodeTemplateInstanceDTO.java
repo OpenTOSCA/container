@@ -105,7 +105,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
 			final NodeTemplateInstanceDTO dto = new NodeTemplateInstanceDTO();
 
 			dto.setId(object.getId());
-			dto.setNodeTemplateId(object.getTemplateId().toString());
+			dto.setNodeTemplateId(object.getTemplateId().getLocalPart());
 			dto.setNodeTemplateType(object.getTemplateType().toString());
 			dto.setCreatedAt(object.getCreatedAt());
 			dto.setState(object.getState());
