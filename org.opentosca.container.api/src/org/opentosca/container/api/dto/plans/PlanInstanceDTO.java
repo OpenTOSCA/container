@@ -14,6 +14,7 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
 import org.opentosca.container.core.next.model.PlanInstanceOutput;
+import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,11 +30,11 @@ public class PlanInstanceDTO extends ResourceSupport {
 	@XmlTransient
 	private Long serviceTemplateInstanceId;
 	
-	@XmlAttribute(name = "id")
-	private String id;
+	@XmlAttribute(name = "crrelationId")
+	private String correlationId;
 	
-//	@XmlAttribute(name = "state")
-//	private PlanInstanceState state;
+	@XmlAttribute(name = "state")
+	private PlanInstanceState state;
 	
 	@XmlAttribute(name = "type")
 	private PlanType type;
@@ -54,30 +55,20 @@ public class PlanInstanceDTO extends ResourceSupport {
 
 	}
 
-	
 
-	public String getId() {
-		return id;
+	public String getCorrelationId() {
+		return correlationId;
 	}
 
 
-
-	public void setId(String id) {
-		this.id = id;
+	public void setCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
 	}
-
-
-
-
-	
-	
 
 
 	public Collection<PlanInstanceOutputDTO> getOutputs() {
 		return outputs;
 	}
-
-
 	
 
 	public PlanType getType() {
@@ -101,17 +92,17 @@ public class PlanInstanceDTO extends ResourceSupport {
 //	public void setInputs(Collection<PlanInstanceInputDTO> inputs) {
 //		this.inputs = inputs;
 //	}
-//
-//
-//	public PlanInstanceState getState() {
-//		return state;
-//	}
-//
-//
-//
-//	public void setState(PlanInstanceState state) {
-//		this.state = state;
-//	}
+
+	
+	public PlanInstanceState getState() {
+		return state;
+	}
+
+
+
+	public void setState(PlanInstanceState state) {
+		this.state = state;
+	}
 
 	public void setOutputs(Collection<PlanInstanceOutputDTO> outputs) {
 		this.outputs = outputs;
@@ -144,7 +135,7 @@ public class PlanInstanceDTO extends ResourceSupport {
 		public static PlanInstanceDTO convert(final PlanInstance object) {
 			final PlanInstanceDTO dto = new PlanInstanceDTO();
 			
-			dto.setId(object.getCorrelationId());
+			dto.setCorrelationId(object.getCorrelationId());
 
 			dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
 			dto.setType(object.getType());
@@ -152,9 +143,9 @@ public class PlanInstanceDTO extends ResourceSupport {
 			dto.setLogs(Lists.newArrayList());
 			dto.setOutputs(Lists.newArrayList());
 			
-//			dto.setState(object.getState());
-//			dto.setInputs(Lists.newArrayList());
-//			
+			dto.setState(object.getState());
+			// dto.setInputs(Lists.newArrayList());
+			
 //			for(final PlanInstanceInput output: object.getInputs()) {
 //				dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));
 //			}
@@ -166,8 +157,7 @@ public class PlanInstanceDTO extends ResourceSupport {
 			for(final PlanInstanceOutput output: object.getOutputs()) {
 				dto.getOutputs().add(PlanInstanceOutputDTO.Converter.convert(output));
 			}
-			
-
+		
 			
 			return dto;
 		}

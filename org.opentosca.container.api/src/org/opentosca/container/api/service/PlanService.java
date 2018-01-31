@@ -29,9 +29,6 @@ import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
-import org.opentosca.container.core.impl.plan.CorrelationHandler;
-import org.opentosca.container.core.impl.plan.PlanLogHandler;
-import org.opentosca.container.core.impl.plan.ServiceProxy;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.next.model.PlanInstance;
@@ -39,7 +36,6 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
-import org.opentosca.container.core.service.IPlanLogHandler;
 import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
@@ -56,7 +52,7 @@ public class PlanService {
 
 	private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
 
-	@SuppressWarnings("unused")
+	// this service is used to retrieve a reference to IToscaReferenceMapper
 	private IToscaEngineService engineService;
 
 	private IToscaReferenceMapper referenceMapper;
@@ -64,10 +60,6 @@ public class PlanService {
 	private IOpenToscaControlService controlService;
 
 	private ICSARInstanceManagementService csarInstanceService;
-
-	private final CorrelationHandler correlationHandler = ServiceProxy.correlationHandler;
-
-	private final IPlanLogHandler logHandler = PlanLogHandler.instance;
 
 	private final BuildCorrelationToInstanceMapping instanceMapper = BuildCorrelationToInstanceMapping.instance;
 
@@ -159,7 +151,7 @@ public class PlanService {
 		// We cannot inject an instance of {@link IToscaReferenceMapper} since
 		// it is manually created in our default implementation of {@link
 		// IToscaEngineService}
-		this.referenceMapper = engineService.getToscaReferenceMapper();
+		this.referenceMapper = this.engineService.getToscaReferenceMapper();
 	}
 
 	public void setControlService(final IOpenToscaControlService controlService) {
@@ -235,7 +227,7 @@ public class PlanService {
 		final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
 		for (ServiceTemplateInstance sti : serviceInstances) {
 			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(
-					p -> !Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeEnumRepresentation(p.getType().toString())))
+					p -> Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeURI(p.getType().toString())))
 					.map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
 			planInstances.addAll(foo);
 		}
@@ -252,14 +244,13 @@ public class PlanService {
 			}
 
 			// Add self link
-			pi.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(pi.getId()).build())).rel("self")
-					.build());
+			pi.add(UriUtils.generateSubResourceLink(uriInfo, pi.getCorrelationId(), true, "self"));
 		}
 
 		final PlanInstanceListDTO list = new PlanInstanceListDTO();
 
 		list.add(planInstances);
-		list.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+		list.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -317,8 +308,9 @@ public class PlanService {
 			throw new NotFoundException("Plan \"" + plan + "\" could not be found");
 		}
 
-		PlanInstanceRepository repository = new PlanInstanceRepository();
-		PlanInstance pi = repository.findByCorrelationId(instance);
+		final PlanInstanceRepository repository = new PlanInstanceRepository();
+		final PlanInstance pi = repository.findByCorrelationId(instance);
+		
 		if (pi == null) {
 			return Response.status(Status.NOT_FOUND).entity("Plan instance '" + instance + "' not found").build();
 		}
@@ -335,7 +327,7 @@ public class PlanService {
 		}
 
 		// Add self link
-		dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+		dto.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 	}
