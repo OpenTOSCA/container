@@ -22,7 +22,6 @@ import org.opentosca.container.api.dto.plans.PlanDTO;
 import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
 import org.opentosca.container.api.dto.plans.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plans.PlanListDTO;
-import org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances.BuildCorrelationToInstanceMapping;
 import org.opentosca.container.api.util.JsonUtil;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.control.IOpenToscaControlService;
@@ -30,13 +29,10 @@ import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.instance.State;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
-import org.opentosca.container.core.service.ICSARInstanceManagementService;
-import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TBoolean;
@@ -58,10 +54,6 @@ public class PlanService {
 	private IToscaReferenceMapper referenceMapper;
 
 	private IOpenToscaControlService controlService;
-
-	private ICSARInstanceManagementService csarInstanceService;
-
-	private final BuildCorrelationToInstanceMapping instanceMapper = BuildCorrelationToInstanceMapping.instance;
 
 	public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
 		logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
@@ -117,32 +109,6 @@ public class PlanService {
 		return false;
 	}
 
-	public boolean hasPlanInstance(final String correlationId) {
-		return this.instanceMapper.knowsCorrelationId(correlationId);
-	}
-
-	public Long getServiceTemplateInstanceId(final String correlationId) {
-		if (this.hasPlanInstance(correlationId)) {
-			return Long.valueOf((this.instanceMapper.getServiceTemplateInstanceIdForBuildPlanCorrelation(correlationId)));
-		}
-		return null;
-	}
-
-	private State.Plan determinePlanInstanceState(final CSARID csarId, final String correlationId) {
-		final List<String> finishedCorrelations = this.csarInstanceService.getFinishedCorrelations(csarId);
-		final List<String> activeCorrelations = this.csarInstanceService.getActiveCorrelations(csarId);
-		if ((finishedCorrelations != null) && finishedCorrelations.contains(correlationId)) {
-			return State.Plan.FINISHED;
-		}
-		if ((activeCorrelations != null) && activeCorrelations.contains(correlationId)) {
-			return State.Plan.RUNNING;
-		}
-		return State.Plan.UNKNOWN;
-	}
-
-	public PlanInvocationEvent getPlanInvocationEvent(final String correlationId) {
-		return this.csarInstanceService.getPlanForCorrelationId(correlationId);
-	}
 
 	/* Service Injection */
 	/********************/
@@ -156,10 +122,6 @@ public class PlanService {
 
 	public void setControlService(final IOpenToscaControlService controlService) {
 		this.controlService = controlService;
-	}
-
-	public void setCsarInstanceService(final ICSARInstanceManagementService csarInstanceService) {
-		this.csarInstanceService = csarInstanceService;
 	}
 
 	/* API Operations Helper Methods */
@@ -226,8 +188,8 @@ public class PlanService {
 
 		final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
 		for (ServiceTemplateInstance sti : serviceInstances) {
-			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(
-					p -> Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeURI(p.getType().toString())))
+			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream()
+					.filter(p -> Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeURI(p.getType().toString())))
 					.map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
 			planInstances.addAll(foo);
 		}
@@ -310,7 +272,7 @@ public class PlanService {
 
 		final PlanInstanceRepository repository = new PlanInstanceRepository();
 		final PlanInstance pi = repository.findByCorrelationId(instance);
-		
+
 		if (pi == null) {
 			return Response.status(Status.NOT_FOUND).entity("Plan instance '" + instance + "' not found").build();
 		}
