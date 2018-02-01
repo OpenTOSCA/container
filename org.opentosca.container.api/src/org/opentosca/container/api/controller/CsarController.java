@@ -19,7 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -53,9 +52,6 @@ public class CsarController {
 
   @Context
   private UriInfo uriInfo;
-
-  @Context
-  private Request request;
 
   private CsarService csarService;
 

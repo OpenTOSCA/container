@@ -7,4 +7,5 @@
    </service>
    <reference bind="setInstanceService" cardinality="1..1" interface="org.opentosca.container.api.service.InstanceService" name="InstanceService" policy="static"/>
    <reference bind="setPlanService" cardinality="1..1" interface="org.opentosca.container.api.service.PlanService" name="PlanService" policy="static"/>
+   <reference bind="setVerificationService" cardinality="1..1" interface="org.opentosca.deployment.verification.VerificationService" name="VerificationService" policy="static"/>
 </scr:component>

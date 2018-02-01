@@ -986,7 +986,6 @@
          version="0.0.0"
          unpack="false"/>
 
-
    <plugin
          id="org.opentosca.planbuilder.service"
          download-size="0"
@@ -1014,7 +1013,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
 
    <plugin
          id="org.opentosca.planbuilder.type.plugin.ubuntuvm"
@@ -1376,6 +1374,34 @@
 
    <plugin
          id="org.opentosca.planbuilder.core.bpel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.lang3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.deployment.verification"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.jcraft.jsch"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.deployment.verification.mysql"
          download-size="0"
          install-size="0"
          version="0.0.0"

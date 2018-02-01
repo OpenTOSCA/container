@@ -75,7 +75,7 @@ public class PlanInstance extends PersistenceObject {
     return correlationId;
   }
 
-  public void setCorrelationId(String correlationId) {
+  public void setCorrelationId(final String correlationId) {
     this.correlationId = correlationId;
   }
 
@@ -124,7 +124,7 @@ public class PlanInstance extends PersistenceObject {
     return inputs;
   }
 
-  public void setInputs(Set<PlanInstanceInput> inputs) {
+  public void setInputs(final Set<PlanInstanceInput> inputs) {
     this.inputs = inputs;
   }
 
@@ -169,7 +169,7 @@ public class PlanInstance extends PersistenceObject {
     return templateId;
   }
 
-  public void setTemplateId(QName templateId) {
+  public void setTemplateId(final QName templateId) {
     this.templateId = templateId;
   }
 }

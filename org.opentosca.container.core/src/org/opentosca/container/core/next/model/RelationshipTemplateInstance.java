@@ -88,8 +88,8 @@ public class RelationshipTemplateInstance extends PersistenceObject {
 
   public void setSource(final NodeTemplateInstance source) {
     this.source = source;
-    if (!source.getSourceRelations().contains(this)) {
-      source.getSourceRelations().add(this);
+    if (!source.getOutgoingRelations().contains(this)) {
+      source.getOutgoingRelations().add(this);
     }
   }
 
@@ -99,8 +99,8 @@ public class RelationshipTemplateInstance extends PersistenceObject {
 
   public void setTarget(final NodeTemplateInstance target) {
     this.target = target;
-    if (!target.getTargetRelations().contains(this)) {
-      target.getTargetRelations().add(this);
+    if (!target.getIncomingRelations().contains(this)) {
+      target.getIncomingRelations().add(this);
     }
   }
 

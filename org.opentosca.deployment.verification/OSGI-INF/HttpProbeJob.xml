@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.deployment.verification.job.HttpProbeJob">
+   <implementation class="org.opentosca.deployment.verification.job.HttpProbeJob"/>
+   <service>
+      <provide interface="org.opentosca.deployment.verification.job.ServiceTemplateJob"/>
+   </service>
+</scr:component>

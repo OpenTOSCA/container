@@ -1,13 +1,18 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -16,7 +21,10 @@ import javax.persistence.Table;
 import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
+import org.opentosca.container.core.next.xml.PropertyParser;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -34,17 +42,18 @@ public class NodeTemplateInstance extends PersistenceObject {
 
   @OrderBy("createdAt DESC")
   @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
+  @JsonIgnore
   private Set<NodeTemplateInstanceProperty> properties = Sets.newHashSet();
 
   @ManyToOne
   @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
   private ServiceTemplateInstance serviceTemplateInstance;
 
-  @OneToMany(mappedBy = "source")
-  private Collection<RelationshipTemplateInstance> sourceRelations = Lists.newArrayList();
-
   @OneToMany(mappedBy = "target")
-  private Collection<RelationshipTemplateInstance> targetRelations = Lists.newArrayList();
+  private Collection<RelationshipTemplateInstance> incomingRelations = Lists.newArrayList();
+
+  @OneToMany(mappedBy = "source")
+  private Collection<RelationshipTemplateInstance> outgoingRelations = Lists.newArrayList();
 
   @Convert("QNameConverter")
   @Column(name = "TEMPLATE_ID", nullable = false)
@@ -54,10 +63,14 @@ public class NodeTemplateInstance extends PersistenceObject {
   @Column(name = "TEMPLATE_TYPE", nullable = false)
   private QName templateType;
 
+  @OrderBy("createdAt DESC")
+  @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
+  @JsonIgnore
+  private List<VerificationResult> verificationResults = Lists.newArrayList();
 
-  public NodeTemplateInstance() {
 
-  }
+  public NodeTemplateInstance() {}
+
 
   public NodeTemplateInstanceState getState() {
     return this.state;
@@ -85,6 +98,23 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
   }
 
+  /*
+   * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+   * parse this XML and return a Map<String, String>.
+   */
+  @JsonProperty("properties")
+  public Map<String, String> getPropertiesAsMap() {
+    Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    final NodeTemplateInstanceProperty prop =
+        this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+            .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+    if (prop != null) {
+      final PropertyParser parser = new PropertyParser();
+      properties = parser.parse(prop.getValue());
+    }
+    return properties;
+  }
+
   public ServiceTemplateInstance getServiceTemplateInstance() {
     return this.serviceTemplateInstance;
   }
@@ -96,33 +126,35 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
   }
 
-  public Collection<RelationshipTemplateInstance> getSourceRelations() {
-    return this.sourceRelations;
+  public Collection<RelationshipTemplateInstance> getIncomingRelations() {
+    return this.incomingRelations;
   }
 
-  public void setSourceRelations(final Collection<RelationshipTemplateInstance> sourceRelations) {
-    this.sourceRelations = sourceRelations;
+  public void setIncomingRelations(
+      final Collection<RelationshipTemplateInstance> incomingRelations) {
+    this.incomingRelations = incomingRelations;
   }
 
-  public void addSourceRelation(final RelationshipTemplateInstance sourceRelation) {
-    this.sourceRelations.add(sourceRelation);
-    if (sourceRelation.getSource() != this) {
-      sourceRelation.setSource(this);
+  public void addIncomingRelation(final RelationshipTemplateInstance incomingRelation) {
+    this.incomingRelations.add(incomingRelation);
+    if (incomingRelation.getTarget() != this) {
+      incomingRelation.setTarget(this);
     }
   }
 
-  public Collection<RelationshipTemplateInstance> getTargetRelations() {
-    return this.targetRelations;
+  public Collection<RelationshipTemplateInstance> getOutgoingRelations() {
+    return this.outgoingRelations;
   }
 
-  public void setTargetRelations(final Collection<RelationshipTemplateInstance> targetRelations) {
-    this.targetRelations = targetRelations;
+  public void setOutgoingRelations(
+      final Collection<RelationshipTemplateInstance> outgoingRelations) {
+    this.outgoingRelations = outgoingRelations;
   }
 
-  public void addTargetRelation(final RelationshipTemplateInstance targetRelation) {
-    this.targetRelations.add(targetRelation);
-    if (targetRelation.getTarget() != this) {
-      targetRelation.setTarget(this);
+  public void addOutgoingRelation(final RelationshipTemplateInstance outgoingRelation) {
+    this.outgoingRelations.add(outgoingRelation);
+    if (outgoingRelation.getSource() != this) {
+      outgoingRelation.setSource(this);
     }
   }
 
@@ -130,7 +162,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     return templateId;
   }
 
-  public void setTemplateId(QName templateId) {
+  public void setTemplateId(final QName templateId) {
     this.templateId = templateId;
   }
 
@@ -138,7 +170,22 @@ public class NodeTemplateInstance extends PersistenceObject {
     return templateType;
   }
 
-  public void setTemplateType(QName templateType) {
+  public void setTemplateType(final QName templateType) {
     this.templateType = templateType;
+  }
+
+  public List<VerificationResult> getVerificationResults() {
+    return verificationResults;
+  }
+
+  public void setVerificationResults(final List<VerificationResult> verificationResults) {
+    this.verificationResults = verificationResults;
+  }
+
+  public void addVerificationResult(final VerificationResult verificationResult) {
+    this.verificationResults.add(verificationResult);
+    if (verificationResult.getNodeTemplateInstance() != this) {
+      verificationResult.setNodeTemplateInstance(this);
+    }
   }
 }

@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.dto.PlanDTO;
 import org.opentosca.container.api.legacy.resources.csar.servicetemplate.instances.BuildCorrelationToInstanceMapping;
 import org.opentosca.container.control.IOpenToscaControlService;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.impl.plan.CorrelationHandler;
@@ -24,6 +25,7 @@ import org.opentosca.container.core.tosca.extension.PlanInvocationEvent;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TPlan;
+import org.opentosca.deployment.verification.VerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +46,8 @@ public class PlanService {
   private IOpenToscaControlService controlService;
 
   private ICSARInstanceManagementService csarInstanceService;
+
+  private VerificationService verificationService;
 
   private final CorrelationHandler correlationHandler = ServiceProxy.correlationHandler;
 
@@ -81,7 +85,7 @@ public class PlanService {
   }
 
   public String invokePlan(final CSARID csarId, final QName serviceTemplate, final TPlan plan,
-      final List<TParameter> parameters) {
+      final List<TParameter> parameters, final boolean verifyDeployment) {
 
     final PlanDTO dto = new PlanDTO(plan);
 
@@ -90,11 +94,24 @@ public class PlanService {
     dto.setInputParameters(parameters);
 
     try {
-      return this.controlService.invokePlanInvocation(csarId, serviceTemplate, -1,
-          PlanDTO.Converter.convert(dto));
+      // Trigger plan
+      final String correlationId = this.controlService.invokePlanInvocation(csarId, serviceTemplate,
+          -1, PlanDTO.Converter.convert(dto));
+
+      // Start deployment verification
+      if (verifyDeployment && Boolean.valueOf(Settings.OPENTOSCA_DEPLOYMENT_VERIFICATION)) {
+        verificationService.runAfterPlan(csarId, correlationId);
+      }
+
+      return correlationId;
     } catch (final UnsupportedEncodingException e) {
       throw new ServerErrorException(500, e);
     }
+  }
+
+  public String invokePlan(final CSARID csarId, final QName serviceTemplate, final TPlan plan,
+      final List<TParameter> parameters) {
+    return this.invokePlan(csarId, serviceTemplate, plan, parameters, false);
   }
 
   public boolean hasPlan(final CSARID csarId, final List<PlanTypes> planTypes, final String plan) {
@@ -150,5 +167,9 @@ public class PlanService {
 
   public void setCsarInstanceService(final ICSARInstanceManagementService csarInstanceService) {
     this.csarInstanceService = csarInstanceService;
+  }
+
+  public void setVerificationService(final VerificationService verificationService) {
+    this.verificationService = verificationService;
   }
 }

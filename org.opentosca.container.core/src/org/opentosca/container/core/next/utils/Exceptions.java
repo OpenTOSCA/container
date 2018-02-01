@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class Exceptions {
+
   @FunctionalInterface
   public interface Consumer_WithExceptions<T> {
     void accept(T t) throws Exception;
