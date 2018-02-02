@@ -57,8 +57,8 @@ public class ServiceTemplateController {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get Service Templates from CSAR", response = ServiceTemplateDTO.class, responseContainer = "List")
-	public Response getServiceTemplates(@PathParam("csar") final String csar) {
+	@ApiOperation(value = "Gets all service templates of a CSAR", response = ServiceTemplateDTO.class, responseContainer = "List")
+	public Response getServiceTemplates(@ApiParam("CSAR id")@PathParam("csar") final String csar) {
 		final CSARContent csarContent = this.csarService.findById(csar);
 		final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
 
@@ -78,9 +78,9 @@ public class ServiceTemplateController {
 	@GET
 	@Path("/{servicetemplate}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get service templates from CSAR", response = ServiceTemplateDTO.class)
-	public Response getServiceTemplate(@PathParam("csar") final String csar,
-			@PathParam("servicetemplate") final String serviceTemplateId) {
+	@ApiOperation(value = "Gets a specific service templates identified by its qualified name", response = ServiceTemplateDTO.class)
+	public Response getServiceTemplate(@ApiParam("CSAR id")@PathParam("csar") final String csar,
+			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") final String serviceTemplateId) {
 
 		final CSARContent csarContent = this.csarService.findById(csar);
 		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
@@ -103,8 +103,8 @@ public class ServiceTemplateController {
 	}
 
 	@Path("/{servicetemplate}/buildplans")
-	public BuildPlanController getBuildPlans(@PathParam("csar") final String csar,
-			@PathParam("servicetemplate") final String serviceTemplateId) {
+	public BuildPlanController getBuildPlans(@ApiParam("CSAR id")@PathParam("csar") final String csar,
+			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") final String serviceTemplateId) {
 
 		final CSARContent csarContent = this.csarService.findById(csar);
 		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {

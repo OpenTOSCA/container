@@ -46,9 +46,9 @@ public class NodeTemplateController {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get all node templates of a specific service template", response = NodeTemplateDTO.class, responseContainer = "List")
-	public Response getNodeTemplates(@PathParam("csar") String csarId,
-			@PathParam("servicetemplate") String serviceTemplateId) throws NotFoundException {
+	@ApiOperation(value = "Gets all node templates of a specific service template", response = NodeTemplateDTO.class, responseContainer = "List")
+	public Response getNodeTemplates(@ApiParam("CSAR id")@PathParam("csar") String csarId,
+			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") String serviceTemplateId) throws NotFoundException {
 
 		// this validates that the CSAR contains the service template
 		final List<NodeTemplateDTO> nodeTemplateIds = this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId,
@@ -69,10 +69,10 @@ public class NodeTemplateController {
 	@GET
 	@Path("/{nodetemplate}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get a specific node template by its id", response = NodeTemplateDTO.class)
-	public Response getNodeTemplate(@PathParam("csar") String csarId,
-			@PathParam("servicetemplate") String serviceTemplateId,
-			@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
+	@ApiOperation(value = "Gets a specific node template by its id", response = NodeTemplateDTO.class)
+	public Response getNodeTemplate(@ApiParam("CSAR id")@PathParam("csar") String csarId,
+			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") String serviceTemplateId,
+			@ApiParam("node template id")@PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
 		final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId,
 				QName.valueOf(serviceTemplateId), nodeTemplateId);

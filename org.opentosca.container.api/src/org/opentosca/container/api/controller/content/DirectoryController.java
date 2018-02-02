@@ -39,7 +39,7 @@ public class DirectoryController {
 
   @GET
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  @ApiOperation(value = "Get links", response = ResourceSupport.class)
+  @ApiOperation(value = "Gets links", response = ResourceSupport.class)
   public Response getLinks(@Context final UriInfo uriInfo) {
     ResourceSupport dto = new ResourceSupport();
     for (final AbstractDirectory directory : this.directory.getDirectories()) {

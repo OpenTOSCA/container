@@ -38,8 +38,8 @@ import io.swagger.annotations.SwaggerDefinition;
 @Api("/")
 @SwaggerDefinition(
         info = @Info(
-        		title = "A Swagger test API",
-                description = "This API only exist to test swagger support",
+        		title = "Swagger API for OpenTOSCA Container",
+                description = "This API provides access to the REST-based opearations that allow to query and manipulate various entities managed by the OpenTOSCA container, as well as to execute certain operations on it.",
                 version = "1.0",  
                 termsOfService = "share and care",
                 contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org"),
@@ -55,7 +55,7 @@ public class RootController {
 
 	@GET
 	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-	@ApiOperation(value = "Get Root for CSAR", response = ResourceSupport.class, responseContainer = "List")
+	@ApiOperation(value = "Gets the root resource", response = ResourceSupport.class, responseContainer = "List")
 	public Response getRoot() {
 		final ResourceSupport links = new ResourceSupport();
 		links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());

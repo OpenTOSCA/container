@@ -35,12 +35,17 @@ import org.w3c.dom.Document;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @Api()
 public class ServiceTemplateInstanceController {
+	@ApiParam("CSAR id")
 	@PathParam("csar")
 	String csarId;
 
+	@ApiParam("qualified name of the service template")
 	@PathParam("servicetemplate")
 	String serviceTemplateId;
 
@@ -85,7 +90,8 @@ public class ServiceTemplateInstanceController {
 	@Path("/{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get a service template instance by id", response = ServiceTemplateInstanceDTO.class)
-	public Response getServiceTemplateInstance(@PathParam("id") final Long id) {
+	public Response getServiceTemplateInstance(
+			@ApiParam("service template instance id") @PathParam("id") final Long id) {
 
 		final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
 		final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
@@ -106,29 +112,32 @@ public class ServiceTemplateInstanceController {
 
 		return Response.ok(dto).build();
 	}
-	
+
 	@DELETE
 	@Path("/{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Deletes a service template instance by id", response = Response.class)
-	public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
+	public Response deleteServiceTemplateInstance(
+			@ApiParam("service template instance id") @PathParam("id") final Long id) {
 		this.instanceService.deleteServiceTemplateInstance(id);
 		return Response.noContent().build();
 	}
 
 	@Path("/{id}/managementplans")
-	public ManagementPlanController getManagementPlans(@PathParam("id") final Long id) {
+	public ManagementPlanController getManagementPlans(
+			@ApiParam("service template instance id") @PathParam("id") final Long id) {
 		final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
 
-		return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id, this.planService,
-				PlanTypes.TERMINATION);
+		return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id,
+				this.planService, PlanTypes.TERMINATION);
 	}
-	
+
 	@GET
 	@Path("/{id}/state")
 	@Produces({ MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Get the state of a service template instance identified by its id.", response = String.class)
-	public Response getServiceTemplateInstanceState(@PathParam("id") final Long id) {
+	public Response getServiceTemplateInstanceState(
+			@ApiParam("service template instance id") @PathParam("id") final Long id) {
 		final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
 
 		return Response.ok(state.toString()).build();
@@ -136,35 +145,49 @@ public class ServiceTemplateInstanceController {
 
 	@PUT
 	@Path("/{id}/state")
-	@Consumes({MediaType.TEXT_PLAIN})
+	@Consumes({ MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Changes the state of a service template instance identified by its id.", response = Response.class)
-	public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
+	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request - The state is invalid"),
+			@ApiResponse(code = 404, message = "Not Found - The service template instance cannot be found"),
+			@ApiResponse(code = 200, message = "successful operation") })
+	public Response updateServiceTemplateInstanceState(
+			@ApiParam("service template instance id") @PathParam("id") final Long id,
+			@ApiParam(required = true, value = "the new state of the node template instance, possible values are (INITIAL, CREATING, CREATED, DELETING, DELETED, ERROR)") final String request) {
 
 		try {
 			this.instanceService.setServiceTemplateInstanceState(id, request);
 		} catch (IllegalArgumentException e) { // this handles a null request too
 			return Response.status(Status.BAD_REQUEST).build();
 		}
-		
+
 		return Response.ok().build();
 	}
-	
+
 	@GET
 	@Path("/{id}/properties")
 	@Produces({ MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Get the set of properties of a service template instance identified by its id.", response = Document.class)
-	public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
+	public Response getServiceTemplateInstanceProperties(
+			@ApiParam("service template instance id") @PathParam("id") final Long id) {
 		final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
 
-		return Response.ok(properties).build();
+		if (properties == null)
+			return Response.noContent().build();
+		else
+			return Response.ok(properties).build();
 	}
-	
+
 	@PUT
 	@Path("/{id}/properties")
-	@Consumes({MediaType.APPLICATION_XML})
-	@Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	@Consumes({ MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
 	@ApiOperation(value = "Changes the set of properties of a service template instance identified by its id.", response = Response.class)
-	public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
+	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),
+			@ApiResponse(code = 404, message = "Not Found - The service template instance cannot be found"),
+			@ApiResponse(code = 200, message = "Successful Operation - A URI to the properties resource") })
+	public Response updateServiceTemplateInstanceProperties(
+			@ApiParam("service template instance id") @PathParam("id") final Long id,
+			@ApiParam(required = true, value = "an xml representation of the set of properties") final Document request) {
 
 		try {
 			this.instanceService.setServiceTemplateInstanceProperties(id, request);
@@ -173,7 +196,7 @@ public class ServiceTemplateInstanceController {
 		} catch (ReflectiveOperationException e) {
 			return Response.serverError().build();
 		}
-		
+
 		return Response.ok(UriUtils.generateSelfURI(uriInfo)).build();
 	}
 
@@ -194,7 +217,7 @@ public class ServiceTemplateInstanceController {
 
 		if (!instance.getTemplateId().equals(QName.valueOf(templateId))) {
 			logger.info("Service template instance <{}> could not be found", instanceId);
-			throw new NotFoundException(String.format("Service template instance <{}> could not be found", instanceId));
+			throw new NotFoundException(String.format("Service template instance <%s> could not be found", instanceId));
 		}
 
 		return instance;

@@ -50,6 +50,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 @Path("/csars")
 @Api(value = "/")
@@ -73,7 +75,7 @@ public class CsarController {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get all CSARS", response = CsarDTO.class, responseContainer = "List")
+	@ApiOperation(value = "Gets all CSARs", response = CsarDTO.class, responseContainer = "List")
 	public Response getCsars() {
 
 		final CsarListDTO list = new CsarListDTO();
@@ -96,8 +98,8 @@ public class CsarController {
 	@GET
 	@Path("/{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get Metadata for CSARs", response = CsarDTO.class)
-	public Response getCsar(@PathParam("id") final String id) {
+	@ApiOperation(value = "Gets a given CSAR", response = CsarDTO.class)
+	public Response getCsar(@ApiParam("CSAR id")@PathParam("id") final String id) {
 
 		final CSARContent csarContent = this.csarService.findById(id);
 		final Application metadata = this.csarService.getSelfserviceMetadata(csarContent);
@@ -130,17 +132,19 @@ public class CsarController {
 	}
 
 	@Path("/{id}/content")
-	public DirectoryController getContent(@PathParam("id") final String id) {
+	public DirectoryController getContent(@ApiParam("CSAR id")@PathParam("id") final String id) {
 		final CSARContent csarContent = this.csarService.findById(id);
 		return new DirectoryController(csarContent.getCsarRoot());
 	}
 
-
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Upload a CSAR file", response = Response.class, hidden = true)
-	@ApiResponse(code = 400, message = "Bad request")
+	@ApiOperation(value = "Uploads a CSAR file", notes = "handles missing requirements", response = Response.class, hidden = true)
+	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 406, message = "CSAR is not acceptable"),
+			@ApiResponse(code = 204, message = "Created - The CSAR has been successfully created and its location is returned as the value of the location header", responseHeaders = {
+					@ResponseHeader(name = "location", description = "the URI of the create CSAR") }) })
 	public Response uploadFile(
 			@ApiParam(value = "The CSAR file", required = true) @FormDataParam(value = "file") final InputStream is,
 			@ApiParam(hidden = true) @FormDataParam("file") final FormDataContentDisposition file)
@@ -157,8 +161,12 @@ public class CsarController {
 	@POST
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Handle an upload request for a CSAR file", notes = "return status", response = Response.class)
-	public Response upload(final CsarUploadRequest request) {
+	@ApiOperation(value = "Handles an upload request for a CSAR file", notes = "handles missing requirements", response = Response.class)
+	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 406, message = "CSAR is not acceptable"),
+			@ApiResponse(code = 204, message = "Created - The CSAR has been successfully created and its location is returned as the value of the location header", responseHeaders = {
+					@ResponseHeader(name = "location", description = "the URI of the create CSAR") }) })
+	public Response upload(@ApiParam(required = true, value = "CSAR upload reques.")final CsarUploadRequest request) {
 
 		if (request == null) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -181,8 +189,7 @@ public class CsarController {
 		}
 	}
 
-	@ApiOperation(value = "Handle CSAR upload ", notes = "handles missing requirements", response = Response.class)
-	@ApiResponse(code = 406, message = "CSAR is not acceptable")
+
 	private Response handleCsarUpload(final String filename, final InputStream is) {
 
 		final File file = this.csarService.storeTemporaryFile(filename, is);
@@ -272,8 +279,8 @@ public class CsarController {
 
 	@DELETE
 	@Path("/{id}")
-	@ApiOperation(value = "Delete CSAR File by ID", response = Response.class)
-	public Response delete(@PathParam("id") final String id) {
+	@ApiOperation(value = "Deletes a CSAR file", response = Response.class)
+	public Response delete(@ApiParam("CSAR id")@PathParam("id") final String id) {
 
 		final CSARContent csarContent = this.csarService.findById(id);
 

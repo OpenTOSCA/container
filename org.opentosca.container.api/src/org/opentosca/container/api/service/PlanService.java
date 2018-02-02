@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
@@ -20,6 +22,7 @@ import javax.xml.namespace.QName;
 import org.glassfish.jersey.uri.UriComponent;
 import org.opentosca.container.api.dto.plans.PlanDTO;
 import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
+import org.opentosca.container.api.dto.plans.PlanInstanceEventListDTO;
 import org.opentosca.container.api.dto.plans.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plans.PlanListDTO;
 import org.opentosca.container.api.util.JsonUtil;
@@ -30,6 +33,8 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceEvent;
+import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
@@ -54,6 +59,8 @@ public class PlanService {
 	private IToscaReferenceMapper referenceMapper;
 
 	private IOpenToscaControlService controlService;
+
+	private PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
 
 	public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
 		logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
@@ -109,6 +116,58 @@ public class PlanService {
 		return false;
 	}
 
+	/**
+	 * Gets the indicated plan instance and performs sanity checks insuring that the
+	 * plan belongs to the service template, the instance belongs to the plan, and
+	 * belongs to the service template instance (if one is passed).
+	 * 
+	 * @param plan
+	 * @param instance
+	 * @param uriInfo
+	 * @param csarId
+	 * @param serviceTemplate
+	 * @param serviceTemplateInstanceId
+	 * @param planTypes
+	 * @return
+	 */
+	private PlanInstance resolvePlanInstance(final String plan, final String instance, final UriInfo uriInfo,
+			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
+			final PlanTypes... planTypes) {
+
+		if (!hasPlan(csarId, planTypes, plan)) {
+			final String msg = "Plan \"" + plan + "\" could not be found";
+			logger.info(msg);
+			throw new NotFoundException(msg);
+		}
+
+		final PlanInstanceRepository repository = new PlanInstanceRepository();
+		final PlanInstance pi = repository.findByCorrelationId(instance);
+
+		if (pi == null) {
+			final String msg = "Plan instance '" + instance + "' not found";
+			logger.info(msg);
+			throw new NotFoundException(msg);
+		}
+
+		final Long id = pi.getServiceTemplateInstance().getId();
+
+		if (!pi.getTemplateId().getLocalPart().equals(plan)) {
+			final String msg = String.format(
+					"The passed plan instance <%s> does not belong to the passed plan template: %s", instance, plan);
+			logger.info(msg);
+			throw new NotFoundException(msg);
+		}
+
+		if (serviceTemplateInstanceId != null && serviceTemplateInstanceId != id) {
+			final String msg = String.format(
+					"The passed service template instance id <%s> does not match the service template instance id that is associated with the plan instance <%s> ",
+					serviceTemplateInstanceId, id, instance);
+			logger.info(msg);
+			throw new NotFoundException(msg);
+		}
+
+		return pi;
+	}
 
 	/* Service Injection */
 	/********************/
@@ -125,7 +184,11 @@ public class PlanService {
 	}
 
 	/* API Operations Helper Methods */
-	/*******************************/
+	/*********************************/
+	/*********************************/
+
+	/* Plan Templates */
+	/******************/
 	public Response getPlans(final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
 			final PlanTypes... planTypes) {
 
@@ -166,55 +229,6 @@ public class PlanService {
 				.rel("instances").build());
 		dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
 		return Response.ok(dto).build();
-	}
-
-	public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
-			final QName serviceTemplate, final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-
-		if (!hasPlan(csarId, planTypes, plan)) {
-			logger.info("Plan \"" + plan + "\" could not be found");
-			throw new NotFoundException("Plan \"" + plan + "\" could not be found");
-		}
-
-		ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-
-		final Collection<ServiceTemplateInstance> serviceInstances;
-		if (serviceTemplateInstanceId != null) {
-			serviceInstances = Lists.newArrayList();
-			serviceInstances.add(repo.find(serviceTemplateInstanceId).get());
-		} else {
-			serviceInstances = repo.findByCsarId(csarId);
-		}
-
-		final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
-		for (ServiceTemplateInstance sti : serviceInstances) {
-			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream()
-					.filter(p -> Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeURI(p.getType().toString())))
-					.map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
-			planInstances.addAll(foo);
-		}
-
-		for (final PlanInstanceDTO pi : planInstances) {
-
-			// Add service template instance link
-			final Long id = pi.getServiceTemplateInstanceId();
-			if (id != null) {
-				final URI uri = uriInfo.getBaseUriBuilder()
-						.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-						.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(id));
-				pi.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
-			}
-
-			// Add self link
-			pi.add(UriUtils.generateSubResourceLink(uriInfo, pi.getCorrelationId(), true, "self"));
-		}
-
-		final PlanInstanceListDTO list = new PlanInstanceListDTO();
-
-		list.add(planInstances);
-		list.add(UriUtils.generateSelfLink(uriInfo));
-
-		return Response.ok(list).build();
 	}
 
 	public Response invokePlan(final String plan, final UriInfo uriInfo, final List<TParameter> parameters,
@@ -261,36 +275,153 @@ public class PlanService {
 		return Response.created(location).build();
 	}
 
-	public Response getPlanInstance(final String plan, final String instance, final UriInfo uriInfo,
-			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
-			final PlanTypes... planTypes) {
+	/* Plan Instances */
+	/*****************/
+	public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
+			final QName serviceTemplate, final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
 		if (!hasPlan(csarId, planTypes, plan)) {
 			logger.info("Plan \"" + plan + "\" could not be found");
 			throw new NotFoundException("Plan \"" + plan + "\" could not be found");
 		}
 
-		final PlanInstanceRepository repository = new PlanInstanceRepository();
-		final PlanInstance pi = repository.findByCorrelationId(instance);
+		ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
 
-		if (pi == null) {
-			return Response.status(Status.NOT_FOUND).entity("Plan instance '" + instance + "' not found").build();
+		final Collection<ServiceTemplateInstance> serviceInstances;
+		if (serviceTemplateInstanceId != null) {
+			serviceInstances = Lists.newArrayList();
+			serviceInstances.add(repo.find(serviceTemplateInstanceId).get());
+		} else {
+			serviceInstances = repo.findByCsarId(csarId);
 		}
 
-		final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
+		final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
+		for (ServiceTemplateInstance sti : serviceInstances) {
+			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream()
+					.filter(p -> Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeURI(p.getType().toString())))
+					.map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
+			planInstances.addAll(foo);
+		}
 
+		for (final PlanInstanceDTO pi : planInstances) {
+			
+			// Should we add the link in the "instances" method or only in "instance" method?
+			// Add service template instance link
+			final Long id = pi.getServiceTemplateInstanceId();
+			if (id != null) {
+				final URI uri = uriInfo.getBaseUriBuilder()
+						.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
+						.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(id));
+				pi.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
+			}
+
+			// Add self link
+			pi.add(UriUtils.generateSubResourceLink(uriInfo, pi.getCorrelationId(), true, "self"));
+		}
+
+		final PlanInstanceListDTO list = new PlanInstanceListDTO();
+
+		list.add(planInstances);
+		list.add(UriUtils.generateSelfLink(uriInfo));
+
+		return Response.ok(list).build();
+	}
+
+	public Response getPlanInstance(final String plan, final String instance, final UriInfo uriInfo,
+			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
+			final PlanTypes... planTypes) {
+
+		final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+				serviceTemplateInstanceId, planTypes);
+		final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
 		// Add service template instance link
-		final Long id = pi.getServiceTemplateInstance().getId();
-		if (id != null) {
+		if (pi.getCorrelationId() != null) {
 			final URI uri = uriInfo.getBaseUriBuilder()
 					.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-					.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(id));
+					.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(pi.getCorrelationId()));
 			dto.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
 		}
+		
+		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtils.generateSubResourceLink(uriInfo, "logs", false, "logs"));
 
 		// Add self link
 		dto.add(UriUtils.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
+
 	}
+
+	public Response getPlanInstanceState(final String plan, final String instance, final UriInfo uriInfo,
+			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
+			final PlanTypes... planTypes) {
+		final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+				serviceTemplateInstanceId, planTypes);
+
+		return Response.ok(pi.getState().toString()).build();
+	}
+
+	public Response changePlanInstanceState(final String newState, final String plan, final String instance,
+			final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
+			final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+		final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+				serviceTemplateInstanceId, planTypes);
+
+		try {
+			final PlanInstanceState parsedState = PlanInstanceState.valueOf(newState);
+			pi.setState(parsedState);
+			this.planInstanceRepository.update(pi);
+
+			return Response.ok().build();
+		} catch (IllegalArgumentException e) {
+			String msg = String.format("The given state %s is an illegal plan instance state.", newState);
+			logger.info(msg);
+
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+
+	}
+
+	public Response getPlanInstanceLogs(final String plan, final String instance, final UriInfo uriInfo, final CSARID csarId,
+			final QName serviceTemplate, final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+		final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+				serviceTemplateInstanceId, planTypes);
+		final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
+		final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
+		dto.add(UriUtils.generateSelfLink(uriInfo));
+
+		return Response.ok(dto).build();
+	}
+
+	public Response addLogToPlanInstance(final String logEntry, final String plan, final String instance, final UriInfo uriInfo,
+			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
+			final PlanTypes... planTypes) {
+		// First we try to "parse" the entry in case it is xml <log>xxx</log>
+		String entry = "";
+
+		final Pattern pattern = Pattern.compile("^<log>(.+)</log>$");
+		final Matcher matcher = pattern.matcher(logEntry);
+
+		if (matcher.matches()) {
+			entry = matcher.group(1).trim();
+		} else {// Otherwise the entry is plain text
+			entry = logEntry.trim();
+		}
+
+		if (entry != null && entry.length() > 0) {
+			final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+					serviceTemplateInstanceId, planTypes);
+			final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
+			pi.addEvent(event);
+			this.planInstanceRepository.update(pi);
+			final URI resourceUri = UriUtils.generateSelfURI(uriInfo);
+
+			return Response.ok(resourceUri).build();
+
+		} else {
+			logger.info("Log entry is empty!");
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	}
+
 }

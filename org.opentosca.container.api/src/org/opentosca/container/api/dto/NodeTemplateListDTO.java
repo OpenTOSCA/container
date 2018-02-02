@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 public class NodeTemplateListDTO extends ResourceSupport {
 	@JsonProperty
 	@XmlElement(name = "NodeTemplate")
-	@XmlElementWrapper(name = "NodeTemplate")
+	@XmlElementWrapper(name = "NodeTemplates")
 	private final List<NodeTemplateDTO> nodeTemplates = Lists.newArrayList();
 
 

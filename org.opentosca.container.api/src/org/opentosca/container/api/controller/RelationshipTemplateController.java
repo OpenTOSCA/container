@@ -47,9 +47,9 @@ public class RelationshipTemplateController {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get all relationship templates of a specific service template", response = RelationshipTemplateDTO.class, responseContainer = "List")
-	public Response getRelationshipTemplates(@PathParam("csar") String csarId,
-			@PathParam("servicetemplate") String serviceTemplateId) throws NotFoundException {
+	@ApiOperation(value = "Gets all relationship templates of a specific service template", response = RelationshipTemplateDTO.class, responseContainer = "List")
+	public Response getRelationshipTemplates(@ApiParam("CSAR id")@PathParam("csar") String csarId,
+			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") String serviceTemplateId) throws NotFoundException {
 
 		// this validates that the CSAR contains the service template
 		final List<RelationshipTemplateDTO> relationshipTemplateIds = this.relationshipTemplateService
@@ -71,10 +71,10 @@ public class RelationshipTemplateController {
 	@GET
 	@Path("/{relationshiptemplate}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@ApiOperation(value = "Get a specific relationship template by its id", response = RelationshipTemplateDTO.class)
-	public Response getRelationshipTemplate(@PathParam("csar") String csarId,
-			@PathParam("servicetemplate") String serviceTemplateId,
-			@PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
+	@ApiOperation(value = "Gets a specific relationship template by its id", response = RelationshipTemplateDTO.class)
+	public Response getRelationshipTemplate(@ApiParam("CSAR id")@PathParam("csar") String csarId,
+			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") String serviceTemplateId,
+			@ApiParam("relationship template id")@PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
 		final RelationshipTemplateDTO result = this.relationshipTemplateService.getRelationshipTemplateById(csarId,
 				QName.valueOf(serviceTemplateId), relationshipTemplateId);

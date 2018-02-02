@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
+import org.opentosca.container.core.next.model.PlanInstanceInput;
 import org.opentosca.container.core.next.model.PlanInstanceOutput;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
@@ -30,18 +31,18 @@ public class PlanInstanceDTO extends ResourceSupport {
 	@XmlTransient
 	private Long serviceTemplateInstanceId;
 	
-	@XmlAttribute(name = "crrelationId")
+	@XmlAttribute(name = "correlationId")
 	private String correlationId;
 	
-	@XmlAttribute(name = "state")
+	@XmlElement(name = "state")
 	private PlanInstanceState state;
 	
-	@XmlAttribute(name = "type")
+	@XmlElement(name = "type")
 	private PlanType type;
 	
-//	@XmlElement(name = "InputParameter")
-//	@XmlElementWrapper(name = "InputParameters")
-//	private Collection<PlanInstanceInputDTO> inputs;
+	@XmlElement(name = "InputParameter")
+	@XmlElementWrapper(name = "InputParameters")
+	private Collection<PlanInstanceInputDTO> inputs;
 	
 	@XmlElement(name = "OutputParameter")
 	@XmlElementWrapper(name = "OutputParameters")
@@ -50,10 +51,6 @@ public class PlanInstanceDTO extends ResourceSupport {
 	@XmlElement(name = "LogEntry")
 	@XmlElementWrapper(name = "Logs")
 	private Collection<PlanInstanceEventDTO> logs;
-
-	public PlanInstanceDTO() {
-
-	}
 
 
 	public String getCorrelationId() {
@@ -76,22 +73,19 @@ public class PlanInstanceDTO extends ResourceSupport {
 	}
 
 
-
 	public void setType(PlanType type) {
 		this.type = type;
 	}
 
+	public Collection<PlanInstanceInputDTO> getInputs() {
+		return inputs;
+	}
 
 
-//	public Collection<PlanInstanceInputDTO> getInputs() {
-//		return inputs;
-//	}
-//
-//
-//
-//	public void setInputs(Collection<PlanInstanceInputDTO> inputs) {
-//		this.inputs = inputs;
-//	}
+
+	public void setInputs(Collection<PlanInstanceInputDTO> inputs) {
+		this.inputs = inputs;
+	}
 
 	
 	public PlanInstanceState getState() {
@@ -144,11 +138,11 @@ public class PlanInstanceDTO extends ResourceSupport {
 			dto.setOutputs(Lists.newArrayList());
 			
 			dto.setState(object.getState());
-			// dto.setInputs(Lists.newArrayList());
+			dto.setInputs(Lists.newArrayList());
 			
-//			for(final PlanInstanceInput output: object.getInputs()) {
-//				dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));
-//			}
+			for(final PlanInstanceInput output: object.getInputs()) {
+				dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));
+			}
 			
 			for(final PlanInstanceEvent event: object.getEvents()) {
 				dto.getLogs().add(PlanInstanceEventDTO.Converter.convert(event));
