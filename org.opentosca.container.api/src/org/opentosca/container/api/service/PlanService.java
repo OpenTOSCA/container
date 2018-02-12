@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
@@ -20,11 +18,12 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.glassfish.jersey.uri.UriComponent;
-import org.opentosca.container.api.dto.plans.PlanDTO;
-import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
-import org.opentosca.container.api.dto.plans.PlanInstanceEventListDTO;
-import org.opentosca.container.api.dto.plans.PlanInstanceListDTO;
-import org.opentosca.container.api.dto.plans.PlanListDTO;
+import org.opentosca.container.api.dto.plan.PlanDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceEventListDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
+import org.opentosca.container.api.dto.plan.PlanListDTO;
+import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.util.JsonUtil;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.control.IOpenToscaControlService;
@@ -335,10 +334,10 @@ public class PlanService {
 				serviceTemplateInstanceId, planTypes);
 		final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
 		// Add service template instance link
-		if (pi.getCorrelationId() != null) {
+		if (pi.getServiceTemplateInstance() != null) {
 			final URI uri = uriInfo.getBaseUriBuilder()
 					.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-					.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(pi.getCorrelationId()));
+					.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(pi.getServiceTemplateInstance().getId()));
 			dto.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
 		}
 		
@@ -393,20 +392,11 @@ public class PlanService {
 		return Response.ok(dto).build();
 	}
 
-	public Response addLogToPlanInstance(final String logEntry, final String plan, final String instance, final UriInfo uriInfo,
+	public Response addLogToPlanInstance(final CreatePlanInstanceLogEntryRequest logEntry, final String plan, final String instance, final UriInfo uriInfo,
 			final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
 			final PlanTypes... planTypes) {
-		// First we try to "parse" the entry in case it is xml <log>xxx</log>
-		String entry = "";
+		String entry = logEntry.getLogEntry();
 
-		final Pattern pattern = Pattern.compile("^<log>(.+)</log>$");
-		final Matcher matcher = pattern.matcher(logEntry);
-
-		if (matcher.matches()) {
-			entry = matcher.group(1).trim();
-		} else {// Otherwise the entry is plain text
-			entry = logEntry.trim();
-		}
 
 		if (entry != null && entry.length() > 0) {
 			final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,

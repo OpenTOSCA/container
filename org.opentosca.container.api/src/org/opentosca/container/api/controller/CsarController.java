@@ -31,7 +31,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
-import org.opentosca.container.api.dto.CsarUploadRequest;
+import org.opentosca.container.api.dto.request.CsarUploadRequest;
 import org.opentosca.container.api.legacy.resources.utilities.ModelUtils;
 import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.UriUtils;

@@ -1,7 +1,6 @@
 package org.opentosca.container.api.controller;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -15,15 +14,13 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
-import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
+import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtils;
-import org.opentosca.container.core.model.csar.CSARContent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opentosca.container.core.model.csar.id.CSARID;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,8 +29,6 @@ import io.swagger.annotations.ApiParam;
 @Path("/csars/{csar}/servicetemplates")
 @Api(value = "/")
 public class ServiceTemplateController {
-
-	private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
 
 	@Context
 	private UriInfo uriInfo;
@@ -44,8 +39,6 @@ public class ServiceTemplateController {
 	@Context
 	private ResourceContext resourceContext;
 
-	private CsarService csarService;
-
 	private PlanService planService;
 
 	private InstanceService instanceService;
@@ -53,19 +46,19 @@ public class ServiceTemplateController {
 	private NodeTemplateService nodeTemplateService;
 
 	private RelationshipTemplateService relationshipTemplateService;
+	
+	private ServiceTemplateService serviceTemplateService;
 
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Gets all service templates of a CSAR", response = ServiceTemplateDTO.class, responseContainer = "List")
 	public Response getServiceTemplates(@ApiParam("CSAR id")@PathParam("csar") final String csar) {
-		final CSARContent csarContent = this.csarService.findById(csar);
+
 		final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
 
-		for (final String name : this.csarService.getServiceTemplates(csarContent.getCSARID())) {
-			final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO();
-			serviceTemplate.setId(name);
-			serviceTemplate.setName(name);
+		for (final String name : this.serviceTemplateService.getServiceTemplatesOfCsar(csar)) {
+			final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(name);
 			serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, name, true, "self"));
 			list.add(serviceTemplate);
 		}
@@ -82,15 +75,10 @@ public class ServiceTemplateController {
 	public Response getServiceTemplate(@ApiParam("CSAR id")@PathParam("csar") final String csar,
 			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") final String serviceTemplateId) {
 
-		final CSARContent csarContent = this.csarService.findById(csar);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
+		this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-		final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO();
-		serviceTemplate.setId(serviceTemplateId);
-		serviceTemplate.setName(serviceTemplateId);
+		final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(serviceTemplateId);
+
 		serviceTemplate.add(
 				UriUtils.generateSubResourceLink(this.uriInfo, "boundarydefinitions", false, "boundarydefinitions"));
 		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
@@ -106,13 +94,9 @@ public class ServiceTemplateController {
 	public BuildPlanController getBuildPlans(@ApiParam("CSAR id")@PathParam("csar") final String csar,
 			@ApiParam("qualified name of the service template")@PathParam("servicetemplate") final String serviceTemplateId) {
 
-		final CSARContent csarContent = this.csarService.findById(csar);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
+		final CSARID csarId = this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-		return new BuildPlanController(csarContent.getCSARID(), QName.valueOf(serviceTemplateId), null,
+		return new BuildPlanController(csarId, QName.valueOf(serviceTemplateId), null,
 				this.planService);
 	}
 
@@ -122,13 +106,9 @@ public class ServiceTemplateController {
 	public NodeTemplateController getNodeTemplates(
 			@ApiParam(hidden = true) @PathParam("csar") final String csar,
 			@ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-		final CSARContent csarContent = this.csarService.findById(csar);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
+		this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-		NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
+		final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
 		resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
 		return child;
@@ -140,13 +120,9 @@ public class ServiceTemplateController {
 	public RelationshipTemplateController getRelationshipTemplates(
 			@ApiParam(hidden = true) @PathParam("csar") final String csar,
 			@ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-		final CSARContent csarContent = this.csarService.findById(csar);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
+		this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-		RelationshipTemplateController child = new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
+		final RelationshipTemplateController child = new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
 		resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
 		return child;
@@ -158,22 +134,17 @@ public class ServiceTemplateController {
 	public ServiceTemplateInstanceController getInstances(
 			@ApiParam(hidden = true) @PathParam("csar") final String csar,
 			@ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-		final CSARContent csarContent = this.csarService.findById(csar);
-		if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateId)) {
-			logger.info("Service template \"" + serviceTemplateId + "\" could not be found");
-			throw new NotFoundException("Service template \"" + serviceTemplateId + "\" could not be found");
-		}
+		this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-		ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(instanceService, planService);
+		final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(instanceService, planService);
 		this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
 		return child;
 	}
 
-	public void setCsarService(final CsarService csarService) {
-		this.csarService = csarService;
-	}
-
+	
+	/* Service Injection */
+	/*********************/
 	public void setPlanService(final PlanService planService) {
 		this.planService = planService;
 	}
@@ -188,6 +159,10 @@ public class ServiceTemplateController {
 	
 	public void setRelationshipTemplateService(RelationshipTemplateService relationshipTemplateService) {
 		this.relationshipTemplateService = relationshipTemplateService;
+	}
+	
+	public void setServiceTemplateService(ServiceTemplateService serviceTemplateService) {
+		this.serviceTemplateService = serviceTemplateService;
 	}
 
 }

@@ -5,14 +5,19 @@ import java.util.Optional;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.container.api.dto.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
+import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.Property;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceProperty;
@@ -21,11 +26,13 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Allows access to instance information for service templates and node
@@ -38,8 +45,10 @@ public class InstanceService {
 	private final ServiceTemplateInstanceRepository serviceTemplateInstanceRepository = new ServiceTemplateInstanceRepository();
 	private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository = new NodeTemplateInstanceRepository();
 	private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository = new RelationshipTemplateInstanceRepository();
+
 	private RelationshipTemplateService relationshipTemplateService;
 	private NodeTemplateService nodeTemplateService;
+	private ServiceTemplateService serviceTemplateService;
 	private final DocumentConverter converter = new DocumentConverter();
 
 	private Document convertPropertyToDocument(Property property) {
@@ -157,6 +166,87 @@ public class InstanceService {
 		final ServiceTemplateInstance instance = this.getServiceTemplateInstance(instanceId); // throws exception if not
 																								// found
 		this.serviceTemplateInstanceRepository.remove(instance);
+	}
+
+	public ServiceTemplateInstance createServiceTemplateInstance(final String csarId, final String serviceTemplateQName,
+			final String correlationId)
+			throws NotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException {
+		final CSARID csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateQName);
+		final PlanInstanceRepository repository = new PlanInstanceRepository();
+		PlanInstance pi = null;
+
+		try {
+			pi = repository.findByCorrelationId(correlationId);
+		} catch (Exception e) {
+			final String msg = String.format(
+					"The given correlation id %s is either malformed, does not belong to an existing plan instance",
+					correlationId);
+			logger.info(msg);
+			throw new NotFoundException(msg);
+		}
+
+		if (pi.getServiceTemplateInstance() == null) {
+			final QName stqn = QName.valueOf(serviceTemplateQName);
+			final ServiceTemplateInstance result = this.createServiceTemplateInstance(csar, stqn, pi);
+
+			return result;
+		} else {
+			final String msg = "The build plan instance is already associted with a service template instance!";
+			logger.info(msg);
+			throw new IllegalArgumentException(msg);
+		}
+	}
+
+	private ServiceTemplateInstance createServiceTemplateInstance(final CSARID csarId, final QName serviceTemplateQName,
+			final PlanInstance buildPlanInstance)
+			throws InstantiationException, IllegalAccessException, IllegalArgumentException {
+		final Document propertiesAsDoc = this.createServiceInstanceInitialPropertiesFromServiceTemplate(csarId,
+				serviceTemplateQName);
+		final ServiceTemplateInstanceProperty property = convertDocumentToProperty(propertiesAsDoc,
+				ServiceTemplateInstanceProperty.class);
+
+		final ServiceTemplateInstance instance = new ServiceTemplateInstance();
+		instance.setCsarId(csarId);
+		instance.setTemplateId(serviceTemplateQName);
+		instance.setState(ServiceTemplateInstanceState.INITIAL);
+		instance.addProperty(property);
+		instance.addPlanInstance(buildPlanInstance);
+		this.serviceTemplateInstanceRepository.add(instance);
+		(new PlanInstanceRepository()).update(buildPlanInstance);
+
+		return instance;
+	}
+
+	private Document createServiceInstanceInitialPropertiesFromServiceTemplate(final CSARID csarId,
+			final QName serviceTemplateQName) {
+
+		final Document existingProperties = this.serviceTemplateService.getPropertiesOfServicTemplate(csarId,
+				serviceTemplateQName);
+
+		if (existingProperties != null)
+			return existingProperties;
+
+		logger.debug("No Properties found in BoundaryDefinitions for ST {} thus creating blank ones",
+				serviceTemplateQName);
+		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			final Document doc = db.newDocument();
+			final Element createElementNS = doc.createElementNS("http://docs.oasis-open.org/tosca/ns/2011/12",
+					"Properties");
+			createElementNS.setAttribute("xmlns:tosca", "http://docs.oasis-open.org/tosca/ns/2011/12");
+			createElementNS.setPrefix("tosca");
+			doc.appendChild(createElementNS);
+
+			return doc;
+		} catch (ParserConfigurationException e) {
+			logger.info("Cannot create a new DocumentBuilder: {}", e.getMessage());
+		}
+
+		return null; // this should never happen
+
 	}
 
 	/* Node Template Instances */
@@ -469,6 +559,10 @@ public class InstanceService {
 
 	public void setNodeTemplateService(NodeTemplateService nodeTemplateService) {
 		this.nodeTemplateService = nodeTemplateService;
+	}
+
+	public void setServiceTemplateService(ServiceTemplateService serviceTemplateService) {
+		this.serviceTemplateService = serviceTemplateService;
 	}
 
 }

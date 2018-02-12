@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.container.api.controller.ServiceTemplateController">
    <implementation class="org.opentosca.container.api.controller.ServiceTemplateController"/>
-   <reference bind="setCsarService" cardinality="1..1" interface="org.opentosca.container.api.service.CsarService" name="CsarService" policy="static"/>
    <service>
       <provide interface="org.opentosca.container.api.controller.ServiceTemplateController"/>
    </service>
@@ -9,4 +8,5 @@
    <reference bind="setInstanceService" cardinality="1..1" interface="org.opentosca.container.api.service.InstanceService" name="InstanceService" policy="static"/>
    <reference bind="setNodeTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.NodeTemplateService" name="NodeTemplateService" policy="static"/>
    <reference bind="setRelationshipTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.RelationshipTemplateService" name="RelationshipTemplateService" policy="static"/>
+   <reference bind="setServiceTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.ServiceTemplateService" name="ServiceTemplateService" policy="static"/>
 </scr:component>

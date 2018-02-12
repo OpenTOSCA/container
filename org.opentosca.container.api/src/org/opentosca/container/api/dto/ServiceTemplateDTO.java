@@ -15,6 +15,14 @@ public class ServiceTemplateDTO extends ResourceSupport {
 	private String name;
 	
 	
+	public ServiceTemplateDTO() {
+		
+	}
+	
+	public ServiceTemplateDTO(final String qname) {
+		this.name = qname;
+		this.id = qname;
+	}
 	@XmlAttribute(name = "id")
 	public String getId() {
 		return this.id;

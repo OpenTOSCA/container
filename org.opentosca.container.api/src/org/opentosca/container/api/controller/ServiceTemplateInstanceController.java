@@ -7,6 +7,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,6 +22,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtils;
@@ -86,6 +88,36 @@ public class ServiceTemplateInstanceController {
 		return Response.ok(list).build();
 	}
 
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@ApiOperation(value = "Creates a new service template instance that corresponds to an existing build plan instance identified with a correlation id. The instance will be in the INITIAL state and will contain initial set of properties retrieved from the boundary definitions of the corresponding service template.", response = Response.class)
+	@ApiResponses({
+			@ApiResponse(code = 400, message = "Bad Request - The format of the request is invalid, or the plan instance with the given correlation id is already associated with an existing service template instance"),
+			@ApiResponse(code = 404, message = "Not Found - The service template and/or the build plan instances cannot be found"),
+			@ApiResponse(code = 200, message = "Successful Operation - A URL to the created service template instance", response = URI.class) })
+	public Response createServiceTemplateInstance(
+			@ApiParam("The correlation id that corresponds to the build plan instance that created this service template instance") CreateServiceTemplateInstanceRequest request) {
+
+		if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0)
+			return Response.status(Status.BAD_REQUEST).build();
+
+		try {
+			final ServiceTemplateInstance createdInstance = this.instanceService.createServiceTemplateInstance(csarId,
+					serviceTemplateId, request.getCorrelationId());
+
+			final URI uri = UriUtils.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+
+			return Response.ok(uri).build();
+		} catch (IllegalArgumentException e) {
+			return Response.status(Status.BAD_REQUEST).build();
+		} catch (InstantiationException | IllegalAccessException e) {
+			logger.debug("Internal error occurred: {}", e.getMessage());
+
+			return Response.serverError().build();
+		}
+	}
+
 	@GET
 	@Path("/{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -98,7 +130,7 @@ public class ServiceTemplateInstanceController {
 
 		// Build plan: Determine plan instance that created this service
 		// template instance
-		PlanInstance pi = instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD))
+		final PlanInstance pi = instance.getPlanInstances().stream().filter(p -> p.getType().equals(PlanType.BUILD))
 				.findFirst().get();
 		// Add a link
 		final String path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";

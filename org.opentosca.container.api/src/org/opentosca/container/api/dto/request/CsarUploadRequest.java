@@ -1,4 +1,4 @@
-package org.opentosca.container.api.dto;
+package org.opentosca.container.api.dto.request;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

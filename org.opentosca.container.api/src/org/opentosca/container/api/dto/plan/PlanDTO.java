@@ -1,4 +1,4 @@
-package org.opentosca.container.api.dto.plans;
+package org.opentosca.container.api.dto.plan;
 
 import java.util.List;
 import java.util.stream.Collectors;

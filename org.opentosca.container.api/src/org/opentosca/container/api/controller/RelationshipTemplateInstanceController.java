@@ -19,9 +19,9 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.dto.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
+import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.util.UriUtils;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;

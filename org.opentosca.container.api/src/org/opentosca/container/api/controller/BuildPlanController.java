@@ -16,9 +16,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.dto.plans.PlanDTO;
-import org.opentosca.container.api.dto.plans.PlanInstanceDTO;
-import org.opentosca.container.api.dto.plans.PlanInstanceEventDTO;
+import org.opentosca.container.api.dto.plan.PlanDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceEventDTO;
+import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
@@ -142,7 +143,7 @@ public class BuildPlanController {
 
 	@POST
 	@Path("/{plan}/instances/{instance}/logs")
-	@Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Adds an entry to the log associated with the plan instance")
 	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request - Empty log entry given."),
@@ -151,8 +152,8 @@ public class BuildPlanController {
 	public Response addBuildPlanLogEntry(@ApiParam("build plan id") @PathParam("plan") final String plan,
 			@ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
 			@Context final UriInfo uriInfo,
-			@ApiParam(required = true, value = "log entry to be added (either as a plain text, or in the form &#x3C;log&#x3E; log-entry &#x3C;/log&#x3E;)") final String entry) {
-		return this.planService.addLogToPlanInstance(entry, plan, instance, uriInfo, csarId, serviceTemplate,
+			@ApiParam(required = true, value = "log entry to be added (either as a JSON construct, or in the form &#x3C;log&#x3E; log-entry &#x3C;/log&#x3E;)") final CreatePlanInstanceLogEntryRequest logEntry) {
+		return this.planService.addLogToPlanInstance(logEntry, plan, instance, uriInfo, csarId, serviceTemplate,
 				serviceTemplateInstanceId, PLAN_TYPE);
 	}
 
