@@ -1,0 +1,19 @@
+Manifespluginst-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core Classes
+Bundle-SymbolicName: org.opentosca.planbuilder.core
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)", 
+ javax.wsdl;version="1.6.0",
+ javax.wsdl.factory;version="1.6.0",
+ javax.wsdl.xml;version="1.6.0",
+ org.osgi.framework;version="1.3.0",
+ org.slf4j;version="1.7.10"
+Require-Bundle: org.opentosca.planbuilder.model;bundle-version="2.0.0"
+Bundle-ClassPath: .
+Export-Package: org.opentosca.planbuilder.core.plugins,
+ org.opentosca.planbuilder.core.plugins.registry,
+ org.opentosca.planbuilder.core.plugins.context
+Bundle-Activator: org.opentosca.planbuilder.core.plugins.activator.Activator
+Bundle-ActivationPolicy: lazy

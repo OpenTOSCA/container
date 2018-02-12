@@ -13,88 +13,95 @@ import java.util.List;
  * 
  */
 public abstract class AbstractNodeTemplate {
-	
+
 	/**
-	 * Returns the TOSCA RelationshipTemplate which can be used/are declared as
-	 * the source relation, of this NodeTemplate.
+	 * Returns the TOSCA RelationshipTemplate which can be used/are declared as the
+	 * source relation, of this NodeTemplate.
 	 * 
-	 * @return a List of AbstractRelationshipTemplates that have this
-	 *         NodeTemplate as possible source declaration
+	 * @return a List of AbstractRelationshipTemplates that have this NodeTemplate
+	 *         as possible source declaration
 	 */
 	public abstract List<AbstractRelationshipTemplate> getOutgoingRelations();
-	
+
 	/**
-	 * Returns the TOSCA RelationshipTemplate which can be used/are declared as
-	 * the target relation of this NodeTemplate
+	 * Returns the TOSCA RelationshipTemplate which can be used/are declared as the
+	 * target relation of this NodeTemplate
 	 * 
-	 * @return a List of AbstractRelationshipTemplates that have this
-	 *         NodeTemplate as possible target declaration
+	 * @return a List of AbstractRelationshipTemplates that have this NodeTemplate
+	 *         as possible target declaration
 	 */
 	public abstract List<AbstractRelationshipTemplate> getIngoingRelations();
-	
+
 	/**
 	 * Returns the TOSCA Capabilities of this NodeTemplate
 	 * 
 	 * @return a List of AbstractCapabilities for this NodeTemplate
 	 */
 	public abstract List<AbstractCapability> getCapabilities();
-	
+
 	/**
 	 * Returns the TOSCA Requirements of this NodeTemplate
 	 * 
 	 * @return a List of AbstractRequirements for this NodeTemplate
 	 */
 	public abstract List<AbstractRequirement> getRequirements();
-	
+
 	/**
 	 * Returns the Name of this NodeTemplate
 	 * 
 	 * @return a String containing a Name, if not present null
 	 */
 	public abstract String getName();
-	
+
 	/**
 	 * Returns all TOSCA NodeTypeImplementations for this NodeTemplate
 	 * 
 	 * @return a List of AbstractNodeTypeImplementations for this NodeTemplate
 	 */
 	public abstract List<AbstractNodeTypeImplementation> getImplementations();
-	
+
 	/**
 	 * The Id of this NodeTemplate
 	 * 
 	 * @return a String containing an Id for this NodeTemplate
 	 */
 	public abstract String getId();
-	
+
 	/**
 	 * Returns the TOSCA NodeType of this NodeTemplate
 	 * 
 	 * @return an AbstractNodeType for this NodeTemplate
 	 */
 	public abstract AbstractNodeType getType();
-	
+
 	/**
 	 * Returns the TOSCA Properties of this NodeTemplate
 	 * 
 	 * @return an AbstractProperties for this NodeTemplate
 	 */
 	public abstract AbstractProperties getProperties();
-	
+
+	/**
+	 * Returns the attached Policy Templates of this Node Template
+	 * 
+	 * @return a List of AbstractPolicyTemplate
+	 */
+	public abstract List<AbstractPolicy> getPolicies();
+
 	/**
 	 * Returns the DeploymentArtifacts of this NodeTemplate
 	 * 
 	 * @return a List of AbstractDeploymentArtifact
 	 */
 	public abstract List<AbstractDeploymentArtifact> getDeploymentArtifacts();
-	
+
 	/**
 	 * Returns the minInstances attribute of this NodeTemplate
 	 * 
 	 * @return an Integer
 	 */
 	public abstract int getMinInstances();
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,7 +109,7 @@ public abstract class AbstractNodeTemplate {
 	public int hashCode() {
 		return (this.getId() + this.getName()).hashCode();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -114,10 +121,10 @@ public abstract class AbstractNodeTemplate {
 				return true;
 			}
 			return false;
-			
+
 		} else {
 			return false;
 		}
 	}
-	
+
 }

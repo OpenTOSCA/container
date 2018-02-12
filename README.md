@@ -1,8 +1,8 @@
 
+# OpenTOSCA Container - TOSCA Runtime
+
 [![Build Status](https://travis-ci.org/OpenTOSCA/container.svg?branch=master)](https://travis-ci.org/OpenTOSCA/container)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-# OpenTOSCA Container - TOSCA Runtime
 
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
@@ -26,7 +26,7 @@ Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 ## Haftungsausschluss
 
 Dies ist ein Forschungsprototyp.
-Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, entgangene Nutzungen, Verlust von Daten und Informationen, Finanzierungsaufwendungen sowie sonstige Vermögens- und Folgeschäden ist, außer in Fällen von grober Fahrlässigkeit, Vorsatz und Personenschäden ausgeschlossen.
+Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, entgangene Nutzungen, Verlust von Daten und Informationen, Finanzierungsaufwendungen sowie sonstige Vermögens- und Folgeschäden ist, außer in Fällen von grober Fahrlässigkeit, Vorsatz und Personenschäden, ausgeschlossen.
 
 ## Disclaimer of Warranty
 
