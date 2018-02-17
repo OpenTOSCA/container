@@ -603,8 +603,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
 		// check if there is an access policy attached
 		for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-			if (policy.getType().getID().equals(UbuntuVmTypePlugin.noPublicAccessPolicyType)
-					| policy.getType().getID().equals(UbuntuVmTypePlugin.publicAccessPolicyType)) {
+			if (policy.getType().getId().equals(UbuntuVmTypePlugin.noPublicAccessPolicyType)
+					| policy.getType().getId().equals(UbuntuVmTypePlugin.publicAccessPolicyType)) {
 				Element policyPropertyRootElement = policy.getProperties().getDOMElement();
 				if (policyPropertyRootElement.getLocalName().equals("SecurityGroup")) {
 					String securityGroup = policyPropertyRootElement.getTextContent();
@@ -670,7 +670,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 				startRequestInputParams, startRequestOutputParams, false);
 
 		for (AbstractPolicy policy : nodeTemplate.getPolicies()) {
-			if (policy.getType().getID().equals(UbuntuVmTypePlugin.onlyModeledPortsPolicyType)) {
+			if (policy.getType().getId().equals(UbuntuVmTypePlugin.onlyModeledPortsPolicyType)) {
 				List<Variable> modeledPortsVariables = this.fetchModeledPortsOfInfrastructure(context, nodeTemplate);				
 				modeledPortsVariables.add(context.createGlobalStringVariable("vmSshPort", "22"));
 				this.addIpTablesScriptLogic(context, modeledPortsVariables,serverIpPropWrapper, sshUserVariable, sshKeyVariable, ubuntuNodeTemplate);

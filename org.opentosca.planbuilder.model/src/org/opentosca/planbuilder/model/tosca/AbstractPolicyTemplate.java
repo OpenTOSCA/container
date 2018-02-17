@@ -1,12 +1,12 @@
 package org.opentosca.planbuilder.model.tosca;
 
-public abstract class AbstractPolicy {
+public abstract class AbstractPolicyTemplate {
 
   public abstract String getName();
 
-  public abstract AbstractPolicyType getType();
+  public abstract String getId();
 
-  public abstract AbstractPolicyTemplate getTemplate();
+  public abstract AbstractPolicyType getType();
 
   public abstract AbstractProperties getProperties();
 }

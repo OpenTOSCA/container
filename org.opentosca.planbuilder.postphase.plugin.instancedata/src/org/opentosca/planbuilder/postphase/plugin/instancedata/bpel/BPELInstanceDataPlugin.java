@@ -53,7 +53,7 @@ public class BPELInstanceDataPlugin extends InstanceDataPlugin<BPELPlanContext> 
 
 	@Override
 	public boolean canHandle(AbstractNodeTemplate nodeTemplate, AbstractPolicy policy) {
-		if (!policy.getType().getID().equals(this.securePasswordPolicyType)) {
+		if (!policy.getType().getId().equals(this.securePasswordPolicyType)) {
 			return false;
 		}
 		
