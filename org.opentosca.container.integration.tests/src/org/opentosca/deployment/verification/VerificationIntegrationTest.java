@@ -26,8 +26,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
  */
 public class VerificationIntegrationTest {
 
-  // private
-
   private static final String CSAR_NAME = "MyTinyToDo_Bare_Docker.csar";
 
   private final CSARID csar = new CSARID(CSAR_NAME);

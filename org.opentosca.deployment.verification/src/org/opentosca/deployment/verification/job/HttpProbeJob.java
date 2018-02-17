@@ -25,7 +25,7 @@ public class HttpProbeJob implements ServiceTemplateJob {
 
     final VerificationResult result = new VerificationResult();
     result.setName(HttpProbeJob.class.getSimpleName());
-    result.setServiceTemplateInstance(serviceTemplateInstance);
+    // TODO result.setServiceTemplateInstance(serviceTemplateInstance);
     result.start();
 
     final Map<String, String> properties = serviceTemplateInstance.getPropertiesAsMap();

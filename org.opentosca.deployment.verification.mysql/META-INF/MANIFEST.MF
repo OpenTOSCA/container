@@ -10,9 +10,9 @@ Import-Package: com.google.common.base;version="15.0.0",
  com.google.common.collect;version="15.0.0",
  org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.2"
-Require-Bundle: org.opentosca.deployment.verification,
- org.opentosca.container.core,
- org.opentosca.planbuilder.model
+Require-Bundle: org.opentosca.container.core,
+ org.opentosca.planbuilder.model,
+ org.opentosca.deployment.verification
 Export-Package: org.opentosca.deployment.verification.job
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy

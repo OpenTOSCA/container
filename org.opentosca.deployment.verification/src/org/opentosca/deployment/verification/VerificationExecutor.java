@@ -1,7 +1,7 @@
 package org.opentosca.deployment.verification;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,26 +10,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.VerificationResult;
-import org.opentosca.deployment.verification.job.NodeTemplateJob;
-import org.opentosca.deployment.verification.job.ServiceTemplateJob;
+import org.opentosca.deployment.verification.test.HttpTest;
+import org.opentosca.deployment.verification.test.ManagementOperationTest;
+import org.opentosca.deployment.verification.test.TestExecutionPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
+import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class VerificationExecutor {
 
   private static Logger logger = LoggerFactory.getLogger(VerificationExecutor.class);
 
-  private final Set<NodeTemplateJob> nodeTemplateJobs = Sets.newHashSet();
-  private final Set<ServiceTemplateJob> serviceTemplateJobs = Sets.newHashSet();
+  private final List<TestExecutionPlugin> plugins = Lists.newArrayList();
 
   private final ExecutorService jobExecutor;
   private final ExecutorService verificationExecutor;
@@ -37,6 +35,10 @@ public class VerificationExecutor {
 
   public VerificationExecutor() {
     ThreadFactory threadFactory;
+
+    // Load available plugins
+    this.plugins.add(new HttpTest());
+    this.plugins.add(new ManagementOperationTest());
 
     // Prepare job executor
     threadFactory = new ThreadFactoryBuilder().setNameFormat("job-pool-%d").setDaemon(true).build();
@@ -48,40 +50,31 @@ public class VerificationExecutor {
     this.verificationExecutor = Executors.newFixedThreadPool(5, threadFactory);
   }
 
-
   public CompletableFuture<Void> verify(final VerificationContext context) {
 
-    // Check context...
     Preconditions.checkNotNull(context.getServiceTemplate());
     Preconditions.checkNotNull(context.getServiceTemplateInstance());
 
     return CompletableFuture.supplyAsync(() -> {
 
-      // Prepare result...
       final List<CompletableFuture<VerificationResult>> futures = Lists.newArrayList();
 
-      // ... and submit jobs based on node templates
+      // Submit a test job if an annotations is attached to a node template that can be
+      // handled by a registered plugin
       for (NodeTemplateInstance nodeTemplateInstance : context.getNodeTemplateInstances()) {
-        for (NodeTemplateJob job : nodeTemplateJobs) {
+        for (TestExecutionPlugin plugin : plugins) {
           final AbstractNodeTemplate nodeTemplate = context.getNodeTemplate(nodeTemplateInstance);
-          if (job.canExecute(nodeTemplate)) {
-            logger.info("Schedule job \"{}\" for node template instance \"{}\" ({})...",
-                job.getClass().getSimpleName(), nodeTemplateInstance.getId(), nodeTemplate.getId());
-            futures.add(this.submit(job, context, nodeTemplate, nodeTemplateInstance));
-          }
-        }
-      }
-
-      // ... and based on service templates
-      for (ServiceTemplateJob job : serviceTemplateJobs) {
-        final AbstractServiceTemplate serviceTemplate = context.getServiceTemplate();
-        final ServiceTemplateInstance serviceTemplateInstance =
-            context.getServiceTemplateInstance();
-        if (job.canExecute(serviceTemplate)) {
-          logger.info("Schedule job \"{}\" for service template instance \"{}\" ({})...",
-              job.getClass().getSimpleName(), serviceTemplateInstance.getId(),
-              serviceTemplate.getId());
-          futures.add(this.submit(job, context, serviceTemplate, serviceTemplateInstance));
+          final List<AbstractPolicyTemplate> policyTemplates = nodeTemplate.getPolicies().stream()
+              .filter(Objects::nonNull).map(p -> p.getTemplate()).collect(Collectors.toList());
+          for (AbstractPolicyTemplate policyTemplate : policyTemplates)
+            if (plugin.canExecute(nodeTemplate, policyTemplate)) {
+              logger.info(
+                  "Schedule job \"{}\" for node template \"{}\" (instance={}) because annotation \"{}\" is attached...",
+                  plugin.getClass().getSimpleName(), nodeTemplate.getId(),
+                  nodeTemplateInstance.getId(), policyTemplate.getType().getId());
+              futures.add(
+                  this.submit(plugin, context, nodeTemplate, nodeTemplateInstance, policyTemplate));
+            }
         }
       }
 
@@ -115,44 +108,16 @@ public class VerificationExecutor {
     }
   }
 
-  private CompletableFuture<VerificationResult> submit(final NodeTemplateJob job,
+  private CompletableFuture<VerificationResult> submit(final TestExecutionPlugin plugin,
       final VerificationContext context, final AbstractNodeTemplate nodeTemplate,
-      final NodeTemplateInstance nodeTemplateInstance) {
+      final NodeTemplateInstance nodeTemplateInstance,
+      final AbstractPolicyTemplate policyTemplate) {
     final long start = System.currentTimeMillis();
     return CompletableFuture.supplyAsync(() -> {
       final long d = System.currentTimeMillis() - start;
-      logger.info("Job \"{}\" for node template instance \"{}\" ({}) spent {}ms in queue",
-          job.getClass().getSimpleName(), nodeTemplateInstance.getId(), nodeTemplate.getId(), d);
-      return job.execute(context, nodeTemplate, nodeTemplateInstance);
+      logger.info("Job \"{}\" for plugin \"{}\" ({}) spent {}ms in queue",
+          plugin.getClass().getSimpleName(), nodeTemplateInstance.getId(), nodeTemplate.getId(), d);
+      return plugin.execute(context, nodeTemplate, nodeTemplateInstance, policyTemplate);
     }, this.jobExecutor);
-  }
-
-  private CompletableFuture<VerificationResult> submit(final ServiceTemplateJob job,
-      final VerificationContext context, final AbstractServiceTemplate serviceTemplate,
-      final ServiceTemplateInstance serviceTemplateInstance) {
-    final long start = System.currentTimeMillis();
-    return CompletableFuture.supplyAsync(() -> {
-      final long d = System.currentTimeMillis() - start;
-      logger.info("Job \"{}\" for service template instance \"{}\" ({}) spent {}ms in queue",
-          job.getClass().getSimpleName(), serviceTemplateInstance.getId(), serviceTemplate.getId(),
-          d);
-      return job.execute(context, serviceTemplate, serviceTemplateInstance);
-    }, this.jobExecutor);
-  }
-
-  public void bindNodeTemplateJob(final NodeTemplateJob job) {
-    nodeTemplateJobs.add(job);
-  }
-
-  public void unbindNodeTemplateJob(final NodeTemplateJob job) {
-    nodeTemplateJobs.remove(job);
-  }
-
-  public void bindServiceTemplateJob(final ServiceTemplateJob job) {
-    serviceTemplateJobs.add(job);
-  }
-
-  public void unbindServiceTemplateJob(final ServiceTemplateJob job) {
-    serviceTemplateJobs.remove(job);
   }
 }

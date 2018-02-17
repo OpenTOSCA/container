@@ -13,15 +13,24 @@
  *******************************************************************************/
 package org.opentosca.deployment.verification;
 
+import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.opentosca.deployment.verification.camel.RouteConfiguration;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class Activator implements BundleActivator {
 
+  public static final String ID = "org.opentosca.deployment.verification";
+
+  private static DefaultCamelContext camelContext;
+
   @Override
   public void start(final BundleContext bundleContext) throws Exception {
-    // not used
+    camelContext = new OsgiDefaultCamelContext(bundleContext);
+    camelContext.addRoutes(new RouteConfiguration());
+    camelContext.start();
   }
 
   @Override
@@ -31,5 +40,15 @@ public class Activator implements BundleActivator {
     if (ref != null) {
       bundleContext.getService(ref).shutdown();
     }
+    if (camelContext != null) {
+      camelContext.stop();
+    }
+  }
+
+  public static DefaultCamelContext getCamelContext() {
+    if (camelContext == null) {
+      throw new IllegalStateException();
+    }
+    return camelContext;
   }
 }

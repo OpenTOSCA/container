@@ -53,11 +53,6 @@ public class VerificationResult extends PersistenceObject {
       "outgoing_relations"})
   private NodeTemplateInstance nodeTemplateInstance;
 
-  @ManyToOne
-  @JoinColumn(name = "SERVICEE_TEMPLATE_INSTANCE_ID")
-  @JsonIgnoreProperties({"state", "plan_instances", "node_template_instances",})
-  private ServiceTemplateInstance serviceTemplateInstance;
-
 
   public VerificationResult() {}
 
@@ -127,17 +122,6 @@ public class VerificationResult extends PersistenceObject {
     this.nodeTemplateInstance = nodeTemplateInstance;
     if (!nodeTemplateInstance.getVerificationResults().contains(this)) {
       nodeTemplateInstance.getVerificationResults().add(this);
-    }
-  }
-
-  public ServiceTemplateInstance getServiceTemplateInstance() {
-    return this.serviceTemplateInstance;
-  }
-
-  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
-    this.serviceTemplateInstance = serviceTemplateInstance;
-    if (!serviceTemplateInstance.getVerificationResults().contains(this)) {
-      serviceTemplateInstance.getVerificationResults().add(this);
     }
   }
 

@@ -168,7 +168,6 @@
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
     <module>org.opentosca.deployment.verification</module>
-    <module>org.opentosca.deployment.verification.mysql</module>
   </modules>
 
 </project>

@@ -12,7 +12,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -62,11 +61,6 @@ public class ServiceTemplateInstance extends PersistenceObject {
   @OneToMany(mappedBy = "serviceTemplateInstance")
   @JsonIgnore
   private List<Verification> verifications = Lists.newArrayList();
-
-  @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "serviceTemplateInstance", fetch = FetchType.EAGER)
-  @JsonIgnore
-  private List<VerificationResult> verificationResults = Lists.newArrayList();
 
 
   public ServiceTemplateInstance() {
@@ -175,21 +169,6 @@ public class ServiceTemplateInstance extends PersistenceObject {
     this.verifications.add(verification);
     if (verification.getServiceTemplateInstance() != this) {
       verification.setServiceTemplateInstance(this);
-    }
-  }
-
-  public List<VerificationResult> getVerificationResults() {
-    return verificationResults;
-  }
-
-  public void setVerificationResults(final List<VerificationResult> verificationResults) {
-    this.verificationResults = verificationResults;
-  }
-
-  public void addVerificationResult(final VerificationResult verificationResult) {
-    this.verificationResults.add(verificationResult);
-    if (verificationResult.getServiceTemplateInstance() != this) {
-      verificationResult.setServiceTemplateInstance(this);
     }
   }
 }
