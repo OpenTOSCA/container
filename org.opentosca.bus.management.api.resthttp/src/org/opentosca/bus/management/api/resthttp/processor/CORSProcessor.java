@@ -16,31 +16,34 @@ import org.slf4j.LoggerFactory;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  * 
  */
+@Deprecated
 public class CORSProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(CORSProcessor.class);
+  final private static Logger LOG = LoggerFactory.getLogger(CORSProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+  @Override
+  public void process(Exchange exchange) throws Exception {
 
-		CORSProcessor.LOG.debug("Adding CORS headers.");
+    CORSProcessor.LOG.debug("Adding CORS headers.");
 
-		Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+    Response response =
+        exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-		Form headers = (Form) response.getAttributes().get("org.restlet.http.headers");
+    Form headers = (Form) response.getAttributes().get("org.restlet.http.headers");
 
-		if (headers == null) {
+    if (headers == null) {
 
-			headers = new Form();
-			response.getAttributes().put("org.restlet.http.headers", headers);
+      headers = new Form();
+      response.getAttributes().put("org.restlet.http.headers", headers);
 
-			headers.add("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
-			headers.add("Access-Control-Allow-Headers",
-					"Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-			headers.add("Access-Control-Allow-Origin", "*");
-			headers.add("Access-Control-Expose-Headers", "Location, Content-Type, Expires, Last-Modified");
+      headers.add("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
+      headers.add("Access-Control-Allow-Headers",
+          "Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+      headers.add("Access-Control-Allow-Origin", "*");
+      headers.add("Access-Control-Expose-Headers",
+          "Location, Content-Type, Expires, Last-Modified");
 
-		}
-	}
+    }
+  }
 
 }
