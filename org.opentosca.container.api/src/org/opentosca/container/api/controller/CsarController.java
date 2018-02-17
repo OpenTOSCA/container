@@ -96,12 +96,16 @@ public class CsarController {
 
     // Absolute URLs for icon and image
     final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
-    final String iconUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(),
-        id, csar.getIconUrl());
-    final String imageUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(),
-        id, csar.getImageUrl());
-    csar.setIconUrl(iconUrl);
-    csar.setImageUrl(imageUrl);
+    if (csar.getIconUrl() != null) {
+      final String iconUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(),
+          id, csar.getIconUrl());
+      csar.setIconUrl(iconUrl);
+    }
+    if (csar.getImageUrl() != null) {
+      final String imageUrl = MessageFormat.format(urlTemplate,
+          this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
+      csar.setImageUrl(imageUrl);
+    }
 
     csar.setId(id);
     if (csar.getName() == null) {
