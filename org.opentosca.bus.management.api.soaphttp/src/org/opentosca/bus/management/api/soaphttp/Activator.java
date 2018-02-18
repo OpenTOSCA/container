@@ -29,6 +29,8 @@ public class Activator implements BundleActivator {
 	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 	
 	public static String apiID;
+
+	public static BundleContext bundleContext;
 	
 	
 	@Override
@@ -48,6 +50,7 @@ public class Activator implements BundleActivator {
 		camelContext.addRoutes(new Route());
 		camelContext.start();
 		
+		Activator.bundleContext = bundleContext;
 		Activator.LOG.info("SI-SOAP/HTTP-Management Bus-API started!");
 	}
 	

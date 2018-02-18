@@ -13,7 +13,7 @@ public class BPELOpenMTCDockerContainerTypePlugin extends OpenMTCDockerContainer
 			if (this.canHandleGateway(templateContext.getNodeTemplate())) {
 				return this.handler.handleOpenMTCGateway(templateContext,
 						findConnectedBackend(templateContext.getNodeTemplate()));
-			} else {
+			} else if (this.canHandleProtocolAdapter(templateContext.getNodeTemplate())) {
 				return this.handler.handleOpenMTCProtocolAdapter(templateContext,
 						findConnectedGateway(templateContext.getNodeTemplate()),
 						getAdapterForNode(templateContext.getNodeTemplate()));

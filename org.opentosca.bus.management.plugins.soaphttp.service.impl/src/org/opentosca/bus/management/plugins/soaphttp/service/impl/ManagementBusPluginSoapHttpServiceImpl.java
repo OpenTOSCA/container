@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,6 +22,11 @@ import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
 import org.opentosca.bus.management.plugins.soaphttp.service.impl.route.AsyncRoute;
 import org.opentosca.bus.management.plugins.soaphttp.service.impl.util.Messages;
 import org.opentosca.bus.management.utils.MBUtils;
+import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ResolvedArtifacts;
+import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
+import org.opentosca.container.core.model.csar.id.CSARID;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -71,6 +77,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 		final Object params = message.getBody();
 		final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
 		String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
+
 		final Boolean hastOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
 		final String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
 		

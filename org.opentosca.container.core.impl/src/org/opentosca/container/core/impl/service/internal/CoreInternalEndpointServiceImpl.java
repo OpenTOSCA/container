@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -439,6 +440,15 @@ public class CoreInternalEndpointServiceImpl
     queryWSDLEndpoint.setParameter("csarId", csarId);
     queryWSDLEndpoint.setParameter("IaName", iaName);
     queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
+    
+    
+    final Query endpoints=  em.createQuery("SELECT e FROM WSDLEndpoint e" );
+    List<WSDLEndpoint> results = (List<WSDLEndpoint>) endpoints.getResultList();
+    for(WSDLEndpoint e : results){
+    	CoreInternalEndpointServiceImpl.LOG.info("WSDL Endpoints:"+e.getIaName()+ "	"+ e.getId()+"	"+ e.getCSARId()+ "	"+e.getNodeTypeImplementation()+ "	"+ e.getURI());
+    }
+    
+    
     try {
       endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
 

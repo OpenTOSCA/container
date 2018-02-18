@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
 	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 	
 	static DefaultCamelContext camelContext;
-	
+	static BundleContext bundleContext;
 	
 	/*
 	 * (non-Javadoc)
@@ -45,6 +45,7 @@ public class Activator implements BundleActivator {
 		Activator.camelContext.addRoutes(new AsyncRoute());
 		Activator.camelContext.addRoutes(new RequestOnlyRoute());
 		Activator.camelContext.start();
+		Activator.bundleContext = bundleContext;
 		Activator.LOG.info("Management Bus-SOAP-PLUGIN-STARTED");
 	}
 	
