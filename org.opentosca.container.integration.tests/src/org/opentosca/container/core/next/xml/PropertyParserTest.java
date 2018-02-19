@@ -154,4 +154,23 @@ public class PropertyParserTest {
             + "vN5P+dvI78foSfHLVjFLy/ZKwctr/GQSosgQBRsUE0RyDexHk0M=\n"
             + "-----END RSA PRIVATE KEY-----"));
   }
+
+  @Test
+  public void testParsePolicyTemplateProperties() throws Exception {
+    final String xml =
+        "<properties xmlns=\"http://opentosca.org/policytypes/annotations/propertiesdefinition/winery\" xmlns:annotations=\"http://opentosca.org/policytypes/annotations\">\r\n"
+            + "                <TestMethod>GET</TestMethod>\r\n"
+            + "                <TestPath>/shop</TestPath>\r\n" + "                <TestHeader/>\r\n"
+            + "                <TestBody/>\r\n"
+            + "                <ExpectedStatus>200</ExpectedStatus>\r\n"
+            + "                <ExpectedHeader/>\r\n" + "                <ExpectedBody/>\r\n"
+            + "                <HostnamePropertyName>VMIP</HostnamePropertyName>\r\n"
+            + "                <Port>8080</Port>\r\n" + "                <PortPropertyName/>\r\n"
+            + "            </properties>";
+    final PropertyParser parser = new PropertyParser();
+    final Map<String, String> properties = parser.parse(xml);
+    assertThat(properties.get("port"), is("8080"));
+    assertThat(properties.get("TestbOdy"), is(nullValue()));
+    assertThat(properties.get("testMethod"), is("GET"));
+  }
 }

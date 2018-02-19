@@ -24,14 +24,17 @@ public final class PropertyParser {
   private static Logger logger = LoggerFactory.getLogger(PropertyParser.class);
 
   public Map<String, String> parse(final String xml) {
-    final Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     final Document document = createDocument(xml);
-
     // Optional, but recommended
     // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
     document.getDocumentElement().normalize();
+    return parse(document.getDocumentElement());
+  }
 
-    final Element root = document.getDocumentElement();
+  public Map<String, String> parse(final Element root) {
+
+    final Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
     final NodeList nodes = root.getChildNodes();
     if (nodes.getLength() == 1) {
       final String value = StringUtils.trimToNull(root.getTextContent());

@@ -115,8 +115,8 @@ public class VerificationExecutor {
     final long start = System.currentTimeMillis();
     return CompletableFuture.supplyAsync(() -> {
       final long d = System.currentTimeMillis() - start;
-      logger.info("Job \"{}\" for plugin \"{}\" ({}) spent {}ms in queue",
-          plugin.getClass().getSimpleName(), nodeTemplateInstance.getId(), nodeTemplate.getId(), d);
+      logger.info("Job \"{}\" for node template \"{}\" (instance={}) spent {}ms in queue",
+          plugin.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(), d);
       return plugin.execute(context, nodeTemplate, nodeTemplateInstance, policyTemplate);
     }, this.jobExecutor);
   }
