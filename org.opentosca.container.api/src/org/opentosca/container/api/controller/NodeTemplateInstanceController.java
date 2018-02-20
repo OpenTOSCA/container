@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 import org.slf4j.Logger;
@@ -72,12 +72,12 @@ public class NodeTemplateInstanceController {
 
 		for (final NodeTemplateInstance i : nodeInstances) {
 			final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(i);
-			dto.add(UriUtils.generateSubResourceLink(uriInfo, dto.getId().toString(), false, "self"));
+			dto.add(UriUtil.generateSubResourceLink(uriInfo, dto.getId().toString(), false, "self"));
 
 			list.add(dto);
 		}
 
-		list.add(UriUtils.generateSelfLink(uriInfo));
+		list.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -96,7 +96,7 @@ public class NodeTemplateInstanceController {
 
 			final NodeTemplateInstance createdInstance = this.instanceService.createNewNodeTemplateInstance(csar,
 					servicetemplate, nodetemplate, Long.parseLong(serviceTemplateInstanceId));
-			final URI instanceURI = UriUtils.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+			final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
 			return Response.ok(instanceURI).build();
 		} catch (IllegalArgumentException e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -117,9 +117,9 @@ public class NodeTemplateInstanceController {
 				nodetemplate, id);
 		final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(instance);
 
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "properties", false, "properties"));
-		dto.add(UriUtils.generateSelfLink(uriInfo));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "properties", false, "properties"));
+		dto.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 	}
@@ -202,7 +202,7 @@ public class NodeTemplateInstanceController {
 			return Response.serverError().build();
 		}
 
-		return Response.ok(UriUtils.generateSelfURI(uriInfo)).build();
+		return Response.ok(UriUtil.generateSelfURI(uriInfo)).build();
 	}
 
 }

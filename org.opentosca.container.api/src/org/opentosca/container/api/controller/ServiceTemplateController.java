@@ -19,7 +19,7 @@ import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.model.csar.id.CSARID;
 
 import io.swagger.annotations.Api;
@@ -59,11 +59,11 @@ public class ServiceTemplateController {
 
 		for (final String name : this.serviceTemplateService.getServiceTemplatesOfCsar(csar)) {
 			final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(name);
-			serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, name, true, "self"));
+			serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, name, true, "self"));
 			list.add(serviceTemplate);
 		}
 
-		list.add(UriUtils.generateSelfLink(this.uriInfo));
+		list.add(UriUtil.generateSelfLink(this.uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -80,12 +80,12 @@ public class ServiceTemplateController {
 		final ServiceTemplateDTO serviceTemplate = new ServiceTemplateDTO(serviceTemplateId);
 
 		serviceTemplate.add(
-				UriUtils.generateSubResourceLink(this.uriInfo, "boundarydefinitions", false, "boundarydefinitions"));
-		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
-		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
-		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "nodetemplates", false, "nodetemplates"));
-		serviceTemplate.add(UriUtils.generateSubResourceLink(this.uriInfo, "relationshiptemplates", false, "relationshiptemplates"));
-		serviceTemplate.add(UriUtils.generateSelfLink(this.uriInfo));
+				UriUtil.generateSubResourceLink(this.uriInfo, "boundarydefinitions", false, "boundarydefinitions"));
+		serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "buildplans", false, "buildplans"));
+		serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
+		serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "nodetemplates", false, "nodetemplates"));
+		serviceTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, "relationshiptemplates", false, "relationshiptemplates"));
+		serviceTemplate.add(UriUtil.generateSelfLink(this.uriInfo));
 
 		return Response.ok(serviceTemplate).build();
 	}

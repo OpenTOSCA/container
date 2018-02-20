@@ -32,9 +32,9 @@ import org.opentosca.container.api.controller.content.DirectoryController;
 import org.opentosca.container.api.dto.CsarDTO;
 import org.opentosca.container.api.dto.CsarListDTO;
 import org.opentosca.container.api.dto.request.CsarUploadRequest;
-import org.opentosca.container.api.legacy.resources.utilities.ModelUtils;
 import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.ModelUtil;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
 import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.SystemException;
@@ -207,7 +207,7 @@ public class CsarController {
 
 		try {
 
-			if (ModelUtils.hasOpenRequirements(csarId)) {
+			if (ModelUtil.hasOpenRequirements(csarId, engineService)) {
 				final WineryConnector wc = new WineryConnector();
 				if (wc.isWineryRepositoryAvailable()) {
 					final QName serviceTemplate = wc.uploadCSAR(file);
@@ -272,7 +272,7 @@ public class CsarController {
 		}
 
 		logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.getFileName());
-		final URI uri = UriUtils
+		final URI uri = UriUtil
 				.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId));
 		return Response.created(uri).build();
 	}

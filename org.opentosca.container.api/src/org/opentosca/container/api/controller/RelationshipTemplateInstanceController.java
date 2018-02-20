@@ -23,7 +23,7 @@ import org.opentosca.container.api.dto.RelationshipTemplateInstanceDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState;
 import org.slf4j.Logger;
@@ -76,12 +76,12 @@ public class RelationshipTemplateInstanceController {
 
 		for (final RelationshipTemplateInstance i : relationshipInstances) {
 			final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(i);
-			dto.add(UriUtils.generateSubResourceLink(uriInfo, dto.getId().toString(), false, "self"));
+			dto.add(UriUtil.generateSubResourceLink(uriInfo, dto.getId().toString(), false, "self"));
 
 			list.add(dto);
 		}
 
-		list.add(UriUtils.generateSelfLink(uriInfo));
+		list.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -101,7 +101,7 @@ public class RelationshipTemplateInstanceController {
 			final RelationshipTemplateInstance createdInstance = this.instanceService
 					.createNewRelationshipTemplateInstance(csar, servicetemplate, relationshiptemplate,
 							request);
-			final URI instanceURI = UriUtils.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+			final URI instanceURI = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
 			return Response.ok(instanceURI).build();
 		} catch (IllegalArgumentException e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -120,8 +120,8 @@ public class RelationshipTemplateInstanceController {
 		final RelationshipTemplateInstance instance = this.instanceService.resolveRelationshipTemplateInstance(servicetemplate, relationshiptemplate, id);
 		final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(instance);
 
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "properties", false, "properties"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "properties", false, "properties"));
 		final String path = "/csars/{csar}/servicetemplates/{servicetemplate}/nodetemplates/{nodetemplate}/instances/{nodetemplateinstance}";
 		final URI sourceNodeTemplateInstanceUri = this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(),
 				dto.getServiceTemplateId(), instance.getSource().getTemplateId().getLocalPart(),
@@ -129,11 +129,11 @@ public class RelationshipTemplateInstanceController {
 		final URI targetNodeTemplateInstanceUri = this.uriInfo.getBaseUriBuilder().path(path).build(dto.getCsarId(),
 				dto.getServiceTemplateId(), instance.getTarget().getTemplateId().getLocalPart(),
 				dto.getTargetNodeTemplateInstanceId());
-		dto.add(Link.fromUri(UriUtils.encode(sourceNodeTemplateInstanceUri)).rel("source_node_template_instance")
+		dto.add(Link.fromUri(UriUtil.encode(sourceNodeTemplateInstanceUri)).rel("source_node_template_instance")
 				.build());
-		dto.add(Link.fromUri(UriUtils.encode(targetNodeTemplateInstanceUri)).rel("target_node_template_instance")
+		dto.add(Link.fromUri(UriUtil.encode(targetNodeTemplateInstanceUri)).rel("target_node_template_instance")
 				.build());
-		dto.add(UriUtils.generateSelfLink(uriInfo));
+		dto.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 	}
@@ -208,7 +208,7 @@ public class RelationshipTemplateInstanceController {
 			return Response.serverError().build();
 		} 
 
-		return Response.ok(UriUtils.generateSelfURI(uriInfo)).build();
+		return Response.ok(UriUtil.generateSelfURI(uriInfo)).build();
 	}
 
 

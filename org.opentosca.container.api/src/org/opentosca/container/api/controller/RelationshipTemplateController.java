@@ -18,7 +18,7 @@ import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.RelationshipTemplateService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +58,12 @@ public class RelationshipTemplateController {
 
 		for (final RelationshipTemplateDTO relationshipTemplate : relationshipTemplateIds) {
 			relationshipTemplate
-					.add(UriUtils.generateSubResourceLink(uriInfo, relationshipTemplate.getId(), true, "self"));
+					.add(UriUtil.generateSubResourceLink(uriInfo, relationshipTemplate.getId(), true, "self"));
 
 			list.add(relationshipTemplate);
 		}
 
-		list.add(UriUtils.generateSelfLink(uriInfo));
+		list.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -79,8 +79,8 @@ public class RelationshipTemplateController {
 		final RelationshipTemplateDTO result = this.relationshipTemplateService.getRelationshipTemplateById(csarId,
 				QName.valueOf(serviceTemplateId), relationshipTemplateId);
 
-		result.add(UriUtils.generateSubResourceLink(uriInfo, "instances", false, "instances"));
-		result.add(UriUtils.generateSelfLink(uriInfo));
+		result.add(UriUtil.generateSubResourceLink(uriInfo, "instances", false, "instances"));
+		result.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(result).build();
 	}

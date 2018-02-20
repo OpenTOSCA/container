@@ -18,7 +18,7 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,12 +56,12 @@ public class NodeTemplateController {
 		final NodeTemplateListDTO list = new NodeTemplateListDTO();
 
 		for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
-			nodeTemplate.add(UriUtils.generateSubResourceLink(uriInfo, nodeTemplate.getId(), true, "self"));
+			nodeTemplate.add(UriUtil.generateSubResourceLink(uriInfo, nodeTemplate.getId(), true, "self"));
 
 			list.add(nodeTemplate);
 		}
 
-		list.add(UriUtils.generateSelfLink(uriInfo));
+		list.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -77,8 +77,8 @@ public class NodeTemplateController {
 		final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId,
 				QName.valueOf(serviceTemplateId), nodeTemplateId);
 
-		result.add(UriUtils.generateSubResourceLink(uriInfo, "instances", false, "instances"));
-		result.add(UriUtils.generateSelfLink(uriInfo));
+		result.add(UriUtil.generateSubResourceLink(uriInfo, "instances", false, "instances"));
+		result.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(result).build();
 	}

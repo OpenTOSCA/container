@@ -40,8 +40,8 @@ import io.swagger.annotations.SwaggerDefinition;
         info = @Info(
         		title = "Swagger API for OpenTOSCA Container",
                 description = "This API provides access to the REST-based opearations that allow to query and manipulate various entities managed by the OpenTOSCA container, as well as to execute certain operations on it.",
-                version = "1.0",  
-                termsOfService = "share and care",
+                version = "2.0",  
+                termsOfService = "",
                 contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org"),
                 license = @License(name = "Apache License, Version 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")),
         basePath = "/",
@@ -60,7 +60,7 @@ public class RootController {
 		final ResourceSupport links = new ResourceSupport();
 		links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
 		links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
-		links.add(Link.fromUriBuilder(UriBuilder.fromUri(this.uriInfo.getBaseUri()).path("containerapi")).rel("containerapi").build());
+		
 		return Response.ok(links).build();
 	}
 }

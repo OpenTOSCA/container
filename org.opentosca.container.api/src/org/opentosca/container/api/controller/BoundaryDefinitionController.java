@@ -25,7 +25,7 @@ import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.service.CsarService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
@@ -74,9 +74,9 @@ public class BoundaryDefinitionController {
 		}
 
 		final ResourceSupport links = new ResourceSupport();
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("properties").build()))
+		links.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path("properties").build()))
 				.rel("properties").build());
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("interfaces").build()))
+		links.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path("interfaces").build()))
 				.rel("interfaces").build());
 		// TODO This resource seems to be unused and not implemented
 		// links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("propertyconstraints").build())).rel("propertyconstraints").build());
@@ -86,7 +86,7 @@ public class BoundaryDefinitionController {
 		// links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("capabilities").build())).rel("capabilities").build());
 		// TODO: This resource seems to be unused and not implemented
 		// links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("policies").build())).rel("policies").build());
-		links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+		links.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 
 		return Response.ok(links).build();
 	}
@@ -116,7 +116,7 @@ public class BoundaryDefinitionController {
 			this.logger.debug("Found <{}> property mappings", propertyMappings.size());
 			dto.setPropertyMappings(propertyMappings);
 		}
-		dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+		dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 
 		return Response.ok(dto).build();
 	}
@@ -143,11 +143,11 @@ public class BoundaryDefinitionController {
 		list.add(interfaces.stream().map(name -> {
 			final InterfaceDTO dto = new InterfaceDTO();
 			dto.setName(name);
-			dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path(name).build())).rel("self")
+			dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(name).build())).rel("self")
 					.build());
 			return dto;
 		}).collect(Collectors.toList()).toArray(new InterfaceDTO[] {}));
-		list.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+		list.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 
 		return Response.ok(list).build();
 	}
@@ -196,8 +196,8 @@ public class BoundaryDefinitionController {
 							"/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
 							.build(csar, servicetemplate, plan.getId());
 				}
-				plan.add(Link.fromUri(UriUtils.encode(planUrl)).rel("self").build());
-				op.add(Link.fromUri(UriUtils.encode(planUrl)).rel("plan").build());
+				plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
+				op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
 			}
 
 			return op;
@@ -206,7 +206,7 @@ public class BoundaryDefinitionController {
 		final InterfaceDTO dto = new InterfaceDTO();
 		dto.setName(name);
 		dto.setOperations(ops);
-		dto.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+		dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 
 		return Response.ok(dto).build();
 	}

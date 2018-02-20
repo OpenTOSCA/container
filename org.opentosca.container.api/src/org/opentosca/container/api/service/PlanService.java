@@ -25,7 +25,7 @@ import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
 import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.util.JsonUtil;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -198,11 +198,11 @@ public class PlanService {
 		final PlanListDTO list = new PlanListDTO();
 		buildPlans.stream().forEach(p -> {
 			final PlanDTO plan = new PlanDTO(p);
-			plan.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
+			plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
 					.rel("self").build());
 			list.add(plan);
 		});
-		list.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+		list.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePath())).rel("self").build());
 
 		return Response.ok(list).build();
 	}
@@ -224,9 +224,9 @@ public class PlanService {
 		}
 
 		final PlanDTO dto = new PlanDTO(p);
-		dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
+		dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
 				.rel("instances").build());
-		dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+		dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePath())).rel("self").build());
 		return Response.ok(dto).build();
 	}
 
@@ -258,7 +258,7 @@ public class PlanService {
 			url = url.replace("{csarid}", csarId.getFileName());
 			url = url.replace("{servicetemplateid}",
 					UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
-			final URI uri = UriUtils.encode(URI.create(url));
+			final URI uri = UriUtil.encode(URI.create(url));
 			final TParameter param = new TParameter();
 			param.setName("OpenTOSCAContainerAPIServiceInstanceID");
 			param.setRequired(TBoolean.fromValue("yes"));
@@ -269,7 +269,7 @@ public class PlanService {
 
 		final TPlan p = getPlan(plan, csarId);
 		final String correlationId = invokePlan(csarId, serviceTemplate, p, parameters);
-		final URI location = UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
+		final URI location = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
 
 		return Response.created(location).build();
 	}
@@ -311,17 +311,17 @@ public class PlanService {
 				final URI uri = uriInfo.getBaseUriBuilder()
 						.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
 						.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(id));
-				pi.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
+				pi.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
 			}
 
 			// Add self link
-			pi.add(UriUtils.generateSubResourceLink(uriInfo, pi.getCorrelationId(), true, "self"));
+			pi.add(UriUtil.generateSubResourceLink(uriInfo, pi.getCorrelationId(), true, "self"));
 		}
 
 		final PlanInstanceListDTO list = new PlanInstanceListDTO();
 
 		list.add(planInstances);
-		list.add(UriUtils.generateSelfLink(uriInfo));
+		list.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -338,14 +338,14 @@ public class PlanService {
 			final URI uri = uriInfo.getBaseUriBuilder()
 					.path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
 					.build(csarId.toString(), serviceTemplate.toString(), String.valueOf(pi.getServiceTemplateInstance().getId()));
-			dto.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
+			dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
 		}
 		
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "logs", false, "logs"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "logs", false, "logs"));
 
 		// Add self link
-		dto.add(UriUtils.generateSelfLink(uriInfo));
+		dto.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 
@@ -387,7 +387,7 @@ public class PlanService {
 				serviceTemplateInstanceId, planTypes);
 		final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
 		final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
-		dto.add(UriUtils.generateSelfLink(uriInfo));
+		dto.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 	}
@@ -404,7 +404,7 @@ public class PlanService {
 			final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
 			pi.addEvent(event);
 			this.planInstanceRepository.update(pi);
-			final URI resourceUri = UriUtils.generateSelfURI(uriInfo);
+			final URI resourceUri = UriUtil.generateSelfURI(uriInfo);
 
 			return Response.ok(resourceUri).build();
 

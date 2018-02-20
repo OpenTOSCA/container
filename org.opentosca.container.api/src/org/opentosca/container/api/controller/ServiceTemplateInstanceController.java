@@ -25,7 +25,7 @@ import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
@@ -78,12 +78,12 @@ public class ServiceTemplateInstanceController {
 
 		for (final ServiceTemplateInstance i : serviceInstances) {
 			final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(i);
-			dto.add(UriUtils.generateSubResourceLink(uriInfo, dto.getId().toString(), false, "self"));
+			dto.add(UriUtil.generateSubResourceLink(uriInfo, dto.getId().toString(), false, "self"));
 
 			list.add(dto);
 		}
 
-		list.add(UriUtils.generateSelfLink(uriInfo));
+		list.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(list).build();
 	}
@@ -106,7 +106,7 @@ public class ServiceTemplateInstanceController {
 			final ServiceTemplateInstance createdInstance = this.instanceService.createServiceTemplateInstance(csarId,
 					serviceTemplateId, request.getCorrelationId());
 
-			final URI uri = UriUtils.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
+			final URI uri = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
 
 			return Response.ok(uri).build();
 		} catch (IllegalArgumentException e) {
@@ -136,11 +136,11 @@ public class ServiceTemplateInstanceController {
 		final String path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
 		final URI uri = uriInfo.getBaseUriBuilder().path(path).build(this.csarId, this.serviceTemplateId,
 				pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
-		dto.add(Link.fromUri(UriUtils.encode(uri)).rel("build_plan_instance").build());
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "managementplans", false, "managementplans"));
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "state", false, "state"));
-		dto.add(UriUtils.generateSubResourceLink(uriInfo, "properties", false, "properties"));
-		dto.add(UriUtils.generateSelfLink(uriInfo));
+		dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "managementplans", false, "managementplans"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "state", false, "state"));
+		dto.add(UriUtil.generateSubResourceLink(uriInfo, "properties", false, "properties"));
+		dto.add(UriUtil.generateSelfLink(uriInfo));
 
 		return Response.ok(dto).build();
 	}
@@ -229,7 +229,7 @@ public class ServiceTemplateInstanceController {
 			return Response.serverError().build();
 		}
 
-		return Response.ok(UriUtils.generateSelfURI(uriInfo)).build();
+		return Response.ok(UriUtil.generateSelfURI(uriInfo)).build();
 	}
 
 	/**

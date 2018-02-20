@@ -1,6 +1,8 @@
 package org.opentosca.container.api.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.List;
 
 import javax.ws.rs.core.Link;
@@ -13,9 +15,9 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class UriUtils {
+public abstract class UriUtil {
 
-	private static Logger logger = LoggerFactory.getLogger(UriUtils.class);
+	private static Logger logger = LoggerFactory.getLogger(UriUtil.class);
 
 	public static URI encode(final URI uri) {
 		final List<PathSegment> pathSegments = UriComponent.decodePath(uri, false);
@@ -30,19 +32,27 @@ public final class UriUtils {
 		logger.debug("URL after encoding:  {}", uriBuilder);
 		return URI.create(uriBuilder.toString());
 	}
+	
+	public static String encodePathSegment(final String pathSegment) {
+		try {
+			return URLEncoder.encode(pathSegment, "UTF-8");
+		} catch (final UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static Link generateSelfLink(final UriInfo uriInfo) {
-		return Link.fromUri(UriUtils.generateSelfURI(uriInfo)).rel("self").build();
+		return Link.fromUri(UriUtil.generateSelfURI(uriInfo)).rel("self").build();
 	}
 	
 	public static URI generateSelfURI(final UriInfo uriInfo) {
-		return UriUtils.encode(uriInfo.getAbsolutePath());
+		return UriUtil.encode(uriInfo.getAbsolutePath());
 	}
 
 
 	public static Link generateSubResourceLink(final UriInfo uriInfo, final String subResource,
 			final boolean encodeSubResourcePathSegment, final String rel) {
-		final URI finalUri = UriUtils.generateSubResourceURI(uriInfo, subResource, encodeSubResourcePathSegment);
+		final URI finalUri = UriUtil.generateSubResourceURI(uriInfo, subResource, encodeSubResourcePathSegment);
 			
 		return Link.fromUri(finalUri).rel(rel).build();
 	}
@@ -50,7 +60,7 @@ public final class UriUtils {
 	public static URI generateSubResourceURI(final UriInfo uriInfo, final String subResource,
 			final boolean encodeSubResourcePathSegment) {
 		final UriBuilder uriBuilder = RuntimeDelegate.getInstance().createUriBuilder();
-		final URI absolutePathEncoded = UriUtils.encode(uriInfo.getAbsolutePath());
+		final URI absolutePathEncoded = UriUtil.encode(uriInfo.getAbsolutePath());
 		uriBuilder.path(absolutePathEncoded.toString());
 		uriBuilder.path("{resourceId}");
 		URI finalUri;
@@ -64,8 +74,4 @@ public final class UriUtils {
 		return finalUri;
 	}
 	
-
-	private UriUtils() {
-		throw new UnsupportedOperationException();
-	}
 }
