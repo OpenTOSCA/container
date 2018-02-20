@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="82">
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="84">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.gemini.dbaccess.feature.feature.group" version="1.1.0.RELEASE"/>
@@ -25,73 +25,6 @@
 <unit id="org.eclipse.persistence.sdo.feature.group" version="2.6.3.v20160428-59c81c5"/>
 <unit id="org.eclipse.persistence.sdo.source.feature.group" version="2.6.3.v20160428-59c81c5"/>
 <repository location="http://download.eclipse.org/rt/eclipselink/updates/2.6.3.v20160428-59c81c5"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.google.gson" version="2.2.4"/>
-<unit id="com.googlecode.json-simple" version="1.1.0"/>
-<unit id="com.predic8.soa-model-core" version="1.2.2"/>
-<unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
-<unit id="com.springsource.util.osgi" version="2.0.0.RELEASE"/>
-<unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
-<unit id="com.sun.jersey.client" version="1.17.1"/>
-<unit id="com.sun.jersey.core" version="1.17.1"/>
-<unit id="dk.nykredit.jackson.dataformat.jackson-dataformat-hal" version="1.0.1"/>
-<unit id="filesystem" version="1.7.3"/>
-<unit id="groovy-all" version="1.8.6"/>
-<unit id="jclouds-blobstore" version="1.7.3"/>
-<unit id="jclouds-core" version="1.7.3"/>
-<unit id="jclouds-slf4j" version="1.7.3"/>
-<unit id="org.apache.aries.blueprint.api" version="1.0.0"/>
-<unit id="org.apache.aries.blueprint.core" version="1.4.4"/>
-<unit id="org.apache.aries.proxy.api" version="1.0.0"/>
-<unit id="org.apache.aries.quiesce.api" version="1.0.0"/>
-<unit id="org.apache.aries.util" version="1.0.0"/>
-<unit id="org.apache.camel.camel-blueprint" version="2.18.3"/>
-<unit id="org.apache.camel.camel-core" version="2.18.3"/>
-<unit id="org.apache.camel.camel-core-osgi" version="2.18.3"/>
-<unit id="org.apache.camel.camel-core-xml" version="2.18.3"/>
-<unit id="org.apache.camel.camel-cxf" version="2.18.3"/>
-<unit id="org.apache.camel.camel-cxf-transport" version="2.18.3"/>
-<unit id="org.apache.camel.camel-http" version="2.18.3"/>
-<unit id="org.apache.camel.camel-http-common" version="2.18.3"/>
-<unit id="org.apache.camel.camel-jaxb" version="2.18.3"/>
-<unit id="org.apache.camel.camel-jetty" version="2.18.3"/>
-<unit id="org.apache.camel.camel-jetty-common" version="2.18.3"/>
-<unit id="org.apache.camel.camel-jetty9" version="2.18.3"/>
-<unit id="org.apache.camel.camel-restlet" version="2.18.3"/>
-<unit id="org.apache.camel.camel-spring" version="2.18.3"/>
-<unit id="org.apache.camel.camel-stream" version="2.18.3"/>
-<unit id="org.apache.cxf.cxf-core" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-bindings-soap" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-bindings-xml" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-databinding-jaxb" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-frontend-jaxrs" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-frontend-jaxws" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-frontend-simple" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-rs-client" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-rs-security-oauth" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-transports-http" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-transports-http-jetty" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-ws-addr" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-ws-policy" version="3.1.10"/>
-<unit id="org.apache.cxf.cxf-rt-wsdl" version="3.1.10"/>
-<unit id="org.apache.neethi" version="3.0.3"/>
-<unit id="org.apache.servicemix.bundles.spring-aop" version="4.3.7.RELEASE_1"/>
-<unit id="org.apache.servicemix.bundles.spring-beans" version="4.3.7.RELEASE_1"/>
-<unit id="org.apache.servicemix.bundles.spring-context" version="4.3.7.RELEASE_1"/>
-<unit id="org.apache.servicemix.bundles.spring-core" version="4.3.7.RELEASE_1"/>
-<unit id="org.apache.servicemix.bundles.spring-expression" version="4.3.7.RELEASE_1"/>
-<unit id="org.apache.servicemix.bundles.spring-tx" version="4.3.7.RELEASE_1"/>
-<unit id="org.restlet.jee.org.restlet" version="2.3.6"/>
-<unit id="org.restlet.jee.org.restlet.ext.httpclient" version="2.3.6"/>
-<unit id="rocoto" version="6.2.0"/>
-<unit id="stax2-api" version="3.1.4"/>
-<unit id="woodstox-core-asl" version="4.4.1"/>
-<repository location="http://update-site.opentosca.org"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.eclipsesource.jaxrs.connector.feature.feature.group" version="5.3.1.201602281253"/>
-<repository location="http://hstaudacher.github.io/osgi-jax-rs-connector"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.equinox.sdk.feature.group" version="3.12.0.v20170209-1843"/>
@@ -158,6 +91,74 @@
 <unit id="org.slf4j.bridge.jul" version="1.7.10.v20160208-0839"/>
 <unit id="org.slf4j.ext" version="1.7.10.v20170224-1220"/>
 <repository location="http://download.eclipse.org/tools/orbit/R-builds/R20170307180635/repository"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="com.google.gson" version="2.2.4"/>
+<unit id="com.googlecode.json-simple" version="1.1.0"/>
+<unit id="com.predic8.soa-model-core" version="1.2.2"/>
+<unit id="com.springsource.util.common" version="2.0.0.RELEASE"/>
+<unit id="com.springsource.util.osgi" version="2.0.0.RELEASE"/>
+<unit id="com.springsource.util.parser.manifest" version="2.0.0.RELEASE"/>
+<unit id="com.sun.jersey.client" version="1.17.1"/>
+<unit id="com.sun.jersey.core" version="1.17.1"/>
+<unit id="dk.nykredit.jackson.dataformat.jackson-dataformat-hal" version="1.0.1"/>
+<unit id="filesystem" version="1.7.3"/>
+<unit id="groovy-all" version="1.8.6"/>
+<unit id="jclouds-blobstore" version="1.7.3"/>
+<unit id="jclouds-core" version="1.7.3"/>
+<unit id="jclouds-slf4j" version="1.7.3"/>
+<unit id="org.apache.aries.blueprint.api" version="1.0.0"/>
+<unit id="org.apache.aries.blueprint.core" version="1.4.4"/>
+<unit id="org.apache.aries.proxy.api" version="1.0.0"/>
+<unit id="org.apache.aries.quiesce.api" version="1.0.0"/>
+<unit id="org.apache.aries.util" version="1.0.0"/>
+<unit id="org.apache.camel.camel-blueprint" version="2.18.3"/>
+<unit id="org.apache.camel.camel-core" version="2.18.3"/>
+<unit id="org.apache.camel.camel-core-osgi" version="2.18.3"/>
+<unit id="org.apache.camel.camel-core-xml" version="2.18.3"/>
+<unit id="org.apache.camel.camel-cxf" version="2.18.3"/>
+<unit id="org.apache.camel.camel-cxf-transport" version="2.18.3"/>
+<unit id="org.apache.camel.camel-http" version="2.18.3"/>
+<unit id="org.apache.camel.camel-http-common" version="2.18.3"/>
+<unit id="org.apache.camel.camel-jaxb" version="2.18.3"/>
+<unit id="org.apache.camel.camel-jetty" version="2.18.3"/>
+<unit id="org.apache.camel.camel-jetty-common" version="2.18.3"/>
+<unit id="org.apache.camel.camel-jetty9" version="2.18.3"/>
+<unit id="org.apache.camel.camel-restlet" version="2.18.3"/>
+<unit id="org.apache.camel.camel-spring" version="2.18.3"/>
+<unit id="org.apache.camel.camel-stream" version="2.18.3"/>
+<unit id="org.apache.cxf.cxf-core" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-bindings-soap" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-bindings-xml" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-databinding-jaxb" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-frontend-jaxrs" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-frontend-jaxws" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-frontend-simple" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-rs-client" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-rs-security-oauth" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-transports-http" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-transports-http-jetty" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-ws-addr" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-ws-policy" version="3.1.10"/>
+<unit id="org.apache.cxf.cxf-rt-wsdl" version="3.1.10"/>
+<unit id="org.apache.neethi" version="3.0.3"/>
+<unit id="org.apache.servicemix.bundles.spring-aop" version="4.3.7.RELEASE_1"/>
+<unit id="org.apache.servicemix.bundles.spring-beans" version="4.3.7.RELEASE_1"/>
+<unit id="org.apache.servicemix.bundles.spring-context" version="4.3.7.RELEASE_1"/>
+<unit id="org.apache.servicemix.bundles.spring-core" version="4.3.7.RELEASE_1"/>
+<unit id="org.apache.servicemix.bundles.spring-expression" version="4.3.7.RELEASE_1"/>
+<unit id="org.apache.servicemix.bundles.spring-tx" version="4.3.7.RELEASE_1"/>
+<unit id="org.restlet.jee.org.restlet" version="2.3.6"/>
+<unit id="org.restlet.jee.org.restlet.ext.httpclient" version="2.3.6"/>
+<unit id="rocoto" version="6.2.0"/>
+<unit id="stax2-api" version="3.1.4"/>
+<unit id="woodstox-core-asl" version="4.4.1"/>
+<repository location="http://update-site.opentosca.org"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="com.eclipsesource.jaxrs.connector.feature.feature.group" version="5.3.1.201602281253"/>
+<unit id="com.eclipsesource.jaxrs.provider.swagger.feature.feature.group" version="1.1.1.201602281253"/>
+<repository location="http://hstaudacher.github.io/osgi-jax-rs-connector"/>
 </location>
 </locations>
 </target>

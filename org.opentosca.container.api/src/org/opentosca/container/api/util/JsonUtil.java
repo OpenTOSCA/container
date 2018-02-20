@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public final class JsonUtil {
+public abstract class JsonUtil {
 	
 	private static ObjectMapper objectMapper = ObjectMapperProvider.createDefaultMapper();
 
@@ -23,7 +23,4 @@ public final class JsonUtil {
 		}
 	}
 	
-	private JsonUtil() {
-		throw new UnsupportedOperationException();
-	}
 }

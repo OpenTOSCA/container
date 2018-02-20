@@ -1,0 +1,161 @@
+package org.opentosca.container.api.dto.plan;
+
+import java.util.Collection;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.opentosca.container.api.dto.ResourceSupport;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceEvent;
+import org.opentosca.container.core.next.model.PlanInstanceInput;
+import org.opentosca.container.core.next.model.PlanInstanceOutput;
+import org.opentosca.container.core.next.model.PlanInstanceState;
+import org.opentosca.container.core.next.model.PlanType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Lists;
+
+@XmlRootElement(name = "PlanInstance")
+@XmlAccessorType(XmlAccessType.FIELD)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PlanInstanceDTO extends ResourceSupport {
+	
+	@JsonIgnore
+	@XmlTransient
+	private Long serviceTemplateInstanceId;
+	
+	@XmlAttribute(name = "correlationId")
+	private String correlationId;
+	
+	@XmlElement(name = "state")
+	private PlanInstanceState state;
+	
+	@XmlElement(name = "type")
+	private PlanType type;
+	
+	@XmlElement(name = "InputParameter")
+	@XmlElementWrapper(name = "InputParameters")
+	private Collection<PlanInstanceInputDTO> inputs;
+	
+	@XmlElement(name = "OutputParameter")
+	@XmlElementWrapper(name = "OutputParameters")
+	private Collection<PlanInstanceOutputDTO> outputs;
+	
+	@XmlElement(name = "LogEntry")
+	@XmlElementWrapper(name = "Logs")
+	private Collection<PlanInstanceEventDTO> logs;
+
+
+	public String getCorrelationId() {
+		return correlationId;
+	}
+
+
+	public void setCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
+	}
+
+
+	public Collection<PlanInstanceOutputDTO> getOutputs() {
+		return outputs;
+	}
+	
+
+	public PlanType getType() {
+		return type;
+	}
+
+
+	public void setType(PlanType type) {
+		this.type = type;
+	}
+
+	public Collection<PlanInstanceInputDTO> getInputs() {
+		return inputs;
+	}
+
+
+
+	public void setInputs(Collection<PlanInstanceInputDTO> inputs) {
+		this.inputs = inputs;
+	}
+
+	
+	public PlanInstanceState getState() {
+		return state;
+	}
+
+
+
+	public void setState(PlanInstanceState state) {
+		this.state = state;
+	}
+
+	public void setOutputs(Collection<PlanInstanceOutputDTO> outputs) {
+		this.outputs = outputs;
+	}
+
+
+
+	public Collection<PlanInstanceEventDTO> getLogs() {
+		return logs;
+	}
+
+
+
+	public void setLogs(Collection<PlanInstanceEventDTO> logs) {
+		this.logs = logs;
+	}
+
+
+	public Long getServiceTemplateInstanceId() {
+		return this.serviceTemplateInstanceId;
+	}
+
+	public void setServiceTemplateInstanceId(Long serviceTemplateInstanceId) {
+		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+	}
+
+
+	public static final class Converter {
+
+		public static PlanInstanceDTO convert(final PlanInstance object) {
+			final PlanInstanceDTO dto = new PlanInstanceDTO();
+			
+			dto.setCorrelationId(object.getCorrelationId());
+
+			dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
+			dto.setType(object.getType());
+			
+			dto.setLogs(Lists.newArrayList());
+			dto.setOutputs(Lists.newArrayList());
+			
+			dto.setState(object.getState());
+			dto.setInputs(Lists.newArrayList());
+			
+			for(final PlanInstanceInput output: object.getInputs()) {
+				dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));
+			}
+			
+			for(final PlanInstanceEvent event: object.getEvents()) {
+				dto.getLogs().add(PlanInstanceEventDTO.Converter.convert(event));
+			}
+			
+			for(final PlanInstanceOutput output: object.getOutputs()) {
+				dto.getOutputs().add(PlanInstanceOutputDTO.Converter.convert(output));
+			}
+		
+			
+			return dto;
+		}
+
+	}
+	
+}
