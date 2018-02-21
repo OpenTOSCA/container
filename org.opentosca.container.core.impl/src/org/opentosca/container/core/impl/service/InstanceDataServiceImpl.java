@@ -337,8 +337,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                 final Collection<NodeTemplateInstance> result = i.getNodeTemplateInstances();
                 if (result != null) {
                     for (final NodeTemplateInstance nti : result) {
-                        rels.addAll(nti.getSourceRelations());
-                        rels.addAll(nti.getTargetRelations());
+                        rels.addAll(nti.getIncomingRelations());
+                        rels.addAll(nti.getOutgoingRelations());
                     }
                     logger.info("Result: {}", rels.size());
                     return rels.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());

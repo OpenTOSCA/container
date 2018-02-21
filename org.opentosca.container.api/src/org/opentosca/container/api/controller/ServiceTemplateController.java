@@ -14,6 +14,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
 import org.opentosca.container.api.dto.ServiceTemplateListDTO;
+import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.service.PlanService;
@@ -21,6 +22,7 @@ import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.deployment.tests.DeploymentTestService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,6 +50,10 @@ public class ServiceTemplateController {
     private RelationshipTemplateService relationshipTemplateService;
 
     private ServiceTemplateService serviceTemplateService;
+
+    private CsarService csarService;
+
+    private DeploymentTestService deploymentTestService;
 
 
     @GET
@@ -139,8 +145,8 @@ public class ServiceTemplateController {
                                                           @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-        final ServiceTemplateInstanceController child =
-            new ServiceTemplateInstanceController(this.instanceService, this.planService);
+        final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(this.instanceService,
+            this.planService, this.csarService, this.deploymentTestService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;
@@ -169,4 +175,11 @@ public class ServiceTemplateController {
         this.serviceTemplateService = serviceTemplateService;
     }
 
+    public void setCsarService(final CsarService csarService) {
+        this.csarService = csarService;
+    }
+
+    public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
+        this.deploymentTestService = deploymentTestService;
+    }
 }

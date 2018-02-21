@@ -11,9 +11,12 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity
 @Table(name = PlanInstanceEvent.TABLE_NAME)
+@JsonInclude(Include.ALWAYS)
 public class PlanInstanceEvent extends PersistenceObject {
 
     private static final long serialVersionUID = -5464457144036432912L;
@@ -45,6 +48,13 @@ public class PlanInstanceEvent extends PersistenceObject {
         this.status = status;
         this.type = type;
         this.message = message;
+    }
+
+
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return super.getId();
     }
 
     public Date getTimestamp() {

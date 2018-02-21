@@ -9,7 +9,6 @@ import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELBuildProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELScaleOutProcessBuilder;
 import org.opentosca.planbuilder.core.bpel.BPELTerminationProcessBuilder;
-import org.opentosca.planbuilder.core.bpel.PolicyAwareBPELBuildProcessBuilder;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -51,13 +50,14 @@ public abstract class AbstractImporter {
     public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
         final List<AbstractPlan> plans = new ArrayList<>();
 
-        AbstractPlanBuilder buildPlanBuilder;
+        final AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
 
-        if (!this.hasPolicies(defs)) {
-            buildPlanBuilder = new BPELBuildProcessBuilder();
-        } else {
-            buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
-        }
+        // FIXME: This does not work for me (Michael W. - 2018-02-19)
+        // if (!this.hasPolicies(defs)) {
+        // buildPlanBuilder = new BPELBuildProcessBuilder();
+        // } else {
+        // buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
+        // }
 
         final AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
         final AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();

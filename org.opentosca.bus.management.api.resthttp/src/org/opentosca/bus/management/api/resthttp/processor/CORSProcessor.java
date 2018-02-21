@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
  *
  */
+@Deprecated
 public class CORSProcessor implements Processor {
 
     final private static Logger LOG = LoggerFactory.getLogger(CORSProcessor.class);

@@ -21,3 +21,4 @@ org.opentosca.container.engine.plan.plugin.bpelwso2.services.url=http\://{{ .Env
 org.opentosca.container.connector.winery.url=http\://{{ .Env.CONTAINER_REPOSITORY_HOSTNAME }}\:8080/winery
 org.opentosca.container.hostname={{ .Env.CONTAINER_HOSTNAME }}
 org.opentosca.container.port=1337
+org.opentosca.deployment.tests={{ .Env.CONTAINER_DEPLOYMENT_TESTS }}

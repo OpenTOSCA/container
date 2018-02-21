@@ -19,7 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
@@ -61,9 +60,6 @@ public class CsarController {
 
     @Context
     private UriInfo uriInfo;
-
-    @Context
-    private Request request;
 
     private CsarService csarService;
 
@@ -109,12 +105,16 @@ public class CsarController {
 
         // Absolute URLs for icon and image
         final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
-        final String iconUrl =
-            MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
-        final String imageUrl =
-            MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
-        csar.setIconUrl(iconUrl);
-        csar.setImageUrl(imageUrl);
+        if (csar.getIconUrl() != null) {
+            final String iconUrl =
+                MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
+            csar.setIconUrl(iconUrl);
+        }
+        if (csar.getImageUrl() != null) {
+            final String imageUrl =
+                MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
+            csar.setImageUrl(imageUrl);
+        }
 
         csar.setId(id);
         if (csar.getName() == null) {
@@ -161,7 +161,7 @@ public class CsarController {
         }
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return this.handleCsarUpload(file.getFileName(), is);
+        return handleCsarUpload(file.getFileName(), is);
     }
 
     @POST
@@ -198,7 +198,6 @@ public class CsarController {
             return Response.serverError().build();
         }
     }
-
 
     private Response handleCsarUpload(final String filename, final InputStream is) {
 
