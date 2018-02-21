@@ -87,7 +87,7 @@ public class PlanService {
 		return null;
 	}
 
-	public String invokePlan(final CSARID csarId, final QName serviceTemplate, final TPlan plan,
+	public String invokePlan(final CSARID csarId, final QName serviceTemplate, final long serviceTemplateInstanceId, final TPlan plan,
 			final List<TParameter> parameters) {
 
 		final PlanDTO dto = new PlanDTO(plan);
@@ -97,7 +97,7 @@ public class PlanService {
 		dto.setInputParameters(parameters);
 
 		try {
-			return this.controlService.invokePlanInvocation(csarId, serviceTemplate, -1,
+			return this.controlService.invokePlanInvocation(csarId, serviceTemplate, serviceTemplateInstanceId,
 					PlanDTO.Converter.convert(dto));
 		} catch (final UnsupportedEncodingException e) {
 			throw new ServerErrorException(500, e);
@@ -268,7 +268,7 @@ public class PlanService {
 		}
 
 		final TPlan p = getPlan(plan, csarId);
-		final String correlationId = invokePlan(csarId, serviceTemplate, p, parameters);
+		final String correlationId = invokePlan(csarId, serviceTemplate, serviceTemplateInstanceId, p, parameters);
 		final URI location = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
 
 		return Response.created(location).build();
@@ -297,7 +297,10 @@ public class PlanService {
 		final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
 		for (ServiceTemplateInstance sti : serviceInstances) {
 			List<PlanInstanceDTO> foo = sti.getPlanInstances().stream()
-					.filter(p -> Arrays.asList(planTypes).contains(PlanTypes.isPlanTypeURI(p.getType().toString())))
+					.filter(p -> {
+						PlanTypes currType = PlanTypes.isPlanTypeURI(p.getType().toString());
+						return Arrays.asList(planTypes).contains(currType);	
+					})
 					.map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
 			planInstances.addAll(foo);
 		}

@@ -74,7 +74,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
    */
   @Override
   public String invokePlan(final CSARID csarID, final QName serviceTemplateId,
-      int serviceTemplateInstanceID, final TPlanDTO givenPlan) throws UnsupportedEncodingException {
+      long serviceTemplateInstanceID, final TPlanDTO givenPlan) throws UnsupportedEncodingException {
 
     // refill information that might not be sent
     final TPlan storedPlan =
@@ -186,12 +186,12 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       serviceTemplateInstanceID = 1000 + (int) (Math.random() * (Integer.MAX_VALUE - 1000));
       // get new correlationID
       correlationID = ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
-          serviceTemplateInstanceID, planEvent, true);
+          (int)serviceTemplateInstanceID, planEvent, true);
     } else {
       // get new correlationID
 
       correlationID = ServiceProxy.correlationHandler.getNewCorrelationID(csarID, serviceTemplateId,
-          serviceTemplateInstanceID, planEvent, false);
+          (int)serviceTemplateInstanceID, planEvent, false);
     }
 
     // plan is of type build, thus create an instance and put the
@@ -202,7 +202,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
       planEvent.setCSARInstanceID(instanceID.getInstanceID());
     } else {
       instanceID =
-          new ServiceTemplateInstanceID(csarID, serviceTemplateId, serviceTemplateInstanceID);
+          new ServiceTemplateInstanceID(csarID, serviceTemplateId, (int)serviceTemplateInstanceID);
     }
     ServiceProxy.csarInstanceManagement.correlateCSARInstanceWithPlanInstance(instanceID,
         correlationID);
@@ -261,7 +261,7 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     pi.setTemplateId(givenPlan.getId());
     
     
-    stiRepo.find(Long.valueOf(serviceTemplateInstanceID)).ifPresent(serviceTemplateInstance -> pi.setServiceTemplateInstance(serviceTemplateInstance));
+    stiRepo.find(serviceTemplateInstanceID).ifPresent(serviceTemplateInstance -> pi.setServiceTemplateInstance(serviceTemplateInstance));
     
     planEvent.getInputParameter().stream().forEach(p -> {
       new PlanInstanceInput(p.getName(), p.getValue(), p.getType()).setPlanInstance(pi);

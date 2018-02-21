@@ -108,13 +108,13 @@ public interface IOpenToscaControlService {
 	 *
 	 * @param csarID the ID of the CSAR
 	 *
-	 * @param csarInstanceID the instance id, or -1 if the plan is a build plan
+	 * @param serviceTemplateInstanceID the instance id, or -1 if the plan is a build plan
 	 * @param plan which containes the data which with the process is invoked
 	 *            (including the message values).
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public String invokePlanInvocation(CSARID csarID, QName serviceTemplateId, int csarInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
+	public String invokePlanInvocation(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan) throws UnsupportedEncodingException;
 	
 	/**
 	 * Returns a list of Strings for active PublicPlans of a CSARInstance.

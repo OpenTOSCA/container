@@ -38,15 +38,15 @@ public class BuildPlanController {
 
 	private final CSARID csarId;
 	private final QName serviceTemplate;
-	private final Long serviceTemplateInstanceId;
+
 
 	private final PlanTypes PLAN_TYPE = PlanTypes.BUILD;
 
-	public BuildPlanController(final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
+	public BuildPlanController(final CSARID csarId, final QName serviceTemplate,
 			final PlanService planService) {
 		this.csarId = csarId;
 		this.serviceTemplate = serviceTemplate;
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+
 		this.planService = planService;
 	}
 
@@ -72,7 +72,7 @@ public class BuildPlanController {
 	@ApiOperation(value = "Gets build plan instances of a build plan.", response = PlanInstanceDTO.class, responseContainer = "List")
 	public Response getBuildPlanInstances(@ApiParam("build plan id") @PathParam("plan") final String plan,
 			@Context final UriInfo uriInfo) {
-		return this.planService.getPlanInstances(plan, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId,
+		return this.planService.getPlanInstances(plan, uriInfo, csarId, serviceTemplate, null,
 				PLAN_TYPE);
 	}
 
@@ -87,7 +87,7 @@ public class BuildPlanController {
 			@Context final UriInfo uriInfo,
 			@ApiParam(required = true, value = "input parameters for the plan") final List<TParameter> parameters) {
 		return this.planService.invokePlan(plan, uriInfo, parameters, csarId, serviceTemplate,
-				serviceTemplateInstanceId, PLAN_TYPE);
+				-1L, PLAN_TYPE);// We pass -1 because "PlanInvocationEngine.invokePlan()" expects it for build plans
 	}
 
 	@GET
@@ -99,7 +99,7 @@ public class BuildPlanController {
 			@ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
 			@Context final UriInfo uriInfo) {
 		return this.planService.getPlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-				serviceTemplateInstanceId, PLAN_TYPE);
+				null, PLAN_TYPE);
 	}
 
 	@GET
@@ -111,7 +111,7 @@ public class BuildPlanController {
 			@ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
 			@Context final UriInfo uriInfo) {
 		return this.planService.getPlanInstanceState(plan, instance, uriInfo, csarId, serviceTemplate,
-				serviceTemplateInstanceId, PLAN_TYPE);
+				null, PLAN_TYPE);
 	}
 
 	@PUT
@@ -126,7 +126,7 @@ public class BuildPlanController {
 			@Context final UriInfo uriInfo,
 			@ApiParam(required = true, value = "The new state of the build plan instance, possible values include \"RUNNING\", \"FINISHED\", \"FAILED\", \"UNKNOWN\"") String request) {
 		return this.planService.changePlanInstanceState(request, plan, instance, uriInfo, csarId, serviceTemplate,
-				serviceTemplateInstanceId, PLAN_TYPE);
+				null, PLAN_TYPE);
 	}
 
 	@GET
@@ -138,7 +138,7 @@ public class BuildPlanController {
 			@ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
 			@Context final UriInfo uriInfo) {
 		return this.planService.getPlanInstanceLogs(plan, instance, uriInfo, csarId, serviceTemplate,
-				serviceTemplateInstanceId, PLAN_TYPE);
+				null, PLAN_TYPE);
 	}
 
 	@POST
@@ -154,7 +154,7 @@ public class BuildPlanController {
 			@Context final UriInfo uriInfo,
 			@ApiParam(required = true, value = "log entry to be added (either as a JSON construct, or in the form &#x3C;log&#x3E; log-entry &#x3C;/log&#x3E;)") final CreatePlanInstanceLogEntryRequest logEntry) {
 		return this.planService.addLogToPlanInstance(logEntry, plan, instance, uriInfo, csarId, serviceTemplate,
-				serviceTemplateInstanceId, PLAN_TYPE);
+				null, PLAN_TYPE);
 	}
 
 }

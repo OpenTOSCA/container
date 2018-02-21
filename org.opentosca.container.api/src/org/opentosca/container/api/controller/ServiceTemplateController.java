@@ -96,7 +96,7 @@ public class ServiceTemplateController {
 
 		final CSARID csarId = this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
 
-		return new BuildPlanController(csarId, QName.valueOf(serviceTemplateId), null,
+		return new BuildPlanController(csarId, QName.valueOf(serviceTemplateId),
 				this.planService);
 	}
 
