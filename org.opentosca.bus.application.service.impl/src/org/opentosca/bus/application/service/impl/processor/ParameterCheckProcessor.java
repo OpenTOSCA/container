@@ -30,16 +30,16 @@ public class ParameterCheckProcessor implements Processor {
 
         final Message message = exchange.getIn();
 
-        final Integer serviceInstanceID = message.getHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(),
-            Integer.class);
+        final Integer serviceInstanceID =
+            message.getHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(), Integer.class);
         ParameterCheckProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
 
-        final String nodeTemplateID = message.getHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(),
-            String.class);
+        final String nodeTemplateID =
+            message.getHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), String.class);
         ParameterCheckProcessor.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
 
-        final Integer nodeInstanceID = message.getHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(),
-            Integer.class);
+        final Integer nodeInstanceID =
+            message.getHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), Integer.class);
         ParameterCheckProcessor.LOG.debug("nodeInstanceID: {}", nodeInstanceID);
 
         final String interfaceName = message.getHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), String.class);
@@ -75,8 +75,7 @@ public class ParameterCheckProcessor implements Processor {
             }
 
         } else {
-            ParameterCheckProcessor.LOG.warn(
-                "Can't process request: neither >>ServiceInstanceID<< nor >>NodeInstanceID<< is specified!");
+            ParameterCheckProcessor.LOG.warn("Can't process request: neither >>ServiceInstanceID<< nor >>NodeInstanceID<< is specified!");
             throw new ApplicationBusExternalException(
                 "Can't process request: neither >>ServiceInstanceID<< nor >>NodeInstanceID<< is specified!");
         }

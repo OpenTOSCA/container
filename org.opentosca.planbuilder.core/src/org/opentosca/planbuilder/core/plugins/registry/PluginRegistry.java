@@ -42,8 +42,8 @@ public class PluginRegistry {
         final List<IPlanBuilderTypePlugin<?>> plugins = new ArrayList<>();
         final BundleContext ctx = getCtx();
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(IPlanBuilderTypePlugin.class.getName(),
-                null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderTypePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -51,7 +51,8 @@ public class PluginRegistry {
                 }
 
             }
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             e.printStackTrace();
         }
 
@@ -69,8 +70,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(
-                IPlanBuilderProvPhaseOperationPlugin.class.getName(), null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderProvPhaseOperationPlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -78,7 +79,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -96,8 +98,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(IPlanBuilderPrePhaseIAPlugin.class.getName(),
-                null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPrePhaseIAPlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -105,7 +107,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -123,8 +126,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(IPlanBuilderPrePhaseDAPlugin.class.getName(),
-                null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPrePhaseDAPlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -132,7 +135,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -150,8 +154,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(IPlanBuilderPostPhasePlugin.class.getName(),
-                null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPostPhasePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -159,7 +163,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -177,8 +182,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(
-                IScalingPlanBuilderSelectionPlugin.class.getName(), null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IScalingPlanBuilderSelectionPlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -186,7 +191,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -201,8 +207,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(
-                IPlanBuilderPolicyAwareTypePlugin.class.getName(), null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPolicyAwareTypePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -210,7 +216,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -223,8 +230,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(
-                IPlanBuilderPolicyAwarePostPhasePlugin.class.getName(), null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPolicyAwarePostPhasePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -232,7 +239,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -245,8 +253,8 @@ public class PluginRegistry {
         final BundleContext ctx = getCtx();
 
         try {
-            final ServiceReference<?>[] refs = ctx.getAllServiceReferences(
-                IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(), null);
+            final ServiceReference<?>[] refs =
+                ctx.getAllServiceReferences(IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(), null);
 
             if (refs != null) {
                 for (final ServiceReference<?> ref : refs) {
@@ -254,7 +262,8 @@ public class PluginRegistry {
                 }
             }
 
-        } catch (final InvalidSyntaxException e) {
+        }
+        catch (final InvalidSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

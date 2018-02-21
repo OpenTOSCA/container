@@ -30,12 +30,12 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
     private static final String PLUGIN_ID = "OpenTOSCA PlanBuilder VM and Cloud Provider Declarative Type Plugin";
     private final static Logger LOG = LoggerFactory.getLogger(UbuntuVmTypePlugin.class);
 
-    public static final QName noPublicAccessPolicyType = new QName("http://opentosca.org/policytypes",
-        "NoPublicAccessPolicy");
-    public static final QName publicAccessPolicyType = new QName("http://opentosca.org/policytypes",
-        "PublicAccessPolicy");
-    public static final QName onlyModeledPortsPolicyType = new QName("http://opentosca.org/policytypes",
-        "OnlyModeledPortsPolicyType");
+    public static final QName noPublicAccessPolicyType =
+        new QName("http://opentosca.org/policytypes", "NoPublicAccessPolicy");
+    public static final QName publicAccessPolicyType =
+        new QName("http://opentosca.org/policytypes", "PublicAccessPolicy");
+    public static final QName onlyModeledPortsPolicyType =
+        new QName("http://opentosca.org/policytypes", "OnlyModeledPortsPolicyType");
 
     /**
      * {@inheritDoc}

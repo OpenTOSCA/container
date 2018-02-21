@@ -51,8 +51,8 @@ public class IsFinishedResponseProcessor implements Processor {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
 
                 final String pollingURI = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
-                final String getResultURI = pollingURI
-                    + Route.GET_RESULT_ENDPOINT_SUFFIX.replace(Route.ID_PLACEHODLER, requestID);
+                final String getResultURI =
+                    pollingURI + Route.GET_RESULT_ENDPOINT_SUFFIX.replace(Route.ID_PLACEHODLER, requestID);
 
                 IsFinishedResponseProcessor.LOG.debug("GetResult URI: {}", getResultURI);
 

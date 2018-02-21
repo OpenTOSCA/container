@@ -28,8 +28,8 @@ public class ToscaServiceHandler {
 
     public static IXMLSerializer getIXMLSerializer() {
         final BundleContext context = Activator.getContext();
-        final ServiceReference<IXMLSerializerService> service = context.getServiceReference(
-            IXMLSerializerService.class);
+        final ServiceReference<IXMLSerializerService> service =
+            context.getServiceReference(IXMLSerializerService.class);
         return context.getService(service).getXmlSerializer();
     }
 

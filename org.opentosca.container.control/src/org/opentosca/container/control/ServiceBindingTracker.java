@@ -77,9 +77,11 @@ public class ServiceBindingTracker {
                 // null the check field never gets true again.
                 boolAllServicesBound = boolAllServicesBound && field.get(this) != null;
 
-            } catch (final IllegalArgumentException e) {
+            }
+            catch (final IllegalArgumentException e) {
                 this.LOG.error(e.getLocalizedMessage());
-            } catch (final IllegalAccessException e) {
+            }
+            catch (final IllegalAccessException e) {
                 this.LOG.error(e.getLocalizedMessage());
             }
         }
@@ -95,8 +97,7 @@ public class ServiceBindingTracker {
      */
     private void logContainerIsAvailable() {
 
-        this.LOG.info(
-            "Start of the OpenTOSCA Container, now invoke the resolving and consolidation of TOSCA data inside of stored CSARs.");
+        this.LOG.info("Start of the OpenTOSCA Container, now invoke the resolving and consolidation of TOSCA data inside of stored CSARs.");
         for (final CSARID csarID : this.coreFileService.getCSARIDs()) {
             this.openToscaControlService.invokeTOSCAProcessing(csarID);
 
@@ -109,16 +110,11 @@ public class ServiceBindingTracker {
 
         this.toscaEngineService.getToscaReferenceMapper().printStoredData();
 
-        this.LOG.info(
-            "#################################################################################################");
-        this.LOG.info(
-            "#################################################################################################");
-        this.LOG.info(
-            "########################### The OpenTOSCA Container is ready for use! ###########################");
-        this.LOG.info(
-            "#################################################################################################");
-        this.LOG.info(
-            "#################################################################################################");
+        this.LOG.info("#################################################################################################");
+        this.LOG.info("#################################################################################################");
+        this.LOG.info("########################### The OpenTOSCA Container is ready for use! ###########################");
+        this.LOG.info("#################################################################################################");
+        this.LOG.info("#################################################################################################");
     }
 
     /**

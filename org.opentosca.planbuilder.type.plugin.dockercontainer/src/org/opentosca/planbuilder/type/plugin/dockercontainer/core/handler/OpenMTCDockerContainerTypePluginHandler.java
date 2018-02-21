@@ -7,6 +7,6 @@ public interface OpenMTCDockerContainerTypePluginHandler<T extends PlanContext> 
     public boolean handleOpenMTCGateway(final T templateContext, final AbstractNodeTemplate backendNodeTemplate);
 
     public boolean handleOpenMTCProtocolAdapter(final T templateContext, final AbstractNodeTemplate openMtcGateway,
-                    final AbstractNodeTemplate sensorNodeTemplate);
+                                                final AbstractNodeTemplate sensorNodeTemplate);
 
 }

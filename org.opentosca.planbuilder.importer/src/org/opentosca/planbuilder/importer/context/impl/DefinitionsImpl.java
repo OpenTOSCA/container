@@ -121,7 +121,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
         if (this.definitions.getImport() != null) {
             for (final TImport imported : this.definitions.getImport()) {
                 DefinitionsImpl.LOG.debug("Check import element with namespace: {} location: {} importType: {}",
-                    imported.getNamespace(), imported.getLocation(), imported.getImportType());
+                                          imported.getNamespace(), imported.getLocation(), imported.getImportType());
                 // check if importtype is tosca ns, the location is set (else
                 // there's nothing to parse) and just for looks the string
                 // shouldn't
@@ -228,8 +228,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
                 this.addNodeTypeImplementation(new NodeTypeImplementationImpl((TNodeTypeImplementation) element, this));
             }
             if (element instanceof TRelationshipTypeImplementation) {
-                this.addRelationshipTypeImplementation(
-                    new RelationshipTypeImplementationImpl((TRelationshipTypeImplementation) element, this));
+                this.addRelationshipTypeImplementation(new RelationshipTypeImplementationImpl(
+                    (TRelationshipTypeImplementation) element, this));
             }
             if (element instanceof TArtifactTemplate) {
                 this.addArtifactTemplate(new ArtifactTemplateImpl((TArtifactTemplate) element, this));
@@ -347,15 +347,17 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private Definitions parseDefinitionsFile(final AbstractFile file) {
         Definitions def = null;
         try {
-            final JAXBContext jaxbContext = JAXBContext.newInstance("org.oasis_open.docs.tosca.ns._2011._12",
-                ObjectFactory.class.getClassLoader());
+            final JAXBContext jaxbContext =
+                JAXBContext.newInstance("org.oasis_open.docs.tosca.ns._2011._12", ObjectFactory.class.getClassLoader());
             final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             DefinitionsImpl.LOG.debug("Trying to parse file {} into JAXB object", file.getPath());
             def = (Definitions) unmarshaller.unmarshal(new InputStreamReader(file.getFileAsInputStream()));
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             DefinitionsImpl.LOG.error("Error while parsing file, maybe file is not a TOSCA Defintions File", e);
             return null;
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             LOG.error("Exception within Core", e);
             return null;
@@ -414,7 +416,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
             if (file.getPath().contains(path)) {
                 try {
                     return file.getFile().toFile();
-                } catch (final SystemException e) {
+                }
+                catch (final SystemException e) {
                     LOG.error("Exception within core", e);
                 }
             }

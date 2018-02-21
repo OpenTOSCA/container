@@ -50,12 +50,11 @@ public class NodeTemplateController {
     @ApiOperation(value = "Gets all node templates of a specific service template", response = NodeTemplateDTO.class,
                   responseContainer = "List")
     public Response getNodeTemplates(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId)
-        throws NotFoundException {
+                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 
         // this validates that the CSAR contains the service template
-        final List<NodeTemplateDTO> nodeTemplateIds = this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId,
-            serviceTemplateId);
+        final List<NodeTemplateDTO> nodeTemplateIds =
+            this.nodeTemplateService.getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId);
         final NodeTemplateListDTO list = new NodeTemplateListDTO();
 
         for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
@@ -74,12 +73,11 @@ public class NodeTemplateController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets a specific node template by its id", response = NodeTemplateDTO.class)
     public Response getNodeTemplate(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
-                    @ApiParam("node template id") @PathParam("nodetemplate") final String nodeTemplateId)
-        throws NotFoundException {
+                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
+                                    @ApiParam("node template id") @PathParam("nodetemplate") final String nodeTemplateId) throws NotFoundException {
 
-        final NodeTemplateDTO result = this.nodeTemplateService.getNodeTemplateById(csarId,
-            QName.valueOf(serviceTemplateId), nodeTemplateId);
+        final NodeTemplateDTO result =
+            this.nodeTemplateService.getNodeTemplateById(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId);
 
         result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
         result.add(UriUtil.generateSelfLink(this.uriInfo));
@@ -89,8 +87,8 @@ public class NodeTemplateController {
 
     @Path("/{nodetemplate}/instances")
     public NodeTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                    @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                    @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
+                                                       @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
+                                                       @ApiParam(hidden = true) @PathParam("nodetemplate") final String nodeTemplateId) {
         if (!this.nodeTemplateService.hasNodeTemplate(csarId, QName.valueOf(serviceTemplateId), nodeTemplateId)) {
             logger.info("Node template \"" + nodeTemplateId + "\" could not be found");
             throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");

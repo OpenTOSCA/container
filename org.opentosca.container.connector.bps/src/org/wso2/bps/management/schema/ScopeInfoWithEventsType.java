@@ -287,27 +287,27 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -325,10 +325,10 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":ScopeInfoWithEventsType", xmlWriter);
+                               namespacePrefix + ":ScopeInfoWithEventsType", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "ScopeInfoWithEventsType",
-                    xmlWriter);
+                               xmlWriter);
             }
 
 
@@ -374,37 +374,34 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
             throw new org.apache.axis2.databinding.ADBException("status cannot be null!!");
         }
         this.localStatus.serialize(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "status"),
-            xmlWriter);
+                                   xmlWriter);
         if (this.localChildrenWithEventsTracker) {
             if (this.localChildrenWithEvents == null) {
                 throw new org.apache.axis2.databinding.ADBException("childrenWithEvents cannot be null!!");
             }
-            this.localChildrenWithEvents.serialize(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "childrenWithEvents"),
-                xmlWriter);
+            this.localChildrenWithEvents.serialize(new javax.xml.namespace.QName(
+                "http://wso2.org/bps/management/schema", "childrenWithEvents"), xmlWriter);
         }
         if (this.localActivitiesWithEventsTracker) {
             if (this.localActivitiesWithEvents == null) {
                 throw new org.apache.axis2.databinding.ADBException("activitiesWithEvents cannot be null!!");
             }
-            this.localActivitiesWithEvents.serialize(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "activitiesWithEvents"),
-                xmlWriter);
+            this.localActivitiesWithEvents.serialize(new javax.xml.namespace.QName(
+                "http://wso2.org/bps/management/schema", "activitiesWithEvents"), xmlWriter);
         }
         if (this.localVariablesWithEventsTracker) {
             if (this.localVariablesWithEvents == null) {
                 throw new org.apache.axis2.databinding.ADBException("variablesWithEvents cannot be null!!");
             }
-            this.localVariablesWithEvents.serialize(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "variablesWithEvents"),
-                xmlWriter);
+            this.localVariablesWithEvents.serialize(new javax.xml.namespace.QName(
+                "http://wso2.org/bps/management/schema", "variablesWithEvents"), xmlWriter);
         }
         if (this.localCorrelationSetsTracker) {
             if (this.localCorrelationSets == null) {
                 throw new org.apache.axis2.databinding.ADBException("correlationSets cannot be null!!");
             }
-            this.localCorrelationSets.serialize(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "correlationSets"), xmlWriter);
+            this.localCorrelationSets.serialize(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                "correlationSets"), xmlWriter);
         }
         xmlWriter.writeEndElement();
 
@@ -422,8 +419,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -444,9 +441,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -458,8 +454,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -473,8 +469,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -500,8 +496,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -512,8 +508,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -524,8 +520,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -548,11 +544,10 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -568,8 +563,7 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -589,8 +583,7 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -622,8 +615,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
         }
         elementList.add(this.localStatus);
         if (this.localChildrenWithEventsTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "childrenWithEvents"));
+            elementList.add(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                "childrenWithEvents"));
 
 
             if (this.localChildrenWithEvents == null) {
@@ -632,8 +625,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
             elementList.add(this.localChildrenWithEvents);
         }
         if (this.localActivitiesWithEventsTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "activitiesWithEvents"));
+            elementList.add(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                "activitiesWithEvents"));
 
 
             if (this.localActivitiesWithEvents == null) {
@@ -642,8 +635,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
             elementList.add(this.localActivitiesWithEvents);
         }
         if (this.localVariablesWithEventsTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "variablesWithEvents"));
+            elementList.add(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                "variablesWithEvents"));
 
 
             if (this.localVariablesWithEvents == null) {
@@ -685,8 +678,7 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static ScopeInfoWithEventsType parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static ScopeInfoWithEventsType parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final ScopeInfoWithEventsType object = new ScopeInfoWithEventsType();
 
             final int event;
@@ -701,8 +693,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -715,8 +707,9 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                         if (!"ScopeInfoWithEventsType".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (ScopeInfoWithEventsType) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (ScopeInfoWithEventsType) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                                           type,
+                                                                                                                                           reader);
                         }
 
 
@@ -740,9 +733,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "siid").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "siid").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -763,9 +755,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "name").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "name").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -786,9 +777,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "status").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "status").equals(reader.getName())) {
 
                     object.setStatus(org.wso2.bps.management.schema.ScopeStatusType.Factory.parse(reader));
 
@@ -810,8 +800,7 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
                     "childrenWithEvents").equals(reader.getName())) {
 
-                    object.setChildrenWithEvents(
-                        org.wso2.bps.management.schema.ChildrenWithEvents_type0.Factory.parse(reader));
+                    object.setChildrenWithEvents(org.wso2.bps.management.schema.ChildrenWithEvents_type0.Factory.parse(reader));
 
                     reader.next();
 
@@ -829,8 +818,7 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
                     "activitiesWithEvents").equals(reader.getName())) {
 
-                    object.setActivitiesWithEvents(
-                        org.wso2.bps.management.schema.ActivitiesWithEvents_type0.Factory.parse(reader));
+                    object.setActivitiesWithEvents(org.wso2.bps.management.schema.ActivitiesWithEvents_type0.Factory.parse(reader));
 
                     reader.next();
 
@@ -848,8 +836,7 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
                     "variablesWithEvents").equals(reader.getName())) {
 
-                    object.setVariablesWithEvents(
-                        org.wso2.bps.management.schema.VariablesWithEvents_type0.Factory.parse(reader));
+                    object.setVariablesWithEvents(org.wso2.bps.management.schema.VariablesWithEvents_type0.Factory.parse(reader));
 
                     reader.next();
 
@@ -864,12 +851,10 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "correlationSets").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "correlationSets").equals(reader.getName())) {
 
-                    object.setCorrelationSets(
-                        org.wso2.bps.management.schema.CorrelationSets_type1.Factory.parse(reader));
+                    object.setCorrelationSets(org.wso2.bps.management.schema.CorrelationSets_type1.Factory.parse(reader));
 
                     reader.next();
 
@@ -891,7 +876,8 @@ public class ScopeInfoWithEventsType implements org.apache.axis2.databinding.ADB
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

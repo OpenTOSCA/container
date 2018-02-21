@@ -60,8 +60,9 @@ public class RelationshipTemplatesResource {
 
         final References refs = new References();
 
-        for (final String rtID : ToscaServiceHandler.getToscaEngineService().getRelationshipTemplatesOfServiceTemplate(
-            this.csarId, this.serviceTemplateID)) {
+        for (final String rtID : ToscaServiceHandler.getToscaEngineService()
+                                                    .getRelationshipTemplatesOfServiceTemplate(this.csarId,
+                                                                                               this.serviceTemplateID)) {
             refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, rtID), XLinkConstants.SIMPLE, rtID));
         }
 
@@ -75,8 +76,7 @@ public class RelationshipTemplatesResource {
     @Path("{PlanIdLocalPart}")
     @Produces(ResourceConstants.TOSCA_JSON)
     public RelationshipTemplateResource getRelationshipTemplate(@Context final UriInfo uriInfo,
-                    @PathParam("PlanIdLocalPart") final String planIdLocalPart)
-        throws URISyntaxException {
+                                                                @PathParam("PlanIdLocalPart") final String planIdLocalPart) throws URISyntaxException {
         return new RelationshipTemplateResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
             planIdLocalPart);
     }

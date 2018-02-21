@@ -33,12 +33,12 @@ public class PlanDeploymentInfo extends AbstractFileDeploymentInfo {
      * JPQL Queries
      */
     public static final String getPlanDeploymentInfoByCSARIDAndRelPath = "PlanDeploymentInfo.ByCSARIDAndRelPath";
-    protected static final String getPlanDeploymentInfoByCSARIDAndRelPathQuery = "select t from "
-        + PlanDeploymentInfo.tableName + " t where t.relPath = :planRelPath and t.csarID = :csarID";
+    protected static final String getPlanDeploymentInfoByCSARIDAndRelPathQuery =
+        "select t from " + PlanDeploymentInfo.tableName + " t where t.relPath = :planRelPath and t.csarID = :csarID";
 
     public static final String getPlanDeploymentInfoByCSARID = "PlanDeploymentInfo.ByCSARID";
-    protected static final String getPlanDeploymentInfoByCSARIDQuery = "select t from " + PlanDeploymentInfo.tableName
-        + " t where t.csarID = :csarID";
+    protected static final String getPlanDeploymentInfoByCSARIDQuery =
+        "select t from " + PlanDeploymentInfo.tableName + " t where t.csarID = :csarID";
 
     /**
      * Deployment state of this Plan.

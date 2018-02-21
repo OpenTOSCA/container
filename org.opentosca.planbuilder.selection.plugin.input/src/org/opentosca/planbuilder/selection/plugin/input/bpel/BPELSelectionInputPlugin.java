@@ -39,7 +39,7 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final List<String> selectionStrategies) {
+                          final List<String> selectionStrategies) {
         // add input field
         final String inputFieldName = nodeTemplate.getId() + "_InstanceID";
         context.addStringValueToPlanRequest(inputFieldName);
@@ -49,18 +49,21 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
 
         // add assign from input to nodeInstanceVar
         try {
-            Node assignFromInputToNodeInstanceIdVar = new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode(
-                inputFieldName, nodeInstanceVarName);
+            Node assignFromInputToNodeInstanceIdVar =
+                new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode(inputFieldName,
+                                                                                                nodeInstanceVarName);
             assignFromInputToNodeInstanceIdVar = context.importNode(assignFromInputToNodeInstanceIdVar);
             context.getPrePhaseElement().appendChild(assignFromInputToNodeInstanceIdVar);
-        } catch (IOException | ParserConfigurationException | SAXException e) {
+        }
+        catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
 
         try {
-            new NodeInstanceInitializer(new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context,
-                nodeTemplate);
-        } catch (final ParserConfigurationException e) {
+            new NodeInstanceInitializer(
+                new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
 

@@ -22,23 +22,23 @@ public class RESTMessageGenerator {
 
 
     public Map<String, String> createRequest(final CSARID csarID, final QName planInputMessageID,
-                    final List<TParameterDTO> inputParameter, final String correlationID) {
+                                             final List<TParameterDTO> inputParameter, final String correlationID) {
 
         final Map<String, String> map = new HashMap<>();
         final List<Document> docs = new ArrayList<>();
 
         final List<QName> serviceTemplates = ServiceProxy.toscaEngineService.getServiceTemplatesInCSAR(csarID);
         for (final QName serviceTemplate : serviceTemplates) {
-            final List<String> nodeTemplates = ServiceProxy.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID,
-                serviceTemplate);
+            final List<String> nodeTemplates =
+                ServiceProxy.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarID, serviceTemplate);
 
             for (final String nodeTemplate : nodeTemplates) {
-                final Document doc = ServiceProxy.toscaEngineService.getPropertiesOfNodeTemplate(csarID,
-                    serviceTemplate, nodeTemplate);
+                final Document doc =
+                    ServiceProxy.toscaEngineService.getPropertiesOfNodeTemplate(csarID, serviceTemplate, nodeTemplate);
                 if (null != doc) {
                     docs.add(doc);
                     this.LOG.trace("Found property document: {}",
-                        ServiceProxy.xmlSerializerService.getXmlSerializer().docToString(doc, false));
+                                   ServiceProxy.xmlSerializerService.getXmlSerializer().docToString(doc, false));
                 }
             }
         }
@@ -63,8 +63,8 @@ public class RESTMessageGenerator {
                 map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_API);
             } else {
                 if (para.getName() == null || para.getValue().equals("")) {
-                    this.LOG.debug(
-                        "The parameter \"" + para.getName() + "\" has an empty value, thus search in the properties.");
+                    this.LOG.debug("The parameter \"" + para.getName()
+                        + "\" has an empty value, thus search in the properties.");
                     String value = "";
                     for (final Document doc : docs) {
                         final NodeList nodes = doc.getElementsByTagNameNS("*", para.getName());

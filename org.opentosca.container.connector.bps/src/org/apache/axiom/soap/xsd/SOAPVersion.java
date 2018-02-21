@@ -464,27 +464,27 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -502,7 +502,7 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://soap.axiom.apache.org/xsd");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":SOAPVersion", xmlWriter);
+                               namespacePrefix + ":SOAPVersion", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "SOAPVersion", xmlWriter);
             }
@@ -551,13 +551,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localFaultCodeQName != null) {
                 if (this.localFaultCodeQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localFaultCodeQName).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultCodeQName"), xmlWriter,
-                        true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localFaultCodeQName).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "faultCodeQName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "faultCodeQName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localFaultCodeQName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -577,13 +576,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localFaultDetailQName != null) {
                 if (this.localFaultDetailQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localFaultDetailQName).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultDetailQName"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localFaultDetailQName).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "faultDetailQName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "faultDetailQName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localFaultDetailQName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -603,13 +601,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localFaultReasonQName != null) {
                 if (this.localFaultReasonQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localFaultReasonQName).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultReasonQName"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localFaultReasonQName).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "faultReasonQName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "faultReasonQName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localFaultReasonQName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -629,13 +626,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localFaultRoleQName != null) {
                 if (this.localFaultRoleQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localFaultRoleQName).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultRoleQName"), xmlWriter,
-                        true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localFaultRoleQName).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "faultRoleQName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "faultRoleQName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localFaultRoleQName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -655,13 +651,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localMustUnderstandFaultCode != null) {
                 if (this.localMustUnderstandFaultCode instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localMustUnderstandFaultCode).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "mustUnderstandFaultCode"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localMustUnderstandFaultCode).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "mustUnderstandFaultCode"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "mustUnderstandFaultCode", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localMustUnderstandFaultCode,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -700,13 +695,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localReceiverFaultCode != null) {
                 if (this.localReceiverFaultCode instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localReceiverFaultCode).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "receiverFaultCode"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localReceiverFaultCode).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "receiverFaultCode"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "receiverFaultCode", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localReceiverFaultCode,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -726,13 +720,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localRoleAttributeQName != null) {
                 if (this.localRoleAttributeQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localRoleAttributeQName).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "roleAttributeQName"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localRoleAttributeQName).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "roleAttributeQName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "roleAttributeQName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localRoleAttributeQName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -752,13 +745,12 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
             if (this.localSenderFaultCode != null) {
                 if (this.localSenderFaultCode instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localSenderFaultCode).serialize(
-                        new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "senderFaultCode"), xmlWriter,
-                        true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localSenderFaultCode).serialize(new javax.xml.namespace.QName(
+                        "http://soap.axiom.apache.org/xsd", "senderFaultCode"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://soap.axiom.apache.org/xsd", "senderFaultCode", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localSenderFaultCode,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -790,8 +782,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -812,9 +804,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -826,8 +817,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -841,8 +832,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -868,8 +859,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -880,8 +871,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -892,8 +883,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -916,11 +907,10 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -936,8 +926,7 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -957,8 +946,7 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -968,18 +956,14 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
         if (this.localEncodingURITracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "encodingURI"));
 
-            elementList.add(
-                this.localEncodingURI == null ? null
-                                              : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                  this.localEncodingURI));
+            elementList.add(this.localEncodingURI == null ? null
+                                                          : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localEncodingURI));
         }
         if (this.localEnvelopeURITracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "envelopeURI"));
 
-            elementList.add(
-                this.localEnvelopeURI == null ? null
-                                              : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                  this.localEnvelopeURI));
+            elementList.add(this.localEnvelopeURI == null ? null
+                                                          : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localEnvelopeURI));
         }
         if (this.localFaultCodeQNameTracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultCodeQName"));
@@ -1006,8 +990,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
             elementList.add(this.localFaultRoleQName == null ? null : this.localFaultRoleQName);
         }
         if (this.localMustUnderstandFaultCodeTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "mustUnderstandFaultCode"));
+            elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                "mustUnderstandFaultCode"));
 
 
             elementList.add(this.localMustUnderstandFaultCode == null ? null : this.localMustUnderstandFaultCode);
@@ -1015,10 +999,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
         if (this.localNextRoleURITracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "nextRoleURI"));
 
-            elementList.add(
-                this.localNextRoleURI == null ? null
-                                              : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                  this.localNextRoleURI));
+            elementList.add(this.localNextRoleURI == null ? null
+                                                          : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localNextRoleURI));
         }
         if (this.localReceiverFaultCodeTracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "receiverFaultCode"));
@@ -1078,8 +1060,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -1093,7 +1075,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
                             return (SOAPVersion) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
-                                type, reader);
+                                                                                                                type,
+                                                                                                                reader);
                         }
 
                         throw new org.apache.axis2.databinding.ADBException(
@@ -1120,17 +1103,15 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "encodingURI").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "encodingURI").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setEncodingURI(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setEncodingURI(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1151,17 +1132,15 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "envelopeURI").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "envelopeURI").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setEnvelopeURI(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setEnvelopeURI(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1182,12 +1161,11 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultCodeQName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "faultCodeQName").equals(reader.getName())) {
 
                     object.setFaultCodeQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                               org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1202,12 +1180,11 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultDetailQName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "faultDetailQName").equals(reader.getName())) {
 
                     object.setFaultDetailQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                                 org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1222,12 +1199,11 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultReasonQName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "faultReasonQName").equals(reader.getName())) {
 
                     object.setFaultReasonQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                                 org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1242,12 +1218,11 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "faultRoleQName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "faultRoleQName").equals(reader.getName())) {
 
                     object.setFaultRoleQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                               org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1265,8 +1240,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
                     "mustUnderstandFaultCode").equals(reader.getName())) {
 
-                    object.setMustUnderstandFaultCode(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setMustUnderstandFaultCode(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1281,17 +1256,15 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "nextRoleURI").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "nextRoleURI").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setNextRoleURI(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setNextRoleURI(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1312,32 +1285,11 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "receiverFaultCode").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "receiverFaultCode").equals(reader.getName())) {
 
-                    object.setReceiverFaultCode(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
-
-                    reader.next();
-
-                } // End of if for expected property start element
-
-                else {
-
-                }
-
-
-                while (!reader.isStartElement() && !reader.isEndElement()) {
-                    reader.next();
-                }
-
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "roleAttributeQName").equals(
-                        reader.getName())) {
-
-                    object.setRoleAttributeQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setReceiverFaultCode(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                  org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1352,12 +1304,30 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "senderFaultCode").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "roleAttributeQName").equals(reader.getName())) {
+
+                    object.setRoleAttributeQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                   org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+
+                    reader.next();
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+
+                while (!reader.isStartElement() && !reader.isEndElement()) {
+                    reader.next();
+                }
+
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "senderFaultCode").equals(reader.getName())) {
 
                     object.setSenderFaultCode(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                                org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1379,7 +1349,8 @@ public abstract class SOAPVersion implements org.apache.axis2.databinding.ADBBea
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

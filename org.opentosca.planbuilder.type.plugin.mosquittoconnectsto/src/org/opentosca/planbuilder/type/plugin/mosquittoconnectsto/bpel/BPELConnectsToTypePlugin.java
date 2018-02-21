@@ -24,7 +24,8 @@ public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanConte
     public BPELConnectsToTypePlugin() {
         try {
             this.handler = new BPELConnectsToPluginHandler();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }

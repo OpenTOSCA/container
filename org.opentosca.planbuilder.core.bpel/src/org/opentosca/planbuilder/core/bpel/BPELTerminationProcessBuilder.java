@@ -66,7 +66,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceInitializer();
             this.nodeInstanceInitializer = new NodeInstanceInitializer(this.planHandler);
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             BPELTerminationProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
         }
         this.propertyInitializer = new PropertyVariableInitializer(this.planHandler);
@@ -83,7 +84,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
      */
     @Override
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
-                    final QName serviceTemplateId) {
+                              final QName serviceTemplateId) {
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
             String namespace;
             if (serviceTemplate.getTargetNamespace() != null) {
@@ -97,11 +98,12 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 final String processName = serviceTemplate.getId() + "_terminationPlan";
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 
-                final AbstractPlan newAbstractTerminationPlan = this.generateTOG(
-                    new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                final AbstractPlan newAbstractTerminationPlan =
+                    this.generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
-                final BPELPlan newTerminationPlan = this.planHandler.createEmptyBPELPlan(processNamespace, processName,
-                    newAbstractTerminationPlan, "terminate");
+                final BPELPlan newTerminationPlan =
+                    this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan,
+                                                         "terminate");
 
                 newTerminationPlan.setTOSCAInterfaceName("OpenTOSCA-Lifecycle-Interface");
                 newTerminationPlan.setTOSCAOperationname("terminate");
@@ -133,24 +135,23 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 // // connect the templates
                 // this.initializeConnectionsInTerminationPlan(newTerminationPlan);
 
-                final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(
-                    newTerminationPlan);
+                final PropertyMap propMap =
+                    this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
 
                 // instanceDataAPI handling is done solely trough this extension
                 this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
-                    newTerminationPlan);
+                                                   newTerminationPlan);
 
                 // initialize instanceData handling, add
                 // instanceDataAPI/serviceInstanceID into input, add global
                 // variables to hold the value for plugins
-                this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(
-                    newTerminationPlan);
+                this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(newTerminationPlan);
                 this.serviceInstanceInitializer.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 
                 this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan,
-                    "?state=STARTED,CREATED,CONFIGURED");
+                                                                      "?state=STARTED,CREATED,CONFIGURED");
                 this.nodeInstanceInitializer.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
-                    propMap);
+                                                                                            propMap);
 
                 // TODO Create a for loop over the three sequences inside the
                 // flow to iterate for the instance count deleting one instance
@@ -166,10 +167,10 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
                 for (final BPELScopeActivity activ : changedActivities) {
                     if (activ.getNodeTemplate() != null) {
-                        final BPELPlanContext context = new BPELPlanContext(activ, propMap,
-                            newTerminationPlan.getServiceTemplate());
+                        final BPELPlanContext context =
+                            new BPELPlanContext(activ, propMap, newTerminationPlan.getServiceTemplate());
                         this.nodeInstanceInitializer.appendCountInstancesLogic(context, activ.getNodeTemplate(),
-                            "?state=STARTED,CREATED,CONFIGURED");
+                                                                               "?state=STARTED,CREATED,CONFIGURED");
                     }
                 }
                 // TODO we need to wrap the pre-, prov- and post-phase sequences
@@ -184,16 +185,14 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
 
                 BPELTerminationProcessBuilder.LOG.debug("Created TerminationPlan:");
-                BPELTerminationProcessBuilder.LOG.debug(
-                    ModelUtils.getStringFromDoc(newTerminationPlan.getBpelDocument()));
+                BPELTerminationProcessBuilder.LOG.debug(ModelUtils.getStringFromDoc(newTerminationPlan.getBpelDocument()));
 
                 return newTerminationPlan;
             }
         }
 
-        BPELTerminationProcessBuilder.LOG.warn(
-            "Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
-            serviceTemplateId.toString(), definitions.getId(), csarName);
+        BPELTerminationProcessBuilder.LOG.warn("Couldn't create BuildPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+                                               serviceTemplateId.toString(), definitions.getId(), csarName);
         return null;
     }
 
@@ -216,19 +215,18 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             }
 
             if (!serviceTemplate.hasBuildPlan()) {
-                BPELTerminationProcessBuilder.LOG.debug(
-                    "ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
-                    serviceTemplateId.toString());
+                BPELTerminationProcessBuilder.LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
+                                                        serviceTemplateId.toString());
                 final BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
 
                 if (newBuildPlan != null) {
-                    BPELTerminationProcessBuilder.LOG.debug(
-                        "Created TerminationPlan " + newBuildPlan.getBpelProcessElement().getAttribute("name"));
+                    BPELTerminationProcessBuilder.LOG.debug("Created TerminationPlan "
+                        + newBuildPlan.getBpelProcessElement().getAttribute("name"));
                     plans.add(newBuildPlan);
                 }
             } else {
                 BPELTerminationProcessBuilder.LOG.debug("ServiceTemplate {} has TerminationPlan, no generation needed",
-                    serviceTemplateId.toString());
+                                                        serviceTemplateId.toString());
             }
         }
         return plans;
@@ -281,23 +279,24 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             // we handle only nodeTemplates..
             if (templatePlan.getNodeTemplate() != null) {
                 // .. that are VM nodeTypes
-                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVMNodeType(
-                    templatePlan.getNodeTemplate().getType().getId())) {
+                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVMNodeType(templatePlan.getNodeTemplate()
+                                                                                                          .getType()
+                                                                                                          .getId())) {
                     // create context for the templatePlan
-                    final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap,
-                        plan.getServiceTemplate());
+                    final BPELPlanContext context =
+                        new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
                     // fetch infrastructure node (cloud provider)
                     final List<AbstractNodeTemplate> infraNodes = context.getInfrastructureNodes();
                     for (final AbstractNodeTemplate infraNode : infraNodes) {
-                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(
-                            infraNode.getType().getId())) {
+                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(infraNode.getType()
+                                                                                                                          .getId())) {
                             // append logic to call terminateVM method on the
                             // node
 
                             context.executeOperation(infraNode,
-                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
-                                org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
-                                null);
+                                                     org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
+                                                     org.opentosca.container.core.tosca.convention.Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_TERMINATEVM,
+                                                     null);
 
                             changedActivities.add(templatePlan);
                         }
@@ -305,8 +304,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
                 } else {
                     // check whether this node is a docker container
-                    final BPELPlanContext context = new BPELPlanContext(templatePlan, propMap,
-                        plan.getServiceTemplate());
+                    final BPELPlanContext context =
+                        new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
                     if (!this.isDockerContainer(context.getNodeTemplate())) {
                         continue;
@@ -317,10 +316,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     ModelUtils.getNodesFromNodeToSink(context.getNodeTemplate(), nodes);
 
                     for (final AbstractNodeTemplate node : nodes) {
-                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(
-                            node.getType().getId())) {
+                        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
+                                                                                                                    .getId())) {
                             context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
-                                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER, null);
+                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER,
+                                                     null);
                             changedActivities.add(templatePlan);
                         }
                     }

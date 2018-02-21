@@ -73,7 +73,7 @@ public class NodeTypeImplementationResolver extends GenericResolver {
 
                 // is the NodeType known
                 if (!ToscaEngineServiceImpl.toscaReferenceMapper.containsReferenceInsideCSAR(this.csarID,
-                    nodeTypeImplementation.getNodeType())) {
+                                                                                             nodeTypeImplementation.getNodeType())) {
                     this.LOG.error("The NodeTypeImplementation \"" + targetNamespace + ":"
                         + nodeTypeImplementation.getName() + "\" refers to the NodeType \""
                         + nodeTypeImplementation.getNodeType() + "\" which was not found.");
@@ -84,9 +84,10 @@ public class NodeTypeImplementationResolver extends GenericResolver {
 
                 // DerivedFrom
                 if (nodeTypeImplementation.getDerivedFrom() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        nodeTypeImplementation.getDerivedFrom().getNodeTypeImplementationRef(),
-                        ElementNamesEnum.NODETYPEIMPLEMENTATION);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(nodeTypeImplementation.getDerivedFrom()
+                                                                                                         .getNodeTypeImplementationRef(),
+                                                                                   ElementNamesEnum.NODETYPEIMPLEMENTATION);
                 }
 
                 // RequiredContainerFeatures
@@ -96,12 +97,12 @@ public class NodeTypeImplementationResolver extends GenericResolver {
                 if (nodeTypeImplementation.getImplementationArtifacts() != null) {
                     for (final TImplementationArtifact implementationArtifact : nodeTypeImplementation.getImplementationArtifacts()
                                                                                                       .getImplementationArtifact()) {
-                        final int iANumber = nodeTypeImplementation.getImplementationArtifacts()
-                                                                   .getImplementationArtifact()
-                                                                   .indexOf(implementationArtifact);
-                        errorOccurred = errorOccurred
-                            || new ImplementationArtifactResolver(this.referenceMapper).resolve(implementationArtifact,
-                                targetNamespace, nodeTypeImplementation.getName(), iANumber);
+                        final int iANumber =
+                            nodeTypeImplementation.getImplementationArtifacts().getImplementationArtifact()
+                                                  .indexOf(implementationArtifact);
+                        errorOccurred = errorOccurred || new ImplementationArtifactResolver(
+                            this.referenceMapper).resolve(implementationArtifact, targetNamespace,
+                                                          nodeTypeImplementation.getName(), iANumber);
                     }
                 }
 
@@ -109,13 +110,14 @@ public class NodeTypeImplementationResolver extends GenericResolver {
                 if (nodeTypeImplementation.getDeploymentArtifacts() != null) {
                     for (final TDeploymentArtifact deploymentArtifact : nodeTypeImplementation.getDeploymentArtifacts()
                                                                                               .getDeploymentArtifact()) {
-                        errorOccurred = errorOccurred || new DeploymentArtifactResolver(this.referenceMapper).resolve(
-                            deploymentArtifact, targetNamespace);
+                        errorOccurred = errorOccurred
+                            || new DeploymentArtifactResolver(this.referenceMapper).resolve(deploymentArtifact,
+                                                                                            targetNamespace);
                     }
                 }
 
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, nodeTypeImplementation.getName()), nodeTypeImplementation);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    nodeTypeImplementation.getName()), nodeTypeImplementation);
             }
         }
         return errorOccurred;

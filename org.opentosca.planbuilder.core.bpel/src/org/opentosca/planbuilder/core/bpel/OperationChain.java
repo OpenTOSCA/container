@@ -231,7 +231,7 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                    final Map<AbstractParameter, Variable> param2propertyMapping) {
+                                                final Map<AbstractParameter, Variable> param2propertyMapping) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
@@ -261,7 +261,8 @@ public class OperationChain {
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
-                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
+                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
+                        (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
                         if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
                             checkCount++;
@@ -300,8 +301,8 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                    final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+                                                final Map<AbstractParameter, Variable> param2propertyMapping,
+                                                final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
@@ -350,7 +351,8 @@ public class OperationChain {
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
-                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
+                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
+                        (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
                         if (paramPlugin.handle(context, op, ia, param2propertyMapping)) {
                             checkCount++;
@@ -377,7 +379,7 @@ public class OperationChain {
                             }
                         };
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping,
-                            param2propertyOutputMapping)) {
+                                               param2propertyOutputMapping)) {
                             checkCount++;
                         }
                     }
@@ -394,9 +396,9 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                    final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                    final boolean appendToPrePhase) {
+                                                final Map<AbstractParameter, Variable> param2propertyMapping,
+                                                final Map<AbstractParameter, Variable> param2propertyOutputMapping,
+                                                final boolean appendToPrePhase) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
@@ -445,7 +447,8 @@ public class OperationChain {
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
-                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
+                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
+                        (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
                         if (paramPlugin.handle(context, op, ia, param2propertyMapping, appendToPrePhase)) {
                             checkCount++;
@@ -472,7 +475,7 @@ public class OperationChain {
                             }
                         };
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, param2propertyOutputMapping,
-                            appendToPrePhase)) {
+                                               appendToPrePhase)) {
                             checkCount++;
                         }
                     }
@@ -485,7 +488,8 @@ public class OperationChain {
     }
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
-                    final Map<AbstractParameter, Variable> param2propertyMapping, final boolean appendToPrePhase) {
+                                                final Map<AbstractParameter, Variable> param2propertyMapping,
+                                                final boolean appendToPrePhase) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
@@ -515,7 +519,8 @@ public class OperationChain {
                 final IPlanBuilderProvPhaseOperationPlugin plugin = provCandidate.plugins.get(index);
 
                 if (plugin instanceof IPlanBuilderProvPhaseParamOperationPlugin) {
-                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin = (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
+                    final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
+                        (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
                         if (paramPlugin.handle(context, op, ia, param2propertyMapping, appendToPrePhase)) {
                             checkCount++;

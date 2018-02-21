@@ -65,10 +65,9 @@ public class BoundsInterfaceOperationPlanResource {
     // @Path("{PlanName}")
     @Produces(ResourceConstants.TOSCA_XML)
     public JAXBElement getPlanXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-        final String planName = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
-                                                   .getBoundaryPlanOfCSARInterface(this.csarID, this.intName,
-                                                       this.opName)
-                                                   .getLocalPart();
+        final String planName =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                               .getBoundaryPlanOfCSARInterface(this.csarID, this.intName, this.opName).getLocalPart();
 
         final TPlan plan = this.getPlan(planName);
 
@@ -94,8 +93,8 @@ public class BoundsInterfaceOperationPlanResource {
         String serviceTemplateID = Utilities.URLencode(this.serviceTemplateID.toString());
         serviceTemplateID = Utilities.URLencode(serviceTemplateID);
 
-        final String path = "CSARs/" + this.csarID.getFileName() + "/ServiceTemplates/" + serviceTemplateID
-            + "/Instances";
+        final String path =
+            "CSARs/" + this.csarID.getFileName() + "/ServiceTemplates/" + serviceTemplateID + "/Instances";
 
         LOG.debug("POST URL: {}", path);
 
@@ -114,10 +113,9 @@ public class BoundsInterfaceOperationPlanResource {
     @Produces(ResourceConstants.TOSCA_JSON)
     public Response getPlanJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
 
-        final String planName = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
-                                                   .getBoundaryPlanOfCSARInterface(this.csarID, this.intName,
-                                                       this.opName)
-                                                   .getLocalPart();
+        final String planName =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                               .getBoundaryPlanOfCSARInterface(this.csarID, this.intName, this.opName).getLocalPart();
 
         final TPlan plan = this.getPlan(planName);
 
@@ -129,7 +127,7 @@ public class BoundsInterfaceOperationPlanResource {
         } else {
             final URI url = uriInfo.getBaseUriBuilder().path(this.getPostPath()).build();
             json.add("Reference",
-                new Reference(url.toString() + "/{instanceId}", XLinkConstants.REFERENCE, "PlanPostURL").toJson());
+                     new Reference(url.toString() + "/{instanceId}", XLinkConstants.REFERENCE, "PlanPostURL").toJson());
         }
 
         final JsonObject planJson = new JsonObject();
@@ -150,7 +148,8 @@ public class BoundsInterfaceOperationPlanResource {
                 paramObj.add("InputParameter", paramDetails);
                 input.add(paramObj);
             }
-        } catch (final NullPointerException e) {
+        }
+        catch (final NullPointerException e) {
         }
         planJson.add("InputParameters", input);
 
@@ -165,7 +164,8 @@ public class BoundsInterfaceOperationPlanResource {
                 paramObj.add("OutputParameter", paramDetails);
                 output.add(paramObj);
             }
-        } catch (final NullPointerException e) {
+        }
+        catch (final NullPointerException e) {
         }
         planJson.add("OutputParameters", output);
 
@@ -178,9 +178,8 @@ public class BoundsInterfaceOperationPlanResource {
 
     public TPlan getPlan(final String plan) {
         LOG.trace("Return plan " + plan);
-        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> map = ToscaServiceHandler.getToscaEngineService()
-                                                                                   .getToscaReferenceMapper()
-                                                                                   .getCSARIDToPlans(this.csarID);
+        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> map =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(this.csarID);
 
         final IToscaReferenceMapper service = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper();
         final String ns = service.getNamespaceOfPlan(this.csarID, plan);

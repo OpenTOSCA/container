@@ -23,8 +23,8 @@ public abstract class VinothekPlugin<T extends PlanContext> implements IPlanBuil
     protected static final String PLUGIN_ID = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
     protected static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
     protected static final QName bpelProcess = new QName("http://opentosca.org/declarative/", "BPEL");
-    protected final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-        "ArchiveArtifact");
+    protected final QName zipArtifactType =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 
     @Override
     public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {

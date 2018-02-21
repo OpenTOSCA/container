@@ -53,8 +53,8 @@ public class ResourceHandler {
     }
 
     public File createNewTempFile(final File file, final int id) throws IOException {
-        final File tempFile = Files.createTempFile(file.getName().split("\\.")[0] + id,
-            "." + file.getName().split("\\.")[1]).toFile();
+        final File tempFile =
+            Files.createTempFile(file.getName().split("\\.")[0] + id, "." + file.getName().split("\\.")[1]).toFile();
 
         FileUtils.copyFile(file, tempFile);
         return tempFile;
@@ -70,10 +70,10 @@ public class ResourceHandler {
      * @return a String containing a complete BPEL Copy element
      * @throws IOException is thrown when reading internal files fails
      */
-    public String generateAddressingCopy(final String partnerLinkName, final String requestVariableName)
-        throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("addressingCopy.xml");
+    public String generateAddressingCopy(final String partnerLinkName,
+                                         final String requestVariableName) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("addressingCopy.xml");
         final File addressingFile = new File(FileLocator.toFileURL(url).getPath());
         String addressingFileString = FileUtils.readFileToString(addressingFile);
         /*
@@ -97,8 +97,8 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      * @throws SAXException is thrown when parsing internal data to DOM fails
      */
-    public Node generateAddressingCopyAsNode(final String partnerLinkName, final String requestVariableName)
-        throws IOException, SAXException {
+    public Node generateAddressingCopyAsNode(final String partnerLinkName,
+                                             final String requestVariableName) throws IOException, SAXException {
         final String addressingCopyString = this.generateAddressingCopy(partnerLinkName, requestVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
@@ -115,8 +115,8 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public String generateAddressingInit(final String requestVariableName) throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("addressingInit.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("addressingInit.xml");
         final File addressingFile = new File(FileLocator.toFileURL(url).getPath());
         String addressingFileString = FileUtils.readFileToString(addressingFile);
         /*
@@ -145,10 +145,12 @@ public class ResourceHandler {
     }
 
     public Node generateCopyFromExternalParamToInvokerNode(final String requestVarName, final String requestVarPartName,
-                    final String paramName, final String invokerParamName)
-        throws IOException, SAXException {
-        final String addressingCopyString = this.generateCopyFromExternalParamToInvokerString(requestVarName,
-            requestVarPartName, paramName, invokerParamName);
+                                                           final String paramName,
+                                                           final String invokerParamName) throws IOException,
+                                                                                          SAXException {
+        final String addressingCopyString =
+            this.generateCopyFromExternalParamToInvokerString(requestVarName, requestVarPartName, paramName,
+                                                              invokerParamName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -156,8 +158,8 @@ public class ResourceHandler {
     }
 
     private String generateCopyFromExternalParamToInvokerString(final String requestVarName,
-                    final String requestVarPartName, final String paramName, final String invokerParamName)
-        throws IOException {
+                                                                final String requestVarPartName, final String paramName,
+                                                                final String invokerParamName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("externalParamCopy2.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
@@ -181,10 +183,11 @@ public class ResourceHandler {
      * @throws SAXException is thrown when parsing internal data fails
      * @throws IOException is thrown when reading internal data fails
      */
-    public Node generateCorrelationSetsAsNode(final String correlationSetName, final boolean initiate)
-        throws SAXException, IOException {
-        final String correlationSetsString = "<bpel:correlations xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><bpel:correlation set=\""
-            + correlationSetName + "\" initiate=\"" + (initiate ? "yes" : "no") + "\"/></bpel:correlations>";
+    public Node generateCorrelationSetsAsNode(final String correlationSetName,
+                                              final boolean initiate) throws SAXException, IOException {
+        final String correlationSetsString =
+            "<bpel:correlations xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><bpel:correlation set=\""
+                + correlationSetName + "\" initiate=\"" + (initiate ? "yes" : "no") + "\"/></bpel:correlations>";
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(correlationSetsString));
         final Document doc = this.docBuilder.parse(is);
@@ -204,11 +207,13 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fail
      */
     public Node generateEPRMyRoleCopyToInvokerParamAsNode(final String partnerLinkName,
-                    final String invokerRequestVarName, final String invokerRequestVarPartName,
-                    final String invokerParamName)
-        throws SAXException, IOException {
-        final String addressingCopyString = this.generateEPRMyRoleCopyToInvokerParamAsString(partnerLinkName,
-            invokerRequestVarName, invokerRequestVarPartName, invokerParamName);
+                                                          final String invokerRequestVarName,
+                                                          final String invokerRequestVarPartName,
+                                                          final String invokerParamName) throws SAXException,
+                                                                                         IOException {
+        final String addressingCopyString =
+            this.generateEPRMyRoleCopyToInvokerParamAsString(partnerLinkName, invokerRequestVarName,
+                                                             invokerRequestVarPartName, invokerParamName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -227,9 +232,9 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fail
      */
     public String generateEPRMyRoleCopyToInvokerParamAsString(final String partnerLinkName,
-                    final String invokerRequestVarName, final String invokerRequestVarPartName,
-                    final String invokerParamName)
-        throws IOException {
+                                                              final String invokerRequestVarName,
+                                                              final String invokerRequestVarPartName,
+                                                              final String invokerParamName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("EPRCopyToInvokerReplyTo.xml");
         final File eprCopyFile = new File(FileLocator.toFileURL(url).getPath());
@@ -256,10 +261,9 @@ public class ResourceHandler {
      * @return a DOM Node containing a complete BPEL Invoke element
      */
     public Node generateInvokeAsNode(final String invokeName, final String partnerLinkName, final String operationName,
-                    final QName portType, final String inputVarName)
-        throws SAXException, IOException {
-        final String invokeString = this.generateInvokeAsString(invokeName, partnerLinkName, operationName, portType,
-            inputVarName);
+                                     final QName portType, final String inputVarName) throws SAXException, IOException {
+        final String invokeString =
+            this.generateInvokeAsString(invokeName, partnerLinkName, operationName, portType, inputVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(invokeString));
         final Document doc = this.docBuilder.parse(is);
@@ -277,7 +281,7 @@ public class ResourceHandler {
      * @return a String containing a complete BPEL Invoke element
      */
     public String generateInvokeAsString(final String invokeName, final String partnerLinkName,
-                    final String operationName, final QName portType, final String inputVarName) {
+                                         final String operationName, final QName portType, final String inputVarName) {
         return "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
             + invokeName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\""
             + " portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\""
@@ -285,11 +289,12 @@ public class ResourceHandler {
     }
 
     public String generateInvokerRequestMessageInitAssignTemplate(final String csarName, final QName serviceTemplateId,
-                    final String serviceInstanceIdVarName, final String operationName, final String messageId,
-                    final String requestVarName, final String requestVarPartName, final String iface,
-                    final boolean isNodeTemplate, final String templateId,
-                    final Map<String, Variable> internalExternalProps)
-        throws IOException {
+                                                                  final String serviceInstanceIdVarName,
+                                                                  final String operationName, final String messageId,
+                                                                  final String requestVarName,
+                                                                  final String requestVarPartName, final String iface,
+                                                                  final boolean isNodeTemplate, final String templateId,
+                                                                  final Map<String, Variable> internalExternalProps) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("assignInvokerAsyncMessage.xml");
         final File assignTemplateFile = new File(FileLocator.toFileURL(url).getPath());
@@ -307,8 +312,8 @@ public class ResourceHandler {
         assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
         assignTemplateString = assignTemplateString.replace("{serviceInstanceID}", "");
         assignTemplateString = assignTemplateString.replace("{serviceTemplateNS}", serviceTemplateId.getNamespaceURI());
-        assignTemplateString = assignTemplateString.replace("{serviceTemplateLocalName}",
-            serviceTemplateId.getLocalPart());
+        assignTemplateString =
+            assignTemplateString.replace("{serviceTemplateLocalName}", serviceTemplateId.getLocalPart());
         assignTemplateString = assignTemplateString.replace("{operationName}", operationName);
         assignTemplateString = assignTemplateString.replace("{messageID}", messageId);
         assignTemplateString = assignTemplateString.replace("{requestVarName}", requestVarName);
@@ -330,31 +335,34 @@ public class ResourceHandler {
 
         assignTemplateString = assignTemplateString.replace("{templateID}", templateString);
 
-        assignTemplateString = assignTemplateString.replace("{paramsMap}",
-            this.generateServiceInvokerParamsMap(internalExternalProps));
+        assignTemplateString =
+            assignTemplateString.replace("{paramsMap}", this.generateServiceInvokerParamsMap(internalExternalProps));
 
         // add copy elements to the assign according to the given map of
         // parameters
         for (final String propertyName : internalExternalProps.keySet()) {
             if (internalExternalProps.get(propertyName) == null) {
                 // parameter is external, fetch value from plan input message
-                String copyString = this.generateServiceInvokerExternalParamCopyString(requestVarName,
-                    requestVarPartName, propertyName);
+                String copyString =
+                    this.generateServiceInvokerExternalParamCopyString(requestVarName, requestVarPartName,
+                                                                       propertyName);
                 copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
             } else {
                 // parameter is internal, fetch value from bpel variable
-                String copyString = this.generateServiceInvokerInternalParamCopyString(
-                    internalExternalProps.get(propertyName).getName(), requestVarName, requestVarPartName,
-                    propertyName);
+                String copyString =
+                    this.generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
+                                                                                            .getName(),
+                                                                       requestVarName, requestVarPartName,
+                                                                       propertyName);
                 copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
             }
         }
 
         // assign serviceInstanceID
-        String serviceInstanceCopyString = this.generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName,
-            requestVarPartName);
+        String serviceInstanceCopyString =
+            this.generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName, requestVarPartName);
         serviceInstanceCopyString = serviceInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
         assignTemplateString = assignTemplateString.replace("{copies}", serviceInstanceCopyString + "{copies}");
 
@@ -368,14 +376,21 @@ public class ResourceHandler {
     }
 
     public Node generateInvokerRequestMessageInitAssignTemplateAsNode(final String csarName,
-                    final QName serviceTemplateId, final String serviceInstanceIdVarName, final String operationName,
-                    final String messageId, final String requestVarName, final String requestVarPartName,
-                    final String iface, final boolean isNodeTemplate, final String templateId,
-                    final Map<String, Variable> internalExternalProps)
-        throws IOException, SAXException {
-        final String templateString = this.generateInvokerRequestMessageInitAssignTemplate(csarName, serviceTemplateId,
-            serviceInstanceIdVarName, operationName, messageId, requestVarName, requestVarPartName, iface,
-            isNodeTemplate, templateId, internalExternalProps);
+                                                                      final QName serviceTemplateId,
+                                                                      final String serviceInstanceIdVarName,
+                                                                      final String operationName,
+                                                                      final String messageId,
+                                                                      final String requestVarName,
+                                                                      final String requestVarPartName,
+                                                                      final String iface, final boolean isNodeTemplate,
+                                                                      final String templateId,
+                                                                      final Map<String, Variable> internalExternalProps) throws IOException,
+                                                                                                                         SAXException {
+        final String templateString =
+            this.generateInvokerRequestMessageInitAssignTemplate(csarName, serviceTemplateId, serviceInstanceIdVarName,
+                                                                 operationName, messageId, requestVarName,
+                                                                 requestVarPartName, iface, isNodeTemplate, templateId,
+                                                                 internalExternalProps);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -393,10 +408,9 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public String generateMessageIdInit(final String requestVariableName, final String requestVariabelPartName,
-                    final String messageIdPrefix)
-        throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("initMessageId.xml");
+                                        final String messageIdPrefix) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("initMessageId.xml");
         final File initMessageIdFile = new File(FileLocator.toFileURL(url).getPath());
         String initMessageIdFileString = FileUtils.readFileToString(initMessageIdFile);
 
@@ -419,10 +433,9 @@ public class ResourceHandler {
      * @throws SAXException is thrown when parsing internal files fails
      */
     public Node generateMessageIdInitAsNode(final String requestVariableName, final String requestVariabelPartName,
-                    final String messageIdPrefix)
-        throws IOException, SAXException {
-        final String addressingCopyString = this.generateMessageIdInit(requestVariableName, requestVariabelPartName,
-            messageIdPrefix);
+                                            final String messageIdPrefix) throws IOException, SAXException {
+        final String addressingCopyString =
+            this.generateMessageIdInit(requestVariableName, requestVariabelPartName, messageIdPrefix);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -442,11 +455,13 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public Node generateReceiveAsNode(final String receiveName, final String partnerLinkName,
-                    final String operationName, final QName portType, final String variableName)
-        throws SAXException, IOException {
-        final String receiveString = "<bpel:receive xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
-            + receiveName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\" portType=\""
-            + portType.getPrefix() + ":" + portType.getLocalPart() + "\" variable=\"" + variableName + "\"/>";
+                                      final String operationName, final QName portType,
+                                      final String variableName) throws SAXException, IOException {
+        final String receiveString =
+            "<bpel:receive xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
+                + receiveName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName
+                + "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\" variable=\""
+                + variableName + "\"/>";
         /*
          * <bpel:receive name="ReceiveCreateEC2Instance" operation="createEC2InstanceCallback"
          * partnerLink="ec2VmPl1" portType="ns0:EC2VMIAAsyncServiceCallback" variable="createEc2Response3">
@@ -460,10 +475,9 @@ public class ResourceHandler {
     }
 
     public String generateReplyToCopy(final String partnerLinkName, final String requestVarName,
-                    final String requestVarPartName, final String paramName)
-        throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-                                     .getResource("copyReplyTo.xml");
+                                      final String requestVarPartName, final String paramName) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("copyReplyTo.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
         String copyTemplateString = FileUtils.readFileToString(copyTemplateFile);
 
@@ -478,10 +492,10 @@ public class ResourceHandler {
     }
 
     public Node generateReplyToCopyAsNode(final String partnerLinkName, final String requestVarName,
-                    final String requestVarPartName, final String paramName)
-        throws IOException, SAXException {
-        final String addressingCopyString = this.generateReplyToCopy(partnerLinkName, requestVarName,
-            requestVarPartName, paramName);
+                                          final String requestVarPartName,
+                                          final String paramName) throws IOException, SAXException {
+        final String addressingCopyString =
+            this.generateReplyToCopy(partnerLinkName, requestVarName, requestVarPartName, paramName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -501,11 +515,12 @@ public class ResourceHandler {
      * @return BPEL Assign Element as DOM Node
      */
     public Node generateResponseAssignAsNode(final String variableName, final String part,
-                    final Map<String, Variable> paramPropertyMappings, final String assignName,
-                    final QName MessageDeclId, final String planOutputMsgName, final String planOutputMsgPartName)
-        throws SAXException, IOException {
-        final String templateString = this.generateResponseAssignAsString(variableName, part, paramPropertyMappings,
-            assignName, MessageDeclId, planOutputMsgName, planOutputMsgPartName);
+                                             final Map<String, Variable> paramPropertyMappings, final String assignName,
+                                             final QName MessageDeclId, final String planOutputMsgName,
+                                             final String planOutputMsgPartName) throws SAXException, IOException {
+        final String templateString =
+            this.generateResponseAssignAsString(variableName, part, paramPropertyMappings, assignName, MessageDeclId,
+                                                planOutputMsgName, planOutputMsgPartName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -525,23 +540,27 @@ public class ResourceHandler {
      * @return BPEL Assign Element as String
      */
     public String generateResponseAssignAsString(final String variableName, final String part,
-                    final Map<String, Variable> paramPropertyMappings, final String assignName,
-                    final QName MessageDeclId, final String planOutputMsgName, final String planOutputMsgPartName) {
-        String assignAsString = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
-            + assignName + "\">";
+                                                 final Map<String, Variable> paramPropertyMappings,
+                                                 final String assignName, final QName MessageDeclId,
+                                                 final String planOutputMsgName, final String planOutputMsgPartName) {
+        String assignAsString =
+            "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + assignName
+                + "\">";
 
         for (final String toscaParam : paramPropertyMappings.keySet()) {
             final Variable propWrapper = paramPropertyMappings.get(toscaParam);
             if (propWrapper == null) {
 
-                final String internalCopyString = "<bpel:copy><bpel:from variable=\"" + variableName + "\" part=\""
-                    + part + "\">";
-                final String internalQueryString = "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\""
-                    + toscaParam + "\"]/following-sibling::*[local-name()=\"value\"]]]></bpel:query>";
+                final String internalCopyString =
+                    "<bpel:copy><bpel:from variable=\"" + variableName + "\" part=\"" + part + "\">";
+                final String internalQueryString =
+                    "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\""
+                        + toscaParam + "\"]/following-sibling::*[local-name()=\"value\"]]]></bpel:query>";
                 final String internalToString = "</bpel:from><bpel:to variable=\"" + planOutputMsgName + "\" part=\""
                     + planOutputMsgPartName + "\">";
-                final String internalQueryStringToOutput = "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\""
-                    + toscaParam + "\"]]]></bpel:query></bpel:to></bpel:copy>";
+                final String internalQueryStringToOutput =
+                    "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\""
+                        + toscaParam + "\"]]]></bpel:query></bpel:to></bpel:copy>";
                 assignAsString += internalCopyString;
                 assignAsString += internalQueryString;
                 assignAsString += internalToString;
@@ -551,12 +570,13 @@ public class ResourceHandler {
                 // interal parameter, assign response message element value to
                 // internal property variable
 
-                final String internalCopyString = "<bpel:copy><bpel:from variable=\"" + variableName + "\" part=\""
-                    + part + "\">";
-                final String internalQueryString = "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\""
-                    + toscaParam + "\"]/following-sibling::*[local-name()=\"value\"]]]></bpel:query>";
-                final String internalToString = "</bpel:from><bpel:to variable=\"" + propWrapper.getName()
-                    + "\"/></bpel:copy>";
+                final String internalCopyString =
+                    "<bpel:copy><bpel:from variable=\"" + variableName + "\" part=\"" + part + "\">";
+                final String internalQueryString =
+                    "<bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[//*[local-name()=\"Param\" and namespace-uri()=\"http://siserver.org/schema\"]/*[local-name()=\"key\" and text()=\""
+                        + toscaParam + "\"]/following-sibling::*[local-name()=\"value\"]]]></bpel:query>";
+                final String internalToString =
+                    "</bpel:from><bpel:to variable=\"" + propWrapper.getName() + "\"/></bpel:copy>";
                 assignAsString += internalCopyString;
                 assignAsString += internalQueryString;
                 assignAsString += internalToString;
@@ -580,10 +600,9 @@ public class ResourceHandler {
      * @throws SAXException when parsing the internal file fails
      */
     public Node generateServiceInstanceCopyAsNode(final String bpelVarName, final String requestVarName,
-                    final String requestVarPartName)
-        throws IOException, SAXException {
-        final String serviceInstanceCopyString = this.generateServiceInstanceIDCopy(bpelVarName, requestVarName,
-            requestVarPartName);
+                                                  final String requestVarPartName) throws IOException, SAXException {
+        final String serviceInstanceCopyString =
+            this.generateServiceInstanceIDCopy(bpelVarName, requestVarName, requestVarPartName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(serviceInstanceCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -601,8 +620,7 @@ public class ResourceHandler {
      * @throws IOException when reading internal files fail
      */
     public String generateServiceInstanceIDCopy(final String bpelVarName, final String requestVarName,
-                    final String requestVarPartName)
-        throws IOException {
+                                                final String requestVarPartName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("serviceInstanceCopy.xml");
         final File serviceInstanceCopy = new File(FileLocator.toFileURL(url).getPath());
@@ -616,8 +634,8 @@ public class ResourceHandler {
     }
 
     private String generateServiceInvokerExternalParamCopyString(final String requestVarName,
-                    final String requestVarPartName, final String paramName)
-        throws IOException {
+                                                                 final String requestVarPartName,
+                                                                 final String paramName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("externalParamCopy.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
@@ -632,8 +650,8 @@ public class ResourceHandler {
     }
 
     private String generateServiceInvokerInternalParamCopyString(final String bpelVarName, final String requestVarName,
-                    final String requestVarPartName, final String paramName)
-        throws IOException {
+                                                                 final String requestVarPartName,
+                                                                 final String paramName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("internalParamCopy.xml");
         final File copyTemplateFile = new File(FileLocator.toFileURL(url).getPath());
@@ -650,8 +668,8 @@ public class ResourceHandler {
     private String generateServiceInvokerParamsMap(final Map<String, Variable> internalExternalProps) {
         String paramsMapString = "<impl:Params>";
         for (final String key : internalExternalProps.keySet()) {
-            paramsMapString += "<impl:Param><impl:key>" + key
-                + "</impl:key><impl:value>value</impl:value></impl:Param>";
+            paramsMapString +=
+                "<impl:Param><impl:key>" + key + "</impl:key><impl:value>value</impl:value></impl:Param>";
         }
         paramsMapString += "</impl:Params>";
         return paramsMapString;

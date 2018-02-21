@@ -62,7 +62,7 @@ public abstract class AbstractPlanBuilder {
                 + " can handle NodeTemplate " + nodeTemplate.getId());
             if (plugin.canHandle(nodeTemplate)) {
                 AbstractPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(),
-                    nodeTemplate.getId());
+                                             nodeTemplate.getId());
                 return plugin;
             }
         }
@@ -83,7 +83,7 @@ public abstract class AbstractPlanBuilder {
                 + " can handle NodeTemplate " + nodeTemplate.getId());
             if (plugin.canHandlePolicyAware(nodeTemplate)) {
                 AbstractPlanBuilder.LOG.info("Found GenericPlugin {} that can handle NodeTemplate {}", plugin.getID(),
-                    nodeTemplate.getId());
+                                             nodeTemplate.getId());
                 return plugin;
             }
         }
@@ -104,7 +104,7 @@ public abstract class AbstractPlanBuilder {
                 + relationshipTemplate.getId());
             if (plugin.canHandle(relationshipTemplate)) {
                 AbstractPlanBuilder.LOG.info("Found TypePlugin {} that can handle NodeTemplate {}", plugin.getID(),
-                    relationshipTemplate.getId());
+                                             relationshipTemplate.getId());
                 return plugin;
             }
         }
@@ -122,11 +122,11 @@ public abstract class AbstractPlanBuilder {
      *         RelationshipTemplate and execution was successful, else false
      */
     public boolean handleWithTypePlugin(final PlanContext context,
-                    final AbstractRelationshipTemplate relationshipTemplate) {
+                                        final AbstractRelationshipTemplate relationshipTemplate) {
         for (final IPlanBuilderTypePlugin plugin : this.pluginRegistry.getGenericPlugins()) {
             if (plugin.canHandle(relationshipTemplate)) {
                 AbstractPlanBuilder.LOG.info("Handling relationshipTemplate {} with generic plugin {}",
-                    relationshipTemplate.getId(), plugin.getID());
+                                             relationshipTemplate.getId(), plugin.getID());
                 return plugin.handle(context);
             }
         }

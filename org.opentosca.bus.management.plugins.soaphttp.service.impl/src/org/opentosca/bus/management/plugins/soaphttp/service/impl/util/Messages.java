@@ -15,7 +15,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.opentosca.bus.management.plugins.soaphttp.service.impl.util.messages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME =
+        "org.opentosca.bus.management.plugins.soaphttp.service.impl.util.messages"; //$NON-NLS-1$
     public static String SoapSIEnginePlugin_types;
     static {
         // initialize resource bundle

@@ -88,17 +88,19 @@ public class Util {
         final Importer planBuilderImporter = new Importer();
         final List<AbstractPlan> plans = new ArrayList<>();
         try {
-            final AbstractDefinitions defs = planBuilderImporter.createContext(
-                ServiceRegistry.getCoreFileService().getCSAR(csarId));
+            final AbstractDefinitions defs =
+                planBuilderImporter.createContext(ServiceRegistry.getCoreFileService().getCSAR(csarId));
 
             for (final AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
                 plans.add(planBuilderImporter.buildPlan(defs, csarId.getFileName(), serviceTemplate.getQName()));
             }
 
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -109,9 +111,11 @@ public class Util {
     public static void deleteCSAR(final CSARID csarId) {
         try {
             ServiceRegistry.getCoreFileService().deleteCSAR(csarId);
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             e.printStackTrace();
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             e.printStackTrace();
         }
     }
@@ -147,16 +151,20 @@ public class Util {
             out.close();
 
             return ServiceRegistry.getCoreFileService().storeCSAR(uploadFile.toPath());
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             e.printStackTrace();
             return null;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
             return null;
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             e.printStackTrace();
             return null;
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             e.printStackTrace();
             return null;
         }
@@ -201,10 +209,12 @@ public class Util {
 
         try {
             planBuilderExporter.export(uploadFile.toURI(), buildPlan);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
             return null;
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             e.printStackTrace();
             return null;
         }
@@ -249,12 +259,13 @@ public class Util {
     }
 
     private static String createPrefixPartOfSoapMessage(final String namespace, final String messageBodyRootLocalName) {
-        final String soapEnvelopePrefix = "<soapenv:Envelope xmlns:wsa=\"http://www.w3.org/2005/08/addressing\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:org=\""
-            + namespace
-            + "\"><soapenv:Header><wsa:ReplyTo><wsa:Address>%CALLBACK-URL%</wsa:Address></wsa:ReplyTo><wsa:Action>"
-            + namespace
-            + "/initiate</wsa:Action><wsa:MessageID>%CORRELATION-ID%</wsa:MessageID></soapenv:Header><soapenv:Body><org:"
-            + messageBodyRootLocalName + ">";
+        final String soapEnvelopePrefix =
+            "<soapenv:Envelope xmlns:wsa=\"http://www.w3.org/2005/08/addressing\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:org=\""
+                + namespace
+                + "\"><soapenv:Header><wsa:ReplyTo><wsa:Address>%CALLBACK-URL%</wsa:Address></wsa:ReplyTo><wsa:Action>"
+                + namespace
+                + "/initiate</wsa:Action><wsa:MessageID>%CORRELATION-ID%</wsa:MessageID></soapenv:Header><soapenv:Body><org:"
+                + messageBodyRootLocalName + ">";
         return soapEnvelopePrefix;
     }
 

@@ -23,8 +23,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
 
 
 
-    public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://wso2.org/bps/management/schema", "InstanceStatus", "ns1");
+    public static final javax.xml.namespace.QName MY_QNAME =
+        new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "InstanceStatus", "ns1");
 
 
 
@@ -49,20 +49,20 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
 
     }
 
-    public static final java.lang.String _ACTIVE = org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-        "ACTIVE");
+    public static final java.lang.String _ACTIVE =
+        org.apache.axis2.databinding.utils.ConverterUtil.convertToString("ACTIVE");
 
-    public static final java.lang.String _COMPLETED = org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-        "COMPLETED");
+    public static final java.lang.String _COMPLETED =
+        org.apache.axis2.databinding.utils.ConverterUtil.convertToString("COMPLETED");
 
-    public static final java.lang.String _TERMINATED = org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-        "TERMINATED");
+    public static final java.lang.String _TERMINATED =
+        org.apache.axis2.databinding.utils.ConverterUtil.convertToString("TERMINATED");
 
-    public static final java.lang.String _FAILED = org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-        "FAILED");
+    public static final java.lang.String _FAILED =
+        org.apache.axis2.databinding.utils.ConverterUtil.convertToString("FAILED");
 
-    public static final java.lang.String _SUSPENDED = org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-        "SUSPENDED");
+    public static final java.lang.String _SUSPENDED =
+        org.apache.axis2.databinding.utils.ConverterUtil.convertToString("SUSPENDED");
 
     public static final InstanceStatus ACTIVE = new InstanceStatus(_ACTIVE, true);
 
@@ -107,27 +107,27 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            MY_QNAME);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, MY_QNAME);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(MY_QNAME, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
         // We can safely assume an element has only one type associated with it
@@ -142,7 +142,7 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":InstanceStatus", xmlWriter);
+                               namespacePrefix + ":InstanceStatus", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "InstanceStatus", xmlWriter);
             }
@@ -174,8 +174,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -196,9 +196,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -210,8 +209,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -225,8 +224,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -252,8 +251,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -264,8 +263,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -276,8 +275,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -300,11 +299,10 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -320,8 +318,7 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -341,16 +338,14 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
         // We can safely assume an element has only one type associated with it
         return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(MY_QNAME,
             new java.lang.Object[] {org.apache.axis2.databinding.utils.reader.ADBXMLStreamReader.ELEMENT_TEXT,
-                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                        this.localInstanceStatus)},
+                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localInstanceStatus)},
             null);
 
     }
@@ -376,20 +371,21 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
             return enumeration;
         }
 
-        public static InstanceStatus fromString(final java.lang.String value, final java.lang.String namespaceURI)
-            throws java.lang.IllegalArgumentException {
+        public static InstanceStatus fromString(final java.lang.String value,
+                                                final java.lang.String namespaceURI) throws java.lang.IllegalArgumentException {
             try {
 
                 return fromValue(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(value));
 
 
-            } catch (final java.lang.Exception e) {
+            }
+            catch (final java.lang.Exception e) {
                 throw new java.lang.IllegalArgumentException();
             }
         }
 
         public static InstanceStatus fromString(final javax.xml.stream.XMLStreamReader xmlStreamReader,
-                        final java.lang.String content) {
+                                                final java.lang.String content) {
             if (content.indexOf(":") > -1) {
                 final java.lang.String prefix = content.substring(0, content.indexOf(":"));
                 final java.lang.String namespaceUri = xmlStreamReader.getNamespaceContext().getNamespaceURI(prefix);
@@ -457,7 +453,8 @@ public class InstanceStatus implements org.apache.axis2.databinding.ADBBean {
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

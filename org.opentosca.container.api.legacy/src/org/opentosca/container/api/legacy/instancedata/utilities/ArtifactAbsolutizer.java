@@ -73,7 +73,7 @@ public class ArtifactAbsolutizer {
     }
 
     private static String absolutizeReference(final UriInfo uriInfo, final String csarID,
-                    final String relativeReference) {
+                                              final String relativeReference) {
         return LinkBuilder.linkToFile(uriInfo, csarID, relativeReference).toString();
     }
 

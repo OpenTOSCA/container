@@ -39,10 +39,10 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
-        this.iaRegistration = Activator.context.registerService(IPlanBuilderPrePhaseIAPlugin.class.getName(),
-            Activator.plugin, null);
-        this.daRegistration = Activator.context.registerService(IPlanBuilderPrePhaseDAPlugin.class.getName(),
-            Activator.plugin, null);
+        this.iaRegistration =
+            Activator.context.registerService(IPlanBuilderPrePhaseIAPlugin.class.getName(), Activator.plugin, null);
+        this.daRegistration =
+            Activator.context.registerService(IPlanBuilderPrePhaseDAPlugin.class.getName(), Activator.plugin, null);
     }
 
     /**

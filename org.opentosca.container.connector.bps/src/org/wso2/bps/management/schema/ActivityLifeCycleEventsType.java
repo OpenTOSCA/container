@@ -138,27 +138,27 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -176,10 +176,10 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":ActivityLifeCycleEventsType", xmlWriter);
+                               namespacePrefix + ":ActivityLifeCycleEventsType", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    "ActivityLifeCycleEventsType", xmlWriter);
+                               "ActivityLifeCycleEventsType", xmlWriter);
             }
 
 
@@ -224,8 +224,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
             if (this.localEventInfoList == null) {
                 throw new org.apache.axis2.databinding.ADBException("eventInfoList cannot be null!!");
             }
-            this.localEventInfoList.serialize(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "eventInfoList"), xmlWriter);
+            this.localEventInfoList.serialize(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                "eventInfoList"), xmlWriter);
         }
         xmlWriter.writeEndElement();
 
@@ -243,8 +243,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -265,9 +265,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -279,8 +278,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -294,8 +293,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -321,8 +320,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -333,8 +332,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -345,8 +344,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -369,11 +368,10 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -389,8 +387,7 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -410,8 +407,7 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -468,8 +464,7 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static ActivityLifeCycleEventsType parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static ActivityLifeCycleEventsType parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final ActivityLifeCycleEventsType object = new ActivityLifeCycleEventsType();
 
             final int event;
@@ -484,8 +479,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -498,8 +493,9 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
                         if (!"ActivityLifeCycleEventsType".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (ActivityLifeCycleEventsType) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (ActivityLifeCycleEventsType) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                                               type,
+                                                                                                                                               reader);
                         }
 
 
@@ -523,9 +519,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "iid").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "iid").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -546,9 +541,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "pid").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "pid").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -569,12 +563,10 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "eventInfoList").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "eventInfoList").equals(reader.getName())) {
 
-                    object.setEventInfoList(
-                        org.wso2.bps.management.schema.ActivityLifeCycleEventsListType.Factory.parse(reader));
+                    object.setEventInfoList(org.wso2.bps.management.schema.ActivityLifeCycleEventsListType.Factory.parse(reader));
 
                     reader.next();
 
@@ -596,7 +588,8 @@ public class ActivityLifeCycleEventsType implements org.apache.axis2.databinding
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

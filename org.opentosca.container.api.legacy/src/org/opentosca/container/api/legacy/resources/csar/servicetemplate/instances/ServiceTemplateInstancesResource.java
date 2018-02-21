@@ -75,7 +75,7 @@ public class ServiceTemplateInstancesResource {
     @GET
     @Produces(ResourceConstants.LINKED_XML)
     public Response doGetXML(@Context final UriInfo uriInfo,
-                    @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
+                             @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
 
         final References refs = this.getRefs(uriInfo, buildPlanCorrId);
 
@@ -85,7 +85,7 @@ public class ServiceTemplateInstancesResource {
     @GET
     @Produces(ResourceConstants.LINKED_JSON)
     public Response doGetJSON(@Context final UriInfo uriInfo,
-                    @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
+                              @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
 
         final References refs = this.getRefs(uriInfo, buildPlanCorrId);
 
@@ -118,8 +118,8 @@ public class ServiceTemplateInstancesResource {
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
-        final List<ServiceInstance> serviceInstances = service.getServiceInstancesWithDetails(this.csarId,
-            this.serviceTemplateID, null);
+        final List<ServiceInstance> serviceInstances =
+            service.getServiceInstancesWithDetails(this.csarId, this.serviceTemplateID, null);
 
         // get all instance ids
         if (null == buildPlanCorrId || buildPlanCorrId.isEmpty()) {
@@ -132,9 +132,9 @@ public class ServiceTemplateInstancesResource {
             for (final ServiceInstance serviceInstance : serviceInstances) {
 
                 this.log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"",
-                    serviceInstance.getServiceTemplateID().getNamespaceURI(),
-                    serviceInstance.getServiceTemplateID().getLocalPart(), this.serviceTemplateID.getNamespaceURI(),
-                    this.serviceTemplateID.getLocalPart());
+                               serviceInstance.getServiceTemplateID().getNamespaceURI(),
+                               serviceInstance.getServiceTemplateID().getLocalPart(),
+                               this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart());
                 if (serviceInstance.getServiceTemplateID().equals(this.serviceTemplateID)) {
 
                     final int instanceId = serviceInstance.getDBId();
@@ -169,7 +169,7 @@ public class ServiceTemplateInstancesResource {
             // }
             // }
             this.log.debug("Returning only the Service Template instance ID for correlation {} ({}).", buildPlanCorrId,
-                si.getServiceInstanceID());
+                           si.getServiceInstanceID());
 
             // URI urlToServiceInstance =
             // LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
@@ -201,13 +201,13 @@ public class ServiceTemplateInstancesResource {
     public Response createServiceInstance(@Context final UriInfo uriInfo, final String xml) {
 
         this.log.debug("Create a instance of CSAR = \"{}\" Service Template = \"{}\"", this.csarId,
-            this.serviceTemplateID);
+                       this.serviceTemplateID);
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         try {
 
-            final ServiceInstance createdServiceInstance = service.createServiceInstance(this.csarId,
-                this.serviceTemplateID);
+            final ServiceInstance createdServiceInstance =
+                service.createServiceInstance(this.csarId, this.serviceTemplateID);
 
             // create xlink with the link to the newly created serviceInstance,
             // the link text is the internal serviceInstanceID
@@ -244,12 +244,13 @@ public class ServiceTemplateInstancesResource {
 
             // final String redirectUrl = uriInfo.getAbsolutePath().toString();
             final SimpleXLink response = new SimpleXLink(
-                Utilities.encode(
-                    uriInfo.getAbsolutePathBuilder().path(String.valueOf(serviceTemplateInstanceId)).build()),
+                Utilities.encode(uriInfo.getAbsolutePathBuilder().path(String.valueOf(serviceTemplateInstanceId))
+                                        .build()),
                 "simple");
             this.log.debug("Returning following link: " + response.getHref());
             return Response.ok(response).build();
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
             throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -257,8 +258,7 @@ public class ServiceTemplateInstancesResource {
     }
 
     @Path("{" + Constants.ServiceInstanceListResource_getServiceInstance_PARAM + "}")
-    public Object getServiceInstance(
-                    @PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) final int id) {
+    public Object getServiceInstance(@PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) final int id) {
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         ExistenceChecker.checkServiceInstanceWithException(id, service);
         return new ServiceTemplateInstanceResource(this.csarId, this.serviceTemplateID, id);
@@ -275,8 +275,8 @@ public class ServiceTemplateInstancesResource {
     @POST
     @Consumes(ResourceConstants.TEXT_PLAIN)
     @Produces(ResourceConstants.APPLICATION_JSON)
-    public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json)
-        throws URISyntaxException, UnsupportedEncodingException {
+    public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo,
+                                            final String json) throws URISyntaxException, UnsupportedEncodingException {
         final String url = this.postManagementPlanJSON(uriInfo, json);
         final JsonObject ret = new JsonObject();
         ret.addProperty("PlanURL", url);
@@ -294,8 +294,8 @@ public class ServiceTemplateInstancesResource {
     @POST
     @Consumes(ResourceConstants.TEXT_PLAIN)
     @Produces(ResourceConstants.TOSCA_XML)
-    public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json)
-        throws URISyntaxException, UnsupportedEncodingException {
+    public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo,
+                                           final String json) throws URISyntaxException, UnsupportedEncodingException {
 
         final String url = this.postManagementPlanJSON(uriInfo, json);
         // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
@@ -309,8 +309,8 @@ public class ServiceTemplateInstancesResource {
      * @return Response
      * @throws UnsupportedEncodingException
      */
-    private String postManagementPlanJSON(final UriInfo uriInfo, final String json)
-        throws UnsupportedEncodingException {
+    private String postManagementPlanJSON(final UriInfo uriInfo,
+                                          final String json) throws UnsupportedEncodingException {
 
         this.log.debug("Received a build plan for CSAR " + this.csarId + "\npassed entity:\n   " + json);
 
@@ -333,16 +333,17 @@ public class ServiceTemplateInstancesResource {
         while (iterator.hasNext()) {
             final TParameterDTO para = new TParameterDTO();
             final JsonObject tmp = iterator.next().getAsJsonObject();
-            para.setName(
-                JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
-            para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(
-                tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
-            para.setType(
-                JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
+            para.setName(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name")
+                                                            .toString()));
+            para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter")
+                                                                                   .getAsJsonObject().get("Required")
+                                                                                   .toString())));
+            para.setType(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type")
+                                                            .toString()));
             // if a parameter value is not set, just add "" as value
             if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
-                para.setValue(JSONUtils.withoutQuotationMarks(
-                    tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
+                para.setValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Value")
+                                                                 .toString()));
             } else {
                 para.setValue("");
             }
@@ -353,12 +354,13 @@ public class ServiceTemplateInstancesResource {
         while (iterator.hasNext()) {
             final TParameterDTO para = new TParameterDTO();
             final JsonObject tmp = iterator.next().getAsJsonObject();
-            para.setName(
-                JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
-            para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(
-                tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
-            para.setType(
-                JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
+            para.setName(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name")
+                                                            .toString()));
+            para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter")
+                                                                                   .getAsJsonObject().get("Required")
+                                                                                   .toString())));
+            para.setType(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type")
+                                                            .toString()));
             plan.getOutputParameters().getOutputParameter().add(para);
         }
 
@@ -368,15 +370,16 @@ public class ServiceTemplateInstancesResource {
 
         this.log.debug("Post of the Plan " + plan.getId());
 
-        final String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanInvocation(
-            this.csarId, this.serviceTemplateID, -1, plan);
+        final String correlationID =
+            IOpenToscaControlServiceHandler.getOpenToscaControlService()
+                                           .invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
 
         this.log.debug("Return correlation ID of running plan: " + correlationID);
 
-        final URI url = uriInfo.getBaseUriBuilder().path("/CSARs/").path(this.csarId.getFileName())
-                               .path("/ServiceTemplates/")
-                               .path(Utilities.UrlDoubleEncode(this.serviceTemplateID.toString())).path("/Instances")
-                               .queryParam("BuildPlanCorrelationId", correlationID).build();
+        final URI url =
+            uriInfo.getBaseUriBuilder().path("/CSARs/").path(this.csarId.getFileName()).path("/ServiceTemplates/")
+                   .path(Utilities.UrlDoubleEncode(this.serviceTemplateID.toString())).path("/Instances")
+                   .queryParam("BuildPlanCorrelationId", correlationID).build();
 
         this.log.debug("Callback URL is {}", url);
 

@@ -109,8 +109,8 @@ public class AvailableStorageProviderResource {
 
         } else if (input.equalsIgnoreCase("unset")) {
 
-            final boolean hasCredentials = this.CREDENTIALS_SERVICE.hasStorageProviderCredentials(
-                this.STORAGE_PROVIDER_ID);
+            final boolean hasCredentials =
+                this.CREDENTIALS_SERVICE.hasStorageProviderCredentials(this.STORAGE_PROVIDER_ID);
 
             if (hasCredentials) {
                 this.CREDENTIALS_SERVICE.deleteCredentialsInStorageProvider(this.STORAGE_PROVIDER_ID);

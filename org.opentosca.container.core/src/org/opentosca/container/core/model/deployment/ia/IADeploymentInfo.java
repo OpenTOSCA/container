@@ -34,12 +34,12 @@ public class IADeploymentInfo extends AbstractFileDeploymentInfo {
      * JPQL Queries
      */
     public static final String getIADeploymentInfoByCSARIDAndRelPath = "IADeploymentInfo.ByCSARIDAndRelPath";
-    protected static final String getIADeploymentInfoByCSARIDAndRelPathQuery = "select t from "
-        + IADeploymentInfo.tableName + " t where t.relPath = :iaRelPath and t.csarID = :csarID";
+    protected static final String getIADeploymentInfoByCSARIDAndRelPathQuery =
+        "select t from " + IADeploymentInfo.tableName + " t where t.relPath = :iaRelPath and t.csarID = :csarID";
 
     public static final String getIADeploymentInfoByCSARID = "IADeploymentInfo.ByCSARID";
-    protected static final String getIADeploymentInfoByCSARIDQuery = "select t from " + IADeploymentInfo.tableName
-        + " t where t.csarID = :csarID";
+    protected static final String getIADeploymentInfoByCSARIDQuery =
+        "select t from " + IADeploymentInfo.tableName + " t where t.csarID = :csarID";
 
     /**
      * Deployment state of this IA.

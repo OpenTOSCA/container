@@ -99,7 +99,8 @@ public class MBEventHandler implements EventHandler {
                         try {
                             serviceInstanceURI = new URI(serviceInstanceID);
                             headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-                        } catch (final URISyntaxException e) {
+                        }
+                        catch (final URISyntaxException e) {
                             logger.warn("Could not generate service instance URL: {}", e.getMessage(), e);
                         }
                     }
@@ -134,7 +135,8 @@ public class MBEventHandler implements EventHandler {
                         response = exchange.getIn().getBody();
                         callbackMessageID = exchange.getIn().getMessageId();
                         consumer.stop();
-                    } catch (final Exception e) {
+                    }
+                    catch (final Exception e) {
                         logger.error("Error occured: {}", e.getMessage(), e);
                         return;
                     }
@@ -191,7 +193,8 @@ public class MBEventHandler implements EventHandler {
                         try {
                             serviceInstanceURI = new URI(serviceInstanceID);
                             headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-                        } catch (final URISyntaxException e) {
+                        }
+                        catch (final URISyntaxException e) {
                             e.printStackTrace();
                         }
                     } else {
@@ -228,7 +231,8 @@ public class MBEventHandler implements EventHandler {
                         response = exchange.getIn().getBody();
                         callbackMessageID = exchange.getIn().getMessageId();
                         consumer.stop();
-                    } catch (final Exception e) {
+                    }
+                    catch (final Exception e) {
                         logger.error("Error occured: {}", e.getMessage(), e);
                         return;
                     }
@@ -265,9 +269,11 @@ public class MBEventHandler implements EventHandler {
         try {
             this.executor.shutdown();
             this.executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (final InterruptedException e) {
+        }
+        catch (final InterruptedException e) {
             // Ignore
-        } finally {
+        }
+        finally {
             this.executor.shutdownNow();
         }
         this.eventAdmin = null;

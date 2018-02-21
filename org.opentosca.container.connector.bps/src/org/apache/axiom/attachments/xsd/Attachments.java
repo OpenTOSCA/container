@@ -537,27 +537,27 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -572,11 +572,11 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
         if (serializeType) {
 
 
-            final java.lang.String namespacePrefix = registerPrefix(xmlWriter,
-                "http://attachments.axiom.apache.org/xsd");
+            final java.lang.String namespacePrefix =
+                registerPrefix(xmlWriter, "http://attachments.axiom.apache.org/xsd");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":Attachments", xmlWriter);
+                               namespacePrefix + ":Attachments", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "Attachments", xmlWriter);
             }
@@ -630,9 +630,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localSOAPPartInputStream.serialize(
-                    new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "SOAPPartInputStream"),
-                    xmlWriter);
+                this.localSOAPPartInputStream.serialize(new javax.xml.namespace.QName(
+                    "http://attachments.axiom.apache.org/xsd", "SOAPPartInputStream"), xmlWriter);
             }
         }
         if (this.localAllContentIDsTracker) {
@@ -645,8 +644,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                         writeStartElement(null, namespace, "allContentIDs", xmlWriter);
 
 
-                        xmlWriter.writeCharacters(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAllContentID));
+                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAllContentID));
 
                         xmlWriter.writeEndElement();
 
@@ -697,13 +695,12 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localContentIDList != null) {
                 if (this.localContentIDList instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localContentIDList).serialize(
-                        new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "contentIDList"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localContentIDList).serialize(new javax.xml.namespace.QName(
+                        "http://attachments.axiom.apache.org/xsd", "contentIDList"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://attachments.axiom.apache.org/xsd", "contentIDList", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localContentIDList,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -728,9 +725,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localContentIDSet.serialize(
-                    new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "contentIDSet"),
-                    xmlWriter);
+                this.localContentIDSet.serialize(new javax.xml.namespace.QName(
+                    "http://attachments.axiom.apache.org/xsd", "contentIDSet"), xmlWriter);
             }
         }
         if (this.localContentLengthTracker) {
@@ -742,8 +738,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 throw new org.apache.axis2.databinding.ADBException("contentLength cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localContentLength));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localContentLength));
             }
 
             xmlWriter.writeEndElement();
@@ -752,7 +747,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
             if (this.localIncomingAttachmentStreams == null) {
 
                 writeStartElement(null, "http://attachments.axiom.apache.org/xsd", "incomingAttachmentStreams",
-                    xmlWriter);
+                                  xmlWriter);
 
                 // write the nil attribute
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
@@ -766,7 +761,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
             if (this.localIncomingAttachmentsAsSingleStream == null) {
 
                 writeStartElement(null, "http://attachments.axiom.apache.org/xsd", "incomingAttachmentsAsSingleStream",
-                    xmlWriter);
+                                  xmlWriter);
 
                 // write the nil attribute
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
@@ -785,9 +780,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localLifecycleManager.serialize(
-                    new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "lifecycleManager"),
-                    xmlWriter);
+                this.localLifecycleManager.serialize(new javax.xml.namespace.QName(
+                    "http://attachments.axiom.apache.org/xsd", "lifecycleManager"), xmlWriter);
             }
         }
         if (this.localMapTracker) {
@@ -800,7 +794,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 xmlWriter.writeEndElement();
             } else {
                 this.localMap.serialize(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "map"),
-                    xmlWriter);
+                                        xmlWriter);
             }
         }
         xmlWriter.writeEndElement();
@@ -819,8 +813,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -841,9 +835,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -855,8 +848,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -870,8 +863,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -897,8 +890,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -909,8 +902,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -921,8 +914,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -945,11 +938,10 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -965,8 +957,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -986,8 +977,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -995,26 +985,22 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
         final java.util.ArrayList attribList = new java.util.ArrayList();
 
         if (this.localSOAPPartContentIDTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "SOAPPartContentID"));
+            elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                "SOAPPartContentID"));
 
-            elementList.add(
-                this.localSOAPPartContentID == null ? null
-                                                    : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                        this.localSOAPPartContentID));
+            elementList.add(this.localSOAPPartContentID == null ? null
+                                                                : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localSOAPPartContentID));
         }
         if (this.localSOAPPartContentTypeTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "SOAPPartContentType"));
+            elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                "SOAPPartContentType"));
 
-            elementList.add(
-                this.localSOAPPartContentType == null ? null
-                                                      : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                          this.localSOAPPartContentType));
+            elementList.add(this.localSOAPPartContentType == null ? null
+                                                                  : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localSOAPPartContentType));
         }
         if (this.localSOAPPartInputStreamTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "SOAPPartInputStream"));
+            elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                "SOAPPartInputStream"));
 
 
             elementList.add(this.localSOAPPartInputStream == null ? null : this.localSOAPPartInputStream);
@@ -1024,14 +1010,13 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 for (final String localAllContentID : this.localAllContentIDs) {
 
                     if (localAllContentID != null) {
-                        elementList.add(
-                            new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "allContentIDs"));
-                        elementList.add(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAllContentID));
+                        elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                            "allContentIDs"));
+                        elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localAllContentID));
                     } else {
 
-                        elementList.add(
-                            new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "allContentIDs"));
+                        elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                            "allContentIDs"));
                         elementList.add(null);
 
                     }
@@ -1040,21 +1025,19 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 }
             } else {
 
-                elementList.add(
-                    new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "allContentIDs"));
+                elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                    "allContentIDs"));
                 elementList.add(null);
 
             }
 
         }
         if (this.localAttachmentSpecTypeTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "attachmentSpecType"));
+            elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                "attachmentSpecType"));
 
-            elementList.add(
-                this.localAttachmentSpecType == null ? null
-                                                     : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                         this.localAttachmentSpecType));
+            elementList.add(this.localAttachmentSpecType == null ? null
+                                                                 : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localAttachmentSpecType));
         }
         if (this.localContentIDListTracker) {
             elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "contentIDList"));
@@ -1074,8 +1057,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
             elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localContentLength));
         }
         if (this.localIncomingAttachmentStreamsTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "incomingAttachmentStreams"));
+            elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                "incomingAttachmentStreams"));
 
 
             elementList.add(this.localIncomingAttachmentStreams == null ? null : this.localIncomingAttachmentStreams);
@@ -1085,13 +1068,12 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                 "incomingAttachmentsAsSingleStream"));
 
 
-            elementList.add(
-                this.localIncomingAttachmentsAsSingleStream == null ? null
-                                                                    : this.localIncomingAttachmentsAsSingleStream);
+            elementList.add(this.localIncomingAttachmentsAsSingleStream == null ? null
+                                                                                : this.localIncomingAttachmentsAsSingleStream);
         }
         if (this.localLifecycleManagerTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "lifecycleManager"));
+            elementList.add(new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                "lifecycleManager"));
 
 
             elementList.add(this.localLifecycleManager == null ? null : this.localLifecycleManager);
@@ -1142,8 +1124,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -1157,7 +1139,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
                             return (Attachments) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
-                                type, reader);
+                                                                                                                type,
+                                                                                                                reader);
                         }
 
 
@@ -1191,8 +1174,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setSOAPPartContentID(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setSOAPPartContentID(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1221,8 +1203,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setSOAPPartContentType(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setSOAPPartContentType(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1270,9 +1251,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "allContentIDs").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                    "allContentIDs").equals(reader.getName())) {
 
 
 
@@ -1306,8 +1286,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                             if (new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
                                 "allContentIDs").equals(reader.getName())) {
 
-                                nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                                    "nil");
+                                nillableValue =
+                                    reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                                 if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
                                     list4.add(null);
 
@@ -1343,8 +1323,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setAttachmentSpecType(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setAttachmentSpecType(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1365,12 +1344,11 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "contentIDList").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                    "contentIDList").equals(reader.getName())) {
 
                     object.setContentIDList(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                              org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1385,9 +1363,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "contentIDSet").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                    "contentIDSet").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1413,9 +1390,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "contentLength").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                    "contentLength").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -1448,8 +1424,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
                     } else {
 
-                        object.setIncomingAttachmentStreams(
-                            org.apache.axiom.attachments.xsd.IncomingAttachmentStreams.Factory.parse(reader));
+                        object.setIncomingAttachmentStreams(org.apache.axiom.attachments.xsd.IncomingAttachmentStreams.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1476,8 +1451,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
                     } else {
 
-                        object.setIncomingAttachmentsAsSingleStream(
-                            authclient.java.io.xsd.InputStream.Factory.parse(reader));
+                        object.setIncomingAttachmentsAsSingleStream(authclient.java.io.xsd.InputStream.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1504,8 +1478,7 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
                     } else {
 
-                        object.setLifecycleManager(
-                            org.apache.axiom.attachments.lifecycle.xsd.LifecycleManager.Factory.parse(reader));
+                        object.setLifecycleManager(org.apache.axiom.attachments.lifecycle.xsd.LifecycleManager.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1520,9 +1493,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd", "map").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://attachments.axiom.apache.org/xsd",
+                    "map").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1555,7 +1527,8 @@ public class Attachments implements org.apache.axis2.databinding.ADBBean {
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

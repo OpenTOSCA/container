@@ -78,11 +78,14 @@ public class DocumentConverter implements Converter {
             // parse
             doc = db.parse(iSource);
             doc.getDocumentElement().normalize();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
         return doc;
@@ -101,7 +104,8 @@ public class DocumentConverter implements Converter {
             final DocumentBuilder db = dbf.newDocumentBuilder();
             final Document doc = db.newDocument();
             return doc;
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
         return null;
@@ -126,11 +130,14 @@ public class DocumentConverter implements Converter {
                 // serialize
                 transformer.transform(source, streamResult);
                 result = stringWriter.getBuffer().toString();
-            } catch (final TransformerConfigurationException e) {
+            }
+            catch (final TransformerConfigurationException e) {
                 e.printStackTrace();
-            } catch (final TransformerFactoryConfigurationError e) {
+            }
+            catch (final TransformerFactoryConfigurationError e) {
                 e.printStackTrace();
-            } catch (final TransformerException e) {
+            }
+            catch (final TransformerException e) {
                 e.printStackTrace();
             }
         }

@@ -41,7 +41,7 @@ class OperationNodeTypeImplCandidate {
      *        ImplementationArtifact
      */
     void add(final AbstractOperation op, final AbstractImplementationArtifact ia,
-                    final IPlanBuilderProvPhaseOperationPlugin plugin) {
+             final IPlanBuilderProvPhaseOperationPlugin plugin) {
         this.ops.add(op);
         this.ias.add(ia);
         this.plugins.add(plugin);
@@ -163,9 +163,9 @@ class OperationNodeTypeImplCandidate {
      */
     boolean isValid(final AbstractRelationshipTemplate relationshipTemplate) {
         BPELScopeBuilder.LOG.debug("Checking if the selected provisioning for relationshipTemplate {}",
-            relationshipTemplate.getId());
+                                   relationshipTemplate.getId());
         BPELScopeBuilder.LOG.debug(" with type {} is valid whether on the source or target interface",
-            relationshipTemplate.getRelationshipType().getId().toString());
+                                   relationshipTemplate.getRelationshipType().getId().toString());
         // check if any source interface matches the selected prov plugins
         for (final AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
             final int interfaceSize = iface.getOperations().size();

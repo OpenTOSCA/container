@@ -109,10 +109,10 @@ public class CsarController {
 
         // Absolute URLs for icon and image
         final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
-        final String iconUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id,
-            csar.getIconUrl());
-        final String imageUrl = MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id,
-            csar.getImageUrl());
+        final String iconUrl =
+            MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
+        final String imageUrl =
+            MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
         csar.setIconUrl(iconUrl);
         csar.setImageUrl(imageUrl);
 
@@ -122,12 +122,11 @@ public class CsarController {
         }
         csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
                      .baseUri(this.uriInfo.getBaseUri()).build(id));
-        csar.add(Link
-                     .fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+        csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
                                           .path(CsarController.class, "getContent").build(id))
                      .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
-        csar.add(Link.fromUri(
-            this.uriInfo.getBaseUriBuilder().path(CsarController.class).path(CsarController.class, "getCsar").build(id))
+        csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+                                          .path(CsarController.class, "getCsar").build(id))
                      .rel("self").build());
 
         return Response.ok(csar).build();
@@ -150,11 +149,12 @@ public class CsarController {
                                 message = "Created - The CSAR has been successfully created and its location is returned as the value of the location header",
                                 responseHeaders = {@ResponseHeader(name = "location",
                                                                    description = "the URI of the create CSAR")})})
-    public Response uploadFile(
-                    @ApiParam(value = "The CSAR file",
-                              required = true) @FormDataParam(value = "file") final InputStream is,
-                    @ApiParam(hidden = true) @FormDataParam("file") final FormDataContentDisposition file)
-        throws IOException, URISyntaxException, UserException, SystemException {
+    public Response uploadFile(@ApiParam(value = "The CSAR file",
+                                         required = true) @FormDataParam(value = "file") final InputStream is,
+                               @ApiParam(hidden = true) @FormDataParam("file") final FormDataContentDisposition file) throws IOException,
+                                                                                                                      URISyntaxException,
+                                                                                                                      UserException,
+                                                                                                                      SystemException {
 
         if (is == null || file == null) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -182,7 +182,7 @@ public class CsarController {
         }
 
         logger.info("Uploading new CSAR based on request payload: name={}; url={}", request.getName(),
-            request.getUrl());
+                    request.getUrl());
 
         String filename = request.getName();
         if (!filename.endsWith(".csar")) {
@@ -192,7 +192,8 @@ public class CsarController {
         try {
             final URL url = new URL(request.getUrl());
             return this.handleCsarUpload(filename, url.openStream());
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();
         }
@@ -207,7 +208,8 @@ public class CsarController {
 
         try {
             csarId = this.fileService.storeCSAR(file.toPath());
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();
         }
@@ -221,19 +223,21 @@ public class CsarController {
                 if (wc.isWineryRepositoryAvailable()) {
                     final QName serviceTemplate = wc.uploadCSAR(file);
                     this.controlService.deleteCSAR(csarId);
-                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity(
-                        "{ \"Location\": \"" + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
+                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
+                        + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
                 } else {
                     logger.error("CSAR has open requirments but Winery repository is not available");
                     try {
                         this.fileService.deleteCSAR(csarId);
-                    } catch (final Exception e) {
+                    }
+                    catch (final Exception e) {
                         // Ignore
                     }
                     return Response.serverError().build();
                 }
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Error resolving open requirements: {}", e.getMessage(), e);
             return Response.serverError().build();
         }
@@ -241,7 +245,8 @@ public class CsarController {
         this.controlService.deleteCSAR(csarId);
         try {
             csarId = this.fileService.storeCSAR(file.toPath());
-        } catch (UserException | SystemException e) {
+        }
+        catch (UserException | SystemException e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();
         }
@@ -255,21 +260,21 @@ public class CsarController {
         boolean success = this.controlService.invokeTOSCAProcessing(csarId);
 
         if (success) {
-            final List<QName> serviceTemplates = this.engineService.getToscaReferenceMapper()
-                                                                   .getServiceTemplateIDsContainedInCSAR(csarId);
+            final List<QName> serviceTemplates =
+                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId);
             for (final QName serviceTemplate : serviceTemplates) {
                 logger.info("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                    csarId.getFileName());
+                            csarId.getFileName());
                 if (!this.controlService.invokeIADeployment(csarId, serviceTemplate)) {
                     logger.error("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                        csarId.getFileName());
+                                 csarId.getFileName());
                     success = false;
                 }
                 logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                    csarId.getFileName());
+                            csarId.getFileName());
                 if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
                     logger.error("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                        csarId.getFileName());
+                                 csarId.getFileName());
                     success = false;
                 }
             }
@@ -280,8 +285,8 @@ public class CsarController {
         }
 
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.getFileName());
-        final URI uri = UriUtil.encode(
-            this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId));
+        final URI uri =
+            UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId));
         return Response.created(uri).build();
     }
 

@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class JaxbFactoryCSAR {
 
-    public static AllDeploymentArtifactsJaxb createAllDeploymentArtifactsDTO(
-                    final List<DeploymentArtifactAbsJaxb> allDeploymentArtifacts, final String serviceTemplateID,
-                    final String csarID) {
+    public static AllDeploymentArtifactsJaxb createAllDeploymentArtifactsDTO(final List<DeploymentArtifactAbsJaxb> allDeploymentArtifacts,
+                                                                             final String serviceTemplateID,
+                                                                             final String csarID) {
         final AllDeploymentArtifactsJaxb jaxbObject = new AllDeploymentArtifactsJaxb();
         jaxbObject.setAllDeploymentArtifacts(allDeploymentArtifacts);
         jaxbObject.setServiceTemplateID(serviceTemplateID);
@@ -27,7 +27,7 @@ public class JaxbFactoryCSAR {
     }
 
     public static DeploymentArtifactAbsJaxb createDeploymentArtifactAbsDTO(final String absolutePath, final String name,
-                    final String type) {
+                                                                           final String type) {
         final DeploymentArtifactAbsJaxb dto = new DeploymentArtifactAbsJaxb();
         dto.setAbsolutePath(absolutePath);
         dto.setName(name);

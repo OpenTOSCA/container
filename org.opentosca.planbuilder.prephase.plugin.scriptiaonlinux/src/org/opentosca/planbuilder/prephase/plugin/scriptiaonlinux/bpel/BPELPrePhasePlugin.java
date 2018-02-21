@@ -29,10 +29,10 @@ public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
 
     private final QName warArtifactTypeOld = new QName("http://www.example.com/ToscaTypes", "WAR");
     private final QName warArtifactType = new QName("http://opentosca.org/artifacttypes", "WAR");
-    private final QName dockerContainerArtefactTypeOld = new QName("http://opentosca.org/artefacttypes",
-        "DockerContainerArtefact");
-    private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artifacttypes",
-        "DockerContainerArtifact");
+    private final QName dockerContainerArtefactTypeOld =
+        new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
+    private final QName dockerContainerArtefactType =
+        new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
 
     private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
@@ -41,7 +41,7 @@ public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                    final AbstractNodeTemplate nodeTemplate) {
+                          final AbstractNodeTemplate nodeTemplate) {
 
         if (da.getArtifactType().equals(this.dockerContainerArtefactType)
             || da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
@@ -56,7 +56,7 @@ public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-                    final AbstractNodeTemplate nodeTemplate) {
+                          final AbstractNodeTemplate nodeTemplate) {
         final QName type = ia.getArtifactType();
         return type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld);
     }

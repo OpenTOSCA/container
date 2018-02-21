@@ -34,10 +34,9 @@ public class IsFinishedRoute extends RouteBuilder {
         onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
                                     .process(exceptionProcessor);
 
-        from(
-            "restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT + "?restletMethods=get").process(
-                isFinishedRequestProcessor).process(isFinishedProcessor).process(corsProcessor).process(
-                    isFinishedResponseProcessor).removeHeaders("*");
+        from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
+            + "?restletMethods=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
+                                    .process(corsProcessor).process(isFinishedResponseProcessor).removeHeaders("*");
 
     }
 }

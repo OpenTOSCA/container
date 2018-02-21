@@ -112,7 +112,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
                 // Create final endpoint.
                 // deployPath = deployPath.concat(endpointSuffix);
                 CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Complete war deployment of {} to the path {}",
-                    warFile.getName(), deployPath);
+                                                                  warFile.getName(), deployPath);
             }
 
         } else {
@@ -158,9 +158,9 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
                 CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Deploying {} ...", fileName);
 
-                final HttpResponse httpResponse = this.httpService.Put(uri, uploadEntity,
-                    CopyOfIAEnginePluginWarTomcatServiceImpl.USERNAME,
-                    CopyOfIAEnginePluginWarTomcatServiceImpl.PASSWORD);
+                final HttpResponse httpResponse =
+                    this.httpService.Put(uri, uploadEntity, CopyOfIAEnginePluginWarTomcatServiceImpl.USERNAME,
+                                         CopyOfIAEnginePluginWarTomcatServiceImpl.PASSWORD);
                 final InputStream inputStream = httpResponse.getEntity().getContent();
                 final String response = this.convertStreamToString(inputStream);
 
@@ -178,20 +178,23 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
                     CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("{} wasn't deployed successfully.", fileName);
                 }
 
-            } catch (final UnsupportedEncodingException e) {
-                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error(
-                    "UnsupportedEncodingException occured while deploying the WAR-File: {}!", fileName, e);
-            } catch (final ClientProtocolException e) {
-                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error(
-                    "ClientProtocolException occured while deploying the WAR-File: {}!", fileName, e);
-            } catch (final IOException e) {
-                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error(
-                    "IOException occured while deploying the WAR-File: {}!", fileName, e);
+            }
+            catch (final UnsupportedEncodingException e) {
+                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("UnsupportedEncodingException occured while deploying the WAR-File: {}!",
+                                                                   fileName, e);
+            }
+            catch (final ClientProtocolException e) {
+                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("ClientProtocolException occured while deploying the WAR-File: {}!",
+                                                                   fileName, e);
+            }
+            catch (final IOException e) {
+                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("IOException occured while deploying the WAR-File: {}!",
+                                                                   fileName, e);
             }
 
         } else {
-            CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error(
-                "Tomcat isn't running or can't be accessed! Can't deploy {}!", fileName);
+            CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("Tomcat isn't running or can't be accessed! Can't deploy {}!",
+                                                               fileName);
         }
 
         return endpoint;
@@ -201,7 +204,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
      * {@inheritDoc}
      */
     public boolean undeployImplementationArtifact(final String iaName, final QName nodeTypeImpl, final CSARID csarID,
-                    final URI path) {
+                                                  final URI path) {
 
         LOG.warn("Not implemented to undeploy a BPMN Plan!");
 
@@ -227,7 +230,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
                     // the first one found
                     if (this.isADeployableWar(file)) {
                         CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Deployable WAR-File with name {} found.",
-                            file.getName());
+                                                                          file.getName());
 
                         return file;
 
@@ -250,9 +253,8 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         if (file.getName().toLowerCase().endsWith(".war")) {
             return true;
         } else {
-            CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.warn(
-                "Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
-                file.getName());
+            CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
+                                                              file.getName());
         }
 
         return false;
@@ -280,7 +282,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
                 if (this.containsEndpointSuffix(propNode)) {
                     endpointSuffix = this.getNodeContent(propNode);
                     CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("ServiceEndpointSuffix found: {}",
-                        endpointSuffix);
+                                                                      endpointSuffix);
                     return endpointSuffix;
                 }
             }
@@ -326,9 +328,10 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         if (endpoint != null) {
             try {
                 endpointURI = new URI(endpoint);
-            } catch (final URISyntaxException e) {
-                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error(
-                    "URISyntaxException occurred while creating endpoint URI: {} ", endpoint, e);
+            }
+            catch (final URISyntaxException e) {
+                CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.error("URISyntaxException occurred while creating endpoint URI: {} ",
+                                                                   endpoint, e);
             }
         }
         return endpointURI;
@@ -362,9 +365,9 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         // URL to get serverinfo from Tomcat.
         final String url = CopyOfIAEnginePluginWarTomcatServiceImpl.URL + "/manager/text/serverinfo";
 
-        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info(
-            "Checking if Tomcat is running on '" + CopyOfIAEnginePluginWarTomcatServiceImpl.URL
-                + "' and can be accessed with \"" + USERNAME + "\" and \"" + PASSWORD + "\"");
+        CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.info("Checking if Tomcat is running on '"
+            + CopyOfIAEnginePluginWarTomcatServiceImpl.URL + "' and can be accessed with \"" + USERNAME + "\" and \""
+            + PASSWORD + "\"");
 
         // Execute the Tomcat command and get response message back. If no
         // exception occurs, Tomcat is running.y
@@ -372,7 +375,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
 
         try {
             httpResponse = this.httpService.Get(url, CopyOfIAEnginePluginWarTomcatServiceImpl.USERNAME,
-                CopyOfIAEnginePluginWarTomcatServiceImpl.PASSWORD);
+                                                CopyOfIAEnginePluginWarTomcatServiceImpl.PASSWORD);
 
             final String response = this.convertStreamToString(httpResponse.getEntity().getContent());
 
@@ -383,10 +386,12 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
                 isRunning = true;
             }
 
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -404,7 +409,8 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         String theString = "";
         try {
             theString = IOUtils.toString(inputStream, "UTF-8");
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -419,7 +425,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         this.bindServices();
 
         CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Types: {}.",
-            CopyOfIAEnginePluginWarTomcatServiceImpl.TYPES);
+                                                           CopyOfIAEnginePluginWarTomcatServiceImpl.TYPES);
         final List<String> types = new ArrayList<>();
 
         for (final String type : CopyOfIAEnginePluginWarTomcatServiceImpl.TYPES.split("[,;]")) {
@@ -436,7 +442,7 @@ public class CopyOfIAEnginePluginWarTomcatServiceImpl {
         this.bindServices();
 
         CopyOfIAEnginePluginWarTomcatServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.",
-            CopyOfIAEnginePluginWarTomcatServiceImpl.CAPABILITIES);
+                                                           CopyOfIAEnginePluginWarTomcatServiceImpl.CAPABILITIES);
         final List<String> capabilities = new ArrayList<>();
 
         for (final String capability : CopyOfIAEnginePluginWarTomcatServiceImpl.CAPABILITIES.split("[,;]")) {

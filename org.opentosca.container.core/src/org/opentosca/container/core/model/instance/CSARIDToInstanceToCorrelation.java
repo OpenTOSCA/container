@@ -36,8 +36,8 @@ public class CSARIDToInstanceToCorrelation {
             }
         }
 
-        final ServiceTemplateInstanceID instance = new ServiceTemplateInstanceID(csarID, serviceTemplateId,
-            highest + 1);
+        final ServiceTemplateInstanceID instance =
+            new ServiceTemplateInstanceID(csarID, serviceTemplateId, highest + 1);
 
         this.getInstanceMap(csarID).put(instance, new ArrayList<String>());
 
@@ -52,7 +52,7 @@ public class CSARIDToInstanceToCorrelation {
      * @param correlationID the CorrelationID
      */
     public void storeNewCorrelationForInstance(final CSARID csarID, final ServiceTemplateInstanceID instanceID,
-                    final String correlationID) {
+                                               final String correlationID) {
 
         final List<String> list = this.getCorrelationList(csarID, instanceID);
         if (null != list) {

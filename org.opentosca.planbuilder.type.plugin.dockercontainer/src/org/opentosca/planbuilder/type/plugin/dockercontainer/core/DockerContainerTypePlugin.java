@@ -57,8 +57,8 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
         ModelUtils.getNodesFromNodeToSink(nodeTemplate, nodes);
 
         for (final AbstractNodeTemplate node : nodes) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(
-                node.getType().getId())) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedDockerEngineNodeType(node.getType()
+                                                                                                        .getId())) {
                 return node;
             }
         }

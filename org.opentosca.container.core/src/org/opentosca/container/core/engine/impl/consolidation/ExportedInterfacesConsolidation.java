@@ -94,8 +94,8 @@ public class ExportedInterfacesConsolidation {
         // least one error
         final boolean errorOccured = false;
 
-        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> mapTypeToPlan = this.toscaReferenceMapper.getCSARIDToPlans(
-            csarID);
+        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> mapTypeToPlan =
+            this.toscaReferenceMapper.getCSARIDToPlans(csarID);
 
         for (final QName serviceTemplateID : this.toscaReferenceMapper.getExportedInterfacesOfCSAR(csarID).keySet()) {
 
@@ -118,13 +118,18 @@ public class ExportedInterfacesConsolidation {
                         // toscaReferenceMapper.setBoundaryOperationForCSARIDPlan(csarID,
                         // serviceTemplateID, planID, operation.getName());
                         this.toscaReferenceMapper.storeServiceTemplateBoundsPlan(csarID, serviceTemplateID,
-                            iface.getName(), operation.getName(), planID);
+                                                                                 iface.getName(), operation.getName(),
+                                                                                 planID);
 
                         mapTypeToPlan.get(PlanTypes.isPlanTypeURI(toscaPlan.getPlanType())).put(planID, toscaPlan);
 
                         this.toscaReferenceMapper.storePlanInputMessageID(csarID, planID,
-                            this.getInputMessageQName(csarID, iface.getName(), operation.getName(), toscaPlan.getId(),
-                                toscaPlan, this.toscaReferenceMapper.getListOfWSDLForCSAR(csarID)));
+                                                                          this.getInputMessageQName(csarID,
+                                                                                                    iface.getName(),
+                                                                                                    operation.getName(),
+                                                                                                    toscaPlan.getId(),
+                                                                                                    toscaPlan,
+                                                                                                    this.toscaReferenceMapper.getListOfWSDLForCSAR(csarID)));
 
                     } else {
                         // just need the plans
@@ -148,8 +153,8 @@ public class ExportedInterfacesConsolidation {
      * @throws XPathExpressionException
      */
     private QName getInputMessageQName(final CSARID csarID, final String wsdlInterfaceName,
-                    final String wsdlOperationName, final String planID, final TPlan boundaryPlan,
-                    final List<Document> list) {
+                                       final String wsdlOperationName, final String planID, final TPlan boundaryPlan,
+                                       final List<Document> list) {
 
         this.LOG.debug("Try to find the InputMessageID for CSAR " + csarID + " and plan " + boundaryPlan.getId());
 
@@ -224,16 +229,17 @@ public class ExportedInterfacesConsolidation {
 
                         this.LOG.debug("Value of " + messages.item(0).getLocalName() + " is " + value);
 
-                        final QName messageID = new QName(
-                            doc.lookupNamespaceURI(value.substring(0, value.indexOf(":"))),
-                            value.substring(value.indexOf(":") + 1));
+                        final QName messageID =
+                            new QName(doc.lookupNamespaceURI(value.substring(0, value.indexOf(":"))),
+                                value.substring(value.indexOf(":") + 1));
                         this.LOG.debug("Found message QName: " + messageID.toString());
                         return messageID;
 
                     }
                 }
 
-            } catch (final XPathExpressionException e) {
+            }
+            catch (final XPathExpressionException e) {
                 e.printStackTrace();
             }
         }

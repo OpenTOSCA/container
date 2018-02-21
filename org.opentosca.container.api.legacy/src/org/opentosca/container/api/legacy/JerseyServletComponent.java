@@ -50,11 +50,13 @@ public class JerseyServletComponent {
                 Thread.currentThread().setContextClassLoader(classLoader);
                 httpService.registerServlet(ResourceConstants.ROOT, container, initParams, null);
                 httpService.registerFilter("/", new CorsFilter(), null, null);
-            } finally {
+            }
+            finally {
                 Thread.currentThread().setContextClassLoader(contextClassLoader);
             }
 
-        } catch (final Exception ex) {
+        }
+        catch (final Exception ex) {
             ex.printStackTrace();
         }
     }

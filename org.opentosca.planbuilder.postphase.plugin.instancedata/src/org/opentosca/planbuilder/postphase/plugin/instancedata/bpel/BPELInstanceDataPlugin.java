@@ -26,8 +26,8 @@ public class BPELInstanceDataPlugin extends InstanceDataPlugin<BPELPlanContext> 
 
     private final Handler handler = new Handler();
 
-    private final QName securePasswordPolicyType = new QName("http://opentosca.org/policytypes",
-        "SecurePasswordPolicyType");
+    private final QName securePasswordPolicyType =
+        new QName("http://opentosca.org/policytypes", "SecurePasswordPolicyType");
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
@@ -48,7 +48,7 @@ public class BPELInstanceDataPlugin extends InstanceDataPlugin<BPELPlanContext> 
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final AbstractPolicy policy) {
+                          final AbstractPolicy policy) {
         return this.handler.handlePasswordCheck(context, nodeTemplate);
     }
 

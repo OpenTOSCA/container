@@ -44,12 +44,12 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
      */
     private final String createCapabilitiesTable = "CREATE TABLE " + this.CapabilitiesTable
         + " (Capability VARCHAR(1000) NOT NULL, ProviderName VARCHAR(1000) NOT NULL, ProviderType VARCHAR(1000) NOT NULL)";
-    private final String storeCapabilities = "INSERT INTO " + this.CapabilitiesTable
-        + " (Capability, ProviderName, ProviderType) VALUES (?, ?, ?)";
-    private final String getCapabilitiesByType = "SELECT Capability, ProviderName FROM " + this.CapabilitiesTable
-        + " WHERE ProviderType = ?";
-    private final String getCapabilitiesByName = "SELECT Capability FROM " + this.CapabilitiesTable
-        + " WHERE ProviderName = ? AND ProviderType = ?";
+    private final String storeCapabilities =
+        "INSERT INTO " + this.CapabilitiesTable + " (Capability, ProviderName, ProviderType) VALUES (?, ?, ?)";
+    private final String getCapabilitiesByType =
+        "SELECT Capability, ProviderName FROM " + this.CapabilitiesTable + " WHERE ProviderType = ?";
+    private final String getCapabilitiesByName =
+        "SELECT Capability FROM " + this.CapabilitiesTable + " WHERE ProviderName = ? AND ProviderType = ?";
     private final String deleteCapabilities = "DELETE FROM " + this.CapabilitiesTable + " WHERE ProviderName = ?";
 
 
@@ -70,7 +70,7 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
 
         try {
             CoreInternalCapabilityServiceImpl.LOG.debug("Checking if table \"{}\" already exists...",
-                this.CapabilitiesTable);
+                                                        this.CapabilitiesTable);
 
             this.em.getTransaction().begin();
             final Connection conn = this.em.unwrap(Connection.class);
@@ -80,17 +80,18 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
 
             if (!rs.next()) {
                 CoreInternalCapabilityServiceImpl.LOG.debug("Table \"{}\" did not exist. Creating...",
-                    this.CapabilitiesTable);
+                                                            this.CapabilitiesTable);
                 stmt = conn.createStatement();
                 stmt.executeUpdate(this.createCapabilitiesTable);
                 stmt.close();
                 CoreInternalCapabilityServiceImpl.LOG.debug("Table \"{}\" successfully created.",
-                    this.CapabilitiesTable);
+                                                            this.CapabilitiesTable);
             }
 
             this.em.getTransaction().commit();
 
-        } catch (final SQLException exc) {
+        }
+        catch (final SQLException exc) {
             CoreInternalCapabilityServiceImpl.LOG.error("Database error - can't create CapabilitiesTable.", exc);
         }
 
@@ -101,14 +102,14 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
      * {@inheritDoc}
      */
     public void storeCapabilities(final List<String> capabilities, final String providerName,
-                    final ProviderType providerType) {
+                                  final ProviderType providerType) {
 
         PreparedStatement pstmt = null;
 
         try {
 
             CoreInternalCapabilityServiceImpl.LOG.debug("Storing \"{}\" capabilities of \"{}\" ...", providerType,
-                providerName);
+                                                        providerName);
 
             this.em.getTransaction().begin();
             final Connection conn = this.em.unwrap(Connection.class);
@@ -127,9 +128,10 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
 
             this.em.getTransaction().commit();
 
-        } catch (final SQLException e) {
+        }
+        catch (final SQLException e) {
             CoreInternalCapabilityServiceImpl.LOG.error("Database error - can't store \"{}\" capabilities in database.",
-                providerType, e);
+                                                        providerType, e);
         }
     }
 
@@ -170,15 +172,16 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
             pstmt.close();
 
             CoreInternalCapabilityServiceImpl.LOG.debug("Getting \"{}\" capabilities successfully completed.",
-                providerType);
+                                                        providerType);
 
             this.em.getTransaction().commit();
 
             return capsMap;
 
-        } catch (final SQLException e) {
+        }
+        catch (final SQLException e) {
             CoreInternalCapabilityServiceImpl.LOG.error("Database error - can't get \"{}\" capabilities from database.",
-                providerType, e);
+                                                        providerType, e);
             return null;
         }
     }
@@ -193,7 +196,7 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
         ResultSet queryRes = null;
 
         CoreInternalCapabilityServiceImpl.LOG.debug("Getting \"{}\" capabilities of \"{}\"...", providerType,
-            providerName);
+                                                    providerName);
 
         try {
 
@@ -216,15 +219,16 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
             pstmt.close();
 
             CoreInternalCapabilityServiceImpl.LOG.debug("Getting \"{}\" capabilities of \"{}\" successfully completed.",
-                providerType, providerName);
+                                                        providerType, providerName);
 
             this.em.getTransaction().commit();
 
             return capabilities;
 
-        } catch (final SQLException e) {
-            CoreInternalCapabilityServiceImpl.LOG.error(
-                "Database error - can't get capabilities of \"{}\" from database.", providerName, e);
+        }
+        catch (final SQLException e) {
+            CoreInternalCapabilityServiceImpl.LOG.error("Database error - can't get capabilities of \"{}\" from database.",
+                                                        providerName, e);
             return null;
         }
     }
@@ -251,9 +255,10 @@ public class CoreInternalCapabilityServiceImpl implements ICoreInternalCapabilit
 
             this.em.getTransaction().commit();
 
-        } catch (final SQLException e) {
-            CoreInternalCapabilityServiceImpl.LOG.error(
-                "Database error - can't delete capabilities of \"{}\" from database.", providerName, e);
+        }
+        catch (final SQLException e) {
+            CoreInternalCapabilityServiceImpl.LOG.error("Database error - can't delete capabilities of \"{}\" from database.",
+                                                        providerName, e);
         }
     }
 }

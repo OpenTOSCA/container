@@ -36,9 +36,11 @@ public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
 
     @Override
     public URI deployImplementationArtifact(final CSARID csarID, final QName nodeTypeImplementationID,
-                    final QName artifactType, final Document artifactContent, final Document properties,
-                    final List<TPropertyConstraint> propertyConstraints, final List<AbstractArtifact> artifacts,
-                    final List<String> requiredFeatures) {
+                                            final QName artifactType, final Document artifactContent,
+                                            final Document properties,
+                                            final List<TPropertyConstraint> propertyConstraints,
+                                            final List<AbstractArtifact> artifacts,
+                                            final List<String> requiredFeatures) {
 
         // Maybe some checks can be done here. (ScriptLanguage supported?,
         // Script defined?, Script contained in csar file?, SI-Script-Plugin
@@ -46,7 +48,8 @@ public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
         URI uri = null;
         try {
             uri = new URI("si:ScriptPlugin");
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -73,7 +76,7 @@ public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
      */
     public List<String> getCapabilties() {
         IAEnginePluginScriptServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.",
-            IAEnginePluginScriptServiceImpl.CAPABILITIES);
+                                                  IAEnginePluginScriptServiceImpl.CAPABILITIES);
         final List<String> capabilities = new ArrayList<>();
 
         for (final String capability : IAEnginePluginScriptServiceImpl.CAPABILITIES.split("[,;]")) {
@@ -84,7 +87,7 @@ public class IAEnginePluginScriptServiceImpl implements IIAEnginePluginService {
 
     @Override
     public boolean undeployImplementationArtifact(final String iaName, final QName nodeTypeImpl, final CSARID csarID,
-                    final URI path) {
+                                                  final URI path) {
         // TODO
         return true;
     }

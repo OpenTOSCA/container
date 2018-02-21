@@ -40,8 +40,10 @@ public class InvocationRoute extends RouteBuilder {
     public static final String GET_RESULT_ENDPOINT = POLL_ENDPOINT + "/response";
 
     // Management Bus Endpoints
-    private static final String MANAGEMENT_BUS_IA = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
-    private static final String MANAGEMENT_BUS_PLAN = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
+    private static final String MANAGEMENT_BUS_IA =
+        "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
+    private static final String MANAGEMENT_BUS_PLAN =
+        "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
 
     private static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
 
@@ -50,9 +52,9 @@ public class InvocationRoute extends RouteBuilder {
     public void configure() throws Exception {
 
         // Checks if invoking a IA
-        final Predicate INVOKE_IA = PredicateBuilder.or(
-            this.header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
-            this.header(MBHeader.PLANID_QNAME.toString()).isNotNull());
+        final Predicate INVOKE_IA =
+            PredicateBuilder.or(this.header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
+                                this.header(MBHeader.PLANID_QNAME.toString()).isNotNull());
         // Checks if invoking a Plan
         final Predicate INVOKE_PLAN = this.header(MBHeader.PLANID_QNAME.toString()).isNotNull();
 

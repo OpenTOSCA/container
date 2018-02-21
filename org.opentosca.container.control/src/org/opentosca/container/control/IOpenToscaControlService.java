@@ -109,8 +109,7 @@ public interface IOpenToscaControlService {
      * @throws UnsupportedEncodingException
      */
     public String invokePlanInvocation(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID,
-                    TPlanDTO plan)
-        throws UnsupportedEncodingException;
+                                       TPlanDTO plan) throws UnsupportedEncodingException;
 
     /**
      * Returns a list of Strings for active PublicPlans of a CSARInstance.

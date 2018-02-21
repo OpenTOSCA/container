@@ -16,8 +16,7 @@ package org.wso2.carbon.bpel.deployer.services.types.xsd;
 public class ExtensionMapper {
 
     public static java.lang.Object getTypeObject(final java.lang.String namespaceURI, final java.lang.String typeName,
-                    final javax.xml.stream.XMLStreamReader reader)
-        throws java.lang.Exception {
+                                                 final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
 
 
         if ("http://types.services.deployer.bpel.carbon.wso2.org/xsd".equals(namespaceURI)

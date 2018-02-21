@@ -89,9 +89,8 @@ public class CredentialsResource {
         // try {
 
         this.CREDENTIALS_SERVICE.deleteCredentials(this.CREDENTIALS.getID());
-        return Response.ok(
-            "Credentials for storage provider \"" + this.CREDENTIALS.getStorageProviderID() + "\" were deleted.")
-                       .build();
+        return Response.ok("Credentials for storage provider \"" + this.CREDENTIALS.getStorageProviderID()
+            + "\" were deleted.").build();
 
         // } catch (UserException exc) {
         // CredentialsResource.LOG.warn("An User Exception occured.", exc);

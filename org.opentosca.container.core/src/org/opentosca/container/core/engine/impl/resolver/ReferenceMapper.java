@@ -143,7 +143,7 @@ public class ReferenceMapper {
      * @param iface the exported interface JAXB object
      */
     protected void storeExportedInterface(final CSARID csarID, final QName serviceTemplateID,
-                    final TExportedInterface iface) {
+                                          final TExportedInterface iface) {
         ToscaEngineServiceImpl.toscaReferenceMapper.storeExportedInterface(csarID, serviceTemplateID, iface);
     }
 
@@ -194,7 +194,8 @@ public class ReferenceMapper {
                         return wrapper;
                     }
 
-                } catch (final XPathExpressionException e) {
+                }
+                catch (final XPathExpressionException e) {
                     e.printStackTrace();
                     this.LOG.error("An error occured while searching inside the document via xpath. The message is: "
                         + e.getMessage());
@@ -244,7 +245,8 @@ public class ReferenceMapper {
                         return wrapper;
                     }
 
-                } catch (final XPathExpressionException e) {
+                }
+                catch (final XPathExpressionException e) {
                     e.printStackTrace();
                     this.LOG.error("An error occured while searching inside the document via xpath. The message is: "
                         + e.getMessage());
@@ -268,7 +270,7 @@ public class ReferenceMapper {
      * @return the ReferenceResultWrapper in case of success, otherwise null
      */
     private ReferenceResultWrapper searchElementWithName(final QName elementReference, String elementName,
-                    final String documentType) {
+                                                         final String documentType) {
 
         // if there are no documents
         if (this.mapOfNSToDocuments.isEmpty()) {
@@ -314,7 +316,8 @@ public class ReferenceMapper {
                         return wrapper;
                     }
 
-                } catch (final XPathExpressionException e) {
+                }
+                catch (final XPathExpressionException e) {
                     e.printStackTrace();
                     this.LOG.error("An error occured while searching inside the document via xpath. The message is: "
                         + e.getMessage());
@@ -337,7 +340,7 @@ public class ReferenceMapper {
      * @return the ReferenceResultWrapper in case of success, otherwise null
      */
     private ReferenceResultWrapper searchElementWithNameWithoutNamespacePresort(final QName reference,
-                    String elementName) {
+                                                                                String elementName) {
 
         this.LOG.debug("Search somewhere else.");
 
@@ -377,7 +380,8 @@ public class ReferenceMapper {
                         return wrapper;
                     }
 
-                } catch (final XPathExpressionException e) {
+                }
+                catch (final XPathExpressionException e) {
                     e.printStackTrace();
                     this.LOG.error("An error occured while searching inside the document via xpath. The message is: "
                         + e.getMessage());
@@ -481,8 +485,8 @@ public class ReferenceMapper {
                 + " elements with the requested QName found inside this document. The following Nodes are found:");
             final NodeList foundElements = wrapper.getNodeList();
             for (int itr = 0; itr < foundElements.getLength(); itr++) {
-                this.LOG.debug(
-                    ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+                this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .docToString(foundElements.item(itr), true));
             }
         }
 
@@ -545,8 +549,8 @@ public class ReferenceMapper {
                 + " elements with the requested QName found inside this document. The following Nodes are found:");
             final NodeList foundElements = wrapper.getNodeList();
             for (int itr = 0; itr < foundElements.getLength(); itr++) {
-                this.LOG.debug(
-                    ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+                this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .docToString(foundElements.item(itr), true));
             }
         }
 
@@ -598,8 +602,8 @@ public class ReferenceMapper {
                 + " elements with the requested QName found inside this document. The following Nodes are found:");
             final NodeList foundElements = wrapper.getNodeList();
             for (int itr = 0; itr < foundElements.getLength(); itr++) {
-                this.LOG.debug(
-                    ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+                this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .docToString(foundElements.item(itr), true));
             }
 
         }
@@ -652,8 +656,8 @@ public class ReferenceMapper {
                 + " complex types with the requested QName found inside this document. The following Nodes are found:");
             final NodeList foundElements = wrapper.getNodeList();
             for (int itr = 0; itr < foundElements.getLength(); itr++) {
-                this.LOG.debug(
-                    ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+                this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .docToString(foundElements.item(itr), true));
             }
 
         }
@@ -706,8 +710,8 @@ public class ReferenceMapper {
                 + " elements with the requested QName found inside this document. The following Nodes are found:");
             final NodeList foundElements = wrapper.getNodeList();
             for (int itr = 0; itr < foundElements.getLength(); itr++) {
-                this.LOG.debug(
-                    ServiceHandler.xmlSerializerService.getXmlSerializer().docToString(foundElements.item(itr), true));
+                this.LOG.debug(ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .docToString(foundElements.item(itr), true));
             }
 
         }
@@ -716,21 +720,25 @@ public class ReferenceMapper {
     }
 
     public void storeRelationshipTemplateIDForServiceTemplateAndCSAR(final CSARID csarID, final QName serviceTemplateId,
-                    final String id) {
+                                                                     final String id) {
         ToscaEngineServiceImpl.toscaReferenceMapper.storeRelationshipTemplateIDForServiceTemplateAndCSAR(csarID,
-            serviceTemplateId, id);
+                                                                                                         serviceTemplateId,
+                                                                                                         id);
     }
 
     public void storeNodeTemplateIDForServiceTemplateAndCSAR(final CSARID csarID, final QName serviceTemplateID,
-                    final String id) {
+                                                             final String id) {
         ToscaEngineServiceImpl.toscaReferenceMapper.storeNodeTemplateIDForServiceTemplateAndCSAR(csarID,
-            serviceTemplateID, id);
+                                                                                                 serviceTemplateID, id);
     }
 
     public void storeServiceTemplateBoundsProperties(final CSARID csarID, final QName serviceTemplateID,
-                    final String propertiesContent, final PropertyMappings propertyMappings) {
+                                                     final String propertiesContent,
+                                                     final PropertyMappings propertyMappings) {
         ToscaEngineServiceImpl.toscaReferenceMapper.storeServiceTemplateBoundsPropertiesInformation(csarID,
-            serviceTemplateID, propertiesContent, propertyMappings);
+                                                                                                    serviceTemplateID,
+                                                                                                    propertiesContent,
+                                                                                                    propertyMappings);
     }
 }
 

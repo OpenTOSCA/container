@@ -35,13 +35,13 @@ public class PatternMatcher {
      * @see #findFilesMatchesPatterns(Set, Set, Set)
      */
     public static boolean isFileMatchesPatterns(final AbstractFile file, final Set<String> includePatterns,
-                    final Set<String> excludePatterns) {
+                                                final Set<String> excludePatterns) {
 
         final Set<AbstractFile> files = new HashSet<>();
         files.add(file);
 
-        final Set<AbstractFile> matches = PatternMatcher.findFilesMatchesPatterns(files, includePatterns,
-            excludePatterns);
+        final Set<AbstractFile> matches =
+            PatternMatcher.findFilesMatchesPatterns(files, includePatterns, excludePatterns);
 
         if (!matches.isEmpty()) {
             return true;
@@ -69,7 +69,8 @@ public class PatternMatcher {
      *         files will be returned.
      */
     public static Set<AbstractFile> findFilesMatchesPatterns(final Set<AbstractFile> files,
-                    final Set<String> includePatterns, final Set<String> excludePatterns) {
+                                                             final Set<String> includePatterns,
+                                                             final Set<String> excludePatterns) {
 
         PatternMatcher.LOG.debug("Matching {} file(s) against pattern(s)...", files.size());
 
@@ -82,8 +83,8 @@ public class PatternMatcher {
         if (includePatterns != null && !includePatterns.isEmpty()) {
             for (final String includePattern : includePatterns) {
                 PatternMatcher.LOG.debug("Matching file(s) against include pattern \"{}\"...", includePattern);
-                final Set<AbstractFile> filesMatchingPattern = PatternMatcher.getSubsetMatchesPattern(filesToMatch,
-                    includePattern);
+                final Set<AbstractFile> filesMatchingPattern =
+                    PatternMatcher.getSubsetMatchesPattern(filesToMatch, includePattern);
                 filesMatchingPatterns.addAll(filesMatchingPattern);
                 // Files that matches an include pattern must be not matched
                 // against further include patterns
@@ -98,8 +99,8 @@ public class PatternMatcher {
         if (excludePatterns != null && !excludePatterns.isEmpty()) {
             for (final String excludePattern : excludePatterns) {
                 PatternMatcher.LOG.debug("Matching file(s) against exclude pattern \"{}\"...", excludePattern);
-                filesMatchingPatterns.removeAll(
-                    PatternMatcher.getSubsetMatchesPattern(filesMatchingPatterns, excludePattern));
+                filesMatchingPatterns.removeAll(PatternMatcher.getSubsetMatchesPattern(filesMatchingPatterns,
+                                                                                       excludePattern));
                 PatternMatcher.LOG.debug("Matching file(s) against exclude pattern \"{}\" completed.", excludePattern);
             }
         } else {
@@ -107,7 +108,7 @@ public class PatternMatcher {
         }
 
         PatternMatcher.LOG.debug("Matching file(s) completed - {} of {} file(s) match pattern(s).",
-            filesMatchingPatterns.size(), files.size());
+                                 filesMatchingPatterns.size(), files.size());
 
         return filesMatchingPatterns;
 

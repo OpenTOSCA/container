@@ -40,8 +40,8 @@ public class PolicyTypeResolver extends GenericResolver {
                 } else {
                     targetNamespace = definitions.getTargetNamespace();
                 }
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, policyType.getName()), policyType);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    policyType.getName()), policyType);
 
                 this.LOG.debug("Resolve the PolicyType \"" + targetNamespace + ":" + policyType.getName() + "\".");
 
@@ -50,14 +50,16 @@ public class PolicyTypeResolver extends GenericResolver {
 
                 // DerivedFrom
                 if (policyType.getDerivedFrom() != null && policyType.getDerivedFrom().getTypeRef() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        policyType.getDerivedFrom().getTypeRef(), ElementNamesEnum.POLICYTYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(policyType.getDerivedFrom()
+                                                                                             .getTypeRef(),
+                                                                                   ElementNamesEnum.POLICYTYPE);
                 }
 
                 // PropertiesDefinition
                 if (policyType.getPropertiesDefinition() != null) {
-                    if (new PropertiesDefinitionResolver(this.referenceMapper).resolve(
-                        policyType.getPropertiesDefinition())) {
+                    if (new PropertiesDefinitionResolver(
+                        this.referenceMapper).resolve(policyType.getPropertiesDefinition())) {
                         this.LOG.error("The PolicyType \"" + targetNamespace + ":" + policyType.getName()
                             + "\" specifies both attributes in its child element PropertiesDefinition which is not allowed.");
                         errorOccurred = true;
@@ -69,7 +71,7 @@ public class PolicyTypeResolver extends GenericResolver {
                     for (final NodeTypeReference nodeTypeReference : policyType.getAppliesTo().getNodeTypeReference()) {
                         errorOccurred = errorOccurred
                             || !this.referenceMapper.searchToscaElementByQNameWithName(nodeTypeReference.getTypeRef(),
-                                ElementNamesEnum.NODETYPE);
+                                                                                       ElementNamesEnum.NODETYPE);
                     }
                 }
             }

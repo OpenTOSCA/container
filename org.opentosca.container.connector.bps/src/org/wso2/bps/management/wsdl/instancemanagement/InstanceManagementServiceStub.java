@@ -60,8 +60,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
         __operation = new org.apache.axis2.description.RobustOutOnlyAxisOperation();
 
 
-        __operation.setName(
-            new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement", "resumeInstance"));
+        __operation.setName(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
+            "resumeInstance"));
         this._service.addOperation(__operation);
 
 
@@ -96,8 +96,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
         __operation = new org.apache.axis2.description.OutInAxisOperation();
 
 
-        __operation.setName(
-            new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement", "getInstanceInfo"));
+        __operation.setName(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
+            "getInstanceInfo"));
         this._service.addOperation(__operation);
 
 
@@ -108,8 +108,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
         __operation = new org.apache.axis2.description.RobustOutOnlyAxisOperation();
 
 
-        __operation.setName(
-            new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement", "suspendInstance"));
+        __operation.setName(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
+            "suspendInstance"));
         this._service.addOperation(__operation);
 
 
@@ -120,8 +120,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
         __operation = new org.apache.axis2.description.OutInAxisOperation();
 
 
-        __operation.setName(
-            new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement", "deleteInstances"));
+        __operation.setName(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
+            "deleteInstances"));
         this._service.addOperation(__operation);
 
 
@@ -156,8 +156,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
         __operation = new org.apache.axis2.description.RobustOutOnlyAxisOperation();
 
 
-        __operation.setName(
-            new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement", "recoverActivity"));
+        __operation.setName(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
+            "recoverActivity"));
         this._service.addOperation(__operation);
 
 
@@ -202,30 +202,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
             "resumeInstance"), "org.wso2.bps.management.schema.InstanceManagementException");
 
-        this.faultExceptionNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getPaginatedInstanceList"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
-        this.faultExceptionClassNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getPaginatedInstanceList"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getPaginatedInstanceList"), "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionClassNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getPaginatedInstanceList"), "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
         this.faultMessageMap.put(new org.apache.axis2.client.FaultMapKey(
             new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
             "getPaginatedInstanceList"), "org.wso2.bps.management.schema.InstanceManagementException");
 
-        this.faultExceptionNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getActivityLifeCycleFilter"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
-        this.faultExceptionClassNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getActivityLifeCycleFilter"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getActivityLifeCycleFilter"),
+                                       "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionClassNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getActivityLifeCycleFilter"), "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
         this.faultMessageMap.put(new org.apache.axis2.client.FaultMapKey(
             new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
             "getActivityLifeCycleFilter"), "org.wso2.bps.management.schema.InstanceManagementException");
@@ -260,30 +253,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
             "deleteInstances"), "org.wso2.bps.management.schema.InstanceManagementException");
 
-        this.faultExceptionNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getInstanceInfoWithEvents"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
-        this.faultExceptionClassNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getInstanceInfoWithEvents"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getInstanceInfoWithEvents"),
+                                       "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionClassNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getInstanceInfoWithEvents"), "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
         this.faultMessageMap.put(new org.apache.axis2.client.FaultMapKey(
             new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
             "getInstanceInfoWithEvents"), "org.wso2.bps.management.schema.InstanceManagementException");
 
-        this.faultExceptionNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getLongRunningInstances"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
-        this.faultExceptionClassNameMap.put(
-            new org.apache.axis2.client.FaultMapKey(
-                new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
-                "getLongRunningInstances"),
-            "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getLongRunningInstances"), "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
+        this.faultExceptionClassNameMap.put(new org.apache.axis2.client.FaultMapKey(
+            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
+            "getLongRunningInstances"), "org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException");
         this.faultMessageMap.put(new org.apache.axis2.client.FaultMapKey(
             new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "instanceManagementException"),
             "getLongRunningInstances"), "org.wso2.bps.management.schema.InstanceManagementException");
@@ -383,21 +369,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     )
 
 
-        throws java.rmi.RemoteException
+      throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[0].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[0].getName());
             _operationClient.getOptions().setAction("urn:getInstanceSummary");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -410,8 +397,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             // Style is taken to be "document". No input parameters
             // according to the WS-Basic profile in this case we have to send an empty soap message
-            final org.apache.axiom.soap.SOAPFactory factory = getFactory(
-                _operationClient.getOptions().getSoapVersionURI());
+            final org.apache.axiom.soap.SOAPFactory factory =
+                getFactory(_operationClient.getOptions().getSoapVersionURI());
             env = factory.getDefaultEnvelope();
 
             // adding SOAP soap_headers
@@ -426,36 +413,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
-            final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.InstanceSummaryE.class, getEnvelopeNamespaces(_returnEnv));
+            final java.lang.Object object =
+                fromOM(_returnEnv.getBody().getFirstElement(), org.wso2.bps.management.schema.InstanceSummaryE.class,
+                       getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.InstanceSummaryE) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceSummary"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "getInstanceSummary"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceSummary"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getInstanceSummary"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceSummary"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getInstanceSummary"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -464,22 +455,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -489,7 +486,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -506,19 +504,20 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                        final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                                 throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[0].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[0].getName());
         _operationClient.getOptions().setAction("urn:getInstanceSummary");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -548,11 +547,13 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                 try {
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
-                    final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.InstanceSummaryE.class, getEnvelopeNamespaces(resultEnv));
+                    final java.lang.Object object =
+                        fromOM(resultEnv.getBody().getFirstElement(),
+                               org.wso2.bps.management.schema.InstanceSummaryE.class, getEnvelopeNamespaces(resultEnv));
                     callback.receiveResultgetInstanceSummary((org.wso2.bps.management.schema.InstanceSummaryE) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrorgetInstanceSummary(e);
                 }
             }
@@ -563,21 +564,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceSummary"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "getInstanceSummary"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceSummary"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getInstanceSummary"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceSummary"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getInstanceSummary"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -586,27 +589,34 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                                 }
 
 
-                                callback.receiveErrorgetInstanceSummary(
-                                    new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                                callback.receiveErrorgetInstanceSummary(new java.rmi.RemoteException(ex.getMessage(),
+                                    ex));
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceSummary(f);
                             }
@@ -623,8 +633,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -632,7 +642,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrorgetInstanceSummary(axisFault);
                 }
             }
@@ -662,19 +673,20 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
 
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[1].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[1].getName());
             _operationClient.getOptions().setAction("urn:resumeInstance");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
             org.apache.axiom.soap.SOAPEnvelope env = null;
             _messageContext = new org.apache.axis2.context.MessageContext();
@@ -684,8 +696,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), resumeInstance22,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "resumeInstance")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "resumeInstance")));
 
 
             // adding SOAP soap_headers
@@ -700,24 +712,27 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "resumeInstance"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "resumeInstance"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "resumeInstance"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "resumeInstance"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "resumeInstance"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "resumeInstance"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -726,22 +741,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -751,7 +772,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -774,24 +796,26 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public org.wso2.bps.management.schema.PaginatedInstanceList getPaginatedInstanceList(
 
-                    final org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput23)
+                                                                                         final org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput23)
 
 
-        throws java.rmi.RemoteException
+                                                                                                                                                                                             throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+                                                                                                                                                                                             ,
+                                                                                                                                                                                             org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[2].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[2].getName());
             _operationClient.getOptions().setAction("urn:getPaginatedInstanceList");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -804,9 +828,10 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                getPaginatedInstanceListInput23,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "getPaginatedInstanceList")));
+                             getPaginatedInstanceListInput23,
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement",
+                                 "getPaginatedInstanceList")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -820,36 +845,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
-            final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.PaginatedInstanceList.class, getEnvelopeNamespaces(_returnEnv));
+            final java.lang.Object object =
+                fromOM(_returnEnv.getBody().getFirstElement(),
+                       org.wso2.bps.management.schema.PaginatedInstanceList.class, getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.PaginatedInstanceList) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getPaginatedInstanceList"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "getPaginatedInstanceList"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getPaginatedInstanceList"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getPaginatedInstanceList"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getPaginatedInstanceList"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getPaginatedInstanceList"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -858,22 +887,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -883,7 +918,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -900,21 +936,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public void startgetPaginatedInstanceList(
 
-                    final org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput23,
+                                              final org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput23,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                              final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                                       throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[2].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[2].getName());
         _operationClient.getOptions().setAction("urn:getPaginatedInstanceList");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -927,8 +964,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
         env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getPaginatedInstanceListInput23,
-            optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                "getPaginatedInstanceList")));
+                         optimizeContent(new javax.xml.namespace.QName(
+                             "http://wso2.org/bps/management/wsdl/InstanceManagement", "getPaginatedInstanceList")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -947,11 +984,12 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
                     final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.PaginatedInstanceList.class, getEnvelopeNamespaces(resultEnv));
-                    callback.receiveResultgetPaginatedInstanceList(
-                        (org.wso2.bps.management.schema.PaginatedInstanceList) object);
+                                                           org.wso2.bps.management.schema.PaginatedInstanceList.class,
+                                                           getEnvelopeNamespaces(resultEnv));
+                    callback.receiveResultgetPaginatedInstanceList((org.wso2.bps.management.schema.PaginatedInstanceList) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrorgetPaginatedInstanceList(e);
                 }
             }
@@ -962,23 +1000,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getPaginatedInstanceList"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "getPaginatedInstanceList"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getPaginatedInstanceList"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getPaginatedInstanceList"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getPaginatedInstanceList"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getPaginatedInstanceList"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -987,27 +1025,34 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                                 }
 
 
-                                callback.receiveErrorgetPaginatedInstanceList(
-                                    new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                                callback.receiveErrorgetPaginatedInstanceList(new java.rmi.RemoteException(
+                                    ex.getMessage(), ex));
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetPaginatedInstanceList(f);
                             }
@@ -1024,8 +1069,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -1033,7 +1078,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrorgetPaginatedInstanceList(axisFault);
                 }
             }
@@ -1065,24 +1111,26 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public org.wso2.bps.management.schema.ActivityLifeCycleEvents getActivityLifeCycleFilter(
 
-                    final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn25)
+                                                                                             final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn25)
 
 
-        throws java.rmi.RemoteException
+                                                                                                                                                                                               throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+                                                                                                                                                                                               ,
+                                                                                                                                                                                               org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[3].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[3].getName());
             _operationClient.getOptions().setAction("urn:getActivityLifeCycleFilter");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -1095,9 +1143,10 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                getActivityLifeCycleFilterIn25,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "getActivityLifeCycleFilter")));
+                             getActivityLifeCycleFilterIn25,
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement",
+                                 "getActivityLifeCycleFilter")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -1111,36 +1160,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
-            final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.ActivityLifeCycleEvents.class, getEnvelopeNamespaces(_returnEnv));
+            final java.lang.Object object =
+                fromOM(_returnEnv.getBody().getFirstElement(),
+                       org.wso2.bps.management.schema.ActivityLifeCycleEvents.class, getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.ActivityLifeCycleEvents) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getActivityLifeCycleFilter"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "getActivityLifeCycleFilter"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getActivityLifeCycleFilter"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getActivityLifeCycleFilter"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getActivityLifeCycleFilter"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getActivityLifeCycleFilter"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1149,22 +1202,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -1174,7 +1233,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -1191,21 +1251,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public void startgetActivityLifeCycleFilter(
 
-                    final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn25,
+                                                final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn25,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                                final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                                         throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[3].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[3].getName());
         _operationClient.getOptions().setAction("urn:getActivityLifeCycleFilter");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -1218,8 +1279,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
         env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getActivityLifeCycleFilterIn25,
-            optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                "getActivityLifeCycleFilter")));
+                         optimizeContent(new javax.xml.namespace.QName(
+                             "http://wso2.org/bps/management/wsdl/InstanceManagement", "getActivityLifeCycleFilter")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -1238,11 +1299,12 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
                     final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.ActivityLifeCycleEvents.class, getEnvelopeNamespaces(resultEnv));
-                    callback.receiveResultgetActivityLifeCycleFilter(
-                        (org.wso2.bps.management.schema.ActivityLifeCycleEvents) object);
+                                                           org.wso2.bps.management.schema.ActivityLifeCycleEvents.class,
+                                                           getEnvelopeNamespaces(resultEnv));
+                    callback.receiveResultgetActivityLifeCycleFilter((org.wso2.bps.management.schema.ActivityLifeCycleEvents) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrorgetActivityLifeCycleFilter(e);
                 }
             }
@@ -1253,24 +1315,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                "getActivityLifeCycleFilter"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "getActivityLifeCycleFilter"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getActivityLifeCycleFilter"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getActivityLifeCycleFilter"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getActivityLifeCycleFilter"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getActivityLifeCycleFilter"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1279,27 +1340,34 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                                 }
 
 
-                                callback.receiveErrorgetActivityLifeCycleFilter(
-                                    new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                                callback.receiveErrorgetActivityLifeCycleFilter(new java.rmi.RemoteException(
+                                    ex.getMessage(), ex));
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetActivityLifeCycleFilter(f);
                             }
@@ -1316,8 +1384,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -1325,7 +1393,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrorgetActivityLifeCycleFilter(axisFault);
                 }
             }
@@ -1357,24 +1426,26 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public org.wso2.bps.management.schema.InstanceInfo getInstanceInfo(
 
-                    final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn27)
+                                                                       final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn27)
 
 
-        throws java.rmi.RemoteException
+                                                                                                                                                   throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+                                                                                                                                                   ,
+                                                                                                                                                   org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[4].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[4].getName());
             _operationClient.getOptions().setAction("urn:getInstanceInfo");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -1387,8 +1458,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getInstanceInfoIn27,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "getInstanceInfo")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "getInstanceInfo")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -1402,36 +1473,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
-            final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.InstanceInfo.class, getEnvelopeNamespaces(_returnEnv));
+            final java.lang.Object object =
+                fromOM(_returnEnv.getBody().getFirstElement(), org.wso2.bps.management.schema.InstanceInfo.class,
+                       getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.InstanceInfo) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfo"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "getInstanceInfo"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfo"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getInstanceInfo"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfo"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getInstanceInfo"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1440,22 +1515,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -1465,7 +1546,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -1482,21 +1564,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public void startgetInstanceInfo(
 
-                    final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn27,
+                                     final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn27,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                     final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                              throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[4].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[4].getName());
         _operationClient.getOptions().setAction("urn:getInstanceInfo");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -1509,8 +1592,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
         env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getInstanceInfoIn27,
-            optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                "getInstanceInfo")));
+                         optimizeContent(new javax.xml.namespace.QName(
+                             "http://wso2.org/bps/management/wsdl/InstanceManagement", "getInstanceInfo")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -1528,11 +1611,13 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                 try {
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
-                    final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.InstanceInfo.class, getEnvelopeNamespaces(resultEnv));
+                    final java.lang.Object object =
+                        fromOM(resultEnv.getBody().getFirstElement(), org.wso2.bps.management.schema.InstanceInfo.class,
+                               getEnvelopeNamespaces(resultEnv));
                     callback.receiveResultgetInstanceInfo((org.wso2.bps.management.schema.InstanceInfo) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrorgetInstanceInfo(e);
                 }
             }
@@ -1543,21 +1628,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfo"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "getInstanceInfo"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfo"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getInstanceInfo"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfo"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getInstanceInfo"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1567,25 +1654,32 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                                 callback.receiveErrorgetInstanceInfo(new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfo(f);
                             }
@@ -1602,8 +1696,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -1611,7 +1705,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrorgetInstanceInfo(axisFault);
                 }
             }
@@ -1641,19 +1736,20 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
 
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[5].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[5].getName());
             _operationClient.getOptions().setAction("urn:suspendInstance");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
             org.apache.axiom.soap.SOAPEnvelope env = null;
             _messageContext = new org.apache.axis2.context.MessageContext();
@@ -1663,8 +1759,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), suspendInstance29,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "suspendInstance")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "suspendInstance")));
 
 
             // adding SOAP soap_headers
@@ -1679,24 +1775,27 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "suspendInstance"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "suspendInstance"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "suspendInstance"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "suspendInstance"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "suspendInstance"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "suspendInstance"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1705,22 +1804,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -1730,7 +1835,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -1753,24 +1859,26 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public org.wso2.bps.management.schema.DeleteInstanceResponse deleteInstances(
 
-                    final org.wso2.bps.management.schema.DeleteInstances deleteInstances30)
+                                                                                 final org.wso2.bps.management.schema.DeleteInstances deleteInstances30)
 
 
-        throws java.rmi.RemoteException
+                                                                                                                                                         throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+                                                                                                                                                         ,
+                                                                                                                                                         org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[6].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[6].getName());
             _operationClient.getOptions().setAction("urn:deleteInstances");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -1783,8 +1891,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), deleteInstances30,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "deleteInstances")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "deleteInstances")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -1798,36 +1906,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
-            final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.DeleteInstanceResponse.class, getEnvelopeNamespaces(_returnEnv));
+            final java.lang.Object object =
+                fromOM(_returnEnv.getBody().getFirstElement(),
+                       org.wso2.bps.management.schema.DeleteInstanceResponse.class, getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.DeleteInstanceResponse) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "deleteInstances"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "deleteInstances"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "deleteInstances"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "deleteInstances"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "deleteInstances"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "deleteInstances"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1836,22 +1948,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -1861,7 +1979,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -1878,21 +1997,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public void startdeleteInstances(
 
-                    final org.wso2.bps.management.schema.DeleteInstances deleteInstances30,
+                                     final org.wso2.bps.management.schema.DeleteInstances deleteInstances30,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                     final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                              throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[6].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[6].getName());
         _operationClient.getOptions().setAction("urn:deleteInstances");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -1905,8 +2025,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
         env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), deleteInstances30,
-            optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                "deleteInstances")));
+                         optimizeContent(new javax.xml.namespace.QName(
+                             "http://wso2.org/bps/management/wsdl/InstanceManagement", "deleteInstances")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -1925,11 +2045,12 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
                     final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.DeleteInstanceResponse.class, getEnvelopeNamespaces(resultEnv));
-                    callback.receiveResultdeleteInstances(
-                        (org.wso2.bps.management.schema.DeleteInstanceResponse) object);
+                                                           org.wso2.bps.management.schema.DeleteInstanceResponse.class,
+                                                           getEnvelopeNamespaces(resultEnv));
+                    callback.receiveResultdeleteInstances((org.wso2.bps.management.schema.DeleteInstanceResponse) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrordeleteInstances(e);
                 }
             }
@@ -1940,21 +2061,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "deleteInstances"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "deleteInstances"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "deleteInstances"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "deleteInstances"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "deleteInstances"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "deleteInstances"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -1964,25 +2087,32 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                                 callback.receiveErrordeleteInstances(new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrordeleteInstances(f);
                             }
@@ -1999,8 +2129,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -2008,7 +2138,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrordeleteInstances(axisFault);
                 }
             }
@@ -2040,24 +2171,26 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public org.wso2.bps.management.schema.InstanceInfoWithEvents getInstanceInfoWithEvents(
 
-                    final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn32)
+                                                                                           final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn32)
 
 
-        throws java.rmi.RemoteException
+                                                                                                                                                                       throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+                                                                                                                                                                       ,
+                                                                                                                                                                       org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[7].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[7].getName());
             _operationClient.getOptions().setAction("urn:getInstanceInfoWithEvents");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -2070,8 +2203,9 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getInstanceInfoIn32,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "getInstanceInfoWithEvents")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement",
+                                 "getInstanceInfoWithEvents")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -2085,36 +2219,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
-            final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.InstanceInfoWithEvents.class, getEnvelopeNamespaces(_returnEnv));
+            final java.lang.Object object =
+                fromOM(_returnEnv.getBody().getFirstElement(),
+                       org.wso2.bps.management.schema.InstanceInfoWithEvents.class, getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.InstanceInfoWithEvents) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfoWithEvents"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "getInstanceInfoWithEvents"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfoWithEvents"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getInstanceInfoWithEvents"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getInstanceInfoWithEvents"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getInstanceInfoWithEvents"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -2123,22 +2261,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -2148,7 +2292,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -2165,21 +2310,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public void startgetInstanceInfoWithEvents(
 
-                    final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn32,
+                                               final org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn32,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                               final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                                        throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[7].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[7].getName());
         _operationClient.getOptions().setAction("urn:getInstanceInfoWithEvents");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -2192,8 +2338,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
         env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getInstanceInfoIn32,
-            optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                "getInstanceInfoWithEvents")));
+                         optimizeContent(new javax.xml.namespace.QName(
+                             "http://wso2.org/bps/management/wsdl/InstanceManagement", "getInstanceInfoWithEvents")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -2212,11 +2358,12 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
                     final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.InstanceInfoWithEvents.class, getEnvelopeNamespaces(resultEnv));
-                    callback.receiveResultgetInstanceInfoWithEvents(
-                        (org.wso2.bps.management.schema.InstanceInfoWithEvents) object);
+                                                           org.wso2.bps.management.schema.InstanceInfoWithEvents.class,
+                                                           getEnvelopeNamespaces(resultEnv));
+                    callback.receiveResultgetInstanceInfoWithEvents((org.wso2.bps.management.schema.InstanceInfoWithEvents) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrorgetInstanceInfoWithEvents(e);
                 }
             }
@@ -2227,24 +2374,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                "getInstanceInfoWithEvents"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "getInstanceInfoWithEvents"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getInstanceInfoWithEvents"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getInstanceInfoWithEvents"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getInstanceInfoWithEvents"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getInstanceInfoWithEvents"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -2253,27 +2399,34 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                                 }
 
 
-                                callback.receiveErrorgetInstanceInfoWithEvents(
-                                    new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                                callback.receiveErrorgetInstanceInfoWithEvents(new java.rmi.RemoteException(
+                                    ex.getMessage(), ex));
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetInstanceInfoWithEvents(f);
                             }
@@ -2290,8 +2443,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -2299,7 +2452,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrorgetInstanceInfoWithEvents(axisFault);
                 }
             }
@@ -2331,24 +2485,26 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public org.wso2.bps.management.schema.GetLongRunningInstancesResponse getLongRunningInstances(
 
-                    final org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput34)
+                                                                                                  final org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput34)
 
 
-        throws java.rmi.RemoteException
+                                                                                                                                                                                                    throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+                                                                                                                                                                                                    ,
+                                                                                                                                                                                                    org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[8].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[8].getName());
             _operationClient.getOptions().setAction("urn:getLongRunningInstances");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -2361,9 +2517,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()),
-                getLongRunningInstancesInput34,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "getLongRunningInstances")));
+                             getLongRunningInstancesInput34, optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "getLongRunningInstances")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -2377,37 +2532,40 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-            final org.apache.axis2.context.MessageContext _returnMessageContext = _operationClient.getMessageContext(
-                org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
+            final org.apache.axis2.context.MessageContext _returnMessageContext =
+                _operationClient.getMessageContext(org.apache.axis2.wsdl.WSDLConstants.MESSAGE_LABEL_IN_VALUE);
             final org.apache.axiom.soap.SOAPEnvelope _returnEnv = _returnMessageContext.getEnvelope();
 
 
             final java.lang.Object object = fromOM(_returnEnv.getBody().getFirstElement(),
-                org.wso2.bps.management.schema.GetLongRunningInstancesResponse.class,
-                getEnvelopeNamespaces(_returnEnv));
+                                                   org.wso2.bps.management.schema.GetLongRunningInstancesResponse.class,
+                                                   getEnvelopeNamespaces(_returnEnv));
 
 
             return (org.wso2.bps.management.schema.GetLongRunningInstancesResponse) object;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getLongRunningInstances"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "getLongRunningInstances"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getLongRunningInstances"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getLongRunningInstances"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getLongRunningInstances"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "getLongRunningInstances"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -2416,22 +2574,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -2441,7 +2605,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -2458,21 +2623,22 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     @Override
     public void startgetLongRunningInstances(
 
-                    final org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput34,
+                                             final org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput34,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                             final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                                                      throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[8].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[8].getName());
         _operationClient.getOptions().setAction("urn:getLongRunningInstances");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -2485,8 +2651,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
         env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), getLongRunningInstancesInput34,
-            optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                "getLongRunningInstances")));
+                         optimizeContent(new javax.xml.namespace.QName(
+                             "http://wso2.org/bps/management/wsdl/InstanceManagement", "getLongRunningInstances")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -2504,13 +2670,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                 try {
                     final org.apache.axiom.soap.SOAPEnvelope resultEnv = resultContext.getEnvelope();
 
-                    final java.lang.Object object = fromOM(resultEnv.getBody().getFirstElement(),
-                        org.wso2.bps.management.schema.GetLongRunningInstancesResponse.class,
-                        getEnvelopeNamespaces(resultEnv));
-                    callback.receiveResultgetLongRunningInstances(
-                        (org.wso2.bps.management.schema.GetLongRunningInstancesResponse) object);
+                    final java.lang.Object object =
+                        fromOM(resultEnv.getBody().getFirstElement(),
+                               org.wso2.bps.management.schema.GetLongRunningInstancesResponse.class,
+                               getEnvelopeNamespaces(resultEnv));
+                    callback.receiveResultgetLongRunningInstances((org.wso2.bps.management.schema.GetLongRunningInstancesResponse) object);
 
-                } catch (final org.apache.axis2.AxisFault e) {
+                }
+                catch (final org.apache.axis2.AxisFault e) {
                     callback.receiveErrorgetLongRunningInstances(e);
                 }
             }
@@ -2521,23 +2688,23 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                     final org.apache.axis2.AxisFault f = (org.apache.axis2.AxisFault) error;
                     final org.apache.axiom.om.OMElement faultElt = f.getDetail();
                     if (faultElt != null) {
-                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "getLongRunningInstances"))) {
+                        if (InstanceManagementServiceStub.this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(
+                            faultElt.getQName(), "getLongRunningInstances"))) {
                             // make the fault by reflection
                             try {
-                                final java.lang.String exceptionClassName = (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getLongRunningInstances"));
+                                final java.lang.String exceptionClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getLongRunningInstances"));
                                 final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                                 final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                                 // message class
-                                final java.lang.String messageClassName = (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(
-                                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
-                                        "getLongRunningInstances"));
+                                final java.lang.String messageClassName =
+                                    (java.lang.String) InstanceManagementServiceStub.this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                        faultElt.getQName(), "getLongRunningInstances"));
                                 final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                                 final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                                final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                                    new java.lang.Class[] {messageClass});
+                                final java.lang.reflect.Method m =
+                                    exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                                 m.invoke(ex, new java.lang.Object[] {messageObject});
 
                                 if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -2546,27 +2713,34 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
                                 }
 
 
-                                callback.receiveErrorgetLongRunningInstances(
-                                    new java.rmi.RemoteException(ex.getMessage(), ex));
-                            } catch (final java.lang.ClassCastException e) {
+                                callback.receiveErrorgetLongRunningInstances(new java.rmi.RemoteException(
+                                    ex.getMessage(), ex));
+                            }
+                            catch (final java.lang.ClassCastException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
-                            } catch (final java.lang.ClassNotFoundException e) {
+                            }
+                            catch (final java.lang.ClassNotFoundException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
-                            } catch (final java.lang.NoSuchMethodException e) {
+                            }
+                            catch (final java.lang.NoSuchMethodException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
-                            } catch (final java.lang.reflect.InvocationTargetException e) {
+                            }
+                            catch (final java.lang.reflect.InvocationTargetException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
-                            } catch (final java.lang.IllegalAccessException e) {
+                            }
+                            catch (final java.lang.IllegalAccessException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
-                            } catch (final java.lang.InstantiationException e) {
+                            }
+                            catch (final java.lang.InstantiationException e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
-                            } catch (final org.apache.axis2.AxisFault e) {
+                            }
+                            catch (final org.apache.axis2.AxisFault e) {
                                 // we cannot intantiate the class - throw the original Axis fault
                                 callback.receiveErrorgetLongRunningInstances(f);
                             }
@@ -2583,8 +2757,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
             @Override
             public void onFault(final org.apache.axis2.context.MessageContext faultContext) {
-                final org.apache.axis2.AxisFault fault = org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(
-                    faultContext);
+                final org.apache.axis2.AxisFault fault =
+                    org.apache.axis2.util.Utils.getInboundFaultFromMessageContext(faultContext);
                 onError(fault);
             }
 
@@ -2592,7 +2766,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             public void onComplete() {
                 try {
                     _messageContext.getTransportOut().getSender().cleanup(_messageContext);
-                } catch (final org.apache.axis2.AxisFault axisFault) {
+                }
+                catch (final org.apache.axis2.AxisFault axisFault) {
                     callback.receiveErrorgetLongRunningInstances(axisFault);
                 }
             }
@@ -2622,19 +2797,20 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
 
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[9].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[9].getName());
             _operationClient.getOptions().setAction("urn:recoverActivity");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
             org.apache.axiom.soap.SOAPEnvelope env = null;
             _messageContext = new org.apache.axis2.context.MessageContext();
@@ -2644,8 +2820,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), recoverActivity36,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "recoverActivity")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "recoverActivity")));
 
 
             // adding SOAP soap_headers
@@ -2660,24 +2836,27 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "recoverActivity"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "recoverActivity"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "recoverActivity"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "recoverActivity"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "recoverActivity"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "recoverActivity"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -2686,22 +2865,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -2711,7 +2896,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -2732,19 +2918,20 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException {
         org.apache.axis2.context.MessageContext _messageContext = null;
 
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[10].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[10].getName());
             _operationClient.getOptions().setAction("urn:terminateInstance");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
             org.apache.axiom.soap.SOAPEnvelope env = null;
             _messageContext = new org.apache.axis2.context.MessageContext();
@@ -2754,8 +2941,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), terminateInstance37,
-                optimizeContent(new javax.xml.namespace.QName("http://wso2.org/bps/management/wsdl/InstanceManagement",
-                    "terminateInstance")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://wso2.org/bps/management/wsdl/InstanceManagement", "terminateInstance")));
 
 
             // adding SOAP soap_headers
@@ -2770,24 +2957,27 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             _operationClient.execute(true);
 
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "terminateInstance"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "terminateInstance"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "terminateInstance"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "terminateInstance"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "terminateInstance"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "terminateInstance"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
                         if (ex instanceof org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException) {
@@ -2796,22 +2986,28 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -2821,7 +3017,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -2865,14 +3062,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
     // http://localhost:9763/services/InstanceManagementService
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.InstanceSummaryE param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.InstanceSummaryE.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2880,14 +3077,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.InstanceManagementException param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.InstanceManagementException.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2895,14 +3092,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.ResumeInstance param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.ResumeInstance.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2910,14 +3107,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.GetPaginatedInstanceListInput param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.GetPaginatedInstanceListInput.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2925,14 +3122,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.PaginatedInstanceList param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.PaginatedInstanceList.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2940,14 +3137,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2955,14 +3152,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.ActivityLifeCycleEvents param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.ActivityLifeCycleEvents.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2970,14 +3167,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.GetInstanceInfoIn param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.GetInstanceInfoIn.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -2985,14 +3182,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.InstanceInfo param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.InstanceInfo.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3000,14 +3197,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.SuspendInstance param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.SuspendInstance.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3015,14 +3212,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.DeleteInstances param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.DeleteInstances.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3030,14 +3227,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.DeleteInstanceResponse param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.DeleteInstanceResponse.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3045,14 +3242,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.InstanceInfoWithEvents param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.InstanceInfoWithEvents.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3060,30 +3257,29 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.GetLongRunningInstancesInput param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.GetLongRunningInstancesInput.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
 
     }
 
-    private org.apache.axiom.om.OMElement toOM(
-                    final org.wso2.bps.management.schema.GetLongRunningInstancesResponse param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+    private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.GetLongRunningInstancesResponse param,
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.GetLongRunningInstancesResponse.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3091,14 +3287,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.RecoverActivity param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.RecoverActivity.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3106,14 +3302,14 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
     }
 
     private org.apache.axiom.om.OMElement toOM(final org.wso2.bps.management.schema.TerminateInstance param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.bps.management.schema.TerminateInstance.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3122,8 +3318,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.ResumeInstance param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.ResumeInstance param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
@@ -3132,7 +3328,8 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
             emptyEnvelope.getBody()
                          .addChild(param.getOMElement(org.wso2.bps.management.schema.ResumeInstance.MY_QNAME, factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3145,18 +3342,19 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.GetPaginatedInstanceListInput param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.GetPaginatedInstanceListInput param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.GetPaginatedInstanceListInput.MY_QNAME, factory));
+            emptyEnvelope.getBody()
+                         .addChild(param.getOMElement(org.wso2.bps.management.schema.GetPaginatedInstanceListInput.MY_QNAME,
+                                                      factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3169,18 +3367,19 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn.MY_QNAME, factory));
+            emptyEnvelope.getBody()
+                         .addChild(param.getOMElement(org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn.MY_QNAME,
+                                                      factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3193,17 +3392,19 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.GetInstanceInfoIn param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.GetInstanceInfoIn param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.GetInstanceInfoIn.MY_QNAME, factory));
+            emptyEnvelope.getBody()
+                         .addChild(param.getOMElement(org.wso2.bps.management.schema.GetInstanceInfoIn.MY_QNAME,
+                                                      factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3216,17 +3417,18 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.SuspendInstance param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.SuspendInstance param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.SuspendInstance.MY_QNAME, factory));
+            emptyEnvelope.getBody().addChild(param.getOMElement(org.wso2.bps.management.schema.SuspendInstance.MY_QNAME,
+                                                                factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3239,17 +3441,18 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.DeleteInstances param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.DeleteInstances param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.DeleteInstances.MY_QNAME, factory));
+            emptyEnvelope.getBody().addChild(param.getOMElement(org.wso2.bps.management.schema.DeleteInstances.MY_QNAME,
+                                                                factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3262,18 +3465,19 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.GetLongRunningInstancesInput param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.GetLongRunningInstancesInput param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.GetLongRunningInstancesInput.MY_QNAME, factory));
+            emptyEnvelope.getBody()
+                         .addChild(param.getOMElement(org.wso2.bps.management.schema.GetLongRunningInstancesInput.MY_QNAME,
+                                                      factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3286,17 +3490,18 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.RecoverActivity param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.RecoverActivity param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.RecoverActivity.MY_QNAME, factory));
+            emptyEnvelope.getBody().addChild(param.getOMElement(org.wso2.bps.management.schema.RecoverActivity.MY_QNAME,
+                                                                factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3309,17 +3514,19 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.bps.management.schema.TerminateInstance param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.bps.management.schema.TerminateInstance param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.bps.management.schema.TerminateInstance.MY_QNAME, factory));
+            emptyEnvelope.getBody()
+                         .addChild(param.getOMElement(org.wso2.bps.management.schema.TerminateInstance.MY_QNAME,
+                                                      factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -3340,236 +3547,208 @@ public class InstanceManagementServiceStub extends org.apache.axis2.client.Stub 
 
 
     private java.lang.Object fromOM(final org.apache.axiom.om.OMElement param, final java.lang.Class type,
-                    final java.util.Map extraNamespaces)
-        throws org.apache.axis2.AxisFault {
+                                    final java.util.Map extraNamespaces) throws org.apache.axis2.AxisFault {
 
         try {
 
             if (org.wso2.bps.management.schema.InstanceSummaryE.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceSummaryE.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceSummaryE.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.ResumeInstance.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.ResumeInstance.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.ResumeInstance.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.GetPaginatedInstanceListInput.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.GetPaginatedInstanceListInput.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.GetPaginatedInstanceListInput.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.PaginatedInstanceList.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.PaginatedInstanceList.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.PaginatedInstanceList.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.ActivityLifeCycleEvents.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.ActivityLifeCycleEvents.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.ActivityLifeCycleEvents.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.GetInstanceInfoIn.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.GetInstanceInfoIn.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.GetInstanceInfoIn.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceInfo.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceInfo.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceInfo.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.SuspendInstance.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.SuspendInstance.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.SuspendInstance.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.DeleteInstances.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.DeleteInstances.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.DeleteInstances.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.DeleteInstanceResponse.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.DeleteInstanceResponse.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.DeleteInstanceResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.GetInstanceInfoIn.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.GetInstanceInfoIn.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.GetInstanceInfoIn.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceInfoWithEvents.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceInfoWithEvents.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceInfoWithEvents.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.GetLongRunningInstancesInput.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.GetLongRunningInstancesInput.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.GetLongRunningInstancesInput.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.GetLongRunningInstancesResponse.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.GetLongRunningInstancesResponse.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.GetLongRunningInstancesResponse.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.RecoverActivity.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.RecoverActivity.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.RecoverActivity.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.TerminateInstance.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.TerminateInstance.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.TerminateInstance.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
             if (org.wso2.bps.management.schema.InstanceManagementException.class.equals(type)) {
 
-                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.bps.management.schema.InstanceManagementException.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-        } catch (final java.lang.Exception e) {
+        }
+        catch (final java.lang.Exception e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
         return null;

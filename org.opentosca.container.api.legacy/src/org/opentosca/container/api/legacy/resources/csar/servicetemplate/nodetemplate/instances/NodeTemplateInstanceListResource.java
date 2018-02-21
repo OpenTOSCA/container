@@ -38,12 +38,12 @@ public class NodeTemplateInstanceListResource {
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public Response doGetXML(@Context final UriInfo uriInfo, @QueryParam("nodeInstanceID") final String nodeInstanceID,
-                    @QueryParam("nodeTemplateID") final String nodeTemplateID,
-                    @QueryParam("serviceInstanceID") final String serviceInstanceID,
-                    @QueryParam("nodeTemplateName") final String nodeTemplateName) {
+                             @QueryParam("nodeTemplateID") final String nodeTemplateID,
+                             @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                             @QueryParam("nodeTemplateName") final String nodeTemplateName) {
 
-        final NodeInstanceList idr = this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID,
-            nodeTemplateName);
+        final NodeInstanceList idr =
+            this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
 
         return Response.ok(idr).build();
     }
@@ -51,18 +51,18 @@ public class NodeTemplateInstanceListResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response doGetJSON(@Context final UriInfo uriInfo, @QueryParam("nodeInstanceID") final String nodeInstanceID,
-                    @QueryParam("nodeTemplateID") final String nodeTemplateID,
-                    @QueryParam("serviceInstanceID") final String serviceInstanceID,
-                    @QueryParam("nodeTemplateName") final String nodeTemplateName) {
+                              @QueryParam("nodeTemplateID") final String nodeTemplateID,
+                              @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                              @QueryParam("nodeTemplateName") final String nodeTemplateName) {
 
-        final NodeInstanceList idr = this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID,
-            nodeTemplateName);
+        final NodeInstanceList idr =
+            this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
 
         return Response.ok(idr.toJSON()).build();
     }
 
     public NodeInstanceList getRefs(final UriInfo uriInfo, final String nodeInstanceID, final String nodeTemplateID,
-                    final String serviceInstanceID, final String nodeTemplateName) {
+                                    final String serviceInstanceID, final String nodeTemplateName) {
 
         // these parameters are not required and cant therefore be generally
         // checked against null
@@ -88,7 +88,8 @@ public class NodeTemplateInstanceListResource {
             if (nodeTemplateID != null) {
                 nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
             }
-        } catch (final Exception e1) {
+        }
+        catch (final Exception e1) {
             throw new GenericRestException(Status.BAD_REQUEST,
                 "Bad Request due to bad variable content: " + e1.getMessage());
         }
@@ -96,7 +97,7 @@ public class NodeTemplateInstanceListResource {
         try {
             final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
             final List<NodeInstance> result = service.getNodeInstances(nodeInstanceIdURI, nodeTemplateIDQName,
-                nodeTemplateName, serviceInstanceIdURI);
+                                                                       nodeTemplateName, serviceInstanceIdURI);
             final List<SimpleXLink> links = new LinkedList<>();
 
             // add links to nodeInstances
@@ -110,7 +111,8 @@ public class NodeTemplateInstanceListResource {
             final NodeInstanceList nil = new NodeInstanceList(LinkBuilder.selfLink(uriInfo), links);
 
             return nil;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, "Internal Server Error: " + e.getMessage());
         }
     }
@@ -118,7 +120,8 @@ public class NodeTemplateInstanceListResource {
     @POST
     @Produces(MediaType.APPLICATION_XML)
     public Response createNodeInstance(@QueryParam("nodeTemplateID") final String nodeTemplateID,
-                    @QueryParam("serviceInstanceID") final String serviceInstanceID, @Context final UriInfo uriInfo) {
+                                       @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                                       @Context final UriInfo uriInfo) {
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
@@ -136,7 +139,8 @@ public class NodeTemplateInstanceListResource {
             }
             nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
 
-        } catch (final Exception e1) {
+        }
+        catch (final Exception e1) {
             throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
         }
 
@@ -145,7 +149,8 @@ public class NodeTemplateInstanceListResource {
             final SimpleXLink response = new SimpleXLink(LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId()),
                 nodeInstance.getNodeInstanceID().toString());
             return Response.ok(response).build();
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
     }

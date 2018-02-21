@@ -39,7 +39,7 @@ public class SOAPMessageGenerator implements EventHandler {
      * @return SOAPMessage
      */
     public SOAPMessage createRequest(final CSARID csarID, final QName messageID, final List<TParameterDTO> params,
-                    final String correlationID) {
+                                     final String correlationID) {
 
         this.LOG.debug("Create new BPEL/SOAP message with correlation \"" + correlationID + "\".");
 
@@ -111,7 +111,8 @@ public class SOAPMessageGenerator implements EventHandler {
 
             return soapMessage;
 
-        } catch (final SOAPException e) {
+        }
+        catch (final SOAPException e) {
             this.LOG.error(e.getLocalizedMessage());
         }
 

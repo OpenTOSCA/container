@@ -56,7 +56,8 @@ public class ArtifactTypesHandler {
             // convert bundle resource URL to file URL
             fileResURL = FileLocator.toFileURL(bundleResURL);
             typesFolder = new File(fileResURL.getPath());
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             ArtifactTypesHandler.LOG.error("", e);
         }
 
@@ -92,7 +93,8 @@ public class ArtifactTypesHandler {
 
                     artifact_types.put(artifactType, artitacttype);
 
-                } catch (final JAXBException e) {
+                }
+                catch (final JAXBException e) {
                     e.printStackTrace();
                 }
             }

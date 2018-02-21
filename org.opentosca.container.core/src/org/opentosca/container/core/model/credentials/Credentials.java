@@ -44,8 +44,8 @@ public class Credentials {
      * JPQL Queries
      */
     public static final String getCredentialsByID = Credentials.tableName + ".getCredentialsByID";
-    protected static final String getCredentialsByIDQuery = "SELECT t FROM " + Credentials.tableName
-        + " t WHERE t.id = :id";
+    protected static final String getCredentialsByIDQuery =
+        "SELECT t FROM " + Credentials.tableName + " t WHERE t.id = :id";
 
     public static final String getCredentialsIDs = Credentials.tableName + ".getCredentialsIDs";
     protected static final String getCredentialsIDsQuery = "SELECT t.id FROM " + Credentials.tableName + " t";
@@ -54,16 +54,16 @@ public class Credentials {
     protected static final String getAllCredentialsQuery = "SELECT t FROM " + Credentials.tableName + " t";
 
     public static final String removeCredentialsByID = Credentials.tableName + ".removeCredentialsByID";
-    protected static final String removeCredentialsByIDQuery = "DELETE FROM " + Credentials.tableName
-        + " t WHERE t.id = :id";
+    protected static final String removeCredentialsByIDQuery =
+        "DELETE FROM " + Credentials.tableName + " t WHERE t.id = :id";
 
     public static final String removeAllCredentials = Credentials.tableName + ".removeAllCredentials";
     protected static final String removeAllCredentialsQuery = "DELETE FROM " + Credentials.tableName + " t";
 
-    public static final String getAllCredentialsByStorageProviderID = Credentials.tableName
-        + ".getCredentialsByStorageProviderID";
-    protected static final String getAllCredentialsByStorageProviderIDQuery = "SELECT t FROM " + Credentials.tableName
-        + " t WHERE t.storageProviderID = :storageProviderID";
+    public static final String getAllCredentialsByStorageProviderID =
+        Credentials.tableName + ".getCredentialsByStorageProviderID";
+    protected static final String getAllCredentialsByStorageProviderIDQuery =
+        "SELECT t FROM " + Credentials.tableName + " t WHERE t.storageProviderID = :storageProviderID";
 
     /**
      * Identifies these credentials.<br />

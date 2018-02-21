@@ -134,7 +134,8 @@ public class BpsConnector {
                     // as we don't want the bps to be overworked we wait here
                     try {
                         Thread.sleep(2000);
-                    } catch (final InterruptedException e) {
+                    }
+                    catch (final InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -156,8 +157,8 @@ public class BpsConnector {
             // request process info for pid
             ProcessInfo info = ((ProcessManagementServiceStub) this.setCookie(stub)).getProcessInfo(req2);
             BpsConnector.LOG.debug("Checking packageName for Pid: " + pid);
-            BpsConnector.LOG.debug(
-                "Package name of PID is: " + info.getProcessInfo().getDeploymentInfo().getPackageName());
+            BpsConnector.LOG.debug("Package name of PID is: "
+                + info.getProcessInfo().getDeploymentInfo().getPackageName());
 
             // check deployment state until its active
             while (info.getProcessInfo().getStatus() != ProcessStatus.ACTIVE) {
@@ -165,19 +166,24 @@ public class BpsConnector {
                 Thread.sleep(500);
             }
 
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             BpsConnector.LOG.error("RemoteException: Server not available", e);
             return null;
-        } catch (final AuthenticationAdminAuthenticationExceptionException e) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e) {
             BpsConnector.LOG.error("Auth at BPS failed", e);
             return null;
-        } catch (final ProcessManagementException e) {
+        }
+        catch (final ProcessManagementException e) {
             BpsConnector.LOG.error("The Process isn't valid", e);
             return null;
-        } catch (final UnknownHostException e) {
+        }
+        catch (final UnknownHostException e) {
             BpsConnector.LOG.error("UnknownHostException: ", e);
             return null;
-        } catch (final InterruptedException e) {
+        }
+        catch (final InterruptedException e) {
             BpsConnector.LOG.error("InterruptedException: ", e);
             return null;
         }
@@ -226,7 +232,7 @@ public class BpsConnector {
      * @return a possibly empty List of QName denoting PIDs
      */
     public List<QName> getPIDsForPackageId(final String packageId, final String uri, final String user,
-                    final String pw) {
+                                           final String pw) {
         final List<QName> pids = new ArrayList<>();
 
         try {
@@ -266,21 +272,25 @@ public class BpsConnector {
                     // request process info for pid
                     final ProcessInfo info = ((ProcessManagementServiceStub) this.setCookie(stub)).getProcessInfo(req2);
                     BpsConnector.LOG.debug("Checking packageName for Pid: " + pid);
-                    BpsConnector.LOG.debug(
-                        "Package name of PID is: " + info.getProcessInfo().getDeploymentInfo().getPackageName());
+                    BpsConnector.LOG.debug("Package name of PID is: "
+                        + info.getProcessInfo().getDeploymentInfo().getPackageName());
                     if (info.getProcessInfo().getDeploymentInfo().getPackageName().startsWith(packageId + "-")) {
                         pids.add(QName.valueOf(pid));
                     }
 
                 }
             }
-        } catch (final UnknownHostException e1) {
+        }
+        catch (final UnknownHostException e1) {
             BpsConnector.LOG.error("Host address not reachable", e1);
-        } catch (final AuthenticationAdminAuthenticationExceptionException e1) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e1) {
             BpsConnector.LOG.error("Error with request-processing at AdminAuthenticationService", e1);
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             BpsConnector.LOG.error("Error while sending Request", e);
-        } catch (final ProcessManagementException e) {
+        }
+        catch (final ProcessManagementException e) {
             BpsConnector.LOG.error("Error with request-processing at ProcessManagementService", e);
         }
         return pids;
@@ -307,19 +317,24 @@ public class BpsConnector {
             this.login();
             final BPELPackageManagementServiceStub stub = this.getBPELPackageManagementServiceStub();
             ((BPELPackageManagementServiceStub) this.setCookie(stub)).undeployBPELPackage(request);
-        } catch (final AxisFault e) {
+        }
+        catch (final AxisFault e) {
             BpsConnector.LOG.error("AxisFault: ", e);
             return false;
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             BpsConnector.LOG.error("Remote Exception: Server not available: ", e);
             return false;
-        } catch (final PackageManagementException e) {
+        }
+        catch (final PackageManagementException e) {
             BpsConnector.LOG.error("PackageManagementException: Package wasn't valid: ", e);
             return false;
-        } catch (final AuthenticationAdminAuthenticationExceptionException e) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e) {
             BpsConnector.LOG.error("AuthenticationAdminAuthenticationException: Logindata wasn't valid", e);
             return false;
-        } catch (final UnknownHostException e) {
+        }
+        catch (final UnknownHostException e) {
             BpsConnector.LOG.error("UnknownHostException: System can't determine localhost", e);
             return false;
         }
@@ -377,13 +392,16 @@ public class BpsConnector {
             this.setEndpoint(uri);
             this.setLogin(user, pw);
             this.login();
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             BpsConnector.LOG.error("Some remote exception occured while calling the BPS", e);
             return false;
-        } catch (final UnknownHostException e) {
+        }
+        catch (final UnknownHostException e) {
             BpsConnector.LOG.error("The given URI doesn't point to a BPS", e);
             return false;
-        } catch (final AuthenticationAdminAuthenticationExceptionException e) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e) {
             BpsConnector.LOG.error("Some error at the BPS occured", e);
             return false;
         }
@@ -393,13 +411,16 @@ public class BpsConnector {
             final BPELPackageManagementServiceStub stub = this.getBPELPackageManagementServiceStub();
             // set the cookie from authentication and call BPS backend
             ((BPELPackageManagementServiceStub) this.setCookie(stub)).undeployBPELPackage(request);
-        } catch (final AxisFault e) {
+        }
+        catch (final AxisFault e) {
             BpsConnector.LOG.error("Initializing Axis2 Stub for BPS access failed", e);
             return false;
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             BpsConnector.LOG.error("Some remote exception occured while calling the BPS", e);
             return false;
-        } catch (final PackageManagementException e) {
+        }
+        catch (final PackageManagementException e) {
             BpsConnector.LOG.error("Some error at the BPS occured", e);
             return false;
         }
@@ -414,8 +435,8 @@ public class BpsConnector {
      * @throws AuthenticationAdminAuthenticationExceptionException is thrown when login was wrong
      * @throws UnknownHostException is thrown when no connection can be established
      */
-    private void login()
-        throws RemoteException, AuthenticationAdminAuthenticationExceptionException, UnknownHostException {
+    private void login() throws RemoteException, AuthenticationAdminAuthenticationExceptionException,
+                         UnknownHostException {
         BpsConnector.LOG.debug("Logging in to BPS");
         final Login login = new Login();
         login.setUsername(this.user);
@@ -424,8 +445,8 @@ public class BpsConnector {
         final AuthenticationAdminStub stub = this.getAuthenticationAdminStub();
         stub._getServiceClient().getOptions().setManageSession(true);
         stub.login(login);
-        this.cookie = (String) stub._getServiceClient().getLastOperationContext()
-                                   .getProperty(HTTPConstants.COOKIE_STRING);
+        this.cookie =
+            (String) stub._getServiceClient().getLastOperationContext().getProperty(HTTPConstants.COOKIE_STRING);
     }
 
     /**
@@ -438,8 +459,8 @@ public class BpsConnector {
      * @throws RemoteException is thrown when no connection is available
      * @throws ProcessManagementException is thrown when deployment had a failure
      */
-    private String deployFile(final File file, final String fileName, final String fileType)
-        throws RemoteException, ProcessManagementException {
+    private String deployFile(final File file, final String fileName,
+                              final String fileType) throws RemoteException, ProcessManagementException {
         final String fileNameshort = fileName.substring(0, fileName.indexOf("." + fileType));
 
         final UploadedFileItem tempFile = new UploadedFileItem();
@@ -481,8 +502,8 @@ public class BpsConnector {
             while (count < pages) {
                 processReq.setPage(count);
                 // make request
-                final DeployedPackagesPaginated result = ((BPELPackageManagementServiceStub) this.setCookie(
-                    stub)).listDeployedPackagesPaginated(processReq);
+                final DeployedPackagesPaginated result =
+                    ((BPELPackageManagementServiceStub) this.setCookie(stub)).listDeployedPackagesPaginated(processReq);
 
                 // process response
                 pages = result.getPages();
@@ -491,15 +512,20 @@ public class BpsConnector {
                 }
                 count++;
             }
-        } catch (final AxisFault e) {
+        }
+        catch (final AxisFault e) {
             BpsConnector.LOG.error("Error with Axis2 Framework", e);
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             BpsConnector.LOG.error("Error while sending request", e);
-        } catch (final PackageManagementException e) {
+        }
+        catch (final PackageManagementException e) {
             BpsConnector.LOG.error("Error with request-processing at PackageManagementService", e);
-        } catch (final UnknownHostException e) {
+        }
+        catch (final UnknownHostException e) {
             BpsConnector.LOG.error("Error with host address", e);
-        } catch (final AuthenticationAdminAuthenticationExceptionException e) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e) {
             BpsConnector.LOG.error("Error with request-processing at AdminAuthenticationService", e);
         }
         return packageIds;
@@ -571,8 +597,8 @@ public class BpsConnector {
             // make request
             final ProcessInfo info = ((ProcessManagementServiceStub) this.setCookie(stub)).getProcessInfo(processReq);
 
-            BpsConnector.LOG.debug(
-                "Looking for endpoint for process " + info.getProcessInfo().getDefinitionInfo().getProcessName());
+            BpsConnector.LOG.debug("Looking for endpoint for process "
+                + info.getProcessInfo().getDefinitionInfo().getProcessName());
 
             // process response
             for (final EndpointRef_type0 endpointRef : info.getProcessInfo().getEndpoints().getEndpointRef()) {
@@ -584,21 +610,27 @@ public class BpsConnector {
                     try {
                         partnerLinkToEndpointURIs.put(endpointRef.getPartnerLink(), new URI(
                             endpointString.replace("?tryit", "").replace("localhost", URI.create(uri).getHost())));
-                    } catch (final URISyntaxException e) {
+                    }
+                    catch (final URISyntaxException e) {
                         e.printStackTrace();
                     }
                 }
             }
 
-        } catch (final UnknownHostException e1) {
+        }
+        catch (final UnknownHostException e1) {
             BpsConnector.LOG.error("Error with host address", e1);
-        } catch (final AuthenticationAdminAuthenticationExceptionException e1) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e1) {
             BpsConnector.LOG.error("Error with request-processing at AdminAuthenticationService", e1);
-        } catch (final AxisFault e1) {
+        }
+        catch (final AxisFault e1) {
             BpsConnector.LOG.error("Error in Axis2 Framework", e1);
-        } catch (final RemoteException e1) {
+        }
+        catch (final RemoteException e1) {
             BpsConnector.LOG.error("Error while sending request", e1);
-        } catch (final ProcessManagementException e1) {
+        }
+        catch (final ProcessManagementException e1) {
             BpsConnector.LOG.error("Error with request-processing at ProcessManagementService", e1);
         }
 
@@ -623,13 +655,12 @@ public class BpsConnector {
             processReq.setGetAllProcesses("name}}* namespace=*");
 
             // send request
-            final ProcessIDList pidList = ((ProcessManagementServiceStub) this.setCookie(stub)).getAllProcesses(
-                processReq);
+            final ProcessIDList pidList =
+                ((ProcessManagementServiceStub) this.setCookie(stub)).getAllProcesses(processReq);
 
             // check for case when there are no process deployed anymore
             if (pidList.getPid() == null) {
-                BpsConnector.LOG.debug(
-                    "Returned ProcessIDList from BPS is null, assuming no process is deployed on BPS");
+                BpsConnector.LOG.debug("Returned ProcessIDList from BPS is null, assuming no process is deployed on BPS");
                 return new ArrayList<>();
             }
 
@@ -637,13 +668,17 @@ public class BpsConnector {
             for (final String pid : pidList.getPid()) {
                 pidStringList.add(pid);
             }
-        } catch (final UnknownHostException e1) {
+        }
+        catch (final UnknownHostException e1) {
             e1.printStackTrace();
-        } catch (final AuthenticationAdminAuthenticationExceptionException e1) {
+        }
+        catch (final AuthenticationAdminAuthenticationExceptionException e1) {
             e1.printStackTrace();
-        } catch (final RemoteException e) {
+        }
+        catch (final RemoteException e) {
             e.printStackTrace();
-        } catch (final ProcessManagementException e) {
+        }
+        catch (final ProcessManagementException e) {
             e.printStackTrace();
         }
 
@@ -665,8 +700,8 @@ public class BpsConnector {
      * @throws AxisFault is thrown when initalizing the Axis2 stub fails
      */
     private ProcessManagementServiceStub getProcessManagementServiceStub() throws AxisFault {
-        final ProcessManagementServiceStub stub = new ProcessManagementServiceStub(
-            this.adress + "/services/ProcessManagementService");
+        final ProcessManagementServiceStub stub =
+            new ProcessManagementServiceStub(this.adress + "/services/ProcessManagementService");
         this.setSSLTrustManager(stub._getServiceClient());
         return stub;
     }
@@ -678,8 +713,8 @@ public class BpsConnector {
      * @throws AxisFault is thrown when initalizing the Axis2 stub fails
      */
     private BPELPackageManagementServiceStub getBPELPackageManagementServiceStub() throws AxisFault {
-        final BPELPackageManagementServiceStub stub = new BPELPackageManagementServiceStub(
-            this.adress + "/services/BPELPackageManagementService");
+        final BPELPackageManagementServiceStub stub =
+            new BPELPackageManagementServiceStub(this.adress + "/services/BPELPackageManagementService");
         this.setSSLTrustManager(stub._getServiceClient());
         return stub;
     }
@@ -720,12 +755,14 @@ public class BpsConnector {
             // http://axis.apache.org/axis2/java/core/api/org/apache/axis2/java/security/TrustAllTrustManager.html
             final SSLContext sslCtx = SSLContext.getInstance("SSL");
             sslCtx.init(null, new TrustManager[] {new TrustAllTrustManager()}, null);
-            serviceClient.getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER,
-                new Protocol("https", (ProtocolSocketFactory) new SSLProtocolSocketFactory(sslCtx), 443));
+            serviceClient.getOptions().setProperty(HTTPConstants.CUSTOM_PROTOCOL_HANDLER, new Protocol("https",
+                (ProtocolSocketFactory) new SSLProtocolSocketFactory(sslCtx), 443));
 
-        } catch (final NoSuchAlgorithmException e) {
+        }
+        catch (final NoSuchAlgorithmException e) {
             BpsConnector.LOG.warn("Couldn't load SSLContext", e);
-        } catch (final KeyManagementException e) {
+        }
+        catch (final KeyManagementException e) {
             BpsConnector.LOG.warn("Couldn't load TrustManager into SSLContext", e);
         }
     }

@@ -61,8 +61,7 @@ public abstract class BPELPackageManagementServiceCallbackHandler {
      * auto generated Axis2 call back method for listDeployedPackagesPaginated method override this
      * method for handling normal response from listDeployedPackagesPaginated operation
      */
-    public void receiveResultlistDeployedPackagesPaginated(
-                    final org.wso2.bps.management.schema.DeployedPackagesPaginated result) {}
+    public void receiveResultlistDeployedPackagesPaginated(final org.wso2.bps.management.schema.DeployedPackagesPaginated result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from

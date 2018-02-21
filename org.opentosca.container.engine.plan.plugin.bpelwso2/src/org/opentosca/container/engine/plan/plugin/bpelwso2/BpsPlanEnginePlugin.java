@@ -87,8 +87,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             URL = url;
         }
 
-        final String servicesUrl = Settings.getSetting(
-            "org.opentosca.container.engine.plan.plugin.bpelwso2.services.url");
+        final String servicesUrl =
+            Settings.getSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.services.url");
 
         if (servicesUrl != null) {
             SERVICESURL = servicesUrl;
@@ -148,7 +148,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             try {
                 csar = this.fileService.getCSAR(csarId);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 BpsPlanEnginePlugin.LOG.error("An User Exception occured.", exc);
                 return false;
             }
@@ -169,7 +170,7 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             if (planReference == null) {
                 BpsPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                    planRef.getReference());
+                                              planRef.getReference());
                 return false;
             }
 
@@ -194,7 +195,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             try {
                 fetchedPlan = plan.getFile();
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 BpsPlanEnginePlugin.LOG.error("An System Exception occured. File could not be fetched.", exc);
                 return false;
             }
@@ -204,11 +206,10 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 tempDir = this.fileAccessService.getTemp();
                 tempPlan = new File(tempDir, fetchedPlan.getFileName().toString());
                 BpsPlanEnginePlugin.LOG.debug("Unzipping Plan '{}' to '{}'.", fetchedPlan.getFileName().toString(),
-                    tempDir.getAbsolutePath());
+                                              tempDir.getAbsolutePath());
                 planContents = this.fileAccessService.unzip(fetchedPlan.toFile(), tempDir);
             } else {
-                BpsPlanEnginePlugin.LOG.error(
-                    "FileAccessService is not available, can't create needed temporary space on disk");
+                BpsPlanEnginePlugin.LOG.error("FileAccessService is not available, can't create needed temporary space on disk");
                 return false;
             }
 
@@ -224,9 +225,10 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             portType = odeUpdater.getPortType(planContents);
             if (!odeUpdater.changeEndpoints(planContents, csarId)) {
                 BpsPlanEnginePlugin.LOG.error("Not all endpoints used by the plan {} have been changed",
-                    planRef.getReference());
+                                              planRef.getReference());
             }
-        } catch (final WSDLException e) {
+        }
+        catch (final WSDLException e) {
             BpsPlanEnginePlugin.LOG.error("Couldn't load ODEEndpointUpdater", e);
         }
 
@@ -236,17 +238,20 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             bpelRestUpdater = new BPELRESTLightUpdater();
             if (!bpelRestUpdater.changeEndpoints(planContents, csarId)) {
                 // we don't abort deployment here
-                BpsPlanEnginePlugin.LOG.warn(
-                    "Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
-                    planRef.getReference());
+                BpsPlanEnginePlugin.LOG.warn("Could'nt change all endpoints inside BPEL4RESTLight Elements in the given process {}",
+                                             planRef.getReference());
             }
-        } catch (final TransformerConfigurationException e) {
+        }
+        catch (final TransformerConfigurationException e) {
             BpsPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             BpsPlanEnginePlugin.LOG.error("Couldn't load BPELRESTLightUpdater", e);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             BpsPlanEnginePlugin.LOG.error("ParseError: Couldn't parse .bpel file", e);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             BpsPlanEnginePlugin.LOG.error("IOError: Couldn't access .bpel file", e);
         }
 
@@ -264,7 +269,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                     BpsPlanEnginePlugin.LOG.error("Can't package temporary plan for deployment");
                     return false;
                 }
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 BpsPlanEnginePlugin.LOG.error("Can't package temporary plan for deployment", e);
                 return false;
             }
@@ -275,7 +281,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         String processId = "";
         try {
             processId = connector.deploy(tempPlan, URL, USERNAME, PASSWORD);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
         }
         final Map<String, URI> endpoints = connector.getEndpointsForPID(processId, URL, USERNAME, PASSWORD);
@@ -294,9 +301,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
         }
 
         if (endpoint == null) {
-            BpsPlanEnginePlugin.LOG.warn(
-                "No endpoint for Plan {} could be determined, container won't be able to instantiate it",
-                planRef.getReference());
+            BpsPlanEnginePlugin.LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
+                                         planRef.getReference());
             return false;
         }
 
@@ -311,9 +317,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 BpsPlanEnginePlugin.LOG.debug("Store new endpoint!");
                 this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
             } else {
-                BpsPlanEnginePlugin.LOG.warn(
-                    "Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
-                    endpoint.toString(), planRef.getReference());
+                BpsPlanEnginePlugin.LOG.warn("Couldn't store endpoint {} for plan {}, cause endpoint service is not available",
+                                             endpoint.toString(), planRef.getReference());
                 return false;
             }
         } else {
@@ -344,7 +349,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             try {
                 csar = this.fileService.getCSAR(csarId);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 BpsPlanEnginePlugin.LOG.error("An User Exception occured.", exc);
                 return false;
             }
@@ -355,7 +361,7 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             if (planReference == null) {
                 BpsPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                    planRef.getReference());
+                                              planRef.getReference());
                 return false;
             }
 
@@ -380,7 +386,8 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
 
             try {
                 fetchedPlan = plan.getFile();
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 BpsPlanEnginePlugin.LOG.error("An System Exception occured. File could not be fetched.", exc);
                 return false;
             }
@@ -396,20 +403,18 @@ public class BpsPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
                 endpoint = this.endpointService.getWSDLEndpointForPlanId(csarId, planId);
 
                 if (endpoint == null) {
-                    BpsPlanEnginePlugin.LOG.warn(
-                        "Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
-                        planRef.getReference());
+                    BpsPlanEnginePlugin.LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
+                                                 planRef.getReference());
                 }
 
                 if (this.endpointService.removeWSDLEndpoint(csarId, endpoint)) {
                     BpsPlanEnginePlugin.LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
-                        planRef.getReference());
+                                                  planRef.getReference());
                 }
 
             } else {
-                BpsPlanEnginePlugin.LOG.warn(
-                    "Couldn't remove endpoint {} for plan {}, cause endpoint service is not available",
-                    endpoint.toString(), planRef.getReference());
+                BpsPlanEnginePlugin.LOG.warn("Couldn't remove endpoint {} for plan {}, cause endpoint service is not available",
+                                             endpoint.toString(), planRef.getReference());
             }
 
             if (wasUndeployed) {

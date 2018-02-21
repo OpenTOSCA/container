@@ -38,16 +38,17 @@ public class RelationshipTemplateService {
      * @return A collection of relationship templates stored within the given service template.
      */
     public List<RelationshipTemplateDTO> getRelationshipTemplatesOfServiceTemplate(final String csarId,
-                    final String serviceTemplateQName) {
+                                                                                   final String serviceTemplateQName) {
         final CSARContent csarContent = this.csarService.findById(csarId);
-        final List<String> relationshipTemplateIds = this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(
-            csarContent.getCSARID(), QName.valueOf(serviceTemplateQName));
+        final List<String> relationshipTemplateIds =
+            this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(csarContent.getCSARID(),
+                                                                              QName.valueOf(serviceTemplateQName));
         final List<RelationshipTemplateDTO> relationshipTemplates = Lists.newArrayList();
         RelationshipTemplateDTO currentRelationshipTemplate;
 
         for (final String id : relationshipTemplateIds) {
-            currentRelationshipTemplate = createRelationshipTemplate(csarContent.getCSARID(),
-                QName.valueOf(serviceTemplateQName), id);
+            currentRelationshipTemplate =
+                createRelationshipTemplate(csarContent.getCSARID(), QName.valueOf(serviceTemplateQName), id);
             relationshipTemplates.add(currentRelationshipTemplate);
         }
 
@@ -66,8 +67,7 @@ public class RelationshipTemplateService {
      *         template
      */
     public RelationshipTemplateDTO getRelationshipTemplateById(final String csarId, final QName serviceTemplateQName,
-                    final String relationshipTemplateId)
-        throws NotFoundException {
+                                                               final String relationshipTemplateId) throws NotFoundException {
         final CSARContent csarContent = this.csarService.findById(csarId);
         final CSARID idOfCsar = csarContent.getCSARID();
 
@@ -91,7 +91,7 @@ public class RelationshipTemplateService {
      *         contains the relationship template, otherwise <code>false</code>
      */
     public boolean hasRelationshipTemplate(final String csarId, final QName serviceTemplateQName,
-                    final String relationshipTemplateId) {
+                                           final String relationshipTemplateId) {
         return this.getRelationshipTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString())
                    .contains(relationshipTemplateId);
     }
@@ -105,7 +105,7 @@ public class RelationshipTemplateService {
      * @return
      */
     public Document getPropertiesOfRelationshipTemplate(final String csarId, final QName serviceTemplateQName,
-                    final String relationshipTemplateId) {
+                                                        final String relationshipTemplateId) {
         final CSARContent csarContent = this.csarService.findById(csarId);
         final CSARID idOfCsar = csarContent.getCSARID();
 
@@ -115,8 +115,9 @@ public class RelationshipTemplateService {
             throw new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found");
         }
 
-        final Document properties = this.toscaEngineService.getPropertiesOfRelationshipTemplate(idOfCsar,
-            serviceTemplateQName, relationshipTemplateId);
+        final Document properties =
+            this.toscaEngineService.getPropertiesOfRelationshipTemplate(idOfCsar, serviceTemplateQName,
+                                                                        relationshipTemplateId);
 
         return properties;
     }
@@ -130,13 +131,14 @@ public class RelationshipTemplateService {
      * @return
      */
     private RelationshipTemplateDTO createRelationshipTemplate(final CSARID csarId, final QName serviceTemplateQName,
-                    final String relationshipTemplateId) {
+                                                               final String relationshipTemplateId) {
         final RelationshipTemplateDTO currentRelationshipTemplate = new RelationshipTemplateDTO();
         currentRelationshipTemplate.setId(relationshipTemplateId);
         currentRelationshipTemplate.setName(relationshipTemplateId);
-        currentRelationshipTemplate.setRelationshipType(
-            this.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId, serviceTemplateQName,
-                relationshipTemplateId).toString());
+        currentRelationshipTemplate.setRelationshipType(this.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarId,
+                                                                                                                          serviceTemplateQName,
+                                                                                                                          relationshipTemplateId)
+                                                                               .toString());
 
         return currentRelationshipTemplate;
     }
@@ -149,11 +151,11 @@ public class RelationshipTemplateService {
      * @return A collection of relationship template ids stored within the given service template.
      */
     private List<String> getRelationshipTemplateIdsOfServiceTemplate(final String csarId,
-                    final String serviceTemplateQName) {
+                                                                     final String serviceTemplateQName) {
         final CSARContent csarContent = this.csarService.findById(csarId);
 
         return this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(csarContent.getCSARID(),
-            QName.valueOf(serviceTemplateQName));
+                                                                                 QName.valueOf(serviceTemplateQName));
     }
 
     /* Service Injection */

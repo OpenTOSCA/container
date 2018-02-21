@@ -41,7 +41,8 @@ public class WSDLEndpoint extends GenericEndpoint {
 
     // Query to retrieve WSDLEndpoints identified by a given PortType
     public final static String getWSDLEndpointByPortType = "WSDLEndpoint.getWSDLEndpointByPortType";
-    protected final static String getWSDLEndpointByPortTypeQuery = "select t from WSDLEndpoint t where t.PortType = :portType and t.csarId = :csarId";
+    protected final static String getWSDLEndpointByPortTypeQuery =
+        "select t from WSDLEndpoint t where t.PortType = :portType and t.csarId = :csarId";
 
     // Query to retrieve a WSDLEndpoint identified by a given PortType and
     // AddressType
@@ -53,7 +54,8 @@ public class WSDLEndpoint extends GenericEndpoint {
     // t.AddressType = :addressType and t.csarId = :csarId";
 
     public final static String getWSDLEndpointByUri = "WSDLEndpoint.getWSDLEndpointByUri";
-    protected final static String getWSDLEndpointByUriQuery = "select t from WSDLEndpoint t where t.uri = :uri and t.csarId = :csarId";
+    protected final static String getWSDLEndpointByUriQuery =
+        "select t from WSDLEndpoint t where t.uri = :uri and t.csarId = :csarId";
 
     // Converter to Convert QNames to String, and back from String to QName.
     // Used when persisting, so we can Query for QName-Objects.

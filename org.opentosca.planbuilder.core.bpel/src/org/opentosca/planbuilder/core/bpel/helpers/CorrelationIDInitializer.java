@@ -27,7 +27,8 @@ public class CorrelationIDInitializer {
             this.docFactory = DocumentBuilderFactory.newInstance();
             this.docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
@@ -47,21 +48,24 @@ public class CorrelationIDInitializer {
             final Node mainSequenceNode = flowElement.getParentNode();
 
             mainSequenceNode.insertBefore(assignNode, flowElement);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
     public String createAssignFromInputToOutput(final String targetNamespace) {
-        final String bpelAssign = "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"assignCorrelationID\"><bpel:copy><bpel:from variable=\"input\" part=\"payload\"><bpel:query xmlns:tns=\""
-            + targetNamespace
-            + "\" queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[tns:CorrelationID]]></bpel:query></bpel:from><bpel:to variable=\"output\" part=\"payload\"><bpel:query xmlns:tns=\""
-            + targetNamespace
-            + "\" queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[tns:CorrelationID]]></bpel:query></bpel:to></bpel:copy></bpel:assign>";
+        final String bpelAssign =
+            "<bpel:assign xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"assignCorrelationID\"><bpel:copy><bpel:from variable=\"input\" part=\"payload\"><bpel:query xmlns:tns=\""
+                + targetNamespace
+                + "\" queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[tns:CorrelationID]]></bpel:query></bpel:from><bpel:to variable=\"output\" part=\"payload\"><bpel:query xmlns:tns=\""
+                + targetNamespace
+                + "\" queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[tns:CorrelationID]]></bpel:query></bpel:to></bpel:copy></bpel:assign>";
         return bpelAssign;
     }
 

@@ -41,7 +41,8 @@ public class NodeInstanceDAO {
             } else {
                 logger.info("NOT FOUND");
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not delete node instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }
@@ -53,12 +54,14 @@ public class NodeInstanceDAO {
             final NodeTemplateInstance nti = Converters.convert(nodeInstance);
             try {
                 this.repository.add(nti);
-            } catch (final Exception ex) {
+            }
+            catch (final Exception ex) {
                 logger.info("Object already added, trying to update");
                 this.repository.update(nti);
             }
             return Converters.convert(nti);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not save node instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }
@@ -91,7 +94,8 @@ public class NodeInstanceDAO {
             } else {
                 logger.info("NOT FOUND");
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not update node instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }
@@ -114,14 +118,15 @@ public class NodeInstanceDAO {
             } else {
                 logger.info("NOT FOUND");
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not update node instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }
     }
 
     public List<NodeInstance> getNodeInstances(final URI serviceInstanceID, final QName nodeTemplateID,
-                    final String nodeTemplateName, final URI nodeInstanceID) {
+                                               final String nodeTemplateName, final URI nodeInstanceID) {
 
         logger.info("Not Implemented: Node instances cannot be queried");
         return new ArrayList<>();

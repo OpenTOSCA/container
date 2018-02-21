@@ -30,40 +30,41 @@ public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanC
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia) {
+                          final AbstractImplementationArtifact ia) {
         return this.handler.handle(context, operation, ia);
     }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping) {
         return this.handler.handle(context, operation, ia, param2propertyMapping);
     }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping, final boolean appendToPrePhase) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final boolean appendToPrePhase) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                    final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                    final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                    final boolean appendToPrePhase) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                          final boolean appendToPrePhase) {
         // TODO Auto-generated method stub
         return false;
     }

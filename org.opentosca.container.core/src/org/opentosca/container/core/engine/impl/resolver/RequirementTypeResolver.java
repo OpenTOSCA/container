@@ -39,15 +39,16 @@ public class RequirementTypeResolver extends GenericResolver {
                 } else {
                     targetNamespace = definitions.getTargetNamespace();
                 }
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, requirementType.getName()), requirementType);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    requirementType.getName()), requirementType);
 
-                this.LOG.debug(
-                    "Resolve the RequirementType \"" + targetNamespace + ":" + requirementType.getName() + "\".");
+                this.LOG.debug("Resolve the RequirementType \"" + targetNamespace + ":" + requirementType.getName()
+                    + "\".");
 
                 if (requirementType.getRequiredCapabilityType() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        requirementType.getRequiredCapabilityType(), ElementNamesEnum.CAPABILITYTYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(requirementType.getRequiredCapabilityType(),
+                                                                                   ElementNamesEnum.CAPABILITYTYPE);
                 }
 
                 // Tags
@@ -55,14 +56,16 @@ public class RequirementTypeResolver extends GenericResolver {
 
                 // DerivedFrom
                 if (requirementType.getDerivedFrom() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        requirementType.getDerivedFrom().getTypeRef(), ElementNamesEnum.REQUIREMENTTYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(requirementType.getDerivedFrom()
+                                                                                                  .getTypeRef(),
+                                                                                   ElementNamesEnum.REQUIREMENTTYPE);
                 }
 
                 // PropertiesDefinition
                 if (requirementType.getPropertiesDefinition() != null) {
-                    if (new PropertiesDefinitionResolver(this.referenceMapper).resolve(
-                        requirementType.getPropertiesDefinition())) {
+                    if (new PropertiesDefinitionResolver(
+                        this.referenceMapper).resolve(requirementType.getPropertiesDefinition())) {
                         this.LOG.error("The NodeType \"" + targetNamespace + ":" + requirementType.getName()
                             + "\" specifies both attributes in its child element PropertiesDefinition which is not allowed.");
                         errorOccurred = true;

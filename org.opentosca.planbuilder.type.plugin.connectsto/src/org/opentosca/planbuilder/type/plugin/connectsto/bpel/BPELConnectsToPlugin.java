@@ -29,7 +29,8 @@ public class BPELConnectsToPlugin extends ConnectsToPlugin<BPELPlanContext> {
     public BPELConnectsToPlugin() {
         try {
             this.handler = new BPELConnectsToPluginHandler();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }

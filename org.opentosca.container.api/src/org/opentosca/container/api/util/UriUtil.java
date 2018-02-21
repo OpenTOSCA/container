@@ -36,7 +36,8 @@ public abstract class UriUtil {
     public static String encodePathSegment(final String pathSegment) {
         try {
             return URLEncoder.encode(pathSegment, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -51,14 +52,14 @@ public abstract class UriUtil {
 
 
     public static Link generateSubResourceLink(final UriInfo uriInfo, final String subResource,
-                    final boolean encodeSubResourcePathSegment, final String rel) {
+                                               final boolean encodeSubResourcePathSegment, final String rel) {
         final URI finalUri = UriUtil.generateSubResourceURI(uriInfo, subResource, encodeSubResourcePathSegment);
 
         return Link.fromUri(finalUri).rel(rel).build();
     }
 
     public static URI generateSubResourceURI(final UriInfo uriInfo, final String subResource,
-                    final boolean encodeSubResourcePathSegment) {
+                                             final boolean encodeSubResourcePathSegment) {
         final UriBuilder uriBuilder = RuntimeDelegate.getInstance().createUriBuilder();
         final URI absolutePathEncoded = UriUtil.encode(uriInfo.getAbsolutePath());
         uriBuilder.path(absolutePathEncoded.toString());

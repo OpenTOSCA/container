@@ -35,7 +35,7 @@ public class IsFinishedRequestProcessor implements Processor {
         exchange.getIn().setBody(requestID);
 
         exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
+                                   ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
 
     }
 

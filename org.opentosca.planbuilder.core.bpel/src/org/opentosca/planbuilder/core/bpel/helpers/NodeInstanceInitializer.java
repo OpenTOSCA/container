@@ -61,8 +61,8 @@ public class NodeInstanceInitializer {
 
         for (final String propLocalName : propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId())
                                                  .keySet()) {
-            final String bpelVarName = propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId())
-                                              .get(propLocalName);
+            final String bpelVarName =
+                propMap.getPropertyMappingMap(templatePlan.getNodeTemplate().getId()).get(propLocalName);
             // as the variables are there and only possibly empty we just check
             // the string inside
             final String xpathQuery = "string-length(normalize-space($" + bpelVarName + ")) = 0";
@@ -71,10 +71,12 @@ public class NodeInstanceInitializer {
                 Node bpelIf = this.bpelFragments.generateBPELIfTrueThrowFaultAsNode(xpathQuery, propertyEmptyFault);
                 bpelIf = templatePlan.getBpelDocument().importNode(bpelIf, true);
                 templatePlan.getBpelSequencePrePhaseElement().appendChild(bpelIf);
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 e.printStackTrace();
                 return false;
-            } catch (final SAXException e) {
+            }
+            catch (final SAXException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -93,7 +95,7 @@ public class NodeInstanceInitializer {
      * @return
      */
     public boolean addInstanceFindLogic(final BPELScopeActivity templatePlan, final String serviceInstanceIdVarName,
-                    final String instanceDataUrlVarName, final String query) {
+                                        final String instanceDataUrlVarName, final String query) {
         // add XML Schema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -101,17 +103,22 @@ public class NodeInstanceInitializer {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+                                                  new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
         // find nodeInstance with query at instanceDataAPI
         try {
-            Node nodeInstanceGETNode = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(
-                serviceInstanceIdVarName, instanceDataAPIResponseVarName, templatePlan.getNodeTemplate().getId(),
-                query);
+            Node nodeInstanceGETNode =
+                this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(serviceInstanceIdVarName,
+                                                                                   instanceDataAPIResponseVarName,
+                                                                                   templatePlan.getNodeTemplate()
+                                                                                               .getId(),
+                                                                                   query);
             nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstanceGETNode);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -119,15 +126,18 @@ public class NodeInstanceInitializer {
 
         // fetch nodeInstanceID from nodeInstance query
         try {
-            Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse = this.bpelFragments.createAssignSelectFirstReferenceAndAssignToStringVarAsNode(
-                instanceDataAPIResponseVarName, instanceIDVarName);
-            assignNodeInstanceIDFromInstanceDataAPIQueryResponse = templatePlan.getBpelDocument().importNode(
-                assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
+            Node assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
+                this.bpelFragments.createAssignSelectFirstReferenceAndAssignToStringVarAsNode(instanceDataAPIResponseVarName,
+                                                                                              instanceIDVarName);
+            assignNodeInstanceIDFromInstanceDataAPIQueryResponse =
+                templatePlan.getBpelDocument().importNode(assignNodeInstanceIDFromInstanceDataAPIQueryResponse, true);
             templatePlan.getBpelSequencePrePhaseElement()
                         .appendChild(assignNodeInstanceIDFromInstanceDataAPIQueryResponse);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -160,7 +170,8 @@ public class NodeInstanceInitializer {
         final String instanceIdVarName = prefix + "InstanceURL_" + templateId + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "string", xsdPrefix), templatePlan.getBuildPlan());
+                                                   new QName(xsdNamespace, "string", xsdPrefix),
+                                                   templatePlan.getBuildPlan());
 
     }
 
@@ -184,7 +195,7 @@ public class NodeInstanceInitializer {
         for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null) {
                 check &= this.addInstanceFindLogic(templatePlan, ServiceInstanceVarKeyword, InstanceDataAPIUrlKeyword,
-                    queryForNodeInstances);
+                                                   queryForNodeInstances);
             }
         }
 
@@ -219,7 +230,7 @@ public class NodeInstanceInitializer {
      * @return true if adding logic described above was successful
      */
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELScopeActivity templatePlan,
-                    final PropertyMap propMap) {
+                                                                  final PropertyMap propMap) {
         // check if everything is available
         if (templatePlan.getNodeTemplate() == null) {
             return false;
@@ -243,18 +254,21 @@ public class NodeInstanceInitializer {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelTemplateScopeHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
+                                                  new QName(xsdNamespace, "anyType", xsdPrefix), templatePlan);
 
         // fetch properties from nodeInstance
         try {
-            Node nodeInstancePropertiesGETNode = this.bpelFragments.createRESTExtensionGETForNodeInstancePropertiesAsNode(
-                instanceIdVarName, instanceDataAPIResponseVarName);
-            nodeInstancePropertiesGETNode = templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode,
-                true);
+            Node nodeInstancePropertiesGETNode =
+                this.bpelFragments.createRESTExtensionGETForNodeInstancePropertiesAsNode(instanceIdVarName,
+                                                                                         instanceDataAPIResponseVarName);
+            nodeInstancePropertiesGETNode =
+                templatePlan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -266,8 +280,8 @@ public class NodeInstanceInitializer {
             if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
                 final Element childElement = (Element) propChildNodes.item(index);
                 // find bpelVariable
-                final String bpelVarName = propMap.getPropertyMappingMap(nodeTemplate.getId())
-                                                  .get(childElement.getLocalName());
+                final String bpelVarName =
+                    propMap.getPropertyMappingMap(nodeTemplate.getId()).get(childElement.getLocalName());
                 if (bpelVarName != null) {
                     element2BpelVarNameMap.put(childElement, bpelVarName);
                 }
@@ -275,14 +289,16 @@ public class NodeInstanceInitializer {
         }
 
         try {
-            Node assignPropertiesToVariables = this.bpelFragments.createAssignFromNodeInstancePropertyToBPELVariableAsNode(
-                "assignPropertiesFromResponseToBPELVariable" + System.currentTimeMillis(),
-                instanceDataAPIResponseVarName, element2BpelVarNameMap);
+            Node assignPropertiesToVariables =
+                this.bpelFragments.createAssignFromNodeInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = templatePlan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             templatePlan.getBpelSequencePrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -290,10 +306,10 @@ public class NodeInstanceInitializer {
     }
 
     public boolean addPropertyVariableUpdateBasedOnNodeInstanceID(final BPELPlanContext context,
-                    final AbstractNodeTemplate nodeTemplate) {
+                                                                  final AbstractNodeTemplate nodeTemplate) {
 
-        final String instanceIdVarName = this.findInstanceIdVarName(context.getMainVariableNames(),
-            nodeTemplate.getId());
+        final String instanceIdVarName =
+            this.findInstanceIdVarName(context.getMainVariableNames(), nodeTemplate.getId());
 
         if (instanceIdVarName == null) {
             return false;
@@ -306,18 +322,21 @@ public class NodeInstanceInitializer {
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
 
         context.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix));
+                            new QName(xsdNamespace, "anyType", xsdPrefix));
 
         // fetch properties from nodeInstance
         try {
-            Node nodeInstancePropertiesGETNode = this.bpelFragments.createRESTExtensionGETForNodeInstancePropertiesAsNode(
-                instanceIdVarName, instanceDataAPIResponseVarName);
+            Node nodeInstancePropertiesGETNode =
+                this.bpelFragments.createRESTExtensionGETForNodeInstancePropertiesAsNode(instanceIdVarName,
+                                                                                         instanceDataAPIResponseVarName);
 
             nodeInstancePropertiesGETNode = context.importNode(nodeInstancePropertiesGETNode);
             context.getPrePhaseElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -337,14 +356,16 @@ public class NodeInstanceInitializer {
         }
 
         try {
-            Node assignPropertiesToVariables = this.bpelFragments.createAssignFromNodeInstancePropertyToBPELVariableAsNode(
-                "assignPropertiesFromResponseToBPELVariable" + System.currentTimeMillis(),
-                instanceDataAPIResponseVarName, element2BpelVarNameMap);
+            Node assignPropertiesToVariables =
+                this.bpelFragments.createAssignFromNodeInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = context.importNode(assignPropertiesToVariables);
             context.getPrePhaseElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -352,7 +373,7 @@ public class NodeInstanceInitializer {
     }
 
     public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final String query) {
+                                            final String query) {
 
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -375,25 +396,27 @@ public class NodeInstanceInitializer {
 
         try {
 
-            Node getNodeInstancesREST = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(
-                new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames()),
-                responseVarName, nodeTemplate.getId(), query);
+            Node getNodeInstancesREST =
+                this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames()),
+                                                                                   responseVarName,
+                                                                                   nodeTemplate.getId(), query);
             getNodeInstancesREST = context.importNode(getNodeInstancesREST);
             templateMainSequeceNode.appendChild(getNodeInstancesREST);
 
-            Node assignCounter = this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode(
-                "countInstances" + System.currentTimeMillis(),
-                "count($" + responseVarName + "//*[local-name()='Reference' and @*[local-name()='title']  != 'Self'])",
-                counterVariable.getName());
+            Node assignCounter = this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countInstances"
+                + System.currentTimeMillis(), "count($" + responseVarName + "//*[local-name()='Reference' and @*[local-name()='title']  != 'Self'])", counterVariable.getName());
             assignCounter = context.importNode(assignCounter);
             templateMainSequeceNode.appendChild(assignCounter);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -405,8 +428,8 @@ public class NodeInstanceInitializer {
         final Element forEachScopeElement = (Element) forEachElement.getElementsByTagName("scope").item(0);
 
         if (((Element) templateMainScopeNode).getElementsByTagName("correlationSets").getLength() != 0) {
-            final Element correlationSets = (Element) ((Element) templateMainScopeNode).getElementsByTagName(
-                "correlationSets").item(0);
+            final Element correlationSets =
+                (Element) ((Element) templateMainScopeNode).getElementsByTagName("correlationSets").item(0);
 
             final Node cloneCorreElement = correlationSets.cloneNode(true);
 
@@ -432,7 +455,7 @@ public class NodeInstanceInitializer {
     }
 
     public String appendCountInstancesLogic(final BPELPlanContext context,
-                    final AbstractRelationshipTemplate relationshipTemplate) {
+                                            final AbstractRelationshipTemplate relationshipTemplate) {
         // TODO
         return null;
     }
@@ -470,8 +493,8 @@ public class NodeInstanceInitializer {
 
         finalCounterValueElement.setAttribute("expressionLanguage", BPELPlan.xpath2Namespace);
 
-        final Text textSectionFinalValue = startCounterValueElement.getOwnerDocument()
-                                                                   .createTextNode("$" + instanceCountVariableName);
+        final Text textSectionFinalValue =
+            startCounterValueElement.getOwnerDocument().createTextNode("$" + instanceCountVariableName);
         finalCounterValueElement.appendChild(textSectionFinalValue);
 
         final Element scopeElement = context.createElement(BPELPlan.bpelNamespace, "scope");

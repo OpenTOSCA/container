@@ -89,9 +89,11 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
      *        List <URI> requiredFeatures) when IFile is created!
      */
     public URI deployImplementationArtifact(final CSARID csarID, final QName nodeTypeImplementationID,
-                    final QName artifactType, final Document artifactContent, final Document properties,
-                    final List<TPropertyConstraint> propertyConstraints, final List<AbstractArtifact> artifacts,
-                    final List<String> requiredFeatures) {
+                                            final QName artifactType, final Document artifactContent,
+                                            final Document properties,
+                                            final List<TPropertyConstraint> propertyConstraints,
+                                            final List<AbstractArtifact> artifacts,
+                                            final List<String> requiredFeatures) {
 
         String endpoint = null;
         String endpointSuffix = null;
@@ -113,7 +115,7 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
                 // Create final endpoint.
                 endpoint = endpoint.concat(endpointSuffix);
                 IAEnginePluginAarAxisServiceImpl.LOG.info("Complete endpoint of IA {}: {}", aarFile.getFileName(),
-                    endpoint);
+                                                          endpoint);
             }
 
         } else {
@@ -154,8 +156,8 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
                 final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/upload";
                 final HttpResponse response = this.httpService.Post(url, uploadEntity, cookies);
 
-                IAEnginePluginAarAxisServiceImpl.LOG.debug(
-                    "Axis2 uploadresponse: " + response.getStatusLine().toString());
+                IAEnginePluginAarAxisServiceImpl.LOG.debug("Axis2 uploadresponse: "
+                    + response.getStatusLine().toString());
                 IAEnginePluginAarAxisServiceImpl.LOG.info("Deploying finished.");
                 IAEnginePluginAarAxisServiceImpl.LOG.info("Checking if {} was deployed successfully...", fileName);
 
@@ -171,17 +173,20 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
                     IAEnginePluginAarAxisServiceImpl.LOG.warn("{} wasn't deployed successfully", fileName);
                 }
 
-            } catch (final UnsupportedEncodingException e) {
+            }
+            catch (final UnsupportedEncodingException e) {
                 IAEnginePluginAarAxisServiceImpl.LOG.error("UnsupportedEncodingException occured: ", e);
-            } catch (final ClientProtocolException e) {
+            }
+            catch (final ClientProtocolException e) {
                 IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured: ", e);
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured: ", e);
             }
 
         } else {
             IAEnginePluginAarAxisServiceImpl.LOG.warn("Axis2 isn't running or can't be accessed! Can't deploy {}!",
-                fileName);
+                                                      fileName);
 
         }
         return endpoint;
@@ -204,11 +209,12 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
                     if (this.isADeployableAar(file)) {
 
                         IAEnginePluginAarAxisServiceImpl.LOG.info("Deployable AAR-File with name {} found.",
-                            file.getName());
+                                                                  file.getName());
 
                         try {
                             return file.getFile();
-                        } catch (final SystemException exc) {
+                        }
+                        catch (final SystemException exc) {
                             IAEnginePluginAarAxisServiceImpl.LOG.warn("An System Exception occured.", exc);
                         }
 
@@ -231,9 +237,8 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
         if (file.getName().toLowerCase().endsWith(".aar")) {
             return true;
         } else {
-            IAEnginePluginAarAxisServiceImpl.LOG.warn(
-                "Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
-                file.getName());
+            IAEnginePluginAarAxisServiceImpl.LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
+                                                      file.getName());
         }
 
         return false;
@@ -314,9 +319,10 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
         if (endpoint != null) {
             try {
                 endpointURI = new URI(endpoint);
-            } catch (final URISyntaxException e) {
-                IAEnginePluginAarAxisServiceImpl.LOG.error(
-                    "URISyntaxException occurred while creating endpoint URI: {} ", endpoint, e);
+            }
+            catch (final URISyntaxException e) {
+                IAEnginePluginAarAxisServiceImpl.LOG.error("URISyntaxException occurred while creating endpoint URI: {} ",
+                                                           endpoint, e);
             }
         }
         return endpointURI;
@@ -339,9 +345,11 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
 
                 IAEnginePluginAarAxisServiceImpl.LOG.info("Axis2 is running and can be accessed!");
             }
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured:", e);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured:", e);
         }
         return isRunning;
@@ -365,9 +373,11 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
             final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/login";
             cookies = this.httpService.PostCookies(url, loginEntity);
 
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured: ", e);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured: ", e);
         }
 
@@ -391,8 +401,8 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
             Thread.sleep(10000);
 
             final List<Cookie> cookies = this.getCookies();
-            final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/ListSingleService?serviceName="
-                + fileName;
+            final String url =
+                IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/ListSingleService?serviceName=" + fileName;
             final HttpResponse response = this.httpService.Get(url, cookies);
 
             final HttpEntity entity = response.getEntity();
@@ -408,15 +418,18 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
                 }
                 if (str.contains("<font color=\"red\">") && !str.contains("No services found in this location")) {
                     IAEnginePluginAarAxisServiceImpl.LOG.warn("The WebService {} has deployment faults: {}", fileName,
-                        str);
+                                                              str);
                 }
             }
 
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured:", e);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured:", e);
-        } catch (final InterruptedException e) {
+        }
+        catch (final InterruptedException e) {
             IAEnginePluginAarAxisServiceImpl.LOG.error("InterruptedException occured:", e);
         }
 
@@ -443,7 +456,7 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
      */
     public List<String> getCapabilties() {
         IAEnginePluginAarAxisServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.",
-            IAEnginePluginAarAxisServiceImpl.CAPABILITIES);
+                                                   IAEnginePluginAarAxisServiceImpl.CAPABILITIES);
         final List<String> capabilities = new ArrayList<>();
 
         for (final String capability : IAEnginePluginAarAxisServiceImpl.CAPABILITIES.split("[,;]")) {
@@ -478,7 +491,7 @@ public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService 
 
     @Override
     public boolean undeployImplementationArtifact(final String iaName, final QName nodeTypeImpl, final CSARID csarID,
-                    final URI path) {
+                                                  final URI path) {
         // TODO
         return false;
     }

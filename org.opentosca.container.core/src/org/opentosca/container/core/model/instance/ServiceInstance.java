@@ -46,10 +46,10 @@ public class ServiceInstance {
 
     // Query to retrieve ServiceInstances identified by a some parameters
     public final static String getServiceInstances = "ServiceInstance.getServiceInstancesQuery";
-    protected final static String getServiceInstancesQuery = "select s from ServiceInstance s where"
-        + " s.id = COALESCE(:id, s.id) AND"
-        + " s.serviceTemplateName = COALESCE(:serviceTemplateName, s.serviceTemplateName) AND"
-        + " s.serviceTemplateID = COALESCE(:serviceTemplateID, s.serviceTemplateID)";
+    protected final static String getServiceInstancesQuery =
+        "select s from ServiceInstance s where" + " s.id = COALESCE(:id, s.id) AND"
+            + " s.serviceTemplateName = COALESCE(:serviceTemplateName, s.serviceTemplateName) AND"
+            + " s.serviceTemplateID = COALESCE(:serviceTemplateID, s.serviceTemplateID)";
 
     // the internal ID (Database) of the ServiceInstance
     @Id
@@ -171,9 +171,11 @@ public class ServiceInstance {
                 + URLEncoder.encode(URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8"), "UTF-8")
                 + "/Instances/" + this.id);
             this.csarID = new CSARID(this.csarID_DB);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

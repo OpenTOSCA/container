@@ -130,12 +130,12 @@ public class CSARValidator {
         final Path csarDefinitionsDirAbsPath = csarUnpackDir.resolve(this.CSAR_DEFINITIONS_DIR_REL_PATH);
 
         for (final Path csarFile : csarFiles) {
-            if (csarFile.startsWith(
-                csarDefinitionsDirAbsPath) /*
-                                            * && PathUtils. hasFileExtension (csarFile, this. TOSCA_FILE_EXTENSIONS )
-                                            */) {
+            if (csarFile.startsWith(csarDefinitionsDirAbsPath) /*
+                                                                * && PathUtils. hasFileExtension (csarFile, this.
+                                                                * TOSCA_FILE_EXTENSIONS )
+                                                                */) {
                 CSARValidator.LOG.debug("At least one file was found in directory \"{}\" of CSAR \"{}\".",
-                    this.CSAR_DEFINITIONS_DIR_REL_PATH, this.CSAR_ID);
+                                        this.CSAR_DEFINITIONS_DIR_REL_PATH, this.CSAR_ID);
                 return true;
             }
         }
@@ -160,7 +160,7 @@ public class CSARValidator {
 
         if (csarFiles.contains(toscaMetaFileAbsPath)) {
             CSARValidator.LOG.debug("TOSCA meta file exists at \"{}\" in CSAR \"{}\".", this.TOSCA_META_FILE_REL_PATH,
-                this.CSAR_ID);
+                                    this.CSAR_ID);
             return true;
         }
 

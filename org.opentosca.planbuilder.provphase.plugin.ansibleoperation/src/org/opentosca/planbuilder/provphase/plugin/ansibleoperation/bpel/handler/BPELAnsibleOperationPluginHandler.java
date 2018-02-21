@@ -62,19 +62,22 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             this.docFactory = DocumentBuilderFactory.newInstance();
             this.docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
     }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
-                    final AbstractOperation operation, final AbstractArtifactReference reference,
-                    final AbstractImplementationArtifact ia) {
+                                                       final AbstractOperation operation,
+                                                       final AbstractArtifactReference reference,
+                                                       final AbstractImplementationArtifact ia) {
 
         final String runShScriptStringVarName = "runShFile" + templateContext.getIdForNames();
 
         // install ansible
-        String runShScriptString = "sudo apt-add-repository -y ppa:ansible/ansible && sudo apt-get update && sudo apt-get install -y ansible";
+        String runShScriptString =
+            "sudo apt-add-repository -y ppa:ansible/ansible && sudo apt-get update && sudo apt-get install -y ansible";
 
         // install unzip
         runShScriptString += " && sudo apt-get install unzip";
@@ -100,8 +103,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
             LOG.debug("Found Playbook: {}", playbookPath);
 
-            final String completePlaybookPath = ansibleZipFolderName + "/"
-                + FilenameUtils.separatorsToUnix(playbookPath);
+            final String completePlaybookPath =
+                ansibleZipFolderName + "/" + FilenameUtils.separatorsToUnix(playbookPath);
             final String playbookFolder = FilenameUtils.getFullPathNoEndSeparator(completePlaybookPath);
             final String playbookFile = FilenameUtils.getName(completePlaybookPath);
 
@@ -112,15 +115,17 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             runShScriptString += " && ansible-playbook " + playbookFile;
         }
 
-        final Variable runShScriptStringVar = templateContext.createGlobalStringVariable(runShScriptStringVarName,
-            runShScriptString);
+        final Variable runShScriptStringVar =
+            templateContext.createGlobalStringVariable(runShScriptStringVarName, runShScriptString);
 
         return runShScriptStringVar;
     }
 
     private Variable appendBPELAssignOperationShScript(final BPELPlanContext templateContext,
-                    final AbstractOperation operation, final AbstractArtifactReference reference,
-                    final AbstractImplementationArtifact ia, final Map<AbstractParameter, Variable> inputMappings) {
+                                                       final AbstractOperation operation,
+                                                       final AbstractArtifactReference reference,
+                                                       final AbstractImplementationArtifact ia,
+                                                       final Map<AbstractParameter, Variable> inputMappings) {
 
         LOG.error("Not supported!");
 
@@ -139,13 +144,13 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      * @return true if appending the bpel logic was successful else false
      */
     private boolean appendExecuteScript(final BPELPlanContext templateContext, final String templateId,
-                    final Variable runShScriptStringVar, final Variable sshUserVariable, final Variable sshKeyVariable,
-                    final Variable serverIpPropWrapper) {
+                                        final Variable runShScriptStringVar, final Variable sshUserVariable,
+                                        final Variable sshKeyVariable, final Variable serverIpPropWrapper) {
 
         final Map<String, Variable> runScriptRequestInputParams = new HashMap<>();
         // dirty check if we use old style properties
-        final String cleanPropName = serverIpPropWrapper.getName()
-                                                        .substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+        final String cleanPropName =
+            serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
         switch (cleanPropName) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 runScriptRequestInputParams.put("hostname", serverIpPropWrapper);
@@ -153,7 +158,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("sshUser", sshUserVariable);
                 runScriptRequestInputParams.put("script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
-                    "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(), false);
+                                          "planCallbackAddress_invoker", runScriptRequestInputParams,
+                                          new HashMap<String, Variable>(), false);
 
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -163,8 +169,9 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("VMUserName", sshUserVariable);
                 runScriptRequestInputParams.put("Script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
-                    Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-                    runScriptRequestInputParams, new HashMap<String, Variable>(), false);
+                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                          "planCallbackAddress_invoker", runScriptRequestInputParams,
+                                          new HashMap<String, Variable>(), false);
                 break;
             default:
                 return false;
@@ -192,8 +199,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
     private AbstractNodeTemplate findInfrastructureNode(final List<AbstractNodeTemplate> nodes) {
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(
-                nodeTemplate.getType().getId())) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(nodeTemplate.getType()
+                                                                                                                  .getId())) {
                 return nodeTemplate;
             }
         }
@@ -208,14 +215,14 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      */
     private String getAnsiblePlaybookFilePath(final BPELPlanContext templateContext) {
 
-        final List<AbstractNodeTypeImplementation> abstractNodeTypeImpls = templateContext.getNodeTemplate()
-                                                                                          .getImplementations();
+        final List<AbstractNodeTypeImplementation> abstractNodeTypeImpls =
+            templateContext.getNodeTemplate().getImplementations();
 
         for (final AbstractNodeTypeImplementation abstractNodeTypeImpl : abstractNodeTypeImpls) {
             final List<AbstractImplementationArtifact> abstractIAs = abstractNodeTypeImpl.getImplementationArtifacts();
             for (final AbstractImplementationArtifact abstractIA : abstractIAs) {
-                final NodeList nodeList = abstractIA.getArtifactRef().getProperties().getDOMElement()
-                                                    .getElementsByTagName("Playbook");
+                final NodeList nodeList =
+                    abstractIA.getArtifactRef().getProperties().getDOMElement().getElementsByTagName("Playbook");
                 if (nodeList.getLength() > 0) {
                     return nodeList.item(0).getTextContent();
                 }
@@ -234,7 +241,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      */
     @Override
     public boolean handle(final BPELPlanContext templateContext, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia) {
+                          final AbstractImplementationArtifact ia) {
 
         LOG.debug("Handling Ansible Playbook IA operation: " + operation.getName());
         final AbstractArtifactReference ansibleRef = this.fetchAnsiblePlaybookRefFromIA(ia);
@@ -262,8 +269,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
          * fetch relevant variables/properties
          */
         if (templateContext.getNodeTemplate() == null) {
-            BPELAnsibleOperationPluginHandler.LOG.warn(
-                "Appending logic to relationshipTemplate plan is not possible by this plugin");
+            BPELAnsibleOperationPluginHandler.LOG.warn("Appending logic to relationshipTemplate plan is not possible by this plugin");
             return false;
         }
 
@@ -322,8 +328,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         // needed
         if (sshUserVariable == null) {
             // dirty check if we use old style properties
-            final String cleanPropName = serverIpPropWrapper.getName().substring(
-                serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+            final String cleanPropName =
+                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
             switch (cleanPropName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");
@@ -331,13 +337,11 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
                     LOG.debug("Adding sshUser field to plan input");
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
                     LOG.debug("Adding User fiel to plan input");
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
                     break;
                 default:
                     return false;
@@ -347,8 +351,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
 
         if (sshKeyVariable == null) {
             // dirty check if we use old style properties
-            final String cleanPropName = serverIpPropWrapper.getName().substring(
-                serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+            final String cleanPropName =
+                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
             switch (cleanPropName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");
@@ -356,13 +360,11 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
                     LOG.debug("Adding sshUser field to plan input");
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
                     LOG.debug("Adding User fiel to plan input");
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
                     break;
                 default:
                     return false;
@@ -380,24 +382,24 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         LOG.debug("Adding csarEntryPoint field to plan input");
         templateContext.addStringValueToPlanRequest("csarEntrypoint");
 
-        final Variable runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation,
-            ansibleRef, ia);
+        final Variable runShScriptStringVar =
+            this.appendBPELAssignOperationShScript(templateContext, operation, ansibleRef, ia);
 
         return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-            sshUserVariable, sshKeyVariable, serverIpPropWrapper);
+                                        sshUserVariable, sshKeyVariable, serverIpPropWrapper);
     }
 
     @Override
     public boolean handle(final BPELPlanContext templateContext, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping) {
 
         if (operation.getInputParameters().size() != param2propertyMapping.size()) {
             return false;
         }
 
-        final AbstractNodeTemplate infrastructureNodeTemplate = this.findInfrastructureNode(
-            templateContext.getInfrastructureNodes());
+        final AbstractNodeTemplate infrastructureNodeTemplate =
+            this.findInfrastructureNode(templateContext.getInfrastructureNodes());
         if (infrastructureNodeTemplate == null) {
             return false;
         }
@@ -407,8 +409,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         if (scriptRef == null) {
             return false;
         }
-        runShScriptStringVar = this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia,
-            param2propertyMapping);
+        runShScriptStringVar =
+            this.appendBPELAssignOperationShScript(templateContext, operation, scriptRef, ia, param2propertyMapping);
 
         Variable ipStringVariable = null;
         for (final String serverIp : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
@@ -440,7 +442,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         }
 
         return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-            userStringVariable, passwdStringVariable, ipStringVariable);
+                                        userStringVariable, passwdStringVariable, ipStringVariable);
     }
 
     private boolean isNull(final Variable... vars) {
@@ -464,10 +466,10 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      * @throws SAXException is thrown when parsing internal format into DOM fails
      */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException, SAXException {
-        final String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query,
-            stringVarName);
+                                                              final String stringVarName) throws IOException,
+                                                                                          SAXException {
+        final String templateString =
+            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -485,8 +487,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
      * @throws IOException is thrown when reading the BPEL fragment form the resources fails
      */
     public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException {
+                                                                  final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("assignStringVarWithXpath2Query.xml");

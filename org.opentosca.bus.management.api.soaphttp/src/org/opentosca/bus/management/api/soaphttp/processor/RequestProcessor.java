@@ -112,13 +112,13 @@ public class RequestProcessor implements Processor {
             // Support new Deployment Artifact Header
             final Message message = exchange.getIn();
 
-            final ServiceReference<?> servRef = Activator.bundleContext.getServiceReference(
-                IToscaEngineService.class.getName());
-            final IToscaEngineService toscaEngineService = (IToscaEngineService) Activator.bundleContext.getService(
-                servRef);
+            final ServiceReference<?> servRef =
+                Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
+            final IToscaEngineService toscaEngineService =
+                (IToscaEngineService) Activator.bundleContext.getService(servRef);
             final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
-            final ResolvedArtifacts resolvedArtifacts = toscaEngineService.getResolvedArtifactsOfNodeTemplate(
-                new CSARID(csarIDString), nodeTemplateQName);
+            final ResolvedArtifacts resolvedArtifacts =
+                toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
             final List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
             final URL serviceInstanceIDUrl = new URL(serviceInstanceID);
             final HashMap<QName, HashMap<String, String>> DAs = new HashMap<>();

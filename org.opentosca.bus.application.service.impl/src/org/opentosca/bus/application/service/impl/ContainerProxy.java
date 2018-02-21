@@ -67,7 +67,7 @@ public class ContainerProxy {
      * @return NodeInstance with specified ID
      */
     public static NodeInstance getNodeInstance(final Integer serviceInstanceID, final Integer nodeInstanceID,
-                    final String nodeTemplateID) {
+                                               final String nodeTemplateID) {
 
         ContainerProxy.LOG.debug("Searching NodeInstance with serviceInstanceID: " + serviceInstanceID
             + " nodeInstanceID: " + nodeInstanceID + " nodeTemplateID: " + nodeTemplateID);
@@ -80,8 +80,9 @@ public class ContainerProxy {
 
                 final String namespace = getServiceInstance(serviceInstanceID).getServiceTemplateID().getNamespaceURI();
                 final QName nodeTemplateQName = new QName(namespace, nodeTemplateID);
-                nodeInstances = InstanceDataServiceHandler.getInstanceDataService().getNodeInstances(null,
-                    nodeTemplateQName, null, new URI(serviceInstanceID.toString()));
+                nodeInstances = InstanceDataServiceHandler.getInstanceDataService()
+                                                          .getNodeInstances(null, nodeTemplateQName, null,
+                                                                            new URI(serviceInstanceID.toString()));
 
                 if (nodeInstances.size() > 0) {
                     return nodeInstances.get(0);
@@ -89,8 +90,9 @@ public class ContainerProxy {
 
             } else {
 
-                nodeInstances = InstanceDataServiceHandler.getInstanceDataService().getNodeInstances(
-                    new URI(nodeInstanceID.toString()), null, null, null);
+                nodeInstances =
+                    InstanceDataServiceHandler.getInstanceDataService()
+                                              .getNodeInstances(new URI(nodeInstanceID.toString()), null, null, null);
 
                 for (final NodeInstance nodeInstance : nodeInstances) {
                     if (nodeInstance.getId() == nodeInstanceID) {
@@ -99,7 +101,8 @@ public class ContainerProxy {
                 }
             }
 
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
         }
 
@@ -116,9 +119,9 @@ public class ContainerProxy {
         ContainerProxy.LOG.debug("Searching ServiceInstance with ID: {}", id);
 
         try {
-            final List<ServiceInstance> instances = InstanceDataServiceHandler.getInstanceDataService()
-                                                                              .getServiceInstances(
-                                                                                  new URI(id.toString()), null, null);
+            final List<ServiceInstance> instances =
+                InstanceDataServiceHandler.getInstanceDataService().getServiceInstances(new URI(id.toString()), null,
+                                                                                        null);
 
             for (final ServiceInstance instance : instances) {
                 if (instance.getDBId() == id) {
@@ -126,7 +129,8 @@ public class ContainerProxy {
                     return instance;
                 }
             }
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
         }
         ContainerProxy.LOG.warn("No ServiceInstance with matching ID found.");
@@ -149,9 +153,8 @@ public class ContainerProxy {
         ContainerProxy.LOG.debug("Searching ArtifactTemplate defining needed properties for Interface: " + interfaceName
             + " of NodeType: " + nodeTypeName + "inside of CSAR: " + csarID);
 
-        final List<QName> nodeTypeImplementationsIDs = ToscaServiceHandler.getToscaEngineService()
-                                                                          .getNodeTypeImplementationsOfNodeType(csarID,
-                                                                              nodeTypeName);
+        final List<QName> nodeTypeImplementationsIDs =
+            ToscaServiceHandler.getToscaEngineService().getNodeTypeImplementationsOfNodeType(csarID, nodeTypeName);
 
         ContainerProxy.LOG.debug("The NodeType: " + nodeTypeName + " has " + nodeTypeImplementationsIDs.size()
             + " NodeTypeImplementations.");
@@ -159,11 +162,9 @@ public class ContainerProxy {
         for (final QName nodeTypeImplementationID : nodeTypeImplementationsIDs) {
 
             // get the NodeTypeImplementation
-            final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) ToscaServiceHandler.getToscaEngineService()
-                                                                                                                .getToscaReferenceMapper()
-                                                                                                                .getJAXBReference(
-                                                                                                                    csarID,
-                                                                                                                    nodeTypeImplementationID);
+            final TNodeTypeImplementation nodeTypeImplementation =
+                (TNodeTypeImplementation) ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                                                             .getJAXBReference(csarID, nodeTypeImplementationID);
 
             // if there are DAs
             if (nodeTypeImplementation.getDeploymentArtifacts() != null) {
@@ -185,22 +186,22 @@ public class ContainerProxy {
                         ContainerProxy.LOG.debug("ArtifactTemplate for DA: " + da.getName() + " found: " + artifactRef
                             + ". Getting the properties of it.");
 
-                        final Document properties = ToscaServiceHandler.getToscaEngineService()
-                                                                       .getPropertiesOfAArtifactTemplate(csarID,
-                                                                           artifactRef);
+                        final Document properties =
+                            ToscaServiceHandler.getToscaEngineService().getPropertiesOfAArtifactTemplate(csarID,
+                                                                                                         artifactRef);
 
                         if (properties != null) {
 
                             ContainerProxy.LOG.debug("Properties of ArtifactTemplate: {} found.", artifactRef);
                             ContainerProxy.LOG.debug("Getting the {} elements if existing.",
-                                INTERFACES_PROPERTIES_NAME);
+                                                     INTERFACES_PROPERTIES_NAME);
 
                             // get ApplicationInterfacesProperties
-                            final NodeList appPropsList = properties.getElementsByTagNameNS(NAMESPACE,
-                                INTERFACES_PROPERTIES_NAME);
+                            final NodeList appPropsList =
+                                properties.getElementsByTagNameNS(NAMESPACE, INTERFACES_PROPERTIES_NAME);
 
-                            ContainerProxy.LOG.debug(
-                                appPropsList.getLength() + " " + INTERFACES_PROPERTIES_NAME + " elements found.");
+                            ContainerProxy.LOG.debug(appPropsList.getLength() + " " + INTERFACES_PROPERTIES_NAME
+                                + " elements found.");
 
                             boolean hostEndpointSpecified = false;
                             boolean portSpecified = false;
@@ -216,8 +217,7 @@ public class ContainerProxy {
                                 invocationTypeSpecified = false;
                                 interfaceFound = false;
 
-                                ContainerProxy.LOG.debug(
-                                    "Check if information are specified for the correct Interface.");
+                                ContainerProxy.LOG.debug("Check if information are specified for the correct Interface.");
 
                                 propNode = appPropsList.item(i);
 
@@ -246,22 +246,23 @@ public class ContainerProxy {
                                         } else if (addProp.getLocalName().equals(INTERFACE_INFORMATIONS)) {
 
                                             // check if interface matches
-                                            final NodeList appInvInterfaceInfo = ((Element) addProp).getElementsByTagNameNS(
-                                                NAMESPACE, INTERFACE_INFORMATION);
+                                            final NodeList appInvInterfaceInfo =
+                                                ((Element) addProp).getElementsByTagNameNS(NAMESPACE,
+                                                                                           INTERFACE_INFORMATION);
 
                                             ContainerProxy.LOG.debug(INTERFACE_INFORMATION + " for "
                                                 + +appInvInterfaceInfo.getLength() + " Interfaces found.");
 
                                             for (int i3 = 0; i3 < appInvInterfaceInfo.getLength(); i3++) {
 
-                                                final String interfName = appInvInterfaceInfo.item(i3).getAttributes()
-                                                                                             .getNamedItem("name")
-                                                                                             .getNodeValue();
+                                                final String interfName =
+                                                    appInvInterfaceInfo.item(i3).getAttributes().getNamedItem("name")
+                                                                       .getNodeValue();
 
                                                 if (interfName.equals(interfaceName)) {
                                                     interfaceFound = true;
                                                     ContainerProxy.LOG.debug("Properties for interface: {} found.",
-                                                        interfaceName);
+                                                                             interfaceName);
 
                                                 }
                                             }
@@ -270,10 +271,9 @@ public class ContainerProxy {
                                 }
                             }
                             if (hostEndpointSpecified && portSpecified && invocationTypeSpecified && interfaceFound) {
-                                ContainerProxy.LOG.debug(
-                                    "Properties with all needed information(Endpoint & InvocationType) for interface: "
-                                        + interfaceName + " of NodeType: " + nodeTypeName + " inside CSAR: " + csarID
-                                        + " found!");
+                                ContainerProxy.LOG.debug("Properties with all needed information(Endpoint & InvocationType) for interface: "
+                                    + interfaceName + " of NodeType: " + nodeTypeName + " inside CSAR: " + csarID
+                                    + " found!");
                                 return propNode;
                             }
                         } else {
@@ -285,7 +285,7 @@ public class ContainerProxy {
                 }
             } else {
                 ContainerProxy.LOG.debug("The NodeTypeImplementation {} has no DeploymentArtifacts.",
-                    nodeTypeImplementation.getName());
+                                         nodeTypeImplementation.getName());
             }
         }
         ContainerProxy.LOG.debug("No ArtifactTemplate with needed properties for interface: " + interfaceName
@@ -396,20 +396,20 @@ public class ContainerProxy {
                 if (addProp.getLocalName().equals(INTERFACE_INFORMATIONS)) {
 
                     // check if interface matches
-                    final NodeList appInvInterfaceInfo = ((Element) addProp).getElementsByTagNameNS(NAMESPACE,
-                        INTERFACE_INFORMATION);
+                    final NodeList appInvInterfaceInfo =
+                        ((Element) addProp).getElementsByTagNameNS(NAMESPACE, INTERFACE_INFORMATION);
 
-                    ContainerProxy.LOG.debug(
-                        INTERFACE_INFORMATIONS + " for " + +appInvInterfaceInfo.getLength() + " Interfaces found.");
+                    ContainerProxy.LOG.debug(INTERFACE_INFORMATIONS + " for " + +appInvInterfaceInfo.getLength()
+                        + " Interfaces found.");
 
                     for (int i2 = 0; i2 < appInvInterfaceInfo.getLength(); i2++) {
 
-                        final String interfName = appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("name")
-                                                                     .getNodeValue();
+                        final String interfName =
+                            appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("name").getNodeValue();
 
                         if (interfName.equals(interfaceName)) {
-                            final String className = appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("class")
-                                                                        .getNodeValue();
+                            final String className =
+                                appInvInterfaceInfo.item(i2).getAttributes().getNamedItem("class").getNodeValue();
                             ContainerProxy.LOG.debug("Class property: {}", className);
                             return className;
 
@@ -429,16 +429,15 @@ public class ContainerProxy {
      *         & csar
      */
     protected static String getANodeTemplateNameOfNodeType(final CSARID csarID, final QName serviceTemplateID,
-                    final QName nodeTypeQName) {
+                                                           final QName nodeTypeQName) {
 
         ContainerProxy.LOG.debug("Searching NodeTemplate of NodeType: " + nodeTypeQName + " in the ServiceTemplate: "
             + serviceTemplateID + " inside the CSAR: " + csarID);
 
         // get the ServiceTemplate
-        final TServiceTemplate serviceTemplate = (TServiceTemplate) ToscaServiceHandler.getToscaEngineService()
-                                                                                       .getToscaReferenceMapper()
-                                                                                       .getJAXBReference(csarID,
-                                                                                           serviceTemplateID);
+        final TServiceTemplate serviceTemplate =
+            (TServiceTemplate) ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                                                  .getJAXBReference(csarID, serviceTemplateID);
 
         for (final TEntityTemplate entity : serviceTemplate.getTopologyTemplate()
                                                            .getNodeTemplateOrRelationshipTemplate()) {
@@ -479,13 +478,14 @@ public class ContainerProxy {
      *
      */
     public static String getHostedOnNodeTemplateWithSpecifiedIPProperty(final CSARID csarID,
-                    final QName serviceTemplateID, String nodeTemplateID) {
+                                                                        final QName serviceTemplateID,
+                                                                        String nodeTemplateID) {
 
         ContainerProxy.LOG.debug("Searching NodeTemplate with specified IP-Property underneath the NodeTemplate: "
             + nodeTemplateID + " of the ServiceTemplate :" + serviceTemplateID + " inside the CSAR: " + csarID);
 
-        Document props = ToscaServiceHandler.getToscaEngineService().getPropertiesOfNodeTemplate(csarID,
-            serviceTemplateID, nodeTemplateID);
+        Document props = ToscaServiceHandler.getToscaEngineService()
+                                            .getPropertiesOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
         final QName relationshipType = new QName(HOSTED_ON_NAMESPACE, HOSTED_ON_LOCALPART);
 
@@ -494,15 +494,16 @@ public class ContainerProxy {
             ContainerProxy.LOG.debug("{} isn't the searched NodeTemplate.", nodeTemplateID);
             ContainerProxy.LOG.debug("Getting the underneath Node for checking if it is the searched NodeTemplate.");
 
-            nodeTemplateID = ToscaServiceHandler.getToscaEngineService().getRelatedNodeTemplateID(csarID,
-                serviceTemplateID, nodeTemplateID, relationshipType);
+            nodeTemplateID =
+                ToscaServiceHandler.getToscaEngineService().getRelatedNodeTemplateID(csarID, serviceTemplateID,
+                                                                                     nodeTemplateID, relationshipType);
 
             if (nodeTemplateID != null) {
                 ContainerProxy.LOG.debug("Checking if the underneath Node: {} is the searched NodeTemplate.",
-                    nodeTemplateID);
+                                         nodeTemplateID);
 
-                props = ToscaServiceHandler.getToscaEngineService().getPropertiesOfNodeTemplate(csarID,
-                    serviceTemplateID, nodeTemplateID);
+                props = ToscaServiceHandler.getToscaEngineService()
+                                           .getPropertiesOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
             } else {
                 ContainerProxy.LOG.debug("No underneath Node found.");
@@ -534,8 +535,9 @@ public class ContainerProxy {
         ContainerProxy.LOG.debug("Getting IP-Property from InstanceDataService of NodeTemplate: " + nodeTemplateQName
             + " of ServiceInstanceID: " + serviceInstanceID + ".");
 
-        final List<NodeInstance> nodeInstances = InstanceDataServiceHandler.getInstanceDataService().getNodeInstances(
-            null, nodeTemplateQName, null, serviceInstanceID);
+        final List<NodeInstance> nodeInstances =
+            InstanceDataServiceHandler.getInstanceDataService().getNodeInstances(null, nodeTemplateQName, null,
+                                                                                 serviceInstanceID);
 
         for (final NodeInstance nodeInstance : nodeInstances) {
 
@@ -548,7 +550,8 @@ public class ContainerProxy {
                     + " ServiceInstanceID: " + serviceInstanceID + " found: " + ip);
                 try {
                     return new URL(ip);
-                } catch (final MalformedURLException e) {
+                }
+                catch (final MalformedURLException e) {
                     e.printStackTrace();
                 }
             }
@@ -603,7 +606,8 @@ public class ContainerProxy {
             final StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             output = writer.getBuffer().toString().replaceAll("\n|\r", "");
-        } catch (final TransformerException e) {
+        }
+        catch (final TransformerException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

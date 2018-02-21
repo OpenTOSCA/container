@@ -16,8 +16,7 @@ package org.apache.axis2.transaction.xsd;
 public class ExtensionMapper {
 
     public static java.lang.Object getTypeObject(final java.lang.String namespaceURI, final java.lang.String typeName,
-                    final javax.xml.stream.XMLStreamReader reader)
-        throws java.lang.Exception {
+                                                 final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
 
 
         if ("http://context.axis2.apache.org/xsd".equals(namespaceURI) && "ServiceContext".equals(typeName)) {

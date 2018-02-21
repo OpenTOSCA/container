@@ -41,8 +41,8 @@ public class NodeTemplatesResource {
 
     @GET
     @Produces(ResourceConstants.LINKED_XML)
-    public Response getReferencesXML(@Context final UriInfo uriInfo, @QueryParam("nodeType") final QName nodeType)
-        throws UnsupportedEncodingException {
+    public Response getReferencesXML(@Context final UriInfo uriInfo,
+                                     @QueryParam("nodeType") final QName nodeType) throws UnsupportedEncodingException {
         this.uriInfo = uriInfo;
         return Response.ok(this.getRefs(nodeType).getXMLString()).build();
     }
@@ -62,8 +62,9 @@ public class NodeTemplatesResource {
 
         final References refs = new References();
 
-        for (final String ntID : ToscaServiceHandler.getToscaEngineService().getNodeTemplatesOfServiceTemplate(
-            this.csarId, this.serviceTemplateID)) {
+        for (final String ntID : ToscaServiceHandler.getToscaEngineService()
+                                                    .getNodeTemplatesOfServiceTemplate(this.csarId,
+                                                                                       this.serviceTemplateID)) {
 
             if (nodeType != null
                 && ToscaServiceHandler.getToscaEngineService()
@@ -87,8 +88,7 @@ public class NodeTemplatesResource {
     @Path("{PlanIdLocalPart}")
     @Produces(ResourceConstants.TOSCA_JSON)
     public NodeTemplateResource getNodeTemplate(@Context final UriInfo uriInfo,
-                    @PathParam("PlanIdLocalPart") final String planIdLocalPart)
-        throws URISyntaxException {
+                                                @PathParam("PlanIdLocalPart") final String planIdLocalPart) throws URISyntaxException {
         return new NodeTemplateResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
             planIdLocalPart);
     }

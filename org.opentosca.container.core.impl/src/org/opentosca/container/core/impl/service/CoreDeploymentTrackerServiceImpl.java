@@ -114,7 +114,7 @@ public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerS
      * This currently acts as a proxy.
      */
     public boolean storeIADeploymentInfo(final CSARID csarID, final String iaRelPath,
-                    final IADeploymentState iaDeploymentState) {
+                                         final IADeploymentState iaDeploymentState) {
         return this.deploymentTrackerService.storeIADeploymentInfo(csarID, iaRelPath, iaDeploymentState);
     }
 
@@ -125,7 +125,7 @@ public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerS
      * This currently acts as a proxy.
      */
     public boolean storePlanDeploymentInfo(final CSARID csarID, final String planRelPath,
-                    final PlanDeploymentState planDeploymentState) {
+                                           final PlanDeploymentState planDeploymentState) {
         return this.deploymentTrackerService.storePlanDeploymentInfo(csarID, planRelPath, planDeploymentState);
     }
 
@@ -139,8 +139,7 @@ public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerS
      *
      * @param deploymentTrackerService to bind
      */
-    public void bindCoreInternalDeploymentTrackerService(
-                    final ICoreInternalDeploymentTrackerService deploymentTrackerService) {
+    public void bindCoreInternalDeploymentTrackerService(final ICoreInternalDeploymentTrackerService deploymentTrackerService) {
         if (deploymentTrackerService == null) {
             CoreDeploymentTrackerServiceImpl.LOG.error("Can't bind Core Internal Deployment Tracker Service.");
         } else {
@@ -155,8 +154,7 @@ public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerS
      *
      * @param deploymentTrackerService to unbind
      */
-    public void unbindCoreInternalDeploymentTrackerService(
-                    final ICoreInternalDeploymentTrackerService deploymentTrackerService) {
+    public void unbindCoreInternalDeploymentTrackerService(final ICoreInternalDeploymentTrackerService deploymentTrackerService) {
         this.deploymentTrackerService = null;
         CoreDeploymentTrackerServiceImpl.LOG.debug("Core Internal Deployment Tracker Service unbound.");
     }

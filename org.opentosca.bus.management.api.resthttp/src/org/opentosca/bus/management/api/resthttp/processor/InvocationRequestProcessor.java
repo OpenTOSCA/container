@@ -112,8 +112,7 @@ public class InvocationRequestProcessor implements Processor {
             }
 
             if (nodeTemplateID == null && relationshipTemplateID == null) {
-                InvocationRequestProcessor.LOG.debug(
-                    "Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
+                InvocationRequestProcessor.LOG.debug("Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
                 throw new Exception(
                     "Can't process request: Eighter nodeTemplateID or relationshipTemplateID is required!");
             }

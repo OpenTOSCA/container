@@ -22,7 +22,8 @@ public class JaxbFactoryControl {
 
     private static Logger LOG = LoggerFactory.getLogger(JaxbFactoryControl.class);
 
-    private static IOpenToscaControlService openToscaControl = IOpenToscaControlServiceHandler.getOpenToscaControlService();
+    private static IOpenToscaControlService openToscaControl =
+        IOpenToscaControlServiceHandler.getOpenToscaControlService();
 
 
     public static DeploymentProcessJaxb createDeploymentProcessJaxb(final CSARID processID) {
@@ -31,8 +32,7 @@ public class JaxbFactoryControl {
         jaxbObject.setProcessID(processID);
         jaxbObject.setDeploymentState(JaxbFactoryControl.openToscaControl.getDeploymentProcessState(processID));
         final HashSet<OperationJaxb> operations = new HashSet<>();
-        for (final DeploymentProcessOperation op : JaxbFactoryControl.openToscaControl.getExecutableDeploymentProcessOperations(
-            processID)) {
+        for (final DeploymentProcessOperation op : JaxbFactoryControl.openToscaControl.getExecutableDeploymentProcessOperations(processID)) {
             operations.add(JaxbFactoryControl.createOperationJaxb(op));
         }
         jaxbObject.setOperations(operations);

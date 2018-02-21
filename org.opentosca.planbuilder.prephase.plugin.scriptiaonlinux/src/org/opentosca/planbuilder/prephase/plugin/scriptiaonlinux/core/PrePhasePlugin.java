@@ -30,33 +30,33 @@ public abstract class PrePhasePlugin<T extends PlanContext>
     private static final Logger LOG = LoggerFactory.getLogger(PrePhasePlugin.class);
     private static final String PLUGIN_ID = "openTOSCA DA/IA On Linux Plugin v0.1";
 
-    private static final QName scriptArtifactType = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
-    private static final QName archiveArtifactType = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
-    private static final QName bpelArchiveArtifactType = new QName(
-        "http://docs.oasis-open.org/wsbpel/2.0/process/executable", "BPEL");
+    private static final QName scriptArtifactType =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ScriptArtifact");
+    private static final QName archiveArtifactType =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+    private static final QName bpelArchiveArtifactType =
+        new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "BPEL");
     private static final QName warArtifactTypeOld = new QName("http://www.example.com/ToscaTypes", "WAR");
     private static final QName warArtifactType = new QName("http://opentosca.org/artifacttypes", "WAR");
     private static final QName sqlArtifactType = new QName("http://opentosca.org/artifacttypes", "SQLArtifact");
-    private static final QName configurationArtifactType = new QName("http://opentosca.org/artifacttypes",
-        "ConfigurationArtifact");
-    private static final QName tdlConfigurationArtifactType = new QName("http://opentosca.org/artifacttypes",
-        "TDLArtifact");
+    private static final QName configurationArtifactType =
+        new QName("http://opentosca.org/artifacttypes", "ConfigurationArtifact");
+    private static final QName tdlConfigurationArtifactType =
+        new QName("http://opentosca.org/artifacttypes", "TDLArtifact");
 
     private static final QName ansibleArtifactType = new QName("http://opentosca.org/artifacttypes", "Ansible");
     private static final QName chefArtifactType = new QName("http://opentosca.org/artifacttypes", "Chef");
-    private static final QName dockerContainerArtefactTypeOld = new QName("http://opentosca.org/artefacttypes",
-        "DockerContainerArtefact");
-    private static final QName dockerContainerArtefactType = new QName("http://opentosca.org/artifacttypes",
-        "DockerContainerArtifact");
+    private static final QName dockerContainerArtefactTypeOld =
+        new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
+    private static final QName dockerContainerArtefactType =
+        new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
 
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean canHandle(final AbstractDeploymentArtifact deploymentArtifact,
-                    final AbstractNodeType infrastructureNodeType) {
+                             final AbstractNodeType infrastructureNodeType) {
         for (final QName artType : ModelUtils.getArtifactTypeHierarchy(deploymentArtifact.getArtifactRef())) {
             for (final QName nodeType : ModelUtils.getNodeTypeHierarchy(infrastructureNodeType)) {
                 PrePhasePlugin.LOG.debug("Checking if type: " + artType.toString() + " and infrastructure nodeType: "
@@ -104,21 +104,20 @@ public abstract class PrePhasePlugin<T extends PlanContext>
      * @return a Boolean. True if given pair of QName's denotes a pair which this plugin can handle
      */
     private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
-                    final boolean isDA) {
+                                              final boolean isDA) {
 
         if (!isDA
             && (PrePhasePlugin.warArtifactType.equals(artifactType)
                 || PrePhasePlugin.warArtifactTypeOld.equals(artifactType))
-            && infrastructureNodeType.equals(
-                new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure"))) {
+            && infrastructureNodeType.equals(new QName("http://opentosca.org/nodetypes",
+                "TOSCAManagmentInfrastructure"))) {
             // WARs are deployed as environment-centric artifacts -> doesn't
             // need to be deployed on a node inside the topology, instead we
             // install it inside the management infrastructure
             return true;
         }
 
-        if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(
-            infrastructureNodeType)) {
+        if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(infrastructureNodeType)) {
             return false;
         }
 

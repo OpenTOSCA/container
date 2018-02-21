@@ -36,11 +36,11 @@ public class DeploymentArtifactResolver extends GenericResolver {
      */
     public boolean resolve(final TDeploymentArtifact deploymentArtifact, final String targetNamespace) {
         boolean errorOccurred = false;
-        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-            new QName(targetNamespace, deploymentArtifact.getName()), deploymentArtifact);
+        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+            deploymentArtifact.getName()), deploymentArtifact);
         errorOccurred = errorOccurred
             || !this.referenceMapper.searchToscaElementByQNameWithName(deploymentArtifact.getArtifactType(),
-                ElementNamesEnum.ARTIFACTTYPE);
+                                                                       ElementNamesEnum.ARTIFACTTYPE);
         if (deploymentArtifact.getArtifactRef() != null && !deploymentArtifact.getArtifactRef().toString().equals("")) {
             errorOccurred = errorOccurred
                 || !this.referenceMapper.searchToscaElementByQNameWithID(deploymentArtifact.getArtifactRef());

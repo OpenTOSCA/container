@@ -49,9 +49,9 @@ public class PathResolver {
         relativePath = relativePath.replace("//", fs);
         relativePath = relativePath.replace("\\\\", fs);
 
-        PathResolver.LOG.trace(
-            "Resolve the relative path with " + System.getProperty("line.separator") + "entry point:   " + locationPath
-                + System.getProperty("line.separator") + "relative path: " + relativePath);
+        PathResolver.LOG.trace("Resolve the relative path with " + System.getProperty("line.separator")
+            + "entry point:   " + locationPath + System.getProperty("line.separator") + "relative path: "
+            + relativePath);
 
         String newPath = locationPath.substring(0, locationPath.lastIndexOf(fs));
 
@@ -117,7 +117,8 @@ public class PathResolver {
                 PathResolver.LOG.trace("New path \"" + newPath + "\" seems legit, file exists.");
                 return newPath;
             }
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

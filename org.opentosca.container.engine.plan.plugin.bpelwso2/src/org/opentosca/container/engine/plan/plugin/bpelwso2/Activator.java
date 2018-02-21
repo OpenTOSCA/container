@@ -24,7 +24,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-            bundleContext.getBundle().getVersion());
+                    bundleContext.getBundle().getVersion());
         context = bundleContext;
 
         final String url = context.getProperty("org.opentosca.container.engine.plan.plugin.bpelwso2.url");
@@ -33,8 +33,8 @@ public class Activator implements BundleActivator {
             Settings.setSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.url", url);
         }
 
-        final String servicesUrl = context.getProperty(
-            "org.opentosca.container.engine.plan.plugin.bpelwso2.services.url");
+        final String servicesUrl =
+            context.getProperty("org.opentosca.container.engine.plan.plugin.bpelwso2.services.url");
 
         if (servicesUrl != null) {
             Settings.setSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.services.url", servicesUrl);
@@ -57,7 +57,7 @@ public class Activator implements BundleActivator {
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
         logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-            bundleContext.getBundle().getVersion());
+                    bundleContext.getBundle().getVersion());
         Activator.context = null;
     }
 }

@@ -39,9 +39,9 @@ public class PoliciesListResource {
     @Produces(ResourceConstants.TOSCA_XML)
     // arID=TestLifeCycle.csar&namespace=org.opentosca.demo&serviceTemplateID=TestLifeCycleDemo_ServiceTemplate&nodeTemplateName=TestLifeCycleDemoNodeTemplate
     public TBoundaryDefinitions.Policies getPolicies(@QueryParam("csarID") final String csarID,
-                    @QueryParam("namespace") final String namespaceServiceTemplate,
-                    @QueryParam("serviceTemplateID") final String serviceTemplateID,
-                    @QueryParam("nodeTemplateID") final String nodeTemplateID) {
+                                                     @QueryParam("namespace") final String namespaceServiceTemplate,
+                                                     @QueryParam("serviceTemplateID") final String serviceTemplateID,
+                                                     @QueryParam("nodeTemplateID") final String nodeTemplateID) {
 
         if (Utilities.areEmpty(csarID, serviceTemplateID)) {
             throw new GenericRestException(Status.BAD_REQUEST,
@@ -64,7 +64,8 @@ public class PoliciesListResource {
             } else {
                 templateID = new QName(namespaceServiceTemplate, nodeTemplateID);
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             throw new GenericRestException(Status.BAD_REQUEST,
                 "error converting one of the parameters: " + e.getMessage());
         }

@@ -29,8 +29,8 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory implements IToscaModelFactory {
 
-    private final static QName _Documentation_QNAME = new QName("http://docs.oasis-open.org/tosca/ns/2011/12",
-        "documentation");
+    private final static QName _Documentation_QNAME =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12", "documentation");
 
 
     /**

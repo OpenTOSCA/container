@@ -42,8 +42,8 @@ public interface IPortabilityService {
      * @return TArtifacts containing information about the artifacts specified
      */
     public Artifacts getNodeTemplateArtifacts(CSARID csarID, QName serviceTemplateID, QName nodeTemplateID,
-                    ArtifactType artifactType, String deploymentArtifactName, String interfaceName,
-                    String operationName);
+                                              ArtifactType artifactType, String deploymentArtifactName,
+                                              String interfaceName, String operationName);
 
     /**
      * retrieves a TArtifact containing the specified ArtifactTypes of the nodeTemplate referenced by
@@ -64,8 +64,9 @@ public interface IPortabilityService {
      * @return TArtifacts containing information about the artifacts specified
      */
     public Artifacts getRelationshipTemplateArtifacts(CSARID csarID, QName serviceTemplateID,
-                    QName relationshipTemplateID, ArtifactType artifactType, String deploymentArtifactName,
-                    String interfaceName, String operationName);
+                                                      QName relationshipTemplateID, ArtifactType artifactType,
+                                                      String deploymentArtifactName, String interfaceName,
+                                                      String operationName);
 
     /**
      * returns the QName of the NodeType which the NodeInstance specified by <code>NodeInstanceID</code>

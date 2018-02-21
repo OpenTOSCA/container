@@ -82,8 +82,9 @@ public class RelationshipTemplateInstanceResource {
 
         this.log.debug("try to build relation template instance resource");
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-        final List<RelationInstance> relationInstances = service.getRelationInstances(
-            IdConverter.relationInstanceIDtoURI(this.relationshipTemplateInstanceId), null, null, null);
+        final List<RelationInstance> relationInstances =
+            service.getRelationInstances(IdConverter.relationInstanceIDtoURI(this.relationshipTemplateInstanceId), null,
+                                         null, null);
 
         // existence of instance is already checked before invoking this class
         // and its methods

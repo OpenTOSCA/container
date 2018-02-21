@@ -50,9 +50,9 @@ public class HeaderProcessor implements Processor {
                 final String xml1 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ReplyTo "
                     + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\"><wsa:Address>" + entry.getValue().toString()
                     + "</wsa:Address></ReplyTo>";
-                final SoapHeader replyToSoapHeader = new SoapHeader(
-                    new QName("http://www.w3.org/2005/08/addressing", "ReplyTo"),
-                    readXml(new StringReader(xml1)).getDocumentElement());
+                final SoapHeader replyToSoapHeader =
+                    new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "ReplyTo"),
+                        readXml(new StringReader(xml1)).getDocumentElement());
                 payload.getHeaders().add(replyToSoapHeader);
 
             } else if (entry.getKey().equalsIgnoreCase("MessageID")) {
@@ -60,9 +60,9 @@ public class HeaderProcessor implements Processor {
                 final String xml2 = "<?xml version=\"1.0\" encoding=\"utf-8\"?><MessageID "
                     + "xmlns:wsa=\"http://www.w3.org/2005/08/addressing\">" + entry.getValue().toString()
                     + "</MessageID>";
-                final SoapHeader messageIdSoapHeader = new SoapHeader(
-                    new QName("http://www.w3.org/2005/08/addressing", "MessageID"),
-                    readXml(new StringReader(xml2)).getDocumentElement());
+                final SoapHeader messageIdSoapHeader =
+                    new SoapHeader(new QName("http://www.w3.org/2005/08/addressing", "MessageID"),
+                        readXml(new StringReader(xml2)).getDocumentElement());
                 payload.getHeaders().add(messageIdSoapHeader);
 
             } else {
@@ -87,13 +87,16 @@ public class HeaderProcessor implements Processor {
         final String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><" + key + ">" + content + "</" + key + ">";
         try {
             return new SoapHeader(new QName(key), readXml(new StringReader(xml)).getDocumentElement());
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -124,8 +127,8 @@ public class HeaderProcessor implements Processor {
     public static class NullResolver implements EntityResolver {
 
         @Override
-        public InputSource resolveEntity(final String publicId, final String systemId)
-            throws SAXException, IOException {
+        public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException,
+                                                                                       IOException {
             return new InputSource(new StringReader(""));
         }
     }

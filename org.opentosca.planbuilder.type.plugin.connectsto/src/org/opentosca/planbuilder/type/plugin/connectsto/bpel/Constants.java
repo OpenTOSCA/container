@@ -12,8 +12,8 @@ import javax.xml.namespace.QName;
 public final class Constants {
 
     // the relationshipType this plugin can handle
-    public static final QName MOSQUITTOC_CONNECTS_TO_RELATIONSHIP_TYPE = new QName(
-        "http://opentosca.org/relationshiptypes", "MosquittoConnectsTo");
+    public static final QName MOSQUITTOC_CONNECTS_TO_RELATIONSHIP_TYPE =
+        new QName("http://opentosca.org/relationshiptypes", "MosquittoConnectsTo");
 
     // the target nodes of the relationshiptTypes must be a stack of topic and
     // mosquitto

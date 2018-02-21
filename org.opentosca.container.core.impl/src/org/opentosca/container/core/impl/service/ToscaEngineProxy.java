@@ -25,10 +25,9 @@ public class ToscaEngineProxy {
      * @return true, if the given ServiceTemplate exists in the CSAR specified by the input parameter
      */
     public static boolean doesServiceTemplateExist(final IToscaEngineService toscaEngineService, final CSARID csarID,
-                    final QName serviceTemplateID) {
-        final List<QName> serviceTemplateIDsContainedInCSAR = toscaEngineService.getToscaReferenceMapper()
-                                                                                .getServiceTemplateIDsContainedInCSAR(
-                                                                                    csarID);
+                                                   final QName serviceTemplateID) {
+        final List<QName> serviceTemplateIDsContainedInCSAR =
+            toscaEngineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarID);
 
         if (serviceTemplateIDsContainedInCSAR == null) {
             return false;

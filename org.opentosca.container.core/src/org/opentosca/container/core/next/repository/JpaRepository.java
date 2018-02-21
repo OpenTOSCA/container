@@ -24,7 +24,8 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
             em.getTransaction().begin();
             em.persist(entity);
             em.getTransaction().commit();
-        } finally {
+        }
+        finally {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -39,7 +40,8 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
             em.getTransaction().begin();
             items.forEach(em::persist);
             em.getTransaction().commit();
-        } finally {
+        }
+        finally {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -54,7 +56,8 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
             em.getTransaction().begin();
             em.merge(entity);
             em.getTransaction().commit();
-        } finally {
+        }
+        finally {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -69,7 +72,8 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
             em.getTransaction().begin();
             em.remove(em.merge(entity));
             em.getTransaction().commit();
-        } finally {
+        }
+        finally {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -83,7 +87,8 @@ public abstract class JpaRepository<T> implements Repository<T, Long> {
             final T entity = em.find(this.clazz, id);
             em.refresh(entity);
             return Optional.ofNullable(entity);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             return Optional.empty();
         }
     }

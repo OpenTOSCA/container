@@ -57,25 +57,27 @@ public class TOSCAMetaFileParser {
             numErrors += this.validateFileBlocks(manifestContent);
 
             if (numErrors == 0) {
-                TOSCAMetaFileParser.LOG.debug(
-                    "Parsing TOSCA meta file \"{}\" completed without errors. TOSCA meta file is valid.",
-                    toscaMetaFile.getFileName().toString());
+                TOSCAMetaFileParser.LOG.debug("Parsing TOSCA meta file \"{}\" completed without errors. TOSCA meta file is valid.",
+                                              toscaMetaFile.getFileName().toString());
                 toscaMetaFileContent = new TOSCAMetaFile(manifestContent);
             } else {
-                TOSCAMetaFileParser.LOG.error(
-                    "Parsing TOSCA meta file \"{}\" failed - {} error(s) occured. TOSCA meta file is invalid.",
-                    toscaMetaFile.getFileName().toString(), numErrors);
+                TOSCAMetaFileParser.LOG.error("Parsing TOSCA meta file \"{}\" failed - {} error(s) occured. TOSCA meta file is invalid.",
+                                              toscaMetaFile.getFileName().toString(), numErrors);
             }
 
-        } catch (final FileNotFoundException exc) {
+        }
+        catch (final FileNotFoundException exc) {
             TOSCAMetaFileParser.LOG.error("\"{}\" doesn't exist or is not a file.", toscaMetaFile, exc);
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
             TOSCAMetaFileParser.LOG.error("An IO Exception occured.", exc);
-        } finally {
+        }
+        finally {
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (final IOException exc) {
+                }
+                catch (final IOException exc) {
                     TOSCAMetaFileParser.LOG.warn("An IOException occured.", exc);
                 }
             }
@@ -125,10 +127,10 @@ public class TOSCAMetaFileParser {
         if (metaFileVersion == null) {
             this.logAttrMissing(TOSCAMetaFileAttributes.TOSCA_META_VERSION, 0);
             numErrors++;
-        } else if (!(metaFileVersion = metaFileVersion.trim()).equals(
-            TOSCAMetaFileAttributes.TOSCA_META_VERSION_VALUE)) {
+        } else if (!(metaFileVersion =
+            metaFileVersion.trim()).equals(TOSCAMetaFileAttributes.TOSCA_META_VERSION_VALUE)) {
             this.logAttrWrongVal(TOSCAMetaFileAttributes.TOSCA_META_VERSION, 0,
-                TOSCAMetaFileAttributes.TOSCA_META_VERSION_VALUE);
+                                 TOSCAMetaFileAttributes.TOSCA_META_VERSION_VALUE);
             numErrors++;
         }
 
@@ -247,7 +249,7 @@ public class TOSCAMetaFileParser {
      */
     private void logAttrWrongVal(final String attributeName, final int blockNr, final String correctValue) {
         TOSCAMetaFileParser.LOG.warn("Attribute {} in block {} has an invalid value. Must be {}.", attributeName,
-            blockNr, correctValue);
+                                     blockNr, correctValue);
     }
 
     /**

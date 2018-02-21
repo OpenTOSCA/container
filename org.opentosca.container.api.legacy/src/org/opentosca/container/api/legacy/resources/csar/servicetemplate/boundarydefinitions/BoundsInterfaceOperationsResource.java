@@ -74,9 +74,9 @@ public class BoundsInterfaceOperationsResource {
 
         LOG.debug("Find operations for ST {} and Intf {}", this.serviceTemplateID, this.intName);
 
-        final List<String> ops = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
-                                                    .getBoundaryOperationsOfCSARInterface(this.csarID,
-                                                        this.serviceTemplateID, this.intName);
+        final List<String> ops =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                               .getBoundaryOperationsOfCSARInterface(this.csarID, this.serviceTemplateID, this.intName);
 
         for (final String op : ops) {
             refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, op), XLinkConstants.SIMPLE, op));

@@ -60,7 +60,8 @@ public class FileController {
                                .header("Content-Disposition", "attachment; filename=\"" + this.file.getName() + "\"")
                                .build();
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not get file: {}", e.getMessage(), e);
             return Response.serverError().build();
         }

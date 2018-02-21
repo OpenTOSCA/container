@@ -42,9 +42,9 @@ public abstract class Converters {
         si.setState(Enums.valueOf(State.ServiceTemplate.class, object.getState().toString()));
         si.setIDs();
         si.setCreated(object.getCreatedAt());
-        final ServiceTemplateInstanceProperty prop = object.getProperties().stream()
-                                                           .filter(p -> p.getName().equalsIgnoreCase("xml"))
-                                                           .collect(Collectors.reducing((a, b) -> null)).get();
+        final ServiceTemplateInstanceProperty prop =
+            object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
+                  .collect(Collectors.reducing((a, b) -> null)).get();
         if (prop != null) {
             si.setProperties((Document) xmlConverter.convertDataValueToObjectValue(prop.getValue(), null));
         }
@@ -72,7 +72,8 @@ public abstract class Converters {
                 prop.setValue(value);
                 sti.addProperty(prop);
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
         }
         return sti;
@@ -87,9 +88,9 @@ public abstract class Converters {
         ni.setNodeInstanceID();
         ni.setState(Enums.valueOf(State.Node.class, object.getState().toString()));
         ni.setCreated(object.getCreatedAt());
-        final List<NodeTemplateInstanceProperty> props = object.getProperties().stream()
-                                                               .filter(p -> p.getName().equalsIgnoreCase("xml"))
-                                                               .collect(Collectors.toList());
+        final List<NodeTemplateInstanceProperty> props =
+            object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
+                  .collect(Collectors.toList());
         if (props != null && !props.isEmpty() && props.get(0) != null) {
             ni.setProperties((Document) xmlConverter.convertDataValueToObjectValue(props.get(0).getValue(), null));
         }
@@ -121,12 +122,14 @@ public abstract class Converters {
                         if (so.isPresent()) {
                             nti.setServiceTemplateInstance(so.get());
                         }
-                    } catch (final Exception ex) {
+                    }
+                    catch (final Exception ex) {
                         ex.printStackTrace();
                     }
                 }
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
         }
         return nti;
@@ -160,9 +163,9 @@ public abstract class Converters {
         ri.setRelationInstanceID();
         ri.setState(Enums.valueOf(State.Relationship.class, object.getState().toString()));
         ri.setCreated(object.getCreatedAt());
-        final List<RelationshipTemplateInstanceProperty> props = object.getProperties().stream()
-                                                                       .filter(p -> p.getName().equalsIgnoreCase("xml"))
-                                                                       .collect(Collectors.toList());
+        final List<RelationshipTemplateInstanceProperty> props =
+            object.getProperties().stream().filter(p -> p.getName().equalsIgnoreCase("xml"))
+                  .collect(Collectors.toList());
         if (props != null && !props.isEmpty() && props.get(0) != null) {
             ri.setProperties((Document) xmlConverter.convertDataValueToObjectValue(props.get(0).getValue(), null));
         }
@@ -194,7 +197,8 @@ public abstract class Converters {
                         if (no.isPresent()) {
                             rti.setSource(no.get());
                         }
-                    } catch (final Exception ex) {
+                    }
+                    catch (final Exception ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -205,12 +209,14 @@ public abstract class Converters {
                         if (no.isPresent()) {
                             rti.setTarget(no.get());
                         }
-                    } catch (final Exception ex) {
+                    }
+                    catch (final Exception ex) {
                         ex.printStackTrace();
                     }
                 }
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
         }
         return rti;

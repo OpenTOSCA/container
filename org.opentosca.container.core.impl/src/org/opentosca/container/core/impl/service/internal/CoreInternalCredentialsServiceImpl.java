@@ -41,8 +41,8 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
     /**
      * Bound / available file storage providers.
      */
-    private static final Map<String, ICoreInternalFileStorageProviderService> STORAGE_PROVIDERS = Collections.synchronizedMap(
-        new HashMap<String, ICoreInternalFileStorageProviderService>());
+    private static final Map<String, ICoreInternalFileStorageProviderService> STORAGE_PROVIDERS =
+        Collections.synchronizedMap(new HashMap<String, ICoreInternalFileStorageProviderService>());
 
     private final CredentialsJPAStore JPA_STORE = new CredentialsJPAStore();
 
@@ -79,14 +79,14 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
         if (storageProvider != null) {
 
             if (storageProvider.getCredentialsID() != null) {
-                CoreInternalCredentialsServiceImpl.LOG.debug(
-                    "Credentials \"{}\" will not be set in storage provider \"{}\", because it has already credentials.",
-                    credentialsID, storageProviderID);
+                CoreInternalCredentialsServiceImpl.LOG.debug("Credentials \"{}\" will not be set in storage provider \"{}\", because it has already credentials.",
+                                                             credentialsID, storageProviderID);
             } else {
 
                 try {
                     this.setCredentialsInStorageProvider(credentials);
-                } catch (final SystemException exc) {
+                }
+                catch (final SystemException exc) {
                     CoreInternalCredentialsServiceImpl.LOG.warn("A System Exception occured.", exc);
                 }
 
@@ -94,9 +94,8 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
 
         } else {
 
-            CoreInternalCredentialsServiceImpl.LOG.debug(
-                "Storage provider \"{}\" is not available, so credentials \"{}\" can't be set.", storageProviderID,
-                credentialsID);
+            CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" is not available, so credentials \"{}\" can't be set.",
+                                                         storageProviderID, credentialsID);
 
         }
 
@@ -114,7 +113,7 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
      */
     private boolean checkCredentials(final Credentials credentials) {
         CoreInternalCredentialsServiceImpl.LOG.debug("Checking for missing data in given credentials...",
-            credentials.getStorageProviderID());
+                                                     credentials.getStorageProviderID());
 
         final String storageProviderID = credentials.getStorageProviderID();
         final String identity = credentials.getIdentity();
@@ -156,8 +155,8 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
     @Override
     public Set<Credentials> getAllCredentialsOfStorageProvider(final String storageProviderID) {
 
-        final Set<Credentials> allCredentialsOfStorageProvider = this.JPA_STORE.getAllCredentialsOfStorageProvider(
-            storageProviderID);
+        final Set<Credentials> allCredentialsOfStorageProvider =
+            this.JPA_STORE.getAllCredentialsOfStorageProvider(storageProviderID);
         return allCredentialsOfStorageProvider;
 
     }
@@ -194,14 +193,14 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
                 && storageProvider.getCredentialsID().equals(credentialsID)) {
                 storageProvider.deleteCredentials();
                 CoreInternalCredentialsServiceImpl.LOG.debug("Credentials were deleted in storage provider \"{}\".",
-                    storageProviderID);
+                                                             storageProviderID);
             } else {
-                CoreInternalCredentialsServiceImpl.LOG.debug(
-                    "No credentials have to be deleted in storage provider \"{}\".", storageProviderID);
+                CoreInternalCredentialsServiceImpl.LOG.debug("No credentials have to be deleted in storage provider \"{}\".",
+                                                             storageProviderID);
             }
         } else {
-            CoreInternalCredentialsServiceImpl.LOG.debug(
-                "Storage provider \"{}\" is not available, so no credentials have to be deleted.", storageProviderID);
+            CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" is not available, so no credentials have to be deleted.",
+                                                         storageProviderID);
         }
 
         this.JPA_STORE.deleteCredentials(credentialsID);
@@ -255,12 +254,12 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
         }
 
         CoreInternalCredentialsServiceImpl.LOG.debug("Setting credentials in storage provider \"{}\"...",
-            storageProviderID);
+                                                     storageProviderID);
 
         storageProvider.setCredentials(credentials);
 
         CoreInternalCredentialsServiceImpl.LOG.debug("Setting credentials in storage provider \"{}\" completed.",
-            storageProviderID);
+                                                     storageProviderID);
 
     }
 
@@ -276,13 +275,13 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
 
         if (storageProvider.getCredentialsID() != null) {
             CoreInternalCredentialsServiceImpl.LOG.debug("Deleting credentials in storage provider \"{}\"...",
-                storageProviderID);
+                                                         storageProviderID);
             storageProvider.deleteCredentials();
             CoreInternalCredentialsServiceImpl.LOG.debug("Deleting credentials in storage provider \"{}\" completed.",
-                storageProviderID);
+                                                         storageProviderID);
         } else {
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" has currently no credentials.",
-                storageProviderID);
+                                                         storageProviderID);
         }
 
     }
@@ -298,7 +297,7 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
         }
 
         CoreInternalCredentialsServiceImpl.LOG.debug("Checking if storage provider \"{}\" has credentials...",
-            storageProviderID);
+                                                     storageProviderID);
 
         if (storageProvider.getCredentialsID() != null) {
 
@@ -320,25 +319,24 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
         final ICoreInternalFileStorageProviderService storageProvider = this.getStorageProvider(storageProviderID);
 
         if (storageProvider == null) {
-            CoreInternalCredentialsServiceImpl.LOG.debug(
-                "Storage provider \"{}\" is not available, so credentials \"{}\" are not set.", storageProviderID,
-                credentialsID);
+            CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" is not available, so credentials \"{}\" are not set.",
+                                                         storageProviderID, credentialsID);
             return false;
         }
 
-        CoreInternalCredentialsServiceImpl.LOG.debug(
-            "Checking if credentials \"{}\" are set in storage provider \"{}\"...", credentialsID, storageProviderID);
+        CoreInternalCredentialsServiceImpl.LOG.debug("Checking if credentials \"{}\" are set in storage provider \"{}\"...",
+                                                     credentialsID, storageProviderID);
 
         final Long storageProviderCredentialsID = storageProvider.getCredentialsID();
 
         if (storageProviderCredentialsID != null && storageProviderCredentialsID.equals(credentialsID)) {
             CoreInternalCredentialsServiceImpl.LOG.debug("Credentials \"{}\" are set in storage provider \"{}\".",
-                credentialsID, storageProviderID);
+                                                         credentialsID, storageProviderID);
             return true;
         }
 
         CoreInternalCredentialsServiceImpl.LOG.debug("Credentials \"{}\" are not set in storage provider \"{}\".",
-            credentialsID, storageProviderID);
+                                                     credentialsID, storageProviderID);
 
         return false;
 
@@ -358,10 +356,10 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
 
         if (needsCredentials) {
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" needs credentials.",
-                storageProviderID);
+                                                         storageProviderID);
         } else {
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" needs no credentials.",
-                storageProviderID);
+                                                         storageProviderID);
         }
 
         return needsCredentials;
@@ -428,7 +426,7 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" is available.", storageProviderID);
         } else {
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" is not available.",
-                storageProviderID);
+                                                         storageProviderID);
         }
 
         return storageProvider;
@@ -442,32 +440,33 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
      *
      * @param storageProvider to bind
      */
-    protected void bindCoreInternalFileStorageProviderService(
-                    final ICoreInternalFileStorageProviderService storageProvider) {
+    protected void bindCoreInternalFileStorageProviderService(final ICoreInternalFileStorageProviderService storageProvider) {
         if (storageProvider != null) {
 
             CoreInternalCredentialsServiceImpl.STORAGE_PROVIDERS.put(storageProvider.getStorageProviderID(),
-                storageProvider);
+                                                                     storageProvider);
 
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" ({}) bound.",
-                storageProvider.getStorageProviderID(), storageProvider.getStorageProviderName());
+                                                         storageProvider.getStorageProviderID(),
+                                                         storageProvider.getStorageProviderName());
 
             final String storageProviderID = storageProvider.getStorageProviderID();
 
-            final Set<Credentials> credentialsOfStorageProvider = this.getAllCredentialsOfStorageProvider(
-                storageProviderID);
+            final Set<Credentials> credentialsOfStorageProvider =
+                this.getAllCredentialsOfStorageProvider(storageProviderID);
 
             if (credentialsOfStorageProvider.size() == 1) {
-                CoreInternalCredentialsServiceImpl.LOG.debug(
-                    "One credentials is stored for storage provider \"{}\". Thus, we will set it now in storage provider.",
-                    storageProviderID);
+                CoreInternalCredentialsServiceImpl.LOG.debug("One credentials is stored for storage provider \"{}\". Thus, we will set it now in storage provider.",
+                                                             storageProviderID);
                 // always one loop iteration
                 for (final Credentials credentials : credentialsOfStorageProvider) {
                     try {
                         this.setCredentialsInStorageProvider(credentials);
-                    } catch (final SystemException exc) {
+                    }
+                    catch (final SystemException exc) {
                         CoreInternalCredentialsServiceImpl.LOG.warn("A System Exception occured.", exc);
-                    } catch (final UserException exc) {
+                    }
+                    catch (final UserException exc) {
                         CoreInternalCredentialsServiceImpl.LOG.warn("An User Exception occured.", exc);
                     }
                 }
@@ -485,13 +484,13 @@ public class CoreInternalCredentialsServiceImpl implements ICoreInternalCredenti
      *
      * @param storageProvider to unbind
      */
-    protected void unbindCoreInternalFileStorageProviderService(
-                    final ICoreInternalFileStorageProviderService storageProvider) {
+    protected void unbindCoreInternalFileStorageProviderService(final ICoreInternalFileStorageProviderService storageProvider) {
         if (storageProvider != null) {
             final String storageProviderID = storageProvider.getStorageProviderID();
             CoreInternalCredentialsServiceImpl.STORAGE_PROVIDERS.remove(storageProviderID);
             CoreInternalCredentialsServiceImpl.LOG.debug("Storage provider \"{}\" ({}) unbound.",
-                storageProvider.getStorageProviderID(), storageProvider.getStorageProviderName());
+                                                         storageProvider.getStorageProviderID(),
+                                                         storageProvider.getStorageProviderName());
         } else {
             CoreInternalCredentialsServiceImpl.LOG.warn("Unbinding a storage provider failed.");
         }

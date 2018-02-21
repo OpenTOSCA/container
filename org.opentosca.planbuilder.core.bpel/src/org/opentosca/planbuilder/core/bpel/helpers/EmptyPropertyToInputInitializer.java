@@ -39,18 +39,20 @@ public class EmptyPropertyToInputInitializer {
      * @param context a context for the manipulation
      */
     private void addToPlanInput(final BPELPlan buildPlan, final String propLocalName, final Variable var,
-                    final BPELPlanContext context) {
+                                final BPELPlanContext context) {
         // add to input
         context.addStringValueToPlanRequest(propLocalName);
 
         // add copy from input local element to property
         // variable
-        final String bpelCopy = this.generateCopyFromInputToVariableAsString(
-            this.createLocalNameXpathQuery(propLocalName), this.createBPELVariableXpathQuery(var.getName()));
+        final String bpelCopy =
+            this.generateCopyFromInputToVariableAsString(this.createLocalNameXpathQuery(propLocalName),
+                                                         this.createBPELVariableXpathQuery(var.getName()));
         try {
             final Node bpelCopyNode = ModelUtils.string2dom(bpelCopy);
             this.appendToInitSequence(bpelCopyNode, buildPlan);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
+        }
+        catch (ParserConfigurationException | SAXException | IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -92,8 +94,9 @@ public class EmptyPropertyToInputInitializer {
     private String generateCopyFromInputToVariableAsString(final String inputQuery, final String variableQuery) {
         String copyString = "<bpel:assign xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\"><bpel:copy>";
 
-        copyString += "<bpel:from variable=\"input\" part=\"payload\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA["
-            + inputQuery + "]]></bpel:query></bpel:from>";
+        copyString +=
+            "<bpel:from variable=\"input\" part=\"payload\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA["
+                + inputQuery + "]]></bpel:query></bpel:from>";
 
         copyString += "<bpel:to expressionLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[";
         copyString += variableQuery + "]]></bpel:to>";
@@ -108,7 +111,7 @@ public class EmptyPropertyToInputInitializer {
     }
 
     public void initializeEmptyPropertiesAsInputParam(final List<BPELScopeActivity> bpelActivities, final BPELPlan plan,
-                    final PropertyMap propMap) {
+                                                      final PropertyMap propMap) {
         for (final BPELScopeActivity templatePlan : bpelActivities) {
             if (templatePlan.getNodeTemplate() != null) {
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();

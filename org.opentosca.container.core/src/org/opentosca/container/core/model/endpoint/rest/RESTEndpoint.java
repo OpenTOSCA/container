@@ -41,8 +41,8 @@ public class RESTEndpoint extends GenericEndpoint {
 
     // Query to retrieve RESTEndpoints by Path.
     public static final String getEndpointForPath = "RESTEndpoint.getByPath";
-    protected static final String getEndpointForPathQuery = "select t from " + RESTEndpoint.tableName
-        + " t where t.path = :path and t.csarId = :csarId";
+    protected static final String getEndpointForPathQuery =
+        "select t from " + RESTEndpoint.tableName + " t where t.path = :path and t.csarId = :csarId";
 
     // Query to retrieve a RESTEndpoint by Path and Method
     public static final String getEndpointForPathAndMethod = "RESTEndpoint.getByPathAndMethod";
@@ -51,8 +51,8 @@ public class RESTEndpoint extends GenericEndpoint {
 
     // Query to check if an Endpoint with given URI exists.
     public static final String getEndpointForUri = "RESTEndpoint.getByUri";
-    protected static final String getEndpointForUriQuery = "select t from " + RESTEndpoint.tableName
-        + " t where t.uri = :uri and t.csarId = :csarId";
+    protected static final String getEndpointForUriQuery =
+        "select t from " + RESTEndpoint.tableName + " t where t.uri = :uri and t.csarId = :csarId";
 
 
     public static enum restMethod {

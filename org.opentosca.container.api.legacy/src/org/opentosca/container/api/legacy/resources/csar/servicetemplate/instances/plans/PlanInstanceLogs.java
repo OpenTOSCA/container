@@ -122,16 +122,16 @@ public class PlanInstanceLogs {
     @POST
     @Consumes(ResourceConstants.TOSCA_XML)
     @Produces(ResourceConstants.TOSCA_XML)
-    public Response postLogEntry(@Context final UriInfo uriInfo, final String xml)
-        throws URISyntaxException, UnsupportedEncodingException {
+    public Response postLogEntry(@Context final UriInfo uriInfo, final String xml) throws URISyntaxException,
+                                                                                   UnsupportedEncodingException {
 
         final String logEntry = xml.substring(5, xml.length() - 6);
 
         PlanInvocationEngineHandler.planInvocationEngine.getPlanLogHandler().log(this.correlationID, logEntry);
 
         final PlanInstanceRepository repository = new PlanInstanceRepository();
-        final org.opentosca.container.core.next.model.PlanInstance pi = repository.findByCorrelationId(
-            this.correlationID);
+        final org.opentosca.container.core.next.model.PlanInstance pi =
+            repository.findByCorrelationId(this.correlationID);
         if (pi != null) {
             pi.addEvent(new PlanInstanceEvent("INFO", "PLAN_LOG", logEntry));
             repository.update(pi);

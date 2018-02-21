@@ -28,8 +28,8 @@ public class DeploymentProcessInfo extends AbstractDeploymentInfo {
     protected static final String tableName = "DeploymentProcessInfo";
 
     public static final String getDeploymentProcessInfoByCSARID = "DeploymentProcessInfo.ByCSARID";
-    protected static final String getDeploymentProcessInfoByCSARIDQuery = "select t from "
-        + DeploymentProcessInfo.tableName + " t where t.csarID = :csarID";
+    protected static final String getDeploymentProcessInfoByCSARIDQuery =
+        "select t from " + DeploymentProcessInfo.tableName + " t where t.csarID = :csarID";
 
     @Enumerated(EnumType.STRING)
     @Column(name = "DeploymentProcessState")

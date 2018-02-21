@@ -94,12 +94,12 @@ public class DirectoryResource {
 
         final Set<AbstractFile> files = this.CSAR_DIRECTORY.getFiles();
         for (final AbstractFile file : files) {
-            refs.getReference().add(
-                new Reference(Utilities.buildURI(this.uriInfo, file.getName()), XLinkConstants.SIMPLE, file.getName()));
+            refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, file.getName()),
+                XLinkConstants.SIMPLE, file.getName()));
         }
 
-        final Reference self = new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE,
-            XLinkConstants.SELF);
+        final Reference self =
+            new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
         refs.getReference().add(self);
         return refs;
 
@@ -110,14 +110,14 @@ public class DirectoryResource {
 
         directoryOrFile = Utilities.URLencode(directoryOrFile);
         DirectoryResource.LOG.debug("Checking if \"{}\" exists in directory \"{}\" of CSAR \"{}\"...", directoryOrFile,
-            this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+                                    this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
 
         final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
 
         for (final AbstractDirectory directory : directories) {
             if (directory.getName().equals(directoryOrFile)) {
                 DirectoryResource.LOG.debug("\"{}\" is a directory in directory \"{}\" of CSAR \"{}\".",
-                    directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+                                            directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
                 return new DirectoryResource(directory, this.CSAR_ID);
             }
         }
@@ -127,13 +127,13 @@ public class DirectoryResource {
         for (final AbstractFile file : files) {
             if (file.getName().equals(directoryOrFile)) {
                 DirectoryResource.LOG.debug("\"{}\" is a file in directory \"{}\" of CSAR \"{}\".", directoryOrFile,
-                    this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+                                            this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
                 return new FileResource(file, this.CSAR_ID);
             }
         }
 
         DirectoryResource.LOG.warn("\"{}\" does not exist in directory \"{}\" of CSAR \"{}\".", directoryOrFile,
-            this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+                                   this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
         return null;
 
     }
@@ -161,8 +161,9 @@ public class DirectoryResource {
 
             // try {
 
-            FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(this.CSAR_ID,
-                Paths.get(this.CSAR_DIRECTORY.getPath()));
+            FileRepositoryServiceHandler.getFileHandler()
+                                        .moveFileOrDirectoryOfCSAR(this.CSAR_ID,
+                                                                   Paths.get(this.CSAR_DIRECTORY.getPath()));
 
             return Response.ok("Moving directory \"" + this.CSAR_DIRECTORY.getPath() + "\" of CSAR \""
                 + this.CSAR_ID.toString() + "\" was successful.").build();

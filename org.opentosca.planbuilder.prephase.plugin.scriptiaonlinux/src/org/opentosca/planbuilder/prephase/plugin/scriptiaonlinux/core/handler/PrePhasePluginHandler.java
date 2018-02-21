@@ -28,7 +28,7 @@ public interface PrePhasePluginHandler<T extends PlanContext> {
      * @return true iff adding logic was successful
      */
     public boolean handle(final T context, final AbstractDeploymentArtifact da,
-                    final AbstractNodeTemplate nodeTemplate);
+                          final AbstractNodeTemplate nodeTemplate);
 
     /**
      * Adds necessary BPEL logic through the given context that can upload the given IA unto the given
@@ -40,5 +40,5 @@ public interface PrePhasePluginHandler<T extends PlanContext> {
      * @return true iff adding logic was successful
      */
     public boolean handle(final T context, final AbstractImplementationArtifact ia,
-                    final AbstractNodeTemplate nodeTemplate);
+                          final AbstractNodeTemplate nodeTemplate);
 }

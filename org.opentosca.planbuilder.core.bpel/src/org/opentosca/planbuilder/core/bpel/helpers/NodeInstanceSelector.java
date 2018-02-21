@@ -40,15 +40,15 @@ public class NodeInstanceSelector {
             this.bpelFragments = new BPELProcessFragments();
             this.bpelProcessHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceInitializer();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    public void selectNodeInstances(
-                    final Map<AbstractRelationshipTemplate, List<AbstractNodeTemplate>> crossingRelations2NodesMap,
-                    final BPELPlan plan) {
+    public void selectNodeInstances(final Map<AbstractRelationshipTemplate, List<AbstractNodeTemplate>> crossingRelations2NodesMap,
+                                    final BPELPlan plan) {
         final Set<AbstractNodeTemplate> processedNodes = new HashSet<>();
 
         // create node and relation instances response variables
@@ -72,30 +72,37 @@ public class NodeInstanceSelector {
         for (final AbstractRelationshipTemplate relationshipTemplate : crossingRelations2NodesMap.keySet()) {
             // fetch relation instances
             try {
-                Node requestRelationInstancesGET = this.bpelFragments.createBPEL4RESTLightRelationInstancesGETAsNode(
-                    relationshipTemplate.getId(), serviceInstanceVarName, relationInstancesListResponseVarName);
+                Node requestRelationInstancesGET =
+                    this.bpelFragments.createBPEL4RESTLightRelationInstancesGETAsNode(relationshipTemplate.getId(),
+                                                                                      serviceInstanceVarName,
+                                                                                      relationInstancesListResponseVarName);
                 requestRelationInstancesGET = plan.getBpelDocument().importNode(requestRelationInstancesGET, true);
                 plan.getBpelMainSequenceElement().appendChild(requestRelationInstancesGET);
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } catch (final SAXException e) {
+            }
+            catch (final SAXException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
             // calculate count of relation instances
             try {
-                Node countRelationInstancesAssign = this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode(
-                    "countRelationInstanceCount_" + relationshipTemplate.getId() + "_" + System.currentTimeMillis(),
-                    this.createReferenceCountingXPathQuery(relationInstancesListResponseVarName),
-                    relationInstancesCountVarName);
+                Node countRelationInstancesAssign =
+                    this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countRelationInstanceCount_"
+                        + relationshipTemplate.getId() + "_" + System.currentTimeMillis(),
+                                                                                       this.createReferenceCountingXPathQuery(relationInstancesListResponseVarName),
+                                                                                       relationInstancesCountVarName);
                 countRelationInstancesAssign = plan.getBpelDocument().importNode(countRelationInstancesAssign, true);
                 plan.getBpelMainSequenceElement().appendChild(countRelationInstancesAssign);
-            } catch (final IOException e1) {
+            }
+            catch (final IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
-            } catch (final SAXException e1) {
+            }
+            catch (final SAXException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
@@ -103,30 +110,37 @@ public class NodeInstanceSelector {
             for (final AbstractNodeTemplate nodeTemplate : crossingRelations2NodesMap.get(relationshipTemplate)) {
                 // fetch node instances
                 try {
-                    Node requestNodeInstancesGET = this.bpelFragments.createBPEL4RESTLightNodeInstancesGETAsNode(
-                        nodeTemplate.getId(), serviceInstanceVarName, relationInstancesListResponseVarName);
+                    Node requestNodeInstancesGET =
+                        this.bpelFragments.createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(),
+                                                                                      serviceInstanceVarName,
+                                                                                      relationInstancesListResponseVarName);
                     requestNodeInstancesGET = plan.getBpelDocument().importNode(requestNodeInstancesGET, true);
                     plan.getBpelMainSequenceElement().appendChild(requestNodeInstancesGET);
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                } catch (final SAXException e) {
+                }
+                catch (final SAXException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
                 // calculate count of nodes
                 try {
-                    Node countNodeInstancesAssign = this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode(
-                        "countNodeInstanceCount_" + nodeTemplate.getId() + "_" + System.currentTimeMillis(),
-                        this.createReferenceCountingXPathQuery(nodeInstancesListResponseVarName),
-                        nodeInstancesCountVarName);
+                    Node countNodeInstancesAssign =
+                        this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countNodeInstanceCount_"
+                            + nodeTemplate.getId() + "_" + System.currentTimeMillis(),
+                                                                                           this.createReferenceCountingXPathQuery(nodeInstancesListResponseVarName),
+                                                                                           nodeInstancesCountVarName);
                     countNodeInstancesAssign = plan.getBpelDocument().importNode(countNodeInstancesAssign, true);
                     plan.getBpelMainSequenceElement().appendChild(countNodeInstancesAssign);
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-                } catch (final SAXException e) {
+                }
+                catch (final SAXException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -139,8 +153,8 @@ public class NodeInstanceSelector {
     }
 
     public String createReferenceCountingXPathQuery(final String referencesVarName) {
-        final String query = "count($" + referencesVarName
-            + "/*[local-name()='References']/*[local-name()='Reference'])";
+        final String query =
+            "count($" + referencesVarName + "/*[local-name()='References']/*[local-name()='Reference'])";
         return query;
     }
 
@@ -153,16 +167,18 @@ public class NodeInstanceSelector {
      * @param plan the plan to add the bpel code to
      */
     public void addNodeInstanceUpdate(final Set<AbstractNodeTemplate> nodes, final BPELPlan plan,
-                    final PropertyMap propMap) {
+                                      final PropertyMap propMap) {
         final String instanceDataAPIResponseVarName = this.createRESTResponseVar(plan);
 
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
 
             String nodeInstanceIDVarName = null;
             try {
-                nodeInstanceIDVarName = new NodeInstanceInitializer(this.bpelProcessHandler).findInstanceIdVarName(plan,
-                    nodeTemplate.getId());
-            } catch (final ParserConfigurationException e) {
+                nodeInstanceIDVarName =
+                    new NodeInstanceInitializer(this.bpelProcessHandler).findInstanceIdVarName(plan,
+                                                                                               nodeTemplate.getId());
+            }
+            catch (final ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -172,7 +188,7 @@ public class NodeInstanceSelector {
             }
 
             this.addNodeInstanceUpdate(nodeTemplate, plan, propMap, nodeInstanceIDVarName,
-                instanceDataAPIResponseVarName);
+                                       instanceDataAPIResponseVarName);
         }
     }
 
@@ -184,13 +200,13 @@ public class NodeInstanceSelector {
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         this.bpelProcessHandler.addVariable(instanceDataAPIResponseVarName, VariableType.TYPE,
-            new QName(xsdNamespace, "anyType", xsdPrefix), plan);
+                                            new QName(xsdNamespace, "anyType", xsdPrefix), plan);
         return instanceDataAPIResponseVarName;
     }
 
     public void addNodeInstanceUpdate(final AbstractNodeTemplate nodeTemplate, final BPELPlan plan,
-                    final PropertyMap propMap, final String nodeInstanceIDVarName,
-                    final String instanceDataAPIResponseVarName) {
+                                      final PropertyMap propMap, final String nodeInstanceIDVarName,
+                                      final String instanceDataAPIResponseVarName) {
         // check whether the nodeTemplate has properties, if not, skip the
         // update
         if (nodeTemplate.getProperties() == null) {
@@ -199,14 +215,17 @@ public class NodeInstanceSelector {
 
         // fetch properties from nodeInstance
         try {
-            Node nodeInstancePropertiesGETNode = this.bpelFragments.createRESTExtensionGETForNodeInstancePropertiesAsNode(
-                nodeInstanceIDVarName, instanceDataAPIResponseVarName);
+            Node nodeInstancePropertiesGETNode =
+                this.bpelFragments.createRESTExtensionGETForNodeInstancePropertiesAsNode(nodeInstanceIDVarName,
+                                                                                         instanceDataAPIResponseVarName);
             nodeInstancePropertiesGETNode = plan.getBpelDocument().importNode(nodeInstancePropertiesGETNode, true);
 
             plan.getBpelMainSequenceElement().appendChild(nodeInstancePropertiesGETNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 
@@ -218,8 +237,8 @@ public class NodeInstanceSelector {
             if (propChildNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
                 final Element childElement = (Element) propChildNodes.item(index);
                 // find bpelVariable
-                final String bpelVarName = propMap.getPropertyMappingMap(nodeTemplate.getId())
-                                                  .get(childElement.getLocalName());
+                final String bpelVarName =
+                    propMap.getPropertyMappingMap(nodeTemplate.getId()).get(childElement.getLocalName());
                 if (bpelVarName != null) {
                     element2BpelVarNameMap.put(childElement, bpelVarName);
                 }
@@ -227,14 +246,16 @@ public class NodeInstanceSelector {
         }
 
         try {
-            Node assignPropertiesToVariables = this.bpelFragments.createAssignFromNodeInstancePropertyToBPELVariableAsNode(
-                "assignPropertiesFromResponseToBPELVariable" + System.currentTimeMillis(),
-                instanceDataAPIResponseVarName, element2BpelVarNameMap);
+            Node assignPropertiesToVariables =
+                this.bpelFragments.createAssignFromNodeInstancePropertyToBPELVariableAsNode("assignPropertiesFromResponseToBPELVariable"
+                    + System.currentTimeMillis(), instanceDataAPIResponseVarName, element2BpelVarNameMap);
             assignPropertiesToVariables = plan.getBpelDocument().importNode(assignPropertiesToVariables, true);
             plan.getBpelMainSequenceElement().appendChild(assignPropertiesToVariables);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             e.printStackTrace();
         }
 

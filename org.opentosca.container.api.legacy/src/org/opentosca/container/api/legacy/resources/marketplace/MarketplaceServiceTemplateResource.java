@@ -69,15 +69,15 @@ public class MarketplaceServiceTemplateResource {
     }
 
     private String getWineryUri() {
-        final String encodedNamespace = Utilities.URLencode(
-            Utilities.URLencode(this.serviceTemplate.getNamespaceURI()));
+        final String encodedNamespace =
+            Utilities.URLencode(Utilities.URLencode(this.serviceTemplate.getNamespaceURI()));
         return Utilities.buildURI(this.connector.getWineryPath() + "servicetemplates/" + encodedNamespace,
-            this.serviceTemplate.getLocalPart());
+                                  this.serviceTemplate.getLocalPart());
     }
 
     @POST
-    public Response deploy(@Context final UriInfo uriInfo)
-        throws MalformedURLException, IOException, URISyntaxException {
+    public Response deploy(@Context final UriInfo uriInfo) throws MalformedURLException, IOException,
+                                                           URISyntaxException {
         this.uriInfo = uriInfo;
         // example url:
         // http://localhost:8080/winery/servicetemplates/http%253A%252F%252Fopentosca.org%252Fdeclarative%252Fbpel/BPELStack/?csar
@@ -89,9 +89,9 @@ public class MarketplaceServiceTemplateResource {
 
         final CSARID csarId = res.storeCSAR(this.serviceTemplate.getLocalPart() + ".csar", inputStream);
 
-        final String csarsResourcePath = this.uriInfo.getAbsolutePath().getScheme() + "://"
-            + this.uriInfo.getAbsolutePath().getHost() + ":" + this.uriInfo.getAbsolutePath().getPort()
-            + "/containerapi/CSARs/" + csarId.toString();
+        final String csarsResourcePath =
+            this.uriInfo.getAbsolutePath().getScheme() + "://" + this.uriInfo.getAbsolutePath().getHost() + ":"
+                + this.uriInfo.getAbsolutePath().getPort() + "/containerapi/CSARs/" + csarId.toString();
 
         return Response.created(URI.create(csarsResourcePath)).build();
     }

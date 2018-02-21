@@ -110,14 +110,14 @@ public class ContentResource {
     public Object getDirectoryOrFile(@PathParam("directoryOrFile") final String directoryOrFile) {
 
         ContentResource.LOG.debug("Checking if \"{}\" exists in CSAR \"{}\"...", directoryOrFile,
-            this.CSAR.getCSARID());
+                                  this.CSAR.getCSARID());
 
         final Set<AbstractDirectory> directories = this.CSAR.getDirectories();
 
         for (final AbstractDirectory directory : directories) {
             if (directory.getName().equals(directoryOrFile)) {
                 ContentResource.LOG.debug("\"{}\" is a directory of CSAR \"{}\".", directoryOrFile,
-                    this.CSAR.getCSARID());
+                                          this.CSAR.getCSARID());
                 return new DirectoryResource(directory, this.CSAR.getCSARID());
 
             }

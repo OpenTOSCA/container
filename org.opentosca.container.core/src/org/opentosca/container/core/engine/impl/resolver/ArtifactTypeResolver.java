@@ -39,15 +39,17 @@ public class ArtifactTypeResolver extends GenericResolver {
                 } else {
                     targetNamespace = definitions.getTargetNamespace();
                 }
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, artifactType.getName()), artifactType);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    artifactType.getName()), artifactType);
 
                 this.LOG.debug("Resolve the ArtifactType \"" + targetNamespace + ":" + artifactType.getName() + "\".");
 
                 // DerivedFrom
                 if (artifactType.getDerivedFrom() != null && artifactType.getDerivedFrom().getTypeRef() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        artifactType.getDerivedFrom().getTypeRef(), ElementNamesEnum.ARTIFACTTYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(artifactType.getDerivedFrom()
+                                                                                               .getTypeRef(),
+                                                                                   ElementNamesEnum.ARTIFACTTYPE);
                 }
 
                 // PropertiesDefinition

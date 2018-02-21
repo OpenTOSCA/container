@@ -23,8 +23,10 @@ import org.w3c.dom.NodeList;
 
 public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginService {
 
-    private static final String TYPES = "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact, {http://toscafy.github.io/artifacttypes}any2api";
-    private static final String CAPABILITIES = "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose, http://www.any2api.org, http://github.com/any2api";
+    private static final String TYPES =
+        "{http://toscafy.github.io/artifacttypes}DockerComposeArtifact, {http://toscafy.github.io/artifacttypes}any2api";
+    private static final String CAPABILITIES =
+        "http://docs.docker.com/compose, http://www.docker.com/products/docker-compose, http://github.com/docker/compose, http://www.any2api.org, http://github.com/any2api";
     private static final Logger LOG = LoggerFactory.getLogger(IAEnginePluginDockerComposeServiceImpl.class);
 
     private static final Map<String, String> ENDPOINTS = new HashMap<>(); // artifactId:
@@ -39,9 +41,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
     @Override
     public URI deployImplementationArtifact(final CSARID csarId, final QName nodeTypeImplementationID,
-                    final QName artifactTypeQName, final Document artifactContent, final Document properties,
-                    final List<TPropertyConstraint> propertyConstraints, final List<AbstractArtifact> artifacts,
-                    final List<String> requiredFeatures) {
+                                            final QName artifactTypeQName, final Document artifactContent,
+                                            final Document properties,
+                                            final List<TPropertyConstraint> propertyConstraints,
+                                            final List<AbstractArtifact> artifacts,
+                                            final List<String> requiredFeatures) {
         /*
          * ArtifactProperties: contextFile: 'context.tar.gz', serviceName: 'mysql-mgmt-api', containerPort:
          * '3000', endpointPath: '/', endpointKind: 'soap'
@@ -60,10 +64,9 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
         String endpointKind = IAEnginePluginDockerComposeServiceImpl.getProperty(properties, "endpointKind");
         final String soapPortType = IAEnginePluginDockerComposeServiceImpl.getProperty(properties, "soapPortType");
 
-        IAEnginePluginDockerComposeServiceImpl.LOG.info(
-            "artifactType={} artifactName={} contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={} soapPortType={}",
-            artifactType, artifactName, contextFile, serviceName, containerPort, endpointPath, endpointKind,
-            soapPortType);
+        IAEnginePluginDockerComposeServiceImpl.LOG.info("artifactType={} artifactName={} contextFile={} serviceName={} containerPort={} endpointPath={} endpointKind={} soapPortType={}",
+                                                        artifactType, artifactName, contextFile, serviceName,
+                                                        containerPort, endpointPath, endpointKind, soapPortType);
 
         if (endpointPath == null) {
             endpointPath = "";
@@ -110,7 +113,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
                 if (contextFilePath.toLowerCase().endsWith(".json")) {
                     IAEnginePluginDockerComposeServiceImpl.copy(contextFilePath,
-                        any2apiExecutablePath + "/apispec.json");
+                                                                any2apiExecutablePath + "/apispec.json");
                 } else {
                     IAEnginePluginDockerComposeServiceImpl.untar(contextFilePath, any2apiExecutablePath);
                 }
@@ -134,14 +137,14 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
             IAEnginePluginDockerComposeServiceImpl.dcUp(contextPath);
 
-            final String publicPort = IAEnginePluginDockerComposeServiceImpl.dcPort(contextPath, serviceName,
-                containerPort);
+            final String publicPort =
+                IAEnginePluginDockerComposeServiceImpl.dcPort(contextPath, serviceName, containerPort);
 
             final String containerId = IAEnginePluginDockerComposeServiceImpl.dcId(contextPath, serviceName);
 
             if (IAEnginePluginDockerComposeServiceImpl.SHARED_NETWORK != null) {
                 IAEnginePluginDockerComposeServiceImpl.dnConnect(IAEnginePluginDockerComposeServiceImpl.SHARED_NETWORK,
-                    containerId);
+                                                                 containerId);
             }
 
             final String containerIp = IAEnginePluginDockerComposeServiceImpl.diIp(containerId);
@@ -164,8 +167,9 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
                 + "\"deployed\":            true                " + "}";
 
             IAEnginePluginDockerComposeServiceImpl.append(IAEnginePluginDockerComposeServiceImpl.ENDPOINTS_FILE,
-                endpointJson);
-        } catch (final Exception e) {
+                                                          endpointJson);
+        }
+        catch (final Exception e) {
             IAEnginePluginDockerComposeServiceImpl.LOG.error("Error deployImplementationArtifact", e);
         }
 
@@ -176,7 +180,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
     @Override
     public boolean undeployImplementationArtifact(final String iaName, final QName nodeTypeImpl, final CSARID csarId,
-                    final URI endpointUri) {
+                                                  final URI endpointUri) {
         String endpoint = null;
 
         try {
@@ -198,9 +202,11 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
             IAEnginePluginDockerComposeServiceImpl.ARTIFACT_IDS.remove(endpoint);
 
             IAEnginePluginDockerComposeServiceImpl.append(IAEnginePluginDockerComposeServiceImpl.ENDPOINTS_FILE,
-                "{" + "\"contextPath\":   \"" + contextPath + "\"," + "\"endpoint\":      \"" + endpoint + "\","
-                    + "\"undeployed\":          true                " + "}");
-        } catch (final Exception e) {
+                                                          "{" + "\"contextPath\":   \"" + contextPath + "\","
+                                                              + "\"endpoint\":      \"" + endpoint + "\","
+                                                              + "\"undeployed\":          true                " + "}");
+        }
+        catch (final Exception e) {
             IAEnginePluginDockerComposeServiceImpl.LOG.error("Error undeployImplementationArtifact", e);
 
             return false;
@@ -238,7 +244,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
                     final String propertyValue = IAEnginePluginDockerComposeServiceImpl.getNodeContent(propertyNode);
 
                     IAEnginePluginDockerComposeServiceImpl.LOG.info("{} property found: {}", propertyName,
-                        propertyValue);
+                                                                    propertyValue);
 
                     return propertyValue;
                 }
@@ -270,9 +276,10 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
         if (endpoint != null) {
             try {
                 endpointURI = new URI(endpoint);
-            } catch (final Exception e) {
+            }
+            catch (final Exception e) {
                 IAEnginePluginDockerComposeServiceImpl.LOG.error("Exception occurred while creating endpoint URI: {}",
-                    endpoint, e);
+                                                                 endpoint, e);
             }
         }
 
@@ -314,7 +321,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
         if (httpService != null) {
             this.httpService = httpService;
             IAEnginePluginDockerComposeServiceImpl.LOG.debug("Register IHTTPService: {} registered",
-                httpService.toString());
+                                                             httpService.toString());
         } else {
             IAEnginePluginDockerComposeServiceImpl.LOG.error("Register IHTTPService: supplied parameter is null");
         }
@@ -324,7 +331,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
     public void unbindHTTPService(final IHTTPService httpService) {
         this.httpService = null;
         IAEnginePluginDockerComposeServiceImpl.LOG.debug("Unregister IHTTPService: {} unregistered",
-            httpService.toString());
+                                                         httpService.toString());
     }
 
 
@@ -354,8 +361,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
             IAEnginePluginDockerComposeServiceImpl.TEMP_DIR = "/tmp";
         }
         if (IAEnginePluginDockerComposeServiceImpl.ENDPOINTS_FILE == null) {
-            IAEnginePluginDockerComposeServiceImpl.ENDPOINTS_FILE = IAEnginePluginDockerComposeServiceImpl.TEMP_DIR
-                + "/opentosca-docker-compose-endpoints.json";
+            IAEnginePluginDockerComposeServiceImpl.ENDPOINTS_FILE =
+                IAEnginePluginDockerComposeServiceImpl.TEMP_DIR + "/opentosca-docker-compose-endpoints.json";
         }
 
         if (IAEnginePluginDockerComposeServiceImpl.SHARED_NETWORK != null) {
@@ -382,7 +389,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
             } else {
                 IAEnginePluginDockerComposeServiceImpl.LOG.info(message);
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             // System.out.println(message);
             IAEnginePluginDockerComposeServiceImpl.LOG.info(message);
             IAEnginePluginDockerComposeServiceImpl.LOG.error("Error", e);
@@ -391,7 +399,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
     }
 
     private static void log(final String[] cmd, final String cwd, final String exitCode, final String stdout,
-                    final String stderr) {
+                            final String stderr) {
         final String message = "COMMAND " + java.util.Arrays.deepToString(cmd) + " (CWD " + cwd + ") EXIT " + exitCode
             + ". STDOUT: " + stdout + ". STDERR: " + stderr;
 
@@ -438,7 +446,8 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
 
             final String containerIp = res[1];
             return containerIp;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             return null;
         }
     }
@@ -447,42 +456,44 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
         try {
             final String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER, "network", "create", networkName};
             final String[] res = IAEnginePluginDockerComposeServiceImpl.execCmd(cmd);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             IAEnginePluginDockerComposeServiceImpl.LOG.info("cannot create Docker network " + networkName);
         }
     }
 
     private static void dnConnect(final String networkName, final String containerId) throws Exception {
-        final String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER, "network", "connect", networkName,
-                              containerId};
+        final String[] cmd =
+            {IAEnginePluginDockerComposeServiceImpl.DOCKER, "network", "connect", networkName, containerId};
         final String[] res = IAEnginePluginDockerComposeServiceImpl.execCmd(cmd);
     }
 
     private static String dcPort(final String contextPath, final String serviceName, final String containerPort) {
         try {
-            final String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER_COMPOSE, "port", serviceName,
-                                  containerPort};
+            final String[] cmd =
+                {IAEnginePluginDockerComposeServiceImpl.DOCKER_COMPOSE, "port", serviceName, containerPort};
             final String[] res = IAEnginePluginDockerComposeServiceImpl.execCmd(cmd, contextPath);
 
             final String port = res[1].split(":")[1];
             return port;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             return containerPort;
         }
     }
 
     private static void dcDown(final String contextPath) throws Exception {
-        final String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER_COMPOSE, "down", "--rmi", "all", "-v",
-                              "--remove-orphans"};
+        final String[] cmd =
+            {IAEnginePluginDockerComposeServiceImpl.DOCKER_COMPOSE, "down", "--rmi", "all", "-v", "--remove-orphans"};
         IAEnginePluginDockerComposeServiceImpl.execCmd(cmd, contextPath);
     }
 
-    private static void any2apiGen(final String apispecPath, final String outputPath, final String endpointKind)
-        throws Exception {
-        final String[] cmd = {IAEnginePluginDockerComposeServiceImpl.DOCKER, "run", "--rm", "-v",
-                              IAEnginePluginDockerComposeServiceImpl.TEMP_DIR + ":"
-                                  + IAEnginePluginDockerComposeServiceImpl.TEMP_DIR,
-                              "any2api/cli:legacy", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath};
+    private static void any2apiGen(final String apispecPath, final String outputPath,
+                                   final String endpointKind) throws Exception {
+        final String[] cmd =
+            {IAEnginePluginDockerComposeServiceImpl.DOCKER, "run", "--rm", "-v",
+             IAEnginePluginDockerComposeServiceImpl.TEMP_DIR + ":" + IAEnginePluginDockerComposeServiceImpl.TEMP_DIR,
+             "any2api/cli:legacy", "-i", endpointKind, "-c", "-o", outputPath, "gen", apispecPath};
         IAEnginePluginDockerComposeServiceImpl.execCmd(cmd, apispecPath);
     }
 
@@ -511,7 +522,7 @@ public class IAEnginePluginDockerComposeServiceImpl implements IIAEnginePluginSe
         IAEnginePluginDockerComposeServiceImpl.execCmd(touchCmd);
 
         java.nio.file.Files.write(java.nio.file.Paths.get(filePath), (content + "\n").getBytes(),
-            java.nio.file.StandardOpenOption.APPEND);
+                                  java.nio.file.StandardOpenOption.APPEND);
     }
 
     private static void write(final String filePath, final String content) throws Exception {

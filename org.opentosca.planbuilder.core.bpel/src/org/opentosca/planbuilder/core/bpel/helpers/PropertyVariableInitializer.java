@@ -60,7 +60,7 @@ public class PropertyVariableInitializer {
          * @return true if adding was successful, else false
          */
         public boolean addPropertyMapping(final String templateId, final String propertyName,
-                        final String propertyVariableName) {
+                                          final String propertyVariableName) {
             if (this.internalMap.containsKey(templateId)) {
                 // template has already properties set
                 final Map<String, String> propertyMappingMap = this.internalMap.get(templateId);
@@ -156,8 +156,8 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName = relationshipTemplate.getId() + "_"
-                    + propertyElement.getChildNodes().item(i).getLocalName();
+                final String propVarName =
+                    relationshipTemplate.getId() + "_" + propertyElement.getChildNodes().item(i).getLocalName();
                 map.addPropertyMapping(relationshipTemplate.getId(), propName, "prop_" + propVarName);
                 // String value =
                 // propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
@@ -202,8 +202,8 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName = nodeTemplate.getId() + "_"
-                    + propertyElement.getChildNodes().item(i).getLocalName();
+                final String propVarName =
+                    nodeTemplate.getId() + "_" + propertyElement.getChildNodes().item(i).getLocalName();
 
                 // TODO that "prop_" is a huge hack cause official only the
                 // buildplanhandler knows about the "prop_" piece

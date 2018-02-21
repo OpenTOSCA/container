@@ -44,11 +44,11 @@ public class NodeInstance {
 
     // Query to retrieve NodeInstances identified by some parameters
     public final static String getNodeInstances = "NodeInstance.getNodeInstancesQuery";
-    protected final static String getNodeInstancesQuery = "select n from NodeInstance n where"
-        + " n.id = COALESCE(:internalID, n.id) AND"
-        + " n.nodeTemplateName = COALESCE(:nodeTemplateName, n.nodeTemplateName) AND"
-        + " n.serviceInstance.id = COALESCE(:internalServiceInstanceID, n.serviceInstance.id) AND"
-        + " n.nodeTemplateID = COALESCE(:nodeTemplateID, n.nodeTemplateID)";
+    protected final static String getNodeInstancesQuery =
+        "select n from NodeInstance n where" + " n.id = COALESCE(:internalID, n.id) AND"
+            + " n.nodeTemplateName = COALESCE(:nodeTemplateName, n.nodeTemplateName) AND"
+            + " n.serviceInstance.id = COALESCE(:internalServiceInstanceID, n.serviceInstance.id) AND"
+            + " n.nodeTemplateID = COALESCE(:nodeTemplateID, n.nodeTemplateID)";
 
     // the internal ID (Database) of the NodeInstance
     @Id
@@ -166,13 +166,15 @@ public class NodeInstance {
             this.nodeInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID()
                 + "/ServiceTemplates/"
                 + URLEncoder.encode(URLEncoder.encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"),
-                    "UTF-8")
+                                    "UTF-8")
                 + "/Instances/" + this.serviceInstance.getDBId() + "/NodeTemplates/"
                 + this.nodeTemplateID.getLocalPart() + "/Instances/" + this.id);
 
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

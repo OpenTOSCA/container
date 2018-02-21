@@ -44,7 +44,8 @@ public class ServiceTemplateResource {
         final String localName = serviceTemplateID.substring(serviceTemplateID.indexOf("}") + 1);
         this.serviceTemplateID = new QName(namespace, localName);
         this.log.info("{} created: \"{}\":\"{}\"; out of \"{}\"", this.getClass(),
-            this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart(), serviceTemplateID);
+                      this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart(),
+                      serviceTemplateID);
     }
 
     @GET

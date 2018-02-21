@@ -7,15 +7,15 @@ import java.util.Properties;
  */
 public class Settings {
 
-    public final static String OPENTOSCA_CONTAINER_HOSTNAME = System.getProperty("org.opentosca.container.hostname",
-        "localhost");
+    public final static String OPENTOSCA_CONTAINER_HOSTNAME =
+        System.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = System.getProperty("org.opentosca.container.port", "1337");
 
-    public final static String CONTAINER_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
-        + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
-    public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
-        + Settings.OPENTOSCA_CONTAINER_PORT
-        + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+    public final static String CONTAINER_API =
+        "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
+    public final static String CONTAINER_INSTANCEDATA_API =
+        "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT
+            + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
@@ -28,7 +28,8 @@ public class Settings {
     private static Properties settings = new Properties();
 
     // Container Capabilities
-    public final static String containerCapabilities = "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
+    public final static String containerCapabilities =
+        "http://opentosca/planportabilityapi/rest, http://opentosca/containerapi";
 
 
     /**

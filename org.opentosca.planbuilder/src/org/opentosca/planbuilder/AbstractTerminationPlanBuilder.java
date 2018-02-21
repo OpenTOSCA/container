@@ -24,7 +24,7 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 public abstract class AbstractTerminationPlanBuilder extends AbstractPlanBuilder {
 
     protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
-                    final AbstractServiceTemplate serviceTemplate) {
+                                       final AbstractServiceTemplate serviceTemplate) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -34,8 +34,8 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractPlanBuilder
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            final ANodeTemplateActivity activity = new ANodeTemplateActivity(
-                nodeTemplate.getId() + "_termination_activity", "TERMINATION", nodeTemplate);
+            final ANodeTemplateActivity activity =
+                new ANodeTemplateActivity(nodeTemplate.getId() + "_termination_activity", "TERMINATION", nodeTemplate);
             activities.add(activity);
             mapping.put(nodeTemplate, activity);
         }
@@ -59,8 +59,8 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractPlanBuilder
 
         }
 
-        final AbstractPlan abstractTerminationPlan = new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions,
-            serviceTemplate, activities, links) {};
+        final AbstractPlan abstractTerminationPlan =
+            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) {};
 
         return abstractTerminationPlan;
     }

@@ -59,7 +59,8 @@ public class CSARMetaDataJPAStore {
      * @param toscaMetaFile - represents the content of the TOSCA meta file of the CSAR.
      */
     public void storeCSARMetaData(final CSARID csarID, final Set<Path> directories,
-                    final Map<Path, String> fileToStorageProviderIDMap, final TOSCAMetaFile toscaMetaFile) {
+                                  final Map<Path, String> fileToStorageProviderIDMap,
+                                  final TOSCAMetaFile toscaMetaFile) {
 
         CSARMetaDataJPAStore.LOG.debug("Storing meta data of CSAR \"{}\"...", csarID);
 
@@ -174,16 +175,15 @@ public class CSARMetaDataJPAStore {
      *         not found.
      */
     public void storeFileStorageProviderIDOfCSAR(final CSARID csarID, final Path fileRelToCSARRoot,
-                    final String storageProviderID)
-        throws UserException {
+                                                 final String storageProviderID) throws UserException {
 
         CSARMetaDataJPAStore.LOG.debug("Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\"...",
-            storageProviderID, fileRelToCSARRoot, csarID);
+                                       storageProviderID, fileRelToCSARRoot, csarID);
 
         initJPA();
 
-        final Query storeStorageProviderIDByFileAndCSARIDQuery = this.em.createNamedQuery(
-            CSARContent.storeStorageProviderIDByFileAndCSARID);
+        final Query storeStorageProviderIDByFileAndCSARIDQuery =
+            this.em.createNamedQuery(CSARContent.storeStorageProviderIDByFileAndCSARID);
 
         storeStorageProviderIDByFileAndCSARIDQuery.setParameter(1, storageProviderID);
         storeStorageProviderIDByFileAndCSARIDQuery.setParameter(2, fileRelToCSARRoot.toString());
@@ -202,9 +202,8 @@ public class CSARMetaDataJPAStore {
             this.em.clear();
             // emf.getCache().evict(CSARContent.class, csarID);
 
-            CSARMetaDataJPAStore.LOG.debug(
-                "Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\" completed.",
-                storageProviderID, fileRelToCSARRoot, csarID);
+            CSARMetaDataJPAStore.LOG.debug("Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\" completed.",
+                                           storageProviderID, fileRelToCSARRoot, csarID);
 
         } else {
             throw new UserException(
@@ -222,10 +221,10 @@ public class CSARMetaDataJPAStore {
      */
     public Map<Path, String> getFileToStorageProviderIDMap(final CSARID csarID) throws UserException {
         CSARMetaDataJPAStore.LOG.debug("Retrieving file to storage provider mapping meta data of CSAR \"{}\"...",
-            csarID);
+                                       csarID);
         initJPA();
-        final Query getFileToStorageProviderIDMapQuery = this.em.createNamedQuery(
-            CSARContent.getFileToStorageProviderIDMapByCSARID);
+        final Query getFileToStorageProviderIDMapQuery =
+            this.em.createNamedQuery(CSARContent.getFileToStorageProviderIDMapByCSARID);
         getFileToStorageProviderIDMapQuery.setParameter("csarID", csarID);
 
         @SuppressWarnings("unchecked")
@@ -243,8 +242,8 @@ public class CSARMetaDataJPAStore {
             fileToStorageProviderIDMap.put(file, storageProviderID);
         }
 
-        CSARMetaDataJPAStore.LOG.debug(
-            "Retrieving file to storage provider mapping meta data of CSAR \"{}\" completed.", csarID);
+        CSARMetaDataJPAStore.LOG.debug("Retrieving file to storage provider mapping meta data of CSAR \"{}\" completed.",
+                                       csarID);
 
         return fileToStorageProviderIDMap;
 
@@ -261,8 +260,8 @@ public class CSARMetaDataJPAStore {
 
         initJPA();
 
-        final TypedQuery<CSARContent> getDirectoriesQuery = this.em.createNamedQuery(CSARContent.getDirectoriesByCSARID,
-            CSARContent.class);
+        final TypedQuery<CSARContent> getDirectoriesQuery =
+            this.em.createNamedQuery(CSARContent.getDirectoriesByCSARID, CSARContent.class);
         getDirectoriesQuery.setParameter("csarID", csarID);
 
         final CSARContent result = getDirectoriesQuery.getSingleResult();

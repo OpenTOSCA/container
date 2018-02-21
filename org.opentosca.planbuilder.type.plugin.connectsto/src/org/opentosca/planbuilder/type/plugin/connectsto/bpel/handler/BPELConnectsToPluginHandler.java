@@ -69,7 +69,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      *        parameter search
      */
     private boolean executeConnectsTo(final BPELPlanContext templateContext, final AbstractNodeTemplate connectToNode,
-                    final AbstractNodeTemplate parametersRootNode) {
+                                      final AbstractNodeTemplate parametersRootNode) {
         // fetch the connectsTo Operation of the source node and it's parameters
         AbstractInterface connectsToIface = null;
         AbstractOperation connectsToOp = null;
@@ -92,15 +92,14 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         for (final AbstractParameter param : connectsToOp.getInputParameters()) {
             boolean ambiParam = false;
 
-            final Variable var = templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(),
-                param.getName());
+            final Variable var =
+                templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(), param.getName());
 
             if (var != null) {
                 param2propertyMapping.put(param, var);
             }
 
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(
-                param.getName())) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
                 ambiParam = true;
             }
 
@@ -140,8 +139,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         }
 
         if (param2propertyMapping.size() != connectsToOp.getInputParameters().size()) {
-            BPELConnectsToPluginHandler.LOG.error(
-                "Didn't find necessary matchings from param to property. Can't initialize connectsTo relationship");
+            BPELConnectsToPluginHandler.LOG.error("Didn't find necessary matchings from param to property. Can't initialize connectsTo relationship");
             return false;
         }
 
@@ -153,7 +151,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
         // (ia.getOperationName() != null) &&
         // ia.getOperationName().equals(connectsToOp.getName())) {
         templateContext.executeOperation(connectToNode, connectsToIface.getName(), connectsToOp.getName(),
-            param2propertyMapping);
+                                         param2propertyMapping);
         // }
         // }
         // }
@@ -211,7 +209,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             // start the node again
             if (this.hasOperation(targetNodeTemplate, "stop") & this.hasOperation(targetNodeTemplate, "start")) {
                 templateContext.executeOperation(targetNodeTemplate, this.getInterface(targetNodeTemplate, "start"),
-                    "start", null);
+                                                 "start", null);
             }
         }
 
@@ -221,7 +219,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             // if we can stop and start the node, stop it
             if (this.hasOperation(sourceNodeTemplate, "stop") & this.hasOperation(sourceNodeTemplate, "start")) {
                 templateContext.executeOperation(sourceNodeTemplate, this.getInterface(sourceNodeTemplate, "stop"),
-                    "stop", null);
+                                                 "stop", null);
             }
 
             this.executeConnectsTo(templateContext, sourceNodeTemplate, targetNodeTemplate);
@@ -229,7 +227,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             // start the node again
             if (this.hasOperation(sourceNodeTemplate, "stop") & this.hasOperation(sourceNodeTemplate, "start")) {
                 templateContext.executeOperation(sourceNodeTemplate, this.getInterface(sourceNodeTemplate, "start"),
-                    "start", null);
+                                                 "start", null);
             }
         }
 
@@ -259,10 +257,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @throws SAXException is thrown when parsing internal format into DOM fails
      */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException, SAXException {
-        final String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query,
-            stringVarName);
+                                                              final String stringVarName) throws IOException,
+                                                                                          SAXException {
+        final String templateString =
+            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -280,8 +278,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      * @throws IOException is thrown when reading the BPEL fragment form the resources fails
      */
     public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException {
+                                                                  final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("assignStringVarWithXpath2Query.xml");

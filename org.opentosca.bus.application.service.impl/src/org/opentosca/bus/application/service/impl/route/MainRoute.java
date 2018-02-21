@@ -29,16 +29,14 @@ public class MainRoute extends RouteBuilder {
         // Predicates to check if a operation should be invoked, if an
         // invocation has finished or if the results of an invocation should be
         // returned. Checking is based on the APPLICATION_BUS_METHOD header
-        final Predicate INVOKE_PREDICATE = header(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString()).isEqualTo(
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+        final Predicate INVOKE_PREDICATE =
+            header(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString()).isEqualTo(ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
-        final Predicate IS_FINISHED_PREDICATE = header(
-            ApplicationBusConstants.APPLICATION_BUS_METHOD.toString()).isEqualTo(
-                ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
+        final Predicate IS_FINISHED_PREDICATE =
+            header(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString()).isEqualTo(ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
 
-        final Predicate GET_RESULT_PREDICATE = header(
-            ApplicationBusConstants.APPLICATION_BUS_METHOD.toString()).isEqualTo(
-                ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
+        final Predicate GET_RESULT_PREDICATE =
+            header(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString()).isEqualTo(ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
 
         from(ApplicationBusServiceImpl.ENDPOINT).choice().when(INVOKE_PREDICATE).to(INVOKE_ENDPOINT)
                                                 .when(IS_FINISHED_PREDICATE).to(IS_FINISHED_ENDPOINT)

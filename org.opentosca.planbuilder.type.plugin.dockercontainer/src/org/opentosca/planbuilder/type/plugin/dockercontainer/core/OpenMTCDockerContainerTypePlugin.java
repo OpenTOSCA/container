@@ -43,8 +43,8 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
         for (final AbstractRelationshipTemplate relationshipTemplate : protocolAdapterNodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType())
                           .contains(Types.connectsToRelationType)) {
-                if (ModelUtils.getNodeTypeHierarchy(relationshipTemplate.getTarget().getType()).contains(
-                    DockerContainerTypePluginPluginConstants.OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE)) {
+                if (ModelUtils.getNodeTypeHierarchy(relationshipTemplate.getTarget().getType())
+                              .contains(DockerContainerTypePluginPluginConstants.OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE)) {
                     return relationshipTemplate.getTarget();
                 }
             }
@@ -170,8 +170,8 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
     }
 
     public boolean canHandleProtocolAdapter(final AbstractNodeTemplate nodeTemplate) {
-        if (!ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType()).contains(
-            DockerContainerTypePluginPluginConstants.OPENMTC_PROTOCOL_ADAPTER_DOCKER_CONTAINER_NODETYPE)) {
+        if (!ModelUtils.getNodeTypeHierarchy(nodeTemplate.getType())
+                       .contains(DockerContainerTypePluginPluginConstants.OPENMTC_PROTOCOL_ADAPTER_DOCKER_CONTAINER_NODETYPE)) {
             return false;
         }
 

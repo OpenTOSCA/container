@@ -41,7 +41,7 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final List<String> selectionStrategies) {
+                          final List<String> selectionStrategies) {
 
         // TODO
         // fetch instance variables
@@ -62,20 +62,23 @@ public class BPELMosquittoSelectionPlugin extends MosquittoSelectionPlugin<BPELP
         context.addVariable(responseVarName, BPELPlan.VariableType.MESSAGE, anyTypeDeclId);
 
         try {
-            Node getRelationInstance = new BPELProcessFragments().generateBPEL4RESTLightGETonURLAsNode(
-                relationTemplateInstnaceVar, responseVarName);
+            Node getRelationInstance =
+                new BPELProcessFragments().generateBPEL4RESTLightGETonURLAsNode(relationTemplateInstnaceVar,
+                                                                                responseVarName);
             getRelationInstance = context.importNode(getRelationInstance);
             context.getPrePhaseElement().appendChild(getRelationInstance);
 
-            final String xpath2Query = "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
-            Node fetchSourceInstance = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode(
-                "selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_"
-                    + System.currentTimeMillis(),
-                xpath2Query, nodeTemplateInstanceVar);
+            final String xpath2Query =
+                "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
+            Node fetchSourceInstance =
+                new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_"
+                    + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query,
+                                                                                           nodeTemplateInstanceVar);
             fetchSourceInstance = context.importNode(fetchSourceInstance);
             context.getPrePhaseElement().appendChild(fetchSourceInstance);
 
-        } catch (IOException | SAXException | ParserConfigurationException e) {
+        }
+        catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
         }
 

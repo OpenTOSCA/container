@@ -69,15 +69,15 @@ public class AllCredentialsResource {
      * @throws UserException
      */
     @Path("{credentialsID}")
-    public CredentialsResource getCredentialsResource(@PathParam("credentialsID") final String credentialsIDAsString)
-        throws UserException {
+    public CredentialsResource getCredentialsResource(@PathParam("credentialsID") final String credentialsIDAsString) throws UserException {
 
         Credentials credentials = null;
 
         try {
             final long credentialsID = Long.parseLong(credentialsIDAsString);
             credentials = this.CREDENTIALS_SERVICE.getCredentials(credentialsID);
-        } catch (final NumberFormatException exc) {
+        }
+        catch (final NumberFormatException exc) {
             throw new UserException("Credentials ID must be a whole number.", exc);
         }
 
@@ -106,8 +106,8 @@ public class AllCredentialsResource {
 
         final Long credentialsID = this.CREDENTIALS_SERVICE.storeCredentials(credentials);
 
-        return Response.created(
-            URI.create(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), Long.toString(credentialsID))))
+        return Response.created(URI.create(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
+                                                              Long.toString(credentialsID))))
                        .build();
 
         // } catch (UserException exc) {

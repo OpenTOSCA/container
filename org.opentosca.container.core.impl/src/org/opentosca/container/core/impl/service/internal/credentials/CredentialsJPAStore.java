@@ -68,7 +68,8 @@ public class CredentialsJPAStore {
             this.em.persist(credentials);
             this.em.getTransaction().commit();
 
-        } catch (final Exception exc) {
+        }
+        catch (final Exception exc) {
             // check if exception chain contains exception that indicates a
             // constraint violation
             for (Throwable excCause = exc.getCause(); excCause != null; excCause = excCause.getCause()) {
@@ -81,9 +82,8 @@ public class CredentialsJPAStore {
 
         final long credentialsID = credentials.getID();
 
-        CredentialsJPAStore.LOG.debug(
-            "Storing credentials for storage provider \"{}\" completed. Generated ID of credentials: \"{}\"",
-            storageProviderID, credentialsID);
+        CredentialsJPAStore.LOG.debug("Storing credentials for storage provider \"{}\" completed. Generated ID of credentials: \"{}\"",
+                                      storageProviderID, credentialsID);
 
         return credentialsID;
     }
@@ -106,7 +106,8 @@ public class CredentialsJPAStore {
             credentials = (Credentials) getCredentialsQuery.getSingleResult();
             CredentialsJPAStore.LOG.debug("Credentials \"{}\" were found.", credentialsID);
             return credentials;
-        } catch (final NoResultException exc) {
+        }
+        catch (final NoResultException exc) {
             throw new UserException("Credentials \"" + credentialsID + "\" were not found.");
         }
 
@@ -121,15 +122,16 @@ public class CredentialsJPAStore {
 
         initJPA();
 
-        final Query getAllCredentialsByStorageProviderIDQuery = this.em.createNamedQuery(
-            Credentials.getAllCredentialsByStorageProviderID);
+        final Query getAllCredentialsByStorageProviderIDQuery =
+            this.em.createNamedQuery(Credentials.getAllCredentialsByStorageProviderID);
         getAllCredentialsByStorageProviderIDQuery.setParameter("storageProviderID", storageProviderID);
 
         @SuppressWarnings("unchecked")
-        final List<Credentials> allCredentialsOfStorageProvider = getAllCredentialsByStorageProviderIDQuery.getResultList();
+        final List<Credentials> allCredentialsOfStorageProvider =
+            getAllCredentialsByStorageProviderIDQuery.getResultList();
 
         CredentialsJPAStore.LOG.debug("{} credentials for storage provider \"{}\" were found.",
-            allCredentialsOfStorageProvider.size(), storageProviderID);
+                                      allCredentialsOfStorageProvider.size(), storageProviderID);
 
         return new HashSet<>(allCredentialsOfStorageProvider);
 

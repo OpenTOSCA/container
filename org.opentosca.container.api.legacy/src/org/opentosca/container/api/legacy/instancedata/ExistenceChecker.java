@@ -59,10 +59,9 @@ public class ExistenceChecker {
      * @throws GenericRestException when specified nodeInstance doesn't exist
      */
     public static NodeInstance checkNodeInstanceWithException(final int nodeInstanceID,
-                    final IInstanceDataService service)
-        throws GenericRestException {
-        final List<NodeInstance> nodeInstances = service.getNodeInstances(
-            IdConverter.nodeInstanceIDtoURI(nodeInstanceID), null, null, null);
+                                                              final IInstanceDataService service) throws GenericRestException {
+        final List<NodeInstance> nodeInstances =
+            service.getNodeInstances(IdConverter.nodeInstanceIDtoURI(nodeInstanceID), null, null, null);
         // check if only one instance was returned - we dont verify because we
         // assume the get Method returns the correct one!
         // we got really bad problems if this wouldnt work anyway
@@ -76,10 +75,9 @@ public class ExistenceChecker {
     }
 
     public static ServiceInstance checkServiceInstanceWithException(final int serviceInstanceID,
-                    final IInstanceDataService service)
-        throws GenericRestException {
-        final List<ServiceInstance> serviceInstances = service.getServiceInstances(
-            IdConverter.serviceInstanceIDtoURI(serviceInstanceID), null, null);
+                                                                    final IInstanceDataService service) throws GenericRestException {
+        final List<ServiceInstance> serviceInstances =
+            service.getServiceInstances(IdConverter.serviceInstanceIDtoURI(serviceInstanceID), null, null);
         // check if only one instance was returned - we dont verify because we
         // assume the get Method returns the correct one!
         // we got really bad problems if this wouldnt work anyway
@@ -92,10 +90,9 @@ public class ExistenceChecker {
     }
 
     public static RelationInstance checkRelationInstanceWithException(final int relationInstanceID,
-                    final IInstanceDataService service)
-        throws GenericRestException {
-        final List<RelationInstance> relationInstances = service.getRelationInstances(
-            IdConverter.relationInstanceIDtoURI(relationInstanceID), null, null, null);
+                                                                      final IInstanceDataService service) throws GenericRestException {
+        final List<RelationInstance> relationInstances =
+            service.getRelationInstances(IdConverter.relationInstanceIDtoURI(relationInstanceID), null, null, null);
         // check if only one instance was returned - we dont verify because we
         // assume the get Method returns the correct one!
         // we got really bad problems if this wouldnt work anyway

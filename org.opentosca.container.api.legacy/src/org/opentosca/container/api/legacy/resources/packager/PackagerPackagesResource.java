@@ -58,11 +58,11 @@ public class PackagerPackagesResource {
         final References refs = new References();
 
         if (this.connector.isWineryRepositoryAvailable()) {
-            for (final QName xaasPackageServiceTemplateId : this.connector.getServiceTemplates(
-                PackagerPackagesResource.tags)) {
-                final String uri = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
-                    Utilities.URLencode(xaasPackageServiceTemplateId.toString())).replace("packager/packages",
-                        "marketplace/servicetemplates");
+            for (final QName xaasPackageServiceTemplateId : this.connector.getServiceTemplates(PackagerPackagesResource.tags)) {
+                final String uri = Utilities
+                                            .buildURI(this.uriInfo.getAbsolutePath().toString(),
+                                                      Utilities.URLencode(xaasPackageServiceTemplateId.toString()))
+                                            .replace("packager/packages", "marketplace/servicetemplates");
                 refs.getReference()
                     .add(new Reference(uri, XLinkConstants.SIMPLE, xaasPackageServiceTemplateId.toString()));
             }

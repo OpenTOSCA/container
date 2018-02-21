@@ -27,7 +27,7 @@ public interface InstanceManagementService {
 
     ) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -38,9 +38,9 @@ public interface InstanceManagementService {
 
 
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                        final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                 throws java.rmi.RemoteException;
 
 
     /**
@@ -53,7 +53,7 @@ public interface InstanceManagementService {
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
 
@@ -68,10 +68,10 @@ public interface InstanceManagementService {
 
     public org.wso2.bps.management.schema.PaginatedInstanceList getPaginatedInstanceList(
 
-                    org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput5)
-        throws java.rmi.RemoteException
+                                                                                         org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput5) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+                                                                                                                                                                                      ,
+                                                                                                                                                                                      org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -82,11 +82,11 @@ public interface InstanceManagementService {
      */
     public void startgetPaginatedInstanceList(
 
-                    org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput5,
+                                              org.wso2.bps.management.schema.GetPaginatedInstanceListInput getPaginatedInstanceListInput5,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                              final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                       throws java.rmi.RemoteException;
 
 
 
@@ -101,10 +101,10 @@ public interface InstanceManagementService {
 
     public org.wso2.bps.management.schema.ActivityLifeCycleEvents getActivityLifeCycleFilter(
 
-                    org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn7)
-        throws java.rmi.RemoteException
+                                                                                             org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn7) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+                                                                                                                                                                                        ,
+                                                                                                                                                                                        org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -115,11 +115,11 @@ public interface InstanceManagementService {
      */
     public void startgetActivityLifeCycleFilter(
 
-                    org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn7,
+                                                org.wso2.bps.management.schema.GetActivityLifeCycleFilterIn getActivityLifeCycleFilterIn7,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                                final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                         throws java.rmi.RemoteException;
 
 
 
@@ -134,10 +134,10 @@ public interface InstanceManagementService {
 
     public org.wso2.bps.management.schema.InstanceInfo getInstanceInfo(
 
-                    org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn9)
-        throws java.rmi.RemoteException
+                                                                       org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn9) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+                                                                                                                                            ,
+                                                                                                                                            org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -148,11 +148,11 @@ public interface InstanceManagementService {
      */
     public void startgetInstanceInfo(
 
-                    org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn9,
+                                     org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn9,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                     final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                              throws java.rmi.RemoteException;
 
 
     /**
@@ -165,7 +165,7 @@ public interface InstanceManagementService {
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
 
@@ -180,10 +180,10 @@ public interface InstanceManagementService {
 
     public org.wso2.bps.management.schema.DeleteInstanceResponse deleteInstances(
 
-                    org.wso2.bps.management.schema.DeleteInstances deleteInstances12)
-        throws java.rmi.RemoteException
+                                                                                 org.wso2.bps.management.schema.DeleteInstances deleteInstances12) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+                                                                                                                                                   ,
+                                                                                                                                                   org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -194,11 +194,11 @@ public interface InstanceManagementService {
      */
     public void startdeleteInstances(
 
-                    org.wso2.bps.management.schema.DeleteInstances deleteInstances12,
+                                     org.wso2.bps.management.schema.DeleteInstances deleteInstances12,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                     final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                              throws java.rmi.RemoteException;
 
 
 
@@ -213,10 +213,10 @@ public interface InstanceManagementService {
 
     public org.wso2.bps.management.schema.InstanceInfoWithEvents getInstanceInfoWithEvents(
 
-                    org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn14)
-        throws java.rmi.RemoteException
+                                                                                           org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn14) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+                                                                                                                                                                 ,
+                                                                                                                                                                 org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -227,11 +227,11 @@ public interface InstanceManagementService {
      */
     public void startgetInstanceInfoWithEvents(
 
-                    org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn14,
+                                               org.wso2.bps.management.schema.GetInstanceInfoIn getInstanceInfoIn14,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                               final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                        throws java.rmi.RemoteException;
 
 
 
@@ -246,10 +246,10 @@ public interface InstanceManagementService {
 
     public org.wso2.bps.management.schema.GetLongRunningInstancesResponse getLongRunningInstances(
 
-                    org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput16)
-        throws java.rmi.RemoteException
+                                                                                                  org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput16) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+                                                                                                                                                                                              ,
+                                                                                                                                                                                              org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -260,11 +260,11 @@ public interface InstanceManagementService {
      */
     public void startgetLongRunningInstances(
 
-                    org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput16,
+                                             org.wso2.bps.management.schema.GetLongRunningInstancesInput getLongRunningInstancesInput16,
 
-                    final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
+                                             final org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                      throws java.rmi.RemoteException;
 
 
     /**
@@ -277,7 +277,7 @@ public interface InstanceManagementService {
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
     /**
@@ -290,7 +290,7 @@ public interface InstanceManagementService {
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
+      , org.wso2.bps.management.wsdl.instancemanagement.InstanceManagementException;
 
 
 

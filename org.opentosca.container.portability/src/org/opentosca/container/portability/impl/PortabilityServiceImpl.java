@@ -31,17 +31,18 @@ public class PortabilityServiceImpl implements IPortabilityService {
 
     @Override
     public Artifacts getNodeTemplateArtifacts(final CSARID csarID, final QName serviceTemplateID,
-                    final QName nodeTemplateID, final ArtifactType artifactType, final String deploymentArtifactName,
-                    final String interfaceName, final String operationName) {
+                                              final QName nodeTemplateID, final ArtifactType artifactType,
+                                              final String deploymentArtifactName, final String interfaceName,
+                                              final String operationName) {
 
         // retrieve qnames of all nodeTypes => and qnames of implementations of
         // this nodeTypes
-        final QName nodeTypeOfNodeTemplate = toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-            nodeTemplateID.getLocalPart());
+        final QName nodeTypeOfNodeTemplate =
+            toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID.getLocalPart());
 
         // TODO: null check nodeTypeOfNodeTemplate
-        final List<QName> nodeTypeImplementationsOfNodeType = toscaEngineService.getNodeTypeImplementationsOfNodeType(
-            csarID, nodeTypeOfNodeTemplate);
+        final List<QName> nodeTypeImplementationsOfNodeType =
+            toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeOfNodeTemplate);
 
         // for each implementation we want to get the resolvedArtifacts => for
         // each imp we get the archifactSpecificContent OR the reference from
@@ -52,10 +53,11 @@ public class PortabilityServiceImpl implements IPortabilityService {
         final List<ResolvedImplementationArtifact> filteredIAList = new ArrayList<>();
 
         this.fillFilteredArtifactsOfNodeTypeImplByName(filteredDAList, filteredIAList, csarID,
-            nodeTypeImplementationsOfNodeType, deploymentArtifactName, interfaceName, operationName);
+                                                       nodeTypeImplementationsOfNodeType, deploymentArtifactName,
+                                                       interfaceName, operationName);
 
         this.fillFilteredArtifactsOfNodeTemplateByName(filteredDAList, filteredIAList, csarID, nodeTemplateID,
-            deploymentArtifactName, interfaceName, operationName);
+                                                       deploymentArtifactName, interfaceName, operationName);
 
         // BUILD TArtifacts-Object
         final Artifacts result = this.buildTArtifactsResult(filteredDAList, filteredIAList, artifactType);
@@ -65,16 +67,19 @@ public class PortabilityServiceImpl implements IPortabilityService {
 
     @Override
     public Artifacts getRelationshipTemplateArtifacts(final CSARID csarID, final QName serviceTemplateID,
-                    final QName relationshipTemplateID, final ArtifactType artifactType, final String deplArtifactName,
-                    final String interfaceName, final String operationName) {
+                                                      final QName relationshipTemplateID,
+                                                      final ArtifactType artifactType, final String deplArtifactName,
+                                                      final String interfaceName, final String operationName) {
 
         // retrieve qnames of all nodeTypes => and qnames of implementations of
         // this nodeTypes
-        final QName relationshipTypeOfNodeTemplate = toscaEngineService.getRelationshipTypeOfRelationshipTemplate(
-            csarID, serviceTemplateID, relationshipTemplateID.getLocalPart());
+        final QName relationshipTypeOfNodeTemplate =
+            toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID,
+                                                                         relationshipTemplateID.getLocalPart());
         // TODO: null check nodeTypeOfNodeTemplate
-        final List<QName> relationshipTypeImplementationsOfNodeType = toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(
-            csarID, relationshipTypeOfNodeTemplate);
+        final List<QName> relationshipTypeImplementationsOfNodeType =
+            toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(csarID,
+                                                                                    relationshipTypeOfNodeTemplate);
 
         // for each implementation we want to get the resolvedArtifacts => for
         // each imp we get the archifactSpecificContent OR the reference from
@@ -85,7 +90,8 @@ public class PortabilityServiceImpl implements IPortabilityService {
         final List<ResolvedImplementationArtifact> filteredIAList = new ArrayList<>();
 
         this.fillFilteredArtifactsOfRelationshipTypeImplByName(filteredDAList, filteredIAList, csarID,
-            relationshipTypeImplementationsOfNodeType, deplArtifactName, interfaceName, operationName);
+                                                               relationshipTypeImplementationsOfNodeType,
+                                                               deplArtifactName, interfaceName, operationName);
 
         // BUILD TArtifacts-Object
         final Artifacts result = this.buildTArtifactsResult(filteredDAList, filteredIAList, artifactType);
@@ -101,7 +107,8 @@ public class PortabilityServiceImpl implements IPortabilityService {
      * @return TArtifacts object which contains the artifacts of both given lists
      */
     private Artifacts buildTArtifactsResult(final List<ResolvedDeploymentArtifact> filteredDAList,
-                    final List<ResolvedImplementationArtifact> filteredIAList, final ArtifactType artifactType) {
+                                            final List<ResolvedImplementationArtifact> filteredIAList,
+                                            final ArtifactType artifactType) {
 
         final Artifacts result = new Artifacts();
         // handling of different requests DAs / IAs or BOTH!
@@ -113,8 +120,8 @@ public class PortabilityServiceImpl implements IPortabilityService {
                 // generate the resultElement
                 DeploymentArtifact newDA = null;
                 if (da.getArtifactSpecificContent() != null) {
-                    newDA = new DeploymentArtifact(da.getName(), da.getType().toString(),
-                        da.getArtifactSpecificContent());
+                    newDA =
+                        new DeploymentArtifact(da.getName(), da.getType().toString(), da.getArtifactSpecificContent());
                 } else {
                     final List<String> references = da.getReferences();
                     newDA = new DeploymentArtifact(da.getName(), da.getType().toString(), references);
@@ -166,12 +173,13 @@ public class PortabilityServiceImpl implements IPortabilityService {
      * @param operationNameFilter Filter which will be applied (.equals) to the resolved ImplArtifacts
      */
     private void fillFilteredArtifactsOfNodeTemplateByName(final List<ResolvedDeploymentArtifact> filteredDAList,
-                    final List<ResolvedImplementationArtifact> filteredIAList, final CSARID csarID,
-                    final QName nodeTemplateID, final String deploymentArtifactName, final String interfaceName,
-                    final String operationName) {
+                                                           final List<ResolvedImplementationArtifact> filteredIAList,
+                                                           final CSARID csarID, final QName nodeTemplateID,
+                                                           final String deploymentArtifactName,
+                                                           final String interfaceName, final String operationName) {
 
-        final ResolvedArtifacts resolvedTemp = toscaEngineService.getResolvedArtifactsOfNodeTemplate(csarID,
-            nodeTemplateID);
+        final ResolvedArtifacts resolvedTemp =
+            toscaEngineService.getResolvedArtifactsOfNodeTemplate(csarID, nodeTemplateID);
 
         // filter IAs by artifactName if necessary (only add if name not
         // specified or matching)
@@ -225,17 +233,20 @@ public class PortabilityServiceImpl implements IPortabilityService {
      * @param operationNameFilter Filter which will be applied (.equals) to the resolved ImplArtifacts
      */
     private void fillFilteredArtifactsOfNodeTypeImplByName(final List<ResolvedDeploymentArtifact> filteredDAList,
-                    final List<ResolvedImplementationArtifact> filteredIAList, final CSARID csarID,
-                    final List<QName> nodeTypeImplementations, final String deploymentArtifactNameFilter,
-                    final String interfaceNameFilter, final String operationNameFilter) {
+                                                           final List<ResolvedImplementationArtifact> filteredIAList,
+                                                           final CSARID csarID,
+                                                           final List<QName> nodeTypeImplementations,
+                                                           final String deploymentArtifactNameFilter,
+                                                           final String interfaceNameFilter,
+                                                           final String operationNameFilter) {
 
         for (final QName ntImplQName : nodeTypeImplementations) {
             // add the list of ImplementationArtifactNames of the
             // NodeTypeImplementation to the iaNames-List
             // if name is specified only add matching artifactNames
 
-            final ResolvedArtifacts resolvedTemp = toscaEngineService.getResolvedArtifactsOfNodeTypeImplementation(
-                csarID, ntImplQName);
+            final ResolvedArtifacts resolvedTemp =
+                toscaEngineService.getResolvedArtifactsOfNodeTypeImplementation(csarID, ntImplQName);
 
             // filter IAs by artifactName if necessary (only add if name not
             // specified or matching)
@@ -288,18 +299,20 @@ public class PortabilityServiceImpl implements IPortabilityService {
      *        Artifacts will be resolved
      * @param artifactNameFilter Filter which will be applied (.equals) to the resolved Artifacts
      */
-    private void fillFilteredArtifactsOfRelationshipTypeImplByName(
-                    final List<ResolvedDeploymentArtifact> filteredDAList,
-                    final List<ResolvedImplementationArtifact> filteredIAList, final CSARID csarID,
-                    final List<QName> relationshipTypeImplementations, final String deploymentArtifactNameFilter,
-                    final String interfaceNameFilter, final String operationNameFilter) {
+    private void fillFilteredArtifactsOfRelationshipTypeImplByName(final List<ResolvedDeploymentArtifact> filteredDAList,
+                                                                   final List<ResolvedImplementationArtifact> filteredIAList,
+                                                                   final CSARID csarID,
+                                                                   final List<QName> relationshipTypeImplementations,
+                                                                   final String deploymentArtifactNameFilter,
+                                                                   final String interfaceNameFilter,
+                                                                   final String operationNameFilter) {
         for (final QName ntImplQName : relationshipTypeImplementations) {
             // add the list of ImplementationArtifactNames of the
             // NodeTypeImplementation to the iaNames-List
             // if name is specified only add matching artifactNames
 
-            final ResolvedArtifacts resolvedTemp = toscaEngineService.getResolvedArtifactsOfRelationshipTypeImplementation(
-                csarID, ntImplQName);
+            final ResolvedArtifacts resolvedTemp =
+                toscaEngineService.getResolvedArtifactsOfRelationshipTypeImplementation(csarID, ntImplQName);
 
             // if artifactName is not specified we add all Names - otherwise we
             // need to filter

@@ -104,12 +104,14 @@ public class TaskWorkerRunnable implements Runnable {
             // topologytemplate => only one buildPlan will be generated
             LOG.debug("Storing CSAR");
             csarId = Util.storeCSAR(fileName, csarInputStream);
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
             this.state.currentMessage = "Couldn't download CSAR";
             LOG.error("Couldn't download CSAR");
             return;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             this.state.currentState = PlanGenerationStates.CSARDOWNLOADFAILED;
             this.state.currentMessage = "Couldn't download CSAR";
             LOG.error("Couldn't download CSAR");
@@ -158,10 +160,11 @@ public class TaskWorkerRunnable implements Runnable {
         try {
             mpEntity.addPart("planName", new StringBody(planTmpFile.getName()));
             mpEntity.addPart("planType",
-                new StringBody("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"));
+                             new StringBody("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"));
             mpEntity.addPart("planLanguage",
-                new StringBody("http://docs.oasis-open.org/wsbpel/2.0/process/executable"));
-        } catch (final UnsupportedEncodingException e1) {
+                             new StringBody("http://docs.oasis-open.org/wsbpel/2.0/process/executable"));
+        }
+        catch (final UnsupportedEncodingException e1) {
             this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
             this.state.currentMessage = "Couldn't generate Upload request to PLANPOSTURL";
             Util.deleteCSAR(csarId);
@@ -184,8 +187,8 @@ public class TaskWorkerRunnable implements Runnable {
                 // we assume ,if the status code ranges from 300 to 5xx , that
                 // an error occured
                 this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-                this.state.currentMessage = "Couldn't send plan. Server send status "
-                    + uploadResponse.getStatusLine().getStatusCode();
+                this.state.currentMessage =
+                    "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
                 Util.deleteCSAR(csarId);
                 LOG.error("Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode());
                 return;
@@ -221,14 +224,14 @@ public class TaskWorkerRunnable implements Runnable {
 
                     final UrlEncodedFormEntity encodedForm = new UrlEncodedFormEntity(params);
 
-                    final HttpResponse inputParamPostResponse = openToscaHttpService.Post(inputParamPostUrl,
-                        encodedForm);
+                    final HttpResponse inputParamPostResponse =
+                        openToscaHttpService.Post(inputParamPostUrl, encodedForm);
                     if (inputParamPostResponse.getStatusLine().getStatusCode() >= 300) {
                         this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-                        this.state.currentMessage = "Couldn't set inputParameters. Setting InputParam (postURL: "
-                            + inputParamPostUrl + ") " + inputParam
-                            + " failed, Service for Plan Upload sent statusCode "
-                            + inputParamPostResponse.getStatusLine().getStatusCode();
+                        this.state.currentMessage =
+                            "Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl + ") "
+                                + inputParam + " failed, Service for Plan Upload sent statusCode "
+                                + inputParamPostResponse.getStatusLine().getStatusCode();
                         Util.deleteCSAR(csarId);
                         LOG.error("Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl
                             + ") " + inputParam + " failed, Service for Plan Upload sent statusCode "
@@ -248,14 +251,14 @@ public class TaskWorkerRunnable implements Runnable {
 
                     final UrlEncodedFormEntity encodedForm = new UrlEncodedFormEntity(params);
 
-                    final HttpResponse outputParamPostResponse = openToscaHttpService.Post(outputParamPostUrl,
-                        encodedForm);
+                    final HttpResponse outputParamPostResponse =
+                        openToscaHttpService.Post(outputParamPostUrl, encodedForm);
                     if (outputParamPostResponse.getStatusLine().getStatusCode() >= 300) {
                         this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-                        this.state.currentMessage = "Couldn't set outputParameters. Setting OutputParam (postURL: "
-                            + outputParamPostUrl + ") " + outputParam
-                            + " failed, Service for Plan Upload sent statusCode "
-                            + outputParamPostResponse.getStatusLine().getStatusCode();
+                        this.state.currentMessage =
+                            "Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl + ") "
+                                + outputParam + " failed, Service for Plan Upload sent statusCode "
+                                + outputParamPostResponse.getStatusLine().getStatusCode();
                         Util.deleteCSAR(csarId);
                         LOG.error("Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl
                             + ") " + outputParam + " failed, Service for Plan Upload sent statusCode "
@@ -269,13 +272,15 @@ public class TaskWorkerRunnable implements Runnable {
                 this.state.currentMessage = "Sent plan.";
                 LOG.debug("Sent plan.");
             }
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
             this.state.currentMessage = "Couldn't send plan.";
             Util.deleteCSAR(csarId);
             LOG.error("Couldn't send plan.");
             return;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
             this.state.currentMessage = "Couldn't send plan.";
             Util.deleteCSAR(csarId);
@@ -318,8 +323,9 @@ public class TaskWorkerRunnable implements Runnable {
                 mpOptionEntity.addPart("description", new StringBody(option.option.getDescription()));
                 mpOptionEntity.addPart("planServiceName", new StringBody(option.option.getPlanServiceName()));
                 mpOptionEntity.addPart("planInputMessage",
-                    new StringBody(FileUtils.readFileToString(option.planInputMessageFile)));
-            } catch (final UnsupportedEncodingException e1) {
+                                       new StringBody(FileUtils.readFileToString(option.planInputMessageFile)));
+            }
+            catch (final UnsupportedEncodingException e1) {
                 this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
                 this.state.currentMessage = "Couldn't generate option to send to winery";
                 Util.deleteCSAR(csarId);
@@ -350,12 +356,14 @@ public class TaskWorkerRunnable implements Runnable {
                 Util.deleteCSAR(csarId);
                 return;
             }
-        } catch (final MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
             this.state.currentMessage = "Couldn't send option to winery.";
             Util.deleteCSAR(csarId);
             return;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
             this.state.currentMessage = "Couldn't send option to winery.";
             Util.deleteCSAR(csarId);

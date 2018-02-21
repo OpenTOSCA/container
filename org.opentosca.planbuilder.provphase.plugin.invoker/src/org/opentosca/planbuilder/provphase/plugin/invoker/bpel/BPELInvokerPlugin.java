@@ -32,22 +32,24 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia) {
+                          final AbstractImplementationArtifact ia) {
         try {
             return this.handler.handle(context, operation, ia);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
                 + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
                                                     : context.getRelationshipTemplate().getId(),
-                e);
+                                        e);
             return false;
         }
     }
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping, final boolean appendToPrePhase) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final boolean appendToPrePhase) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -65,8 +67,9 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                null, inputParams, new HashMap<String, Variable>(), appendToPrePhase);
-        } catch (final Exception e) {
+                                       null, inputParams, new HashMap<String, Variable>(), appendToPrePhase);
+        }
+        catch (final Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -74,8 +77,8 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -93,8 +96,9 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                null, inputParams, new HashMap<String, Variable>(), false);
-        } catch (final Exception e) {
+                                       null, inputParams, new HashMap<String, Variable>(), false);
+        }
+        catch (final Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -116,17 +120,19 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
      * @return true iff adding logic for Invoker call was successful
      */
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
-                    final String operationName, final String interfaceName, final String callbackAddressVarName,
-                    final Map<String, Variable> internalExternalPropsInput,
-                    final Map<String, Variable> internalExternalPropsOutput, final boolean appendToPrePhase) {
+                          final String operationName, final String interfaceName, final String callbackAddressVarName,
+                          final Map<String, Variable> internalExternalPropsInput,
+                          final Map<String, Variable> internalExternalPropsOutput, final boolean appendToPrePhase) {
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-                callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
-        } catch (final Exception e) {
+                                       callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput,
+                                       appendToPrePhase);
+        }
+        catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
                 + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
                                                     : context.getRelationshipTemplate().getId(),
-                e);
+                                        e);
             return false;
         }
 
@@ -146,16 +152,17 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
      * @return true iff adding logic for Invoker call was successful
      */
     public boolean handle(final BPELPlanContext context, final String operationName, final String interfaceName,
-                    final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
-                    final Map<String, Variable> internalExternalPropsOutput) {
+                          final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
+                          final Map<String, Variable> internalExternalPropsOutput) {
         try {
             return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
-                internalExternalPropsInput, internalExternalPropsOutput, false);
-        } catch (final Exception e) {
+                                       internalExternalPropsInput, internalExternalPropsOutput, false);
+        }
+        catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
                 + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
                                                     : context.getRelationshipTemplate().getId(),
-                e);
+                                        e);
             return false;
         }
     }
@@ -176,12 +183,14 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
      * @return true iff appending all bpel code was successful
      */
     public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
-                    final BPELPlanContext templateContext, final Variable serverIp, final Variable sshUser,
-                    final Variable sshKey, final String templateId) {
+                                                 final BPELPlanContext templateContext, final Variable serverIp,
+                                                 final Variable sshUser, final Variable sshKey,
+                                                 final String templateId) {
         try {
             return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
-                templateId, true);
-        } catch (final Exception e) {
+                                                              templateId, true);
+        }
+        catch (final Exception e) {
             LOG.error("Couldn't load internal files", e);
             return false;
         }
@@ -189,9 +198,9 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                    final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -213,8 +222,9 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                null, inputParams, outputParams, false);
-        } catch (final IOException e) {
+                                       null, inputParams, outputParams, false);
+        }
+        catch (final IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -222,10 +232,10 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping,
-                    final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                    final boolean appendToPrePhase) {
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                          final boolean appendToPrePhase) {
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
@@ -238,8 +248,9 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
-                outputParams, appendToPrePhase);
-        } catch (final Exception e) {
+                                       outputParams, appendToPrePhase);
+        }
+        catch (final Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;

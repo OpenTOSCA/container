@@ -23,14 +23,14 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-            bundleContext.getBundle().getVersion());
+                    bundleContext.getBundle().getVersion());
         context = bundleContext;
     }
 
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
         logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-            bundleContext.getBundle().getVersion());
+                    bundleContext.getBundle().getVersion());
         Activator.context = null;
     }
 }

@@ -36,8 +36,8 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
-        this.registration = Activator.context.registerService(IPlanEnginePlanRefPluginService.class.getName(),
-            this.plugin, null);
+        this.registration =
+            Activator.context.registerService(IPlanEnginePlanRefPluginService.class.getName(), this.plugin, null);
     }
 
     public ICoreFileService getCoreFileService() {

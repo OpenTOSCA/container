@@ -38,10 +38,11 @@ public class NodeTemplateService {
      * @return A collection of node templates stored within the given service template.
      */
     public List<NodeTemplateDTO> getNodeTemplatesOfServiceTemplate(final String csarId,
-                    final String serviceTemplateQName) {
+                                                                   final String serviceTemplateQName) {
         final CSARContent csarContent = this.csarService.findById(csarId);
-        final List<String> nodeTemplateIds = this.toscaEngineService.getNodeTemplatesOfServiceTemplate(
-            csarContent.getCSARID(), QName.valueOf(serviceTemplateQName));
+        final List<String> nodeTemplateIds =
+            this.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarContent.getCSARID(),
+                                                                      QName.valueOf(serviceTemplateQName));
         final List<NodeTemplateDTO> nodeTemplates = Lists.newArrayList();
         NodeTemplateDTO currentNodeTemplate;
 
@@ -64,8 +65,7 @@ public class NodeTemplateService {
      * @throws NotFoundException If the service template does not contain the specified node template
      */
     public NodeTemplateDTO getNodeTemplateById(final String csarId, final QName serviceTemplateQName,
-                    final String nodeTemplateId)
-        throws NotFoundException {
+                                               final String nodeTemplateId) throws NotFoundException {
         final CSARContent csarContent = this.csarService.findById(csarId);
         final CSARID idOfCsar = csarContent.getCSARID();
 
@@ -102,7 +102,7 @@ public class NodeTemplateService {
      * @return
      */
     public Document getPropertiesOfNodeTemplate(final String csarId, final QName serviceTemplateQName,
-                    final String nodeTemplateId) {
+                                                final String nodeTemplateId) {
         final CSARContent csarContent = this.csarService.findById(csarId);
         final CSARID idOfCsar = csarContent.getCSARID();
 
@@ -112,8 +112,8 @@ public class NodeTemplateService {
             throw new NotFoundException("Node template \"" + nodeTemplateId + "\" could not be found");
         }
 
-        final Document properties = this.toscaEngineService.getPropertiesOfNodeTemplate(idOfCsar, serviceTemplateQName,
-            nodeTemplateId);
+        final Document properties =
+            this.toscaEngineService.getPropertiesOfNodeTemplate(idOfCsar, serviceTemplateQName, nodeTemplateId);
 
         return properties;
     }
@@ -130,12 +130,13 @@ public class NodeTemplateService {
      * @return
      */
     private NodeTemplateDTO createNodeTemplate(final CSARID csarId, final QName serviceTemplateQName,
-                    final String nodeTemplateId) {
+                                               final String nodeTemplateId) {
         final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
         currentNodeTemplate.setId(nodeTemplateId);
         currentNodeTemplate.setName(nodeTemplateId);
-        currentNodeTemplate.setNodeType(
-            this.toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId).toString());
+        currentNodeTemplate.setNodeType(this.toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateQName,
+                                                                                          nodeTemplateId)
+                                                               .toString());
 
         return currentNodeTemplate;
     }
@@ -151,7 +152,7 @@ public class NodeTemplateService {
         final CSARContent csarContent = this.csarService.findById(csarId);
 
         return this.toscaEngineService.getNodeTemplatesOfServiceTemplate(csarContent.getCSARID(),
-            QName.valueOf(serviceTemplateQName));
+                                                                         QName.valueOf(serviceTemplateQName));
     }
 
     /* Service Injection */

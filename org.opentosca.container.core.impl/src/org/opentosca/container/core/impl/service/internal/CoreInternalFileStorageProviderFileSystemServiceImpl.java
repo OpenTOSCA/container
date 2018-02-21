@@ -91,10 +91,8 @@ public class CoreInternalFileStorageProviderFileSystemServiceImpl extends Abstra
     public String getHelp() {
         final StringBuilder help = new StringBuilder();
         help.append("--- File System Storage Provider Management ---\n");
-        help.append(
-            "\tsetFilesystemContainerName <containerName> - Sets a new name for the container in that the files will be stored / retrieved from.\n");
-        help.append(
-            "\tprintFilesystemContainerName - Prints the name of the container in that the files will be stored / retrieved from.\n");
+        help.append("\tsetFilesystemContainerName <containerName> - Sets a new name for the container in that the files will be stored / retrieved from.\n");
+        help.append("\tprintFilesystemContainerName - Prints the name of the container in that the files will be stored / retrieved from.\n");
         return help.toString();
     }
 

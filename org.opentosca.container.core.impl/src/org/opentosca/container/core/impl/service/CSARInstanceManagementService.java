@@ -99,7 +99,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
      */
     @Override
     public void storeCorrelationForAnInstance(final CSARID csarID, final ServiceTemplateInstanceID instanceID,
-                    final String correlationID) {
+                                              final String correlationID) {
         this.LOG.info("Store correlation {} for CSAR \"" + csarID + "\" instance {}.", correlationID, instanceID);
         this.instanceStorage.storeNewCorrelationForInstance(csarID, instanceID, correlationID);
         this.LOG.debug(this.toString());
@@ -171,7 +171,7 @@ public class CSARInstanceManagementService implements ICSARInstanceManagementSer
 
     @Override
     public void correlateCSARInstanceWithPlanInstance(final ServiceTemplateInstanceID instanceID,
-                    final String correlationID) {
+                                                      final String correlationID) {
         this.mapCorrelationIDToCSARInstance.put(correlationID, instanceID);
     }
 

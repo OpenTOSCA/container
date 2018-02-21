@@ -90,11 +90,11 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
         this.localCorrelationPropertyTracker = true;
 
 
-        final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(
-            this.localCorrelationProperty);
+        final java.util.List list =
+            org.apache.axis2.databinding.utils.ConverterUtil.toList(this.localCorrelationProperty);
         list.add(param);
-        this.localCorrelationProperty = (org.wso2.bps.management.schema.CorrelationPropertyType[]) list.toArray(
-            new org.wso2.bps.management.schema.CorrelationPropertyType[list.size()]);
+        this.localCorrelationProperty =
+            (org.wso2.bps.management.schema.CorrelationPropertyType[]) list.toArray(new org.wso2.bps.management.schema.CorrelationPropertyType[list.size()]);
 
     }
 
@@ -172,27 +172,27 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -210,10 +210,10 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":correlationSet_type1", xmlWriter);
+                               namespacePrefix + ":correlationSet_type1", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "correlationSet_type1",
-                    xmlWriter);
+                               xmlWriter);
             }
 
 
@@ -222,7 +222,7 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
         if (this.localName != null) {
 
             writeAttribute("", "name", org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localName),
-                xmlWriter);
+                           xmlWriter);
 
 
         }
@@ -234,7 +234,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
         if (this.localCsetid != null) {
 
             writeAttribute("", "csetid",
-                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localCsetid), xmlWriter);
+                           org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localCsetid),
+                           xmlWriter);
 
 
         }
@@ -277,8 +278,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -299,9 +300,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -313,8 +313,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -328,8 +328,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -355,8 +355,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -367,8 +367,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -379,8 +379,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -403,11 +403,10 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -423,8 +422,7 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -444,8 +442,7 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -507,8 +504,7 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static CorrelationSet_type1 parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static CorrelationSet_type1 parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final CorrelationSet_type1 object = new CorrelationSet_type1();
 
             final int event;
@@ -523,8 +519,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -537,8 +533,9 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
                         if (!"correlationSet_type1".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (CorrelationSet_type1) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (CorrelationSet_type1) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                                        type,
+                                                                                                                                        reader);
                         }
 
 
@@ -558,7 +555,7 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
                 // handle attribute "name"
                 final java.lang.String tempAttribName =
 
-                                                      reader.getAttributeValue(null, "name");
+                    reader.getAttributeValue(null, "name");
 
                 if (tempAttribName != null) {
                     final java.lang.String content = tempAttribName;
@@ -575,13 +572,12 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
                 // handle attribute "csetid"
                 final java.lang.String tempAttribCsetid =
 
-                                                        reader.getAttributeValue(null, "csetid");
+                    reader.getAttributeValue(null, "csetid");
 
                 if (tempAttribCsetid != null) {
                     final java.lang.String content = tempAttribCsetid;
 
-                    object.setCsetid(
-                        org.apache.axis2.databinding.utils.ConverterUtil.convertToString(tempAttribCsetid));
+                    object.setCsetid(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(tempAttribCsetid));
 
                 } else {
 
@@ -636,9 +632,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
                     }
                     // call the converter utility to convert and set the array
 
-                    object.setCorrelationProperty(
-                        (org.wso2.bps.management.schema.CorrelationPropertyType[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                            org.wso2.bps.management.schema.CorrelationPropertyType.class, list1));
+                    object.setCorrelationProperty((org.wso2.bps.management.schema.CorrelationPropertyType[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(org.wso2.bps.management.schema.CorrelationPropertyType.class,
+                                                                                                                                                                             list1));
 
                 } // End of if for expected property start element
 
@@ -658,7 +653,8 @@ public class CorrelationSet_type1 implements org.apache.axis2.databinding.ADBBea
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

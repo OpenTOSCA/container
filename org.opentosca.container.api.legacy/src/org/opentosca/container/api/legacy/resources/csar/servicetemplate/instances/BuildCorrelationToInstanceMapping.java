@@ -24,7 +24,7 @@ public class BuildCorrelationToInstanceMapping {
     private BuildCorrelationToInstanceMapping() {}
 
     public void correlateCorrelationIdToServiceTemplateInstanceId(final String corrId,
-                    final int serviceTemplateInstanceId) {
+                                                                  final int serviceTemplateInstanceId) {
         this.correlationIdToServiceTemplateInstanceId.put(corrId, serviceTemplateInstanceId);
     }
 

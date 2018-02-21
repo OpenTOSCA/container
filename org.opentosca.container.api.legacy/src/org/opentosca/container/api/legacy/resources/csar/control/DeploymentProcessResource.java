@@ -57,8 +57,7 @@ public class DeploymentProcessResource {
         DeploymentProcessResource.LOG.info("Get Request on DeploymentProcessResource with ID: {}", this.processID);
         String res = "DeploymentProcessID=" + this.processID + this.sep + "DeploymentState="
             + this.openToscaControl.getDeploymentProcessState(this.processID);
-        for (final DeploymentProcessOperation operation : this.openToscaControl.getExecutableDeploymentProcessOperations(
-            this.processID)) {
+        for (final DeploymentProcessOperation operation : this.openToscaControl.getExecutableDeploymentProcessOperations(this.processID)) {
             final String o = "OPERATION=" + operation.toString();
             res = res + this.sep + o;
         }
@@ -86,7 +85,7 @@ public class DeploymentProcessResource {
 
         final CSARID csarID = this.processID;
         DeploymentProcessResource.LOG.info("POST method called on DeploymentProcess: {}, Parameter: {}",
-            csarID.toString(), operation);
+                                           csarID.toString(), operation);
         if (this.openToscaControl.getExecutableDeploymentProcessOperations(this.processID).contains(operation)) {
             switch (operation) {
                 case PROCESS_TOSCA:
@@ -109,8 +108,8 @@ public class DeploymentProcessResource {
                         this.serviceTemplateId = QName.valueOf(params[1]);
                     }
 
-                    if (IOpenToscaControlServiceHandler.getOpenToscaControlService().invokeIADeployment(csarID,
-                        this.serviceTemplateId)) {
+                    if (IOpenToscaControlServiceHandler.getOpenToscaControlService()
+                                                       .invokeIADeployment(csarID, this.serviceTemplateId)) {
                         return Response.ok().build();
                     } else {
                     }
@@ -126,8 +125,8 @@ public class DeploymentProcessResource {
                         this.serviceTemplateId = QName.valueOf(params[1]);
                     }
 
-                    if (IOpenToscaControlServiceHandler.getOpenToscaControlService().invokePlanDeployment(csarID,
-                        this.serviceTemplateId)) {
+                    if (IOpenToscaControlServiceHandler.getOpenToscaControlService()
+                                                       .invokePlanDeployment(csarID, this.serviceTemplateId)) {
                         return Response.ok().build();
                     } else {
                     }

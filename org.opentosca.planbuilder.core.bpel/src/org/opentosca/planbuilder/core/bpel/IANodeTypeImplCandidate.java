@@ -53,7 +53,7 @@ class IANodeTypeImplCandidate {
      * @param plugin the PrePhaseIAPlugin which can deploy the IA unto the InfrastructureNode
      */
     void add(final AbstractImplementationArtifact ia, final AbstractNodeTemplate nodeTemplate,
-                    final IPlanBuilderPrePhaseIAPlugin plugin) {
+             final IPlanBuilderPrePhaseIAPlugin plugin) {
 
         for (final AbstractImplementationArtifact candidateIa : this.ias) {
             if (candidateIa.equals(ia)) {

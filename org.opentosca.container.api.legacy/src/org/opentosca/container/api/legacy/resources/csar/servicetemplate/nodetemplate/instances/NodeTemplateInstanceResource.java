@@ -82,8 +82,8 @@ public class NodeTemplateInstanceResource {
 
         this.log.debug("try to build node template instance resource");
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-        final List<NodeInstance> nodeInstances = service.getNodeInstances(
-            IdConverter.nodeInstanceIDtoURI(this.nodeTemplateInstanceId), null, null, null);
+        final List<NodeInstance> nodeInstances =
+            service.getNodeInstances(IdConverter.nodeInstanceIDtoURI(this.nodeTemplateInstanceId), null, null, null);
 
         // existence of instance is already checked before invoking this class
         // and its methods

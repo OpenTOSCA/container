@@ -64,8 +64,8 @@ public class Route extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        final ValueBuilder APP_BUS_ENDPOINT = new ValueBuilder(
-            this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+        final ValueBuilder APP_BUS_ENDPOINT =
+            new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
         final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();

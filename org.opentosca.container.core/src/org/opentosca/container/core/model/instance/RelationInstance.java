@@ -50,11 +50,11 @@ public class RelationInstance {
 
     // Query to retrieve NodeInstances identified by some parameters
     public final static String getRelationInstances = "RelationInstance.getRelationInstancesQuery";
-    protected final static String getRelationInstancesQuery = "select n from RelationInstance n where"
-        + " n.id = COALESCE(:internalID, n.id) AND"
-        + " n.relationshipTemplateName = COALESCE(:relationshipTemplateName, n.relationshipTemplateName) AND"
-        + " n.serviceInstance.id = COALESCE(:internalServiceInstanceID, n.serviceInstance.id) AND"
-        + " n.relationshipTemplateID = COALESCE(:relationshipTemplateID, n.relationshipTemplateID)";
+    protected final static String getRelationInstancesQuery =
+        "select n from RelationInstance n where" + " n.id = COALESCE(:internalID, n.id) AND"
+            + " n.relationshipTemplateName = COALESCE(:relationshipTemplateName, n.relationshipTemplateName) AND"
+            + " n.serviceInstance.id = COALESCE(:internalServiceInstanceID, n.serviceInstance.id) AND"
+            + " n.relationshipTemplateID = COALESCE(:relationshipTemplateID, n.relationshipTemplateID)";
 
     // the internal ID (Database) of the NodeInstance
     @Id
@@ -190,13 +190,15 @@ public class RelationInstance {
             this.relationInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID()
                 + "/ServiceTemplates/"
                 + URLEncoder.encode(URLEncoder.encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"),
-                    "UTF-8")
+                                    "UTF-8")
                 + "/Instances/" + this.serviceInstance.getDBId() + "/RelationshipTemplates/"
                 + this.relationshipTemplateID.getLocalPart() + "/Instances/" + this.id);
 
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }

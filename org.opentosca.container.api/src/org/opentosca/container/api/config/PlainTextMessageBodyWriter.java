@@ -33,21 +33,21 @@ public class PlainTextMessageBodyWriter implements MessageBodyWriter<Serializabl
 
     @Override
     public boolean isWriteable(final Class<?> type, final Type genericType, final Annotation[] annotations,
-                    final MediaType mediaType) {
+                               final MediaType mediaType) {
         return type instanceof Serializable;
     }
 
     @Override
     public long getSize(final Serializable t, final Class<?> type, final Type genericType,
-                    final Annotation[] annotations, final MediaType mediaType) {
+                        final Annotation[] annotations, final MediaType mediaType) {
         return 0;
     }
 
     @Override
     public void writeTo(final Serializable t, final Class<?> type, final Type genericType,
-                    final Annotation[] annotations, final MediaType mediaType,
-                    final MultivaluedMap<String, Object> httpHeaders, final OutputStream entityStream)
-        throws IOException, WebApplicationException {
+                        final Annotation[] annotations, final MediaType mediaType,
+                        final MultivaluedMap<String, Object> httpHeaders,
+                        final OutputStream entityStream) throws IOException, WebApplicationException {
         new DataOutputStream(entityStream).writeUTF(t.toString());
     }
 }

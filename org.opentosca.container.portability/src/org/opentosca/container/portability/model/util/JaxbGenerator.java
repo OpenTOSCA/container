@@ -25,9 +25,11 @@ public class JaxbGenerator {
             final JAXBContext jaxbContext = JAXBContext.newInstance(classes);
             final SchemaOutputResolver sor = new ArtifactSchemaOutputResolver();
             jaxbContext.generateSchema(sor);
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
     }

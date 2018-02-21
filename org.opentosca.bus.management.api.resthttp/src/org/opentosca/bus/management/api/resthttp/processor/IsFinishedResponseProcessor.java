@@ -51,8 +51,8 @@ public class IsFinishedResponseProcessor implements Processor {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
 
                 response.setStatus(Status.REDIRECTION_SEE_OTHER);
-                response.setLocationRef(
-                    InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER, requestID));
+                response.setLocationRef(InvocationRoute.GET_RESULT_ENDPOINT.replace(InvocationRoute.ID_PLACEHODLER,
+                                                                                    requestID));
 
             } else {
                 IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");

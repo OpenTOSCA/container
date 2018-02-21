@@ -299,7 +299,8 @@ public interface IToscaReferenceMapper {
     public Map<QName, List<String>> getServiceTemplatesAndRelationshipTemplatesInCSAR(CSARID csarID);
 
     public void storeServiceTemplateBoundsPropertiesInformation(CSARID csarID, QName serviceTemplateID,
-                    String propertiesContent, PropertyMappings propertyMappings);
+                                                                String propertiesContent,
+                                                                PropertyMappings propertyMappings);
 
     public String getServiceTemplateBoundsPropertiesContent(CSARID csarID, QName serviceTemplateID);
 
@@ -310,7 +311,7 @@ public interface IToscaReferenceMapper {
     public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(CSARID csarID);
 
     void storeServiceTemplateBoundsPlan(CSARID csarID, QName serviceTemplateID, String interfaceName, String opName,
-                    QName planID);
+                                        QName planID);
 
 
 
@@ -325,7 +326,7 @@ public interface IToscaReferenceMapper {
 
 
     public void storeRelationshipTemplateIDForServiceTemplateANdCSAR(final CSARID csarId, final QName serviceTemplateID,
-                    final String id);
+                                                                     final String id);
 
 
 

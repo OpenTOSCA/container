@@ -152,9 +152,11 @@ public class SimpleFileExporter {
         // rewrite service names in deploy.xml and potential wsdl files
         try {
             this.rewriteServiceNames(deployment, exportedFiles, buildPlan.getCsarName());
-        } catch (final WSDLException e) {
+        }
+        catch (final WSDLException e) {
             LOG.warn("Rewriting of Service names failed", e);
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             LOG.warn("Something went wrong with locating wsdl files that needed to be changed", e);
         }
 
@@ -174,7 +176,8 @@ public class SimpleFileExporter {
         final File bpelFile = new File(tempFolder, wsdl.getFileName().replace(".wsdl", ".bpel"));
         try {
             this.writeBPELDocToFile(bpelFile, buildPlan.getBpelDocument());
-        } catch (final TransformerException e) {
+        }
+        catch (final TransformerException e) {
             SimpleFileExporter.LOG.error("Error while writing BPEL Document to a file", e);
             return false;
         }
@@ -182,8 +185,8 @@ public class SimpleFileExporter {
         // package temp dir and move to destination URI
         final ServiceReference<?> servRef = FrameworkUtil.getBundle(this.getClass()).getBundleContext()
                                                          .getServiceReference(IFileAccessService.class.getName());
-        final IFileAccessService service = (IFileAccessService) FrameworkUtil.getBundle(this.getClass())
-                                                                             .getBundleContext().getService(servRef);
+        final IFileAccessService service =
+            (IFileAccessService) FrameworkUtil.getBundle(this.getClass()).getBundleContext().getService(servRef);
         service.zip(tempFolder, new File(destination));
         return true;
     }
@@ -215,8 +218,8 @@ public class SimpleFileExporter {
         }
     }
 
-    private void rewriteServiceNames(final Deploy deploy, final List<File> referencedFiles, final String csarName)
-        throws WSDLException, FileNotFoundException {
+    private void rewriteServiceNames(final Deploy deploy, final List<File> referencedFiles,
+                                     final String csarName) throws WSDLException, FileNotFoundException {
         final WSDLFactory factory = WSDLFactory.newInstance();
         final WSDLReader reader = factory.newWSDLReader();
         final WSDLWriter writer = factory.newWSDLWriter();
@@ -279,8 +282,7 @@ public class SimpleFileExporter {
     }
 
     private void rewriteServices(final Set<Mapping> servicesToRewrite, final WSDLWriter writer, final WSDLReader reader,
-                    final List<File> referencedFiles)
-        throws WSDLException, FileNotFoundException {
+                                 final List<File> referencedFiles) throws WSDLException, FileNotFoundException {
 
         LOG.debug("Rewriting service names:");
         LOG.debug("Files referenced:" + referencedFiles);
@@ -354,8 +356,8 @@ public class SimpleFileExporter {
      *         Document fails
      * @throws FileNotFoundException is thrown when the File denoted by the File Object doesn't exist
      */
-    private void writeBPELDocToFile(final File destination, final Document doc)
-        throws TransformerException, FileNotFoundException {
+    private void writeBPELDocToFile(final File destination, final Document doc) throws TransformerException,
+                                                                                FileNotFoundException {
         final TransformerFactory tFactory = TransformerFactory.newInstance();
         final Transformer transformer = tFactory.newTransformer();
 

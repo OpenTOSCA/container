@@ -41,7 +41,9 @@ public final class ResourceConstants {
 
     public static final String ROOT = "/containerapi";
 
-    public static final String NOT_IMPLEMENTED = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Implementation status = \"NOT_DONE\"/>";
-    public static final String NOT_FOUND = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Resource status = \"NOT_Found\"/>";
+    public static final String NOT_IMPLEMENTED =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Implementation status = \"NOT_DONE\"/>";
+    public static final String NOT_FOUND =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Resource status = \"NOT_Found\"/>";
 
 }

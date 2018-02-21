@@ -32,23 +32,18 @@ public class FileServiceCommands implements CommandProvider {
     public String getHelp() {
         final StringBuilder help = new StringBuilder();
         help.append("--- Core File Service Management ---\n");
-        help.append(
-            "\tstoreCSAR <absPathOfCSARFile> - Stores a CSAR. All files will be stored at the active storage provider respectively default storage provider.\n");
+        help.append("\tstoreCSAR <absPathOfCSARFile> - Stores a CSAR. All files will be stored at the active storage provider respectively default storage provider.\n");
         help.append("\texportCSAR <csarID> - Exports a CSAR to a Temp directory.\n");
-        help.append(
-            "\tmoveCSAR <csarID> - Moves a stored CSAR to the active storage provider respectively default storage provider.\n");
-        help.append(
-            "\tmoveFileOrDirectoryOfCSAR <csarID> <relPathToCSARRoot> - Moves a file or directory of a stored CSAR to the active storage provider respectively default storage provider.\n");
+        help.append("\tmoveCSAR <csarID> - Moves a stored CSAR to the active storage provider respectively default storage provider.\n");
+        help.append("\tmoveFileOrDirectoryOfCSAR <csarID> <relPathToCSARRoot> - Moves a file or directory of a stored CSAR to the active storage provider respectively default storage provider.\n");
         help.append("\tdeleteCSAR <csarID>  - Deletes a CSAR.\n");
         help.append("\tdeleteCSARs - Deletes all CSARs.\n");
         help.append("\tprintCSARIDs - Prints the IDs of all stored CSARs.\n");
         help.append("\tprintStorageProviders - Prints the IDs of all available storage providers.\n");
-        help.append(
-            "\tprintReadyStorageProviders - Prints the IDs of all available storage providers with satisfied requirements.\n");
+        help.append("\tprintReadyStorageProviders - Prints the IDs of all available storage providers with satisfied requirements.\n");
         help.append("\tprintDefaultStorageProvider - Prints the ID of the default storage provider.\n");
         help.append("\tprintActiveStorageProvider - Prints the active storage provider.\n");
-        help.append(
-            "\tsetActiveStorageProvider <storageProviderID> - Sets a available storage provider as the active one.\n");
+        help.append("\tsetActiveStorageProvider <storageProviderID> - Sets a available storage provider as the active one.\n");
         return help.toString();
     }
 
@@ -77,9 +72,11 @@ public class FileServiceCommands implements CommandProvider {
                 this.INTERNAL_FILE_SERVICE.storeCSAR(Paths.get(csarFile));
                 ci.println("Storing CSAR located at \"" + csarFile + "\" was succesfull.");
                 return;
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 FileServiceCommands.LOG.warn("An User Exception occured.", exc);
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 FileServiceCommands.LOG.warn("An System Exception occured.", exc);
             }
 
@@ -110,9 +107,11 @@ public class FileServiceCommands implements CommandProvider {
                 final Path exportedCSAR = this.INTERNAL_FILE_SERVICE.exportCSAR(new CSARID(csarID));
                 ci.println("CSAR \"" + csarID + "\" was successfully exported to \"" + exportedCSAR + "\".");
                 return;
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 FileServiceCommands.LOG.warn("An System Exception occured.", exc);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 FileServiceCommands.LOG.warn("An User Exception occured.", exc);
             }
 
@@ -199,9 +198,11 @@ public class FileServiceCommands implements CommandProvider {
                 this.INTERNAL_FILE_SERVICE.moveCSAR(new CSARID(csarID));
                 ci.println("Moving CSAR \"" + csarID + "\" was successfull.");
                 return;
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 FileServiceCommands.LOG.warn("An System Exception occured.", exc);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 FileServiceCommands.LOG.warn("An User Exception occured.", exc);
             }
 
@@ -238,12 +239,14 @@ public class FileServiceCommands implements CommandProvider {
 
             try {
                 this.INTERNAL_FILE_SERVICE.moveFileOrDirectoryOfCSAR(new CSARID(csarID), Paths.get(fileOrDirectory));
-                ci.println(
-                    "Moving directory / file \"" + fileOrDirectory + "\" of CSAR \"" + csarID + "\" was successfull.");
+                ci.println("Moving directory / file \"" + fileOrDirectory + "\" of CSAR \"" + csarID
+                    + "\" was successfull.");
                 return;
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 FileServiceCommands.LOG.warn("An System Exception occured.", exc);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 FileServiceCommands.LOG.warn("An User Exception occured.", exc);
             }
 
@@ -286,7 +289,8 @@ public class FileServiceCommands implements CommandProvider {
                 this.INTERNAL_FILE_SERVICE.setActiveStorageProvider(activeStorageProviderID);
                 ci.println("Setting \"" + activeStorageProviderID + "\" as active storage provider was successfull.");
                 return;
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 FileServiceCommands.LOG.warn("An User Exception occured.", exc);
             }
 
@@ -317,9 +321,11 @@ public class FileServiceCommands implements CommandProvider {
                 this.INTERNAL_FILE_SERVICE.deleteCSAR(new CSARID(csarID));
                 ci.println("Deleting CSAR \"" + csarID + "\" was successfull.");
                 return;
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 FileServiceCommands.LOG.warn("An System Exception occured.", exc);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 FileServiceCommands.LOG.warn("An User Exception occured.", exc);
             }
 
@@ -335,7 +341,8 @@ public class FileServiceCommands implements CommandProvider {
             this.INTERNAL_FILE_SERVICE.deleteCSARs();
             ci.println("Deleting all CSARs was successfull.");
             return;
-        } catch (final SystemException exc) {
+        }
+        catch (final SystemException exc) {
             FileServiceCommands.LOG.warn("An System Exception occured.", exc);
         }
 

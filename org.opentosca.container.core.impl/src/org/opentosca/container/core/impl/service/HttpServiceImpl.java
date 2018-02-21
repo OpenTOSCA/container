@@ -59,11 +59,11 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public HttpResponse Get(final String uri, final String username, final String password)
-        throws ClientProtocolException, IOException {
+    public HttpResponse Get(final String uri, final String username,
+                            final String password) throws ClientProtocolException, IOException {
         this.client = new DefaultHttpClient();
         this.client.getCredentialsProvider().setCredentials(AuthScope.ANY,
-            new UsernamePasswordCredentials(username, password));
+                                                            new UsernamePasswordCredentials(username, password));
         final HttpGet get = new HttpGet(uri);
         final HttpResponse response = this.client.execute(get);
 
@@ -80,8 +80,8 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public HttpResponse Post(final String uri, final HttpEntity httpEntity)
-        throws ClientProtocolException, IOException {
+    public HttpResponse Post(final String uri, final HttpEntity httpEntity) throws ClientProtocolException,
+                                                                            IOException {
         this.client = new DefaultHttpClient();
         final HttpPost post = new HttpPost(uri);
         post.setEntity(httpEntity);
@@ -90,8 +90,8 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public HttpResponse Post(final String uri, final HttpEntity httpEntity, final List<Cookie> cookies)
-        throws ClientProtocolException, IOException {
+    public HttpResponse Post(final String uri, final HttpEntity httpEntity,
+                             final List<Cookie> cookies) throws ClientProtocolException, IOException {
         this.client = new DefaultHttpClient();
         final HttpPost post = new HttpPost(uri);
         post.setEntity(httpEntity);
@@ -106,8 +106,8 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public List<Cookie> PostCookies(final String uri, final HttpEntity httpEntity)
-        throws ClientProtocolException, IOException {
+    public List<Cookie> PostCookies(final String uri, final HttpEntity httpEntity) throws ClientProtocolException,
+                                                                                   IOException {
         this.client = new DefaultHttpClient();
         final HttpPost post = new HttpPost(uri);
         post.setEntity(httpEntity);
@@ -127,11 +127,11 @@ public class HttpServiceImpl implements IHTTPService {
     }
 
     @Override
-    public HttpResponse Put(final String uri, final HttpEntity httpEntity, final String username, final String password)
-        throws ClientProtocolException, IOException {
+    public HttpResponse Put(final String uri, final HttpEntity httpEntity, final String username,
+                            final String password) throws ClientProtocolException, IOException {
         this.client = new DefaultHttpClient();
         this.client.getCredentialsProvider().setCredentials(AuthScope.ANY,
-            new UsernamePasswordCredentials(username, password));
+                                                            new UsernamePasswordCredentials(username, password));
         final HttpPut put = new HttpPut(uri);
         put.setEntity(httpEntity);
         final HttpResponse response = this.client.execute(put);

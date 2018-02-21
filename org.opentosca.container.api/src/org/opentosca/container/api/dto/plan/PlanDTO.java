@@ -165,15 +165,15 @@ public class PlanDTO extends ResourceSupport {
             }).collect(Collectors.toList());
             plan.setInputParameters(inputParameters);
 
-            final List<TParameter> outputParameters = object.getOutputParameters().getOutputParameter().stream()
-                                                            .map(p -> {
-                                                                final TParameter parameter = new TParameter();
-                                                                parameter.setName(p.getName());
-                                                                parameter.setRequired(p.getRequired());
-                                                                parameter.setType(p.getType());
-                                                                parameter.setValue(p.getValue());
-                                                                return parameter;
-                                                            }).collect(Collectors.toList());
+            final List<TParameter> outputParameters =
+                object.getOutputParameters().getOutputParameter().stream().map(p -> {
+                    final TParameter parameter = new TParameter();
+                    parameter.setName(p.getName());
+                    parameter.setRequired(p.getRequired());
+                    parameter.setType(p.getType());
+                    parameter.setValue(p.getValue());
+                    return parameter;
+                }).collect(Collectors.toList());
             plan.setInputParameters(outputParameters);
 
             return plan;

@@ -86,12 +86,12 @@ public class CallbackProcessor implements Processor {
                     doc = soapMessage.getSOAPBody().extractContentAsDocument();
                     exchange.getIn().setBody(doc);
 
-                } catch (final SOAPException e) {
+                }
+                catch (final SOAPException e) {
 
                     doc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
 
-                    CallbackProcessor.LOG.warn(
-                        "SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
+                    CallbackProcessor.LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
                     exchange.getIn().setBody(doc);
                 }
 

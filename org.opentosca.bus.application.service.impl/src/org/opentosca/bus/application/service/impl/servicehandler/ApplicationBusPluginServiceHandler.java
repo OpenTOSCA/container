@@ -44,7 +44,7 @@ public class ApplicationBusPluginServiceHandler {
         for (final String type : types) {
             pluginServices.put(type, plugin.getRoutingEndpoint());
             ApplicationBusPluginServiceHandler.LOG.debug("Bound IApplicationBusPluginService: {} for Type: {}",
-                plugin.toString(), type);
+                                                         plugin.toString(), type);
         }
 
     }
@@ -62,11 +62,10 @@ public class ApplicationBusPluginServiceHandler {
             final Object deletedObject = pluginServices.remove(type);
             if (deletedObject != null) {
                 ApplicationBusPluginServiceHandler.LOG.debug("Unbound IApplicationBusPluginService: {} for Type: {}",
-                    plugin.toString(), type);
+                                                             plugin.toString(), type);
             } else {
-                ApplicationBusPluginServiceHandler.LOG.debug(
-                    "IApplicationBusPluginService {} could not be unbound, because it is not bound!",
-                    plugin.toString());
+                ApplicationBusPluginServiceHandler.LOG.debug("IApplicationBusPluginService {} could not be unbound, because it is not bound!",
+                                                             plugin.toString());
             }
         }
     }

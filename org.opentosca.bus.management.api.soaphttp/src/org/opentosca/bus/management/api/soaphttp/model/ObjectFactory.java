@@ -28,13 +28,13 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _InvokeOperationAsync_QNAME = new QName("http://siserver.org/schema",
-        "invokeOperationAsync");
+    private final static QName _InvokeOperationAsync_QNAME =
+        new QName("http://siserver.org/schema", "invokeOperationAsync");
     private final static QName _InvokePlan_QNAME = new QName("http://siserver.org/schema", "invokePlan");
     private final static QName _InvokeResponse_QNAME = new QName("http://siserver.org/schema", "invokeResponse");
     private final static QName _InvokeOperation_QNAME = new QName("http://siserver.org/schema", "invokeOperation");
-    private final static QName _InvokeOperationSync_QNAME = new QName("http://siserver.org/schema",
-        "invokeOperationSync");
+    private final static QName _InvokeOperationSync_QNAME =
+        new QName("http://siserver.org/schema", "invokeOperationSync");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for
@@ -105,8 +105,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "invokeOperationAsync")
     public JAXBElement<InvokeOperationAsync> createInvokeOperationAsync(final InvokeOperationAsync value) {
-        return new JAXBElement<>(_InvokeOperationAsync_QNAME, InvokeOperationAsync.class, null,
-            value);
+        return new JAXBElement<>(_InvokeOperationAsync_QNAME, InvokeOperationAsync.class, null, value);
     }
 
     /**

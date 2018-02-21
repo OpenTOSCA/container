@@ -25,7 +25,7 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
         this.registration = Activator.context.registerService(IScalingPlanBuilderSelectionPlugin.class.getName(),
-            new BPELFirstAvailablePlugin(), null);
+                                                              new BPELFirstAvailablePlugin(), null);
 
     }
 

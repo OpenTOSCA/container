@@ -42,8 +42,7 @@ public class RootResource {
     @GET
     @Produces("text/html")
     public Response getRootPage() {
-        return Response.ok(
-            "<html><body><h1>Hello to the PlanBuilder Service.</h1> <h2>To use the PlanBuilder Service send a POST Request with the following example body:</h2><textarea style=\"width:auto;height:auto;min-width:300px;min-height:200px\"> <generatePlanForTopology><CSARURL>http://<url-to-csar-file></CSARURL><PLANPOSTURL>http://<url-for-sending-plan-back-with-POST></PLANPOSTURL></generatePlanForTopology></textarea></body></html>")
+        return Response.ok("<html><body><h1>Hello to the PlanBuilder Service.</h1> <h2>To use the PlanBuilder Service send a POST Request with the following example body:</h2><textarea style=\"width:auto;height:auto;min-width:300px;min-height:200px\"> <generatePlanForTopology><CSARURL>http://<url-to-csar-file></CSARURL><PLANPOSTURL>http://<url-for-sending-plan-back-with-POST></PLANPOSTURL></generatePlanForTopology></textarea></body></html>")
                        .build();
     }
 
@@ -69,7 +68,8 @@ public class RootResource {
         try {
             csarURL = new URL(generatePlanForTopology.CSARURL);
             planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
-        } catch (final MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             return Response.status(Status.BAD_REQUEST).entity(Util.getStacktrace(e)).build();
         }
 
@@ -108,7 +108,8 @@ public class RootResource {
         try {
             csarURL = new URL(generatePlanForTopology.CSARURL);
             planPostURL = new URL(generatePlanForTopology.PLANPOSTURL);
-        } catch (final MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             return Response.status(Status.BAD_REQUEST).entity(Util.getStacktrace(e)).build();
         }
 

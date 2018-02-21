@@ -117,8 +117,8 @@ public class NodeTemplateInstancesResource {
             serviceInstanceLinks.add(LinkBuilder.selfLink(uriInfo));
 
             // its ensured that this serviceInstance exists
-            final List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIDtoURI, null,
-                null);
+            final List<ServiceInstance> serviceInstances =
+                service.getServiceInstances(serviceInstanceIDtoURI, null, null);
             final ServiceInstance serviceInstance = serviceInstances.get(0);
 
             // extract values
@@ -204,7 +204,8 @@ public class NodeTemplateInstancesResource {
                 .add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 
             return refs;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -239,23 +240,24 @@ public class NodeTemplateInstancesResource {
         // }
 
         try {
-            final NodeInstance nodeInstance = service.createNodeInstance(this.csarId, this.serviceTemplateID,
-                this.serviceTemplateInstanceId, this.nodeTemplateID);
+            final NodeInstance nodeInstance =
+                service.createNodeInstance(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
+                                           this.nodeTemplateID);
             // SimpleXLink response = new
             // SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" +
             // serviceTemplateInstanceId, "simple");
             final URI link = uriInfo.getAbsolutePathBuilder().path(String.valueOf(nodeInstance.getId())).build();
             final SimpleXLink response = new SimpleXLink(Utilities.encode(link), "simple");
             return Response.ok(response).build();
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
     }
 
     @Path("/{" + Constants.NodeInstanceListResource_getNodeInstance_PARAM + "}")
-    public Object getNodeInstance(
-                    @PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM) final int nodeTemplateInstanceId,
-                    @Context final UriInfo uriInfo) {
+    public Object getNodeInstance(@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM) final int nodeTemplateInstanceId,
+                                  @Context final UriInfo uriInfo) {
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         ExistenceChecker.checkNodeInstanceWithException(nodeTemplateInstanceId, service);

@@ -20,7 +20,8 @@ public class CredentialsCommands implements CommandProvider {
 
     private final static Logger LOG = LoggerFactory.getLogger(CredentialsCommands.class);
 
-    private final CoreInternalCredentialsServiceImpl INTERNAL_CREDENTIALS_SERVICE = new CoreInternalCredentialsServiceImpl();
+    private final CoreInternalCredentialsServiceImpl INTERNAL_CREDENTIALS_SERVICE =
+        new CoreInternalCredentialsServiceImpl();
 
 
     /**
@@ -30,19 +31,14 @@ public class CredentialsCommands implements CommandProvider {
     public String getHelp() {
         final StringBuilder help = new StringBuilder();
         help.append("--- Core Credentials Service Management ---\n");
-        help.append(
-            "\tstoreCredentials <storageProviderID> <identity> <key> <optional description> - Stores credentials for a storage provider.\n");
+        help.append("\tstoreCredentials <storageProviderID> <identity> <key> <optional description> - Stores credentials for a storage provider.\n");
         help.append("\tprintCredentialsIDs - Prints IDs of all stored credentials.\n");
         help.append("\tprintAllCredentials - Prints all stored credentials.\n");
-        help.append(
-            "\tprintAllCredentialsIdentityAndKeyNames  - Prints the credentials identity and key names of all available storage providers.\n");
-        help.append(
-            "\tdeleteCredentials <storageProviderID> <identity> - Deletes credentials for a storage provider.\n");
+        help.append("\tprintAllCredentialsIdentityAndKeyNames  - Prints the credentials identity and key names of all available storage providers.\n");
+        help.append("\tdeleteCredentials <storageProviderID> <identity> - Deletes credentials for a storage provider.\n");
         help.append("\tdeleteAllCredentials - Deletes all stored credentials.\n");
-        help.append(
-            "\tsetCredentialsInStorageProvider <storageProviderID> <identity> - Sets already stored credentials in the associated storage provider.\n");
-        help.append(
-            "\tdeleteCredentialsInStorageProvider <storageProviderID> - Deletes credentials in the storage provider.\n");
+        help.append("\tsetCredentialsInStorageProvider <storageProviderID> <identity> - Sets already stored credentials in the associated storage provider.\n");
+        help.append("\tdeleteCredentialsInStorageProvider <storageProviderID> - Deletes credentials in the storage provider.\n");
         return help.toString();
     }
 
@@ -91,7 +87,8 @@ public class CredentialsCommands implements CommandProvider {
             try {
                 this.INTERNAL_CREDENTIALS_SERVICE.storeCredentials(credentials);
                 ci.println("Storing credentials for storage provider \"" + storageProviderID + "\" was successfull.");
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 CredentialsCommands.LOG.warn("An User Exception occured.", exc);
                 ci.println("Storing credentials for storage provider \"" + storageProviderID + "\" failed.");
             }
@@ -139,7 +136,8 @@ public class CredentialsCommands implements CommandProvider {
 
                 try {
                     injected = this.INTERNAL_CREDENTIALS_SERVICE.hasStorageProviderCredentials(credentialsID);
-                } catch (final UserException exc) {
+                }
+                catch (final UserException exc) {
                     CredentialsCommands.LOG.warn("An User Exception occured.", exc);
                 }
 
@@ -189,7 +187,8 @@ public class CredentialsCommands implements CommandProvider {
 
                     }
 
-                } catch (final SystemException exc) {
+                }
+                catch (final SystemException exc) {
                     CredentialsCommands.LOG.warn("A System Exception occured.", exc);
                 }
 
@@ -215,7 +214,8 @@ public class CredentialsCommands implements CommandProvider {
 
         try {
             credentialsID = Long.parseLong(credentialsIDAsString);
-        } catch (final NumberFormatException exc) {
+        }
+        catch (final NumberFormatException exc) {
             CredentialsCommands.LOG.warn("Credentials ID must be a whole number.", exc);
             inputInvalid = true;
         }
@@ -229,7 +229,8 @@ public class CredentialsCommands implements CommandProvider {
             try {
                 this.INTERNAL_CREDENTIALS_SERVICE.deleteCredentials(credentialsID);
                 ci.println("Deleting credentials \"" + credentialsID + "\" was successfull.");
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 CredentialsCommands.LOG.warn("An User Exception occured.", exc);
                 ci.println("Deleting credentials \"" + credentialsID + "\" failed.");
             }
@@ -258,7 +259,8 @@ public class CredentialsCommands implements CommandProvider {
 
         try {
             credentialsID = Long.parseLong(credentialsIDAsString);
-        } catch (final NumberFormatException exc) {
+        }
+        catch (final NumberFormatException exc) {
             CredentialsCommands.LOG.warn("Credentials ID must be a whole number.", exc);
             inputInvalid = true;
         }
@@ -273,9 +275,11 @@ public class CredentialsCommands implements CommandProvider {
                 this.INTERNAL_CREDENTIALS_SERVICE.setCredentialsInStorageProvider(credentialsID);
                 ci.println("Setting / injecting credentials \"" + credentialsID + "\" was successfull.");
                 return;
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 CredentialsCommands.LOG.warn("A System Exception occured.", exc);
-            } catch (final UserException exc) {
+            }
+            catch (final UserException exc) {
                 CredentialsCommands.LOG.warn("An User Exception occured.", exc);
             }
 
@@ -304,7 +308,8 @@ public class CredentialsCommands implements CommandProvider {
             try {
                 this.INTERNAL_CREDENTIALS_SERVICE.deleteCredentialsInStorageProvider(storageProviderID);
                 ci.println("Deleting credentials in storage provider \"" + storageProviderID + "\" was successfull.");
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 CredentialsCommands.LOG.warn("A System Exception occured.", exc);
                 ci.println("Deleting credentials in storage provider \"" + storageProviderID + "\" failed.");
             }

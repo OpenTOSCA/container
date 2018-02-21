@@ -89,10 +89,10 @@ public class BoundsResource {
             .add(new Reference(Utilities.buildURI(this.uriInfo, "Properties"), XLinkConstants.SIMPLE, "Properties"));
         refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "PropertyConstraints"),
             XLinkConstants.SIMPLE, "PropertyConstraints"));
-        refs.getReference().add(
-            new Reference(Utilities.buildURI(this.uriInfo, "Requirements"), XLinkConstants.SIMPLE, "Requirements"));
-        refs.getReference().add(
-            new Reference(Utilities.buildURI(this.uriInfo, "Capabilities"), XLinkConstants.SIMPLE, "Capabilities"));
+        refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Requirements"), XLinkConstants.SIMPLE,
+            "Requirements"));
+        refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Capabilities"), XLinkConstants.SIMPLE,
+            "Capabilities"));
         refs.getReference()
             .add(new Reference(Utilities.buildURI(this.uriInfo, "Policies"), XLinkConstants.SIMPLE, "Policies"));
         refs.getReference()

@@ -39,11 +39,12 @@ public class ResponseProcessor implements Processor {
 
             final Exception exception = exchange.getIn().getBody(Exception.class);
 
-            final org.opentosca.bus.application.api.soaphttp.model.ApplicationBusException e = new org.opentosca.bus.application.api.soaphttp.model.ApplicationBusException();
+            final org.opentosca.bus.application.api.soaphttp.model.ApplicationBusException e =
+                new org.opentosca.bus.application.api.soaphttp.model.ApplicationBusException();
             e.setMessage(exception.getMessage());
 
-            final JAXBElement<org.opentosca.bus.application.api.soaphttp.model.ApplicationBusException> jaxbElement = objectFactory.createApplicationBusException(
-                e);
+            final JAXBElement<org.opentosca.bus.application.api.soaphttp.model.ApplicationBusException> jaxbElement =
+                objectFactory.createApplicationBusException(e);
 
             exchange.getIn().setBody(jaxbElement);
 
@@ -55,11 +56,12 @@ public class ResponseProcessor implements Processor {
         if (operation.equals("invokeMethodWithServiceInstanceID")) {
             ResponseProcessor.LOG.debug("Handling invokeMethodWithServiceInstanceID response");
 
-            final InvokeMethodWithServiceInstanceIDResponse invokeResponse = new InvokeMethodWithServiceInstanceIDResponse();
+            final InvokeMethodWithServiceInstanceIDResponse invokeResponse =
+                new InvokeMethodWithServiceInstanceIDResponse();
             invokeResponse.setRequestID(exchange.getIn().getBody(String.class));
 
-            final JAXBElement<InvokeMethodWithServiceInstanceIDResponse> jaxbElement = objectFactory.createInvokeMethodWithServiceInstanceIDResponse(
-                invokeResponse);
+            final JAXBElement<InvokeMethodWithServiceInstanceIDResponse> jaxbElement =
+                objectFactory.createInvokeMethodWithServiceInstanceIDResponse(invokeResponse);
 
             exchange.getIn().setBody(jaxbElement);
 
@@ -71,8 +73,8 @@ public class ResponseProcessor implements Processor {
             final InvokeMethodWithNodeInstanceIDResponse invokeResponse = new InvokeMethodWithNodeInstanceIDResponse();
             invokeResponse.setRequestID(exchange.getIn().getBody(String.class));
 
-            final JAXBElement<InvokeMethodWithNodeInstanceIDResponse> jaxbElement = objectFactory.createInvokeMethodWithNodeInstanceIDResponse(
-                invokeResponse);
+            final JAXBElement<InvokeMethodWithNodeInstanceIDResponse> jaxbElement =
+                objectFactory.createInvokeMethodWithNodeInstanceIDResponse(invokeResponse);
 
             exchange.getIn().setBody(jaxbElement);
 
@@ -84,8 +86,8 @@ public class ResponseProcessor implements Processor {
             final IsFinishedResponse isFinishedResponse = new IsFinishedResponse();
             isFinishedResponse.setIsFinished(exchange.getIn().getBody(Boolean.class));
 
-            final JAXBElement<IsFinishedResponse> jaxbElement = objectFactory.createIsFinishedResponse(
-                isFinishedResponse);
+            final JAXBElement<IsFinishedResponse> jaxbElement =
+                objectFactory.createIsFinishedResponse(isFinishedResponse);
 
             exchange.getIn().setBody(jaxbElement);
 

@@ -64,8 +64,8 @@ public interface IInstanceDataService {
      * @param ServiceTemplateID
      * @return the new generated ServiceInstance
      */
-    public ServiceInstance createServiceInstance(CSARID csarID, QName serviceTemplateID)
-        throws ReferenceNotFoundException;
+    public ServiceInstance createServiceInstance(CSARID csarID,
+                                                 QName serviceTemplateID) throws ReferenceNotFoundException;
 
     /**
      * Deletes the serviceInstance represnted by the given <code>serviceInstanceID</code>
@@ -84,7 +84,7 @@ public interface IInstanceDataService {
      * @return List containing all corresponding ServiceInstances
      */
     public List<ServiceInstance> getServiceInstances(URI serviceInstanceID, String serviceTemplateName,
-                    QName serviceTemplateID);
+                                                     QName serviceTemplateID);
 
     /**
      * Create a <code>NodeInstance</code>of the specified nodeTemplate of the given serviceInstanceID
@@ -94,8 +94,7 @@ public interface IInstanceDataService {
      * @return the new generated NodeInstance
      */
     public NodeInstance createNodeInstance(CSARID csarId, QName serviceTemplateId, int serviceInstanceID,
-                    QName nodeTemplateID)
-        throws ReferenceNotFoundException;
+                                           QName nodeTemplateID) throws ReferenceNotFoundException;
 
     /**
      * Create a <code>RelationInstance</code>of the specified Relationship Template of the given
@@ -113,9 +112,9 @@ public interface IInstanceDataService {
      * @throws ReferenceNotFoundException
      */
     public RelationInstance createRelationInstance(CSARID csarId, QName serviceTemplateId,
-                    int serviceTemplateInstanceID, QName relationshipTemplateID, String sourceInstanceId,
-                    String targetInstanceId)
-        throws ReferenceNotFoundException;
+                                                   int serviceTemplateInstanceID, QName relationshipTemplateID,
+                                                   String sourceInstanceId,
+                                                   String targetInstanceId) throws ReferenceNotFoundException;
 
     /**
      * Deletes the specified NodeInstance
@@ -142,7 +141,7 @@ public interface IInstanceDataService {
      * @return all matching nodeInstances
      */
     public List<NodeInstance> getNodeInstances(URI nodeInstanceID, QName nodeTemplateID, String nodeTemplateName,
-                    URI serviceInstanceID);
+                                               URI serviceInstanceID);
 
     /**
      * returns all RelationInstances matching the given parameters the parameters are ANDed therefore a
@@ -155,7 +154,7 @@ public interface IInstanceDataService {
      * @return all matching nodeInstances
      */
     public List<RelationInstance> getRelationInstances(URI relationInstanceID, QName relationshipTemplateID,
-                    String relationshipTemplateName, URI serviceInstanceID);
+                                                       String relationshipTemplateName, URI serviceInstanceID);
 
     /**
      * returns the state of the NodeInstance specified by <code>nodeInstanceID</code>
@@ -187,8 +186,8 @@ public interface IInstanceDataService {
      * @return DOM
      * @throws ReferenceNotFoundException
      */
-    public Document getServiceInstanceProperties(URI serviceInstanceID, List<QName> propertiesList)
-        throws ReferenceNotFoundException;
+    public Document getServiceInstanceProperties(URI serviceInstanceID,
+                                                 List<QName> propertiesList) throws ReferenceNotFoundException;
 
     /**
      * returns a DOM structure containing all properties specified in the propertiesList
@@ -202,29 +201,29 @@ public interface IInstanceDataService {
      * @return DOM
      * @throws ReferenceNotFoundException
      */
-    public Document getNodeInstanceProperties(URI nodeInstanceID, List<QName> propertiesList)
-        throws ReferenceNotFoundException;
+    public Document getNodeInstanceProperties(URI nodeInstanceID,
+                                              List<QName> propertiesList) throws ReferenceNotFoundException;
 
     public void setNodeInstanceProperties(URI nodeInstanceID, Document properties) throws ReferenceNotFoundException;
 
-    public void setServiceInstanceProperties(URI serviceInstanceID, Document properties)
-        throws ReferenceNotFoundException;
+    public void setServiceInstanceProperties(URI serviceInstanceID,
+                                             Document properties) throws ReferenceNotFoundException;
 
-    public NodeInstance createNodeInstance(QName nodeTemplateIDQName, URI serviceInstanceIdURI)
-        throws ReferenceNotFoundException;
+    public NodeInstance createNodeInstance(QName nodeTemplateIDQName,
+                                           URI serviceInstanceIdURI) throws ReferenceNotFoundException;
 
     public List<ServiceInstance> getServiceInstancesWithDetails(CSARID csarId, QName serviceTemplateId,
-                    Integer serviceTemplateInstanceID);
+                                                                Integer serviceTemplateInstanceID);
 
     public QName getRelationInstanceState(URI relationInstanceID) throws ReferenceNotFoundException;
 
     public void setRelationInstanceState(URI relationInstanceID, String state) throws ReferenceNotFoundException;
 
-    public void setRelationInstanceProperties(URI relationInstanceID, Document properties)
-        throws ReferenceNotFoundException;
+    public void setRelationInstanceProperties(URI relationInstanceID,
+                                              Document properties) throws ReferenceNotFoundException;
 
-    public Document getRelationInstanceProperties(URI relationInstanceID, List<QName> propertiesList)
-        throws ReferenceNotFoundException;
+    public Document getRelationInstanceProperties(URI relationInstanceID,
+                                                  List<QName> propertiesList) throws ReferenceNotFoundException;
 
     public String getServiceInstanceState(URI serviceInstanceID) throws ReferenceNotFoundException;
 

@@ -35,16 +35,18 @@ public class FormatOutputUtil implements IOutputFormatter {
                 final TransformerFactory factory = TransformerFactory.newInstance();
                 Transformer transformer;
                 if (removeWhitespaces) {
-                    transformer = factory.newTransformer(
-                        new StreamSource(new ByteArrayInputStream(FormatOutputUtil.stripSpaceXSL.getBytes())));
+                    transformer = factory.newTransformer(new StreamSource(
+                        new ByteArrayInputStream(FormatOutputUtil.stripSpaceXSL.getBytes())));
                 } else {
                     transformer = factory.newTransformer();
                 }
                 transformer.transform(source, streamResult);
                 result = stringWriter.getBuffer().toString();
-            } catch (final TransformerConfigurationException e) {
+            }
+            catch (final TransformerConfigurationException e) {
                 e.printStackTrace();
-            } catch (final TransformerException e) {
+            }
+            catch (final TransformerException e) {
                 e.printStackTrace();
             }
         }
@@ -59,6 +61,7 @@ public class FormatOutputUtil implements IOutputFormatter {
      * @param removeWhitespaces Remove whitespace (e.g. line breaks)?
      * @return
      */
-    private static String stripSpaceXSL = "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:output method=\"xml\" omit-xml-declaration=\"yes\" /><xsl:strip-space elements=\"*\" /><xsl:template match=\"@*|node()\"><xsl:copy><xsl:apply-templates select=\"@*|node()\" /></xsl:copy></xsl:template></xsl:stylesheet>";
+    private static String stripSpaceXSL =
+        "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"><xsl:output method=\"xml\" omit-xml-declaration=\"yes\" /><xsl:strip-space elements=\"*\" /><xsl:template match=\"@*|node()\"><xsl:copy><xsl:apply-templates select=\"@*|node()\" /></xsl:copy></xsl:template></xsl:stylesheet>";
 
 }

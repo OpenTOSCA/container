@@ -65,17 +65,17 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
         this.LOG.debug("Start the resolving of the ServiceTemplates of the CSAR \"" + csarID + "\".");
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-            DeploymentProcessState.TOSCAPROCESSING_ACTIVE);
+                                                                               DeploymentProcessState.TOSCAPROCESSING_ACTIVE);
 
         // start the resolving and store the state according to success
         if (OpenToscaControlServiceImpl.toscaEngine.resolveDefinitions(csarID)) {
             this.LOG.info("Processing of the Definitions completed.");
             OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                DeploymentProcessState.TOSCA_PROCESSED);
+                                                                                   DeploymentProcessState.TOSCA_PROCESSED);
         } else {
             this.LOG.error("Processing of the Definitions failed!");
             OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                DeploymentProcessState.STORED);
+                                                                                   DeploymentProcessState.STORED);
             return false;
         }
 
@@ -89,7 +89,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     public Boolean invokeIADeployment(final CSARID csarID, final QName serviceTemplateID) {
 
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-            DeploymentProcessState.IA_DEPLOYMENT_ACTIVE);
+                                                                               DeploymentProcessState.IA_DEPLOYMENT_ACTIVE);
 
         if (OpenToscaControlServiceImpl.iAEngine != null) {
 
@@ -97,18 +97,18 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             this.LOG.info("Invoke the IAEngine for processing the ServiceTemplate \"" + serviceTemplateID
                 + "\" of the CSAR \"" + csarID + "\".");
 
-            final List<String> undeployedIAs = OpenToscaControlServiceImpl.iAEngine.deployImplementationArtifacts(
-                csarID, serviceTemplateID);
+            final List<String> undeployedIAs =
+                OpenToscaControlServiceImpl.iAEngine.deployImplementationArtifacts(csarID, serviceTemplateID);
 
             if (undeployedIAs == null) {
                 this.LOG.error("It was not possible to deploy the ServiceTemplate \"" + serviceTemplateID
                     + "\" of the CSAR \"" + csarID + "\".");
                 OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                    DeploymentProcessState.TOSCA_PROCESSED);
+                                                                                       DeploymentProcessState.TOSCA_PROCESSED);
                 return false;
             } else if (undeployedIAs.size() > 0) {
                 OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                    DeploymentProcessState.IAS_DEPLOYED);
+                                                                                       DeploymentProcessState.IAS_DEPLOYED);
                 for (final String undeployedIAName : undeployedIAs) {
                     this.LOG.error("The ImplementationArtifact \"" + undeployedIAName + "\" was not deployed.");
                 }
@@ -118,12 +118,12 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         } else {
             this.LOG.error("IAEngine is not alive!");
             OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                DeploymentProcessState.TOSCA_PROCESSED);
+                                                                                   DeploymentProcessState.TOSCA_PROCESSED);
             return false;
         }
 
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-            DeploymentProcessState.IAS_DEPLOYED);
+                                                                               DeploymentProcessState.IAS_DEPLOYED);
         this.LOG.info("Deployment of the ImplementationArtifacts was successfull.");
         return true;
     }
@@ -135,7 +135,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     public Boolean invokePlanDeployment(final CSARID csarID, final QName serviceTemplateID) {
 
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-            DeploymentProcessState.PLAN_DEPLOYMENT_ACTIVE);
+                                                                               DeploymentProcessState.PLAN_DEPLOYMENT_ACTIVE);
 
         // list of failure - not deployed artifacts
         final List<TPlan> listOfUndeployedPlans = new ArrayList<>();
@@ -144,15 +144,14 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         this.LOG.info("Invoke the PlanEngine for processing the Plans.");
         if (OpenToscaControlServiceImpl.planEngine != null) {
 
-            final TServiceTemplate mainServiceTemplate = (TServiceTemplate) OpenToscaControlServiceImpl.toscaEngine.getToscaReferenceMapper()
-                                                                                                                   .getJAXBReference(
-                                                                                                                       csarID,
-                                                                                                                       serviceTemplateID);
+            final TServiceTemplate mainServiceTemplate =
+                (TServiceTemplate) OpenToscaControlServiceImpl.toscaEngine.getToscaReferenceMapper()
+                                                                          .getJAXBReference(csarID, serviceTemplateID);
 
             if (mainServiceTemplate == null) {
                 this.LOG.error("Did not found the main ServiceTemplate \"" + serviceTemplateID + "\".");
                 OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                    DeploymentProcessState.IAS_DEPLOYED);
+                                                                                       DeploymentProcessState.IAS_DEPLOYED);
                 return false;
             }
 
@@ -183,21 +182,21 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             if (listOfUndeployedPlans.size() != 0) {
                 this.LOG.error("Plan deployment failed!");
                 OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                    DeploymentProcessState.IAS_DEPLOYED);
+                                                                                       DeploymentProcessState.IAS_DEPLOYED);
                 return false;
             }
 
         } else {
             this.LOG.error("PlanEngine is not alive!");
             OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                DeploymentProcessState.IAS_DEPLOYED);
+                                                                                   DeploymentProcessState.IAS_DEPLOYED);
             return false;
         }
 
         this.LOG.info("The deployment of the management plans of the Service Template " + serviceTemplateID.toString()
             + "\" inside of the CSAR \"" + csarID + "\" was successfull.");
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-            DeploymentProcessState.PLANS_DEPLOYED);
+                                                                               DeploymentProcessState.PLANS_DEPLOYED);
 
         OpenToscaControlServiceImpl.endpointService.printPlanEndpoints();
 
@@ -211,13 +210,13 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
      */
     @Override
     public String invokePlanInvocation(final CSARID csarID, final QName serviceTemplateId, final long csarInstanceID,
-                    final TPlanDTO plan)
-        throws UnsupportedEncodingException {
+                                       final TPlanDTO plan) throws UnsupportedEncodingException {
 
         this.LOG.info("Invoke Plan Invocation!");
 
-        final String correlationID = OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID,
-            serviceTemplateId, csarInstanceID, plan);
+        final String correlationID =
+            OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID, serviceTemplateId, csarInstanceID,
+                                                                        plan);
         if (null != correlationID) {
             this.LOG.info("The Plan Invocation was successfull!!!");
         } else {
@@ -266,8 +265,8 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
         // Delete operation is legal, thus continue.
         if (!OpenToscaControlServiceImpl.toscaEngine.clearCSARContent(csarID)) {
-            this.LOG.error(
-                "It was not possible to delete all content of the CSAR \"" + csarID + "\" inside the ToscaEngine.");
+            this.LOG.error("It was not possible to delete all content of the CSAR \"" + csarID
+                + "\" inside the ToscaEngine.");
             errors.add("Could not delete TOSCA data.");
         }
 
@@ -276,7 +275,8 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
         try {
             OpenToscaControlServiceImpl.fileService.deleteCSAR(csarID);
-        } catch (SystemException | UserException e) {
+        }
+        catch (SystemException | UserException e) {
             // e.printStackTrace();
             this.LOG.error("The file service could not delete all data of the CSAR \"{}\". ", csarID, e);
             errors.add("Could not delete CSAR files.");
@@ -309,15 +309,15 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
             if (OpenToscaControlServiceImpl.planEngine != null) {
 
-                final TServiceTemplate mainServiceTemplate = (TServiceTemplate) OpenToscaControlServiceImpl.toscaEngine.getToscaReferenceMapper()
-                                                                                                                       .getJAXBReference(
-                                                                                                                           csarID,
-                                                                                                                           serviceTemplateID);
+                final TServiceTemplate mainServiceTemplate =
+                    (TServiceTemplate) OpenToscaControlServiceImpl.toscaEngine.getToscaReferenceMapper()
+                                                                              .getJAXBReference(csarID,
+                                                                                                serviceTemplateID);
 
                 if (mainServiceTemplate == null) {
                     this.LOG.error("Did not found the main ServiceTemplate \"" + serviceTemplateID + "\".");
                     OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                        DeploymentProcessState.IAS_DEPLOYED);
+                                                                                           DeploymentProcessState.IAS_DEPLOYED);
                     return false;
                 }
 
@@ -369,9 +369,9 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
      */
     @Override
     public TPlanDTO getActivePlanOfInstance(final ServiceTemplateInstanceID csarInstanceID,
-                    final String correlationID) {
+                                            final String correlationID) {
         return OpenToscaControlServiceImpl.planInvocationEngine.getActivePublicPlanOfInstance(csarInstanceID,
-            correlationID);
+                                                                                              correlationID);
     }
 
     /**
@@ -439,7 +439,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     public Boolean setDeploymentProcessStateStored(final CSARID csarID) {
         this.LOG.trace("Setting CSAR {} to state \"{}\"", csarID, DeploymentProcessState.STORED.name());
         return OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-            DeploymentProcessState.STORED);
+                                                                                      DeploymentProcessState.STORED);
     }
 
     /**

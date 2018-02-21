@@ -36,9 +36,8 @@ public class DeploymentProcessServiceTemplatesResource {
     public Response getServiceTemplates() {
         DeploymentProcessServiceTemplatesResource.LOG.info("Get Request on DeploymentProcessOperationsResource");
         String sTemplates = "";
-        final List<QName> ServiceTemplates = IOpenToscaControlServiceHandler.getOpenToscaControlService()
-                                                                            .getAllContainedServiceTemplates(
-                                                                                this.csarid);
+        final List<QName> ServiceTemplates =
+            IOpenToscaControlServiceHandler.getOpenToscaControlService().getAllContainedServiceTemplates(this.csarid);
         for (final QName serviceTemplate : ServiceTemplates) {
             sTemplates = sTemplates + this.sep + serviceTemplate.toString();
         }

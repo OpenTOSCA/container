@@ -19,7 +19,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public class CopyOfMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.opentosca.planengine.plugin.camunda.service.impl.iaenginecopies.CopyOfmessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME =
+        "org.opentosca.planengine.plugin.camunda.service.impl.iaenginecopies.CopyOfmessages"; //$NON-NLS-1$
     public static String TomcatIAEnginePlugin_tomcatUsername;
     public static String TomcatIAEnginePlugin_tomcatPassword;
     public static String TomcatIAEnginePlugin_url;

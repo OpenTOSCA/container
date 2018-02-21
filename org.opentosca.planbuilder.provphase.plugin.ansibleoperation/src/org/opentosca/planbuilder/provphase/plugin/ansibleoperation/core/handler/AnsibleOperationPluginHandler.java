@@ -32,9 +32,9 @@ public interface AnsibleOperationPluginHandler<T extends PlanContext> {
      * @return true iff adding BPEL Fragment was successful
      */
     public boolean handle(final T templateContext, final AbstractOperation operation,
-                    final AbstractImplementationArtifact ia);
+                          final AbstractImplementationArtifact ia);
 
     public boolean handle(final T context, final AbstractOperation operation, final AbstractImplementationArtifact ia,
-                    final Map<AbstractParameter, Variable> param2propertyMapping);
+                          final Map<AbstractParameter, Variable> param2propertyMapping);
 
 }

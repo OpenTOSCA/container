@@ -74,8 +74,8 @@ public class InstancePlanHistoryResource {
 
     public References getReferences() {
 
-        InstancePlanHistoryResource.LOG.debug(
-            "Access the plan history at " + this.uriInfo.getAbsolutePath().toString());
+        InstancePlanHistoryResource.LOG.debug("Access the plan history at "
+            + this.uriInfo.getAbsolutePath().toString());
 
         if (this.csarID == null) {
             InstancePlanHistoryResource.LOG.debug("The CSAR does not exist.");
@@ -125,8 +125,8 @@ public class InstancePlanHistoryResource {
     public Response getPlanJSON(@PathParam("CorrelationID") final String correlationID) {
 
         InstancePlanHistoryResource.LOG.debug("Return plan for correlation " + correlationID);
-        final PlanInvocationEvent event = CSARInstanceManagementHandler.csarInstanceManagement.getPlanFromHistory(
-            correlationID);
+        final PlanInvocationEvent event =
+            CSARInstanceManagementHandler.csarInstanceManagement.getPlanFromHistory(correlationID);
 
         final JsonObject json = new JsonObject();
         json.addProperty("ID", event.getPlanID().toString());
@@ -146,7 +146,8 @@ public class InstancePlanHistoryResource {
                 paramObj.add("InputParameter", paramDetails);
                 input.add(paramObj);
             }
-        } catch (final NullPointerException e) {
+        }
+        catch (final NullPointerException e) {
         }
         json.add("InputParameters", input);
 
@@ -162,7 +163,8 @@ public class InstancePlanHistoryResource {
                 paramObj.add("OutputParameter", paramDetails);
                 output.add(paramObj);
             }
-        } catch (final NullPointerException e) {
+        }
+        catch (final NullPointerException e) {
         }
         json.add("OutputParameters", output);
 

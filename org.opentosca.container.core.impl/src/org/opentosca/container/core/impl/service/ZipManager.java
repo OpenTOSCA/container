@@ -63,10 +63,12 @@ public class ZipManager {
             zos.close();
             ZipManager.LOG.info("Zipping completed.");
 
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             ZipManager.LOG.error("Error", e);
             return null;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             ZipManager.LOG.error("Error", e);
             return null;
         }
@@ -83,8 +85,7 @@ public class ZipManager {
      * @param bCompress Whether to use <i>ZipOutputStream.DEFLATED</i> or <i>ZipOutputStream.STORED</i>.
      */
     private static void zipDir(final String currentDir, final File dirToZip, final ZipOutputStream zos,
-                    final String archive)
-        throws FileNotFoundException, IOException {
+                               final String archive) throws FileNotFoundException, IOException {
 
         zos.setMethod(ZipOutputStream.DEFLATED);
 
@@ -100,7 +101,7 @@ public class ZipManager {
         if (length == 0) {
             ZipManager.LOG.debug("ZIP: - It's a empty directory. Adding...");
             final String relPath = cDir.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1,
-                cDir.getCanonicalPath().length());
+                                                                     cDir.getCanonicalPath().length());
             final ZipEntry entry = new ZipEntry(relPath + "/");
             zos.putNextEntry(entry);
         }
@@ -125,8 +126,8 @@ public class ZipManager {
             }
 
             // Generate relative path
-            final String relPath = f.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1,
-                f.getCanonicalPath().length());
+            final String relPath =
+                f.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1, f.getCanonicalPath().length());
             final ZipEntry entry = new ZipEntry(relPath);
 
             // Open input streams and write entry to zip
@@ -235,20 +236,25 @@ public class ZipManager {
             // zipFile.close();
             ZipManager.LOG.info("Unzipping completed!");
 
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             ZipManager.LOG.error("Error", e);
             return null;
-        } catch (final ZipException e) {
+        }
+        catch (final ZipException e) {
             ZipManager.LOG.error("Error", e);
             return null;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             ZipManager.LOG.error("Error", e);
             return null;
-        } finally {
+        }
+        finally {
             if (zipFile != null) {
                 try {
                     zipFile.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                     ZipManager.LOG.error("", e);
                 }
             }
@@ -256,21 +262,24 @@ public class ZipManager {
             if (zis != null) {
                 try {
                     zis.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                     ZipManager.LOG.error("", e);
                 }
             }
             if (bis != null) {
                 try {
                     bis.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                     ZipManager.LOG.error("", e);
                 }
             }
             if (fis != null) {
                 try {
                     fis.close();
-                } catch (final IOException e) {
+                }
+                catch (final IOException e) {
                     ZipManager.LOG.error("", e);
                 }
             }

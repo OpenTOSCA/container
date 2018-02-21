@@ -87,8 +87,8 @@ public class BoundsProperties {
             .add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
         refs.getReference()
             .add(new Reference(Utilities.buildURI(uriInfo, "XMLFragments"), XLinkConstants.SIMPLE, "XMLFragments"));
-        refs.getReference().add(
-            new Reference(Utilities.buildURI(uriInfo, "PropertyMappings"), XLinkConstants.SIMPLE, "PropertyMappings"));
+        refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "PropertyMappings"), XLinkConstants.SIMPLE,
+            "PropertyMappings"));
         return refs;
     }
 
@@ -110,8 +110,8 @@ public class BoundsProperties {
 
         LOG.trace("Return Boundary Definitions Properties XML for CSAR {}.", this.csarID);
 
-        final StringBuilder builder = new StringBuilder().append(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><XMLFragments>");
+        final StringBuilder builder =
+            new StringBuilder().append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><XMLFragments>");
         final List<String> props = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                                       .getServiceTemplateBoundsPropertiesContent(this.csarID);
 
@@ -156,14 +156,17 @@ public class BoundsProperties {
                 source.setCharacterStream(new StringReader(xml));
                 final Document doc = db.parse(source);
 
-                array.addAll(
-                    new JSONUtils().xmlToJsonArray(doc.getElementsByTagName("Properties").item(0).getChildNodes()));
+                array.addAll(new JSONUtils().xmlToJsonArray(doc.getElementsByTagName("Properties").item(0)
+                                                               .getChildNodes()));
 
-            } catch (final ParserConfigurationException e) {
+            }
+            catch (final ParserConfigurationException e) {
                 e.printStackTrace();
-            } catch (final SAXException e) {
+            }
+            catch (final SAXException e) {
                 e.printStackTrace();
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 e.printStackTrace();
             }
 
@@ -185,10 +188,9 @@ public class BoundsProperties {
     @Produces(ResourceConstants.TOSCA_JSON)
     public Response getMappingsJSON() {
 
-        final List<PropertyMappings> mappingsList = ToscaServiceHandler.getToscaEngineService()
-                                                                       .getToscaReferenceMapper()
-                                                                       .getServiceTemplateBoundsPropertyMappings(
-                                                                           this.csarID);
+        final List<PropertyMappings> mappingsList =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                               .getServiceTemplateBoundsPropertyMappings(this.csarID);
         final JsonObject ret = new JsonObject();
         final JsonArray array = new JsonArray();
         ret.add("XMLFragments", array);
@@ -201,7 +203,8 @@ public class BoundsProperties {
                 final JsonObject mappingObj = new JsonObject();
                 mappingObj.addProperty("serviceTemplatePropertyRef", mapping.getServiceTemplatePropertyRef());
                 mappingObj.addProperty("targetObjectRef",
-                    ToscaServiceHandler.getIXMLSerializer().marshalToString(mapping.getTargetObjectRef()));
+                                       ToscaServiceHandler.getIXMLSerializer()
+                                                          .marshalToString(mapping.getTargetObjectRef()));
                 mappingObj.addProperty("targetPropertyRef", mapping.getTargetPropertyRef());
                 mappingArray.add(mappingObj);
             }

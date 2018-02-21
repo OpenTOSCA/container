@@ -45,8 +45,8 @@ public class Route extends RouteBuilder {
             + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName="
             + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
-        final ValueBuilder APP_BUS_ENDPOINT = new ValueBuilder(
-            this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+        final ValueBuilder APP_BUS_ENDPOINT =
+            new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
         final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
         final ClassLoader cl = org.opentosca.bus.application.api.soaphttp.model.ObjectFactory.class.getClassLoader();

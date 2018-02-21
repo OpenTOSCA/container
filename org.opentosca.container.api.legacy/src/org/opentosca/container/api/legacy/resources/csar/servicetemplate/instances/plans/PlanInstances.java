@@ -115,8 +115,7 @@ public class PlanInstances {
     @Path("{CorrelationID}")
     @Produces(ResourceConstants.TOSCA_JSON)
     public PlanInstance getPlanJSON(@Context final UriInfo uriInfo,
-                    @PathParam("CorrelationID") final String correlationID)
-        throws URISyntaxException {
+                                    @PathParam("CorrelationID") final String correlationID) throws URISyntaxException {
         LOG.debug("get plan of corr {}", correlationID);
         return new PlanInstance(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId, correlationID);
     }

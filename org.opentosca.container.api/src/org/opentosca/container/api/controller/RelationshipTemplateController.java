@@ -50,17 +50,16 @@ public class RelationshipTemplateController {
     @ApiOperation(value = "Gets all relationship templates of a specific service template",
                   response = RelationshipTemplateDTO.class, responseContainer = "List")
     public Response getRelationshipTemplates(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId)
-        throws NotFoundException {
+                                             @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 
         // this validates that the CSAR contains the service template
-        final List<RelationshipTemplateDTO> relationshipTemplateIds = this.relationshipTemplateService.getRelationshipTemplatesOfServiceTemplate(
-            csarId, serviceTemplateId);
+        final List<RelationshipTemplateDTO> relationshipTemplateIds =
+            this.relationshipTemplateService.getRelationshipTemplatesOfServiceTemplate(csarId, serviceTemplateId);
         final RelationshipTemplateListDTO list = new RelationshipTemplateListDTO();
 
         for (final RelationshipTemplateDTO relationshipTemplate : relationshipTemplateIds) {
-            relationshipTemplate.add(
-                UriUtil.generateSubResourceLink(this.uriInfo, relationshipTemplate.getId(), true, "self"));
+            relationshipTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, relationshipTemplate.getId(), true,
+                                                                     "self"));
 
             list.add(relationshipTemplate);
         }
@@ -75,12 +74,12 @@ public class RelationshipTemplateController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets a specific relationship template by its id", response = RelationshipTemplateDTO.class)
     public Response getRelationshipTemplate(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
-                    @ApiParam("relationship template id") @PathParam("relationshiptemplate") final String relationshipTemplateId)
-        throws NotFoundException {
+                                            @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
+                                            @ApiParam("relationship template id") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
-        final RelationshipTemplateDTO result = this.relationshipTemplateService.getRelationshipTemplateById(csarId,
-            QName.valueOf(serviceTemplateId), relationshipTemplateId);
+        final RelationshipTemplateDTO result =
+            this.relationshipTemplateService.getRelationshipTemplateById(csarId, QName.valueOf(serviceTemplateId),
+                                                                         relationshipTemplateId);
 
         result.add(UriUtil.generateSubResourceLink(this.uriInfo, "instances", false, "instances"));
         result.add(UriUtil.generateSelfLink(this.uriInfo));
@@ -89,18 +88,17 @@ public class RelationshipTemplateController {
     }
 
     @Path("/{relationshiptemplate}/instances")
-    public RelationshipTemplateInstanceController getInstances(
-                    @ApiParam(hidden = true) @PathParam("csar") final String csarId,
-                    @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
-                    @ApiParam(hidden = true) @PathParam("relationshiptemplate") final String relationshipTemplateId) {
+    public RelationshipTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
+                                                               @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
+                                                               @ApiParam(hidden = true) @PathParam("relationshiptemplate") final String relationshipTemplateId) {
         if (!this.relationshipTemplateService.hasRelationshipTemplate(csarId, QName.valueOf(serviceTemplateId),
-            relationshipTemplateId)) {
+                                                                      relationshipTemplateId)) {
             logger.info("Relationship template \"" + relationshipTemplateId + "\" could not be found");
             throw new NotFoundException("Relationship template \"" + relationshipTemplateId + "\" could not be found");
         }
 
-        final RelationshipTemplateInstanceController child = new RelationshipTemplateInstanceController(
-            this.instanceService);
+        final RelationshipTemplateInstanceController child =
+            new RelationshipTemplateInstanceController(this.instanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;

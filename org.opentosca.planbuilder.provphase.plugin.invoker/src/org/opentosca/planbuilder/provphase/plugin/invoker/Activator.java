@@ -37,7 +37,7 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
         this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
-            new BPELInvokerPlugin(), null);
+                                                              new BPELInvokerPlugin(), null);
     }
 
     /**

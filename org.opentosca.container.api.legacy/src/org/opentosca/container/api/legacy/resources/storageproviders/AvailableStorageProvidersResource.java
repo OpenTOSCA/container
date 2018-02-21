@@ -74,8 +74,7 @@ public class AvailableStorageProvidersResource {
      * @return {@link AvailableStorageProviderResource}
      */
     @Path("{id}")
-    public AvailableStorageProviderResource getStorageProviderResource(
-                    @PathParam("id") final String storageProviderID) {
+    public AvailableStorageProviderResource getStorageProviderResource(@PathParam("id") final String storageProviderID) {
 
         if (this.FILE_SERVICE.getStorageProviders().contains(storageProviderID)) {
             return new AvailableStorageProviderResource(storageProviderID);

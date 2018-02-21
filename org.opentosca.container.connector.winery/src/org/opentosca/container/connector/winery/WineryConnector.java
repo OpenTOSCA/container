@@ -71,13 +71,16 @@ public class WineryConnector {
             if (resp.getStatusLine().getStatusCode() < 400) {
                 return true;
             }
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final ClientProtocolException e) {
+        }
+        catch (final ClientProtocolException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -95,7 +98,8 @@ public class WineryConnector {
             return new URI(this.wineryPath + "servicetemplates/"
                 + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/"
                 + serviceTemplateId.getLocalPart());
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -137,8 +141,9 @@ public class WineryConnector {
     }
 
     public QName createServiceTemplateFromXaaSPackage(final File file, final QName artifactType,
-                    final Set<QName> nodeTypes, final QName infrastructureNodeType, final Map<String, String> tags)
-        throws URISyntaxException, IOException {
+                                                      final Set<QName> nodeTypes, final QName infrastructureNodeType,
+                                                      final Map<String, String> tags) throws URISyntaxException,
+                                                                                      IOException {
         final MultipartEntity entity = new MultipartEntity();
 
         // file
@@ -158,8 +163,8 @@ public class WineryConnector {
                 nodeTypesAsString += nodeType.toString() + ",";
             }
 
-            final ContentBody nodeTypesBody = new StringBody(
-                nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1));
+            final ContentBody nodeTypesBody =
+                new StringBody(nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1));
             final FormBodyPart nodeTypesPart = new FormBodyPart("nodeTypes", nodeTypesBody);
             entity.addPart(nodeTypesPart);
         }
@@ -167,8 +172,8 @@ public class WineryConnector {
         // infrastructureNodeType
         if (infrastructureNodeType != null) {
             final ContentBody infrastructureNodeTypeBody = new StringBody(infrastructureNodeType.toString());
-            final FormBodyPart infrastructureNodeTypePart = new FormBodyPart("infrastructureNodeType",
-                infrastructureNodeTypeBody);
+            final FormBodyPart infrastructureNodeTypePart =
+                new FormBodyPart("infrastructureNodeType", infrastructureNodeTypeBody);
             entity.addPart(infrastructureNodeTypePart);
         }
 
@@ -233,8 +238,8 @@ public class WineryConnector {
         final ObjectMapper mapper = new ObjectMapper();
 
         for (final QName serviceTemplateId : this.getServiceTemplates()) {
-            WineryConnector.LOG.debug(
-                "Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate " + serviceTemplateId);
+            WineryConnector.LOG.debug("Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate "
+                + serviceTemplateId);
             try {
 
                 final HttpGet serviceTemplateTagsGET = new HttpGet();
@@ -257,8 +262,8 @@ public class WineryConnector {
 
                         final HttpGet serviceTemplateTagGET = new HttpGet();
                         serviceTemplateTagGET.setHeader("Accept", "application/json");
-                        serviceTemplateTagGET.setURI(
-                            new URI(serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
+                        serviceTemplateTagGET.setURI(new URI(
+                            serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
                         final HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
                         final String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
 
@@ -282,13 +287,16 @@ public class WineryConnector {
                     qnames.add(serviceTemplateId);
                 }
 
-            } catch (final URISyntaxException e) {
+            }
+            catch (final URISyntaxException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } catch (final ClientProtocolException e) {
+            }
+            catch (final ClientProtocolException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } catch (final IOException e) {
+            }
+            catch (final IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -323,13 +331,16 @@ public class WineryConnector {
                 qnames.add(new QName(namespace, id));
             }
 
-        } catch (final ClientProtocolException e1) {
+        }
+        catch (final ClientProtocolException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
-        } catch (final IOException e1) {
+        }
+        catch (final IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
         }
 

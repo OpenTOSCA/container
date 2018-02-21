@@ -26,8 +26,7 @@ public interface BPELUploader {
 
     public void uploadService(
 
-                    org.wso2.carbon.bpel.deployer.services.UploadService uploadService1)
-        throws java.rmi.RemoteException;
+                              org.wso2.carbon.bpel.deployer.services.UploadService uploadService1) throws java.rmi.RemoteException;
 
 
     /**
@@ -38,11 +37,11 @@ public interface BPELUploader {
      */
     public void startuploadService(
 
-                    org.wso2.carbon.bpel.deployer.services.UploadService uploadService1,
+                                   org.wso2.carbon.bpel.deployer.services.UploadService uploadService1,
 
-                    final org.wso2.carbon.bpel.deployer.services.BPELUploaderCallbackHandler callback)
+                                   final org.wso2.carbon.bpel.deployer.services.BPELUploaderCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                      throws java.rmi.RemoteException;
 
 
 

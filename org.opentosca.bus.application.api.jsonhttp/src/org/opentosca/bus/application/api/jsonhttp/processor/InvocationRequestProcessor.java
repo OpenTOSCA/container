@@ -55,7 +55,7 @@ public class InvocationRequestProcessor implements Processor {
                 serviceInstanceID = ((Long) infosMap.get("serviceInstanceID")).intValue();
                 InvocationRequestProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
                 exchange.getIn().setHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(),
-                    serviceInstanceID);
+                                           serviceInstanceID);
 
             }
             if (infosMap.containsKey("nodeInstanceID")) {
@@ -110,7 +110,7 @@ public class InvocationRequestProcessor implements Processor {
         }
 
         exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+                                   ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
         exchange.getIn().setBody(params);
 

@@ -137,7 +137,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
             for (final Path fileInCSARUnpackDir : filesInCSARUnpackDir) {
                 final Path fileRelToCSARRoot = csarUnpackDir.relativize(fileInCSARUnpackDir);
                 this.STORAGE_PROVIDER_MANAGER.storeFileOfCSAR(fileInCSARUnpackDir, csarID, fileRelToCSARRoot,
-                    storageProviderID);
+                                                              storageProviderID);
                 fileToStorageProviderIDMap.put(fileRelToCSARRoot, storageProviderID);
             }
 
@@ -149,10 +149,11 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
             this.JPA_STORE.storeCSARMetaData(csarID, directories, fileToStorageProviderIDMap, toscaMetaFile);
 
             CoreInternalFileServiceImpl.LOG.debug("Storing CSAR \"{}\" located at \"{}\" successfully completed.",
-                csarID, csarFile);
+                                                  csarID, csarFile);
 
             return csarID;
-        } finally {
+        }
+        finally {
             // At the end or if an exception occurred we should delete the
             // unpack directory, if necessary.
             if (csarUnpackDir != null) {
@@ -191,8 +192,8 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
         Set<String> idsOfNotReadyStorageProviders = new HashSet<>();
 
-        idsOfNotReadyStorageProviders = this.STORAGE_PROVIDER_MANAGER.areStorageProvidersReady(
-            storageProviderIDsOfCSAR);
+        idsOfNotReadyStorageProviders =
+            this.STORAGE_PROVIDER_MANAGER.areStorageProvidersReady(storageProviderIDsOfCSAR);
 
         if (!idsOfNotReadyStorageProviders.isEmpty()) {
             throw new SystemException("Can't export CSAR \"" + csarID
@@ -222,7 +223,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
                 final Path fileOfCSARDownloadAbsPath = csarDownloadDirectory.resolve(fileRelToCSARRoot);
 
                 this.STORAGE_PROVIDER_MANAGER.getFileOfCSAR(csarID, fileRelToCSARRoot, fileStorageProviderID,
-                    fileOfCSARDownloadAbsPath);
+                                                            fileOfCSARDownloadAbsPath);
 
             }
 
@@ -234,17 +235,20 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
             return csarFile;
 
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
             throw new SystemException("An IO Exception occured.", exc);
-        } finally {
+        }
+        finally {
             final DirectoryDeleteVisitor csarDeleteVisitor = new DirectoryDeleteVisitor();
             try {
                 CoreInternalFileServiceImpl.LOG.debug("Deleting CSAR download directory \"{}\"...",
-                    csarDownloadDirectory);
+                                                      csarDownloadDirectory);
                 Files.walkFileTree(csarDownloadDirectory, csarDeleteVisitor);
                 CoreInternalFileServiceImpl.LOG.debug("Deleting CSAR download directory \"{}\" completed.",
-                    csarDownloadDirectory);
-            } catch (final IOException exc) {
+                                                      csarDownloadDirectory);
+            }
+            catch (final IOException exc) {
                 throw new SystemException("An IO Exception occured. Deleting CSAR download directory \""
                     + csarDownloadDirectory + "\" failed.", exc);
             }
@@ -260,17 +264,16 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
         final String targetStorageProviderID = this.STORAGE_PROVIDER_MANAGER.chooseStorageProvider();
 
         CoreInternalFileServiceImpl.LOG.debug("CSAR \"{}\" will be moved to storage provider \"{}\".", csarID,
-            targetStorageProviderID);
+                                              targetStorageProviderID);
 
         final Map<Path, String> fileToStorageProviderIDMap = this.JPA_STORE.getFileToStorageProviderIDMap(csarID);
 
-        final Map<Path, String> fileToMoveToStorageProviderIDMap = this.findFilesToMove(null,
-            fileToStorageProviderIDMap, targetStorageProviderID);
+        final Map<Path, String> fileToMoveToStorageProviderIDMap =
+            this.findFilesToMove(null, fileToStorageProviderIDMap, targetStorageProviderID);
 
         if (fileToMoveToStorageProviderIDMap.isEmpty()) {
-            CoreInternalFileServiceImpl.LOG.debug(
-                "CSAR \"{}\" is already completely stored on storage provider \"{}\".", csarID,
-                targetStorageProviderID);
+            CoreInternalFileServiceImpl.LOG.debug("CSAR \"{}\" is already completely stored on storage provider \"{}\".",
+                                                  csarID, targetStorageProviderID);
         } else {
 
             for (final Map.Entry<Path, String> fileToMoveToStorageProviderIDEntry : fileToMoveToStorageProviderIDMap.entrySet()) {
@@ -279,14 +282,14 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
                 final String fileStorageProviderID = fileToMoveToStorageProviderIDEntry.getValue();
 
                 this.moveFileToStorageProvider(csarID, fileRelToCSARRoot, fileStorageProviderID,
-                    targetStorageProviderID);
+                                               targetStorageProviderID);
 
             }
 
         }
 
         CoreInternalFileServiceImpl.LOG.debug("Moving CSAR \"{}\" to storage provider \"{}\" completed.", csarID,
-            targetStorageProviderID);
+                                              targetStorageProviderID);
 
     }
 
@@ -315,25 +318,26 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
      * @return {@code true} if moving file was successful, otherwise {@code false}.
      */
     private void moveFileToStorageProvider(final CSARID csarID, final Path fileRelToCSARRoot,
-                    final String fileStorageProviderID, final String targetStorageProviderID)
-        throws UserException, SystemException {
+                                           final String fileStorageProviderID,
+                                           final String targetStorageProviderID) throws UserException, SystemException {
 
-        CoreInternalFileServiceImpl.LOG.debug(
-            "Moving file \"{}\" of CSAR \"{}\" from source storage provider \"{}\" to target storage provider \"{}\"...",
-            fileRelToCSARRoot, csarID, fileStorageProviderID, targetStorageProviderID);
+        CoreInternalFileServiceImpl.LOG.debug("Moving file \"{}\" of CSAR \"{}\" from source storage provider \"{}\" to target storage provider \"{}\"...",
+                                              fileRelToCSARRoot, csarID, fileStorageProviderID,
+                                              targetStorageProviderID);
 
-        final InputStream fileInputStream = this.STORAGE_PROVIDER_MANAGER.getFileOfCSARAsInputStream(csarID,
-            fileRelToCSARRoot, fileStorageProviderID);
+        final InputStream fileInputStream =
+            this.STORAGE_PROVIDER_MANAGER.getFileOfCSARAsInputStream(csarID, fileRelToCSARRoot, fileStorageProviderID);
 
-        final long fileSize = this.STORAGE_PROVIDER_MANAGER.getFileOfCSARSize(csarID, fileRelToCSARRoot,
-            fileStorageProviderID);
+        final long fileSize =
+            this.STORAGE_PROVIDER_MANAGER.getFileOfCSARSize(csarID, fileRelToCSARRoot, fileStorageProviderID);
 
         this.STORAGE_PROVIDER_MANAGER.storeFileOfCSAR(csarID, fileInputStream, fileSize, fileRelToCSARRoot,
-            targetStorageProviderID);
+                                                      targetStorageProviderID);
 
         try {
             fileInputStream.close();
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
             throw new SystemException("An IOException occured.", exc);
         }
 
@@ -341,24 +345,23 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
         this.STORAGE_PROVIDER_MANAGER.deleteFileOfCSAR(csarID, fileRelToCSARRoot, fileStorageProviderID);
 
-        CoreInternalFileServiceImpl.LOG.debug(
-            "Moving file \"{}\" of CSAR \"{}\" from storage provider \"{}\" to target storage provider \"{}\" completed.",
-            fileRelToCSARRoot, csarID, fileStorageProviderID, targetStorageProviderID);
+        CoreInternalFileServiceImpl.LOG.debug("Moving file \"{}\" of CSAR \"{}\" from storage provider \"{}\" to target storage provider \"{}\" completed.",
+                                              fileRelToCSARRoot, csarID, fileStorageProviderID,
+                                              targetStorageProviderID);
 
     }
 
     @Override
-    public void moveFileOrDirectoryOfCSAR(final CSARID csarID, final Path relPathToCSARRoot)
-        throws SystemException, UserException {
+    public void moveFileOrDirectoryOfCSAR(final CSARID csarID, final Path relPathToCSARRoot) throws SystemException,
+                                                                                             UserException {
 
         CoreInternalFileServiceImpl.LOG.debug("CSAR: \"{}\", file / directory of CSAR to move: \"{}\"", csarID,
-            relPathToCSARRoot);
+                                              relPathToCSARRoot);
 
         final String targetStorageProviderID = this.STORAGE_PROVIDER_MANAGER.chooseStorageProvider();
 
-        CoreInternalFileServiceImpl.LOG.debug(
-            "File / directory \"{}\" of CSAR \"{}\" will be moved to storage provider \"{}\".", relPathToCSARRoot,
-            csarID, targetStorageProviderID);
+        CoreInternalFileServiceImpl.LOG.debug("File / directory \"{}\" of CSAR \"{}\" will be moved to storage provider \"{}\".",
+                                              relPathToCSARRoot, csarID, targetStorageProviderID);
 
         final Map<Path, String> fileToStorageProviderIDMap = this.JPA_STORE.getFileToStorageProviderIDMap(csarID);
 
@@ -367,34 +370,33 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
         if (fileToStorageProviderIDMap.containsKey(relPathToCSARRoot)) {
 
             CoreInternalFileServiceImpl.LOG.debug("\"{}\" to move is a file of CSAR \"{}\".", relPathToCSARRoot,
-                csarID);
+                                                  csarID);
             final String fileStorageProviderID = fileToStorageProviderIDMap.get(relPathToCSARRoot);
 
             if (fileStorageProviderID.equals(targetStorageProviderID)) {
 
-                CoreInternalFileServiceImpl.LOG.debug(
-                    "File \"{}\" is already stored on target storage provider \"{}\".", relPathToCSARRoot,
-                    targetStorageProviderID);
+                CoreInternalFileServiceImpl.LOG.debug("File \"{}\" is already stored on target storage provider \"{}\".",
+                                                      relPathToCSARRoot, targetStorageProviderID);
 
             } else {
 
                 this.moveFileToStorageProvider(csarID, relPathToCSARRoot, fileStorageProviderID,
-                    targetStorageProviderID);
+                                               targetStorageProviderID);
 
             }
 
         } else if (directories.contains(relPathToCSARRoot)) {
 
             CoreInternalFileServiceImpl.LOG.debug("\"{}\" to move is a directory of CSAR \"{}\".", relPathToCSARRoot,
-                csarID);
-            final Map<Path, String> fileToMoveToStorageProviderIDMap = this.findFilesToMove(relPathToCSARRoot,
-                fileToStorageProviderIDMap, targetStorageProviderID);
+                                                  csarID);
+            final Map<Path, String> fileToMoveToStorageProviderIDMap =
+                this.findFilesToMove(relPathToCSARRoot, fileToStorageProviderIDMap, targetStorageProviderID);
 
             if (fileToMoveToStorageProviderIDMap.isEmpty()) {
 
-                CoreInternalFileServiceImpl.LOG.debug(
-                    "Files in directory \"{}\" of CSAR \"{}\" are already stored on target storage provider \"{}\" or directory \"{}\" contains no files.",
-                    relPathToCSARRoot, csarID, targetStorageProviderID, relPathToCSARRoot);
+                CoreInternalFileServiceImpl.LOG.debug("Files in directory \"{}\" of CSAR \"{}\" are already stored on target storage provider \"{}\" or directory \"{}\" contains no files.",
+                                                      relPathToCSARRoot, csarID, targetStorageProviderID,
+                                                      relPathToCSARRoot);
 
             } else {
 
@@ -402,14 +404,13 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
                     final Path fileRelToCSARRoot = fileToMoveToStorageProviderIDEntry.getKey();
                     final String fileStorageProviderID = fileToMoveToStorageProviderIDEntry.getValue();
                     this.moveFileToStorageProvider(csarID, fileRelToCSARRoot, fileStorageProviderID,
-                        targetStorageProviderID);
+                                                   targetStorageProviderID);
                 }
 
             }
 
-            CoreInternalFileServiceImpl.LOG.debug(
-                "Moving directory \"{}\" of CSAR \"{}\" to target storage provider \"{}\" completed.",
-                relPathToCSARRoot, csarID, targetStorageProviderID);
+            CoreInternalFileServiceImpl.LOG.debug("Moving directory \"{}\" of CSAR \"{}\" to target storage provider \"{}\" completed.",
+                                                  relPathToCSARRoot, csarID, targetStorageProviderID);
 
         } else {
             throw new UserException(
@@ -431,10 +432,11 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
      *         that must be moved.
      */
     private Map<Path, String> findFilesToMove(final Path searchDirRelToCSARRoot,
-                    final Map<Path, String> fileToStorageProviderIDMap, final String targetStorageProviderID) {
+                                              final Map<Path, String> fileToStorageProviderIDMap,
+                                              final String targetStorageProviderID) {
 
-        CoreInternalFileServiceImpl.LOG.debug(
-            "Searching for files that must be moved to target storage provider \"{}\"...", targetStorageProviderID);
+        CoreInternalFileServiceImpl.LOG.debug("Searching for files that must be moved to target storage provider \"{}\"...",
+                                              targetStorageProviderID);
 
         final Map<Path, String> fileToMoveToStorageProviderIDMap = new HashMap<>();
 
@@ -451,7 +453,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
         }
 
         CoreInternalFileServiceImpl.LOG.debug("Found {} file(s) that must be moved to target storage provider \"{}\".",
-            fileToMoveToStorageProviderIDMap.size(), targetStorageProviderID);
+                                              fileToMoveToStorageProviderIDMap.size(), targetStorageProviderID);
 
         return fileToMoveToStorageProviderIDMap;
 
@@ -469,8 +471,8 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
         Set<String> idsOfNotReadyStorageProviders = new HashSet<>();
 
-        idsOfNotReadyStorageProviders = this.STORAGE_PROVIDER_MANAGER.areStorageProvidersReady(
-            storageProviderIDsOfCSAR);
+        idsOfNotReadyStorageProviders =
+            this.STORAGE_PROVIDER_MANAGER.areStorageProvidersReady(storageProviderIDsOfCSAR);
 
         if (!idsOfNotReadyStorageProviders.isEmpty()) {
             throw new SystemException("Can't delete CSAR \"" + csarID
@@ -479,7 +481,7 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
         }
 
         CoreInternalFileServiceImpl.LOG.debug("Deleting CSAR \"{}\" on storage provider(s) {}...", csarID,
-            storageProviderIDsOfCSAR);
+                                              storageProviderIDsOfCSAR);
 
         for (final Map.Entry<Path, String> fileToStorageProviderIDEntry : fileToStorageProviderIDMap.entrySet()) {
 
@@ -508,12 +510,13 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
         if (!csarIDs.isEmpty()) {
 
             CoreInternalFileServiceImpl.LOG.debug("{} CSAR(s) is / are currently stored and will be deleted now.",
-                csarIDs.size());
+                                                  csarIDs.size());
 
             for (final CSARID csarID : csarIDs) {
                 try {
                     this.deleteCSAR(csarID);
-                } catch (final UserException exc) {
+                }
+                catch (final UserException exc) {
                     throw new SystemException("An System Exception occured.", exc);
                 }
             }

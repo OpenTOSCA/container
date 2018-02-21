@@ -97,9 +97,9 @@ public class InvocationRequestProcessor implements Processor {
                 params = xmlStringToMap(bodyString);
 
             } else {
-                InvocationRequestProcessor.LOG.warn(
-                    "The request entity media type is not supported. Supported types are {} and {}",
-                    MediaType.APPLICATION_JSON.getName(), MediaType.APPLICATION_XML.getName());
+                InvocationRequestProcessor.LOG.warn("The request entity media type is not supported. Supported types are {} and {}",
+                                                    MediaType.APPLICATION_JSON.getName(),
+                                                    MediaType.APPLICATION_XML.getName());
                 throw new ApplicationBusExternalException(
                     "The request entity media type is not supported. Supported types are "
                         + MediaType.APPLICATION_JSON.getName() + " and " + MediaType.APPLICATION_XML.getName(),
@@ -108,7 +108,7 @@ public class InvocationRequestProcessor implements Processor {
         }
 
         exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+                                   ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
         exchange.getIn().setBody(params);
 
@@ -175,7 +175,8 @@ public class InvocationRequestProcessor implements Processor {
             builder = factory.newDocumentBuilder();
             final Document doc = builder.parse(new InputSource(new StringReader(xmlString)));
             return doc;
-        } catch (ParserConfigurationException | IOException e) {
+        }
+        catch (ParserConfigurationException | IOException e) {
             e.printStackTrace();
         }
         return null;

@@ -60,10 +60,10 @@ import org.xml.sax.SAXException;
  */
 public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlanContext> {
 
-    private final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-        "ArchiveArtifact");
-    private final QName bpelArtifactType = new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-        "BPEL");
+    private final QName zipArtifactType =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
+    private final QName bpelArtifactType =
+        new QName("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "BPEL");
 
     private final CSARHandler csarHandler = new CSARHandler();
     private final DocumentBuilderFactory docFactory;
@@ -76,8 +76,8 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
     }
 
     private Node createSelfserviceApplicationUrlAssign(final String serverIpVarName, final String applicationName,
-                    final String outputVarName, final String outputVarPartName, final String outputVarPrefix)
-        throws IOException, SAXException {
+                                                       final String outputVarName, final String outputVarPartName,
+                                                       final String outputVarPrefix) throws IOException, SAXException {
         // <!--{serverIpVarName} {appName} {outputVarName} {outputVarPartName}
         // {outputVarPrefix} -->
 
@@ -126,7 +126,7 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final AbstractNodeTypeImplementation nodeImpl) {
+                          final AbstractNodeTypeImplementation nodeImpl) {
         if (ModelUtils.checkForTypeInHierarchy(nodeTemplate, BPELVinothekPlugin.phpApp)) {
             return this.handlePhpApp(context, nodeTemplate, nodeImpl);
         } else if (ModelUtils.checkForTypeInHierarchy(nodeTemplate, BPELVinothekPlugin.bpelProcess)) {
@@ -136,7 +136,7 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
     }
 
     private boolean handleBPELApp(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final AbstractNodeTypeImplementation nodeImpl) {
+                                  final AbstractNodeTypeImplementation nodeImpl) {
         // FIXME: this will be working under many assumptions (bpel-engine: wso2
         // bps.., no port reconfigs,..)
         // we try to construct an endpoint of the form
@@ -234,9 +234,9 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
 
             final InputSource inputSource = new InputSource(is);
 
-            final String value = (String) xpath.evaluate(
-                "/ns:deploy/ns:process/ns:provide[@partnerLink='client']/ns:service/@name", inputSource,
-                XPathConstants.STRING);
+            final String value =
+                (String) xpath.evaluate("/ns:deploy/ns:process/ns:provide[@partnerLink='client']/ns:service/@name",
+                                        inputSource, XPathConstants.STRING);
 
             final String serviceName = value.split(":")[1];
 
@@ -266,28 +266,35 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
 
             final Element postPhaseElement = context.getPostPhaseElement();
 
-            Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
-                context.getPlanResponseMessageName(), "payload", "tns");
+            Node assignNode =
+                this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
+                                                           context.getPlanResponseMessageName(), "payload", "tns");
             assignNode = context.importNode(assignNode);
 
             postPhaseElement.appendChild(assignNode);
 
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final XPathExpressionException e) {
+        }
+        catch (final XPathExpressionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -295,7 +302,7 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
     }
 
     private boolean handlePhpApp(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final AbstractNodeTypeImplementation nodeImpl) {
+                                 final AbstractNodeTypeImplementation nodeImpl) {
 
         // fetch the application zip file
         AbstractArtifactReference zipRef = null;
@@ -365,33 +372,38 @@ public class BPELVinothekPluginHandler implements VinothekPluginHandler<BPELPlan
             zipFile.close();
 
             // find serverip var name of the VM hosting the application
-            final String serverIpVarName = context.getVariableNameOfInfraNodeProperty(
-                Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
+            final String serverIpVarName =
+                context.getVariableNameOfInfraNodeProperty(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP);
 
             // add selfserviceApplicationUrl to output
             context.addStringValueToPlanResponse("selfserviceApplicationUrl");
 
             final Element postPhaseElement = context.getPostPhaseElement();
 
-            Node assignNode = this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
-                context.getPlanResponseMessageName(), "payload", "tns");
+            Node assignNode =
+                this.createSelfserviceApplicationUrlAssign(serverIpVarName, applicationFolderName,
+                                                           context.getPlanResponseMessageName(), "payload", "tns");
             assignNode = context.importNode(assignNode);
 
             postPhaseElement.appendChild(assignNode);
 
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return false;

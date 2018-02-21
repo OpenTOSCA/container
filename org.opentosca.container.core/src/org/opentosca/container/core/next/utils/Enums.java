@@ -25,7 +25,8 @@ public final class Enums {
         if (c != null && value != null) {
             try {
                 return Enum.valueOf(c, value.trim().toUpperCase());
-            } catch (final IllegalArgumentException e) {
+            }
+            catch (final IllegalArgumentException e) {
                 return defaultValue;
             }
         }

@@ -221,8 +221,8 @@ public interface ICoreFileService {
      *         occurred during moving files.
      *
      */
-    public void moveFileOrDirectoryOfCSAR(CSARID csarID, Path fileOrDirRelToCSARRoot)
-        throws UserException, SystemException;
+    public void moveFileOrDirectoryOfCSAR(CSARID csarID, Path fileOrDirRelToCSARRoot) throws UserException,
+                                                                                      SystemException;
 
     /**
      * Deletes the CSAR {@code csarID}.<br />

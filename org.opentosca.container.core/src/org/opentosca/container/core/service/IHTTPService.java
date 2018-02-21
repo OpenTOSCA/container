@@ -61,8 +61,8 @@ public interface IHTTPService {
      */
     public HttpResponse Post(String uri, HttpEntity httpEntity) throws ClientProtocolException, IOException;
 
-    public HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies)
-        throws ClientProtocolException, IOException;
+    public HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies) throws ClientProtocolException,
+                                                                                      IOException;
 
     public List<Cookie> PostCookies(String uri, HttpEntity httpEntity) throws ClientProtocolException, IOException;
 
@@ -86,8 +86,8 @@ public interface IHTTPService {
      * @throws ClientProtocolException
      * @throws IOException
      */
-    public HttpResponse Put(String uri, HttpEntity httpEntity, String username, String password)
-        throws ClientProtocolException, IOException;
+    public HttpResponse Put(String uri, HttpEntity httpEntity, String username,
+                            String password) throws ClientProtocolException, IOException;
 
     /**
      * Executes a HTTP DELETE command.

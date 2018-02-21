@@ -25,8 +25,10 @@ public class Route extends RouteBuilder {
     public void configure() throws Exception {
 
         // Management Bus Endpoints
-        final String MANAGEMENT_BUS_IA = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
-        final String MANAGEMENT_BUS_PLAN = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
+        final String MANAGEMENT_BUS_IA =
+            "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
+        final String MANAGEMENT_BUS_PLAN =
+            "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
 
         this.from("direct:invoke").to("stream:out").process(exchange -> {
 

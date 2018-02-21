@@ -181,7 +181,7 @@ public class NodeTypeImplementationImpl extends AbstractNodeTypeImplementation {
     public AbstractNodeType getNodeType() {
         if (this.nodeTypeImpl.getNodeType() == null) {
             NodeTypeImplementationImpl.LOG.error("NodeTypeImplementation {} has no defined nodeType",
-                "{" + this.getTargetNamespace() + "}" + this.getName());
+                                                 "{" + this.getTargetNamespace() + "}" + this.getName());
         }
         for (final AbstractNodeType nodeType : this.definitions.getAllNodeTypes()) {
             if (nodeType.getId().equals(this.nodeTypeImpl.getNodeType())) {

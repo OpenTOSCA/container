@@ -53,9 +53,9 @@ public class CSARControl {
         // If a CSAR file is stored, it automatically is an ongoing
         // DeploymentProcess
         for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
-            final Reference ref = new Reference(
-                Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE,
-                csarID.toString());
+            final Reference ref =
+                new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()),
+                    XLinkConstants.SIMPLE, csarID.toString());
             refs.getReference().add(ref);
         }
 

@@ -56,8 +56,9 @@ public class ServiceTemplatesResource {
     @GET
     @Produces(ResourceConstants.LINKED_XML)
     public Response getReferencesXML(@Context final UriInfo uriInfo,
-                    @DefaultValue("false") @QueryParam("main") final boolean onlyMainServiceTemplate)
-        throws UnsupportedEncodingException, UserException, SystemException {
+                                     @DefaultValue("false") @QueryParam("main") final boolean onlyMainServiceTemplate) throws UnsupportedEncodingException,
+                                                                                                                       UserException,
+                                                                                                                       SystemException {
         this.uriInfo = uriInfo;
         return Response.ok(this.getRefs(onlyMainServiceTemplate).getXMLString()).build();
     }
@@ -65,14 +66,15 @@ public class ServiceTemplatesResource {
     @GET
     @Produces(ResourceConstants.LINKED_JSON)
     public Response getReferencesJSON(@Context final UriInfo uriInfo,
-                    @QueryParam("main") final boolean onlyMainServiceTemplate)
-        throws UnsupportedEncodingException, UserException, SystemException {
+                                      @QueryParam("main") final boolean onlyMainServiceTemplate) throws UnsupportedEncodingException,
+                                                                                                 UserException,
+                                                                                                 SystemException {
         this.uriInfo = uriInfo;
         return Response.ok(this.getRefs(onlyMainServiceTemplate).getJSONString()).build();
     }
 
-    public References getRefs(final boolean onlyMainServiceTemplate)
-        throws UnsupportedEncodingException, UserException, SystemException {
+    public References getRefs(final boolean onlyMainServiceTemplate) throws UnsupportedEncodingException, UserException,
+                                                                     SystemException {
 
         if (this.csarContent == null) {
             return null;
@@ -104,8 +106,8 @@ public class ServiceTemplatesResource {
 
     private String getEntryServiceTemplateName() throws UserException, SystemException, UnsupportedEncodingException {
 
-        final AbstractFile root = FileRepositoryServiceHandler.getFileHandler().getCSAR(this.csarContent.getCSARID())
-                                                              .getRootTOSCA();
+        final AbstractFile root =
+            FileRepositoryServiceHandler.getFileHandler().getCSAR(this.csarContent.getCSARID()).getRootTOSCA();
         final Definitions def = ToscaServiceHandler.getIXMLSerializer().unmarshal(root.getFileAsInputStream());
 
         for (final TExtensibleElements el : def.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
@@ -120,8 +122,7 @@ public class ServiceTemplatesResource {
     }
 
     @Path("{qname}")
-    public ServiceTemplateResource getServiceTemplate(@PathParam("qname") final String qname)
-        throws UnsupportedEncodingException {
+    public ServiceTemplateResource getServiceTemplate(@PathParam("qname") final String qname) throws UnsupportedEncodingException {
         this.log.debug("Create Service Template resource for {}", qname);
         return new ServiceTemplateResource(this.csarContent, URLDecoder.decode(qname, "UTF-8"));
     }

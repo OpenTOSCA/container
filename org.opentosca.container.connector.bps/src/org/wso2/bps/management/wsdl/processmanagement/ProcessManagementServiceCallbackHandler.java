@@ -63,8 +63,7 @@ public abstract class ProcessManagementServiceCallbackHandler {
      * auto generated Axis2 call back method for getPaginatedProcessList method override this method for
      * handling normal response from getPaginatedProcessList operation
      */
-    public void receiveResultgetPaginatedProcessList(
-                    final org.wso2.bps.management.schema.PaginatedProcessInfoList result) {}
+    public void receiveResultgetPaginatedProcessList(final org.wso2.bps.management.schema.PaginatedProcessInfoList result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from

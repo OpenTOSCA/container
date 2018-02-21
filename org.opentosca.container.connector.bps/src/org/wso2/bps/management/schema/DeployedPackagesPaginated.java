@@ -23,8 +23,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
 
 
 
-    public static final javax.xml.namespace.QName MY_QNAME = new javax.xml.namespace.QName(
-        "http://wso2.org/bps/management/schema", "deployedPackagesPaginated", "ns1");
+    public static final javax.xml.namespace.QName MY_QNAME =
+        new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "deployedPackagesPaginated", "ns1");
 
 
 
@@ -126,8 +126,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
 
         final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(this.local_package);
         list.add(param);
-        this.local_package = (org.wso2.bps.management.schema.Package_type0[]) list.toArray(
-            new org.wso2.bps.management.schema.Package_type0[list.size()]);
+        this.local_package =
+            (org.wso2.bps.management.schema.Package_type0[]) list.toArray(new org.wso2.bps.management.schema.Package_type0[list.size()]);
 
     }
 
@@ -141,27 +141,27 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            MY_QNAME);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, MY_QNAME);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(MY_QNAME, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -179,10 +179,10 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":deployedPackagesPaginated", xmlWriter);
+                               namespacePrefix + ":deployedPackagesPaginated", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "deployedPackagesPaginated",
-                    xmlWriter);
+                               xmlWriter);
             }
 
 
@@ -196,8 +196,7 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
             throw new org.apache.axis2.databinding.ADBException("pages cannot be null!!");
 
         } else {
-            xmlWriter.writeCharacters(
-                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localPages));
+            xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localPages));
         }
 
         xmlWriter.writeEndElement();
@@ -205,9 +204,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
             if (this.local_package != null) {
                 for (final Package_type0 element : this.local_package) {
                     if (element != null) {
-                        element.serialize(
-                            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "package"),
-                            xmlWriter);
+                        element.serialize(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                            "package"), xmlWriter);
                     } else {
 
                         // we don't have to do any thing since minOccures is zero
@@ -237,8 +235,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -259,9 +257,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -273,8 +270,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -288,8 +285,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -315,8 +312,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -327,8 +324,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -339,8 +336,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -363,11 +360,10 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -383,8 +379,7 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -404,8 +399,7 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -421,8 +415,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
                 for (final Package_type0 element : this.local_package) {
 
                     if (element != null) {
-                        elementList.add(
-                            new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "package"));
+                        elementList.add(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                            "package"));
                         elementList.add(element);
                     } else {
 
@@ -463,8 +457,7 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static DeployedPackagesPaginated parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static DeployedPackagesPaginated parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final DeployedPackagesPaginated object = new DeployedPackagesPaginated();
 
             final int event;
@@ -479,8 +472,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -493,8 +486,9 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
                         if (!"deployedPackagesPaginated".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (DeployedPackagesPaginated) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (DeployedPackagesPaginated) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                                             type,
+                                                                                                                                             reader);
                         }
 
 
@@ -520,9 +514,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "pages").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "pages").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -543,9 +536,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema", "package").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "package").equals(reader.getName())) {
 
 
 
@@ -580,9 +572,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
                     }
                     // call the converter utility to convert and set the array
 
-                    object.set_package(
-                        (org.wso2.bps.management.schema.Package_type0[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                            org.wso2.bps.management.schema.Package_type0.class, list2));
+                    object.set_package((org.wso2.bps.management.schema.Package_type0[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(org.wso2.bps.management.schema.Package_type0.class,
+                                                                                                                                                        list2));
 
                 } // End of if for expected property start element
 
@@ -602,7 +593,8 @@ public class DeployedPackagesPaginated implements org.apache.axis2.databinding.A
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

@@ -53,7 +53,7 @@
 <setting id="cleanup.qualify_static_member_accesses_with_declaring_class" value="false"/>
 <setting id="cleanup.use_parentheses_in_expressions" value="true"/>
 <setting id="cleanup.add_missing_override_annotations" value="true"/>
-<setting id="cleanup.use_blocks" value="false"/>
+<setting id="cleanup.use_blocks" value="true"/>
 <setting id="cleanup.make_variable_declarations_final" value="true"/>
 <setting id="cleanup.correct_indentation" value="true"/>
 <setting id="cleanup.remove_unused_private_types" value="true"/>

@@ -49,9 +49,11 @@ public class Importer extends AbstractImporter {
             final AbstractDefinitions defs = this.createContext(content);
             final List<AbstractPlan> plans = this.buildPlans(defs, csarId.getFileName());
             return plans;
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             Importer.LOG.error("Some error within input", e);
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             Importer.LOG.error("Some internal error", e);
         }
         return new ArrayList<>();
@@ -67,9 +69,11 @@ public class Importer extends AbstractImporter {
     public AbstractDefinitions getMainDefinitions(final CSARID csarId) {
         try {
             return this.createContext(this.handler.getCSARContentForID(csarId));
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             Importer.LOG.error("Some error within input", e);
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             Importer.LOG.error("Some internal error", e);
         }
         return null;

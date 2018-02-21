@@ -75,17 +75,20 @@ public class RelationshipTemplateInstancePropertiesResource {
                     qnameList.add(QName.valueOf(stringValue));
                 }
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             throw new GenericRestException(Status.BAD_REQUEST,
                 "error converting one of the properties-parameters: " + e.getMessage());
         }
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         try {
-            final Document properties = service.getRelationInstanceProperties(
-                IdConverter.relationInstanceIDtoURI(this.relationInstanceID), qnameList);
+            final Document properties =
+                service.getRelationInstanceProperties(IdConverter.relationInstanceIDtoURI(this.relationInstanceID),
+                                                      qnameList);
             return properties;
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
     }
@@ -97,11 +100,12 @@ public class RelationshipTemplateInstancePropertiesResource {
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         try {
             service.setRelationInstanceProperties(IdConverter.relationInstanceIDtoURI(this.relationInstanceID), xml);
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
-        final SimpleXLink xLink = new SimpleXLink(uriInfo.getAbsolutePath(),
-            "RelationInstance: " + this.relationInstanceID + " Properties");
+        final SimpleXLink xLink =
+            new SimpleXLink(uriInfo.getAbsolutePath(), "RelationInstance: " + this.relationInstanceID + " Properties");
         return Response.ok(xLink).build();
 
     }

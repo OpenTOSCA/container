@@ -75,12 +75,12 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
                 final TNodeTemplate source = (TNodeTemplate) temp._getSource();
                 if (source == null) {
                     TopologyTemplateImpl.LOG.warn("Source NodeTemplate of RelationshipTemplate {} is null!",
-                        temp.getId());
+                                                  temp.getId());
                 }
                 final TNodeTemplate target = (TNodeTemplate) temp._getTarget();
                 if (target == null) {
                     TopologyTemplateImpl.LOG.warn("Target NodeTemplate of RelationshipTemplate {} is null!",
-                        temp.getId());
+                                                  temp.getId());
                 }
                 for (final AbstractNodeTemplate nodetemplate : this.nodeTemplates) {
                     if (source.getId().equals(nodetemplate.getId())) {
@@ -195,8 +195,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     private void setUpTemplates() {
         for (final TEntityTemplate element : this.topologyTemplate.getNodeTemplateOrRelationshipTemplate()) {
             if (element instanceof TRelationshipTemplate) {
-                this.relationshipTemplates.add(
-                    new RelationshipTemplateImpl((TRelationshipTemplate) element, this.definitions));
+                this.relationshipTemplates.add(new RelationshipTemplateImpl((TRelationshipTemplate) element,
+                    this.definitions));
             } else if (element instanceof TNodeTemplate) {
                 this.nodeTemplates.add(new NodeTemplateImpl((TNodeTemplate) element, this.definitions));
 

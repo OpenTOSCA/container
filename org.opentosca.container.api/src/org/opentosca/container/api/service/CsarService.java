@@ -54,7 +54,8 @@ public class CsarService {
         for (final CSARID id : this.fileService.getCSARIDs()) {
             try {
                 csarSet.add(this.findById(id));
-            } catch (final Exception e) {
+            }
+            catch (final Exception e) {
                 logger.error("Error while loading CSAR with ID \"{}\": {}", id, e.getMessage(), e);
                 throw new ServerErrorException(Response.serverError().build());
             }
@@ -72,7 +73,8 @@ public class CsarService {
         logger.debug("Requesting CSAR \"{}\"...", id);
         try {
             return this.fileService.getCSAR(id);
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             logger.info("CSAR \"" + id.getFileName() + "\" could not be found");
             throw new NotFoundException("CSAR \"" + id.getFileName() + "\" could not be found");
         }
@@ -95,12 +97,13 @@ public class CsarService {
      * @return The self-service metadata as Java object
      */
     public Application getSelfserviceMetadata(final CSARContent csarContent) {
-        try (final InputStream is = csarContent.getDirectory("SELFSERVICE-Metadata").getFile("data.xml")
-                                               .getFileAsInputStream()) {
+        try (final InputStream is =
+            csarContent.getDirectory("SELFSERVICE-Metadata").getFile("data.xml").getFileAsInputStream()) {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Application.class);
             final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (Application) jaxbUnmarshaller.unmarshal(is);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not serialize data.xml from CSAR", e);
             throw new ServerErrorException(Status.INTERNAL_SERVER_ERROR);
         }
@@ -142,7 +145,8 @@ public class CsarService {
         // Write the input stream into the file
         try {
             FileUtils.copyInputStreamToFile(is, file);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             logger.error("Error writing temporary CSAR file: {}", e.getMessage(), e);
             return null;
         }
@@ -172,7 +176,8 @@ public class CsarService {
         try {
             this.fileService.deleteCSAR(csarId);
             return this.fileService.storeCSAR(file.toPath());
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not store repackaged CSAR: {}", e.getMessage(), e);
         }
 

@@ -235,8 +235,8 @@ public class CoreInternalModelRepositoryServiceImpl implements ICoreInternalMode
             return this.toscaEngineService.getToscaReferenceMapper().getDefinitionIDsOfCSAR(csarID);
         }
 
-        CoreInternalModelRepositoryServiceImpl.LOG.error(
-            "TOSCA Engine Service is not available! Can't get Definitions IDs of CSAR \"{}\"", csarID);
+        CoreInternalModelRepositoryServiceImpl.LOG.error("TOSCA Engine Service is not available! Can't get Definitions IDs of CSAR \"{}\"",
+                                                         csarID);
         return null;
 
         // ArrayList<QName)> definitionIDs = new ArrayList<QName>();
@@ -272,26 +272,24 @@ public class CoreInternalModelRepositoryServiceImpl implements ICoreInternalMode
         // Definitions definitions = null;
         // InputStream inputStream = null;
         CoreInternalModelRepositoryServiceImpl.LOG.info("Getting Definitions with ID \"{}\" in CSAR \"{}\"...",
-            definitionsID.toString(), csarID.toString());
+                                                        definitionsID.toString(), csarID.toString());
 
         if (this.toscaEngineService != null) {
-            final Object definitions = this.toscaEngineService.getToscaReferenceMapper().getJAXBReference(csarID,
-                definitionsID);
+            final Object definitions =
+                this.toscaEngineService.getToscaReferenceMapper().getJAXBReference(csarID, definitionsID);
 
             if (definitions instanceof TDefinitions) {
                 return (TDefinitions) definitions;
             } else {
-                CoreInternalModelRepositoryServiceImpl.LOG.error(
-                    "Definitions with ID \"{}\" was not found in CSAR \"{}\"!", definitionsID.toString(),
-                    csarID.toString());
+                CoreInternalModelRepositoryServiceImpl.LOG.error("Definitions with ID \"{}\" was not found in CSAR \"{}\"!",
+                                                                 definitionsID.toString(), csarID.toString());
                 return null;
             }
 
         }
 
-        CoreInternalModelRepositoryServiceImpl.LOG.error(
-            "TOSCA Engine Service is not available! Can't get Definitions with ID \"{}\" of CSAR \"{}\"",
-            definitionsID.toString(), csarID.toString());
+        CoreInternalModelRepositoryServiceImpl.LOG.error("TOSCA Engine Service is not available! Can't get Definitions with ID \"{}\" of CSAR \"{}\"",
+                                                         definitionsID.toString(), csarID.toString());
         return null;
 
         // try {

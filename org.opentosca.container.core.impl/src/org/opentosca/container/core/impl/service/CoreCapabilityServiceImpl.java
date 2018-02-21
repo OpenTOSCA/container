@@ -48,7 +48,7 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
      * This currently acts as a proxy.
      */
     public void storeCapabilities(final List<String> capabilities, final String providerName,
-                    final ProviderType providerType) {
+                                  final ProviderType providerType) {
         this.capabilityService.storeCapabilities(capabilities, providerName, providerType);
     }
 
@@ -97,7 +97,7 @@ public class CoreCapabilityServiceImpl implements ICoreCapabilityService {
             // Store Container Capabilities on start up
             final List<String> containerCaps = this.getCapabilities();
             this.capabilityService.storeCapabilities(containerCaps, ProviderType.CONTAINER.name(),
-                ProviderType.CONTAINER);
+                                                     ProviderType.CONTAINER);
         }
 
     }

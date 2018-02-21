@@ -35,7 +35,7 @@ public class GetResultRequestProcessor implements Processor {
         exchange.getIn().setBody(requestID);
 
         exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-            ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
+                                   ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
 
     }
 

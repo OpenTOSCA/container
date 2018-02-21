@@ -44,13 +44,13 @@ public class MBUtils {
      * @return name of the OperatingSystem NodeTemplate.
      */
     public static String getOperatingSystemNodeTemplateID(final CSARID csarID, final QName serviceTemplateID,
-                    String nodeTemplateID) {
+                                                          String nodeTemplateID) {
 
         MBUtils.LOG.debug("Searching the OperatingSystemNode of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
-            nodeTemplateID, serviceTemplateID, csarID);
+                          nodeTemplateID, serviceTemplateID, csarID);
 
-        QName nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-            nodeTemplateID);
+        QName nodeType =
+            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
         while (!isOperatingSystemNodeType(csarID, nodeType) && nodeTemplateID != null) {
 
@@ -58,20 +58,27 @@ public class MBUtils {
             MBUtils.LOG.debug("Getting the underneath Node for checking if it is the OperatingSystemNode...");
 
             // try different relationshiptypes with priority on hostedOn
-            nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                nodeTemplateID, Types.hostedOnRelationType);
+            nodeTemplateID =
+                ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
+                                                                           Types.hostedOnRelationType);
 
             if (nodeTemplateID == null) {
-                nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                    nodeTemplateID, Types.deployedOnRelationType);
+                nodeTemplateID =
+                    ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
+                                                                               nodeTemplateID,
+                                                                               Types.deployedOnRelationType);
 
                 if (nodeTemplateID == null) {
-                    nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID,
-                        serviceTemplateID, nodeTemplateID, Types.deployedOnRelationType);
+                    nodeTemplateID =
+                        ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
+                                                                                   nodeTemplateID,
+                                                                                   Types.deployedOnRelationType);
 
                     if (nodeTemplateID == null) {
-                        nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID,
-                            serviceTemplateID, nodeTemplateID, Types.dependsOnRelationType);
+                        nodeTemplateID =
+                            ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
+                                                                                       nodeTemplateID,
+                                                                                       Types.dependsOnRelationType);
                     }
                 }
             }
@@ -79,7 +86,7 @@ public class MBUtils {
             if (nodeTemplateID != null) {
                 MBUtils.LOG.debug("Checking if the underneath Node: {} is the OperatingSystemNode.", nodeTemplateID);
                 nodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-                    nodeTemplateID);
+                                                                                       nodeTemplateID);
 
             } else {
                 MBUtils.LOG.debug("No underneath Node found.");
@@ -103,21 +110,21 @@ public class MBUtils {
      */
     private static boolean isOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
         if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
             && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
             && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
             return true;
         } else if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
+                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
             && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
             return true;
         }
         return false;
@@ -133,21 +140,21 @@ public class MBUtils {
      */
     public static String getInterfaceForOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
         if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
             && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
             && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM;
         } else if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
+                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
             && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-                Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER;
         }
         return null;
@@ -165,30 +172,33 @@ public class MBUtils {
      * @return name of the OperatingSystem ImplementationArtifact.
      */
     public static String getOperatingSystemIA(final CSARID csarID, final QName serviceTemplateID,
-                    final String osNodeTemplateID) {
+                                              final String osNodeTemplateID) {
 
         MBUtils.LOG.debug("Searching the OperatingSystem-IA of NodeTemplate: {}, ServiceTemplate: {} & CSAR: {} ...",
-            osNodeTemplateID, serviceTemplateID, csarID);
+                          osNodeTemplateID, serviceTemplateID, csarID);
 
-        final QName osNodeType = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-            osNodeTemplateID);
+        final QName osNodeType =
+            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
 
-        final List<QName> osNodeTypeImpls = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(
-            csarID, osNodeType);
+        final List<QName> osNodeTypeImpls =
+            ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, osNodeType);
 
         for (final QName osNodeTypeImpl : osNodeTypeImpls) {
 
             MBUtils.LOG.debug("NodeTypeImpl: {} ", osNodeTypeImpl);
 
-            final List<String> osIANames = ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(
-                csarID, osNodeTypeImpl);
+            final List<String> osIANames =
+                ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(csarID,
+                                                                                                         osNodeTypeImpl);
 
             for (final String osIAName : osIANames) {
 
                 MBUtils.LOG.debug("IA: {} ", osIAName);
 
-                final String osIAInterface = ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(
-                    csarID, osNodeTypeImpl, osIAName);
+                final String osIAInterface =
+                    ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                     osNodeTypeImpl,
+                                                                                                                     osIAName);
 
                 MBUtils.LOG.debug("Interface: {} ", osIAInterface);
 
@@ -219,14 +229,13 @@ public class MBUtils {
      * @return instance data value of searched property if found. Otherwise null.
      */
     public static String searchProperty(final String property, final CSARID csarID, final QName serviceTemplateID,
-                    String nodeTemplateID, final URI serviceInstanceID) {
+                                        String nodeTemplateID, final URI serviceInstanceID) {
 
-        MBUtils.LOG.debug(
-            "Searching the Property: {} in or under the NodeTemplateID: {} ServiceTemplate: {} & CSAR: {} ...",
-            property, nodeTemplateID, serviceTemplateID, csarID);
+        MBUtils.LOG.debug("Searching the Property: {} in or under the NodeTemplateID: {} ServiceTemplate: {} & CSAR: {} ...",
+                          property, nodeTemplateID, serviceTemplateID, csarID);
 
-        String propertyValue = getInstanceDataPropertyValue(property, csarID, serviceTemplateID, nodeTemplateID,
-            serviceInstanceID);
+        String propertyValue =
+            getInstanceDataPropertyValue(property, csarID, serviceTemplateID, nodeTemplateID, serviceInstanceID);
 
         while (propertyValue == null && nodeTemplateID != null) {
 
@@ -234,16 +243,21 @@ public class MBUtils {
             MBUtils.LOG.debug("Getting the underneath Node for checking if it has the searched property...");
 
             // try different relationshiptypes with priority on hostedOn
-            nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                nodeTemplateID, Types.hostedOnRelationType);
+            nodeTemplateID =
+                ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
+                                                                           Types.hostedOnRelationType);
 
             if (nodeTemplateID == null) {
-                nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                    nodeTemplateID, Types.deployedOnRelationType);
+                nodeTemplateID =
+                    ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
+                                                                               nodeTemplateID,
+                                                                               Types.deployedOnRelationType);
 
                 if (nodeTemplateID == null) {
-                    nodeTemplateID = ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID,
-                        serviceTemplateID, nodeTemplateID, Types.dependsOnRelationType);
+                    nodeTemplateID =
+                        ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
+                                                                                   nodeTemplateID,
+                                                                                   Types.dependsOnRelationType);
                 }
             }
 
@@ -251,7 +265,7 @@ public class MBUtils {
                 MBUtils.LOG.debug("Checking if the Node: {} has the searched property: {}.", nodeTemplateID, property);
 
                 propertyValue = getInstanceDataPropertyValue(property, csarID, serviceTemplateID, nodeTemplateID,
-                    serviceInstanceID);
+                                                             serviceInstanceID);
 
             } else {
                 MBUtils.LOG.debug("No underneath Node found.");
@@ -259,7 +273,7 @@ public class MBUtils {
         }
         if (propertyValue != null) {
             MBUtils.LOG.debug("Searched property: {} with value: {} found in NodeTemplate: {}.", property,
-                propertyValue, nodeTemplateID);
+                              propertyValue, nodeTemplateID);
 
         } else {
             MBUtils.LOG.debug("Searched property: {} not found!", property);
@@ -278,10 +292,11 @@ public class MBUtils {
      * @return instance data value of searched property if found. Otherwise null.
      */
     public static String getInstanceDataPropertyValue(final String property, final CSARID csarID,
-                    final QName serviceTemplateID, final String nodeTemplateID, final URI serviceInstanceID) {
+                                                      final QName serviceTemplateID, final String nodeTemplateID,
+                                                      final URI serviceInstanceID) {
 
-        final HashMap<String, String> propertiesMap = getInstanceDataProperties(csarID, serviceTemplateID,
-            nodeTemplateID, serviceInstanceID);
+        final HashMap<String, String> propertiesMap =
+            getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID, serviceInstanceID);
 
         return propertiesMap.get(property);
     }
@@ -295,17 +310,19 @@ public class MBUtils {
      *         can not be found.
      */
     public static HashMap<String, String> getInstanceDataProperties(final CSARID csarID, final QName serviceTemplateID,
-                    final String nodeTemplateID, final URI serviceInstanceID) {
+                                                                    final String nodeTemplateID,
+                                                                    final URI serviceInstanceID) {
 
-        final String serviceTemplateName = ServiceHandler.toscaEngineService.getNameOfReference(csarID,
-            serviceTemplateID);
+        final String serviceTemplateName =
+            ServiceHandler.toscaEngineService.getNameOfReference(csarID, serviceTemplateID);
 
         HashMap<String, String> propertiesMap = new HashMap<>();
 
         if (serviceInstanceID != null) {
 
-            final List<ServiceInstance> serviceInstanceList = ServiceHandler.instanceDataService.getServiceInstances(
-                serviceInstanceID, serviceTemplateName, serviceTemplateID);
+            final List<ServiceInstance> serviceInstanceList =
+                ServiceHandler.instanceDataService.getServiceInstances(serviceInstanceID, serviceTemplateName,
+                                                                       serviceTemplateID);
 
             final QName nodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
 
@@ -320,8 +337,8 @@ public class MBUtils {
                      */
                     // List<NodeInstance> nodeInstanceList =
                     // serviceInstance.getNodeInstances();
-                    final List<NodeInstance> nodeInstanceList = ServiceHandler.instanceDataService.getNodeInstances(
-                        null, null, null, serviceInstanceID);
+                    final List<NodeInstance> nodeInstanceList =
+                        ServiceHandler.instanceDataService.getNodeInstances(null, null, null, serviceInstanceID);
 
                     for (final NodeInstance nodeInstance : nodeInstanceList) {
 
@@ -359,8 +376,8 @@ public class MBUtils {
         final HashMap<String, String> reponseMap = new HashMap<>();
 
         final DocumentTraversal traversal = (DocumentTraversal) propertiesDocument;
-        final NodeIterator iterator = traversal.createNodeIterator(propertiesDocument.getDocumentElement(),
-            NodeFilter.SHOW_ELEMENT, null, true);
+        final NodeIterator iterator =
+            traversal.createNodeIterator(propertiesDocument.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null, true);
 
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
@@ -398,7 +415,8 @@ public class MBUtils {
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.transform(new DOMSource(doc), new StreamResult(sw));
             return sw.toString();
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             throw new RuntimeException("Error converting Document to String: " + e.getMessage(), e);
         }
     }

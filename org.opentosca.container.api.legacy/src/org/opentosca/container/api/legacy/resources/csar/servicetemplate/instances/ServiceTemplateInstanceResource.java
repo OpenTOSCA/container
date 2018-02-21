@@ -156,8 +156,8 @@ public class ServiceTemplateInstanceResource {
     @POST
     @Consumes(ResourceConstants.TEXT_PLAIN)
     @Produces(ResourceConstants.APPLICATION_JSON)
-    public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json)
-        throws URISyntaxException, UnsupportedEncodingException {
+    public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo,
+                                            final String json) throws URISyntaxException, UnsupportedEncodingException {
         final String url = this.postManagementPlanJSON(uriInfo, json);
         final JsonObject ret = new JsonObject();
         ret.addProperty("PlanURL", url);
@@ -175,8 +175,8 @@ public class ServiceTemplateInstanceResource {
     @POST
     @Consumes(ResourceConstants.TEXT_PLAIN)
     @Produces(ResourceConstants.TOSCA_XML)
-    public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json)
-        throws URISyntaxException, UnsupportedEncodingException {
+    public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo,
+                                           final String json) throws URISyntaxException, UnsupportedEncodingException {
 
         final String url = this.postManagementPlanJSON(uriInfo, json);
         // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
@@ -191,8 +191,8 @@ public class ServiceTemplateInstanceResource {
      * @throws UnsupportedEncodingException
      */
     @Deprecated
-    private String postManagementPlanJSON(final UriInfo uriInfo, final String json)
-        throws UnsupportedEncodingException {
+    private String postManagementPlanJSON(final UriInfo uriInfo,
+                                          final String json) throws UnsupportedEncodingException {
 
         throw new UnsupportedOperationException();
 

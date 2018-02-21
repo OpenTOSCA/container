@@ -28,14 +28,14 @@ public class PolicyTemplateResolver extends GenericResolver {
             if (element instanceof TPolicyTemplate) {
 
                 final TPolicyTemplate policyTemplate = (TPolicyTemplate) element;
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(definitions.getTargetNamespace(), policyTemplate.getId()), policyTemplate);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(definitions.getTargetNamespace(),
+                    policyTemplate.getId()), policyTemplate);
 
                 // resolve the PolicyType
                 if (policyTemplate.getType() != null) {
                     errorOccurred = errorOccurred
                         || !this.referenceMapper.searchToscaElementByQNameWithName(policyTemplate.getType(),
-                            ElementNamesEnum.POLICYTYPE);
+                                                                                   ElementNamesEnum.POLICYTYPE);
                 }
 
                 // Properties

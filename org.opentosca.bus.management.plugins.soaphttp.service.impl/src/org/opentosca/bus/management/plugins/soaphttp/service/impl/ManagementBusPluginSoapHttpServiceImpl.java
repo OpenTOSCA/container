@@ -118,17 +118,19 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                 try {
                     wsdl = parser.parse(endpoint.toString());
                     break;
-                } catch (final Exception e) {
+                }
+                catch (final Exception e) {
                     // handle exception
                     if (++count == maxTries) {
                         ManagementBusPluginSoapHttpServiceImpl.LOG.error("Unable to access the wsdl at: {}.", endpoint);
                         throw e;
                     } else {
-                        ManagementBusPluginSoapHttpServiceImpl.LOG.warn(
-                            "Problem accessing the wsdl at: {}. Retry... ({}/{})", endpoint, count, maxTries);
+                        ManagementBusPluginSoapHttpServiceImpl.LOG.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})",
+                                                                        endpoint, count, maxTries);
                         try {
                             Thread.sleep(10000);
-                        } catch (final InterruptedException e1) {
+                        }
+                        catch (final InterruptedException e1) {
                             e1.printStackTrace();
                         }
                     }
@@ -144,20 +146,20 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
                     for (final BindingOperation op : bind.getOperations()) {
                         ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Operation: {} =? {}", op.getName(),
-                            operationName);
+                                                                         operationName);
 
                         if (op.getName().equals(operationName)) {
                             final String portType = bind.getPortType().getName();
                             ManagementBusPluginSoapHttpServiceImpl.LOG.debug("PortType: {}", portType);
-                            final String rootElementWithPrefix = wsdl.getElementNameForOperation(operationName,
-                                portType);
-                            final com.predic8.schema.Element element = wsdl.getElementForOperation(operationName,
-                                portType);
+                            final String rootElementWithPrefix =
+                                wsdl.getElementNameForOperation(operationName, portType);
+                            final com.predic8.schema.Element element =
+                                wsdl.getElementForOperation(operationName, portType);
                             rootElementName = element.getName();
-                            rootElementNamespaceURI = (String) element.getNamespace(
-                                rootElementWithPrefix.replace(":" + rootElementName, ""));
-                            ManagementBusPluginSoapHttpServiceImpl.LOG.debug(
-                                "Root ElementName: {} with NamespaceURI: {}", rootElementName, rootElementNamespaceURI);
+                            rootElementNamespaceURI =
+                                (String) element.getNamespace(rootElementWithPrefix.replace(":" + rootElementName, ""));
+                            ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Root ElementName: {} with NamespaceURI: {}",
+                                                                             rootElementName, rootElementNamespaceURI);
 
                             // Check if request-response ,callback or
                             // request-only
@@ -187,10 +189,10 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                                     }
                                     if (paramsMap.containsKey("planCallbackAddress_invoker")) {
                                         paramsMap.put("planCallbackAddress_invoker",
-                                            "http://localhost:9763/services/" + csarID + "InvokerService/");
+                                                      "http://localhost:9763/services/" + csarID + "InvokerService/");
                                     } else {
                                         headers.put("planCallbackAddress_invoker",
-                                            "http://localhost:9763/services/" + csarID + "InvokerService/");
+                                                    "http://localhost:9763/services/" + csarID + "InvokerService/");
                                     }
 
                                 } else if (op.getOutput() == null && !hastOutputParams) {
@@ -225,8 +227,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
         }
 
         if (messagingPattern == null) {
-            ManagementBusPluginSoapHttpServiceImpl.LOG.error(
-                "Can't determine which kind of invocation is needed. Invocation aborted.");
+            ManagementBusPluginSoapHttpServiceImpl.LOG.error("Can't determine which kind of invocation is needed. Invocation aborted.");
             return null;
         }
 
@@ -273,7 +274,8 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                     ex = consumer.receive("direct:Async-WS-Callback" + messageID);
                     consumer.stop();
 
-                } catch (final Exception e) {
+                }
+                catch (final Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -282,7 +284,8 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
                 ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Got Message with ID: {}", messageID);
                 ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Stored MessageIDs: {}",
-                    ManagementBusPluginSoapHttpServiceImpl.exchangeMap.keySet().toString());
+                                                                 ManagementBusPluginSoapHttpServiceImpl.exchangeMap.keySet()
+                                                                                                                   .toString());
 
                 if (ManagementBusPluginSoapHttpServiceImpl.exchangeMap.containsKey(messageID)) {
                     ManagementBusPluginSoapHttpServiceImpl.LOG.debug("MessageID found");
@@ -311,7 +314,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
         }
 
         ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Returning exchange with MessageID: {}",
-            exchange.getIn().getMessageId());
+                                                         exchange.getIn().getMessageId());
         ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Returning body: {}", exchange.getIn().getBody().toString());
 
         return exchange;
@@ -363,7 +366,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
      * @return messagingPattern as String.
      */
     private String determineMP(final Message message, final String operationName, final Boolean hastOutputParams,
-                    final String endpoint) {
+                               final String endpoint) {
 
         // Plan should be invoked
         if (message.getHeader(MBHeader.PLANID_QNAME.toString()) != null) {
@@ -395,8 +398,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
             // Operation of IA should be invoked
         } else {
 
-            ManagementBusPluginSoapHttpServiceImpl.LOG.debug(
-                "Invoking an operation of an implementation artifact with document as input.");
+            ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Invoking an operation of an implementation artifact with document as input.");
 
             final Boolean hasOutputDefinedInWSDL = this.hasOutputDefinedInWSDL(endpoint, operationName);
 
@@ -426,7 +428,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
      * @return the created Document.
      */
     private Document mapToDoc(final String rootElementNamespaceURI, final String rootElementName,
-                    final HashMap<String, String> paramsMap) {
+                              final HashMap<String, String> paramsMap) {
 
         Document document;
 
@@ -434,7 +436,8 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
         DocumentBuilder documentBuilder = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             ManagementBusPluginSoapHttpServiceImpl.LOG.error("Some error occured.");
             e.printStackTrace();
         }
@@ -465,7 +468,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
     @Override
     public List<String> getSupportedTypes() {
         ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Getting Types: {}.",
-            ManagementBusPluginSoapHttpServiceImpl.TYPES);
+                                                         ManagementBusPluginSoapHttpServiceImpl.TYPES);
         final List<String> types = new ArrayList<>();
 
         for (final String type : ManagementBusPluginSoapHttpServiceImpl.TYPES.split("[,;]")) {

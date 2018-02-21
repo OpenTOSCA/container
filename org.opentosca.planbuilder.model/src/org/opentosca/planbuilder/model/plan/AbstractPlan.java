@@ -116,8 +116,8 @@ public abstract class AbstractPlan {
 
     @Override
     public String toString() {
-        String toString = "Plan: " + this.id + " Type: " + this.type + " ServiceTemplate: "
-            + this.serviceTemplate.getId();
+        String toString =
+            "Plan: " + this.id + " Type: " + this.type + " ServiceTemplate: " + this.serviceTemplate.getId();
 
         toString += "Activities: ";
 

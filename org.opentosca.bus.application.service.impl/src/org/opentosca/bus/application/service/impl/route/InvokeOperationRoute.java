@@ -41,7 +41,7 @@ public class InvokeOperationRoute extends RouteBuilder {
         from(MainRoute.INVOKE_ENDPOINT).doTry().process(checkProcessor).doCatch(ApplicationBusExternalException.class)
                                        .end().choice().when(property(Exchange.EXCEPTION_CAUGHT).isNull())
                                        .setHeader(APPLICATION_BUS_REQUEST_ID_HEADER,
-                                           method(RequestID.class, "getNextID"))
+                                                  method(RequestID.class, "getNextID"))
                                        .wireTap("direct:invokeProcess").end().to("direct:init").otherwise()
                                        .setBody(property(Exchange.EXCEPTION_CAUGHT));
 
@@ -64,11 +64,10 @@ public class InvokeOperationRoute extends RouteBuilder {
 
         // handle response: set "isFinsihed"-flag to true and store result in
         // ResultMap
-        from("direct:handleResponse")
-                                     .bean(QueueMap.class,
-                                         "finished(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "})")
+        from("direct:handleResponse").bean(QueueMap.class,
+                                           "finished(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "})")
                                      .bean(ResultMap.class,
-                                         "put(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "}, ${body})")
+                                           "put(${header." + APPLICATION_BUS_REQUEST_ID_HEADER + "}, ${body})")
                                      .stop();
 
     }

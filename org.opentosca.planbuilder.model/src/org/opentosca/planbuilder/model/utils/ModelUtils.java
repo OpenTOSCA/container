@@ -51,25 +51,25 @@ public class ModelUtils {
 
     // these are the baseTypes of the PlanBuilder -> TODO refactor into some
     // kind of baseType-Configuration
-    public static final QName TOSCABASETYPE_CONNECTSTO = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
-    public static final QName TOSCABASETYPE_HOSTEDON = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
-    public static final QName TOSCABASETYPE_DEPLOYEDON = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
-    public static final QName TOSCABASETYPE_DEPENDSON = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
-    public static final QName TOSCABASETYPE_SERVER = new QName(
-        "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
-    public static final QName TOSCABASETYPE_OS = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-        "OperatingSystem");
+    public static final QName TOSCABASETYPE_CONNECTSTO =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
+    public static final QName TOSCABASETYPE_HOSTEDON =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
+    public static final QName TOSCABASETYPE_DEPLOYEDON =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
+    public static final QName TOSCABASETYPE_DEPENDSON =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
+    public static final QName TOSCABASETYPE_SERVER =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "Server");
+    public static final QName TOSCABASETYPE_OS =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "OperatingSystem");
 
     // this is a BRUTAL hack for the new nodetypes
-    public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes",
-        "Ubuntu-14.04-VM");
+    public final static QName ubuntu1404ServerVmNodeType =
+        new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
     public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
-    public final static QName externalResourceNodeType = new QName("http://opentosca.org/nodetypes",
-        "ExternalResource");
+    public final static QName externalResourceNodeType =
+        new QName("http://opentosca.org/nodetypes", "ExternalResource");
 
     /**
      * Returns true if the given QName type denotes to a NodeType in the type hierarchy of the given
@@ -99,9 +99,9 @@ public class ModelUtils {
      * @return true iff the given RelationshipTemplate contains the given type in its type hierarchy
      */
     public static boolean checkForTypeInHierarchy(final AbstractRelationshipTemplate relationshipTemplate,
-                    final QName type) {
-        final List<QName> typeHierarchy = ModelUtils.getRelationshipTypeHierarchy(
-            relationshipTemplate.getRelationshipType());
+                                                  final QName type) {
+        final List<QName> typeHierarchy =
+            ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
         // as somehow contains won't work here, we must cycle trough
         for (final QName qname : typeHierarchy) {
             if (qname.equals(type)) {
@@ -157,7 +157,8 @@ public class ModelUtils {
             transformer.transform(domSource, result);
             writer.flush();
             return writer.toString();
-        } catch (final TransformerException ex) {
+        }
+        catch (final TransformerException ex) {
             ModelUtils.LOG.error("Couldn't transform DOM Document to a String", ex);
             return null;
         }
@@ -185,8 +186,8 @@ public class ModelUtils {
         relationshipTemplates.addAll(list);
     }
 
-    public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(
-                    final AbstractNodeTemplate nodeTemplate, final AbstractNodeTypeImplementation nodeImpl) {
+    public static Set<AbstractDeploymentArtifact> computeEffectiveDeploymentArtifacts(final AbstractNodeTemplate nodeTemplate,
+                                                                                      final AbstractNodeTypeImplementation nodeImpl) {
         final Set<AbstractDeploymentArtifact> effectiveDAs = new HashSet<>();
         effectiveDAs.addAll(nodeTemplate.getDeploymentArtifacts());
         for (final AbstractDeploymentArtifact da : nodeImpl.getDeploymentArtifacts()) {
@@ -221,7 +222,7 @@ public class ModelUtils {
      *        to
      */
     public static void getInfrastructureEdges(final AbstractNodeTemplate nodeTemplate,
-                    final List<AbstractRelationshipTemplate> infrastructureEdges) {
+                                              final List<AbstractRelationshipTemplate> infrastructureEdges) {
 
         // fetch all infrastructureNodes
         final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
@@ -250,7 +251,8 @@ public class ModelUtils {
      *        TargetInterface
      */
     public static void getInfrastructureEdges(final AbstractRelationshipTemplate relationshipTemplate,
-                    final List<AbstractRelationshipTemplate> infraEdges, final boolean forSource) {
+                                              final List<AbstractRelationshipTemplate> infraEdges,
+                                              final boolean forSource) {
         if (forSource) {
             ModelUtils.getInfrastructureEdges(relationshipTemplate.getSource(), infraEdges);
         } else {
@@ -268,9 +270,9 @@ public class ModelUtils {
      * @Info the infrastructureNodes List must be empty
      */
     public static void getInfrastructureNodes(final AbstractNodeTemplate nodeTemplate,
-                    final List<AbstractNodeTemplate> infrastructureNodes) {
-        ModelUtils.LOG.debug(
-            "BaseType of NodeTemplate " + nodeTemplate.getId() + " is " + ModelUtils.getNodeBaseType(nodeTemplate));
+                                              final List<AbstractNodeTemplate> infrastructureNodes) {
+        ModelUtils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is "
+            + ModelUtils.getNodeBaseType(nodeTemplate));
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
             ModelUtils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());
@@ -279,10 +281,8 @@ public class ModelUtils {
                 || ModelUtils.getRelationshipBaseType(relation).equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
                 ModelUtils.LOG.debug("traversing edge to node: " + relation.getTarget().getId());
 
-                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(
-                    ModelUtils.getNodeBaseType(relation.getTarget()))
-                    || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(
-                        ModelUtils.getNodeBaseType(relation.getTarget()))) {
+                if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))
+                    || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(relation.getTarget()))) {
                     ModelUtils.LOG.debug("Found infrastructure node: " + relation.getTarget().getId());
                     infrastructureNodes.add(relation.getTarget());
                 }
@@ -302,7 +302,8 @@ public class ModelUtils {
      *        TargetInterface
      */
     public static void getInfrastructureNodes(final AbstractRelationshipTemplate relationshipTemplate,
-                    final List<AbstractNodeTemplate> infrastructureNodes, final boolean forSource) {
+                                              final List<AbstractNodeTemplate> infrastructureNodes,
+                                              final boolean forSource) {
 
         if (forSource) {
             ModelUtils.getInfrastructureNodes(relationshipTemplate.getSource(), infrastructureNodes);
@@ -313,11 +314,10 @@ public class ModelUtils {
     }
 
     public static List<AbstractRelationshipTemplate> getIngoingRelations(final AbstractNodeTemplate nodeTemplate,
-                    final QName... relationshipTypes) {
+                                                                         final QName... relationshipTypes) {
         final List<AbstractRelationshipTemplate> relations = new ArrayList<>();
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(
-                relation.getRelationshipType())) {
+            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
                 final boolean match = false;
                 for (final QName relationshipType : relationshipTypes) {
                     if (relationshipTypeHierarchyMember.equals(relationshipType)) {
@@ -363,7 +363,7 @@ public class ModelUtils {
      * @param nodes a List of AbstractNodeTemplate to add the result to
      */
     public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate,
-                    final List<AbstractNodeTemplate> nodes) {
+                                              final List<AbstractNodeTemplate> nodes) {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
             if (outgoingTemplate.getType().equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
@@ -378,7 +378,7 @@ public class ModelUtils {
     }
 
     public static void getNodesFromNodeToSink(final AbstractNodeTemplate nodeTemplate, final QName relationshipType,
-                    final List<AbstractNodeTemplate> nodes) {
+                                              final List<AbstractNodeTemplate> nodes) {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
             if (ModelUtils.getRelationshipTypeHierarchy(outgoingTemplate.getRelationshipType())
@@ -393,7 +393,7 @@ public class ModelUtils {
     }
 
     public static void getNodesFromNodeToSource(final AbstractNodeTemplate nodeTemplate,
-                    final List<AbstractNodeTemplate> nodes) {
+                                                final List<AbstractNodeTemplate> nodes) {
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate ingoingTemplate : nodeTemplate.getIngoingRelations()) {
             if (ingoingTemplate.getType().equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
@@ -415,7 +415,7 @@ public class ModelUtils {
      * @param nodes a List of AbstractNodeTemplate to add the result to
      */
     public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate,
-                    final List<AbstractNodeTemplate> nodes) {
+                                                  final List<AbstractNodeTemplate> nodes) {
         final AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
@@ -431,7 +431,8 @@ public class ModelUtils {
     }
 
     public static void getNodesFromRelationToSink(final AbstractRelationshipTemplate relationshipTemplate,
-                    final QName relationshipType, final List<AbstractNodeTemplate> nodes) {
+                                                  final QName relationshipType,
+                                                  final List<AbstractNodeTemplate> nodes) {
         final AbstractNodeTemplate nodeTemplate = relationshipTemplate.getTarget();
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getOutgoingRelations()) {
@@ -447,7 +448,7 @@ public class ModelUtils {
     }
 
     private static void getNodesFromRelationToSources(final AbstractRelationshipTemplate ingoingTemplate,
-                    final List<AbstractNodeTemplate> nodes) {
+                                                      final List<AbstractNodeTemplate> nodes) {
         final AbstractNodeTemplate nodeTemplate = ingoingTemplate.getSource();
         nodes.add(nodeTemplate);
         for (final AbstractRelationshipTemplate outgoingTemplate : nodeTemplate.getIngoingRelations()) {
@@ -494,8 +495,7 @@ public class ModelUtils {
         return typeHierarchy;
     }
 
-    public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(
-                    final AbstractNodeTemplate nodeTemplate) {
+    public static List<AbstractRelationshipTemplate> getOutgoingInfrastructureEdges(final AbstractNodeTemplate nodeTemplate) {
         final List<AbstractRelationshipTemplate> relations = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
@@ -510,12 +510,11 @@ public class ModelUtils {
     }
 
     public static List<AbstractRelationshipTemplate> getOutgoingRelations(final AbstractNodeTemplate nodeTemplate,
-                    final QName... relationshipTypes) {
+                                                                          final QName... relationshipTypes) {
         final List<AbstractRelationshipTemplate> relations = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(
-                relation.getRelationshipType())) {
+            for (final QName relationshipTypeHierarchyMember : ModelUtils.getRelationshipTypeHierarchy(relation.getRelationshipType())) {
                 final boolean match = false;
                 for (final QName relationshipType : relationshipTypes) {
                     if (relationshipTypeHierarchyMember.equals(relationshipType)) {
@@ -540,8 +539,8 @@ public class ModelUtils {
      */
     public static QName getRelationshipBaseType(final AbstractRelationshipTemplate relationshipTemplate) {
         ModelUtils.LOG.debug("Beginning search for basetype of: " + relationshipTemplate.getId());
-        final List<QName> typeHierarchy = ModelUtils.getRelationshipTypeHierarchy(
-            relationshipTemplate.getRelationshipType());
+        final List<QName> typeHierarchy =
+            ModelUtils.getRelationshipTypeHierarchy(relationshipTemplate.getRelationshipType());
         for (final QName type : typeHierarchy) {
             ModelUtils.LOG.debug("Checking Type QName: " + type.toString());
             if (type.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
@@ -597,7 +596,7 @@ public class ModelUtils {
      *         attrname.equals(attributeName) & attr.value(attributeValue), else false
      */
     public static boolean hasChildElementWithAttribute(final Element element, final String attributeName,
-                    final String attributeValue) {
+                                                       final String attributeValue) {
         if (element == null) {
             return false;
         }
@@ -630,8 +629,8 @@ public class ModelUtils {
      * @throws SAXException
      * @throws IOException
      */
-    public static Node string2dom(final String xmlString)
-        throws ParserConfigurationException, SAXException, IOException {
+    public static Node string2dom(final String xmlString) throws ParserConfigurationException, SAXException,
+                                                          IOException {
 
         final DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         docFactory.setNamespaceAware(true);
@@ -646,7 +645,8 @@ public class ModelUtils {
     public static Node string2domQuietly(final String xmlString) {
         try {
             return string2dom(xmlString);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
+        }
+        catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException(e);
         }
     }

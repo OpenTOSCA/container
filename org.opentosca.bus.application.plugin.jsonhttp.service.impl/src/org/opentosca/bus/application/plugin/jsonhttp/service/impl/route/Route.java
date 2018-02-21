@@ -51,7 +51,7 @@ public class Route extends RouteBuilder {
         from(ApplicationBusJsonHttpPluginServiceImpl.ENDPOINT).process(requestProcessor)
                                                               .setHeader(Exchange.HTTP_METHOD, constant("POST"))
                                                               .setHeader(Exchange.CONTENT_TYPE,
-                                                                  constant("application/json"))
+                                                                         constant("application/json"))
                                                               .setHeader(Exchange.HTTP_URI, INVOKE_ENDPOINT)
                                                               .to(DUMMY_ENDPOINT).choice()
                                                               .when(header(Exchange.HTTP_RESPONSE_CODE).isEqualTo(202))
@@ -64,8 +64,8 @@ public class Route extends RouteBuilder {
                               .endChoice().when(RESULT_RECEIVED).process(responseProcessor).endChoice().otherwise()
                               .to("direct:throwException");
 
-        from("direct:throwException").process(exchange -> exchange.getIn().setBody(
-            new ApplicationBusExternalException(exchange.getIn().getBody(String.class))));
+        from("direct:throwException").process(exchange -> exchange.getIn().setBody(new ApplicationBusExternalException(
+            exchange.getIn().getBody(String.class))));
 
     }
 

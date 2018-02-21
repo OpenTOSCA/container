@@ -78,8 +78,8 @@ public class JaxbFactory {
 
         final Set<String> readyStorageProviderIDs = JaxbFactory.fileService.getReadyStorageProviders();
 
-        final StorageProvidersJaxb storageProvidersJaxb = JaxbFactory.createStorageProvidersJaxb(
-            readyStorageProviderIDs);
+        final StorageProvidersJaxb storageProvidersJaxb =
+            JaxbFactory.createStorageProvidersJaxb(readyStorageProviderIDs);
 
         return storageProvidersJaxb;
 
@@ -141,30 +141,30 @@ public class JaxbFactory {
             storageProviderJaxb.setReady(JaxbFactory.fileService.isReadyStorageProvider(storageProviderID));
 
             try {
-                storageProviderJaxb.setNeedsCredentials(
-                    JaxbFactory.credentialsService.needsStorageProviderCredentials(storageProviderID));
-            } catch (final SystemException exc) {
+                storageProviderJaxb.setNeedsCredentials(JaxbFactory.credentialsService.needsStorageProviderCredentials(storageProviderID));
+            }
+            catch (final SystemException exc) {
                 JaxbFactory.LOG.debug("A System Exception occured.", exc);
             }
 
             try {
-                storageProviderJaxb.setCredentialsIdentityName(
-                    JaxbFactory.credentialsService.getCredentialsIdentityName(storageProviderID));
-            } catch (final SystemException exc) {
+                storageProviderJaxb.setCredentialsIdentityName(JaxbFactory.credentialsService.getCredentialsIdentityName(storageProviderID));
+            }
+            catch (final SystemException exc) {
                 JaxbFactory.LOG.debug("A System Exception occured.", exc);
             }
 
             try {
-                storageProviderJaxb.setCredentialsKeyName(
-                    JaxbFactory.credentialsService.getCredentialsKeyName(storageProviderID));
-            } catch (final SystemException exc) {
+                storageProviderJaxb.setCredentialsKeyName(JaxbFactory.credentialsService.getCredentialsKeyName(storageProviderID));
+            }
+            catch (final SystemException exc) {
                 JaxbFactory.LOG.debug("A System Exception occured.", exc);
             }
 
             try {
-                storageProviderJaxb.setHasCredentials(
-                    JaxbFactory.credentialsService.hasStorageProviderCredentials(storageProviderID));
-            } catch (final SystemException exc) {
+                storageProviderJaxb.setHasCredentials(JaxbFactory.credentialsService.hasStorageProviderCredentials(storageProviderID));
+            }
+            catch (final SystemException exc) {
                 JaxbFactory.LOG.debug("A System Exception occured.", exc);
             }
 

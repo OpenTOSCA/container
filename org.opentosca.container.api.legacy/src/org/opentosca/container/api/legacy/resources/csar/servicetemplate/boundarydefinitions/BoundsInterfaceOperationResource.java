@@ -73,8 +73,8 @@ public class BoundsInterfaceOperationResource {
 
         final References refs = new References();
 
-        refs.getReference().add(
-            new Reference(Utilities.buildURI(this.uriInfo, "NodeOperation"), XLinkConstants.SIMPLE, "NodeOperation"));
+        refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "NodeOperation"), XLinkConstants.SIMPLE,
+            "NodeOperation"));
         refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "RelationshipOperation"),
             XLinkConstants.SIMPLE, "RelationshipOperation"));
         refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Plan"), XLinkConstants.SIMPLE, "Plan"));

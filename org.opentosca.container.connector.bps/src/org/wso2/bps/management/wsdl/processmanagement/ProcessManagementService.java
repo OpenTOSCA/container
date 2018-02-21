@@ -27,10 +27,10 @@ public interface ProcessManagementService {
 
     public org.wso2.bps.management.schema.ProcessIDList getAllProcesses(
 
-                    org.wso2.bps.management.schema.GetAllProcesses getAllProcesses0)
-        throws java.rmi.RemoteException
+                                                                        org.wso2.bps.management.schema.GetAllProcesses getAllProcesses0) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
+                                                                                                                                         ,
+                                                                                                                                         org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
 
 
     /**
@@ -41,11 +41,11 @@ public interface ProcessManagementService {
      */
     public void startgetAllProcesses(
 
-                    org.wso2.bps.management.schema.GetAllProcesses getAllProcesses0,
+                                     org.wso2.bps.management.schema.GetAllProcesses getAllProcesses0,
 
-                    final org.wso2.bps.management.wsdl.processmanagement.ProcessManagementServiceCallbackHandler callback)
+                                     final org.wso2.bps.management.wsdl.processmanagement.ProcessManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                            throws java.rmi.RemoteException;
 
 
     /**
@@ -58,7 +58,7 @@ public interface ProcessManagementService {
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
+      , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
 
 
 
@@ -73,10 +73,10 @@ public interface ProcessManagementService {
 
     public org.wso2.bps.management.schema.PaginatedProcessInfoList getPaginatedProcessList(
 
-                    org.wso2.bps.management.schema.GetPaginatedProcessListInput getPaginatedProcessListInput3)
-        throws java.rmi.RemoteException
+                                                                                           org.wso2.bps.management.schema.GetPaginatedProcessListInput getPaginatedProcessListInput3) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
+                                                                                                                                                                                      ,
+                                                                                                                                                                                      org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
 
 
     /**
@@ -87,11 +87,11 @@ public interface ProcessManagementService {
      */
     public void startgetPaginatedProcessList(
 
-                    org.wso2.bps.management.schema.GetPaginatedProcessListInput getPaginatedProcessListInput3,
+                                             org.wso2.bps.management.schema.GetPaginatedProcessListInput getPaginatedProcessListInput3,
 
-                    final org.wso2.bps.management.wsdl.processmanagement.ProcessManagementServiceCallbackHandler callback)
+                                             final org.wso2.bps.management.wsdl.processmanagement.ProcessManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                    throws java.rmi.RemoteException;
 
 
 
@@ -106,10 +106,10 @@ public interface ProcessManagementService {
 
     public org.wso2.bps.management.schema.ProcessInfo getProcessInfo(
 
-                    org.wso2.bps.management.schema.GetProcessInfoIn getProcessInfoIn5)
-        throws java.rmi.RemoteException
+                                                                     org.wso2.bps.management.schema.GetProcessInfoIn getProcessInfoIn5) throws java.rmi.RemoteException
 
-        , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
+                                                                                                                                        ,
+                                                                                                                                        org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
 
 
     /**
@@ -120,11 +120,11 @@ public interface ProcessManagementService {
      */
     public void startgetProcessInfo(
 
-                    org.wso2.bps.management.schema.GetProcessInfoIn getProcessInfoIn5,
+                                    org.wso2.bps.management.schema.GetProcessInfoIn getProcessInfoIn5,
 
-                    final org.wso2.bps.management.wsdl.processmanagement.ProcessManagementServiceCallbackHandler callback)
+                                    final org.wso2.bps.management.wsdl.processmanagement.ProcessManagementServiceCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                           throws java.rmi.RemoteException;
 
 
     /**
@@ -137,7 +137,7 @@ public interface ProcessManagementService {
     ) throws java.rmi.RemoteException
 
 
-        , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
+      , org.wso2.bps.management.wsdl.processmanagement.ProcessManagementException;
 
 
 

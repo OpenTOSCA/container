@@ -48,8 +48,8 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
         __operation = new org.apache.axis2.description.OutInAxisOperation();
 
 
-        __operation.setName(
-            new javax.xml.namespace.QName("http://services.deployer.bpel.carbon.wso2.org", "uploadService"));
+        __operation.setName(new javax.xml.namespace.QName("http://services.deployer.bpel.carbon.wso2.org",
+            "uploadService"));
         this._service.addOperation(__operation);
 
 
@@ -136,23 +136,24 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
     @Override
     public void uploadService(
 
-                    final org.wso2.carbon.bpel.deployer.services.UploadService uploadService3)
+                              final org.wso2.carbon.bpel.deployer.services.UploadService uploadService3)
 
 
-        throws java.rmi.RemoteException
+                                                                                                         throws java.rmi.RemoteException
 
     {
         org.apache.axis2.context.MessageContext _messageContext = null;
         try {
-            final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-                this._operations[0].getName());
+            final org.apache.axis2.client.OperationClient _operationClient =
+                this._serviceClient.createClient(this._operations[0].getName());
             _operationClient.getOptions().setAction("urn:uploadService");
             _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
             addPropertyToOperationClient(_operationClient,
-                org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                         org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                         "&");
 
 
             // create a message context
@@ -165,8 +166,8 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
 
 
             env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), uploadService3,
-                optimizeContent(
-                    new javax.xml.namespace.QName("http://services.deployer.bpel.carbon.wso2.org", "uploadService")));
+                             optimizeContent(new javax.xml.namespace.QName(
+                                 "http://services.deployer.bpel.carbon.wso2.org", "uploadService")));
 
             // adding SOAP soap_headers
             this._serviceClient.addHeadersToEnvelope(env);
@@ -182,45 +183,54 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
 
             return;
 
-        } catch (final org.apache.axis2.AxisFault f) {
+        }
+        catch (final org.apache.axis2.AxisFault f) {
 
             final org.apache.axiom.om.OMElement faultElt = f.getDetail();
             if (faultElt != null) {
-                if (this.faultExceptionNameMap.containsKey(
-                    new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "uploadService"))) {
+                if (this.faultExceptionNameMap.containsKey(new org.apache.axis2.client.FaultMapKey(faultElt.getQName(),
+                    "uploadService"))) {
                     // make the fault by reflection
                     try {
-                        final java.lang.String exceptionClassName = (java.lang.String) this.faultExceptionClassNameMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "uploadService"));
+                        final java.lang.String exceptionClassName =
+                            (java.lang.String) this.faultExceptionClassNameMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "uploadService"));
                         final java.lang.Class exceptionClass = java.lang.Class.forName(exceptionClassName);
                         final java.lang.Exception ex = (java.lang.Exception) exceptionClass.newInstance();
                         // message class
-                        final java.lang.String messageClassName = (java.lang.String) this.faultMessageMap.get(
-                            new org.apache.axis2.client.FaultMapKey(faultElt.getQName(), "uploadService"));
+                        final java.lang.String messageClassName =
+                            (java.lang.String) this.faultMessageMap.get(new org.apache.axis2.client.FaultMapKey(
+                                faultElt.getQName(), "uploadService"));
                         final java.lang.Class messageClass = java.lang.Class.forName(messageClassName);
                         final java.lang.Object messageObject = fromOM(faultElt, messageClass, null);
-                        final java.lang.reflect.Method m = exceptionClass.getMethod("setFaultMessage",
-                            new java.lang.Class[] {messageClass});
+                        final java.lang.reflect.Method m =
+                            exceptionClass.getMethod("setFaultMessage", new java.lang.Class[] {messageClass});
                         m.invoke(ex, new java.lang.Object[] {messageObject});
 
 
                         throw new java.rmi.RemoteException(ex.getMessage(), ex);
-                    } catch (final java.lang.ClassCastException e) {
+                    }
+                    catch (final java.lang.ClassCastException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.ClassNotFoundException e) {
+                    }
+                    catch (final java.lang.ClassNotFoundException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.NoSuchMethodException e) {
+                    }
+                    catch (final java.lang.NoSuchMethodException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.reflect.InvocationTargetException e) {
+                    }
+                    catch (final java.lang.reflect.InvocationTargetException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.IllegalAccessException e) {
+                    }
+                    catch (final java.lang.IllegalAccessException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
-                    } catch (final java.lang.InstantiationException e) {
+                    }
+                    catch (final java.lang.InstantiationException e) {
                         // we cannot intantiate the class - throw the original Axis fault
                         throw f;
                     }
@@ -230,7 +240,8 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
             } else {
                 throw f;
             }
-        } finally {
+        }
+        finally {
             if (_messageContext.getTransportOut() != null) {
                 _messageContext.getTransportOut().getSender().cleanup(_messageContext);
             }
@@ -247,21 +258,22 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
     @Override
     public void startuploadService(
 
-                    final org.wso2.carbon.bpel.deployer.services.UploadService uploadService3,
+                                   final org.wso2.carbon.bpel.deployer.services.UploadService uploadService3,
 
-                    final org.wso2.carbon.bpel.deployer.services.BPELUploaderCallbackHandler callback)
+                                   final org.wso2.carbon.bpel.deployer.services.BPELUploaderCallbackHandler callback)
 
-        throws java.rmi.RemoteException {
+                                                                                                                      throws java.rmi.RemoteException {
 
-        final org.apache.axis2.client.OperationClient _operationClient = this._serviceClient.createClient(
-            this._operations[0].getName());
+        final org.apache.axis2.client.OperationClient _operationClient =
+            this._serviceClient.createClient(this._operations[0].getName());
         _operationClient.getOptions().setAction("urn:uploadService");
         _operationClient.getOptions().setExceptionToBeThrownOnSOAPFault(true);
 
 
 
         addPropertyToOperationClient(_operationClient,
-            org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR, "&");
+                                     org.apache.axis2.description.WSDL2Constants.ATTR_WHTTP_QUERY_PARAMETER_SEPARATOR,
+                                     "&");
 
 
 
@@ -273,8 +285,9 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
         // Style is Doc.
 
 
-        env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), uploadService3, optimizeContent(
-            new javax.xml.namespace.QName("http://services.deployer.bpel.carbon.wso2.org", "uploadService")));
+        env = toEnvelope(getFactory(_operationClient.getOptions().getSoapVersionURI()), uploadService3,
+                         optimizeContent(new javax.xml.namespace.QName("http://services.deployer.bpel.carbon.wso2.org",
+                             "uploadService")));
 
         // adding SOAP soap_headers
         this._serviceClient.addHeadersToEnvelope(env);
@@ -335,14 +348,14 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
 
     // https://192.168.178.21:9443/services/BPELUploader.BPELUploaderHttpsSoap11Endpoint/
     private org.apache.axiom.om.OMElement toOM(final org.wso2.carbon.bpel.deployer.services.UploadService param,
-                    final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                               final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
             return param.getOMElement(org.wso2.carbon.bpel.deployer.services.UploadService.MY_QNAME,
-                org.apache.axiom.om.OMAbstractFactory.getOMFactory());
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+                                      org.apache.axiom.om.OMAbstractFactory.getOMFactory());
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -351,17 +364,19 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
 
 
     private org.apache.axiom.soap.SOAPEnvelope toEnvelope(final org.apache.axiom.soap.SOAPFactory factory,
-                    final org.wso2.carbon.bpel.deployer.services.UploadService param, final boolean optimizeContent)
-        throws org.apache.axis2.AxisFault {
+                                                          final org.wso2.carbon.bpel.deployer.services.UploadService param,
+                                                          final boolean optimizeContent) throws org.apache.axis2.AxisFault {
 
 
         try {
 
             final org.apache.axiom.soap.SOAPEnvelope emptyEnvelope = factory.getDefaultEnvelope();
-            emptyEnvelope.getBody().addChild(
-                param.getOMElement(org.wso2.carbon.bpel.deployer.services.UploadService.MY_QNAME, factory));
+            emptyEnvelope.getBody()
+                         .addChild(param.getOMElement(org.wso2.carbon.bpel.deployer.services.UploadService.MY_QNAME,
+                                                      factory));
             return emptyEnvelope;
-        } catch (final org.apache.axis2.databinding.ADBException e) {
+        }
+        catch (final org.apache.axis2.databinding.ADBException e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
 
@@ -382,20 +397,19 @@ public class BPELUploaderStub extends org.apache.axis2.client.Stub implements BP
 
 
     private java.lang.Object fromOM(final org.apache.axiom.om.OMElement param, final java.lang.Class type,
-                    final java.util.Map extraNamespaces)
-        throws org.apache.axis2.AxisFault {
+                                    final java.util.Map extraNamespaces) throws org.apache.axis2.AxisFault {
 
         try {
 
             if (org.wso2.carbon.bpel.deployer.services.UploadService.class.equals(type)) {
 
-                return org.wso2.carbon.bpel.deployer.services.UploadService.Factory.parse(
-                    param.getXMLStreamReaderWithoutCaching());
+                return org.wso2.carbon.bpel.deployer.services.UploadService.Factory.parse(param.getXMLStreamReaderWithoutCaching());
 
 
             }
 
-        } catch (final java.lang.Exception e) {
+        }
+        catch (final java.lang.Exception e) {
             throw org.apache.axis2.AxisFault.makeFault(e);
         }
         return null;

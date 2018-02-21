@@ -127,11 +127,12 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
 
         /* create skript */
         // the script itself
-        final String bashCommand = "echo \"topicName = hostName\" > $(find ~ -maxdepth 1 -path \"*.csar\")/mosquitto_connections.txt;";
+        final String bashCommand =
+            "echo \"topicName = hostName\" > $(find ~ -maxdepth 1 -path \"*.csar\")/mosquitto_connections.txt;";
 
         // add it as a var to the plan
-        final Variable bashCommandVariable = templateContext.createGlobalStringVariable("addMosquittoConnection",
-            bashCommand);
+        final Variable bashCommandVariable =
+            templateContext.createGlobalStringVariable("addMosquittoConnection", bashCommand);
 
         // create bpel query which replaces topicName and hostName with real
         // values
@@ -141,14 +142,16 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         // create bpel assign with created query
         try {
             // create assign and append
-            Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode(
-                "assignValuesToAddConnection" + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getName());
+            Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignValuesToAddConnection"
+                + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getName());
             assignNode = templateContext.importNode(assignNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignNode);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             BPELConnectsToPluginHandler.LOG.error("Couldn't load fragment from file", e);
             return false;
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             BPELConnectsToPluginHandler.LOG.error("Couldn't parse fragment to DOM", e);
             return false;
         }
@@ -174,8 +177,9 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         runScriptRequestInputParams.put("Script", bashCommandVariable);
 
         this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
-            Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
-            runScriptRequestInputParams, new HashMap<String, Variable>(), false);
+                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                  "planCallbackAddress_invoker", runScriptRequestInputParams,
+                                  new HashMap<String, Variable>(), false);
 
         return true;
     }
@@ -192,10 +196,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
      * @throws SAXException is thrown when parsing internal format into DOM fails
      */
     public Node loadAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException, SAXException {
-        final String templateString = this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query,
-            stringVarName);
+                                                              final String stringVarName) throws IOException,
+                                                                                          SAXException {
+        final String templateString =
+            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -213,8 +217,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
      * @throws IOException is thrown when reading the BPEL fragment form the resources fails
      */
     public String loadAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException {
+                                                                  final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("assignStringVarWithXpath2Query.xml");

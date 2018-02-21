@@ -61,14 +61,15 @@ public class RelationshipTemplateInstanceStateResource {
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
         try {
-            final QName state = service.getRelationInstanceState(
-                IdConverter.relationInstanceIDtoURI(this.relationInstanceID));
+            final QName state =
+                service.getRelationInstanceState(IdConverter.relationInstanceIDtoURI(this.relationInstanceID));
             if (state != null) {
                 return state.toString();
             } else {
                 return null;
             }
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             logger.error("Error getting state: {}", e.getMessage(), e);
             throw new GenericRestException(Status.NOT_FOUND,
                 "Specified relationInstance with id: " + this.relationInstanceID + " doesn't exist");
@@ -85,7 +86,8 @@ public class RelationshipTemplateInstanceStateResource {
         try {
             stateQName = QName.valueOf(state);
 
-        } catch (final Exception e1) {
+        }
+        catch (final Exception e1) {
             throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter state: " + e1.getMessage());
         }
 
@@ -96,7 +98,8 @@ public class RelationshipTemplateInstanceStateResource {
             // SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
             // nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
             return Response.ok().build();
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             logger.error("Error setting state: {}", e.getMessage(), e);
             throw new GenericRestException(Status.NOT_FOUND,
                 "Specified relationInstance with id: " + this.relationInstanceID + " doesn't exist");

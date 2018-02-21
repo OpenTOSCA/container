@@ -43,8 +43,9 @@ public final class EntityManagerProvider {
 
     private static AutoCloseableEntityManager proxyOf(final EntityManager em) {
         return (AutoCloseableEntityManager) Proxy.newProxyInstance(EntityManagerProvider.class.getClassLoader(),
-            new Class[] {AutoCloseableEntityManager.class}, (proxy, method, args) -> {
-                return method.invoke(em, args);
-            });
+                                                                   new Class[] {AutoCloseableEntityManager.class},
+                                                                   (proxy, method, args) -> {
+                                                                       return method.invoke(em, args);
+                                                                   });
     }
 }

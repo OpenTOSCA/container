@@ -31,7 +31,8 @@ public class RelationshipTypeImplementationResolver extends GenericResolver {
         for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
             if (element instanceof TRelationshipTypeImplementation) {
 
-                final TRelationshipTypeImplementation relationshipTypeImplementation = (TRelationshipTypeImplementation) element;
+                final TRelationshipTypeImplementation relationshipTypeImplementation =
+                    (TRelationshipTypeImplementation) element;
 
                 // store the RelationshipTypeImplementation
                 String targetNamespace;
@@ -51,9 +52,10 @@ public class RelationshipTypeImplementationResolver extends GenericResolver {
                 // DerivedFrom
                 if (relationshipTypeImplementation.getDerivedFrom() != null
                     && relationshipTypeImplementation.getDerivedFrom().getRelationshipTypeImplementationRef() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        relationshipTypeImplementation.getDerivedFrom().getRelationshipTypeImplementationRef(),
-                        ElementNamesEnum.RELATIONSHIPTYPEIMPLEMENTATION);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(relationshipTypeImplementation.getDerivedFrom()
+                                                                                                                 .getRelationshipTypeImplementationRef(),
+                                                                                   ElementNamesEnum.RELATIONSHIPTYPEIMPLEMENTATION);
                 }
 
                 // RequieredContainerFeatures
@@ -63,18 +65,17 @@ public class RelationshipTypeImplementationResolver extends GenericResolver {
                 if (relationshipTypeImplementation.getImplementationArtifacts() != null) {
                     for (final TImplementationArtifact implementationArtifact : relationshipTypeImplementation.getImplementationArtifacts()
                                                                                                               .getImplementationArtifact()) {
-                        final int iANumber = relationshipTypeImplementation.getImplementationArtifacts()
-                                                                           .getImplementationArtifact()
-                                                                           .indexOf(implementationArtifact);
-                        errorOccurred = errorOccurred
-                            || new ImplementationArtifactResolver(this.referenceMapper).resolve(implementationArtifact,
-                                targetNamespace, relationshipTypeImplementation.getName(), iANumber);
+                        final int iANumber =
+                            relationshipTypeImplementation.getImplementationArtifacts().getImplementationArtifact()
+                                                          .indexOf(implementationArtifact);
+                        errorOccurred = errorOccurred || new ImplementationArtifactResolver(
+                            this.referenceMapper).resolve(implementationArtifact, targetNamespace,
+                                                          relationshipTypeImplementation.getName(), iANumber);
                     }
                 }
 
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, relationshipTypeImplementation.getName()),
-                    relationshipTypeImplementation);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    relationshipTypeImplementation.getName()), relationshipTypeImplementation);
             }
         }
         return errorOccurred;

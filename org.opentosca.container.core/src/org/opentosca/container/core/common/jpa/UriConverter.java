@@ -20,7 +20,8 @@ public class UriConverter implements Converter {
     public Object convertDataValueToObjectValue(final Object arg0, final Session arg1) {
         try {
             return new URI((String) arg0);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             return null;
         }
     }

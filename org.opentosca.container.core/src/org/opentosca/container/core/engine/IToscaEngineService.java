@@ -79,7 +79,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
      */
     boolean hasOperationOfANodeTypeSpecifiedInputParams(CSARID csarID, QName nodeTypeID, String interfaceName,
-                    String operationName);
+                                                        String operationName);
 
     /**
      * This method checks if input parameter are specified for a given interface and operation of a
@@ -92,7 +92,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
      */
     boolean hasOperationOfARelationshipTypeSpecifiedInputParams(CSARID csarID, QName relationshipTypeID,
-                    String interfaceName, String operationName);
+                                                                String interfaceName, String operationName);
 
     /**
      * This method checks if output parameter are specified for a given interface and operation of a
@@ -105,7 +105,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
      */
     boolean hasOperationOfANodeTypeSpecifiedOutputParams(CSARID csarID, QName nodeTypeID, String interfaceName,
-                    String operationName);
+                                                         String operationName);
 
     /**
      * This method checks if output parameter are specified for a given interface and operation of a
@@ -118,7 +118,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
      */
     boolean hasOperationOfARelationshipTypeSpecifiedOutputParams(CSARID csarID, QName relationshipTypeID,
-                    String interfaceName, String operationName);
+                                                                 String interfaceName, String operationName);
 
     /**
      * Checks if specified operations is bound to sourceNode.
@@ -130,7 +130,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if operation is bound to sourceNode. Otherwise <code>false</code>.
      */
     boolean isOperationOfRelationshipBoundToSourceNode(CSARID csarID, QName relationshipTypeID, String interfaceName,
-                    String operationName);
+                                                       String operationName);
 
     /**
      * This method checks if the specified interface of a NodeType contains the specified operation.
@@ -142,7 +142,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if interface contains the operation. Otherwise <code>false</code>.
      */
     boolean doesInterfaceOfNodeTypeContainOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-                    String operationName);
+                                                    String operationName);
 
     /**
      * This method checks if the specified interface of a RelationshipType contains the specified
@@ -155,7 +155,7 @@ public interface IToscaEngineService {
      * @return <code>true</code> if interface contains the operation. Otherwise <code>false</code>.
      */
     boolean doesInterfaceOfRelationshipTypeContainOperation(CSARID csarID, QName relationshipTypeID,
-                    String interfaceName, String operationName);
+                                                            String interfaceName, String operationName);
 
     /**
      * This method searches all NodeTypeImplementations for a certain NodeType inside of a given CSAR.
@@ -187,7 +187,7 @@ public interface IToscaEngineService {
      *         none.
      */
     public List<String> getImplementationArtifactNamesOfNodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID);
+                                                                               QName nodeTypeImplementationID);
 
     /**
      * This method returns a list of the names of ImplementationArtifacts of a given
@@ -200,7 +200,7 @@ public interface IToscaEngineService {
      *         none.
      */
     public List<String> getImplementationArtifactNamesOfRelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID);
+                                                                                       QName relationshipTypeImplementationID);
 
     /**
      * This method returns a list of Strings of the RequiredContainerFeatures of a given
@@ -213,7 +213,7 @@ public interface IToscaEngineService {
      *         there none.
      */
     public List<String> getRequiredContainerFeaturesOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID);
+                                                                              QName nodeTypeImplementationID);
 
     /**
      * This method returns the ArtifactType of a given ImplementationArtifact of a given
@@ -226,7 +226,8 @@ public interface IToscaEngineService {
      * @return QName of the ArtifactType or null in case of an error
      */
     public QName getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID, String implementationArtifactName);
+                                                                                   QName nodeTypeImplementationID,
+                                                                                   String implementationArtifactName);
 
     /**
      * This method returns the ArtifactType of a given ImplementationArtifact of a given
@@ -239,7 +240,8 @@ public interface IToscaEngineService {
      * @return QName of the ArtifactType or null in case of an error
      */
     public QName getArtifactTypeOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID, String implementationArtifactName);
+                                                                                           QName relationshipTypeImplementationID,
+                                                                                           String implementationArtifactName);
 
     /**
      * This method returns the ArtifactTemplate of a given ImplementationArtifact of a given
@@ -252,7 +254,8 @@ public interface IToscaEngineService {
      * @return QName of the ArtifactType or null in case of an error
      */
     public QName getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID, String implementationArtifactName);
+                                                                                       QName nodeTypeImplementationID,
+                                                                                       String implementationArtifactName);
 
     /**
      * This method returns the ArtifactTemplate of a given ImplementationArtifact of a given
@@ -265,7 +268,8 @@ public interface IToscaEngineService {
      * @return QName of the ArtifactType or null in case of an error
      */
     public QName getArtifactTemplateOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID, String implementationArtifactName);
+                                                                                               QName relationshipTypeImplementationID,
+                                                                                               String implementationArtifactName);
 
     /**
      * This method returns the Node of the specified reference within the specified scarID.
@@ -287,7 +291,7 @@ public interface IToscaEngineService {
      * @return Node containing of the InputParameters.
      */
     public Node getInputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-                    String operationName);
+                                                       String operationName);
 
     /**
      * This method returns a node containing the OutputParameter of Elements of the specified operation
@@ -300,7 +304,7 @@ public interface IToscaEngineService {
      * @return Node containing the OutputParameters.
      */
     public Node getOutputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-                    String operationName);
+                                                        String operationName);
 
     /**
      * This method returns a node containing the InputParameter of Elements of the specified operation
@@ -313,7 +317,7 @@ public interface IToscaEngineService {
      * @return Node containing of the InputParameters.
      */
     public Node getInputParametersOfARelationshipTypeOperation(CSARID csarID, QName relationshipTypeID,
-                    String interfaceName, String operationName);
+                                                               String interfaceName, String operationName);
 
     /**
      * This method returns a node containing the OutputParameter of Elements of the specified operation
@@ -326,7 +330,7 @@ public interface IToscaEngineService {
      * @return Node containing the OutputParameters.
      */
     public Node getOutputParametersOfARelationshipTypeOperation(CSARID csarID, QName relationshipTypeID,
-                    String interfaceName, String operationName);
+                                                                String interfaceName, String operationName);
 
     /**
      * This method returns the specific content of a given ImplementationArtifact of a given
@@ -340,7 +344,8 @@ public interface IToscaEngineService {
      *         document object is created for each method call.
      */
     public Document getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID, String implementationArtifactName);
+                                                                                                 QName nodeTypeImplementationID,
+                                                                                                 String implementationArtifactName);
 
     /**
      * This method returns the specific content of a given ImplementationArtifact of a given
@@ -354,7 +359,8 @@ public interface IToscaEngineService {
      *         document object is created for each method call.
      */
     public Document getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID, String implementationArtifactName);
+                                                                                                         QName relationshipTypeImplementationID,
+                                                                                                         String implementationArtifactName);
 
     /**
      * This method returns the implemented interface of a given ImplementationArtifact of a given
@@ -368,7 +374,8 @@ public interface IToscaEngineService {
      *         interface is specified.
      */
     public String getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID, String implementationArtifactName);
+                                                                                 QName nodeTypeImplementationID,
+                                                                                 String implementationArtifactName);
 
     /**
      * This method returns the implemented interface of a given ImplementationArtifact of a given
@@ -382,7 +389,8 @@ public interface IToscaEngineService {
      *         interface is specified.
      */
     public String getInterfaceOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID, String implementationArtifactName);
+                                                                                         QName relationshipTypeImplementationID,
+                                                                                         String implementationArtifactName);
 
     /**
      * This method returns the implemented operation of a given ImplementationArtifact of a given
@@ -396,7 +404,8 @@ public interface IToscaEngineService {
      *         operation is specified.
      */
     public String getOperationOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID, String implementationArtifactName);
+                                                                                 QName nodeTypeImplementationID,
+                                                                                 String implementationArtifactName);
 
     /**
      * This method returns the implemented operation of a given ImplementationArtifact of a given
@@ -410,7 +419,8 @@ public interface IToscaEngineService {
      *         operation is specified.
      */
     public String getOperationOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID, String implementationArtifactName);
+                                                                                         QName relationshipTypeImplementationID,
+                                                                                         String implementationArtifactName);
 
     /**
      * This method returns the ArtiactSpecificContent of a deploymentArtifact of a given
@@ -423,7 +433,7 @@ public interface IToscaEngineService {
      *         call.
      */
     public Document getArtifactSpecificContentOfADeploymentArtifact(CSARID csarID, QName nodeTypeImplementationID,
-                    String deploymentArtifactName);
+                                                                    String deploymentArtifactName);
 
     /**
      * This method returns the content of the Properties Element of an ArtifactTemplate.
@@ -475,7 +485,7 @@ public interface IToscaEngineService {
      * @return of the NodeType or null in case of an error
      */
     public QName getRelationshipTypeOfRelationshipTemplate(CSARID csarID, QName serviceTemplateID,
-                    String relationshipTemplateID);
+                                                           String relationshipTemplateID);
 
     /**
      * This method returns the Document which contains the default Properties of the NodeTemplate
@@ -506,7 +516,7 @@ public interface IToscaEngineService {
      * @return Document containing the Properties (may be empty) or null in case of an error
      */
     public Document getPropertiesOfRelationshipTemplate(CSARID csarID, QName serviceTemplateID,
-                    String relationshipTemplateID);
+                                                        String relationshipTemplateID);
 
     /**
      * Returns the the resolved artifacts.
@@ -525,7 +535,7 @@ public interface IToscaEngineService {
      * @return Resolved Artifacts containing all resolvedArtifacts
      */
     public ResolvedArtifacts getResolvedArtifactsOfNodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID);
+                                                                          QName nodeTypeImplementationID);
 
     /**
      * Returns the the resolved artifacts.
@@ -535,7 +545,7 @@ public interface IToscaEngineService {
      * @return Resolved Artifacts containing all resolvedArtifacts
      */
     public ResolvedArtifacts getResolvedArtifactsOfRelationshipTypeImplementation(CSARID csarID,
-                    QName relationshipTypeImplementationID);
+                                                                                  QName relationshipTypeImplementationID);
 
     /**
      * This function deletes the content about a certain CSAR, identified due the CSARID given as a
@@ -570,7 +580,7 @@ public interface IToscaEngineService {
      *         serviceTemplate
      */
     public NodeTemplateInstanceCounts getInstanceCountsOfNodeTemplatesByServiceTemplateID(CSARID csarID,
-                    QName serviceTemplateID);
+                                                                                          QName serviceTemplateID);
 
     /**
      * checks if a nodeTemplate exits.
@@ -603,7 +613,7 @@ public interface IToscaEngineService {
      * @return the String or null in case of error or none existence
      */
     public String getTargetNodeTemplateIDOfRelationshipTemplate(CSARID csarID, QName serviceTemplateID,
-                    String relationshipTemplateID);
+                                                                String relationshipTemplateID);
 
     /**
      * Returns the ID of the source NodeTemplate if one exists.
@@ -614,7 +624,7 @@ public interface IToscaEngineService {
      * @return the String or null in case of error or none existence
      */
     public String getSourceNodeTemplateIDOfRelationshipTemplate(CSARID csarID, QName serviceTemplateID,
-                    String relationshipTemplateID);
+                                                                String relationshipTemplateID);
 
     /**
      * Returns the ID of the related NodeTemplate if one exists.
@@ -626,7 +636,7 @@ public interface IToscaEngineService {
      * @return the String or null in case of error or none existence
      */
     public String getRelatedNodeTemplateID(CSARID csarID, QName serviceTemplateID, String nodeTemplateID,
-                    QName relationshipType);
+                                           QName relationshipType);
 
     /**
      * This method returns the abstract artifact of a plan reference.
@@ -677,7 +687,7 @@ public interface IToscaEngineService {
      *         none.
      */
     public List<String> getDeploymentArtifactNamesOfNodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID);
+                                                                           QName nodeTypeImplementationID);
 
     /**
      * This method returns the ArtifactTemplate of a given DeploymentArtifact of a given
@@ -689,7 +699,8 @@ public interface IToscaEngineService {
      * @return QName of the ArtifactType or null in case of an error
      */
     public QName getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(CSARID csarID,
-                    QName nodeTypeImplementationID, String deploymentArtifactName);
+                                                                                   QName nodeTypeImplementationID,
+                                                                                   String deploymentArtifactName);
 
     /**
      * This method returns the IDs of the derived Node Type Implementation hierarchy given through the

@@ -49,8 +49,7 @@ public abstract class AuthenticationAdminCallbackHandler {
      * auto generated Axis2 call back method for loginWithRememberMeOption method override this method
      * for handling normal response from loginWithRememberMeOption operation
      */
-    public void receiveResultloginWithRememberMeOption(
-                    final org.wso2.carbon.core.services.authentication.LoginWithRememberMeOptionResponse result) {}
+    public void receiveResultloginWithRememberMeOption(final org.wso2.carbon.core.services.authentication.LoginWithRememberMeOptionResponse result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -74,8 +73,7 @@ public abstract class AuthenticationAdminCallbackHandler {
      * auto generated Axis2 call back method for getAuthenticatorName method override this method for
      * handling normal response from getAuthenticatorName operation
      */
-    public void receiveResultgetAuthenticatorName(
-                    final org.wso2.carbon.core.services.authentication.GetAuthenticatorNameResponse result) {}
+    public void receiveResultgetAuthenticatorName(final org.wso2.carbon.core.services.authentication.GetAuthenticatorNameResponse result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -87,8 +85,7 @@ public abstract class AuthenticationAdminCallbackHandler {
      * auto generated Axis2 call back method for getPriority method override this method for handling
      * normal response from getPriority operation
      */
-    public void receiveResultgetPriority(
-                    final org.wso2.carbon.core.services.authentication.GetPriorityResponse result) {}
+    public void receiveResultgetPriority(final org.wso2.carbon.core.services.authentication.GetPriorityResponse result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -112,8 +109,7 @@ public abstract class AuthenticationAdminCallbackHandler {
      * auto generated Axis2 call back method for authenticateWithRememberMe method override this method
      * for handling normal response from authenticateWithRememberMe operation
      */
-    public void receiveResultauthenticateWithRememberMe(
-                    final org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMeResponse result) {}
+    public void receiveResultauthenticateWithRememberMe(final org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMeResponse result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -125,8 +121,7 @@ public abstract class AuthenticationAdminCallbackHandler {
      * auto generated Axis2 call back method for loginWithRememberMeCookie method override this method
      * for handling normal response from loginWithRememberMeCookie operation
      */
-    public void receiveResultloginWithRememberMeCookie(
-                    final org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookieResponse result) {}
+    public void receiveResultloginWithRememberMeCookie(final org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookieResponse result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from

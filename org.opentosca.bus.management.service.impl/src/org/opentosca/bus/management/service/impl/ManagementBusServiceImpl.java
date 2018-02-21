@@ -85,8 +85,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
         ManagementBusServiceImpl.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
 
-        final String relationshipTemplateID = message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(),
-            String.class);
+        final String relationshipTemplateID =
+            message.getHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), String.class);
         ManagementBusServiceImpl.LOG.debug("relationshipTemplateID: {}", relationshipTemplateID);
 
         final String neededInterface = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
@@ -100,8 +100,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (nodeTemplateID != null) {
 
-            final QName nodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID,
-                serviceTemplateID, nodeTemplateID);
+            final QName nodeTypeID =
+                ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
             if (message.getBody() instanceof HashMap) {
 
@@ -110,57 +110,62 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 // update inputParams with instance data
                 inputParams = this.updateInputParams(inputParams, csarID, serviceTemplateID, nodeTypeID, nodeTemplateID,
-                    neededInterface, neededOperation, serviceInstanceID);
+                                                     neededInterface, neededOperation, serviceInstanceID);
                 message.setBody(inputParams);
 
             } else {
                 ManagementBusServiceImpl.LOG.warn("There are no input parameters specified.");
             }
 
-            ManagementBusServiceImpl.LOG.debug(
-                "Getting information about the ImplementationArtifact from TOSCA Engine...");
+            ManagementBusServiceImpl.LOG.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
 
             ManagementBusServiceImpl.LOG.debug("Getting nodeTypeImplementationIDs of NodeType: {} from CSAR: {}",
-                nodeTypeID, csarID);
+                                               nodeTypeID, csarID);
 
-            final List<QName> nodeTypeImplementationIDs = ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(
-                csarID, nodeTypeID);
+            final List<QName> nodeTypeImplementationIDs =
+                ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeID);
             ManagementBusServiceImpl.LOG.debug("nodeTypeImplementationIDs: {}", nodeTypeImplementationIDs.toString());
 
             // Jump-Label to stop both loops at once
             searchIA: for (final QName nodeTypeImplementationID : nodeTypeImplementationIDs) {
 
-                final List<String> implementationArtifactNames = ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(
-                    csarID, nodeTypeImplementationID);
+                final List<String> implementationArtifactNames =
+                    ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(csarID,
+                                                                                                             nodeTypeImplementationID);
                 ManagementBusServiceImpl.LOG.debug("implementationArtifactNames: {}",
-                    implementationArtifactNames.toString());
+                                                   implementationArtifactNames.toString());
 
                 for (final String implementationArtifactName : implementationArtifactNames) {
 
                     // Check if needed interface/operation is provided
                     if (this.isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null, null,
-                        implementationArtifactName, neededOperation, neededInterface)) {
+                                         implementationArtifactName, neededOperation, neededInterface)) {
 
-                        final QName artifactTemplateID = ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(
-                            csarID, nodeTypeImplementationID, implementationArtifactName);
+                        final QName artifactTemplateID =
+                            ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                                    nodeTypeImplementationID,
+                                                                                                                                    implementationArtifactName);
                         ManagementBusServiceImpl.LOG.debug("artifactTemplateID: {}", artifactTemplateID.toString());
 
-                        final String artifactType = ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(
-                            csarID, nodeTypeImplementationID, implementationArtifactName).toString();
+                        final String artifactType =
+                            ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                                nodeTypeImplementationID,
+                                                                                                                                implementationArtifactName)
+                                                             .toString();
 
                         invocationType = this.isSupported(artifactType, csarID, artifactTemplateID);
 
                         if (invocationType != null) {
                             ManagementBusServiceImpl.LOG.debug("InvocationType found: {} ", invocationType);
 
-                            ManagementBusServiceImpl.LOG.debug(
-                                "Getting Endpoint for ImplementationArtifact: {} from NodeTypeImplementation: {}",
-                                implementationArtifactName, nodeTypeImplementationID);
+                            ManagementBusServiceImpl.LOG.debug("Getting Endpoint for ImplementationArtifact: {} from NodeTypeImplementation: {}",
+                                                               implementationArtifactName, nodeTypeImplementationID);
                             // EndpointService needs to be refactored.
                             // Distinction of WSDL &
                             // REST Endpoints is obsolete.
-                            final WSDLEndpoint wsdlEndpoint = ServiceHandler.endpointService.getWSDLEndpointForIa(
-                                csarID, nodeTypeImplementationID, implementationArtifactName);
+                            final WSDLEndpoint wsdlEndpoint =
+                                ServiceHandler.endpointService.getWSDLEndpointForIa(csarID, nodeTypeImplementationID,
+                                                                                    implementationArtifactName);
 
                             // Check if implementation artifact has a stored
                             // endpoint and thus was deployed
@@ -173,18 +178,25 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                 if (endpoint.toString().startsWith("/PLACEHOLDER_")
                                     && endpoint.toString().contains("_PLACEHOLDER/")) {
 
-                                    endpoint = this.replacePlaceholderWithInstanceData(endpoint, csarID,
-                                        serviceTemplateID, nodeTemplateID, serviceInstanceID);
+                                    endpoint =
+                                        this.replacePlaceholderWithInstanceData(endpoint, csarID, serviceTemplateID,
+                                                                                nodeTemplateID, serviceInstanceID);
                                 }
 
                                 ManagementBusServiceImpl.LOG.debug("Endpoint: " + endpoint.toString());
 
                                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
 
-                                final boolean hasInputParams = ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(
-                                    csarID, nodeTypeID, neededInterface, neededOperation);
-                                final boolean hasOutputParams = ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(
-                                    csarID, nodeTypeID, neededInterface, neededOperation);
+                                final boolean hasInputParams =
+                                    ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID,
+                                                                                                                  nodeTypeID,
+                                                                                                                  neededInterface,
+                                                                                                                  neededOperation);
+                                final boolean hasOutputParams =
+                                    ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID,
+                                                                                                                   nodeTypeID,
+                                                                                                                   neededInterface,
+                                                                                                                   neededOperation);
 
                                 if (hasInputParams && !hasOutputParams) {
                                     message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
@@ -192,8 +204,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
                                 }
 
-                                final Document specificContent = ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(
-                                    csarID, nodeTypeImplementationID, implementationArtifactName);
+                                final Document specificContent =
+                                    ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                                                   nodeTypeImplementationID,
+                                                                                                                                                   implementationArtifactName);
 
                                 if (specificContent != null) {
 
@@ -220,54 +234,62 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         } else if (relationshipTemplateID != null) {
 
-            ManagementBusServiceImpl.LOG.debug(
-                "Getting information about the ImplementationArtifact from TOSCA Engine...");
-            final QName relationshipTypeID = ServiceHandler.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(
-                csarID, serviceTemplateID, relationshipTemplateID);
+            ManagementBusServiceImpl.LOG.debug("Getting information about the ImplementationArtifact from TOSCA Engine...");
+            final QName relationshipTypeID =
+                ServiceHandler.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID,
+                                                                                            relationshipTemplateID);
 
-            ManagementBusServiceImpl.LOG.debug(
-                "Getting RelationshipTypeImplementationIDs of RelationshipType: {} from CSAR: {}", relationshipTypeID,
-                csarID);
+            ManagementBusServiceImpl.LOG.debug("Getting RelationshipTypeImplementationIDs of RelationshipType: {} from CSAR: {}",
+                                               relationshipTypeID, csarID);
 
-            final List<QName> relationshipTypeImplementationIDs = ServiceHandler.toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(
-                csarID, relationshipTypeID);
+            final List<QName> relationshipTypeImplementationIDs =
+                ServiceHandler.toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(csarID,
+                                                                                                       relationshipTypeID);
             ManagementBusServiceImpl.LOG.debug("relationshipTypeImplementationIDs: {}",
-                relationshipTypeImplementationIDs.toString());
+                                               relationshipTypeImplementationIDs.toString());
 
             // Jump-Label to stop both loops at once
             searchIA: for (final QName relationshipTypeImplementationID : relationshipTypeImplementationIDs) {
 
-                final List<String> implementationArtifactNames = ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfRelationshipTypeImplementation(
-                    csarID, relationshipTypeImplementationID);
+                final List<String> implementationArtifactNames =
+                    ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfRelationshipTypeImplementation(csarID,
+                                                                                                                     relationshipTypeImplementationID);
                 ManagementBusServiceImpl.LOG.debug("implementationArtifactNames: {}",
-                    implementationArtifactNames.toString());
+                                                   implementationArtifactNames.toString());
 
                 for (final String implementationArtifactName : implementationArtifactNames) {
 
                     // Check if needed interface/operation is provided
                     if (this.isCorrectIA(csarID, null, null, relationshipTypeID, relationshipTypeImplementationID,
-                        implementationArtifactName, neededOperation, neededInterface)) {
+                                         implementationArtifactName, neededOperation, neededInterface)) {
 
-                        final QName artifactTemplateID = ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfARelationshipTypeImplementation(
-                            csarID, relationshipTypeImplementationID, implementationArtifactName);
+                        final QName artifactTemplateID =
+                            ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                                                            relationshipTypeImplementationID,
+                                                                                                                                            implementationArtifactName);
                         ManagementBusServiceImpl.LOG.debug("artifactTemplateID: {}", artifactTemplateID.toString());
 
-                        final String artifactType = ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfARelationshipTypeImplementation(
-                            csarID, relationshipTypeImplementationID, implementationArtifactName).toString();
+                        final String artifactType =
+                            ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                                                        relationshipTypeImplementationID,
+                                                                                                                                        implementationArtifactName)
+                                                             .toString();
 
                         invocationType = this.isSupported(artifactType, csarID, artifactTemplateID);
 
                         if (invocationType != null) {
                             ManagementBusServiceImpl.LOG.debug("InvocationType found: {} ", invocationType);
 
-                            ManagementBusServiceImpl.LOG.debug(
-                                "Getting Endpoint for ImplementationArtifact: {} from RelationshipTypeImplementation: {}",
-                                implementationArtifactName, relationshipTypeImplementationID);
+                            ManagementBusServiceImpl.LOG.debug("Getting Endpoint for ImplementationArtifact: {} from RelationshipTypeImplementation: {}",
+                                                               implementationArtifactName,
+                                                               relationshipTypeImplementationID);
                             // EndpointService needs to be refactored.
                             // Distinction of WSDL &
                             // REST Endpoints is obsolete.
-                            final WSDLEndpoint wsdlEndpoint = ServiceHandler.endpointService.getWSDLEndpointForIa(
-                                csarID, relationshipTypeImplementationID, implementationArtifactName);
+                            final WSDLEndpoint wsdlEndpoint =
+                                ServiceHandler.endpointService.getWSDLEndpointForIa(csarID,
+                                                                                    relationshipTypeImplementationID,
+                                                                                    implementationArtifactName);
 
                             // Check if implementation artifact has a stored
                             // endpoint and thus was deployed
@@ -278,10 +300,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
 
-                                final boolean hasInputParams = ServiceHandler.toscaEngineService.hasOperationOfARelationshipTypeSpecifiedInputParams(
-                                    csarID, relationshipTypeID, neededInterface, neededOperation);
-                                final boolean hasOutputParams = ServiceHandler.toscaEngineService.hasOperationOfARelationshipTypeSpecifiedOutputParams(
-                                    csarID, relationshipTypeID, neededInterface, neededOperation);
+                                final boolean hasInputParams =
+                                    ServiceHandler.toscaEngineService.hasOperationOfARelationshipTypeSpecifiedInputParams(csarID,
+                                                                                                                          relationshipTypeID,
+                                                                                                                          neededInterface,
+                                                                                                                          neededOperation);
+                                final boolean hasOutputParams =
+                                    ServiceHandler.toscaEngineService.hasOperationOfARelationshipTypeSpecifiedOutputParams(csarID,
+                                                                                                                           relationshipTypeID,
+                                                                                                                           neededInterface,
+                                                                                                                           neededOperation);
 
                                 if (hasInputParams && !hasOutputParams) {
                                     message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
@@ -289,8 +317,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
                                 }
 
-                                final Document specificContent = ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(
-                                    csarID, relationshipTypeImplementationID, implementationArtifactName);
+                                final Document specificContent =
+                                    ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                                                                           relationshipTypeImplementationID,
+                                                                                                                                                           implementationArtifactName);
 
                                 if (specificContent != null) {
 
@@ -322,8 +352,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             exchange = this.callMatchingPlugin(exchange, invocationType);
 
         } else {
-            ManagementBusServiceImpl.LOG.warn(
-                "No invokable implementation artifact found that provides required interface/operation");
+            ManagementBusServiceImpl.LOG.warn("No invokable implementation artifact found that provides required interface/operation");
         }
 
         this.handleResponse(exchange);
@@ -376,7 +405,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             exchange = this.callMatchingPlugin(exchange, "SOAP/HTTP");
         } else {
             ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invoking aborted!",
-                planID, csarID);
+                                              planID, csarID);
         }
 
         this.handleResponse(exchange);
@@ -428,9 +457,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      *         interface/operation. Otherwise <code>false</code> .
      */
     private boolean isCorrectIA(final CSARID csarID, final QName nodeTypeID, final QName nodeTypeImplementationID,
-                    final QName relationshipTypeID, final QName relationshipTypeImplementationID,
-                    final String implementationArtifactName, final String neededOperation,
-                    final String neededInterface) {
+                                final QName relationshipTypeID, final QName relationshipTypeImplementationID,
+                                final String implementationArtifactName, final String neededOperation,
+                                final String neededInterface) {
 
         String providedInterface = null;
         String providedOperation = null;
@@ -438,53 +467,58 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (nodeTypeID != null && nodeTypeImplementationID != null) {
 
             ManagementBusServiceImpl.LOG.debug("Checking if IA: {} of NodeTypeImpl: {} is the correct one.",
-                implementationArtifactName, nodeTypeImplementationID);
+                                               implementationArtifactName, nodeTypeImplementationID);
 
-            providedInterface = ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(
-                csarID, nodeTypeImplementationID, implementationArtifactName);
+            providedInterface =
+                ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                 nodeTypeImplementationID,
+                                                                                                                 implementationArtifactName);
 
-            providedOperation = ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfANodeTypeImplementation(
-                csarID, nodeTypeImplementationID, implementationArtifactName);
+            providedOperation =
+                ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                 nodeTypeImplementationID,
+                                                                                                                 implementationArtifactName);
 
         } else if (relationshipTypeID != null && relationshipTypeImplementationID != null) {
 
             ManagementBusServiceImpl.LOG.debug("Checking if IA: {} of RelationshipTypeImpl: {} is the correct one.",
-                implementationArtifactName, relationshipTypeImplementationID);
+                                               implementationArtifactName, relationshipTypeImplementationID);
 
-            providedInterface = ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfARelationshipTypeImplementation(
-                csarID, relationshipTypeImplementationID, implementationArtifactName);
+            providedInterface =
+                ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                                         relationshipTypeImplementationID,
+                                                                                                                         implementationArtifactName);
 
-            providedOperation = ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfARelationshipTypeImplementation(
-                csarID, relationshipTypeImplementationID, implementationArtifactName);
+            providedOperation =
+                ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                                         relationshipTypeImplementationID,
+                                                                                                                         implementationArtifactName);
         }
 
         ManagementBusServiceImpl.LOG.debug("Needed interface: {}. Provided interface: {}", neededInterface,
-            providedInterface);
+                                           providedInterface);
         ManagementBusServiceImpl.LOG.debug("Needed operation: {}. Provided operation: {}", neededOperation,
-            providedOperation);
+                                           providedOperation);
 
         // IA implements all operations of all interfaces defined in NodeType
         if (providedInterface == null && providedOperation == null) {
-            ManagementBusServiceImpl.LOG.debug(
-                "Correct IA found. IA: {} implements all operations of all interfaces defined in NodeType.",
-                implementationArtifactName);
+            ManagementBusServiceImpl.LOG.debug("Correct IA found. IA: {} implements all operations of all interfaces defined in NodeType.",
+                                               implementationArtifactName);
             return true;
         }
 
         // IA implements all operations of one interface defined in NodeType
         if (providedInterface != null && providedOperation == null && providedInterface.equals(neededInterface)) {
-            ManagementBusServiceImpl.LOG.debug(
-                "Correct IA found. IA: {} implements all operations of one interface defined in NodeType.",
-                implementationArtifactName);
+            ManagementBusServiceImpl.LOG.debug("Correct IA found. IA: {} implements all operations of one interface defined in NodeType.",
+                                               implementationArtifactName);
             return true;
         }
 
         // IA implements one operation of an interface defined in NodeType
         if (providedInterface != null && providedOperation != null && providedInterface.equals(neededInterface)
             && providedOperation.equals(neededOperation)) {
-            ManagementBusServiceImpl.LOG.debug(
-                "Correct IA found. IA: {} implements one operation of an interface defined in NodeType.",
-                implementationArtifactName);
+            ManagementBusServiceImpl.LOG.debug("Correct IA found. IA: {} implements one operation of an interface defined in NodeType.",
+                                               implementationArtifactName);
             return true;
         }
 
@@ -495,16 +529,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             if (nodeTypeID != null) {
                 return ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeTypeID,
-                    providedInterface, neededOperation);
+                                                                                                 providedInterface,
+                                                                                                 neededOperation);
             }
             if (relationshipTypeID != null) {
                 return ServiceHandler.toscaEngineService.doesInterfaceOfRelationshipTypeContainOperation(csarID,
-                    relationshipTypeID, providedInterface, neededOperation);
+                                                                                                         relationshipTypeID,
+                                                                                                         providedInterface,
+                                                                                                         neededOperation);
             }
         }
 
         ManagementBusServiceImpl.LOG.debug("ImplementationArtifact {} does not provide needed interface/operation",
-            implementationArtifactName);
+                                           implementationArtifactName);
         return false;
     }
 
@@ -531,8 +568,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         } else {
 
-            final Document properties = ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID,
-                artifactTemplateID);
+            final Document properties =
+                ServiceHandler.toscaEngineService.getPropertiesOfAArtifactTemplate(csarID, artifactTemplateID);
 
             // Second check if a invocation-type is specified in
             // TOSCA definition
@@ -613,20 +650,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return the updated input parameters.
      */
     private HashMap<String, String> updateInputParams(final HashMap<String, String> inputParams, final CSARID csarID,
-                    final QName serviceTemplateID, QName nodeTypeID, final String nodeTemplateID,
-                    final String neededInterface, final String neededOperation, final URI serviceInstanceID) {
+                                                      final QName serviceTemplateID, QName nodeTypeID,
+                                                      final String nodeTemplateID, final String neededInterface,
+                                                      final String neededOperation, final URI serviceInstanceID) {
 
         ManagementBusServiceImpl.LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(),
-            neededOperation, inputParams.toString());
+                                           neededOperation, inputParams.toString());
 
-        nodeTypeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
-            nodeTemplateID);
+        nodeTypeID =
+            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
-        final List<String> expectedParams = this.getExpectedInputParams(csarID, nodeTypeID, neededInterface,
-            neededOperation);
+        final List<String> expectedParams =
+            this.getExpectedInputParams(csarID, nodeTypeID, neededInterface, neededOperation);
 
         ManagementBusServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
-            expectedParams.size(), expectedParams.toString());
+                                           expectedParams.size(), expectedParams.toString());
 
         if (!expectedParams.isEmpty()) {
 
@@ -634,11 +672,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // instance data. Priority on instance data.
             if (serviceInstanceID != null && !serviceInstanceID.toString().equals("?")) {
 
-                ManagementBusServiceImpl.LOG.debug(
-                    "Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...", serviceInstanceID);
+                ManagementBusServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
+                                                   serviceInstanceID);
 
-                final HashMap<String, String> propertiesMap = MBUtils.getInstanceDataProperties(csarID,
-                    serviceTemplateID, nodeTemplateID.trim(), serviceInstanceID);
+                final HashMap<String, String> propertiesMap =
+                    MBUtils.getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID.trim(),
+                                                      serviceInstanceID);
 
                 ManagementBusServiceImpl.LOG.debug("Found following properties: ");
 
@@ -649,13 +688,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 if (propertiesMap != null) {
 
                     final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
-                    final List<String> supportedInstanceIdPropertyNames = Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
-                    final List<String> supportedPasswordPropertyNames = Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
-                    final List<String> supportedUsernamePropertyNames = Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
+                    final List<String> supportedInstanceIdPropertyNames =
+                        Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
+                    final List<String> supportedPasswordPropertyNames =
+                        Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
+                    final List<String> supportedUsernamePropertyNames =
+                        Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
 
-                    ManagementBusServiceImpl.LOG.debug(
-                        "The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
-                        serviceInstanceID, nodeTemplateID, propertiesMap.toString());
+                    ManagementBusServiceImpl.LOG.debug("The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
+                                                       serviceInstanceID, nodeTemplateID, propertiesMap.toString());
 
                     String prop;
                     // Check for property convention
@@ -706,7 +747,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     }
 
                     ManagementBusServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}",
-                        inputParams.size(), neededOperation, inputParams.toString());
+                                                       inputParams.size(), neededOperation, inputParams.toString());
 
                 } else {
                     ManagementBusServiceImpl.LOG.debug("No stored InstanceData found.");
@@ -733,7 +774,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return convention defined properties.
      */
     private String getSupportedProperty(final List<String> supportedProperties,
-                    final HashMap<String, String> propertiesMap) {
+                                        final HashMap<String, String> propertiesMap) {
 
         String prop;
 
@@ -742,7 +783,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             if (propertiesMap.containsKey(supportedProperty)) {
                 prop = propertiesMap.get(supportedProperty);
                 ManagementBusServiceImpl.LOG.debug("Supported convention property: {} found: {}", supportedProperty,
-                    prop);
+                                                   prop);
                 return prop;
             }
         }
@@ -763,36 +804,38 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return URI with replaced placeholder.
      */
     private URI replacePlaceholderWithInstanceData(URI endpoint, final CSARID csarID, final QName serviceTemplateID,
-                    final String nodeTemplateID, final URI serviceInstanceID) {
+                                                   final String nodeTemplateID, final URI serviceInstanceID) {
 
         final String placeholderBegin = "/PLACEHOLDER_";
         final String placeholderEnd = "_PLACEHOLDER/";
 
-        final String placeholder = endpoint.toString().substring(endpoint.toString().lastIndexOf(placeholderBegin),
-            endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
+        final String placeholder =
+            endpoint.toString().substring(endpoint.toString().lastIndexOf(placeholderBegin),
+                                          endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
 
         ManagementBusServiceImpl.LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder,
-            endpoint.toString());
+                                           endpoint.toString());
 
-        final String[] placeholderProperties = placeholder.replace(placeholderBegin, "").replace(placeholderEnd, "")
-                                                          .split("_");
+        final String[] placeholderProperties =
+            placeholder.replace(placeholderBegin, "").replace(placeholderEnd, "").split("_");
 
         String propertyValue = null;
 
         for (final String placeholderProperty : placeholderProperties) {
             ManagementBusServiceImpl.LOG.debug("Searching instance data value for property {} ...",
-                placeholderProperty);
+                                               placeholderProperty);
 
             propertyValue = MBUtils.searchProperty(placeholderProperty, csarID, serviceTemplateID, nodeTemplateID,
-                serviceInstanceID);
+                                                   serviceInstanceID);
 
             if (propertyValue != null) {
                 ManagementBusServiceImpl.LOG.debug("Value for property {} found: {}.", placeholderProperty,
-                    propertyValue);
+                                                   propertyValue);
 
                 try {
                     endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
-                } catch (final URISyntaxException e) {
+                }
+                catch (final URISyntaxException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -822,18 +865,20 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return specified input parameters of the operation
      */
     private List<String> getExpectedInputParams(final CSARID csarID, final QName nodeTypeID, final String interfaceName,
-                    final String operationName) {
+                                                final String operationName) {
 
-        ManagementBusServiceImpl.LOG.debug(
-            "Fetching expected input params of " + operationName + " in interface " + interfaceName);
+        ManagementBusServiceImpl.LOG.debug("Fetching expected input params of " + operationName + " in interface "
+            + interfaceName);
         final List<String> inputParams = new ArrayList<>();
 
         ManagementBusServiceImpl.LOG.debug("Checking for params with NodeType " + nodeTypeID);
         if (ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID,
-            interfaceName, operationName)) {
+                                                                                          interfaceName,
+                                                                                          operationName)) {
 
-            final Node definedInputParameters = ServiceHandler.toscaEngineService.getInputParametersOfANodeTypeOperation(
-                csarID, nodeTypeID, interfaceName, operationName);
+            final Node definedInputParameters =
+                ServiceHandler.toscaEngineService.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID,
+                                                                                         interfaceName, operationName);
 
             if (definedInputParameters != null) {
 
@@ -881,11 +926,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 if (exchange.isFailed()) {
                     ManagementBusServiceImpl.LOG.error("Sending exchange message failed! {}",
-                        exchange.getException().getMessage());
+                                                       exchange.getException().getMessage());
                 }
             } else {
-                ManagementBusServiceImpl.LOG.debug(
-                    "Invocation was InOnly. No response message will be sent to the caller.");
+                ManagementBusServiceImpl.LOG.debug("Invocation was InOnly. No response message will be sent to the caller.");
             }
         }
 

@@ -123,7 +123,8 @@ public class BPELRESTLightElement {
             BPELRESTLightElement.LOG.debug("Retrieving uri attribute value");
             temp = this.uriNode.getNodeValue();
 
-        } catch (final DOMException e) {
+        }
+        catch (final DOMException e) {
             throw new NoBPELRESTLightElementException("Can't process node: Retrieving node attribute uri failed");
         }
         this.setURIFormatType(temp);
@@ -142,7 +143,8 @@ public class BPELRESTLightElement {
             case BOTH:
                 try {
                     return new URI(this.getURIPart());
-                } catch (final URISyntaxException e) {
+                }
+                catch (final URISyntaxException e) {
                     BPELRESTLightElement.LOG.error("Internal Error: Stored URI was invalid", e);
                 }
             default:
@@ -229,12 +231,10 @@ public class BPELRESTLightElement {
         }
         URI temp;
         if (value.contains("$bpelvar[")) {
-            BPELRESTLightElement.LOG.debug(
-                "Node attribute contains bpelvar[] keyword: checking where it is in this attribute value");
+            BPELRESTLightElement.LOG.debug("Node attribute contains bpelvar[] keyword: checking where it is in this attribute value");
             // this string contains variables
             if (value.indexOf("$bpelvar[") == 0) {
-                BPELRESTLightElement.LOG.debug(
-                    "Node attribute contains $bpelvar[] keyword: keyword is at beginning, changes won't apply for this element");
+                BPELRESTLightElement.LOG.debug("Node attribute contains $bpelvar[] keyword: keyword is at beginning, changes won't apply for this element");
                 // this begins with bpelvar, nothing to do here
                 throw new NoBPELRESTLightElementException(
                     "Node attribute contains $bpelvar[] keyword: keyword is at beginning, changes won't apply for this element");
@@ -249,8 +249,7 @@ public class BPELRESTLightElement {
                 // take the whole thing before that
                 final String prefix = value.substring(0, this.firstVarPos);
                 // check if it is some kind of URI
-                BPELRESTLightElement.LOG.debug(
-                    "Node attribute contains bpelvar[] keyword: checking if string before keyowrd is a valid URI");
+                BPELRESTLightElement.LOG.debug("Node attribute contains bpelvar[] keyword: checking if string before keyowrd is a valid URI");
                 // the path has to be some kind of string which can be
                 // unique
                 // the case http://localhost.de:1337/bpelvar[somevar]
@@ -262,15 +261,15 @@ public class BPELRESTLightElement {
                 value = prefix;
             }
         } else {
-            BPELRESTLightElement.LOG.debug(
-                "Node attribute contains no {OPENTOSCA} tag or bpelvar[] keyword: checking if uri is plain");
+            BPELRESTLightElement.LOG.debug("Node attribute contains no {OPENTOSCA} tag or bpelvar[] keyword: checking if uri is plain");
             this.uriType = URIFormatType.PLAINURI;
         }
 
         // checking if uri in value is valid
         try {
             temp = new URI(value);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             BPELRESTLightElement.LOG.debug("Node attribute value is false: URI syntax exception");
             throw new NoBPELRESTLightElementException(
                 "Node isn't a valid BPEL4RESTLight Element: The URI in uri attribute is fraud", e);
@@ -282,8 +281,7 @@ public class BPELRESTLightElement {
         }
 
         if (temp.getPath().equals("/")) {
-            BPELRESTLightElement.LOG.debug(
-                "Node attribute contains bpelvar[] keyword: string before keyword has no path, can't identify service");
+            BPELRESTLightElement.LOG.debug("Node attribute contains bpelvar[] keyword: string before keyword has no path, can't identify service");
             throw new NoBPELRESTLightElementException(
                 "Node isn't valid BPEL4RESTLight Element: The partial URI in uri attribute is fraud. (path not unique)");
         }
@@ -292,8 +290,7 @@ public class BPELRESTLightElement {
         if (this.uriValue == null) {
             BPELRESTLightElement.LOG.debug("Node attribute value is right: value is plain relative uri");
         } else {
-            BPELRESTLightElement.LOG.debug(
-                "Node attribute contains bpelvar[] keyword: string before keyword is a valid uri");
+            BPELRESTLightElement.LOG.debug("Node attribute contains bpelvar[] keyword: string before keyword is a valid uri");
         }
 
     }
@@ -355,7 +352,8 @@ public class BPELRESTLightElement {
             t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             t.setOutputProperty(OutputKeys.INDENT, "yes");
             t.transform(new DOMSource(this.parentNode), new StreamResult(sw));
-        } catch (final TransformerException te) {
+        }
+        catch (final TransformerException te) {
             System.out.println("nodeToString Transformer Exception");
         }
         return sw.toString();

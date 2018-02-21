@@ -269,27 +269,27 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -307,7 +307,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://soap.axiom.apache.org/xsd");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":SOAPFault", xmlWriter);
+                               namespacePrefix + ":SOAPFault", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "SOAPFault", xmlWriter);
             }
@@ -324,7 +324,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                 xmlWriter.writeEndElement();
             } else {
                 this.localCode.serialize(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "code"),
-                    xmlWriter);
+                                         xmlWriter);
             }
         }
         if (this.localDetailTracker) {
@@ -337,7 +337,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                 xmlWriter.writeEndElement();
             } else {
                 this.localDetail.serialize(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "detail"),
-                    xmlWriter);
+                                           xmlWriter);
             }
         }
         if (this.localExceptionTracker) {
@@ -368,7 +368,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                 xmlWriter.writeEndElement();
             } else {
                 this.localNode.serialize(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "node"),
-                    xmlWriter);
+                                         xmlWriter);
             }
         }
         if (this.localReasonTracker) {
@@ -381,7 +381,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                 xmlWriter.writeEndElement();
             } else {
                 this.localReason.serialize(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "reason"),
-                    xmlWriter);
+                                           xmlWriter);
             }
         }
         if (this.localRoleTracker) {
@@ -394,7 +394,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                 xmlWriter.writeEndElement();
             } else {
                 this.localRole.serialize(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "role"),
-                    xmlWriter);
+                                         xmlWriter);
             }
         }
         xmlWriter.writeEndElement();
@@ -413,8 +413,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -435,9 +435,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -449,8 +448,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -464,8 +463,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -491,8 +490,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -503,8 +502,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -515,8 +514,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -539,11 +538,10 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -559,8 +557,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -580,8 +577,7 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -603,10 +599,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
         if (this.localExceptionTracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "exception"));
 
-            elementList.add(
-                this.localException == null ? null
-                                            : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                this.localException));
+            elementList.add(this.localException == null ? null
+                                                        : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localException));
         }
         if (this.localNodeTracker) {
             elementList.add(new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "node"));
@@ -666,8 +660,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -681,7 +675,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
                             return (SOAPFault) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
-                                type, reader);
+                                                                                                              type,
+                                                                                                              reader);
                         }
 
                         throw new org.apache.axis2.databinding.ADBException(
@@ -708,9 +703,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "code").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "code").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -736,9 +730,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "detail").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "detail").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -772,8 +765,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                         final java.lang.String content = reader.getElementText();
 
                         final org.apache.axiom.om.OMFactory fac = org.apache.axiom.om.OMAbstractFactory.getOMFactory();
-                        final org.apache.axiom.om.OMNamespace omNs = fac.createOMNamespace(
-                            "http://soap.axiom.apache.org/xsd", "");
+                        final org.apache.axiom.om.OMNamespace omNs =
+                            fac.createOMNamespace("http://soap.axiom.apache.org/xsd", "");
                         final org.apache.axiom.om.OMElement _valueException = fac.createOMElement("exception", omNs);
                         _valueException.addChild(fac.createOMText(_valueException, content));
                         object.setException(_valueException);
@@ -797,9 +790,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "node").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "node").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -825,9 +817,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "reason").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "reason").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -853,9 +844,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd", "role").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.axiom.apache.org/xsd",
+                    "role").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -888,7 +878,8 @@ public abstract class SOAPFault implements org.apache.axis2.databinding.ADBBean 
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

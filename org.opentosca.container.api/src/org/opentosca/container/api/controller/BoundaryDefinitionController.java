@@ -66,7 +66,7 @@ public class BoundaryDefinitionController {
     @ApiOperation(value = "Gets boundary definitions for a given service template", response = ResourceSupport.class,
                   responseContainer = "List")
     public Response getBoundaryDefinitions(@ApiParam("CSAR id") @PathParam("csar") final String csar,
-                    @PathParam("servicetemplate") final String servicetemplate) {
+                                           @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -98,7 +98,7 @@ public class BoundaryDefinitionController {
     @ApiOperation(value = "Gets properties of a service tempate", response = PropertiesDTO.class,
                   responseContainer = "List")
     public Response getProperties(@ApiParam("CSAR id") @PathParam("csar") final String csar,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -106,10 +106,11 @@ public class BoundaryDefinitionController {
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
-        final String xmlFragment = this.referenceMapper.getServiceTemplateBoundsPropertiesContent(
-            csarContent.getCSARID(), QName.valueOf(servicetemplate));
-        final List<TPropertyMapping> propertyMappings = this.referenceMapper.getPropertyMappings(
-            csarContent.getCSARID(), QName.valueOf(servicetemplate));
+        final String xmlFragment =
+            this.referenceMapper.getServiceTemplateBoundsPropertiesContent(csarContent.getCSARID(),
+                                                                           QName.valueOf(servicetemplate));
+        final List<TPropertyMapping> propertyMappings =
+            this.referenceMapper.getPropertyMappings(csarContent.getCSARID(), QName.valueOf(servicetemplate));
 
         final PropertiesDTO dto = new PropertiesDTO();
         this.logger.debug("XML Fragement: {}", xmlFragment);
@@ -129,7 +130,7 @@ public class BoundaryDefinitionController {
     @ApiOperation(value = "Gets interfaces of a service tempate", response = InterfaceDTO.class,
                   responseContainer = "List")
     public Response getInterfaces(@ApiParam("CSAR id") @PathParam("csar") final String csar,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -137,10 +138,11 @@ public class BoundaryDefinitionController {
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
-        final List<String> interfaces = this.referenceMapper.getBoundaryInterfacesOfServiceTemplate(
-            csarContent.getCSARID(), QName.valueOf(servicetemplate));
+        final List<String> interfaces =
+            this.referenceMapper.getBoundaryInterfacesOfServiceTemplate(csarContent.getCSARID(),
+                                                                        QName.valueOf(servicetemplate));
         this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
-            servicetemplate, csar);
+                          servicetemplate, csar);
 
         final InterfaceListDTO list = new InterfaceListDTO();
         list.add(interfaces.stream().map(name -> {
@@ -161,8 +163,8 @@ public class BoundaryDefinitionController {
     @ApiOperation(value = "Gets an interface of a service template specified by its name",
                   response = InterfaceDTO.class)
     public Response getInterface(@ApiParam("Name of the interface") @PathParam("name") final String name,
-                    @ApiParam("CSAR id") @PathParam("csar") final String csar,
-                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+                                 @ApiParam("CSAR id") @PathParam("csar") final String csar,
+                                 @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -170,10 +172,10 @@ public class BoundaryDefinitionController {
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
-        final List<TExportedOperation> operations = this.getExportedOperations(csarContent.getCSARID(),
-            QName.valueOf(servicetemplate), name);
+        final List<TExportedOperation> operations =
+            this.getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
         this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
-            operations.size(), name, servicetemplate, csar);
+                          operations.size(), name, servicetemplate, csar);
 
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
 
@@ -191,15 +193,16 @@ public class BoundaryDefinitionController {
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
                     // If it's a build plan
-                    planUrl = this.uriInfo.getBaseUriBuilder()
-                                          .path(
-                                              "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
-                                          .build(csar, servicetemplate, plan.getId());
+                    planUrl =
+                        this.uriInfo.getBaseUriBuilder()
+                                    .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
+                                    .build(csar, servicetemplate, plan.getId());
                 } else {
                     // ... else we assume it's a management plan
-                    planUrl = this.uriInfo.getBaseUriBuilder().path(
-                        "/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
-                                          .build(csar, servicetemplate, plan.getId());
+                    planUrl =
+                        this.uriInfo.getBaseUriBuilder()
+                                    .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
+                                    .build(csar, servicetemplate, plan.getId());
                 }
                 plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
                 op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
@@ -217,9 +220,9 @@ public class BoundaryDefinitionController {
     }
 
     private List<TExportedOperation> getExportedOperations(final CSARID csarId, final QName serviceTemplate,
-                    final String interfaceName) {
-        final Map<QName, List<TExportedInterface>> exportedInterfacesOfCsar = this.referenceMapper.getExportedInterfacesOfCSAR(
-            csarId);
+                                                           final String interfaceName) {
+        final Map<QName, List<TExportedInterface>> exportedInterfacesOfCsar =
+            this.referenceMapper.getExportedInterfacesOfCSAR(csarId);
         final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
         for (final TExportedInterface exportedInterface : exportedInterfaces) {
             if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {

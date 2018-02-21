@@ -326,8 +326,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
         this.localServiceGroupContextIDsTracker = true;
 
 
-        final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(
-            this.localServiceGroupContextIDs);
+        final java.util.List list =
+            org.apache.axis2.databinding.utils.ConverterUtil.toList(this.localServiceGroupContextIDs);
         list.add(param);
         this.localServiceGroupContextIDs = (java.lang.String[]) list.toArray(new java.lang.String[list.size()]);
 
@@ -581,27 +581,27 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -619,10 +619,10 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://context.axis2.apache.org/xsd");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":ConfigurationContext", xmlWriter);
+                               namespacePrefix + ":ConfigurationContext", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "ConfigurationContext",
-                    xmlWriter);
+                               xmlWriter);
             }
 
 
@@ -636,8 +636,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 throw new org.apache.axis2.databinding.ADBException("anyOperationContextRegistered cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                    this.localAnyOperationContextRegistered));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localAnyOperationContextRegistered));
             }
 
             xmlWriter.writeEndElement();
@@ -651,9 +650,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localAxisConfiguration.serialize(
-                    new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "axisConfiguration"),
-                    xmlWriter);
+                this.localAxisConfiguration.serialize(new javax.xml.namespace.QName(
+                    "http://context.axis2.apache.org/xsd", "axisConfiguration"), xmlWriter);
             }
         }
         if (this.localContextRootTracker) {
@@ -684,8 +682,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localListenerManager.serialize(
-                    new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "listenerManager"), xmlWriter);
+                this.localListenerManager.serialize(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "listenerManager"), xmlWriter);
             }
         }
         if (this.localRootContextTracker) {
@@ -697,8 +695,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localRootContext.serialize(
-                    new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "rootContext"), xmlWriter);
+                this.localRootContext.serialize(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "rootContext"), xmlWriter);
             }
         }
         if (this.localServiceContextPathTracker) {
@@ -730,8 +728,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                         writeStartElement(null, namespace, "serviceGroupContextIDs", xmlWriter);
 
 
-                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                            localServiceGroupContextID));
+                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localServiceGroupContextID));
 
                         xmlWriter.writeEndElement();
 
@@ -769,8 +766,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     "serviceGroupContextTimeoutInterval cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                    this.localServiceGroupContextTimeoutInterval));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localServiceGroupContextTimeoutInterval));
             }
 
             xmlWriter.writeEndElement();
@@ -785,8 +781,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     "serviceGroupContextTimoutInterval cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                    this.localServiceGroupContextTimoutInterval));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localServiceGroupContextTimoutInterval));
             }
 
             xmlWriter.writeEndElement();
@@ -795,13 +790,12 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
             if (this.localServiceGroupContexts != null) {
                 if (this.localServiceGroupContexts instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localServiceGroupContexts).serialize(
-                        new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "serviceGroupContexts"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localServiceGroupContexts).serialize(new javax.xml.namespace.QName(
+                        "http://context.axis2.apache.org/xsd", "serviceGroupContexts"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://context.axis2.apache.org/xsd", "serviceGroupContexts", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localServiceGroupContexts,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -845,8 +839,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localThreadPool.serialize(
-                    new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "threadPool"), xmlWriter);
+                this.localThreadPool.serialize(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "threadPool"), xmlWriter);
             }
         }
         if (this.localTransportManagerTracker) {
@@ -858,9 +852,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localTransportManager.serialize(
-                    new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "transportManager"),
-                    xmlWriter);
+                this.localTransportManager.serialize(new javax.xml.namespace.QName(
+                    "http://context.axis2.apache.org/xsd", "transportManager"), xmlWriter);
             }
         }
         xmlWriter.writeEndElement();
@@ -879,8 +872,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -901,9 +894,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -915,8 +907,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -930,8 +922,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -957,8 +949,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -969,8 +961,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -981,8 +973,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -1005,11 +997,10 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -1025,8 +1016,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -1046,8 +1036,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -1055,11 +1044,10 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
         final java.util.ArrayList attribList = new java.util.ArrayList();
 
         if (this.localAnyOperationContextRegisteredTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "anyOperationContextRegistered"));
+            elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                "anyOperationContextRegistered"));
 
-            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                this.localAnyOperationContextRegistered));
+            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localAnyOperationContextRegistered));
         }
         if (this.localAxisConfigurationTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "axisConfiguration"));
@@ -1070,10 +1058,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
         if (this.localContextRootTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "contextRoot"));
 
-            elementList.add(
-                this.localContextRoot == null ? null
-                                              : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                  this.localContextRoot));
+            elementList.add(this.localContextRoot == null ? null
+                                                          : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localContextRoot));
         }
         if (this.localListenerManagerTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "listenerManager"));
@@ -1090,10 +1076,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
         if (this.localServiceContextPathTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "serviceContextPath"));
 
-            elementList.add(
-                this.localServiceContextPath == null ? null
-                                                     : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                         this.localServiceContextPath));
+            elementList.add(this.localServiceContextPath == null ? null
+                                                                 : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localServiceContextPath));
         }
         if (this.localServiceGroupContextIDsTracker) {
             if (this.localServiceGroupContextIDs != null) {
@@ -1102,8 +1086,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     if (localServiceGroupContextID != null) {
                         elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
                             "serviceGroupContextIDs"));
-                        elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                            localServiceGroupContextID));
+                        elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localServiceGroupContextID));
                     } else {
 
                         elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
@@ -1116,8 +1099,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 }
             } else {
 
-                elementList.add(
-                    new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "serviceGroupContextIDs"));
+                elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "serviceGroupContextIDs"));
                 elementList.add(null);
 
             }
@@ -1127,19 +1110,17 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
                 "serviceGroupContextTimeoutInterval"));
 
-            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                this.localServiceGroupContextTimeoutInterval));
+            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localServiceGroupContextTimeoutInterval));
         }
         if (this.localServiceGroupContextTimoutIntervalTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
                 "serviceGroupContextTimoutInterval"));
 
-            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                this.localServiceGroupContextTimoutInterval));
+            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localServiceGroupContextTimoutInterval));
         }
         if (this.localServiceGroupContextsTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "serviceGroupContexts"));
+            elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                "serviceGroupContexts"));
 
 
             elementList.add(this.localServiceGroupContexts == null ? null : this.localServiceGroupContexts);
@@ -1147,10 +1128,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
         if (this.localServicePathTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "servicePath"));
 
-            elementList.add(
-                this.localServicePath == null ? null
-                                              : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                  this.localServicePath));
+            elementList.add(this.localServicePath == null ? null
+                                                          : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localServicePath));
         }
         if (this.localThreadPoolTracker) {
             elementList.add(new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "threadPool"));
@@ -1189,8 +1168,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static ConfigurationContext parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static ConfigurationContext parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final ConfigurationContext object = new ConfigurationContext();
 
             final int event;
@@ -1205,8 +1183,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -1219,8 +1197,9 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                         if (!"ConfigurationContext".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (ConfigurationContext) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (ConfigurationContext) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                         type,
+                                                                                                                         reader);
                         }
 
 
@@ -1251,8 +1230,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
                     final java.lang.String content = reader.getElementText();
 
-                    object.setAnyOperationContextRegistered(
-                        org.apache.axis2.databinding.utils.ConverterUtil.convertToBoolean(content));
+                    object.setAnyOperationContextRegistered(org.apache.axis2.databinding.utils.ConverterUtil.convertToBoolean(content));
 
                     reader.next();
 
@@ -1267,9 +1245,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "axisConfiguration").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "axisConfiguration").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1280,8 +1257,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
                     } else {
 
-                        object.setAxisConfiguration(
-                            org.apache.axis2.engine.xsd.AxisConfiguration.Factory.parse(reader));
+                        object.setAxisConfiguration(org.apache.axis2.engine.xsd.AxisConfiguration.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1296,17 +1272,15 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "contextRoot").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "contextRoot").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setContextRoot(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setContextRoot(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1327,9 +1301,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "listenerManager").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "listenerManager").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1355,9 +1328,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "rootContext").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "rootContext").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1391,8 +1363,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setServiceContextPath(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setServiceContextPath(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1448,8 +1419,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                             if (new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
                                 "serviceGroupContextIDs").equals(reader.getName())) {
 
-                                nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                                    "nil");
+                                nillableValue =
+                                    reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                                 if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
                                     list7.add(null);
 
@@ -1464,8 +1435,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     }
                     // call the converter utility to convert and set the array
 
-                    object.setServiceGroupContextIDs(
-                        (java.lang.String[]) list7.toArray(new java.lang.String[list7.size()]));
+                    object.setServiceGroupContextIDs((java.lang.String[]) list7.toArray(new java.lang.String[list7.size()]));
 
                 } // End of if for expected property start element
 
@@ -1483,8 +1453,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
                     final java.lang.String content = reader.getElementText();
 
-                    object.setServiceGroupContextTimeoutInterval(
-                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+                    object.setServiceGroupContextTimeoutInterval(org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
 
                     reader.next();
 
@@ -1506,8 +1475,7 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
                     final java.lang.String content = reader.getElementText();
 
-                    object.setServiceGroupContextTimoutInterval(
-                        org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
+                    object.setServiceGroupContextTimoutInterval(org.apache.axis2.databinding.utils.ConverterUtil.convertToLong(content));
 
                     reader.next();
 
@@ -1527,8 +1495,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
                     "serviceGroupContexts").equals(reader.getName())) {
 
-                    object.setServiceGroupContexts(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setServiceGroupContexts(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                     org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1543,17 +1511,15 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "servicePath").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "servicePath").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setServicePath(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setServicePath(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1574,9 +1540,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "threadPool").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "threadPool").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1602,9 +1567,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd", "transportManager").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://context.axis2.apache.org/xsd",
+                    "transportManager").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1637,7 +1601,8 @@ public class ConfigurationContext implements org.apache.axis2.databinding.ADBBea
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

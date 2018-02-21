@@ -63,7 +63,8 @@ public class NodeTemplateInstanceStateResource {
             } else {
                 return null;
             }
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND,
                 "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
         }
@@ -79,7 +80,8 @@ public class NodeTemplateInstanceStateResource {
         try {
             stateQName = QName.valueOf(state);
 
-        } catch (final Exception e1) {
+        }
+        catch (final Exception e1) {
             throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter state: " + e1.getMessage());
         }
 
@@ -90,7 +92,8 @@ public class NodeTemplateInstanceStateResource {
             // SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
             // nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
             return Response.ok().build();
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND,
                 "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
         }

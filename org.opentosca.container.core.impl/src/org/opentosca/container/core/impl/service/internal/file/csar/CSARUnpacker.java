@@ -67,8 +67,8 @@ public class CSARUnpacker {
 
             this.csarUnpackDirectory = tempDirectory.toPath();
 
-            final List<File> unpackedFiles = CSARUnpacker.fileAccessService.unzip(this.CSAR_FILE.toFile(),
-                tempDirectory);
+            final List<File> unpackedFiles =
+                CSARUnpacker.fileAccessService.unzip(this.CSAR_FILE.toFile(), tempDirectory);
 
             if (unpackedFiles == null) {
                 throw new UserException("Unpacking file located at \"" + this.CSAR_FILE.toString() + "\" failed.");
@@ -77,9 +77,10 @@ public class CSARUnpacker {
             this.visitUnpackDir();
 
             CSARUnpacker.LOG.debug("Unpacking CSAR located at \"{}\" and getting its files and directories completed.",
-                this.CSAR_FILE);
+                                   this.CSAR_FILE);
 
-        } catch (UserException | SystemException exc) {
+        }
+        catch (UserException | SystemException exc) {
             this.deleteUnpackDir();
             throw exc;
         }
@@ -111,7 +112,7 @@ public class CSARUnpacker {
     private void visitUnpackDir() throws SystemException {
 
         CSARUnpacker.LOG.debug("Getting files and directories in CSAR unpack directory \"{}\"...",
-            this.csarUnpackDirectory);
+                               this.csarUnpackDirectory);
 
         final DirectoryVisitor directoryVisitor = new DirectoryVisitor();
 
@@ -124,11 +125,12 @@ public class CSARUnpacker {
             directoryVisitor.getVisitedDirectories().remove(this.csarUnpackDirectory);
 
             CSARUnpacker.LOG.debug("Getting files and directories in CSAR unpack directory \"{}\" completed.",
-                this.csarUnpackDirectory);
+                                   this.csarUnpackDirectory);
 
             this.csarVisitor = directoryVisitor;
 
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
             throw new SystemException(
                 "An IO Exception occurred. Getting files and directorties in CSAR unpack directory \""
                     + this.csarUnpackDirectory.toString() + "\" failed.",
@@ -151,12 +153,14 @@ public class CSARUnpacker {
         try {
             Files.walkFileTree(this.csarUnpackDirectory, csarDeleteVisitor);
             CSARUnpacker.LOG.debug("Deleting CSAR unpack dir \"{}\" completed.", this.csarUnpackDirectory);
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
             throw new SystemException(
                 "An IO Exception occurred. Deleting files and directories in CSAR unpack directory \""
                     + this.csarUnpackDirectory.toString() + "\" failed.",
                 exc);
-        } finally {
+        }
+        finally {
             this.csarUnpackDirectory = null;
             this.csarVisitor = null;
         }

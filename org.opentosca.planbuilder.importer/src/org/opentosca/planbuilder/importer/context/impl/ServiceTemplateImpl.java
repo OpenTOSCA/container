@@ -135,7 +135,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
             final TPlans plans = this.serviceTemplate.getPlans();
             final List<TPlan> plans2 = plans.getPlan();
             ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no BuildPlan",
-                this.getQName().toString());
+                                          this.getQName().toString());
             for (final TPlan plan : plans.getPlan()) {
                 ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
                 if (plan.getPlanType().trim()
@@ -154,7 +154,7 @@ public class ServiceTemplateImpl extends AbstractServiceTemplate {
             final TPlans plans = this.serviceTemplate.getPlans();
             final List<TPlan> plans2 = plans.getPlan();
             ServiceTemplateImpl.LOG.debug("Checking whether ServiceTemplate {} has no TerminationPlan",
-                this.getQName().toString());
+                                          this.getQName().toString());
             for (final TPlan plan : plans.getPlan()) {
                 ServiceTemplateImpl.LOG.debug("Checking Plan {} of Type {}", plan.getId(), plan.getPlanType());
                 if (plan.getPlanType().trim()

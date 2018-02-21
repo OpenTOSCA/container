@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceHandler {
 
-    public static Map<String, IManagementBusPluginService> pluginServices = Collections.synchronizedMap(
-        new HashMap<String, IManagementBusPluginService>());
+    public static Map<String, IManagementBusPluginService> pluginServices =
+        Collections.synchronizedMap(new HashMap<String, IManagementBusPluginService>());
     public static IInstanceDataService instanceDataService, oldInstanceDataService;
     public static ICoreEndpointService endpointService, oldEndpointService;
     public static IToscaEngineService toscaEngineService, oldToscaEngineService;
@@ -127,7 +127,7 @@ public class ServiceHandler {
             }
 
             ServiceHandler.LOG.debug("Bind InstanceDataServiceInterface: {} bound.",
-                ServiceHandler.instanceDataService.toString());
+                                     ServiceHandler.instanceDataService.toString());
         } else {
             ServiceHandler.LOG.error("Bind InstanceDataServiceInterface: Supplied parameter is null!");
         }
@@ -184,7 +184,7 @@ public class ServiceHandler {
                     ServiceHandler.LOG.debug("Unbound MB-Plugin Service: {} for Type: {}", plugin.toString(), type);
                 } else {
                     ServiceHandler.LOG.debug("MB-Plug-in {} could not be unbound, because it is not bound!",
-                        plugin.toString());
+                                             plugin.toString());
                 }
             }
         }

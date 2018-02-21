@@ -63,11 +63,11 @@ public class ResourceHandler {
      * @throws SAXException is thrown when transforming the internal files to a DOM Node
      */
     public Node generateAssignRequestMsgAsNode(final String assignName, final String prefix,
-                    final String requestVarName, final String serverIpName, final String inputMessageVarName,
-                    final String script)
-        throws IOException, SAXException {
+                                               final String requestVarName, final String serverIpName,
+                                               final String inputMessageVarName,
+                                               final String script) throws IOException, SAXException {
         final String templateString = this.generateAssignRequestMsgAsString(assignName, prefix, requestVarName,
-            serverIpName, inputMessageVarName, script);
+                                                                            serverIpName, inputMessageVarName, script);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -87,9 +87,9 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public String generateAssignRequestMsgAsString(final String assignName, final String prefix,
-                    final String requestVarName, final String serverIpName, final String inputMessageVarName,
-                    final String script)
-        throws IOException {
+                                                   final String requestVarName, final String serverIpName,
+                                                   final String inputMessageVarName,
+                                                   final String script) throws IOException {
         // <!--
         // {assignName}{prefix}{requestVarName}{serverIpVarName}{requestVarName}{inputMessageVarName}{script}
         // -->
@@ -118,10 +118,10 @@ public class ResourceHandler {
      * @return BPEL Invoke Element as Node
      */
     public Node generateInvokeAsNode(final String invokeName, final String partnerLinkName, final String operationname,
-                    final QName portType, final String inputVarName, final String outputVarName)
-        throws SAXException, IOException {
+                                     final QName portType, final String inputVarName,
+                                     final String outputVarName) throws SAXException, IOException {
         final String templateString = this.generateInvokeAsString(invokeName, partnerLinkName, operationname, portType,
-            inputVarName, outputVarName);
+                                                                  inputVarName, outputVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -140,17 +140,18 @@ public class ResourceHandler {
      * @return BPEL Invoke Element as String
      */
     public String generateInvokeAsString(final String invokeName, final String partnerLinkName,
-                    final String operationName, final QName portType, final String inputVarName,
-                    final String outputVarName) {
+                                         final String operationName, final QName portType, final String inputVarName,
+                                         final String outputVarName) {
         // Example:
         // <bpel:invoke name="getPublicDNS" partnerLink="EC2VMIAServicePL"
         // operation="getPublicDNS" portType="ns:EC2VMIAService"
         // inputVariable="webapp_getPublicDNS_Request"
         // outputVariable="webapp_getPublicDNS_Response"></bpel:invoke>
-        final String invokeAsString = "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
-            + invokeName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\""
-            + " portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\""
-            + inputVarName + "\"" + " outputVariable=\"" + outputVarName + "\"></bpel:invoke>";
+        final String invokeAsString =
+            "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + invokeName
+                + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\"" + " portType=\""
+                + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\"" + inputVarName
+                + "\"" + " outputVariable=\"" + outputVarName + "\"></bpel:invoke>";
         return invokeAsString;
     }
 
@@ -197,8 +198,8 @@ public class ResourceHandler {
      */
     public String getRemoteFilePathString(final String artifactPath) {
         ResourceHandler.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        final String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/"
-            + artifactPath + "'))";
+        final String filePath =
+            "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
         return filePath;
     }
 
@@ -220,11 +221,12 @@ public class ResourceHandler {
      * @throws SAXException is thrown if transforming internal files to DOM fails
      */
     public Node getRemoteTransferFileAssignAsNode(final String assignName, final String requestVarName,
-                    final String prefix, final String serverIpVarName, final String planRequestName,
-                    final String remoteFilePath, final String remotePath)
-        throws SAXException, IOException {
-        final String templateString = this.getRemoteTransferFileAssignAsString(assignName, requestVarName, prefix,
-            serverIpVarName, planRequestName, remoteFilePath, remotePath);
+                                                  final String prefix, final String serverIpVarName,
+                                                  final String planRequestName, final String remoteFilePath,
+                                                  final String remotePath) throws SAXException, IOException {
+        final String templateString =
+            this.getRemoteTransferFileAssignAsString(assignName, requestVarName, prefix, serverIpVarName,
+                                                     planRequestName, remoteFilePath, remotePath);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -248,9 +250,9 @@ public class ResourceHandler {
      * @throws IOException is thrown if reading internal files fails
      */
     public String getRemoteTransferFileAssignAsString(final String assignName, final String requestVarName,
-                    final String prefix, final String serverIpVarName, final String planRequestName,
-                    final String remoteFilePath, final String remotePath)
-        throws IOException {
+                                                      final String prefix, final String serverIpVarName,
+                                                      final String planRequestName, final String remoteFilePath,
+                                                      final String remotePath) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("assignRemoteTransferFileRequestFragment.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
@@ -279,8 +281,7 @@ public class ResourceHandler {
      *
      */
     public Node getRESTExtensionGETAsNode(final String csarFileName, final String responseName,
-                    final String relativeFilePath)
-        throws SAXException, IOException {
+                                          final String relativeFilePath) throws SAXException, IOException {
         final String templateString = this.getRESTExtensionGETAsString(csarFileName, responseName, relativeFilePath);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
@@ -299,8 +300,7 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public String getRESTExtensionGETAsString(final String csarFileName, final String responseName,
-                    final String relativeFilePath)
-        throws IOException {
+                                              final String relativeFilePath) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
                                      .getResource("restExtensionGetFragment.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
@@ -327,11 +327,12 @@ public class ResourceHandler {
      * @throws SAXException is thrown when transforming internal data to DOM fails
      */
     public Node getTransferFileAssignAsNode(final String assignName, final String requestVarName, final String prefix,
-                    final String serverIpVarName, final String planRequestName, final String localPathVarName,
-                    final String remotePath)
-        throws IOException, SAXException {
-        final String templateString = this.getTransferFileAssignAsString(assignName, requestVarName, prefix,
-            serverIpVarName, planRequestName, localPathVarName, remotePath);
+                                            final String serverIpVarName, final String planRequestName,
+                                            final String localPathVarName,
+                                            final String remotePath) throws IOException, SAXException {
+        final String templateString =
+            this.getTransferFileAssignAsString(assignName, requestVarName, prefix, serverIpVarName, planRequestName,
+                                               localPathVarName, remotePath);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -353,9 +354,9 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public String getTransferFileAssignAsString(final String assignName, final String requestVarName,
-                    final String prefix, final String serverIpVarName, final String planRequestName,
-                    final String localPathVarName, final String remotePath)
-        throws IOException {
+                                                final String prefix, final String serverIpVarName,
+                                                final String planRequestName, final String localPathVarName,
+                                                final String remotePath) throws IOException {
         // <!--
         // {AssignName},{RequestVarName},{ServerIpPropVarName},{prefix},{localPath},{remotePath},{SSHKey}
         // -->
@@ -388,11 +389,11 @@ public class ResourceHandler {
      * @throws SAXException is thrown when transforming internal data to DOM fails
      */
     public Node getTransferFileInvokeAsNode(final String invokeName, final String partnerLinkName,
-                    final String portTypeprefix, final String inputVarName, final String outputVarName,
-                    final String operationName)
-        throws SAXException, IOException {
+                                            final String portTypeprefix, final String inputVarName,
+                                            final String outputVarName,
+                                            final String operationName) throws SAXException, IOException {
         final String templateString = this.getTransferFileInvokeAsString(invokeName, partnerLinkName, portTypeprefix,
-            inputVarName, outputVarName, operationName);
+                                                                         inputVarName, outputVarName, operationName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -413,9 +414,9 @@ public class ResourceHandler {
      * @throws IOException is thrown when reading internal files fails
      */
     public String getTransferFileInvokeAsString(final String invokeName, final String partnerLinkName,
-                    final String portTypeprefix, final String inputVarName, final String outputVarName,
-                    final String operationName)
-        throws IOException {
+                                                final String portTypeprefix, final String inputVarName,
+                                                final String outputVarName,
+                                                final String operationName) throws IOException {
         // <!-- {InvokeName} {partnerlinkName} {portTypePrefix} {inputVarName}
         // {outputVarName}-->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()

@@ -39,25 +39,27 @@ public class CapabilityTypeResolver extends GenericResolver {
                 } else {
                     targetNamespace = definitions.getTargetNamespace();
                 }
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, capabilityType.getName()), capabilityType);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    capabilityType.getName()), capabilityType);
 
-                this.LOG.debug(
-                    "Resolve the CapabilityType \"" + targetNamespace + ":" + capabilityType.getName() + "\".");
+                this.LOG.debug("Resolve the CapabilityType \"" + targetNamespace + ":" + capabilityType.getName()
+                    + "\".");
 
                 // Tags
                 // nothing to do here
 
                 // DerivedFrom
                 if (capabilityType.getDerivedFrom() != null && capabilityType.getDerivedFrom().getTypeRef() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        capabilityType.getDerivedFrom().getTypeRef(), ElementNamesEnum.CAPABILITYTYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(capabilityType.getDerivedFrom()
+                                                                                                 .getTypeRef(),
+                                                                                   ElementNamesEnum.CAPABILITYTYPE);
                 }
 
                 // PropertiesDefinition
                 if (capabilityType.getPropertiesDefinition() != null) {
-                    if (new PropertiesDefinitionResolver(this.referenceMapper).resolve(
-                        capabilityType.getPropertiesDefinition())) {
+                    if (new PropertiesDefinitionResolver(
+                        this.referenceMapper).resolve(capabilityType.getPropertiesDefinition())) {
                         this.LOG.error("The CapabilityType \"" + targetNamespace + ":" + capabilityType.getName()
                             + "\" specifies both attributes in its child element PropertiesDefinition which is not allowed.");
                         errorOccurred = true;

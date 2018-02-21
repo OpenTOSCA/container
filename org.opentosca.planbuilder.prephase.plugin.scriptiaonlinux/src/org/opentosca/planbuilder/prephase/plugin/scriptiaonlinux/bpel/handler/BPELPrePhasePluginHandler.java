@@ -41,7 +41,8 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
     public BPELPrePhasePluginHandler() {
         try {
             this.res = new ResourceHandler();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             BPELPrePhasePluginHandler.LOG.error("Couldn't initialize internal ResourceHandler", e);
         }
     }
@@ -57,7 +58,7 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-                    final AbstractNodeTemplate nodeTemplate) {
+                          final AbstractNodeTemplate nodeTemplate) {
         final List<AbstractArtifactReference> refs = da.getArtifactRef().getArtifactReferences();
         return this.handle(context, refs, da.getName(), nodeTemplate);
     }
@@ -73,11 +74,11 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-                    final AbstractNodeTemplate nodeTemplate) {
+                          final AbstractNodeTemplate nodeTemplate) {
         // fetch references
         final List<AbstractArtifactReference> refs = ia.getArtifactRef().getArtifactReferences();
         return this.handle(context, refs, ia.getArtifactType().getLocalPart() + "_" + ia.getOperationName() + "_IA",
-            nodeTemplate);
+                           nodeTemplate);
 
     }
 
@@ -93,7 +94,7 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
      * @return true iff adding the logic was successful
      */
     private boolean handle(final BPELPlanContext templateContext, final List<AbstractArtifactReference> refs,
-                    final String artifactName, final AbstractNodeTemplate nodeTemplate) {
+                           final String artifactName, final AbstractNodeTemplate nodeTemplate) {
 
         LOG.debug("Handling DA upload with");
         String refsString = "";
@@ -102,8 +103,8 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
         }
         LOG.debug("Refs:" + refsString.substring(0, refsString.lastIndexOf(",")));
         LOG.debug("ArtifactName: " + artifactName);
-        LOG.debug(
-            "NodeTemplate: " + nodeTemplate.getId() + "(Type: " + nodeTemplate.getType().getId().toString() + ")");
+        LOG.debug("NodeTemplate: " + nodeTemplate.getId() + "(Type: " + nodeTemplate.getType().getId().toString()
+            + ")");
 
         // fetch server ip of the vm this artefact will be deployed on
 
@@ -196,8 +197,8 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
         // add sshUser and sshKey to the input message of the build plan, if
         // needed
         if (sshUserVariable == null) {
-            final String cleanName = serverIpPropWrapper.getName()
-                                                        .substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+            final String cleanName =
+                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
             switch (cleanName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshUser field to plan input");
@@ -205,12 +206,10 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
                     LOG.debug("Adding sshUser field to plan input");
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
                     break;
                 default:
                     return false;
@@ -221,20 +220,18 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
 
         if (sshKeyVariable == null) {
             LOG.debug("Adding sshKey field to plan input");
-            final String cleanName = serverIpPropWrapper.getName()
-                                                        .substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
+            final String cleanName =
+                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
             switch (cleanName) {
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                     LOG.debug("Adding sshKey field to plan input");
                     templateContext.addStringValueToPlanRequest("sshKey");
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
                     break;
                 case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
-                    templateContext.addStringValueToPlanRequest(
-                        Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
+                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
                     break;
                 default:
                     return false;
@@ -264,7 +261,7 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
         for (final AbstractArtifactReference ref : refs) {
             // upload da ref and unzip it
             this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable,
-                sshKeyVariable, templateId);
+                                                             sshKeyVariable, templateId);
         }
 
         return true;

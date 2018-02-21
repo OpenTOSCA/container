@@ -30,7 +30,8 @@ public class JAXBContextProvider implements ContextResolver<JAXBContext> {
                 logger.debug("Creating JAXBContext for type \"{}\"", type.getName());
                 context = JAXBContext.newInstance(type);
                 this.contextMap.put(type, context);
-            } catch (final JAXBException e) {
+            }
+            catch (final JAXBException e) {
                 logger.error("Error creating JAXBContext: {}", e.getMessage(), e);
             }
         }

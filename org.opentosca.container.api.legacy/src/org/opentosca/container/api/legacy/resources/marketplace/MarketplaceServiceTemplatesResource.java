@@ -49,8 +49,7 @@ public class MarketplaceServiceTemplatesResource {
     }
 
     @Path("/{serviceTemplateId}")
-    public MarketplaceServiceTemplateResource getServiceTemplate(
-                    @PathParam("serviceTemplateId") final String serviceTemplateId) {
+    public MarketplaceServiceTemplateResource getServiceTemplate(@PathParam("serviceTemplateId") final String serviceTemplateId) {
 
         QName serviceTemplate = null;
         try {
@@ -58,7 +57,8 @@ public class MarketplaceServiceTemplatesResource {
             final String namespace = decodedServiceTemplateId.substring(1).split("}")[0];
             final String localPart = decodedServiceTemplateId.substring(1).split("}")[1];
             serviceTemplate = new QName(namespace, localPart);
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -77,7 +77,7 @@ public class MarketplaceServiceTemplatesResource {
             refs.getReference()
                 .add(new Reference(
                     Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
-                        URLEncoder.encode(serviceTemplateId.toString())),
+                                       URLEncoder.encode(serviceTemplateId.toString())),
                     XLinkConstants.SIMPLE, serviceTemplateId.toString()));
         }
 

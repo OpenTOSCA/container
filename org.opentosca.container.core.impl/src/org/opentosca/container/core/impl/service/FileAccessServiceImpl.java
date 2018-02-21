@@ -44,7 +44,8 @@ public class FileAccessServiceImpl implements IFileAccessService {
             // convert bundle resource URL to file URL
             fileResURL = FileLocator.toFileURL(bundleResURL);
             fileRes = new File(fileResURL.toURI());
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             FileAccessServiceImpl.LOG.error("", e);
         }
 
@@ -308,8 +309,7 @@ public class FileAccessServiceImpl implements IFileAccessService {
 
     @Override
     public File getTestCSAR2() {
-        FileAccessServiceImpl.LOG.debug(
-            "Get the Test CSAR 2 for Core File Service test cases (invalid, contains no Definitions files).");
+        FileAccessServiceImpl.LOG.debug("Get the Test CSAR 2 for Core File Service test cases (invalid, contains no Definitions files).");
         return this.getResource("test/TestCSAR2.csar");
     }
 
@@ -343,7 +343,8 @@ public class FileAccessServiceImpl implements IFileAccessService {
 
         try {
             Files.createDirectories(tempDir);
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
             FileAccessServiceImpl.LOG.warn("An IO Exception occured.", exc);
             return null;
         }

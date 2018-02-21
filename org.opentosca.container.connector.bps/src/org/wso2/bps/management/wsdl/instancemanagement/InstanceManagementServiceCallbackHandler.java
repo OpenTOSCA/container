@@ -63,8 +63,7 @@ public abstract class InstanceManagementServiceCallbackHandler {
      * auto generated Axis2 call back method for getPaginatedInstanceList method override this method
      * for handling normal response from getPaginatedInstanceList operation
      */
-    public void receiveResultgetPaginatedInstanceList(
-                    final org.wso2.bps.management.schema.PaginatedInstanceList result) {}
+    public void receiveResultgetPaginatedInstanceList(final org.wso2.bps.management.schema.PaginatedInstanceList result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -76,8 +75,7 @@ public abstract class InstanceManagementServiceCallbackHandler {
      * auto generated Axis2 call back method for getActivityLifeCycleFilter method override this method
      * for handling normal response from getActivityLifeCycleFilter operation
      */
-    public void receiveResultgetActivityLifeCycleFilter(
-                    final org.wso2.bps.management.schema.ActivityLifeCycleEvents result) {}
+    public void receiveResultgetActivityLifeCycleFilter(final org.wso2.bps.management.schema.ActivityLifeCycleEvents result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -115,8 +113,7 @@ public abstract class InstanceManagementServiceCallbackHandler {
      * auto generated Axis2 call back method for getInstanceInfoWithEvents method override this method
      * for handling normal response from getInstanceInfoWithEvents operation
      */
-    public void receiveResultgetInstanceInfoWithEvents(
-                    final org.wso2.bps.management.schema.InstanceInfoWithEvents result) {}
+    public void receiveResultgetInstanceInfoWithEvents(final org.wso2.bps.management.schema.InstanceInfoWithEvents result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from
@@ -128,8 +125,7 @@ public abstract class InstanceManagementServiceCallbackHandler {
      * auto generated Axis2 call back method for getLongRunningInstances method override this method for
      * handling normal response from getLongRunningInstances operation
      */
-    public void receiveResultgetLongRunningInstances(
-                    final org.wso2.bps.management.schema.GetLongRunningInstancesResponse result) {}
+    public void receiveResultgetLongRunningInstances(final org.wso2.bps.management.schema.GetLongRunningInstancesResponse result) {}
 
     /**
      * auto generated Axis2 Error handler override this method for handling error response from

@@ -46,7 +46,7 @@ class DANodeTypeImplCandidate {
      * @param plugin the PrePhaseDAPlugin which can deploy the DA unto the given NodeTemplate
      */
     void add(final AbstractDeploymentArtifact da, final AbstractNodeTemplate nodeTemplate,
-                    final IPlanBuilderPrePhaseDAPlugin plugin) {
+             final IPlanBuilderPrePhaseDAPlugin plugin) {
         this.das.add(da);
         this.infraNodes.add(nodeTemplate);
         this.plugins.add(plugin);

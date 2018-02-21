@@ -140,8 +140,8 @@ public class ResourceSupport {
     private static class LinksSerializer extends JsonSerializer<List<Link>> {
 
         @Override
-        public void serialize(final List<Link> links, final JsonGenerator json, final SerializerProvider provider)
-            throws IOException, JsonProcessingException {
+        public void serialize(final List<Link> links, final JsonGenerator json,
+                              final SerializerProvider provider) throws IOException, JsonProcessingException {
             if (links.isEmpty()) {
                 return;
             }
@@ -157,8 +157,8 @@ public class ResourceSupport {
     private static class LinkSerializer extends JsonSerializer<Link> {
 
         @Override
-        public void serialize(final Link link, final JsonGenerator json, final SerializerProvider provider)
-            throws IOException, JsonProcessingException {
+        public void serialize(final Link link, final JsonGenerator json,
+                              final SerializerProvider provider) throws IOException, JsonProcessingException {
             if (link.getUri() == null || link.getRel() == null || link.getRel().isEmpty()) {
                 return;
             }

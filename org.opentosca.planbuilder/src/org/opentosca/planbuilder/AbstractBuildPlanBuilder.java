@@ -25,8 +25,9 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;;
 public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
-                    final AbstractServiceTemplate serviceTemplate, final Collection<AbstractNodeTemplate> nodeTemplates,
-                    final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+                                           final AbstractServiceTemplate serviceTemplate,
+                                           final Collection<AbstractNodeTemplate> nodeTemplates,
+                                           final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
 
@@ -34,14 +35,14 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
         final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
 
         generatePOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
-            relationshipTemplates);
+                                     relationshipTemplates);
 
         // this.cleanLooseEdges(links);
 
-        final AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate,
-            activities, links) {
+        final AbstractPlan plan =
+            new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 
-        };
+            };
         return plan;
     }
 
@@ -60,7 +61,7 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
     }
 
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
-                    final AbstractServiceTemplate serviceTemplate) {
+                                           final AbstractServiceTemplate serviceTemplate) {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
@@ -71,20 +72,21 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         generatePOGActivitesAndLinks(activities, links, nodeMapping, topology.getNodeTemplates(), relationMapping,
-            topology.getRelationshipTemplates());
+                                     topology.getRelationshipTemplates());
 
-        final AbstractPlan plan = new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate,
-            activities, links) {
+        final AbstractPlan plan =
+            new AbstractPlan(id, AbstractPlan.PlanType.BUILD, definitions, serviceTemplate, activities, links) {
 
-        };
+            };
         return plan;
     }
 
     private static void generatePOGActivitesAndLinks(final Collection<AbstractActivity> activities,
-                    final Set<Link> links, final Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping,
-                    final Collection<AbstractNodeTemplate> nodeTemplates,
-                    final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
-                    final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
+                                                     final Set<Link> links,
+                                                     final Map<AbstractNodeTemplate, AbstractActivity> nodeActivityMapping,
+                                                     final Collection<AbstractNodeTemplate> nodeTemplates,
+                                                     final Map<AbstractRelationshipTemplate, AbstractActivity> relationActivityMapping,
+                                                     final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
                 "PROVISIONING", nodeTemplate);

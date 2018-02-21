@@ -32,8 +32,7 @@ public class AuthenticationAdminAuthenticationExceptionException extends java.la
     }
 
 
-    public void setFaultMessage(
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminAuthenticationException msg) {
+    public void setFaultMessage(final org.wso2.carbon.core.services.authentication.AuthenticationAdminAuthenticationException msg) {
         this.faultMessage = msg;
     }
 

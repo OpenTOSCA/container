@@ -32,7 +32,7 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
         this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(),
-            new BPELVinothekPlugin(), null);
+                                                              new BPELVinothekPlugin(), null);
 
     }
 

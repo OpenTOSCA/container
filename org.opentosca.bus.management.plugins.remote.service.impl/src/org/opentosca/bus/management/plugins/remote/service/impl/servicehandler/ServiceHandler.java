@@ -81,7 +81,7 @@ public class ServiceHandler {
             }
 
             ServiceHandler.LOG.debug("Bind InstanceDataServiceInterface: {} bound.",
-                ServiceHandler.instanceDataService.toString());
+                                     ServiceHandler.instanceDataService.toString());
         } else {
             ServiceHandler.LOG.error("Bind InstanceDataServiceInterface: Supplied parameter is null!");
         }

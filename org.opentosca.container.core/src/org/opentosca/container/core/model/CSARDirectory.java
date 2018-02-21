@@ -158,10 +158,10 @@ public class CSARDirectory extends AbstractDirectory {
 
             if (directory != null) {
                 CSARDirectory.LOG.debug("Directory \"{}\" relative to \"{}\" was found.", relPathOfDirectory,
-                    this.getPath());
+                                        this.getPath());
             } else {
                 CSARDirectory.LOG.warn("Directory \"{}\" relative to \"{}\" was not found.", relPathOfDirectory,
-                    this.getPath());
+                                       this.getPath());
             }
 
             return directory;

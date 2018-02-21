@@ -113,7 +113,7 @@ public class GenericWsdlWrapper {
          * @return true iff adding was successful
          */
         public boolean addPLT(final String partnerLinkTypeName, final String role1, final QName portType1,
-                        final String role2, final QName portType2) {
+                              final String role2, final QName portType2) {
             boolean check = true;
             check &= this.partnerLinkTypeNames.add(partnerLinkTypeName);
             check &= this.roleNames1.add(role1);
@@ -177,8 +177,8 @@ public class GenericWsdlWrapper {
         this.inputMessageLocalNames = new ArrayList<>();
         this.outputMessageLocalNames = new ArrayList<>();
         this.properties = new ArrayList<>();
-        this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME,
-            inputOperationName);
+        this.genericWsdlFileAsString =
+            this.genericWsdlFileAsString.replace(WSDL_INVOKE_OPERATION_NAME, inputOperationName);
     }
 
     /**
@@ -217,10 +217,10 @@ public class GenericWsdlWrapper {
      */
     public boolean addElementToRequestMessage(final String elementName, final QName type) {
         if (!this.inputMessageLocalNames.contains(elementName)) {
-            this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG,
-                this.generateElementString(elementName, type.getLocalPart())
-                    + GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG);
+            this.genericWsdlFileAsString =
+                this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG,
+                                                     this.generateElementString(elementName, type.getLocalPart())
+                                                         + GenericWsdlWrapper.WSDL_REQUESTTYPEELEMENTS_TAG);
             this.inputMessageLocalNames.add(elementName);
             return true;
         } else {
@@ -237,10 +237,10 @@ public class GenericWsdlWrapper {
      */
     public boolean addElementToResponseMessage(final String elementName, final QName type) {
         if (!this.outputMessageLocalNames.contains(elementName)) {
-            this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG,
-                this.generateElementString(elementName, type.getLocalPart())
-                    + GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG);
+            this.genericWsdlFileAsString =
+                this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG,
+                                                     this.generateElementString(elementName, type.getLocalPart())
+                                                         + GenericWsdlWrapper.WSDL_RESPONETYPEELEMENTS_TAG);
             this.outputMessageLocalNames.add(elementName);
             return true;
         } else {
@@ -260,13 +260,15 @@ public class GenericWsdlWrapper {
             this.namespaces.add(namespace);
             if (prefix == null | prefix.equals("")) {
                 final String nsDecl1 = "xmlns:ns" + this.namespaceCounter + "=\"" + namespace + "\" ";
-                this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                    GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG, nsDecl1 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
+                this.genericWsdlFileAsString =
+                    this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG,
+                                                         nsDecl1 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
                 this.namespaceCounter++;
             } else {
                 final String nsDecl2 = "xmlns:" + prefix + "=\"" + namespace + "\" ";
-                this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                    GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG, nsDecl2 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
+                this.genericWsdlFileAsString =
+                    this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG,
+                                                         nsDecl2 + GenericWsdlWrapper.WSDL_NAMESPACEPREFIX_TAG);
             }
 
             return true;
@@ -285,7 +287,7 @@ public class GenericWsdlWrapper {
      * @return true iff adding was successful
      */
     public boolean addImportElement(final String importType, final String namespace, final String prefix,
-                    final String location) {
+                                    final String location) {
         // TODO we assume the location is absolute for packaging later this has
         // to be fixed
         if (this.absoluteLocations.contains(location)) {
@@ -295,8 +297,9 @@ public class GenericWsdlWrapper {
 
         final String importString = this.generateImportString(importType, namespace, location);
         this.absoluteLocations.add(location);
-        this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_IMPORTS_TAG,
-            importString + GenericWsdlWrapper.WSDL_IMPORTS_TAG);
+        this.genericWsdlFileAsString =
+            this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_IMPORTS_TAG,
+                                                 importString + GenericWsdlWrapper.WSDL_IMPORTS_TAG);
         this.addNamespace(namespace, prefix);
         return true;
     }
@@ -340,8 +343,8 @@ public class GenericWsdlWrapper {
         this.processName = name;
 
         if (this.namespace == null) {
-            this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                GenericWsdlWrapper.WSDL_TARGETNAMESPACE_TAG, namespace);
+            this.genericWsdlFileAsString =
+                this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_TARGETNAMESPACE_TAG, namespace);
         } else {
             this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(this.namespace, namespace);
         }
@@ -389,10 +392,11 @@ public class GenericWsdlWrapper {
         } else {
             // replace the tag with new partnerlinktype+tag, for adding other
             // partnerlinks later
-            this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG,
-                this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName, portType)
-                    + GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
+            this.genericWsdlFileAsString =
+                this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG,
+                                                     this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName,
+                                                                                        portType)
+                                                         + GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
         }
         this.partnerLinkTypeNames.add(partnerLinkTypeName);
         this.pltMap.addPLT(partnerLinkTypeName, roleName, portType, "", new QName(""));
@@ -411,16 +415,17 @@ public class GenericWsdlWrapper {
      * @return true iff adding was successful
      */
     public boolean addPartnerLinkType(final String partnerLinkTypeName, final String roleName1, final QName portType1,
-                    final String roleName2, final QName portType2) {
+                                      final String roleName2, final QName portType2) {
         if (this.isPartnerLinkTypeNameAlreadyUsed(partnerLinkTypeName)) {
             return false;
         } else {
             // replace the tag with new partnerlinktype+tag, for adding other
             // partnerlinks later
-            this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(
-                GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG,
-                this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName1, portType1, roleName2, portType2)
-                    + GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
+            this.genericWsdlFileAsString =
+                this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG,
+                                                     this.generatePartnerLinkTypeString(partnerLinkTypeName, roleName1,
+                                                                                        portType1, roleName2, portType2)
+                                                         + GenericWsdlWrapper.WSDL_PARTNERLINKS_TAG);
         }
         this.partnerLinkTypeNames.add(partnerLinkTypeName);
         this.pltMap.addPLT(partnerLinkTypeName, roleName1, portType1, roleName2, portType2);
@@ -461,8 +466,9 @@ public class GenericWsdlWrapper {
         }
         this.addNamespace(type.getNamespaceURI(), type.getPrefix());
         final String property = this.generatePropertyString(propertyName, type);
-        this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYS_TAG,
-            property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
+        this.genericWsdlFileAsString =
+            this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYS_TAG,
+                                                 property + GenericWsdlWrapper.WSDL_PROPERTYS_TAG);
         return true;
     }
 
@@ -476,11 +482,12 @@ public class GenericWsdlWrapper {
      * @return true iff adding was successful
      */
     public boolean addPropertyAlias(final String propertyName, final String partName, final QName messageType,
-                    final String query) {
+                                    final String query) {
         this.addNamespace(messageType.getNamespaceURI(), messageType.getPrefix());
         final String propertyAlias = this.generatePropertyAliasString(propertyName, partName, messageType, query);
-        this.genericWsdlFileAsString = this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG,
-            propertyAlias + GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG);
+        this.genericWsdlFileAsString =
+            this.genericWsdlFileAsString.replace(GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG,
+                                                 propertyAlias + GenericWsdlWrapper.WSDL_PROPERTYALIAS_TAG);
         return true;
     }
 
@@ -518,7 +525,7 @@ public class GenericWsdlWrapper {
      * @return a String containing a propertyAlias declaration
      */
     private String generatePropertyAliasString(final String propertyName, final String partName,
-                    final QName messageType, final String query) {
+                                               final QName messageType, final String query) {
         // <vprop:propertyAlias messageType="wsdl:createEC2InstanceResponse"
         // part="parameters" propertyName="tns:createEC2InstanceCorrelationID">
         // <vprop:query><![CDATA[/wsdl:CorrelationId]]></vprop:query>
@@ -537,7 +544,7 @@ public class GenericWsdlWrapper {
      * @return a String containing a partnerLinkType declaration
      */
     private String generatePartnerLinkTypeString(final String partnerLinkTypeName, final String roleName,
-                    final QName portType) {
+                                                 final QName portType) {
         return "<plnk:partnerLinkType name=\"" + partnerLinkTypeName + "\"><plnk:role name=\"" + roleName
             + "\" portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"/></plnk:partnerLinkType>";
     }
@@ -553,7 +560,7 @@ public class GenericWsdlWrapper {
      * @return a String containing a partnerLinkType declaration with 2 roles
      */
     private String generatePartnerLinkTypeString(final String partnerLinkTypeName, final String roleName1,
-                    final QName portType1, final String roleName2, final QName portType2) {
+                                                 final QName portType1, final String roleName2, final QName portType2) {
         return "<plnk:partnerLinkType name=\"" + partnerLinkTypeName + "\"><plnk:role name=\"" + roleName1
             + "\" portType=\"" + portType1.getPrefix() + ":" + portType1.getLocalPart() + "\"/><plnk:role name=\""
             + roleName2 + "\" portType=\"" + portType2.getPrefix() + ":" + portType2.getLocalPart()

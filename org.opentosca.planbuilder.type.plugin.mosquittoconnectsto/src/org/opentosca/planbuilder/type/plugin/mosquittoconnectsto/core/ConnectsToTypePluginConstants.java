@@ -13,8 +13,8 @@ public final class ConnectsToTypePluginConstants {
 
     // name of the plugin
     // the relationshipType this plugin can handle
-    public static final QName MOSQUITTO_CONNECTSTO_RELATIONSHIPTYPE = new QName(
-        "http://opentosca.org/relationshiptypes", "MosquittoConnectsTo");
+    public static final QName MOSQUITTO_CONNECTSTO_RELATIONSHIPTYPE =
+        new QName("http://opentosca.org/relationshiptypes", "MosquittoConnectsTo");
 
     // the target nodes of the relationshiptTypes must be a stack of topic and
     // mosquitto

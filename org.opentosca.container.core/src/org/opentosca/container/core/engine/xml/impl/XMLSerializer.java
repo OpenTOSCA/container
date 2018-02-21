@@ -75,8 +75,8 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
      */
     public XMLSerializer(final Class<?> context, final File schemaFile) {
 
-        this.LOG.debug(
-            "Start the initiation of the JAXB objects for context \"" + context.getPackage().getName() + "\".");
+        this.LOG.debug("Start the initiation of the JAXB objects for context \"" + context.getPackage().getName()
+            + "\".");
 
         try {
 
@@ -111,11 +111,14 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
             this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
 
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             this.LOG.error(e.getMessage());
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             this.LOG.error(e.getMessage());
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             this.LOG.error(e.getMessage());
         }
 
@@ -145,8 +148,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
                 return result.getFirstChild();
 
-            } catch (final JAXBException e) {
-            } finally {
+            }
+            catch (final JAXBException e) {
+            }
+            finally {
                 this.printErrorsWhileSerialization();
             }
         } else {
@@ -171,8 +176,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
             return result;
 
-        } catch (final JAXBException e) {
-        } finally {
+        }
+        catch (final JAXBException e) {
+        }
+        finally {
             this.printErrorsWhileSerialization();
         }
         return null;
@@ -199,8 +206,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
                 this.marshallerWithoutValidation.marshal(elementToMarshal, writer);
                 return writer.toString();
 
-            } catch (final JAXBException e) {
-            } finally {
+            }
+            catch (final JAXBException e) {
+            }
+            finally {
                 this.printErrorsWhileSerialization();
             }
         } else {
@@ -221,8 +230,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             // return the unmarshaled data
             return (Definitions) this.createUnmarshaller().unmarshal(fileToUnmarshal);
 
-        } catch (final JAXBException e) {
-        } finally {
+        }
+        catch (final JAXBException e) {
+        }
+        finally {
             this.printErrorsWhileSerialization();
         }
 
@@ -240,8 +251,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             // return the unmarshaled data
             return (Definitions) this.createUnmarshaller().unmarshal(streamToUnmarshal);
 
-        } catch (final JAXBException e) {
-        } finally {
+        }
+        catch (final JAXBException e) {
+        }
+        finally {
             this.printErrorsWhileSerialization();
         }
 
@@ -258,8 +271,10 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         this.LOG.trace(this.docToString(doc.getFirstChild(), true));
         try {
             return (Definitions) this.createUnmarshaller().unmarshal(doc.getFirstChild());
-        } catch (final JAXBException e) {
-        } finally {
+        }
+        catch (final JAXBException e) {
+        }
+        finally {
             this.printErrorsWhileSerialization();
         }
 
@@ -281,9 +296,11 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             if (jaxbElement != null) {
                 return jaxbElement.getValue();
             }
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             this.printErrorsWhileSerialization();
         }
 
@@ -415,7 +432,8 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             }
             u.setEventHandler(this.validationEventCollector);
             return u;
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

@@ -132,10 +132,10 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
      * {@Inheritdoc}
      */
     public void storeWSDLEndpoint(final WSDLEndpoint endpoint) {
-        CoreInternalEndpointServiceImpl.LOG.debug(
-            "Storing WSDL Endpoint with CSARID: \"" + endpoint.getCSARId() + "\", portType: \"" + endpoint.getPortType()
-                + "\", IAName: \"" + endpoint.getIaName() + "\", NodeTypeImplementation: \""
-                + endpoint.getNodeTypeImplementation() + "\", URI: \"" + endpoint.getURI().toString() + "\"");
+        CoreInternalEndpointServiceImpl.LOG.debug("Storing WSDL Endpoint with CSARID: \"" + endpoint.getCSARId()
+            + "\", portType: \"" + endpoint.getPortType() + "\", IAName: \"" + endpoint.getIaName()
+            + "\", NodeTypeImplementation: \"" + endpoint.getNodeTypeImplementation() + "\", URI: \""
+            + endpoint.getURI().toString() + "\"");
 
         // TODO this check is a hack because of the problem with deploying of
         // multiple deployment artifacts
@@ -144,12 +144,12 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                 this.em.getTransaction().begin();
             }
             CoreInternalEndpointServiceImpl.LOG.debug("The endpoint for \"{}\" is not stored. Thus store it.",
-                endpoint.getPortType());
+                                                      endpoint.getPortType());
             this.em.persist(endpoint);
             this.em.getTransaction().commit();
         } else {
             CoreInternalEndpointServiceImpl.LOG.debug("The endpoint for \"{}\" is stored already.",
-                endpoint.getPortType());
+                                                      endpoint.getPortType());
         }
     }
 
@@ -266,7 +266,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
      */
     public void storeRESTEndpoint(final RESTEndpoint endpoint) {
         CoreInternalEndpointServiceImpl.LOG.debug("Storing REST Endpoint with Path : \"{}\", STID: \"{}\"",
-            endpoint.getPath(), endpoint.getCSARId().getFileName());
+                                                  endpoint.getPath(), endpoint.getCSARId().getFileName());
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
         }
@@ -339,7 +339,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET,
                 new CSARID("mockup.example.test"));
             storeRESTEndpoint(endpoint);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -355,7 +356,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                 new CSARID("mockup.example.test"), new QName("{someNamespace}someplanid"),
                 new QName("{someNamespace}someNodeTypeImplId"), "some ia name");
             storeWSDLEndpoint(endpoint);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
         }
 
@@ -426,14 +428,15 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     @Override
     public WSDLEndpoint getWSDLEndpointForPlanId(final CSARID csarId, final QName planId) {
         WSDLEndpoint endpoint = null;
-        final Query queryWSDLEndpoint = this.em.createQuery(
-            "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId");
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId");
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("planId", planId);
 
         try {
             endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
-        } catch (final NoResultException e) {
+        }
+        catch (final NoResultException e) {
             LOG.error("Query in database didn't return a result", e);
             return null;
         }
@@ -444,8 +447,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     @Override
     public WSDLEndpoint getWSDLEndpointForIa(final CSARID csarId, final QName nodeTypeImpl, final String iaName) {
         WSDLEndpoint endpoint = null;
-        final Query queryWSDLEndpoint = this.em.createQuery(
-            "SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
@@ -462,7 +465,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         try {
             endpoint = (WSDLEndpoint) queryWSDLEndpoint.getSingleResult();
 
-        } catch (final NoResultException e) {
+        }
+        catch (final NoResultException e) {
             CoreInternalEndpointServiceImpl.LOG.info("No endpoint stored for requested IA.");
         }
         return endpoint;
@@ -486,8 +490,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final QName nodeTypeImpl, final String iaName) {
         final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
-        final Query queryWSDLEndpoint = this.em.createQuery(
-            "SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
 
@@ -523,8 +527,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
         final StringBuilder builder = new StringBuilder();
         final String ls = System.getProperty("line.separator");
-        builder.append(
-            "debug output for stored endpoints of management plans, flags: csarid, planid, ianame, porttype " + ls);
+        builder.append("debug output for stored endpoints of management plans, flags: csarid, planid, ianame, porttype "
+            + ls);
         for (final WSDLEndpoint endpoint : endpoints) {
             builder.append("endpoint: " + endpoint.getCSARId() + " " + endpoint.getPlanId() + " " + endpoint.getIaName()
                 + " " + endpoint.getPortType() + ls);

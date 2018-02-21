@@ -48,8 +48,8 @@ public class PlanInstanceState {
     public Response getReferencesXML(@Context final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
 
-        final org.opentosca.container.core.next.model.PlanInstance pi = this.repository.findByCorrelationId(
-            this.correlationID);
+        final org.opentosca.container.core.next.model.PlanInstance pi =
+            this.repository.findByCorrelationId(this.correlationID);
 
         final StringBuilder builder = new StringBuilder();
 
@@ -80,8 +80,8 @@ public class PlanInstanceState {
     public Response getReferencesJSON(@Context final UriInfo uriInfo) {
         this.uriInfo = uriInfo;
 
-        final org.opentosca.container.core.next.model.PlanInstance pi = this.repository.findByCorrelationId(
-            this.correlationID);
+        final org.opentosca.container.core.next.model.PlanInstance pi =
+            this.repository.findByCorrelationId(this.correlationID);
 
 
         final JsonObject json = new JsonObject();

@@ -31,8 +31,9 @@ public interface IIAEnginePluginService {
      *         failed).
      */
     public URI deployImplementationArtifact(CSARID csarID, QName nodeTypeImpl, QName artifactType,
-                    Document artifactContent, Document properties, List<TPropertyConstraint> propertyConstraints,
-                    List<AbstractArtifact> artifacts, List<String> requiredFeatures);
+                                            Document artifactContent, Document properties,
+                                            List<TPropertyConstraint> propertyConstraints,
+                                            List<AbstractArtifact> artifacts, List<String> requiredFeatures);
 
     /**
      * Undeploys an ImplementationArtifact.

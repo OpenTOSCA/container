@@ -106,15 +106,15 @@ public class RelationshipTemplateInstancesResource {
             serviceInstanceLinks.add(LinkBuilder.selfLink(uriInfo));
 
             // its ensured that this serviceInstance exists
-            final List<ServiceInstance> serviceInstances = service.getServiceInstances(serviceInstanceIDtoURI, null,
-                null);
+            final List<ServiceInstance> serviceInstances =
+                service.getServiceInstances(serviceInstanceIDtoURI, null, null);
             final ServiceInstance serviceInstance = serviceInstances.get(0);
 
             // extract values
 
             // build nodeInstanceList
-            final List<RelationInstance> relationInstances = service.getRelationInstances(null, null, null,
-                serviceInstanceIDtoURI);
+            final List<RelationInstance> relationInstances =
+                service.getRelationInstances(null, null, null, serviceInstanceIDtoURI);
             final List<SimpleXLink> relationInstanceLinks = new LinkedList<>();
 
             for (final RelationInstance relationInstance : relationInstances) {
@@ -191,7 +191,8 @@ public class RelationshipTemplateInstancesResource {
                 .add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 
             return refs;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -200,8 +201,8 @@ public class RelationshipTemplateInstancesResource {
     @POST
     @Produces(MediaType.APPLICATION_XML)
     public Response createRelationInstance(@Context final UriInfo uriInfo,
-                    @QueryParam("sourceInstanceId") final String sourceInstanceId,
-                    @QueryParam("targetInstanceId") final String targetInstanceId) {
+                                           @QueryParam("sourceInstanceId") final String sourceInstanceId,
+                                           @QueryParam("targetInstanceId") final String targetInstanceId) {
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         // ServiceInstance serviceInstanceIdURI = service.getservi
@@ -228,24 +229,26 @@ public class RelationshipTemplateInstancesResource {
         // }
 
         try {
-            final RelationInstance relationInstance = service.createRelationInstance(this.csarId,
-                this.serviceTemplateID, this.serviceTemplateInstanceId, this.relatioshipTemplateID, sourceInstanceId,
-                targetInstanceId);
+            final RelationInstance relationInstance =
+                service.createRelationInstance(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
+                                               this.relatioshipTemplateID, sourceInstanceId, targetInstanceId);
             // SimpleXLink response = new
             // SimpleXLink(uriInfo.getAbsolutePath().toString() + "/" +
             // serviceTemplateInstanceId, "simple");
-            final SimpleXLink response = new SimpleXLink(Utilities.encode(
-                uriInfo.getAbsolutePathBuilder().path(String.valueOf(relationInstance.getId())).build()), "simple");
+            final SimpleXLink response = new SimpleXLink(
+                Utilities.encode(uriInfo.getAbsolutePathBuilder().path(String.valueOf(relationInstance.getId()))
+                                        .build()),
+                "simple");
             return Response.ok(response).build();
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
     }
 
     @Path("/{" + Constants.RelationInstanceListResource_getRelationInstance_PARAM + "}")
-    public Object getRelationInstance(
-                    @PathParam(Constants.RelationInstanceListResource_getRelationInstance_PARAM) final int relationshipTemplateInstanceId,
-                    @Context final UriInfo uriInfo) {
+    public Object getRelationInstance(@PathParam(Constants.RelationInstanceListResource_getRelationInstance_PARAM) final int relationshipTemplateInstanceId,
+                                      @Context final UriInfo uriInfo) {
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         ExistenceChecker.checkRelationInstanceWithException(relationshipTemplateInstanceId, service);

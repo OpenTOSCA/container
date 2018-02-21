@@ -59,7 +59,8 @@ public class CSARHandler {
 
         try {
             fileService.deleteCSARs();
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
 
         }
     }
@@ -87,8 +88,8 @@ public class CSARHandler {
 
         if (bundleContext != null) {
             CSARHandler.LOG.debug("Retrieving ServiceReference for ICoreFileService");
-            final ServiceReference<?> fileServiceRef = bundleContext.getServiceReference(
-                ICoreFileService.class.getName());
+            final ServiceReference<?> fileServiceRef =
+                bundleContext.getServiceReference(ICoreFileService.class.getName());
             CSARHandler.LOG.debug("Retrieving Service for ICoreFileService");
             final ICoreFileService fileService = (ICoreFileService) bundleContext.getService(fileServiceRef);
             return fileService;

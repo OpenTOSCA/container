@@ -54,7 +54,8 @@ public class BPELFinalizer {
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             this.buildPlanHandler = new BPELPlanHandler();
             this.scopeHandler = new BPELScopeHandler();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             BPELFinalizer.LOG.error("Initializing factories and handlers failed", e);
         }
     }
@@ -93,8 +94,8 @@ public class BPELFinalizer {
         // create bpel elements
         final Element copy = doc.createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "copy");
         final Element from = doc.createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "from");
-        final Element literal = doc.createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
-            "literal");
+        final Element literal =
+            doc.createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "literal");
         final Element to = doc.createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable", "to");
         // create literal value
         final String tns = buildPlan.getWsdl().getTargetNamespace();
@@ -131,9 +132,11 @@ public class BPELFinalizer {
             Node addressingCopy = this.generateWSAddressingOutputAssign();
             addressingCopy = buildPlan.getBpelDocument().importNode(addressingCopy, true);
             buildPlan.getBpelMainSequenceOutputAssignElement().appendChild(addressingCopy);
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             BPELFinalizer.LOG.error("Generating BPEL Copy element to enable callback with WS-Addressing failed", e);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             BPELFinalizer.LOG.error("Generating BPEL Copy element to enable callback with WS-Addressing failed", e);
         }
 
@@ -152,22 +155,22 @@ public class BPELFinalizer {
             // elements, if it's empty, add an empty activity
             final Element prePhaseElement = templateBuildPlan.getBpelSequencePrePhaseElement();
             if (prePhaseElement.getChildNodes().getLength() == 0) {
-                final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
-                    "empty");
+                final Element emptyElement =
+                    buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
                 prePhaseElement.appendChild(emptyElement);
             }
 
             final Element provPhaseElement = templateBuildPlan.getBpelSequenceProvisioningPhaseElement();
             if (provPhaseElement.getChildNodes().getLength() == 0) {
-                final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
-                    "empty");
+                final Element emptyElement =
+                    buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
                 provPhaseElement.appendChild(emptyElement);
             }
 
             final Element postPhaseElement = templateBuildPlan.getBpelSequencePostPhaseElement();
             if (postPhaseElement.getChildNodes().getLength() == 0) {
-                final Element emptyElement = buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace,
-                    "empty");
+                final Element emptyElement =
+                    buildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "empty");
                 postPhaseElement.appendChild(emptyElement);
             }
 
@@ -198,8 +201,10 @@ public class BPELFinalizer {
                         condition += " and $" + targetLinkNames.get(index);
                     }
                 }
-                final Element joinCondition = buildPlan.getBpelDocument().createElementNS(
-                    "http://docs.oasis-open.org/wsbpel/2.0/process/executable", "joinCondition");
+                final Element joinCondition =
+                    buildPlan.getBpelDocument()
+                             .createElementNS("http://docs.oasis-open.org/wsbpel/2.0/process/executable",
+                                              "joinCondition");
                 joinCondition.setTextContent(condition);
                 targets.insertBefore(joinCondition, targets.getFirstChild());
             }
@@ -243,7 +248,8 @@ public class BPELFinalizer {
      * @throws IOException if parsing the internal String fails
      */
     private Node generateWSAddressingOutputAssign() throws SAXException, IOException {
-        final String copyString = "<bpel:copy xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><bpel:from variable=\"input\" header=\"ReplyTo\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[string(/*[local-name()='Address'])]]></bpel:query></bpel:from><bpel:to partnerLink=\"client\" endpointReference=\"partnerRole\"/></bpel:copy>";
+        final String copyString =
+            "<bpel:copy xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\"><bpel:from variable=\"input\" header=\"ReplyTo\"><bpel:query queryLanguage=\"urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0\"><![CDATA[string(/*[local-name()='Address'])]]></bpel:query></bpel:from><bpel:to partnerLink=\"client\" endpointReference=\"partnerRole\"/></bpel:copy>";
         /*
          * <from variable="BPELVariableName" header="NCName"?> <query queryLanguage="anyURI"?>? queryContent
          * </query> </from>
@@ -284,7 +290,7 @@ public class BPELFinalizer {
      */
     public void makeSequential(final BPELPlan buildPlan) {
         BPELFinalizer.LOG.debug("Starting to transform BuildPlan {} to sequential provsioning",
-            buildPlan.getBpelProcessElement().getAttribute("name"));
+                                buildPlan.getBpelProcessElement().getAttribute("name"));
         final List<BPELScopeActivity> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 
         final List<BPELScopeActivity> sequentialOrder = this.calcTopologicalOrdering(templateBuildPlans);
@@ -324,8 +330,8 @@ public class BPELFinalizer {
     }
 
     private void visitTopologicalOrdering(final BPELScopeActivity templateBuildPlan,
-                    final Map<BPELScopeActivity, TopologicalSortMarking> markings,
-                    final List<BPELScopeActivity> topologicalOrder) {
+                                          final Map<BPELScopeActivity, TopologicalSortMarking> markings,
+                                          final List<BPELScopeActivity> topologicalOrder) {
 
         if (markings.get(templateBuildPlan).tempMark) {
             BPELFinalizer.LOG.error("Topological order detected cycle!");

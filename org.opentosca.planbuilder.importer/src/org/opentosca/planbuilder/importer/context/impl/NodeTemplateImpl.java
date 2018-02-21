@@ -228,11 +228,11 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
             }
 
             // TODO this is wrong, really
-            NodeTemplateImpl.LOG.debug(
-                "Checking implementation " + impl.getName() + " for nodetemplate " + this.nodeTemplate.getId());
+            NodeTemplateImpl.LOG.debug("Checking implementation " + impl.getName() + " for nodetemplate "
+                + this.nodeTemplate.getId());
             if (impl.getNodeType().getId().equals(this.nodeTemplate.getType())) {
-                NodeTemplateImpl.LOG.debug(
-                    "Adding implementation for " + this.nodeTemplate.getId() + " with id: " + impl.getName());
+                NodeTemplateImpl.LOG.debug("Adding implementation for " + this.nodeTemplate.getId() + " with id: "
+                    + impl.getName());
                 impls.add(impl);
             }
         }

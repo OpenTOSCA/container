@@ -29,8 +29,8 @@ public class ServiceTemplateService {
 
     public Document getPropertiesOfServicTemplate(final CSARID csarId, final QName serviceTemplateId) {
         logger.debug("Getting ServiceTemplate properties for " + serviceTemplateId + " in " + csarId);
-        final TBoundaryDefinitions boundaryDefs = this.toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(
-            csarId, serviceTemplateId);
+        final TBoundaryDefinitions boundaryDefs =
+            this.toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(csarId, serviceTemplateId);
 
         if (boundaryDefs != null && boundaryDefs.getProperties() != null) {
 
@@ -56,8 +56,8 @@ public class ServiceTemplateService {
      * @throws NotFoundException if either the CSAR is not found or if does not contain the specified
      *         service template.
      */
-    public CSARID checkServiceTemplateExistence(final String csarId, final String serviceTemplateQName)
-        throws NotFoundException {
+    public CSARID checkServiceTemplateExistence(final String csarId,
+                                                final String serviceTemplateQName) throws NotFoundException {
         final CSARContent csarContent = this.csarService.findById(csarId);// throws exception if not found!
 
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateQName)) {

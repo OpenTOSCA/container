@@ -175,8 +175,8 @@ public class CoreFileServiceImpl implements ICoreFileService {
      * This currently acts as a proxy.
      */
     @Override
-    public void moveFileOrDirectoryOfCSAR(final CSARID csarID, final Path fileOrDirRelToCSARRoot)
-        throws UserException, SystemException {
+    public void moveFileOrDirectoryOfCSAR(final CSARID csarID, final Path fileOrDirRelToCSARRoot) throws UserException,
+                                                                                                  SystemException {
         this.internalFileService.moveFileOrDirectoryOfCSAR(csarID, fileOrDirRelToCSARRoot);
     }
 

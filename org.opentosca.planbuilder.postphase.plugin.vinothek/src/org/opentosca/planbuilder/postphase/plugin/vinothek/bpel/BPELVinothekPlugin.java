@@ -33,15 +33,16 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
     private static final String pluginId = "OpenTOSCA PlanBuilder PostPhase Plugin Vinothek";
     public static final QName phpApp = new QName("http://opentosca.org/types/declarative", "PhpApplication");
     public static final QName bpelProcess = new QName("http://opentosca.org/declarative/", "BPEL");
-    private final QName zipArtifactType = new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes",
-        "ArchiveArtifact");
+    private final QName zipArtifactType =
+        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ArchiveArtifact");
 
     private BPELVinothekPluginHandler handler;
 
     public BPELVinothekPlugin() {
         try {
             this.handler = new BPELVinothekPluginHandler();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -57,8 +58,7 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
         return iasForIfaces;
     }
 
-    private List<AbstractImplementationArtifact> getIAsForLifecycleInterface(
-                    final List<AbstractImplementationArtifact> ias) {
+    private List<AbstractImplementationArtifact> getIAsForLifecycleInterface(final List<AbstractImplementationArtifact> ias) {
         final List<AbstractImplementationArtifact> iasForIfaces = new ArrayList<>();
         for (final AbstractImplementationArtifact ia : ias) {
             if (ia.getInterfaceName().equals("http://docs.oasis-open.org/tosca/ns/2011/12/interfaces/lifecycle")) {
@@ -160,10 +160,10 @@ public class BPELVinothekPlugin extends VinothekPlugin<BPELPlanContext> {
             // check the IA's with the found interfaces, and if we found an IA
             // we
             // can use for one of the interfaces we'll use that
-            final List<AbstractImplementationArtifact> iasForInterfaces = this.getIAsForLifecycleInterface(
-                this.getIAsForInterfaces(nodeImpl.getImplementationArtifacts()));
-            final List<AbstractImplementationArtifact> iasForOperations = this.getIAsForLifecycleInterface(
-                this.getIAsForOperations(nodeImpl.getImplementationArtifacts()));
+            final List<AbstractImplementationArtifact> iasForInterfaces =
+                this.getIAsForLifecycleInterface(this.getIAsForInterfaces(nodeImpl.getImplementationArtifacts()));
+            final List<AbstractImplementationArtifact> iasForOperations =
+                this.getIAsForLifecycleInterface(this.getIAsForOperations(nodeImpl.getImplementationArtifacts()));
 
             // first check if we have an IA for a whole interface
             if (iasForInterfaces.size() == 1) {

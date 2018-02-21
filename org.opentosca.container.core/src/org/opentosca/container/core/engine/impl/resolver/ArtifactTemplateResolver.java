@@ -28,14 +28,14 @@ public class ArtifactTemplateResolver extends GenericResolver {
             if (element instanceof TArtifactTemplate) {
 
                 final TArtifactTemplate artifactTemplate = (TArtifactTemplate) element;
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(definitions.getTargetNamespace(), artifactTemplate.getId()), artifactTemplate);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(definitions.getTargetNamespace(),
+                    artifactTemplate.getId()), artifactTemplate);
 
                 // resolve the ArtifactType
                 if (artifactTemplate.getType() != null && !artifactTemplate.getType().toString().equals("")) {
                     errorOccurred = errorOccurred
                         || !this.referenceMapper.searchToscaElementByQNameWithName(artifactTemplate.getType(),
-                            ElementNamesEnum.ARTIFACTTYPE);
+                                                                                   ElementNamesEnum.ARTIFACTTYPE);
                 }
 
                 // Properties

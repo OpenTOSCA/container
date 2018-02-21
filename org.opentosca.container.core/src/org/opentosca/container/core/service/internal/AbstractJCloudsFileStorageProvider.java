@@ -98,8 +98,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
      * jclouds modules that should be loaded beside the default modules during initialization of the
      * storage provider.
      */
-    ImmutableSet<Module> modules = new ImmutableSet.Builder<Module>().add(this.slf4jLoggingModule)
-                                                                     .addAll(this.getJCloudsModules()).build();
+    ImmutableSet<Module> modules =
+        new ImmutableSet.Builder<Module>().add(this.slf4jLoggingModule).addAll(this.getJCloudsModules()).build();
 
 
     /**
@@ -131,7 +131,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
             if (this.isStorageProviderReady()) {
 
                 AbstractJCloudsFileStorageProvider.LOG.debug("Initialize storage provider \"{}\"...",
-                    this.getStorageProviderID());
+                                                             this.getStorageProviderID());
 
                 try {
                     final ContextBuilder contextBuilder = ContextBuilder.newBuilder(this.getStorageProviderID());
@@ -143,31 +143,32 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
                     this.blobStoreContext = contextBuilder.build(BlobStoreContext.class);
 
                     this.blobStore = this.blobStoreContext.getBlobStore();
-                    AbstractJCloudsFileStorageProvider.LOG.debug(
-                        "Creating container \"{}\" on storage provider \"{}\"...", this.getContainerName(),
-                        this.getStorageProviderID());
-                    final boolean isContainerCreated = this.blobStore.createContainerInLocation(
-                        this.getContainerLocation(), this.getContainerName());
+                    AbstractJCloudsFileStorageProvider.LOG.debug("Creating container \"{}\" on storage provider \"{}\"...",
+                                                                 this.getContainerName(), this.getStorageProviderID());
+                    final boolean isContainerCreated =
+                        this.blobStore.createContainerInLocation(this.getContainerLocation(), this.getContainerName());
 
                     if (isContainerCreated) {
-                        AbstractJCloudsFileStorageProvider.LOG.debug(
-                            "Container \"{}\" was created on storage provider \"{}\".", this.getContainerName(),
-                            this.getStorageProviderID());
+                        AbstractJCloudsFileStorageProvider.LOG.debug("Container \"{}\" was created on storage provider \"{}\".",
+                                                                     this.getContainerName(),
+                                                                     this.getStorageProviderID());
                     } else {
-                        AbstractJCloudsFileStorageProvider.LOG.debug(
-                            "Container \"{}\" already exists on storage provider \"{}\" and was created with the provided credentials.",
-                            this.getContainerName(), this.getStorageProviderID());
+                        AbstractJCloudsFileStorageProvider.LOG.debug("Container \"{}\" already exists on storage provider \"{}\" and was created with the provided credentials.",
+                                                                     this.getContainerName(),
+                                                                     this.getStorageProviderID());
                     }
 
                     this.isInitialized = true;
                     AbstractJCloudsFileStorageProvider.LOG.debug("Initialization of storage provider \"{}\" completed.",
-                        this.getStorageProviderID());
+                                                                 this.getStorageProviderID());
 
-                } catch (final AuthorizationException exc) {
+                }
+                catch (final AuthorizationException exc) {
                     this.close();
                     throw new SystemException(
                         "Credentials of storage provider \"" + this.getStorageProviderID() + "\" are invalid.", exc);
-                } catch (final Exception exc) {
+                }
+                catch (final Exception exc) {
                     this.close();
                     throw new SystemException("A jclouds error occured.", exc);
                 }
@@ -181,7 +182,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
         } else {
             AbstractJCloudsFileStorageProvider.LOG.debug("Storage provider \"{}\" is already initialized.",
-                this.getStorageProviderID());
+                                                         this.getStorageProviderID());
         }
 
     }
@@ -192,7 +193,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
         this.initialize();
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Storing file \"{}\" as \"{}\" on storage provider \"{}\"...",
-            absFilePath, relFilePathOnProvider, this.getStorageProviderID());
+                                                     absFilePath, relFilePathOnProvider, this.getStorageProviderID());
 
         if (Files.isRegularFile(absFilePath)) {
 
@@ -203,11 +204,12 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
                 final Blob blob = blobBuilder.build();
                 this.blobStore.putBlob(this.getContainerName(), blob);
 
-                AbstractJCloudsFileStorageProvider.LOG.debug(
-                    "Storing file \"{}\" as \"{}\" on storage provider \"{}\" completed.", absFilePath,
-                    relFilePathOnProvider, this.getStorageProviderID());
+                AbstractJCloudsFileStorageProvider.LOG.debug("Storing file \"{}\" as \"{}\" on storage provider \"{}\" completed.",
+                                                             absFilePath, relFilePathOnProvider,
+                                                             this.getStorageProviderID());
 
-            } catch (final Exception exc) {
+            }
+            catch (final Exception exc) {
 
                 throw new SystemException("A jclouds error occured.", exc);
 
@@ -223,19 +225,17 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
     @Override
     public final void storeFile(final InputStream fileInputStream, final long fileSize,
-                    final String relFilePathOnProvider)
-        throws SystemException {
+                                final String relFilePathOnProvider) throws SystemException {
 
-        AbstractJCloudsFileStorageProvider.LOG.debug(
-            "Storing input stream as file \"{}\" on storage provider \"{}\"...", relFilePathOnProvider,
-            this.getStorageProviderID());
+        AbstractJCloudsFileStorageProvider.LOG.debug("Storing input stream as file \"{}\" on storage provider \"{}\"...",
+                                                     relFilePathOnProvider, this.getStorageProviderID());
 
         this.initialize();
 
         try {
 
-            final BlobBuilder blobBuilder = this.blobStore.blobBuilder(
-                PathUtils.separatorsToUnix(relFilePathOnProvider));
+            final BlobBuilder blobBuilder =
+                this.blobStore.blobBuilder(PathUtils.separatorsToUnix(relFilePathOnProvider));
             // setting content length is necessary if payload is given by an
             // input stream
             blobBuilder.payload(fileInputStream).contentLength(fileSize);
@@ -244,11 +244,11 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
             this.blobStore.putBlob(this.getContainerName(), blob);
 
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "Storing input stream as file \"{}\" on storage provider \"{}\" completed.", relFilePathOnProvider,
-                this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("Storing input stream as file \"{}\" on storage provider \"{}\" completed.",
+                                                         relFilePathOnProvider, this.getStorageProviderID());
 
-        } catch (final Exception exc) {
+        }
+        catch (final Exception exc) {
             throw new SystemException("A jclouds error occured.", exc);
         }
 
@@ -268,7 +268,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
         this.isInitialized = false;
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Closing storage provider \"{}\" completed.",
-            this.getStorageProviderID());
+                                                     this.getStorageProviderID());
 
     }
 
@@ -276,18 +276,17 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     public final void deleteCredentials() {
 
         if (this.isInitialized) {
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "Storage provider \"{}\" is initialized. For deleting credentials it will be closed now.");
+            AbstractJCloudsFileStorageProvider.LOG.debug("Storage provider \"{}\" is initialized. For deleting credentials it will be closed now.");
             this.close();
         }
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Deleting credentials in storage provider \"{}\"...",
-            this.getStorageProviderID());
+                                                     this.getStorageProviderID());
         this.credentialsID = null;
         this.credentialsIdentity = null;
         this.credentialsKey = null;
         AbstractJCloudsFileStorageProvider.LOG.debug("Deleting credentials in storage provider \"{}\" completed.",
-            this.getStorageProviderID());
+                                                     this.getStorageProviderID());
 
     }
 
@@ -295,7 +294,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     public final void deleteFile(final String relFilePathOnProvider) throws SystemException {
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Deleting file \"{}\" on storage provider \"{}\"...",
-            relFilePathOnProvider, this.getStorageProviderID());
+                                                     relFilePathOnProvider, this.getStorageProviderID());
 
         this.initialize();
 
@@ -303,9 +302,10 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
             this.blobStore.removeBlob(this.getContainerName(), PathUtils.separatorsToUnix(relFilePathOnProvider));
             AbstractJCloudsFileStorageProvider.LOG.debug("Deleting file \"{}\" on storage provider \"{}\" completed.",
-                relFilePathOnProvider, this.getStorageProviderID());
+                                                         relFilePathOnProvider, this.getStorageProviderID());
 
-        } catch (final Exception exc) {
+        }
+        catch (final Exception exc) {
 
             throw new SystemException("A jclouds error occured.", exc);
 
@@ -316,16 +316,15 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     @Override
     public final InputStream getFileAsInputStream(final String relFilePathOnProvider) throws SystemException {
 
-        AbstractJCloudsFileStorageProvider.LOG.debug(
-            "Getting input stream of file \"{}\" on storage provider \"{}\" ...", relFilePathOnProvider,
-            this.getStorageProviderID());
+        AbstractJCloudsFileStorageProvider.LOG.debug("Getting input stream of file \"{}\" on storage provider \"{}\" ...",
+                                                     relFilePathOnProvider, this.getStorageProviderID());
 
         this.initialize();
 
         try {
 
-            final Blob blob = this.blobStore.getBlob(this.getContainerName(),
-                PathUtils.separatorsToUnix(relFilePathOnProvider));
+            final Blob blob =
+                this.blobStore.getBlob(this.getContainerName(), PathUtils.separatorsToUnix(relFilePathOnProvider));
 
             if (blob == null) {
                 throw new SystemException("File \"" + relFilePathOnProvider + "\" was not found on storage provider \""
@@ -334,13 +333,13 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
             final InputStream blobInputStream = blob.getPayload().getInput();
 
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "Getting input stream of \"{}\" on storage provider \"{}\" completed.", relFilePathOnProvider,
-                this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("Getting input stream of \"{}\" on storage provider \"{}\" completed.",
+                                                         relFilePathOnProvider, this.getStorageProviderID());
 
             return blobInputStream;
 
-        } catch (final Exception exc) {
+        }
+        catch (final Exception exc) {
 
             throw new SystemException("A jclouds error occured.", exc);
 
@@ -352,7 +351,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     public final void getFile(final String relFilePathOnProvider, final Path targetAbsFilePath) throws SystemException {
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Retrieving file \"{}\" on storage provider \"{}\" ...",
-            relFilePathOnProvider, this.getStorageProviderID());
+                                                     relFilePathOnProvider, this.getStorageProviderID());
 
         this.initialize();
 
@@ -368,8 +367,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
             try {
 
-                final Blob blob = this.blobStore.getBlob(this.getContainerName(),
-                    PathUtils.separatorsToUnix(relFilePathOnProvider));
+                final Blob blob =
+                    this.blobStore.getBlob(this.getContainerName(), PathUtils.separatorsToUnix(relFilePathOnProvider));
 
                 if (blob == null) {
                     throw new SystemException("File \"" + relFilePathOnProvider
@@ -378,27 +377,32 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
                 blob.getPayload().writeTo(bufferedOutputStream);
 
-            } catch (final Exception exc) {
+            }
+            catch (final Exception exc) {
                 throw new SystemException("A jclouds error occured.", exc);
             }
 
             AbstractJCloudsFileStorageProvider.LOG.debug("Retrieving file \"{}\" on storage provider \"{}\" completed.",
-                relFilePathOnProvider, this.getStorageProviderID());
+                                                         relFilePathOnProvider, this.getStorageProviderID());
 
-        } catch (final FileNotFoundException exc) {
+        }
+        catch (final FileNotFoundException exc) {
 
             throw new SystemException("Can't create file \"" + targetAbsFilePath.toString() + "\".", exc);
 
-        } catch (final IOException exc) {
+        }
+        catch (final IOException exc) {
 
             throw new SystemException("An IO Exception occured.", exc);
 
-        } finally {
+        }
+        finally {
 
             if (bufferedOutputStream != null) {
                 try {
                     bufferedOutputStream.close();
-                } catch (final IOException exc) {
+                }
+                catch (final IOException exc) {
                     AbstractJCloudsFileStorageProvider.LOG.warn("An IO Exception occured.", exc);
                 }
             }
@@ -406,7 +410,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
             if (fileOutputStream != null) {
                 try {
                     fileOutputStream.close();
-                } catch (final IOException exc) {
+                }
+                catch (final IOException exc) {
                     AbstractJCloudsFileStorageProvider.LOG.warn("An IO Exception occured.", exc);
                 }
             }
@@ -419,7 +424,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     public final long getFileSize(final String relFilePathOnProvider) throws SystemException {
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Getting size of file \"{}\" on storage provider \"{}\" ...",
-            relFilePathOnProvider, this.getStorageProviderID());
+                                                     relFilePathOnProvider, this.getStorageProviderID());
 
         this.initialize();
 
@@ -427,8 +432,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
         try {
 
-            final BlobMetadata blobMetadata = this.blobStore.blobMetadata(this.getContainerName(),
-                PathUtils.separatorsToUnix(relFilePathOnProvider));
+            final BlobMetadata blobMetadata =
+                this.blobStore.blobMetadata(this.getContainerName(), PathUtils.separatorsToUnix(relFilePathOnProvider));
 
             if (blobMetadata == null) {
                 throw new SystemException("File \"" + relFilePathOnProvider + "\" was not found on storage provider \""
@@ -437,12 +442,13 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
             contentLength = blobMetadata.getContentMetadata().getContentLength();
 
-        } catch (final Exception exc) {
+        }
+        catch (final Exception exc) {
             throw new SystemException("A jclouds error occured.", exc);
         }
 
         AbstractJCloudsFileStorageProvider.LOG.debug("Size of file \"{}\" on storage provider \"{}\": {} bytes",
-            relFilePathOnProvider, this.getStorageProviderID(), contentLength);
+                                                     relFilePathOnProvider, this.getStorageProviderID(), contentLength);
 
         return contentLength;
     }
@@ -462,10 +468,10 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     private boolean isJCloudsBundleAvailable() {
         if (this.isJCloudsBundleAvailable) {
             AbstractJCloudsFileStorageProvider.LOG.debug("jclouds bundle for storage provider \"{}\" is available.",
-                this.getStorageProviderID());
+                                                         this.getStorageProviderID());
         } else {
             AbstractJCloudsFileStorageProvider.LOG.warn("jclouds bundle for storage provider \"{}\" is not available.",
-                this.getStorageProviderID());
+                                                        this.getStorageProviderID());
         }
         return this.isJCloudsBundleAvailable;
     }
@@ -485,9 +491,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
     public final void setCredentials(final Credentials credentials) {
 
         if (this.isInitialized) {
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "Storage provider \"{}\" is initialized. For storing credentials it will be closed now.",
-                this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("Storage provider \"{}\" is initialized. For storing credentials it will be closed now.",
+                                                         this.getStorageProviderID());
             this.close();
         }
 
@@ -508,17 +513,15 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
      */
     protected final void setContainerName(final String containerName) {
         if (this.isInitialized) {
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "Storage provider \"{}\" is initialized. For setting new container name it will be closed now.",
-                this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("Storage provider \"{}\" is initialized. For setting new container name it will be closed now.",
+                                                         this.getStorageProviderID());
             this.close();
         }
         AbstractJCloudsFileStorageProvider.LOG.debug("Setting container name \"{}\" in storage provider \"{}\"...",
-            containerName, this.getStorageProviderID());
+                                                     containerName, this.getStorageProviderID());
         this.containerName = containerName;
-        AbstractJCloudsFileStorageProvider.LOG.debug(
-            "Setting container name \"{}\" in storage provider \"{}\" completed.", containerName,
-            this.getStorageProviderID());
+        AbstractJCloudsFileStorageProvider.LOG.debug("Setting container name \"{}\" in storage provider \"{}\" completed.",
+                                                     containerName, this.getStorageProviderID());
     }
 
     /**
@@ -577,7 +580,7 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
         if (jcloudsApiID.equals(this.getStorageProviderID())) {
             this.isJCloudsBundleAvailable = true;
             AbstractJCloudsFileStorageProvider.LOG.debug("jclouds API bundle of storage provider \"{}\" is available.",
-                this.getStorageProviderID());
+                                                         this.getStorageProviderID());
         }
 
     }
@@ -593,8 +596,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
         if (jcloudsApiID.equals(this.getStorageProviderID())) {
             this.isJCloudsBundleAvailable = false;
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "JClouds API bundle of storage provider \"{}\" is not more available.", this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("JClouds API bundle of storage provider \"{}\" is not more available.",
+                                                         this.getStorageProviderID());
         }
 
     }
@@ -611,8 +614,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
         if (jcloudsProviderID.equals(this.getStorageProviderID())) {
             this.isJCloudsBundleAvailable = true;
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "JClouds provider bundle of storage provider \"{}\" is available.", this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("JClouds provider bundle of storage provider \"{}\" is available.",
+                                                         this.getStorageProviderID());
         }
 
     }
@@ -628,9 +631,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
 
         if (jcloudsProviderID.equals(this.getStorageProviderID())) {
             this.isJCloudsBundleAvailable = false;
-            AbstractJCloudsFileStorageProvider.LOG.debug(
-                "JClouds provider bundle of storage provider \"{}\" is not more available.",
-                this.getStorageProviderID());
+            AbstractJCloudsFileStorageProvider.LOG.debug("JClouds provider bundle of storage provider \"{}\" is not more available.",
+                                                         this.getStorageProviderID());
         }
 
     }

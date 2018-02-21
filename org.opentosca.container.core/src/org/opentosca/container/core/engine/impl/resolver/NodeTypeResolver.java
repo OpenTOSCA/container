@@ -59,8 +59,8 @@ public class NodeTypeResolver extends GenericResolver {
                 } else {
                     targetNamespace = definitions.getTargetNamespace();
                 }
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, nodeType.getName()), nodeType);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    nodeType.getName()), nodeType);
 
                 this.LOG.debug("Resolve the NodeType \"" + targetNamespace + ":" + nodeType.getName() + "\".");
 
@@ -69,14 +69,16 @@ public class NodeTypeResolver extends GenericResolver {
 
                 // DerivedFrom
                 if (nodeType.getDerivedFrom() != null && nodeType.getDerivedFrom().getTypeRef() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        nodeType.getDerivedFrom().getTypeRef(), ElementNamesEnum.NODETYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(nodeType.getDerivedFrom()
+                                                                                           .getTypeRef(),
+                                                                                   ElementNamesEnum.NODETYPE);
                 }
 
                 // PropertiesDefinition
                 if (nodeType.getPropertiesDefinition() != null) {
-                    if (new PropertiesDefinitionResolver(this.referenceMapper).resolve(
-                        nodeType.getPropertiesDefinition())) {
+                    if (new PropertiesDefinitionResolver(
+                        this.referenceMapper).resolve(nodeType.getPropertiesDefinition())) {
                         this.LOG.error("The NodeType \"" + targetNamespace + ":" + nodeType.getName()
                             + "\" specifies both attributes in its child element PropertiesDefinition which is not allowed.");
                         errorOccurred = true;
@@ -87,10 +89,11 @@ public class NodeTypeResolver extends GenericResolver {
                 if (nodeType.getRequirementDefinitions() != null) {
                     for (final TRequirementDefinition requirementDefinition : nodeType.getRequirementDefinitions()
                                                                                       .getRequirementDefinition()) {
-                        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                            new QName(targetNamespace, requirementDefinition.getName()), requirementDefinition);
-                        errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                            requirementDefinition.getRequirementType(), ElementNamesEnum.REQUIREMENTTYPE);
+                        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                            requirementDefinition.getName()), requirementDefinition);
+                        errorOccurred = errorOccurred
+                            || !this.referenceMapper.searchToscaElementByQNameWithName(requirementDefinition.getRequirementType(),
+                                                                                       ElementNamesEnum.REQUIREMENTTYPE);
                     }
                 }
 
@@ -98,10 +101,11 @@ public class NodeTypeResolver extends GenericResolver {
                 if (nodeType.getCapabilityDefinitions() != null) {
                     for (final TCapabilityDefinition capabilityDefinition : nodeType.getCapabilityDefinitions()
                                                                                     .getCapabilityDefinition()) {
-                        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                            new QName(targetNamespace, capabilityDefinition.getName()), capabilityDefinition);
-                        errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                            capabilityDefinition.getCapabilityType(), ElementNamesEnum.CAPABILITYTYPE);
+                        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                            capabilityDefinition.getName()), capabilityDefinition);
+                        errorOccurred = errorOccurred
+                            || !this.referenceMapper.searchToscaElementByQNameWithName(capabilityDefinition.getCapabilityType(),
+                                                                                       ElementNamesEnum.CAPABILITYTYPE);
                     }
                 }
 
@@ -111,12 +115,12 @@ public class NodeTypeResolver extends GenericResolver {
                 // Interfaces
                 if (nodeType.getInterfaces() != null) {
                     for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
-                        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                            new QName(targetNamespace, iface.getName()), iface);
+                        this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                            iface.getName()), iface);
 
                         for (final TOperation operation : iface.getOperation()) {
-                            this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                                new QName(targetNamespace, operation.getName()), operation);
+                            this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                                operation.getName()), operation);
                         }
                     }
                 }

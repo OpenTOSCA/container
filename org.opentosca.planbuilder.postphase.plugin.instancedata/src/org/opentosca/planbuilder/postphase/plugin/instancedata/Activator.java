@@ -27,10 +27,10 @@ public class Activator implements BundleActivator {
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
         this.plugin = new BPELInstanceDataPlugin();
-        this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(), this.plugin,
-            null);
-        this.registration2 = Activator.context.registerService(IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(),
-            this.plugin, null);
+        this.registration =
+            Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(), this.plugin, null);
+        this.registration2 =
+            Activator.context.registerService(IPlanBuilderPolicyAwarePrePhasePlugin.class.getName(), this.plugin, null);
 
     }
 

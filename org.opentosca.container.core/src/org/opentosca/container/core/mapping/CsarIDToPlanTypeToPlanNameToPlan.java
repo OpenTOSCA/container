@@ -19,7 +19,8 @@ import org.opentosca.container.core.tosca.model.TPlan;
  */
 public class CsarIDToPlanTypeToPlanNameToPlan implements Map<CSARID, Map<PlanTypes, LinkedHashMap<QName, TPlan>>> {
 
-    private Map<CSARID, Map<PlanTypes, LinkedHashMap<QName, TPlan>>> csarIDToPlanTypeToIntegerToPlanMap = new HashMap<>();
+    private Map<CSARID, Map<PlanTypes, LinkedHashMap<QName, TPlan>>> csarIDToPlanTypeToIntegerToPlanMap =
+        new HashMap<>();
 
 
     @Override
@@ -66,10 +67,10 @@ public class CsarIDToPlanTypeToPlanNameToPlan implements Map<CSARID, Map<PlanTyp
 
     @Override
     public Map<PlanTypes, LinkedHashMap<QName, TPlan>> put(final CSARID arg0,
-                    final Map<PlanTypes, LinkedHashMap<QName, TPlan>> arg1) {
+                                                           final Map<PlanTypes, LinkedHashMap<QName, TPlan>> arg1) {
 
-        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> result = this.csarIDToPlanTypeToIntegerToPlanMap.put(arg0,
-            arg1);
+        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> result =
+            this.csarIDToPlanTypeToIntegerToPlanMap.put(arg0, arg1);
         return result;
     }
 

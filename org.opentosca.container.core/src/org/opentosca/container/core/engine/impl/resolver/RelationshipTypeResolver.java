@@ -58,25 +58,27 @@ public class RelationshipTypeResolver extends GenericResolver {
                 } else {
                     targetNamespace = definitions.getTargetNamespace();
                 }
-                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
-                    new QName(targetNamespace, relationshipType.getName()), relationshipType);
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace,
+                    relationshipType.getName()), relationshipType);
 
-                this.LOG.debug(
-                    "Resolve the RelationshipType \"" + targetNamespace + ":" + relationshipType.getName() + "\".");
+                this.LOG.debug("Resolve the RelationshipType \"" + targetNamespace + ":" + relationshipType.getName()
+                    + "\".");
 
                 // Tags
                 // nothing to do here
 
                 // DerivedFrom
                 if (relationshipType.getDerivedFrom() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        relationshipType.getDerivedFrom().getTypeRef(), ElementNamesEnum.RELATIONSHIPTYPE);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(relationshipType.getDerivedFrom()
+                                                                                                   .getTypeRef(),
+                                                                                   ElementNamesEnum.RELATIONSHIPTYPE);
                 }
 
                 // PropertiesDefinition
                 if (relationshipType.getPropertiesDefinition() != null) {
-                    if (new PropertiesDefinitionResolver(this.referenceMapper).resolve(
-                        relationshipType.getPropertiesDefinition())) {
+                    if (new PropertiesDefinitionResolver(
+                        this.referenceMapper).resolve(relationshipType.getPropertiesDefinition())) {
                         this.LOG.error("The RelationshipType \"" + targetNamespace + ":" + relationshipType.getName()
                             + "\" specifies both attributes in its child element PropertiesDefinition which is not allowed.");
                         errorOccurred = true;
@@ -96,16 +98,20 @@ public class RelationshipTypeResolver extends GenericResolver {
                 // 8.2-ValidSource/Target
                 // ValidSource
                 if (relationshipType.getValidSource() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        relationshipType.getValidSource().getTypeRef(), ElementNamesEnum.ALLELEMENTS);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(relationshipType.getValidSource()
+                                                                                                   .getTypeRef(),
+                                                                                   ElementNamesEnum.ALLELEMENTS);
                 }
 
                 // TODO implement the rules of the spec mentioned in
                 // 8.2-ValidSource/Target
                 // ValidTarget
                 if (relationshipType.getValidTarget() != null) {
-                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
-                        relationshipType.getValidTarget().getTypeRef(), ElementNamesEnum.ALLELEMENTS);
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(relationshipType.getValidTarget()
+                                                                                                   .getTypeRef(),
+                                                                                   ElementNamesEnum.ALLELEMENTS);
                 }
             }
         }

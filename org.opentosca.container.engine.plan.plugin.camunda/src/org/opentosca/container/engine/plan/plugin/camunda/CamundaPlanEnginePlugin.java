@@ -74,9 +74,10 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
             try {
                 csar = this.fileService.getCSAR(csarId);
-            } catch (final UserException exc) {
-                CamundaPlanEnginePlugin.LOG.error(
-                    "Could not get the CSAR from file service. An User Exception occured.", exc);
+            }
+            catch (final UserException exc) {
+                CamundaPlanEnginePlugin.LOG.error("Could not get the CSAR from file service. An User Exception occured.",
+                                                  exc);
                 return false;
             }
 
@@ -86,7 +87,7 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
 
             if (planReference == null) {
                 CamundaPlanEnginePlugin.LOG.error("Plan reference '{}' resulted in a null ArtifactReference.",
-                    planRef.getReference());
+                                                  planRef.getReference());
                 return false;
             }
 
@@ -120,7 +121,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 if (fetchedPlan.toFile().exists()) {
                     LOG.debug("Plan file exists at {}", fetchedPlan.toString());
                 }
-            } catch (final SystemException exc) {
+            }
+            catch (final SystemException exc) {
                 CamundaPlanEnginePlugin.LOG.error("An System Exception occured. File could not be fetched.", exc);
                 return false;
             }
@@ -150,7 +152,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                     try {
                         LOG.debug("Endpoint not set yet, Camunda might be still processing it.");
                         Thread.sleep(1000);
-                    } catch (final InterruptedException e) {
+                    }
+                    catch (final InterruptedException e) {
                         e.printStackTrace();
                     }
                 } else {
@@ -158,10 +161,12 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
                 }
             }
             LOG.debug("Endpoint URI is {}", endpointURI.getPath());
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final NullPointerException e) {
+        }
+        catch (final NullPointerException e) {
 
         }
 
@@ -169,9 +174,8 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         // ##################################################################################################################################################
 
         if (endpointURI == null) {
-            CamundaPlanEnginePlugin.LOG.warn(
-                "No endpoint for Plan {} could be determined, container won't be able to instantiate it",
-                planRef.getReference());
+            CamundaPlanEnginePlugin.LOG.warn("No endpoint for Plan {} could be determined, container won't be able to instantiate it",
+                                             planRef.getReference());
             return false;
         }
 
@@ -209,9 +213,10 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
             response = httpService.Get(processDefinitions);
             output = EntityUtils.toString(response.getEntity(), "UTF-8");
             output = output.substring(1, output.length() - 1);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             LOG.error("An error occured while retrieving the deployed plan list from camunda: ",
-                e.getLocalizedMessage());
+                      e.getLocalizedMessage());
             e.printStackTrace();
             return null;
         }
@@ -263,12 +268,12 @@ public class CamundaPlanEnginePlugin implements IPlanEnginePlanRefPluginService 
         final ServiceReference<IFileAccessService> fileAccess = context.getServiceReference(IFileAccessService.class);
         this.fileAccessService = context.getService(fileAccess);
 
-        final ServiceReference<IToscaEngineService> toscaEngine = context.getServiceReference(
-            IToscaEngineService.class);
+        final ServiceReference<IToscaEngineService> toscaEngine =
+            context.getServiceReference(IToscaEngineService.class);
         this.toscaEngineService = context.getService(toscaEngine);
 
-        final ServiceReference<ICoreEndpointService> endpointService = context.getServiceReference(
-            ICoreEndpointService.class);
+        final ServiceReference<ICoreEndpointService> endpointService =
+            context.getServiceReference(ICoreEndpointService.class);
         this.endpointService = context.getService(endpointService);
     }
 

@@ -108,7 +108,8 @@ public class Exporter extends AbstractExporter {
         CSARContent csarContent = null;
         try {
             csarContent = this.handler.getCSARContentForID(csarId);
-        } catch (final UserException e1) {
+        }
+        catch (final UserException e1) {
             Exporter.LOG.error("Error occured while trying to retrieve CSAR content", e1);
         }
 
@@ -150,7 +151,8 @@ public class Exporter extends AbstractExporter {
                     serviceTemplate.setBoundaryDefinitions(boundary);
                 }
 
-                org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces ifaces = boundary.getInterfaces();
+                org.oasis_open.docs.tosca.ns._2011._12.TBoundaryDefinitions.Interfaces ifaces =
+                    boundary.getInterfaces();
 
                 if (ifaces == null) {
                     ifaces = this.toscaFactory.createTBoundaryDefinitionsInterfaces();
@@ -191,7 +193,8 @@ public class Exporter extends AbstractExporter {
                         if (!alreadySpecified) {
                             final TExportedOperation newOp = this.toscaFactory.createTExportedOperation();
                             newOp.setName(plan.getTOSCAOperationName());
-                            final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan newPlanRefElement = this.toscaFactory.createTExportedOperationPlan();
+                            final org.oasis_open.docs.tosca.ns._2011._12.TExportedOperation.Plan newPlanRefElement =
+                                this.toscaFactory.createTExportedOperationPlan();
                             newPlanRefElement.setPlanRef(generatedPlanElement);
                             newOp.setPlan(newPlanRefElement);
                             exportedIface.getOperation().add(newOp);
@@ -231,7 +234,8 @@ public class Exporter extends AbstractExporter {
             // output to the console: m.marshal(defs, System.out);
             try {
                 m.marshal(defs, writer);
-            } catch (final FactoryConfigurationError e) {
+            }
+            catch (final FactoryConfigurationError e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -259,14 +263,15 @@ public class Exporter extends AbstractExporter {
                     final List<BPELPlan> exportedPlans = new ArrayList<>();
                     for (final ApplicationOption option : appDesc.getOptions().getOption()) {
                         for (final BPELPlan plan : plansToExport) {
-                            if (option.getPlanServiceName().equals(
-                                this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
+                            if (option.getPlanServiceName()
+                                      .equals(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor())
+                                                  .getLocalPart())) {
                                 if (!new File(selfServiceDir, option.getPlanInputMessageUrl()).exists()) {
                                     // the planinput file is defined in the xml,
                                     // but
                                     // no file exists in the csar -> write one
-                                    final File planInputFile = new File(selfServiceDir,
-                                        option.getPlanInputMessageUrl());
+                                    final File planInputFile =
+                                        new File(selfServiceDir, option.getPlanInputMessageUrl());
                                     this.writePlanInputMessageInstance(plan, planInputFile);
                                     exportedPlans.add(plan);
                                 }
@@ -283,8 +288,8 @@ public class Exporter extends AbstractExporter {
                             }
 
                             final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
-                            this.writePlanInputMessageInstance(plan,
-                                new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
+                            this.writePlanInputMessageInstance(plan, new File(selfServiceDir,
+                                "plan.input.default." + optionCounter + ".xml"));
 
                             appDesc.getOptions().getOption().add(option);
                             optionCounter++;
@@ -300,8 +305,8 @@ public class Exporter extends AbstractExporter {
 
                     for (final BPELPlan plan : plansToExport) {
                         final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
-                        this.writePlanInputMessageInstance(plan,
-                            new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
+                        this.writePlanInputMessageInstance(plan, new File(selfServiceDir,
+                            "plan.input.default." + optionCounter + ".xml"));
                         optionCounter++;
                         options.getOption().add(option);
                     }
@@ -326,8 +331,8 @@ public class Exporter extends AbstractExporter {
 
                     for (final BPELPlan plan : plansToExport) {
                         final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
-                        this.writePlanInputMessageInstance(plan,
-                            new File(selfServiceDir, "plan.input.default." + optionCounter + ".xml"));
+                        this.writePlanInputMessageInstance(plan, new File(selfServiceDir,
+                            "plan.input.default." + optionCounter + ".xml"));
                         optionCounter++;
                         options.getOption().add(option);
                     }
@@ -338,11 +343,14 @@ public class Exporter extends AbstractExporter {
                 }
             }
 
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             Exporter.LOG.error("Some IO Exception occured", e);
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             Exporter.LOG.error("Some error while marshalling with JAXB", e);
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             Exporter.LOG.error("Some error in the openTOSCA Core", e);
         }
         service.zip(tempDir, repackagedCsar);
@@ -385,10 +393,12 @@ public class Exporter extends AbstractExporter {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Definitions.class);
             final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             def = (Definitions) unmarshaller.unmarshal(new FileReader(file));
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             Exporter.LOG.error("Error while reading a Definitions file", e);
             return null;
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             Exporter.LOG.error("Definitions file not found", e);
             return null;
         }
@@ -538,12 +548,13 @@ public class Exporter extends AbstractExporter {
     }
 
     private String createPrefixPartOfSoapMessage(final String namespace, final String messageBodyRootLocalName) {
-        final String soapEnvelopePrefix = "<soapenv:Envelope xmlns:wsa=\"http://www.w3.org/2005/08/addressing\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:org=\""
-            + namespace
-            + "\"><soapenv:Header><wsa:ReplyTo><wsa:Address>%CALLBACK-URL%</wsa:Address></wsa:ReplyTo><wsa:Action>"
-            + namespace
-            + "/initiate</wsa:Action><wsa:MessageID>%CORRELATION-ID%</wsa:MessageID></soapenv:Header><soapenv:Body><org:"
-            + messageBodyRootLocalName + ">";
+        final String soapEnvelopePrefix =
+            "<soapenv:Envelope xmlns:wsa=\"http://www.w3.org/2005/08/addressing\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:org=\""
+                + namespace
+                + "\"><soapenv:Header><wsa:ReplyTo><wsa:Address>%CALLBACK-URL%</wsa:Address></wsa:ReplyTo><wsa:Action>"
+                + namespace
+                + "/initiate</wsa:Action><wsa:MessageID>%CORRELATION-ID%</wsa:MessageID></soapenv:Header><soapenv:Body><org:"
+                + messageBodyRootLocalName + ">";
         return soapEnvelopePrefix;
     }
 

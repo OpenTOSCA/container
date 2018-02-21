@@ -36,7 +36,7 @@ public class IAEngineCapabilityChecker {
      * @return left Capabilities.
      */
     public static List<String> removeConAndPlanCaps(final ICoreCapabilityService capabilityService,
-                    final List<String> requiredCapabilities) {
+                                                    final List<String> requiredCapabilities) {
 
         if (!requiredCapabilities.isEmpty()) {
 
@@ -61,7 +61,7 @@ public class IAEngineCapabilityChecker {
      * @return if all RequiredCapabilities are met.
      */
     public static boolean capabilitiesAreMet(final List<String> requiredCapabilities,
-                    final IIAEnginePluginService plugin) {
+                                             final IIAEnginePluginService plugin) {
 
         if (!requiredCapabilities.isEmpty()) {
 
@@ -91,11 +91,10 @@ public class IAEngineCapabilityChecker {
 
         final List<String> conAndPlanCaps = new ArrayList<>();
 
-        IAEngineCapabilityChecker.LOG.debug(
-            "Trying to get ContainerCapabilities and PlanCapabilities from CoreCapabilityService.");
+        IAEngineCapabilityChecker.LOG.debug("Trying to get ContainerCapabilities and PlanCapabilities from CoreCapabilityService.");
 
-        final List<String> containerCaps = capabilityService.getCapabilities(ProviderType.CONTAINER.toString(),
-            ProviderType.CONTAINER);
+        final List<String> containerCaps =
+            capabilityService.getCapabilities(ProviderType.CONTAINER.toString(), ProviderType.CONTAINER);
         final Map<String, List<String>> planPluginsCaps = capabilityService.getCapabilities(ProviderType.PLAN_PLUGIN);
 
         conAndPlanCaps.addAll(containerCaps);

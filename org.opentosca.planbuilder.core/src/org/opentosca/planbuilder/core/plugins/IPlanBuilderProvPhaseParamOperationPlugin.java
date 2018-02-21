@@ -35,17 +35,17 @@ public interface IPlanBuilderProvPhaseParamOperationPlugin<T extends PlanContext
      *         TemplateContext
      */
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                    Map<AbstractParameter, Variable> param2propertyMapping);
+                          Map<AbstractParameter, Variable> param2propertyMapping);
 
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                    Map<AbstractParameter, Variable> param2propertyMapping, boolean appendToPrePhase);
+                          Map<AbstractParameter, Variable> param2propertyMapping, boolean appendToPrePhase);
 
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                    Map<AbstractParameter, Variable> param2propertyMapping,
-                    Map<AbstractParameter, Variable> param2PropertyOutputMapping);
+                          Map<AbstractParameter, Variable> param2propertyMapping,
+                          Map<AbstractParameter, Variable> param2PropertyOutputMapping);
 
     public boolean handle(T context, AbstractOperation operation, AbstractImplementationArtifact ia,
-                    Map<AbstractParameter, Variable> param2propertyMapping,
-                    Map<AbstractParameter, Variable> param2PropertyOutputMapping, boolean appendToPrePhase);
+                          Map<AbstractParameter, Variable> param2propertyMapping,
+                          Map<AbstractParameter, Variable> param2PropertyOutputMapping, boolean appendToPrePhase);
 
 }

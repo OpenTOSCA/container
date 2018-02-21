@@ -46,15 +46,15 @@ public class InvocationRequestProcessor implements Processor {
 
         final Message message = exchange.getIn();
 
-        final Integer serviceInstanceID = message.getHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(),
-            Integer.class);
+        final Integer serviceInstanceID =
+            message.getHeader(ApplicationBusConstants.SERVICE_INSTANCE_ID_INT.toString(), Integer.class);
         InvocationRequestProcessor.LOG.debug("serviceInstanceID: {}", serviceInstanceID);
 
         String nodeTemplateID = message.getHeader(ApplicationBusConstants.NODE_TEMPLATE_ID.toString(), String.class);
         InvocationRequestProcessor.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
 
-        final Integer nodeInstanceID = message.getHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(),
-            Integer.class);
+        final Integer nodeInstanceID =
+            message.getHeader(ApplicationBusConstants.NODE_INSTANCE_ID_INT.toString(), Integer.class);
         InvocationRequestProcessor.LOG.debug("nodeInstanceID: {}", nodeInstanceID);
 
         final String interfaceName = message.getHeader(ApplicationBusConstants.INTERFACE_NAME.toString(), String.class);
@@ -67,8 +67,8 @@ public class InvocationRequestProcessor implements Processor {
         String className = null;
         URL endpoint = null;
 
-        final NodeInstance nodeInstance = ContainerProxy.getNodeInstance(serviceInstanceID, nodeInstanceID,
-            nodeTemplateID);
+        final NodeInstance nodeInstance =
+            ContainerProxy.getNodeInstance(serviceInstanceID, nodeInstanceID, nodeTemplateID);
 
         if (nodeInstance != null) {
 
@@ -96,18 +96,20 @@ public class InvocationRequestProcessor implements Processor {
 
                 if (relativeHostEndpoint != null && port != null && invocationType != null && className != null) {
 
-                    final String hostedOnNodeTemplateID = ContainerProxy.getHostedOnNodeTemplateWithSpecifiedIPProperty(
-                        csarID, serviceTemplateID, nodeTemplateID);
+                    final String hostedOnNodeTemplateID =
+                        ContainerProxy.getHostedOnNodeTemplateWithSpecifiedIPProperty(csarID, serviceTemplateID,
+                                                                                      nodeTemplateID);
 
                     if (hostedOnNodeTemplateID != null) {
 
                         // get the Namespace from the
                         // serviceTemplate
-                        final QName hostedOnNodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(),
-                            hostedOnNodeTemplateID);
+                        final QName hostedOnNodeTemplateQName =
+                            new QName(serviceTemplateID.getNamespaceURI(), hostedOnNodeTemplateID);
 
-                        final URL hostedOnNodeURL = ContainerProxy.getIpFromInstanceDataProperties(
-                            serviceInstance.getServiceInstanceID(), hostedOnNodeTemplateQName);
+                        final URL hostedOnNodeURL =
+                            ContainerProxy.getIpFromInstanceDataProperties(serviceInstance.getServiceInstanceID(),
+                                                                           hostedOnNodeTemplateQName);
 
                         if (hostedOnNodeURL != null) {
 
@@ -118,9 +120,10 @@ public class InvocationRequestProcessor implements Processor {
                                     relativeHostEndpoint);
                                 InvocationRequestProcessor.LOG.debug("Generated endpoint: " + endpoint);
 
-                            } catch (final MalformedURLException e) {
+                            }
+                            catch (final MalformedURLException e) {
                                 InvocationRequestProcessor.LOG.error("Generating endpoint for Node: {} failed!",
-                                    nodeTemplateID);
+                                                                     nodeTemplateID);
                                 e.printStackTrace();
                             }
                         }
@@ -136,19 +139,18 @@ public class InvocationRequestProcessor implements Processor {
             message.setHeader(ApplicationBusConstants.INVOCATION_ENDPOINT_URL.toString(), endpoint.toString());
 
             InvocationRequestProcessor.LOG.debug("Searching an Application Bus Plugin for InvocationType: {}",
-                invocationType);
+                                                 invocationType);
             // set ID of the matching Application Bus Plugin bundle. Needed for
             // routing.
-            final String appBusPluginEndpoint = ApplicationBusPluginServiceHandler.getApplicationBusPluginBundleID(
-                invocationType);
+            final String appBusPluginEndpoint =
+                ApplicationBusPluginServiceHandler.getApplicationBusPluginBundleID(invocationType);
 
             if (appBusPluginEndpoint != null) {
 
-                InvocationRequestProcessor.LOG.debug(
-                    "Application Bus Plugin with matching InvocationType: {} found. Endpoint: {}", invocationType,
-                    appBusPluginEndpoint);
+                InvocationRequestProcessor.LOG.debug("Application Bus Plugin with matching InvocationType: {} found. Endpoint: {}",
+                                                     invocationType, appBusPluginEndpoint);
                 exchange.getIn().setHeader(InvokeOperationRoute.APPLICATION_BUS_PLUGIN_ENDPOINT_HEADER,
-                    appBusPluginEndpoint);
+                                           appBusPluginEndpoint);
 
             }
 

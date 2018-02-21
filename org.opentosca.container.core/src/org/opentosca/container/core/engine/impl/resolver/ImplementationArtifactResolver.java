@@ -46,12 +46,12 @@ public class ImplementationArtifactResolver extends GenericResolver {
      * @return true if an error occurred, false if not
      */
     public boolean resolve(final TImplementationArtifact implementationArtifact, final String ownerTargetNamespace,
-                    final String ownerName, final int iANumber) {
+                           final String ownerName, final int iANumber) {
 
         boolean errorOccurred = false;
 
-        String implArtName = implementationArtifact.getOtherAttributes()
-                                                   .get(new QName(StaticTOSCANamespaces.nsToscaExtension, "name"));
+        String implArtName =
+            implementationArtifact.getOtherAttributes().get(new QName(StaticTOSCANamespaces.nsToscaExtension, "name"));
 
         // if the name attribute of the implementation artifact is not available
         if (null == implArtName) {
@@ -66,10 +66,10 @@ public class ImplementationArtifactResolver extends GenericResolver {
         }
 
         this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(ownerTargetNamespace, implArtName),
-            implementationArtifact);
+                                                                     implementationArtifact);
         errorOccurred = errorOccurred
             || !this.referenceMapper.searchToscaElementByQNameWithName(implementationArtifact.getArtifactType(),
-                ElementNamesEnum.ARTIFACTTYPE);
+                                                                       ElementNamesEnum.ARTIFACTTYPE);
         if (implementationArtifact.getArtifactRef() != null
             && !implementationArtifact.getArtifactRef().toString().equals("")) {
             errorOccurred = errorOccurred

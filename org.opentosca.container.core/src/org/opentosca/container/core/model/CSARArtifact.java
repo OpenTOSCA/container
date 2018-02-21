@@ -121,11 +121,12 @@ public class CSARArtifact extends AbstractArtifact {
             }
 
             // creates CSARDirectory that represents the artifact root
-            this.CSAR_ARTIFACT_ROOT = new CSARDirectory(artifactReferenceDecoded, this.getIncludePatterns(),
-                this.getExcludePatterns(), csarID, artifactDirectories, artifactFileToStorageProviderIDMap,
-                this.isFileArtifact());
+            this.CSAR_ARTIFACT_ROOT =
+                new CSARDirectory(artifactReferenceDecoded, this.getIncludePatterns(), this.getExcludePatterns(),
+                    csarID, artifactDirectories, artifactFileToStorageProviderIDMap, this.isFileArtifact());
 
-        } catch (final UnsupportedEncodingException exc) {
+        }
+        catch (final UnsupportedEncodingException exc) {
             throw new UserException(
                 "URL decoding on artifact reference \"" + this.getArtifactReference() + "\" failed.", exc);
         }
@@ -158,16 +159,17 @@ public class CSARArtifact extends AbstractArtifact {
             artifactRefScheme = new URI(artifactReference).getScheme();
             if (artifactRefScheme == null) {
                 CSARArtifact.LOG.debug("Artifact reference \"{}\" refers to a file or directory in a CSAR.",
-                    artifactReference);
+                                       artifactReference);
                 return true;
             }
 
-        } catch (final URISyntaxException exc) {
+        }
+        catch (final URISyntaxException exc) {
             CSARArtifact.LOG.warn("An URI Exception occured.", exc);
         }
 
         CSARArtifact.LOG.debug("Artifact reference \"{}\" refers not to a file or directory in a CSAR.",
-            artifactReference);
+                               artifactReference);
         return false;
 
     }

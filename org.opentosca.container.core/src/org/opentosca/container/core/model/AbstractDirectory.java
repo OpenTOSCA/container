@@ -62,12 +62,12 @@ public abstract class AbstractDirectory implements IBrowseable {
                 return file;
             } else {
 
-                final boolean matchesPatterns = PatternMatcher.isFileMatchesPatterns(file, this.getIncludePatterns(),
-                    this.getExcludePatterns());
+                final boolean matchesPatterns =
+                    PatternMatcher.isFileMatchesPatterns(file, this.getIncludePatterns(), this.getExcludePatterns());
 
                 if (matchesPatterns) {
                     AbstractDirectory.LOG.debug("File \"{}\" relative to \"{}\" was found and matches pattern(s).",
-                        relPathOfFile, this.getPath());
+                                                relPathOfFile, this.getPath());
                     return file;
                 }
 
@@ -101,7 +101,7 @@ public abstract class AbstractDirectory implements IBrowseable {
             files = this.getFilesNotConsiderPatterns();
         } else {
             files = PatternMatcher.findFilesMatchesPatterns(this.getFilesNotConsiderPatterns(),
-                this.getIncludePatterns(), this.getExcludePatterns());
+                                                            this.getIncludePatterns(), this.getExcludePatterns());
         }
         return files;
 

@@ -54,8 +54,7 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
     /**
      * validate the array for VariableInfoWithEvents
      */
-    protected void validateVariableInfoWithEvents(
-                    final org.wso2.bps.management.schema.VariableInfoWithEventsType[] param) {
+    protected void validateVariableInfoWithEvents(final org.wso2.bps.management.schema.VariableInfoWithEventsType[] param) {
 
     }
 
@@ -91,11 +90,11 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
         this.localVariableInfoWithEventsTracker = true;
 
 
-        final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(
-            this.localVariableInfoWithEvents);
+        final java.util.List list =
+            org.apache.axis2.databinding.utils.ConverterUtil.toList(this.localVariableInfoWithEvents);
         list.add(param);
-        this.localVariableInfoWithEvents = (org.wso2.bps.management.schema.VariableInfoWithEventsType[]) list.toArray(
-            new org.wso2.bps.management.schema.VariableInfoWithEventsType[list.size()]);
+        this.localVariableInfoWithEvents =
+            (org.wso2.bps.management.schema.VariableInfoWithEventsType[]) list.toArray(new org.wso2.bps.management.schema.VariableInfoWithEventsType[list.size()]);
 
     }
 
@@ -109,27 +108,27 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -147,10 +146,10 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
             final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":variablesWithEvents_type0", xmlWriter);
+                               namespacePrefix + ":variablesWithEvents_type0", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "variablesWithEvents_type0",
-                    xmlWriter);
+                               xmlWriter);
             }
 
 
@@ -190,8 +189,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -212,9 +211,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -226,8 +224,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -241,8 +239,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -268,8 +266,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -280,8 +278,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -292,8 +290,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -316,11 +314,10 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -336,8 +333,7 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -357,8 +353,7 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -412,8 +407,7 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static VariablesWithEvents_type0 parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static VariablesWithEvents_type0 parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final VariablesWithEvents_type0 object = new VariablesWithEvents_type0();
 
             final int event;
@@ -428,8 +422,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -442,8 +436,9 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
                         if (!"variablesWithEvents_type0".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (VariablesWithEvents_type0) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (VariablesWithEvents_type0) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                                             type,
+                                                                                                                                             reader);
                         }
 
 
@@ -496,8 +491,7 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
                         } else {
                             if (new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
                                 "variableInfoWithEvents").equals(reader.getName())) {
-                                list1.add(
-                                    org.wso2.bps.management.schema.VariableInfoWithEventsType.Factory.parse(reader));
+                                list1.add(org.wso2.bps.management.schema.VariableInfoWithEventsType.Factory.parse(reader));
 
                             } else {
                                 loopDone1 = true;
@@ -506,9 +500,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
                     }
                     // call the converter utility to convert and set the array
 
-                    object.setVariableInfoWithEvents(
-                        (org.wso2.bps.management.schema.VariableInfoWithEventsType[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                            org.wso2.bps.management.schema.VariableInfoWithEventsType.class, list1));
+                    object.setVariableInfoWithEvents((org.wso2.bps.management.schema.VariableInfoWithEventsType[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(org.wso2.bps.management.schema.VariableInfoWithEventsType.class,
+                                                                                                                                                                                   list1));
 
                 } // End of if for expected property start element
 
@@ -528,7 +521,8 @@ public class VariablesWithEvents_type0 implements org.apache.axis2.databinding.A
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

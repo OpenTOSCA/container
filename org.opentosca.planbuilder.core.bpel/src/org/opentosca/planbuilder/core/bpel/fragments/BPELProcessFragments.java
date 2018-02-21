@@ -58,10 +58,12 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fails
      */
     public Node createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsNode(final String assignName,
-                    final String stringVarName, final String nodeInstanceResponseVarName)
-        throws SAXException, IOException {
-        final String templateString = this.createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsString(
-            assignName, stringVarName, nodeInstanceResponseVarName);
+                                                                                  final String stringVarName,
+                                                                                  final String nodeInstanceResponseVarName) throws SAXException,
+                                                                                                                            IOException {
+        final String templateString =
+            this.createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsString(assignName, stringVarName,
+                                                                                     nodeInstanceResponseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -79,11 +81,11 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      */
     public String createAssign2FetchNodeInstanceIDFromInstanceDataAPIResponseAsString(final String assignName,
-                    final String stringVarName, final String nodeInstanceResponseVarName)
-        throws IOException {
+                                                                                      final String stringVarName,
+                                                                                      final String nodeInstanceResponseVarName) throws IOException {
         // <!-- $assignName, $stringVarName, $NodeInstanceResponseVarName -->
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BpelAssignFromNodeInstanceRequestToStringVar.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignFromNodeInstanceRequestToStringVar.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
         template = template.replace("$assignName", assignName);
@@ -106,11 +108,13 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fail
      */
     public Node createAssignFromNodeInstancePropertyToBPELVariableAsNode(final String assignName,
-                    final String nodeInstancePropertyResponseVarName,
-                    final Map<Element, String> propElement2BpelVarNameMap)
-        throws IOException, SAXException {
-        final String templateString = this.createAssignFromNodeInstancePropertyToBPELVariableAsString(assignName,
-            nodeInstancePropertyResponseVarName, propElement2BpelVarNameMap);
+                                                                         final String nodeInstancePropertyResponseVarName,
+                                                                         final Map<Element, String> propElement2BpelVarNameMap) throws IOException,
+                                                                                                                                SAXException {
+        final String templateString =
+            this.createAssignFromNodeInstancePropertyToBPELVariableAsString(assignName,
+                                                                            nodeInstancePropertyResponseVarName,
+                                                                            propElement2BpelVarNameMap);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -129,16 +133,15 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      */
     public String createAssignFromNodeInstancePropertyToBPELVariableAsString(final String assignName,
-                    final String nodeInstancePropertyResponseVarName,
-                    final Map<Element, String> propElement2BpelVarNameMap)
-        throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
+                                                                             final String nodeInstancePropertyResponseVarName,
+                                                                             final Map<Element, String> propElement2BpelVarNameMap) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         final String template = FileUtils.readFileToString(bpelfragmentfile);
 
-        String assignString = "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace
-            + "\" >";
+        String assignString =
+            "<bpel:assign name=\"" + assignName + "\" xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\" >";
 
         // <!-- $PropertyVarName, $NodeInstancePropertyRequestVarName,
         // $NodeInstancePropertyLocalName, $NodeInstancePropertyNamespace -->
@@ -159,8 +162,7 @@ public class BPELProcessFragments {
     }
 
     public String createAssignSelectFirstReferenceAndAssignToStringVar(final String referencesResponseVarName,
-                    final String stringVarName)
-        throws IOException {
+                                                                       final String stringVarName) throws IOException {
         // BpelAssignSelectFromNodeInstancesRequestToStringVar.xml
         // <!-- $assignName, $stringVarName, $NodeInstancesResponseVarName -->
         final URL url = FrameworkUtil.getBundle(this.getClass())
@@ -168,18 +170,18 @@ public class BPELProcessFragments {
         final File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
         String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
 
-        bpelAssignString = bpelAssignString.replaceAll("\\$assignName",
-            "assignSelectFirstReference" + System.currentTimeMillis());
+        bpelAssignString =
+            bpelAssignString.replaceAll("\\$assignName", "assignSelectFirstReference" + System.currentTimeMillis());
         bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", stringVarName);
         bpelAssignString = bpelAssignString.replaceAll("\\$NodeInstancesResponseVarName", referencesResponseVarName);
         return bpelAssignString;
     }
 
     public Node createAssignSelectFirstReferenceAndAssignToStringVarAsNode(final String referencesResponseVarName,
-                    final String stringVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createAssignSelectFirstReferenceAndAssignToStringVar(
-            referencesResponseVarName, stringVarName);
+                                                                           final String stringVarName) throws IOException,
+                                                                                                       SAXException {
+        final String templateString =
+            this.createAssignSelectFirstReferenceAndAssignToStringVar(referencesResponseVarName, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -227,10 +229,10 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal format into DOM fails
      */
     public Node createAssignXpathQueryToStringVarFragmentAsNode(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query,
-            stringVarName);
+                                                                final String stringVarName) throws IOException,
+                                                                                            SAXException {
+        final String templateString =
+            this.createAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -248,8 +250,7 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading the BPEL fragment form the resources fails
      */
     public String createAssignXpathQueryToStringVarFragmentAsString(final String assignName, final String xpath2Query,
-                    final String stringVarName)
-        throws IOException {
+                                                                    final String stringVarName) throws IOException {
         // <!-- {AssignName},{xpath2query}, {stringVarName} -->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignStringVarWithXpath2Query.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
@@ -261,10 +262,12 @@ public class BPELProcessFragments {
     }
 
     public Node createBPEL4RESTLightNodeInstancesGETAsNode(final String nodeTemplateId,
-                    final String serviceInstanceIdVarName, final String responseVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createBPEL4RESTLightNodeInstancesGETAsString(nodeTemplateId,
-            serviceInstanceIdVarName, responseVarName);
+                                                           final String serviceInstanceIdVarName,
+                                                           final String responseVarName) throws IOException,
+                                                                                         SAXException {
+        final String templateString =
+            this.createBPEL4RESTLightNodeInstancesGETAsString(nodeTemplateId, serviceInstanceIdVarName,
+                                                              responseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -272,11 +275,11 @@ public class BPELProcessFragments {
     }
 
     public String createBPEL4RESTLightNodeInstancesGETAsString(final String nodeTemplateId,
-                    final String serviceInstanceIdVarName, final String responseVarName)
-        throws IOException {
+                                                               final String serviceInstanceIdVarName,
+                                                               final String responseVarName) throws IOException {
         // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstances_InstanceDataAPI.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelFragmentFile);
         template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
@@ -286,12 +289,11 @@ public class BPELProcessFragments {
     }
 
     public String createBPEL4RESTLightPlanInstanceLOGsPOST(final String urlVarName, final String requestVarName,
-                    final String correlationIdVarName)
-        throws IOException {
+                                                           final String correlationIdVarName) throws IOException {
         // BPEL4RESTLightPOST_PlanInstance_Logs.xml
         // <!-- $urlVarName, $requestVar, $correlationId -->
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelFragmentFile);
         template = template.replace("$urlVarName", urlVarName);
@@ -301,18 +303,18 @@ public class BPELProcessFragments {
     }
 
     public Node createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(final String urlVarName, final String requestVarName,
-                    final String correlationIdVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createBPEL4RESTLightPlanInstanceLOGsPOST(urlVarName, requestVarName,
-            correlationIdVarName);
+                                                               final String correlationIdVarName) throws IOException,
+                                                                                                  SAXException {
+        final String templateString =
+            this.createBPEL4RESTLightPlanInstanceLOGsPOST(urlVarName, requestVarName, correlationIdVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
         return doc.getFirstChild();
     }
 
-    public String createBPEL4RESTLightPUTState(final String instanceURLVarName, final String requestVarName)
-        throws IOException {
+    public String createBPEL4RESTLightPUTState(final String instanceURLVarName,
+                                               final String requestVarName) throws IOException {
         // <!-- $urlVarName, $requestVar -->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightPUTInstanceState.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
@@ -322,8 +324,8 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public Node createBPEL4RESTLightPutStateAsNode(final String instanceURLVarName, final String requestVarName)
-        throws IOException, SAXException {
+    public Node createBPEL4RESTLightPutStateAsNode(final String instanceURLVarName,
+                                                   final String requestVarName) throws IOException, SAXException {
         final String templateString = this.createBPEL4RESTLightPUTState(instanceURLVarName, requestVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
@@ -332,10 +334,12 @@ public class BPELProcessFragments {
     }
 
     public Node createBPEL4RESTLightRelationInstancesGETAsNode(final String relationshipTemplateId,
-                    final String serviceInstanceIdVarName, final String responseVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createBPEL4RESTLightRelationInstancesGETAsString(relationshipTemplateId,
-            serviceInstanceIdVarName, responseVarName);
+                                                               final String serviceInstanceIdVarName,
+                                                               final String responseVarName) throws IOException,
+                                                                                             SAXException {
+        final String templateString =
+            this.createBPEL4RESTLightRelationInstancesGETAsString(relationshipTemplateId, serviceInstanceIdVarName,
+                                                                  responseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -343,8 +347,8 @@ public class BPELProcessFragments {
     }
 
     public String createBPEL4RESTLightRelationInstancesGETAsString(final String relationshipTemplateId,
-                    final String serviceInstanceIdVarName, final String responseVarName)
-        throws IOException {
+                                                                   final String serviceInstanceIdVarName,
+                                                                   final String responseVarName) throws IOException {
         // <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
         final URL url = FrameworkUtil.getBundle(this.getClass())
                                      .getResource("BPEL4RESTLightGET_RelationInstances_InstanceDataAPI.xml");
@@ -356,27 +360,32 @@ public class BPELProcessFragments {
         return template;
     }
 
-    public Node createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(
-                    final String serviceInstanceIdVarName, final String relationshipTemplateId,
-                    final String responseVarName, final String nodeInstanceIdVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(
-            serviceInstanceIdVarName, relationshipTemplateId, responseVarName, nodeInstanceIdVarName);
+    public Node createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(final String serviceInstanceIdVarName,
+                                                                                      final String relationshipTemplateId,
+                                                                                      final String responseVarName,
+                                                                                      final String nodeInstanceIdVarName) throws IOException,
+                                                                                                                          SAXException {
+        final String templateString =
+            this.createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(serviceInstanceIdVarName,
+                                                                                         relationshipTemplateId,
+                                                                                         responseVarName,
+                                                                                         nodeInstanceIdVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
         return doc.getFirstChild();
     }
 
-    public String createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(
-                    final String serviceInstanceIdVarName, final String relationshipTemplateId,
-                    final String responseVarName, final String nodeInstanceIdVarName)
-        throws IOException {
+    public String createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(final String serviceInstanceIdVarName,
+                                                                                          final String relationshipTemplateId,
+                                                                                          final String responseVarName,
+                                                                                          final String nodeInstanceIdVarName) throws IOException {
         // BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml
         // <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName,
         // $nodeInstanceIdVarName -->
-        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource(
-            "BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass())
+                         .getResource("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelFragmentFile);
         template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
@@ -395,8 +404,8 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      * @throws SAXException is thrown when parsing internal files fails
      */
-    public Node createRESTDeleteOnURLBPELVarAsNode(final String bpelVarName, final String responseVarName)
-        throws IOException, SAXException {
+    public Node createRESTDeleteOnURLBPELVarAsNode(final String bpelVarName,
+                                                   final String responseVarName) throws IOException, SAXException {
         final String templateString = this.createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
@@ -412,8 +421,8 @@ public class BPELProcessFragments {
      * @return a String containing a BPEL4RESTLight Activity
      * @throws IOException is thrown when reading internal files fails
      */
-    public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName, final String responseVarName)
-        throws IOException {
+    public String createRESTDeleteOnURLBPELVarAsString(final String bpelVarName,
+                                                       final String responseVarName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightDELETE.xml");
         // <!-- $urlVarName, $ResponseVarName -->
 
@@ -443,10 +452,11 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fails
      */
     public Node createRESTExtensionGETForNodeInstanceDataAsNode(final String serviceInstanceUrlVar,
-                    final String responseVarName, final String templateId, final String query)
-        throws SAXException, IOException {
-        final String templateString = this.createRESTExtensionGETForNodeInstanceDataAsString(serviceInstanceUrlVar,
-            responseVarName, templateId, query);
+                                                                final String responseVarName, final String templateId,
+                                                                final String query) throws SAXException, IOException {
+        final String templateString =
+            this.createRESTExtensionGETForNodeInstanceDataAsString(serviceInstanceUrlVar, responseVarName, templateId,
+                                                                   query);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -469,15 +479,16 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      */
     public String createRESTExtensionGETForNodeInstanceDataAsString(final String serviceInstanceUrlVar,
-                    final String responseVarName, final String templateId, final String query)
-        throws IOException {
+                                                                    final String responseVarName,
+                                                                    final String templateId,
+                                                                    final String query) throws IOException {
         // <!-- $InstanceDataURLVar, $ResponseVarName, $TemplateId,
         // $serviceInstanceUrlVarName, $templateType -->
 
         // <!-- $InstanceDataURLVar, $ResponseVarName, $nodeType -->
 
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
         template = template.replaceAll("\\$InstanceDataURLVar", serviceInstanceUrlVar);
@@ -503,10 +514,10 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fails
      */
     public Node createRESTExtensionGETForNodeInstancePropertiesAsNode(final String nodeInstanceIDUrl,
-                    final String responseVarName)
-        throws IOException, SAXException {
-        final String templateString = this.createRESTExtensionGETForNodeInstancePropertiesAsString(nodeInstanceIDUrl,
-            responseVarName);
+                                                                      final String responseVarName) throws IOException,
+                                                                                                    SAXException {
+        final String templateString =
+            this.createRESTExtensionGETForNodeInstancePropertiesAsString(nodeInstanceIDUrl, responseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -522,11 +533,10 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      */
     public String createRESTExtensionGETForNodeInstancePropertiesAsString(final String nodeInstanceIDUrl,
-                    final String responseVarName)
-        throws IOException {
+                                                                          final String responseVarName) throws IOException {
         // <!-- $urlVarName, $ResponseVarName -->
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BPEL4RESTLightGET_NodeInstance_Properties.xml");
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstance_Properties.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
         template = template.replace("$urlVarName", nodeInstanceIDUrl);
@@ -543,8 +553,8 @@ public class BPELProcessFragments {
      */
     public String createXPathQueryForURLRemoteFilePath(final String artifactPath) {
         BPELProcessFragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        final String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/"
-            + artifactPath + "'))";
+        final String filePath =
+            "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
         return filePath;
     }
 
@@ -558,16 +568,15 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      */
     public String generateAssignFromInputMessageToStringVariable(final String inputMessageElementLocalName,
-                    final String stringVariableName)
-        throws IOException {
+                                                                 final String stringVariableName) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignFromInputToStringVar.xml");
         final File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
         String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
         // <!-- $inputElementLocalName, $StringVariableName, $assignName -->
         bpelAssignString = bpelAssignString.replace("$inputElementLocalName", inputMessageElementLocalName);
         bpelAssignString = bpelAssignString.replace("$StringVariableName", stringVariableName);
-        bpelAssignString = bpelAssignString.replace("$assignName",
-            "assignFromInputToString" + System.currentTimeMillis());
+        bpelAssignString =
+            bpelAssignString.replace("$assignName", "assignFromInputToString" + System.currentTimeMillis());
         return bpelAssignString;
     }
 
@@ -582,20 +591,20 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fail
      */
     public Node generateAssignFromInputMessageToStringVariableAsNode(final String inputMessageElementLocalName,
-                    final String stringVariableName)
-        throws IOException, SAXException {
-        final String templateString = this.generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName,
-            stringVariableName);
+                                                                     final String stringVariableName) throws IOException,
+                                                                                                      SAXException {
+        final String templateString =
+            this.generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName, stringVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
         return doc.getFirstChild();
     }
 
-    public String generateBPEL4RESTLightGETonURL(final String urlVarName, final String responseVarName)
-        throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BPEL4RESTLightGET_URL_ApplicationXML.xml");
+    public String generateBPEL4RESTLightGETonURL(final String urlVarName,
+                                                 final String responseVarName) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_URL_ApplicationXML.xml");
         final File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
         String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
         // <!-- $ResponseVarName, $urlVar -->
@@ -604,8 +613,8 @@ public class BPELProcessFragments {
         return bpelAssignString;
     }
 
-    public Node generateBPEL4RESTLightGETonURLAsNode(final String urlVarName, final String reponseVarName)
-        throws IOException, SAXException {
+    public Node generateBPEL4RESTLightGETonURLAsNode(final String urlVarName,
+                                                     final String reponseVarName) throws IOException, SAXException {
         final String templateString = this.generateBPEL4RESTLightGETonURL(urlVarName, reponseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
@@ -626,8 +635,8 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      */
     public String generateBPEL4RESTLightServiceInstancePOST(final String instanceDataAPIUrlVariableName,
-                    final String csarId, final QName serviceTemplateId, final String responseVariableName)
-        throws IOException {
+                                                            final String csarId, final QName serviceTemplateId,
+                                                            final String responseVariableName) throws IOException {
         // tags in xml snippet: $InstanceDataURLVar, $CSARName,
         // $serviceTemplateId, $ResponseVarName
         final URL url = FrameworkUtil.getBundle(this.getClass())
@@ -656,9 +665,9 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      */
     public String generateBPEL4RESTLightServiceInstancePOST(final String instanceDataAPIUrlVariableName,
-                    final String csarId, final QName serviceTemplateId, final String requestVariableName,
-                    final String responseVariableName)
-        throws IOException {
+                                                            final String csarId, final QName serviceTemplateId,
+                                                            final String requestVariableName,
+                                                            final String responseVariableName) throws IOException {
         // tags in xml snippet: $InstanceDataURLVar, $CSARName,
         // $serviceTemplateId, $ResponseVarName
         final URL url = FrameworkUtil.getBundle(this.getClass())
@@ -689,10 +698,12 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fail
      */
     public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(final String instanceDataAPIUrlVariableName,
-                    final String csarId, final QName serviceTemplateId, final String responseVariableName)
-        throws IOException, SAXException {
-        final String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName,
-            csarId, serviceTemplateId, responseVariableName);
+                                                                final String csarId, final QName serviceTemplateId,
+                                                                final String responseVariableName) throws IOException,
+                                                                                                   SAXException {
+        final String templateString =
+            this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId,
+                                                           responseVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -714,11 +725,13 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fail
      */
     public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(final String instanceDataAPIUrlVariableName,
-                    final String csarId, final QName serviceTemplateId, final String requestVariableName,
-                    final String responseVariableName)
-        throws IOException, SAXException {
-        final String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName,
-            csarId, serviceTemplateId, requestVariableName, responseVariableName);
+                                                                final String csarId, final QName serviceTemplateId,
+                                                                final String requestVariableName,
+                                                                final String responseVariableName) throws IOException,
+                                                                                                   SAXException {
+        final String templateString =
+            this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId,
+                                                           requestVariableName, responseVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -735,8 +748,8 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      * @throws SAXException is thrown when parsing internal files fails
      */
-    public Node generateBPELIfTrueThrowFaultAsNode(final String xpath1Expr, final QName faultQName)
-        throws IOException, SAXException {
+    public Node generateBPELIfTrueThrowFaultAsNode(final String xpath1Expr, final QName faultQName) throws IOException,
+                                                                                                    SAXException {
         final String templateString = this.generateBPELIfTrueThrowFaultAsString(xpath1Expr, faultQName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
@@ -753,8 +766,8 @@ public class BPELProcessFragments {
      * @return a String containing a BPEL If Activity
      * @throws IOException is thrown when reading internal files fails
      */
-    public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr, final QName faultQName)
-        throws IOException {
+    public String generateBPELIfTrueThrowFaultAsString(final String xpath1Expr,
+                                                       final QName faultQName) throws IOException {
         // <!-- $xpath1Expr, $faultPrefix, $faultNamespace, $faultLocalName-->
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPELIfTrueThrowFault.xml");
         final File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
@@ -783,10 +796,12 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fail
      */
     public Node generateCopyFromStringVarToOutputVariableAsNode(final String variableName, final String outputVarName,
-                    final String outputVarPartName, final String outputVarLocalName)
-        throws IOException, SAXException {
-        final String templateString = this.generateCopyFromStringVarToOutputVariableAsString(variableName,
-            outputVarName, outputVarPartName, outputVarLocalName);
+                                                                final String outputVarPartName,
+                                                                final String outputVarLocalName) throws IOException,
+                                                                                                 SAXException {
+        final String templateString =
+            this.generateCopyFromStringVarToOutputVariableAsString(variableName, outputVarName, outputVarPartName,
+                                                                   outputVarLocalName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -807,8 +822,9 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      */
     public String generateCopyFromStringVarToOutputVariableAsString(final String variableName,
-                    final String outputVarName, final String outputVarPartName, final String outputVarLocalName)
-        throws IOException {
+                                                                    final String outputVarName,
+                                                                    final String outputVarPartName,
+                                                                    final String outputVarLocalName) throws IOException {
         // BpelAssignOutputVarFromStringVariable.xml
         // <!-- ${assignName}, ${variableName}, ${outputVarName},
         // ${outputVarPartName}, ${outputVarPrefix}, ${outputVarLocalName} -->
@@ -832,10 +848,10 @@ public class BPELProcessFragments {
      * @throws SAXException is thrown when parsing internal files fail
      */
     public Node generateServiceInstanceURLVarAssignAsNode(final String serviceInstanceResponseVarName,
-                    final String serviceInstanceURLVarName)
-        throws IOException, SAXException {
-        final String templateString = this.generateServiceInstanceURLVarAssignAsString(serviceInstanceResponseVarName,
-            serviceInstanceURLVarName);
+                                                          final String serviceInstanceURLVarName) throws IOException,
+                                                                                                  SAXException {
+        final String templateString =
+            this.generateServiceInstanceURLVarAssignAsString(serviceInstanceResponseVarName, serviceInstanceURLVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -851,17 +867,16 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fail
      */
     public String generateServiceInstanceURLVarAssignAsString(final String serviceInstanceResponseVarName,
-                    final String serviceInstanceURLVarName)
-        throws IOException {
-        final URL url = FrameworkUtil.getBundle(this.getClass())
-                                     .getResource("BpelAssignServiceInstancePOSTResponse.xml");
+                                                              final String serviceInstanceURLVarName) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignServiceInstancePOSTResponse.xml");
         final File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
         String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
         // <!-- $assignName $ServiceInstanceResponseVarName
         // $ServiceInstanceURLVarName-->
 
-        bpelAssignString = bpelAssignString.replace("$assignName",
-            "assignServiceInstance" + System.currentTimeMillis());
+        bpelAssignString =
+            bpelAssignString.replace("$assignName", "assignServiceInstance" + System.currentTimeMillis());
         bpelAssignString = bpelAssignString.replace("$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
         bpelAssignString = bpelAssignString.replace("$ServiceInstanceURLVarName", serviceInstanceURLVarName);
         return bpelAssignString;

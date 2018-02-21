@@ -40,7 +40,8 @@ public abstract class Exceptions {
         return t -> {
             try {
                 consumer.accept(t);
-            } catch (final Exception exception) {
+            }
+            catch (final Exception exception) {
                 throwAsUnchecked(exception);
             }
         };
@@ -62,7 +63,8 @@ public abstract class Exceptions {
         return t -> {
             try {
                 return function.apply(t);
-            } catch (final Exception exception) {
+            }
+            catch (final Exception exception) {
                 throwAsUnchecked(exception);
                 return null;
             }
@@ -82,7 +84,8 @@ public abstract class Exceptions {
         return () -> {
             try {
                 return supplier.get();
-            } catch (final Exception exception) {
+            }
+            catch (final Exception exception) {
                 throwAsUnchecked(exception);
                 return null;
             }
@@ -99,7 +102,8 @@ public abstract class Exceptions {
     public static void uncheck(final Runnable_WithExceptions runnable) {
         try {
             runnable.accept();
-        } catch (final Exception exception) {
+        }
+        catch (final Exception exception) {
             throwAsUnchecked(exception);
         }
     }
@@ -116,7 +120,8 @@ public abstract class Exceptions {
     public static <R> R uncheck(final Supplier_WithExceptions<R> supplier) {
         try {
             return supplier.get();
-        } catch (final Exception exception) {
+        }
+        catch (final Exception exception) {
             throwAsUnchecked(exception);
             return null;
         }
@@ -136,7 +141,8 @@ public abstract class Exceptions {
     public static <T, R> R uncheck(final Function_WithExceptions<T, R> function, final T t) {
         try {
             return function.apply(t);
-        } catch (final Exception exception) {
+        }
+        catch (final Exception exception) {
             throwAsUnchecked(exception);
             return null;
         }

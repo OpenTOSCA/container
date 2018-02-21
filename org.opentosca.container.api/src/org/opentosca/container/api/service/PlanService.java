@@ -68,8 +68,8 @@ public class PlanService {
         for (final PlanTypes planType : planTypes) {
             final LinkedHashMap<QName, TPlan> plansOfType = plansOfCsar.get(planType);
             if (plansOfType == null) {
-                logger.warn(
-                    "CSAR \"" + id.getFileName() + "\" does not have a plan of type \"" + planType.toString() + "\"");
+                logger.warn("CSAR \"" + id.getFileName() + "\" does not have a plan of type \"" + planType.toString()
+                    + "\"");
                 continue;
             }
             plans.addAll(plansOfType.values());
@@ -88,7 +88,7 @@ public class PlanService {
     }
 
     public String invokePlan(final CSARID csarId, final QName serviceTemplate, final long serviceTemplateInstanceId,
-                    final TPlan plan, final List<TParameter> parameters) {
+                             final TPlan plan, final List<TParameter> parameters) {
 
         final PlanDTO dto = new PlanDTO(plan);
 
@@ -98,8 +98,9 @@ public class PlanService {
 
         try {
             return this.controlService.invokePlanInvocation(csarId, serviceTemplate, serviceTemplateInstanceId,
-                PlanDTO.Converter.convert(dto));
-        } catch (final UnsupportedEncodingException e) {
+                                                            PlanDTO.Converter.convert(dto));
+        }
+        catch (final UnsupportedEncodingException e) {
             throw new ServerErrorException(500, e);
         }
     }
@@ -130,8 +131,8 @@ public class PlanService {
      * @return
      */
     private PlanInstance resolvePlanInstance(final String plan, final String instance, final UriInfo uriInfo,
-                    final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
-                    final PlanTypes... planTypes) {
+                                             final CSARID csarId, final QName serviceTemplate,
+                                             final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
         if (!hasPlan(csarId, planTypes, plan)) {
             final String msg = "Plan \"" + plan + "\" could not be found";
@@ -151,16 +152,17 @@ public class PlanService {
         final Long id = pi.getServiceTemplateInstance().getId();
 
         if (!pi.getTemplateId().getLocalPart().equals(plan)) {
-            final String msg = String.format(
-                "The passed plan instance <%s> does not belong to the passed plan template: %s", instance, plan);
+            final String msg =
+                String.format("The passed plan instance <%s> does not belong to the passed plan template: %s", instance,
+                              plan);
             logger.info(msg);
             throw new NotFoundException(msg);
         }
 
         if (serviceTemplateInstanceId != null && serviceTemplateInstanceId != id) {
-            final String msg = String.format(
-                "The passed service template instance id <%s> does not match the service template instance id that is associated with the plan instance <%s> ",
-                serviceTemplateInstanceId, id, instance);
+            final String msg =
+                String.format("The passed service template instance id <%s> does not match the service template instance id that is associated with the plan instance <%s> ",
+                              serviceTemplateInstanceId, id, instance);
             logger.info(msg);
             throw new NotFoundException(msg);
         }
@@ -189,11 +191,11 @@ public class PlanService {
     /* Plan Templates */
     /******************/
     public Response getPlans(final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
-                    final PlanTypes... planTypes) {
+                             final PlanTypes... planTypes) {
 
         final List<TPlan> buildPlans = getPlansByType(csarId, planTypes);
         logger.debug("Found <{}> plans for ServiceTemplate \"{}\" in CSAR \"{}\"", buildPlans.size(), serviceTemplate,
-            csarId);
+                     csarId);
 
         final PlanListDTO list = new PlanListDTO();
         buildPlans.stream().forEach(p -> {
@@ -208,11 +210,11 @@ public class PlanService {
     }
 
     public Response getPlan(final String plan, final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
-                    final PlanTypes... planTypes) {
+                            final PlanTypes... planTypes) {
 
         final List<TPlan> buildPlans = getPlansByType(csarId, planTypes);
         logger.debug("Found <{}> plans for ServiceTemplate \"{}\" in CSAR \"{}\"", buildPlans.size(), serviceTemplate,
-            csarId);
+                     csarId);
 
         final TPlan p = getPlan(plan, csarId);
 
@@ -231,8 +233,8 @@ public class PlanService {
     }
 
     public Response invokePlan(final String plan, final UriInfo uriInfo, final List<TParameter> parameters,
-                    final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
-                    final PlanTypes... planTypes) {
+                               final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
+                               final PlanTypes... planTypes) {
 
         if (parameters == null) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -244,7 +246,7 @@ public class PlanService {
         }
 
         logger.info("Received a payload for plan \"{}\" in ServiceTemplate \"{}\" of CSAR \"{}\"", plan,
-            serviceTemplate, csarId);
+                    serviceTemplate, csarId);
         if (logger.isDebugEnabled()) {
             logger.debug("Request payload:\n{}", JsonUtil.writeValueAsString(parameters));
         }
@@ -256,7 +258,7 @@ public class PlanService {
             String url = Settings.CONTAINER_INSTANCEDATA_API + serviceTemplateInstanceId;
             url = url.replace("{csarid}", csarId.getFileName());
             url = url.replace("{servicetemplateid}",
-                UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
+                              UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
             final URI uri = UriUtil.encode(URI.create(url));
             final TParameter param = new TParameter();
             param.setName("OpenTOSCAContainerAPIServiceInstanceID");
@@ -276,7 +278,8 @@ public class PlanService {
     /* Plan Instances */
     /*****************/
     public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
-                    final QName serviceTemplate, final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+                                     final QName serviceTemplate, final Long serviceTemplateInstanceId,
+                                     final PlanTypes... planTypes) {
 
         if (!hasPlan(csarId, planTypes, plan)) {
             logger.info("Plan \"" + plan + "\" could not be found");
@@ -327,18 +330,18 @@ public class PlanService {
     }
 
     public Response getPlanInstance(final String plan, final String instance, final UriInfo uriInfo,
-                    final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
-                    final PlanTypes... planTypes) {
+                                    final CSARID csarId, final QName serviceTemplate,
+                                    final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
         final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-            serviceTemplateInstanceId, planTypes);
+                                                         serviceTemplateInstanceId, planTypes);
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
         if (pi.getServiceTemplateInstance() != null) {
             final URI uri = uriInfo.getBaseUriBuilder()
                                    .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
                                    .build(csarId.toString(), serviceTemplate.toString(),
-                                       String.valueOf(pi.getServiceTemplateInstance().getId()));
+                                          String.valueOf(pi.getServiceTemplateInstance().getId()));
             dto.add(Link.fromUri(UriUtil.encode(uri)).rel("service_template_instance").build());
         }
 
@@ -353,19 +356,19 @@ public class PlanService {
     }
 
     public Response getPlanInstanceState(final String plan, final String instance, final UriInfo uriInfo,
-                    final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
-                    final PlanTypes... planTypes) {
+                                         final CSARID csarId, final QName serviceTemplate,
+                                         final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
         final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-            serviceTemplateInstanceId, planTypes);
+                                                         serviceTemplateInstanceId, planTypes);
 
         return Response.ok(pi.getState().toString()).build();
     }
 
     public Response changePlanInstanceState(final String newState, final String plan, final String instance,
-                    final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
-                    final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+                                            final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
+                                            final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
         final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-            serviceTemplateInstanceId, planTypes);
+                                                         serviceTemplateInstanceId, planTypes);
 
         try {
             final PlanInstanceState parsedState = PlanInstanceState.valueOf(newState);
@@ -373,7 +376,8 @@ public class PlanService {
             this.planInstanceRepository.update(pi);
 
             return Response.ok().build();
-        } catch (final IllegalArgumentException e) {
+        }
+        catch (final IllegalArgumentException e) {
             final String msg = String.format("The given state %s is an illegal plan instance state.", newState);
             logger.info(msg);
 
@@ -383,10 +387,10 @@ public class PlanService {
     }
 
     public Response getPlanInstanceLogs(final String plan, final String instance, final UriInfo uriInfo,
-                    final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
-                    final PlanTypes... planTypes) {
+                                        final CSARID csarId, final QName serviceTemplate,
+                                        final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
         final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-            serviceTemplateInstanceId, planTypes);
+                                                         serviceTemplateInstanceId, planTypes);
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
         dto.add(UriUtil.generateSelfLink(uriInfo));
@@ -395,14 +399,15 @@ public class PlanService {
     }
 
     public Response addLogToPlanInstance(final CreatePlanInstanceLogEntryRequest logEntry, final String plan,
-                    final String instance, final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
-                    final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+                                         final String instance, final UriInfo uriInfo, final CSARID csarId,
+                                         final QName serviceTemplate, final Long serviceTemplateInstanceId,
+                                         final PlanTypes... planTypes) {
         final String entry = logEntry.getLogEntry();
 
 
         if (entry != null && entry.length() > 0) {
             final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                serviceTemplateInstanceId, planTypes);
+                                                             serviceTemplateInstanceId, planTypes);
             final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
             pi.addEvent(event);
             this.planInstanceRepository.update(pi);

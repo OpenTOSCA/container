@@ -77,8 +77,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
         final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
         final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
         final String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
-        final Document specificContenet = message.getHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(),
-            Document.class);
+        final Document specificContenet =
+            message.getHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), Document.class);
 
         LOG.debug("Invoke REST call at {}.", endpoint);
 
@@ -131,7 +131,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
         if (contentTypeParam != null && !contentTypeParam.value().equalsIgnoreCase(this.CONTENTTYPE)) {
 
             ManagementBusPluginRestServiceImpl.LOG.debug("ContenttypeParam set: params into payload as {}.",
-                contentTypeParam);
+                                                         contentTypeParam);
 
             body = mapToJSON(paramsMap);
         }
@@ -159,7 +159,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 
             try {
                 responseString = template.requestBodyAndHeaders("http://dummyhost", body, headers, String.class);
-            } catch (final Exception e) {
+            }
+            catch (final Exception e) {
             }
             LOG.trace(responseString);
 
@@ -175,7 +176,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 
             try {
                 Thread.sleep(1000);
-            } catch (final InterruptedException e) {
+            }
+            catch (final InterruptedException e) {
                 e.printStackTrace();
             }
         } while (null == responseString);
@@ -271,7 +273,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
             builder = factory.newDocumentBuilder();
             doc = builder.parse(new InputSource(new StringReader(string)));
 
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             ManagementBusPluginRestServiceImpl.LOG.debug("Response isn't xml.");
             return null;
         }
@@ -301,7 +304,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
                     map.put(name, value);
                 }
 
-            } catch (final IndexOutOfBoundsException e) {
+            }
+            catch (final IndexOutOfBoundsException e) {
                 ManagementBusPluginRestServiceImpl.LOG.debug("Response isn't queryString.");
                 return null;
             }
@@ -350,7 +354,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
      * @return matching operation.
      */
     private Operation getOperation(final DataAssign dataAssign, final String operationName,
-                    final String interfaceName) {
+                                   final String interfaceName) {
 
         final List<Operation> operations = dataAssign.getOperations().getOperation();
 
@@ -360,13 +364,12 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
             final String provIntName = op.getInterfaceName();
 
             ManagementBusPluginRestServiceImpl.LOG.debug("Provided operation name: {}. Needed: {}", provOpName,
-                operationName);
+                                                         operationName);
             ManagementBusPluginRestServiceImpl.LOG.debug("Provided interface name: {}. Needed: {}", provIntName,
-                interfaceName);
+                                                         interfaceName);
 
             if (op.getName() == null && op.getInterfaceName() == null) {
-                ManagementBusPluginRestServiceImpl.LOG.debug(
-                    "Operation found. No operation name nor interfaceName is specified meaning this IA implements just one operation or the provided information count for all implemented operations.");
+                ManagementBusPluginRestServiceImpl.LOG.debug("Operation found. No operation name nor interfaceName is specified meaning this IA implements just one operation or the provided information count for all implemented operations.");
                 return op;
 
             } else if (op.getName() != null && op.getName().equalsIgnoreCase(operationName)) {
@@ -383,8 +386,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 
             } else if (op.getInterfaceName() != null && op.getName() == null
                 && op.getInterfaceName().equalsIgnoreCase(interfaceName)) {
-                ManagementBusPluginRestServiceImpl.LOG.debug(
-                    "Operation found. Provided information count for all operations of the specified interface.");
+                ManagementBusPluginRestServiceImpl.LOG.debug("Operation found. Provided information count for all operations of the specified interface.");
                 return op;
             }
         }
@@ -401,8 +403,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
         final HashMap<String, String> map = new HashMap<>();
 
         final DocumentTraversal traversal = (DocumentTraversal) doc;
-        final NodeIterator iterator = traversal.createNodeIterator(doc.getDocumentElement(), NodeFilter.SHOW_ELEMENT,
-            null, true);
+        final NodeIterator iterator =
+            traversal.createNodeIterator(doc.getDocumentElement(), NodeFilter.SHOW_ELEMENT, null, true);
 
         for (Node node = iterator.nextNode(); node != null; node = iterator.nextNode()) {
 
@@ -440,7 +442,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
         DocumentBuilder documentBuilder = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
 
@@ -473,7 +476,7 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
      *        type with content-type header.
      */
     private Exchange createResponseExchange(final Exchange exchange, final String responseString,
-                    final String operationName, final boolean isDoc) {
+                                            final String operationName, final boolean isDoc) {
 
         ManagementBusPluginRestServiceImpl.LOG.debug("Handling the response: {}.", responseString);
 
@@ -504,8 +507,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
             responseMap = queryStringToMap(responseString);
 
             if (responseMap == null || responseMap.isEmpty()) {
-                ManagementBusPluginRestServiceImpl.LOG.debug(
-                    "Response isn't neihter xml nor queryString. Returning the reponse: {} as string.", responseString);
+                ManagementBusPluginRestServiceImpl.LOG.debug("Response isn't neihter xml nor queryString. Returning the reponse: {} as string.",
+                                                             responseString);
                 exchange.getIn().setBody(responseString);
             }
 
@@ -534,8 +537,8 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
      */
     private DataAssign unmarshall(final Document doc) {
 
-        final NodeList nodeList = doc.getElementsByTagNameNS(
-            "http://www.siengine.restplugin.org/SpecificContentRestSchema", "DataAssign");
+        final NodeList nodeList =
+            doc.getElementsByTagNameNS("http://www.siengine.restplugin.org/SpecificContentRestSchema", "DataAssign");
 
         final Node node = nodeList.item(0);
 
@@ -551,13 +554,13 @@ public class ManagementBusPluginRestServiceImpl implements IManagementBusPluginS
 
             return dataAssign;
 
-        } catch (final JAXBException e) {
+        }
+        catch (final JAXBException e) {
             ManagementBusPluginRestServiceImpl.LOG.warn("Couldn't unmarshall provided artifact specific content!");
             e.printStackTrace();
         }
 
-        ManagementBusPluginRestServiceImpl.LOG.debug(
-            "No unmarshallable artifact specific content provided. Using default values now.");
+        ManagementBusPluginRestServiceImpl.LOG.debug("No unmarshallable artifact specific content provided. Using default values now.");
 
         return null;
     }

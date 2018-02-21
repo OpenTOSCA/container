@@ -86,8 +86,8 @@ public class FileResource {
     public References getReferences() {
         if (this.CSAR_FILE != null) {
             final References refs = new References();
-            final Reference self = new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE,
-                XLinkConstants.SELF);
+            final Reference self =
+                new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
             refs.getReference().add(self);
             return refs;
         }
@@ -150,11 +150,14 @@ public class FileResource {
             LOG.trace("Found a json file and parsed it, contents are:\n   {}", strBuilder.toString());
             return strBuilder.toString();
 
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             e.printStackTrace();
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -187,7 +190,7 @@ public class FileResource {
                 // known?
                 if (ResourceConstants.imageMediaTypes.containsKey(ext)) {
                     FileResource.LOG.debug("Supported image file, *.{} maps to {}", ext,
-                        ResourceConstants.imageMediaTypes.get(ext));
+                                           ResourceConstants.imageMediaTypes.get(ext));
                     final InputStream inputStream = this.CSAR_FILE.getFileAsInputStream();
                     // set matching media type and return
                     return Response.ok(inputStream, ResourceConstants.imageMediaTypes.get(ext)).build();
@@ -274,8 +277,8 @@ public class FileResource {
 
             // try {
 
-            FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(this.CSAR_ID,
-                Paths.get(this.CSAR_FILE.getPath()));
+            FileRepositoryServiceHandler.getFileHandler()
+                                        .moveFileOrDirectoryOfCSAR(this.CSAR_ID, Paths.get(this.CSAR_FILE.getPath()));
 
             return Response.ok("Moving file \"" + this.CSAR_FILE.getPath() + "\" of CSAR \"" + this.CSAR_ID.toString()
                 + "\" was successful.").build();

@@ -85,13 +85,14 @@ public class PackagerResource {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response createFromArtefact(@FormDataParam("file") final InputStream uploadedInputStream,
-                    @FormDataParam("file") final FormDataContentDisposition fileDetail,
-                    @FormDataParam("file") final FormDataBodyPart body,
-                    @FormDataParam("artefactType") final QName artifactType,
-                    @FormDataParam("nodeTypes") final Set<QName> nodeTypes,
-                    @FormDataParam("infrastructureNodeType") final QName infrastructureNodeType,
-                    @FormDataParam("tags") final Set<String> tags, @Context final UriInfo uriInfo)
-        throws IllegalArgumentException, JAXBException, IOException {
+                                       @FormDataParam("file") final FormDataContentDisposition fileDetail,
+                                       @FormDataParam("file") final FormDataBodyPart body,
+                                       @FormDataParam("artefactType") final QName artifactType,
+                                       @FormDataParam("nodeTypes") final Set<QName> nodeTypes,
+                                       @FormDataParam("infrastructureNodeType") final QName infrastructureNodeType,
+                                       @FormDataParam("tags") final Set<String> tags,
+                                       @Context final UriInfo uriInfo) throws IllegalArgumentException, JAXBException,
+                                                                       IOException {
 
         if (!this.connector.isWineryRepositoryAvailable()) {
             return Response.status(Status.SERVICE_UNAVAILABLE).build();
@@ -100,13 +101,18 @@ public class PackagerResource {
         final File tempFile = this.inputStream2File(uploadedInputStream, fileDetail.getFileName());
 
         try {
-            final QName xaasServiceTemplate = this.connector.createServiceTemplateFromXaaSPackage(tempFile,
-                artifactType, nodeTypes, infrastructureNodeType, this.createTagMapFromTagSet(tags));
-            final String redirectUrl = Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
-                "servicetemplates/" + Utilities.URLencode(xaasServiceTemplate.toString())).replace("packager",
-                    "marketplace");
+            final QName xaasServiceTemplate =
+                this.connector.createServiceTemplateFromXaaSPackage(tempFile, artifactType, nodeTypes,
+                                                                    infrastructureNodeType,
+                                                                    this.createTagMapFromTagSet(tags));
+            final String redirectUrl = Utilities
+                                                .buildURI(this.uriInfo.getAbsolutePath().toString(),
+                                                          "servicetemplates/"
+                                                              + Utilities.URLencode(xaasServiceTemplate.toString()))
+                                                .replace("packager", "marketplace");
             return Response.created(URI.create(redirectUrl)).build();
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             e.printStackTrace();
         }
         return Response.serverError().build();
@@ -147,10 +153,12 @@ public class PackagerResource {
 
             is.close();
             out.close();
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

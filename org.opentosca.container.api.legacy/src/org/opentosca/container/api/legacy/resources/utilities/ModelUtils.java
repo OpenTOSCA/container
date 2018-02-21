@@ -24,8 +24,8 @@ public class ModelUtils {
     public static QName getEntryServiceTemplate(final CSARID csarId) throws UserException, SystemException {
         final ICoreFileService fileService = FileRepositoryServiceHandler.getFileHandler();
         final CSARContent content = fileService.getCSAR(csarId);
-        final Definitions def = ToscaServiceHandler.getIXMLSerializer()
-                                                   .unmarshal(content.getRootTOSCA().getFileAsInputStream());
+        final Definitions def =
+            ToscaServiceHandler.getIXMLSerializer().unmarshal(content.getRootTOSCA().getFileAsInputStream());
         for (final TExtensibleElements el : def.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
             if (el instanceof TServiceTemplate) {
                 final TServiceTemplate st = (TServiceTemplate) el;
@@ -37,9 +37,8 @@ public class ModelUtils {
     }
 
     public static boolean hasBuildPlan(final CSARID csarId) throws UserException, SystemException {
-        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans = ToscaServiceHandler.getToscaEngineService()
-                                                                                     .getToscaReferenceMapper()
-                                                                                     .getCSARIDToPlans(csarId);
+        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarId);
 
         if (plans == null) {
             return false;
@@ -51,21 +50,22 @@ public class ModelUtils {
     public static boolean hasOpenRequirements(final CSARID csarId) throws UserException, SystemException {
         final QName serviceTemplateId = ModelUtils.getEntryServiceTemplate(csarId);
 
-        final List<String> nodeTemplateIds = ToscaServiceHandler.getToscaEngineService()
-                                                                .getNodeTemplatesOfServiceTemplate(csarId,
-                                                                    serviceTemplateId);
-        final List<String> relationshipTemplateIds = ToscaServiceHandler.getToscaEngineService()
-                                                                        .getRelationshipTemplatesOfServiceTemplate(
-                                                                            csarId, serviceTemplateId);
+        final List<String> nodeTemplateIds =
+            ToscaServiceHandler.getToscaEngineService().getNodeTemplatesOfServiceTemplate(csarId, serviceTemplateId);
+        final List<String> relationshipTemplateIds =
+            ToscaServiceHandler.getToscaEngineService().getRelationshipTemplatesOfServiceTemplate(csarId,
+                                                                                                  serviceTemplateId);
 
         for (final String nodeTemplateId : nodeTemplateIds) {
-            final List<QName> nodeReqs = ToscaServiceHandler.getToscaEngineService().getNodeTemplateRequirements(csarId,
-                serviceTemplateId, nodeTemplateId);
+            final List<QName> nodeReqs =
+                ToscaServiceHandler.getToscaEngineService().getNodeTemplateRequirements(csarId, serviceTemplateId,
+                                                                                        nodeTemplateId);
             int foundRelations = 0;
 
             for (final String relationshipTemplateId : relationshipTemplateIds) {
-                final QName relationReq = ToscaServiceHandler.getToscaEngineService().getRelationshipTemplateSource(
-                    csarId, serviceTemplateId, relationshipTemplateId);
+                final QName relationReq =
+                    ToscaServiceHandler.getToscaEngineService().getRelationshipTemplateSource(csarId, serviceTemplateId,
+                                                                                              relationshipTemplateId);
                 if (relationReq.getLocalPart().equals(nodeTemplateId)) {
                     foundRelations++;
                 }
@@ -80,9 +80,8 @@ public class ModelUtils {
     }
 
     public static boolean hasTerminationPlan(final CSARID csarId) throws UserException, SystemException {
-        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans = ToscaServiceHandler.getToscaEngineService()
-                                                                                     .getToscaReferenceMapper()
-                                                                                     .getCSARIDToPlans(csarId);
+        final Map<PlanTypes, LinkedHashMap<QName, TPlan>> plans =
+            ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper().getCSARIDToPlans(csarId);
 
         if (plans == null) {
             return false;

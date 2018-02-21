@@ -71,7 +71,7 @@ public class ManagementPlanController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets a management plan by its id", response = PlanDTO.class, responseContainer = "List")
     public Response getManagementPlan(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @Context final UriInfo uriInfo) {
+                                      @Context final UriInfo uriInfo) {
         return this.planService.getPlan(plan, uriInfo, this.csarId, this.serviceTemplate, this.planTypes);
     }
 
@@ -81,9 +81,9 @@ public class ManagementPlanController {
     @ApiOperation(value = "Gets management plan instances of a management plan.", response = PlanInstanceDTO.class,
                   responseContainer = "List")
     public Response getManagementPlanInstances(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @Context final UriInfo uriInfo) {
+                                               @Context final UriInfo uriInfo) {
         return this.planService.getPlanInstances(plan, uriInfo, this.csarId, this.serviceTemplate,
-            this.serviceTemplateInstanceId, this.planTypes);
+                                                 this.serviceTemplateInstanceId, this.planTypes);
     }
 
     @POST
@@ -95,11 +95,11 @@ public class ManagementPlanController {
                    @ApiResponse(code = 200, message = "Successful Operation - A URL to the plan instance.",
                                 response = URI.class)})
     public Response invokeManagementPlan(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @Context final UriInfo uriInfo,
-                    @ApiParam(required = true,
-                              value = "input parameters for the plan") final List<TParameter> parameters) {
+                                         @Context final UriInfo uriInfo,
+                                         @ApiParam(required = true,
+                                                   value = "input parameters for the plan") final List<TParameter> parameters) {
         return this.planService.invokePlan(plan, uriInfo, parameters, this.csarId, this.serviceTemplate,
-            this.serviceTemplateInstanceId, this.planTypes);
+                                           this.serviceTemplateInstanceId, this.planTypes);
     }
 
     @GET
@@ -109,10 +109,10 @@ public class ManagementPlanController {
                   responseContainer = "List")
     @ApiResponses(@ApiResponse(code = 404, message = "Not Found - Plan instance not found"))
     public Response getManagementPlanInstance(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
-                    @Context final UriInfo uriInfo) {
+                                              @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
+                                              @Context final UriInfo uriInfo) {
         return this.planService.getPlanInstance(plan, instance, uriInfo, this.csarId, this.serviceTemplate,
-            this.serviceTemplateInstanceId, this.planTypes);
+                                                this.serviceTemplateInstanceId, this.planTypes);
     }
 
     @GET
@@ -121,10 +121,10 @@ public class ManagementPlanController {
     @ApiOperation(value = "Gets the current state of a management plan instance", response = String.class)
     @ApiResponses(@ApiResponse(code = 404, message = "Not Found - Plan instance not found"))
     public Response getManagementPlanInstanceState(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
-                    @Context final UriInfo uriInfo) {
+                                                   @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
+                                                   @Context final UriInfo uriInfo) {
         return this.planService.getPlanInstanceState(plan, instance, uriInfo, this.csarId, this.serviceTemplate,
-            this.serviceTemplateInstanceId, this.planTypes);
+                                                     this.serviceTemplateInstanceId, this.planTypes);
     }
 
     @PUT
@@ -134,14 +134,14 @@ public class ManagementPlanController {
     @ApiResponses({@ApiResponse(code = 404, message = "Not Found - Plan instance not found"),
                    @ApiResponse(code = 400, message = "Bad Request - The given plan instance state is invalid"),
                    @ApiResponse(code = 200, message = "Successful Operation")})
-    public Response changeManagementPlanInstanceState(
-                    @ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
-                    @Context final UriInfo uriInfo,
-                    @ApiParam(required = true,
-                              value = "The new state of the management plan instance, possible values include \"RUNNING\", \"FINISHED\", \"FAILED\", \"UNKNOWN\"") final String request) {
+    public Response changeManagementPlanInstanceState(@ApiParam("management plan id") @PathParam("plan") final String plan,
+                                                      @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
+                                                      @Context final UriInfo uriInfo,
+                                                      @ApiParam(required = true,
+                                                                value = "The new state of the management plan instance, possible values include \"RUNNING\", \"FINISHED\", \"FAILED\", \"UNKNOWN\"") final String request) {
         return this.planService.changePlanInstanceState(request, plan, instance, uriInfo, this.csarId,
-            this.serviceTemplate, this.serviceTemplateInstanceId, this.planTypes);
+                                                        this.serviceTemplate, this.serviceTemplateInstanceId,
+                                                        this.planTypes);
     }
 
     @GET
@@ -151,10 +151,10 @@ public class ManagementPlanController {
                   response = PlanInstanceEventDTO.class, responseContainer = "list")
     @ApiResponses(@ApiResponse(code = 404, message = "Not Found - Plan instance not found"))
     public Response getManagementPlanInstanceLogs(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
-                    @Context final UriInfo uriInfo) {
+                                                  @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
+                                                  @Context final UriInfo uriInfo) {
         return this.planService.getPlanInstanceLogs(plan, instance, uriInfo, this.csarId, this.serviceTemplate,
-            this.serviceTemplateInstanceId, this.planTypes);
+                                                    this.serviceTemplateInstanceId, this.planTypes);
     }
 
     @POST
@@ -167,12 +167,13 @@ public class ManagementPlanController {
                    @ApiResponse(code = 200, message = "Successful Operation - A URL to the plan instance logs resource",
                                 response = URI.class)})
     public Response addManagementPlanLogEntry(@ApiParam("management plan id") @PathParam("plan") final String plan,
-                    @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
-                    @Context final UriInfo uriInfo,
-                    @ApiParam(required = true,
-                              value = "log entry to be added (either as a plain text, or in the form &#x3C;log&#x3E; log-entry &#x3C;/log&#x3E;)") final CreatePlanInstanceLogEntryRequest logEntry) {
+                                              @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
+                                              @Context final UriInfo uriInfo,
+                                              @ApiParam(required = true,
+                                                        value = "log entry to be added (either as a plain text, or in the form &#x3C;log&#x3E; log-entry &#x3C;/log&#x3E;)") final CreatePlanInstanceLogEntryRequest logEntry) {
         return this.planService.addLogToPlanInstance(logEntry, plan, instance, uriInfo, this.csarId,
-            this.serviceTemplate, this.serviceTemplateInstanceId, this.planTypes);
+                                                     this.serviceTemplate, this.serviceTemplateInstanceId,
+                                                     this.planTypes);
     }
 
 }

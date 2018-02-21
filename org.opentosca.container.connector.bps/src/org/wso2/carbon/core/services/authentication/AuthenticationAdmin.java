@@ -28,10 +28,10 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.LoginWithRememberMeOptionResponse loginWithRememberMeOption(
 
-                    org.wso2.carbon.core.services.authentication.LoginWithRememberMeOption loginWithRememberMeOption0)
-        throws java.rmi.RemoteException
+                                                                                                                    org.wso2.carbon.core.services.authentication.LoginWithRememberMeOption loginWithRememberMeOption0) throws java.rmi.RemoteException
 
-        , org.wso2.carbon.core.services.authentication.AuthenticationAdminAuthenticationExceptionException;
+                                                                                                                                                                                                                       ,
+                                                                                                                                                                                                                       org.wso2.carbon.core.services.authentication.AuthenticationAdminAuthenticationExceptionException;
 
 
     /**
@@ -42,11 +42,11 @@ public interface AuthenticationAdmin {
      */
     public void startloginWithRememberMeOption(
 
-                    org.wso2.carbon.core.services.authentication.LoginWithRememberMeOption loginWithRememberMeOption0,
+                                               org.wso2.carbon.core.services.authentication.LoginWithRememberMeOption loginWithRememberMeOption0,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                                               final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                               throws java.rmi.RemoteException;
 
 
 
@@ -62,10 +62,10 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.LoginResponse login(
 
-                    org.wso2.carbon.core.services.authentication.Login login2)
-        throws java.rmi.RemoteException
+                                                                            org.wso2.carbon.core.services.authentication.Login login2) throws java.rmi.RemoteException
 
-        , org.wso2.carbon.core.services.authentication.AuthenticationAdminAuthenticationExceptionException;
+                                                                                                                                       ,
+                                                                                                                                       org.wso2.carbon.core.services.authentication.AuthenticationAdminAuthenticationExceptionException;
 
 
     /**
@@ -76,11 +76,11 @@ public interface AuthenticationAdmin {
      */
     public void startlogin(
 
-                    org.wso2.carbon.core.services.authentication.Login login2,
+                           org.wso2.carbon.core.services.authentication.Login login2,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                           final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                           throws java.rmi.RemoteException;
 
 
 
@@ -94,8 +94,7 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.GetAuthenticatorNameResponse getAuthenticatorName(
 
-                    org.wso2.carbon.core.services.authentication.GetAuthenticatorName getAuthenticatorName4)
-        throws java.rmi.RemoteException;
+                                                                                                          org.wso2.carbon.core.services.authentication.GetAuthenticatorName getAuthenticatorName4) throws java.rmi.RemoteException;
 
 
     /**
@@ -106,11 +105,11 @@ public interface AuthenticationAdmin {
      */
     public void startgetAuthenticatorName(
 
-                    org.wso2.carbon.core.services.authentication.GetAuthenticatorName getAuthenticatorName4,
+                                          org.wso2.carbon.core.services.authentication.GetAuthenticatorName getAuthenticatorName4,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                                          final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                          throws java.rmi.RemoteException;
 
 
 
@@ -124,8 +123,7 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.GetPriorityResponse getPriority(
 
-                    org.wso2.carbon.core.services.authentication.GetPriority getPriority6)
-        throws java.rmi.RemoteException;
+                                                                                        org.wso2.carbon.core.services.authentication.GetPriority getPriority6) throws java.rmi.RemoteException;
 
 
     /**
@@ -136,11 +134,11 @@ public interface AuthenticationAdmin {
      */
     public void startgetPriority(
 
-                    org.wso2.carbon.core.services.authentication.GetPriority getPriority6,
+                                 org.wso2.carbon.core.services.authentication.GetPriority getPriority6,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                                 final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                 throws java.rmi.RemoteException;
 
 
 
@@ -154,8 +152,7 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.IsDisabledResponse isDisabled(
 
-                    org.wso2.carbon.core.services.authentication.IsDisabled isDisabled8)
-        throws java.rmi.RemoteException;
+                                                                                      org.wso2.carbon.core.services.authentication.IsDisabled isDisabled8) throws java.rmi.RemoteException;
 
 
     /**
@@ -166,11 +163,11 @@ public interface AuthenticationAdmin {
      */
     public void startisDisabled(
 
-                    org.wso2.carbon.core.services.authentication.IsDisabled isDisabled8,
+                                org.wso2.carbon.core.services.authentication.IsDisabled isDisabled8,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                                final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                throws java.rmi.RemoteException;
 
 
 
@@ -184,8 +181,7 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMeResponse authenticateWithRememberMe(
 
-                    org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMe authenticateWithRememberMe10)
-        throws java.rmi.RemoteException;
+                                                                                                                      org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMe authenticateWithRememberMe10) throws java.rmi.RemoteException;
 
 
     /**
@@ -196,11 +192,11 @@ public interface AuthenticationAdmin {
      */
     public void startauthenticateWithRememberMe(
 
-                    org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMe authenticateWithRememberMe10,
+                                                org.wso2.carbon.core.services.authentication.AuthenticateWithRememberMe authenticateWithRememberMe10,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                                                final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                                throws java.rmi.RemoteException;
 
 
 
@@ -214,8 +210,7 @@ public interface AuthenticationAdmin {
 
     public org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookieResponse loginWithRememberMeCookie(
 
-                    org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookie loginWithRememberMeCookie12)
-        throws java.rmi.RemoteException;
+                                                                                                                    org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookie loginWithRememberMeCookie12) throws java.rmi.RemoteException;
 
 
     /**
@@ -226,11 +221,11 @@ public interface AuthenticationAdmin {
      */
     public void startloginWithRememberMeCookie(
 
-                    org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookie loginWithRememberMeCookie12,
+                                               org.wso2.carbon.core.services.authentication.LoginWithRememberMeCookie loginWithRememberMeCookie12,
 
-                    final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
+                                               final org.wso2.carbon.core.services.authentication.AuthenticationAdminCallbackHandler callback)
 
-        throws java.rmi.RemoteException;
+                                                                                                                                               throws java.rmi.RemoteException;
 
 
 

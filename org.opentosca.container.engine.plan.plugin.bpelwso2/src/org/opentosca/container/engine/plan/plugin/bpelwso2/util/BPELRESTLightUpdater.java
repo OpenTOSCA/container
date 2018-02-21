@@ -99,8 +99,8 @@ public class BPELRESTLightUpdater {
      * @throws IOException is thrown when access of BPEL file failed
      * @throws SAXException is thrown when parsing of BPEL file failed
      */
-    public boolean changeEndpoints(final List<File> processFiles, final CSARID csarId)
-        throws IOException, SAXException {
+    public boolean changeEndpoints(final List<File> processFiles, final CSARID csarId) throws IOException,
+                                                                                       SAXException {
         this.csarId = csarId;
         final File bpelFile = this.getBPELFile(processFiles);
 
@@ -121,7 +121,7 @@ public class BPELRESTLightUpdater {
         if (BPELRESTLightUpdater.endpointService != null) {
             for (final URI localUri : localURIs) {
                 for (final RESTEndpoint endpoint : BPELRESTLightUpdater.endpointService.getRestEndpoints(localUri,
-                    this.csarId)) {
+                                                                                                         this.csarId)) {
                     notChanged.addAll(this.changeAddress(endpoint, elements));
                 }
             }
@@ -136,7 +136,8 @@ public class BPELRESTLightUpdater {
             try {
                 this.transformer.transform(source, result);
                 wroteFile = true;
-            } catch (final TransformerException e) {
+            }
+            catch (final TransformerException e) {
                 wroteFile = false;
             }
 
@@ -162,8 +163,8 @@ public class BPELRESTLightUpdater {
     public List<BPELRESTLightElement> getAllBPELRESTLightElements(final Document document) {
         BPELRESTLightUpdater.LOG.debug("Retrieving all BPEL4RESTLight elements");
         BPELRESTLightUpdater.LOG.debug("Retrieving PUT elements");
-        final List<BPELRESTLightElement> elements = this.getBPELRESTLightElements(BPELRESTLightElementType.PUT,
-            document);
+        final List<BPELRESTLightElement> elements =
+            this.getBPELRESTLightElements(BPELRESTLightElementType.PUT, document);
         BPELRESTLightUpdater.LOG.debug("Retrieving POST elements");
         elements.addAll(this.getBPELRESTLightElements(BPELRESTLightElementType.POST, document));
         BPELRESTLightUpdater.LOG.debug("Retrieving GET elements");
@@ -181,7 +182,7 @@ public class BPELRESTLightUpdater {
      * @return a List containing all elements of the given type
      */
     private List<BPELRESTLightElement> getBPELRESTLightElements(final BPELRESTLightElementType type,
-                    final Document document) {
+                                                                final Document document) {
         String xpathExp = "";
         // using straight forward xpath expressions
         // TODO do with namespace check
@@ -208,7 +209,8 @@ public class BPELRESTLightUpdater {
             BPELRESTLightUpdater.LOG.debug("Querying document with {} ", xpathExp);
             expr = xpath.compile(xpathExp);
             result = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
-        } catch (final XPathExpressionException e) {
+        }
+        catch (final XPathExpressionException e) {
             BPELRESTLightUpdater.LOG.error("Internal Error: XPath expression wasn't valid", e);
         }
         BPELRESTLightUpdater.LOG.debug("Found Elements: {} ", String.valueOf(result.getLength()));
@@ -220,9 +222,11 @@ public class BPELRESTLightUpdater {
             try {
                 final Node node = result.item(i);
                 element = new BPELRESTLightElement(node);
-            } catch (final org.opentosca.container.engine.plan.plugin.bpelwso2.util.BPELRESTLightElement.NoBPELRESTLightElementException e) {
+            }
+            catch (final org.opentosca.container.engine.plan.plugin.bpelwso2.util.BPELRESTLightElement.NoBPELRESTLightElementException e) {
                 BPELRESTLightUpdater.LOG.warn(e.getMessage());
-            } finally {
+            }
+            finally {
                 if (element != null) {
                     // adding element which can and should be changed to the
                     // list
@@ -258,7 +262,7 @@ public class BPELRESTLightUpdater {
      * @return a list of NOT changed elements, if list is empty every element was changed
      */
     private Set<BPELRESTLightElement> changeAddress(final RESTEndpoint endpoint,
-                    final List<BPELRESTLightElement> elements) {
+                                                    final List<BPELRESTLightElement> elements) {
         final List<BPELRESTLightElement> toRemove = new LinkedList<>();
         final Set<BPELRESTLightElement> notChanged = new HashSet<>();
         for (final BPELRESTLightElement element : elements) {
@@ -281,9 +285,10 @@ public class BPELRESTLightUpdater {
                     if (element.setURI(endpoint.getURI())) {
                         toRemove.add(element);
                     }
-                } catch (final URISyntaxException e) {
+                }
+                catch (final URISyntaxException e) {
                     BPELRESTLightUpdater.LOG.debug("Setting address failed (URISyntaxException): URI {}",
-                        endpoint.getURI().toString());
+                                                   endpoint.getURI().toString());
                 }
             }
         }

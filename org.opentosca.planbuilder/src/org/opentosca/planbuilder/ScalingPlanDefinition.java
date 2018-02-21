@@ -147,9 +147,10 @@ public class ScalingPlanDefinition {
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPENDSON, sinkNodes);
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPLOYEDON, sinkNodes);
 
-            final List<AbstractRelationshipTemplate> outgoing = ModelUtils.getOutgoingRelations(nodeTemplate,
-                ModelUtils.TOSCABASETYPE_HOSTEDON, ModelUtils.TOSCABASETYPE_DEPENDSON,
-                ModelUtils.TOSCABASETYPE_DEPLOYEDON);
+            final List<AbstractRelationshipTemplate> outgoing =
+                ModelUtils.getOutgoingRelations(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON,
+                                                ModelUtils.TOSCABASETYPE_DEPENDSON,
+                                                ModelUtils.TOSCABASETYPE_DEPLOYEDON);
 
             this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
             this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
@@ -160,16 +161,16 @@ public class ScalingPlanDefinition {
         final Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<>();
 
         for (final AbstractRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
-            final AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relationshipTemplate,
-                this.nodeTemplates);
+            final AbstractNodeTemplate nodeStratSelection =
+                this.crossesBorder(relationshipTemplate, this.nodeTemplates);
             if (nodeStratSelection != null && this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
                 borderCrossingRelations.add(relationshipTemplate);
             }
         }
 
         for (final AbstractNodeTemplate nodeTemplate : this.nodeTemplates) {
-            final List<AbstractRelationshipTemplate> relations = this.getBorderCrossingRelations(nodeTemplate,
-                this.nodeTemplates);
+            final List<AbstractRelationshipTemplate> relations =
+                this.getBorderCrossingRelations(nodeTemplate, this.nodeTemplates);
             borderCrossingRelations.addAll(relations);
         }
         return borderCrossingRelations;
@@ -198,7 +199,7 @@ public class ScalingPlanDefinition {
     }
 
     private List<AbstractRelationshipTemplate> getBorderCrossingRelations(final AbstractNodeTemplate nodeTemplate,
-                    final List<AbstractNodeTemplate> nodesToScale) {
+                                                                          final List<AbstractNodeTemplate> nodesToScale) {
         final List<AbstractRelationshipTemplate> borderCrossingRelations = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
@@ -217,7 +218,7 @@ public class ScalingPlanDefinition {
     }
 
     private AbstractNodeTemplate crossesBorder(final AbstractRelationshipTemplate relationship,
-                    final List<AbstractNodeTemplate> nodesToScale) {
+                                               final List<AbstractNodeTemplate> nodesToScale) {
 
         final AbstractNodeTemplate source = relationship.getSource();
         final AbstractNodeTemplate target = relationship.getTarget();

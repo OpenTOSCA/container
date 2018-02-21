@@ -287,8 +287,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
         this.localExtensibleElementsTracker = true;
 
 
-        final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(
-            this.localExtensibleElements);
+        final java.util.List list =
+            org.apache.axis2.databinding.utils.ConverterUtil.toList(this.localExtensibleElements);
         list.add(param);
         this.localExtensibleElements = list.toArray(new java.lang.Object[list.size()]);
 
@@ -515,8 +515,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
         this.localReferenceParametersTracker = true;
 
 
-        final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(
-            this.localReferenceParameters);
+        final java.util.List list =
+            org.apache.axis2.databinding.utils.ConverterUtil.toList(this.localReferenceParameters);
         list.add(param);
         this.localReferenceParameters = list.toArray(new java.lang.Object[list.size()]);
 
@@ -532,27 +532,27 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -567,14 +567,14 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
         if (serializeType) {
 
 
-            final java.lang.String namespacePrefix = registerPrefix(xmlWriter,
-                "http://addressing.axis2.apache.org/xsd");
+            final java.lang.String namespacePrefix =
+                registerPrefix(xmlWriter, "http://addressing.axis2.apache.org/xsd");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":EndpointReference", xmlWriter);
+                               namespacePrefix + ":EndpointReference", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "EndpointReference",
-                    xmlWriter);
+                               xmlWriter);
             }
 
 
@@ -588,8 +588,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                 throw new org.apache.axis2.databinding.ADBException("WSAddressingAnonymous cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localWSAddressingAnonymous));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localWSAddressingAnonymous));
             }
 
             xmlWriter.writeEndElement();
@@ -617,13 +616,12 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localAddressAttributes != null) {
                 if (this.localAddressAttributes instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localAddressAttributes).serialize(
-                        new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "addressAttributes"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localAddressAttributes).serialize(new javax.xml.namespace.QName(
+                        "http://addressing.axis2.apache.org/xsd", "addressAttributes"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "addressAttributes", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localAddressAttributes,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -648,18 +646,16 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localAllReferenceParameters.serialize(
-                    new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "allReferenceParameters"),
-                    xmlWriter);
+                this.localAllReferenceParameters.serialize(new javax.xml.namespace.QName(
+                    "http://addressing.axis2.apache.org/xsd", "allReferenceParameters"), xmlWriter);
             }
         }
         if (this.localAttributesTracker) {
 
             if (this.localAttributes != null) {
                 if (this.localAttributes instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localAttributes).serialize(
-                        new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "attributes"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localAttributes).serialize(new javax.xml.namespace.QName(
+                        "http://addressing.axis2.apache.org/xsd", "attributes"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "attributes", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localAttributes, xmlWriter);
@@ -685,15 +681,13 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     if (localExtensibleElement != null) {
 
                         if (localExtensibleElement instanceof org.apache.axis2.databinding.ADBBean) {
-                            ((org.apache.axis2.databinding.ADBBean) localExtensibleElement).serialize(
-                                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
-                                    "extensibleElements"),
-                                xmlWriter, true);
+                            ((org.apache.axis2.databinding.ADBBean) localExtensibleElement).serialize(new javax.xml.namespace.QName(
+                                "http://addressing.axis2.apache.org/xsd", "extensibleElements"), xmlWriter, true);
                         } else {
                             writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "extensibleElements",
-                                xmlWriter);
+                                              xmlWriter);
                             org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(localExtensibleElement,
-                                xmlWriter);
+                                                                                              xmlWriter);
                             xmlWriter.writeEndElement();
                         }
 
@@ -701,7 +695,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
                         // write null attribute
                         writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "extensibleElements",
-                            xmlWriter);
+                                          xmlWriter);
 
                         // write the nil attribute
                         writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
@@ -744,9 +738,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localMetaData != null) {
                 if (this.localMetaData instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localMetaData).serialize(
-                        new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "metaData"), xmlWriter,
-                        true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localMetaData).serialize(new javax.xml.namespace.QName(
+                        "http://addressing.axis2.apache.org/xsd", "metaData"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "metaData", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localMetaData, xmlWriter);
@@ -769,13 +762,12 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localMetadataAttributes != null) {
                 if (this.localMetadataAttributes instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localMetadataAttributes).serialize(
-                        new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "metadataAttributes"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localMetadataAttributes).serialize(new javax.xml.namespace.QName(
+                        "http://addressing.axis2.apache.org/xsd", "metadataAttributes"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "metadataAttributes", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localMetadataAttributes,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -817,15 +809,13 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     if (localReferenceParameter != null) {
 
                         if (localReferenceParameter instanceof org.apache.axis2.databinding.ADBBean) {
-                            ((org.apache.axis2.databinding.ADBBean) localReferenceParameter).serialize(
-                                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
-                                    "referenceParameters"),
-                                xmlWriter, true);
+                            ((org.apache.axis2.databinding.ADBBean) localReferenceParameter).serialize(new javax.xml.namespace.QName(
+                                "http://addressing.axis2.apache.org/xsd", "referenceParameters"), xmlWriter, true);
                         } else {
                             writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "referenceParameters",
-                                xmlWriter);
+                                              xmlWriter);
                             org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(localReferenceParameter,
-                                xmlWriter);
+                                                                                              xmlWriter);
                             xmlWriter.writeEndElement();
                         }
 
@@ -833,7 +823,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
                         // write null attribute
                         writeStartElement(null, "http://addressing.axis2.apache.org/xsd", "referenceParameters",
-                            xmlWriter);
+                                          xmlWriter);
 
                         // write the nil attribute
                         writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
@@ -869,8 +859,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -891,9 +881,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -905,8 +894,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -920,8 +909,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -947,8 +936,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -959,8 +948,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -971,8 +960,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -995,11 +984,10 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -1015,8 +1003,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -1036,8 +1023,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -1045,30 +1031,27 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
         final java.util.ArrayList attribList = new java.util.ArrayList();
 
         if (this.localWSAddressingAnonymousTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "WSAddressingAnonymous"));
+            elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                "WSAddressingAnonymous"));
 
-            elementList.add(
-                org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localWSAddressingAnonymous));
+            elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localWSAddressingAnonymous));
         }
         if (this.localAddressTracker) {
             elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "address"));
 
-            elementList.add(
-                this.localAddress == null ? null
-                                          : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                              this.localAddress));
+            elementList.add(this.localAddress == null ? null
+                                                      : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localAddress));
         }
         if (this.localAddressAttributesTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "addressAttributes"));
+            elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                "addressAttributes"));
 
 
             elementList.add(this.localAddressAttributes == null ? null : this.localAddressAttributes);
         }
         if (this.localAllReferenceParametersTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "allReferenceParameters"));
+            elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                "allReferenceParameters"));
 
 
             elementList.add(this.localAllReferenceParameters == null ? null : this.localAllReferenceParameters);
@@ -1098,21 +1081,19 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                 }
             } else {
 
-                elementList.add(
-                    new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "extensibleElements"));
+                elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                    "extensibleElements"));
                 elementList.add(this.localExtensibleElements);
 
             }
 
         }
         if (this.localLogCorrelationIDStringTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "logCorrelationIDString"));
+            elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                "logCorrelationIDString"));
 
-            elementList.add(
-                this.localLogCorrelationIDString == null ? null
-                                                         : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                             this.localLogCorrelationIDString));
+            elementList.add(this.localLogCorrelationIDString == null ? null
+                                                                     : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localLogCorrelationIDString));
         }
         if (this.localMetaDataTracker) {
             elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "metaData"));
@@ -1121,8 +1102,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
             elementList.add(this.localMetaData == null ? null : this.localMetaData);
         }
         if (this.localMetadataAttributesTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "metadataAttributes"));
+            elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                "metadataAttributes"));
 
 
             elementList.add(this.localMetadataAttributes == null ? null : this.localMetadataAttributes);
@@ -1131,8 +1112,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
             elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "name"));
 
             elementList.add(this.localName == null ? null
-                                                   : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                       this.localName));
+                                                   : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localName));
         }
         if (this.localReferenceParametersTracker) {
             if (this.localReferenceParameters != null) {
@@ -1153,8 +1133,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                 }
             } else {
 
-                elementList.add(
-                    new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "referenceParameters"));
+                elementList.add(new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                    "referenceParameters"));
                 elementList.add(this.localReferenceParameters);
 
             }
@@ -1185,8 +1165,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
          * end element If this object is a complex type, the reader is positioned at the end element of its
          * outer element
          */
-        public static EndpointReference parse(final javax.xml.stream.XMLStreamReader reader)
-            throws java.lang.Exception {
+        public static EndpointReference parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
             final EndpointReference object = new EndpointReference();
 
             int event;
@@ -1201,8 +1180,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -1215,8 +1194,9 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                         if (!"EndpointReference".equals(type)) {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                            return (EndpointReference) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(
-                                nsUri, type, reader);
+                            return (EndpointReference) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                      type,
+                                                                                                                      reader);
                         }
 
 
@@ -1249,8 +1229,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
                     final java.lang.String content = reader.getElementText();
 
-                    object.setWSAddressingAnonymous(
-                        org.apache.axis2.databinding.utils.ConverterUtil.convertToBoolean(content));
+                    object.setWSAddressingAnonymous(org.apache.axis2.databinding.utils.ConverterUtil.convertToBoolean(content));
 
                     reader.next();
 
@@ -1265,9 +1244,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "address").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                    "address").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1298,8 +1276,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
                     "addressAttributes").equals(reader.getName())) {
 
-                    object.setAddressAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setAddressAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                  org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1341,12 +1319,11 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "attributes").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                    "attributes").equals(reader.getName())) {
 
                     object.setAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                           org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1370,8 +1347,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
 
                     boolean loopDone6 = false;
-                    final javax.xml.namespace.QName startQname6 = new javax.xml.namespace.QName(
-                        "http://addressing.axis2.apache.org/xsd", "extensibleElements");
+                    final javax.xml.namespace.QName startQname6 =
+                        new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "extensibleElements");
 
                     while (!loopDone6) {
                         event = reader.getEventType();
@@ -1380,14 +1357,14 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
 
 
-                            nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                                "nil");
+                            nillableValue =
+                                reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                             if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
                                 list6.add(null);
                                 reader.next();
                             } else {
                                 list6.add(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                                    org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                            org.apache.axis2.transaction.xsd.ExtensionMapper.class));
                             }
                         } else if (javax.xml.stream.XMLStreamConstants.START_ELEMENT == event
                             && !startQname6.equals(reader.getName())) {
@@ -1425,8 +1402,7 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setLogCorrelationIDString(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setLogCorrelationIDString(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1447,12 +1423,11 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "metaData").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                    "metaData").equals(reader.getName())) {
 
                     object.setMetaData(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                         org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1470,8 +1445,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
                     "metadataAttributes").equals(reader.getName())) {
 
-                    object.setMetadataAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setMetadataAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                   org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1486,9 +1461,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "name").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd",
+                    "name").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1525,8 +1499,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
 
                     boolean loopDone11 = false;
-                    final javax.xml.namespace.QName startQname11 = new javax.xml.namespace.QName(
-                        "http://addressing.axis2.apache.org/xsd", "referenceParameters");
+                    final javax.xml.namespace.QName startQname11 =
+                        new javax.xml.namespace.QName("http://addressing.axis2.apache.org/xsd", "referenceParameters");
 
                     while (!loopDone11) {
                         event = reader.getEventType();
@@ -1535,14 +1509,14 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
 
 
-                            nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                                "nil");
+                            nillableValue =
+                                reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                             if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
                                 list11.add(null);
                                 reader.next();
                             } else {
                                 list11.add(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                                    org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                             org.apache.axis2.transaction.xsd.ExtensionMapper.class));
                             }
                         } else if (javax.xml.stream.XMLStreamConstants.START_ELEMENT == event
                             && !startQname11.equals(reader.getName())) {
@@ -1579,7 +1553,8 @@ public class EndpointReference implements org.apache.axis2.databinding.ADBBean {
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

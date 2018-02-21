@@ -178,8 +178,8 @@ public class CSARResource {
     public Response getMetaDataJSON() throws SystemException {
         // /containerapi/CSARs/MongoDB_On_VSphere.csar/Content/SELFSERVICE-Metadata/data.json
 
-        final DirectoryResource dir = (DirectoryResource) new ContentResource(this.CSAR).getDirectoryOrFile(
-            "SELFSERVICE-Metadata");
+        final DirectoryResource dir =
+            (DirectoryResource) new ContentResource(this.CSAR).getDirectoryOrFile("SELFSERVICE-Metadata");
         final FileResource file = (FileResource) dir.getDirectoryOrFile("data.json");
 
 
@@ -228,7 +228,8 @@ public class CSARResource {
 
         try {
             csarFileInputStream = Files.newInputStream(csarFile);
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             throw new SystemException("Retrieving input stream of file \"" + csarFile.toString() + "\" failed.", e);
         }
 

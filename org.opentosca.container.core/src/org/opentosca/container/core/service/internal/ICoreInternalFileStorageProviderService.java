@@ -56,8 +56,8 @@ public interface ICoreInternalFileStorageProviderService {
      *        provider.
      * @throws SystemException if an error occurred during storing.
      */
-    public void storeFile(InputStream fileInputStream, long fileSize, String relFilePathOnProvider)
-        throws SystemException;
+    public void storeFile(InputStream fileInputStream, long fileSize,
+                          String relFilePathOnProvider) throws SystemException;
 
     /**
      * Retrieves the file {@code relFilePathOnProvider} from this storage provider. It will be stored at

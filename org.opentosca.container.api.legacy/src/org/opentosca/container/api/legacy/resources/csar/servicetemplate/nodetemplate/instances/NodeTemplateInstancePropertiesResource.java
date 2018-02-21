@@ -68,17 +68,19 @@ public class NodeTemplateInstancePropertiesResource {
                     qnameList.add(QName.valueOf(stringValue));
                 }
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             throw new GenericRestException(Status.BAD_REQUEST,
                 "error converting one of the properties-parameters: " + e.getMessage());
         }
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         try {
-            final Document properties = service.getNodeInstanceProperties(
-                IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), qnameList);
+            final Document properties =
+                service.getNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), qnameList);
             return properties;
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
     }
@@ -90,7 +92,8 @@ public class NodeTemplateInstancePropertiesResource {
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
         try {
             service.setNodeInstanceProperties(IdConverter.nodeInstanceIDtoURI(this.nodeInstanceID), xml);
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
         final SimpleXLink xLink = new SimpleXLink(Utilities.encode(uriInfo.getAbsolutePath()),

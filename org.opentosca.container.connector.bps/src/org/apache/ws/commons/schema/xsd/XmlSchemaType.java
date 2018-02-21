@@ -390,27 +390,27 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -426,7 +426,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
         final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://schema.commons.ws.apache.org/xsd");
         if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
             writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                namespacePrefix + ":XmlSchemaType", xmlWriter);
+                           namespacePrefix + ":XmlSchemaType", xmlWriter);
         } else {
             writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "XmlSchemaType", xmlWriter);
         }
@@ -440,8 +440,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 throw new org.apache.axis2.databinding.ADBException("lineNumber cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localLineNumber));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localLineNumber));
             }
 
             xmlWriter.writeEndElement();
@@ -455,8 +454,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 throw new org.apache.axis2.databinding.ADBException("linePosition cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localLinePosition));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localLinePosition));
             }
 
             xmlWriter.writeEndElement();
@@ -470,8 +468,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localMetaInfoMap.serialize(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "metaInfoMap"), xmlWriter);
+                this.localMetaInfoMap.serialize(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "metaInfoMap"), xmlWriter);
             }
         }
         if (this.localSourceURITracker) {
@@ -502,8 +500,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localAnnotation.serialize(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "annotation"), xmlWriter);
+                this.localAnnotation.serialize(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "annotation"), xmlWriter);
             }
         }
         if (this.localIdTracker) {
@@ -534,7 +532,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     } else {
 
                         writeStartElement(null, "http://schema.commons.ws.apache.org/xsd", "unhandledAttributes",
-                            xmlWriter);
+                                          xmlWriter);
 
                         // write the nil attribute
                         writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
@@ -557,9 +555,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
             if (this.localQName != null) {
                 if (this.localQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localQName).serialize(
-                        new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "QName"), xmlWriter,
-                        true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localQName).serialize(new javax.xml.namespace.QName(
+                        "http://schema.commons.ws.apache.org/xsd", "QName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://schema.commons.ws.apache.org/xsd", "QName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localQName, xmlWriter);
@@ -582,13 +579,12 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
             if (this.localBaseSchemaType != null) {
                 if (this.localBaseSchemaType instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localBaseSchemaType).serialize(
-                        new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "baseSchemaType"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localBaseSchemaType).serialize(new javax.xml.namespace.QName(
+                        "http://schema.commons.ws.apache.org/xsd", "baseSchemaType"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://schema.commons.ws.apache.org/xsd", "baseSchemaType", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localBaseSchemaType,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -608,13 +604,12 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
             if (this.localBaseSchemaTypeName != null) {
                 if (this.localBaseSchemaTypeName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localBaseSchemaTypeName).serialize(
-                        new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "baseSchemaTypeName"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localBaseSchemaTypeName).serialize(new javax.xml.namespace.QName(
+                        "http://schema.commons.ws.apache.org/xsd", "baseSchemaTypeName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://schema.commons.ws.apache.org/xsd", "baseSchemaTypeName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localBaseSchemaTypeName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -639,8 +634,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localDataType.serialize(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "dataType"), xmlWriter);
+                this.localDataType.serialize(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "dataType"), xmlWriter);
             }
         }
         if (this.localDeriveByTracker) {
@@ -652,8 +647,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localDeriveBy.serialize(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "deriveBy"), xmlWriter);
+                this.localDeriveBy.serialize(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "deriveBy"), xmlWriter);
             }
         }
         if (this.local_finalTracker) {
@@ -665,8 +660,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.local_final.serialize(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "final"), xmlWriter);
+                this.local_final.serialize(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "final"), xmlWriter);
             }
         }
         if (this.localFinalResolvedTracker) {
@@ -678,9 +673,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localFinalResolved.serialize(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "finalResolved"),
-                    xmlWriter);
+                this.localFinalResolved.serialize(new javax.xml.namespace.QName(
+                    "http://schema.commons.ws.apache.org/xsd", "finalResolved"), xmlWriter);
             }
         }
         if (this.localMixedTracker) {
@@ -692,8 +686,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 throw new org.apache.axis2.databinding.ADBException("mixed cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localMixed));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localMixed));
             }
 
             xmlWriter.writeEndElement();
@@ -733,8 +726,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -755,9 +748,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -769,8 +761,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -784,8 +776,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -811,8 +803,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -823,8 +815,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -835,8 +827,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -859,11 +851,10 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -879,8 +870,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -900,8 +890,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -930,10 +919,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
         if (this.localSourceURITracker) {
             elementList.add(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "sourceURI"));
 
-            elementList.add(
-                this.localSourceURI == null ? null
-                                            : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                this.localSourceURI));
+            elementList.add(this.localSourceURI == null ? null
+                                                        : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localSourceURI));
         }
         if (this.localAnnotationTracker) {
             elementList.add(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "annotation"));
@@ -944,9 +931,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
         if (this.localIdTracker) {
             elementList.add(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "id"));
 
-            elementList.add(
-                this.localId == null ? null
-                                     : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localId));
+            elementList.add(this.localId == null ? null
+                                                 : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localId));
         }
         if (this.localUnhandledAttributesTracker) {
             if (this.localUnhandledAttributes != null) {
@@ -967,8 +953,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 }
             } else {
 
-                elementList.add(
-                    new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "unhandledAttributes"));
+                elementList.add(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "unhandledAttributes"));
                 elementList.add(this.localUnhandledAttributes);
 
             }
@@ -987,8 +973,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
             elementList.add(this.localBaseSchemaType == null ? null : this.localBaseSchemaType);
         }
         if (this.localBaseSchemaTypeNameTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "baseSchemaTypeName"));
+            elementList.add(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                "baseSchemaTypeName"));
 
 
             elementList.add(this.localBaseSchemaTypeName == null ? null : this.localBaseSchemaTypeName);
@@ -1026,8 +1012,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
             elementList.add(new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "name"));
 
             elementList.add(this.localName == null ? null
-                                                   : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                       this.localName));
+                                                   : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localName));
         }
 
         return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(),
@@ -1069,8 +1054,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -1084,7 +1069,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
                             return (XmlSchemaType) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
-                                type, reader);
+                                                                                                                  type,
+                                                                                                                  reader);
                         }
 
 
@@ -1110,9 +1096,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "lineNumber").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "lineNumber").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -1133,9 +1118,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "linePosition").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "linePosition").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -1156,9 +1140,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "metaInfoMap").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "metaInfoMap").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1184,9 +1167,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "sourceURI").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "sourceURI").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1214,9 +1196,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "annotation").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "annotation").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1227,8 +1208,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
                     } else {
 
-                        object.setAnnotation(
-                            org.apache.ws.commons.schema.xsd.XmlSchemaAnnotation.Factory.parse(reader));
+                        object.setAnnotation(org.apache.ws.commons.schema.xsd.XmlSchemaAnnotation.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1243,9 +1223,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "id").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "id").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1307,8 +1286,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                             if (new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
                                 "unhandledAttributes").equals(reader.getName())) {
 
-                                nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                                    "nil");
+                                nillableValue =
+                                    reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                                 if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
                                     list7.add(null);
                                     reader.next();
@@ -1322,9 +1301,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     }
                     // call the converter utility to convert and set the array
 
-                    object.setUnhandledAttributes(
-                        (org.w3c.dom.xsd.Attr[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                            org.w3c.dom.xsd.Attr.class, list7));
+                    object.setUnhandledAttributes((org.w3c.dom.xsd.Attr[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(org.w3c.dom.xsd.Attr.class,
+                                                                                                                                           list7));
 
                 } // End of if for expected property start element
 
@@ -1337,12 +1315,11 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "QName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "QName").equals(reader.getName())) {
 
                     object.setQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                      org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1361,7 +1338,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     "baseSchemaType").equals(reader.getName())) {
 
                     object.setBaseSchemaType(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                               org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1379,8 +1356,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
                     "baseSchemaTypeName").equals(reader.getName())) {
 
-                    object.setBaseSchemaTypeName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setBaseSchemaTypeName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                   org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1395,9 +1372,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "dataType").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "dataType").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1423,9 +1399,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "deriveBy").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "deriveBy").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1436,8 +1411,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
                     } else {
 
-                        object.setDeriveBy(
-                            org.apache.ws.commons.schema.xsd.XmlSchemaDerivationMethod.Factory.parse(reader));
+                        object.setDeriveBy(org.apache.ws.commons.schema.xsd.XmlSchemaDerivationMethod.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1452,9 +1426,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "final").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "final").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1465,8 +1438,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
                     } else {
 
-                        object.set_final(
-                            org.apache.ws.commons.schema.xsd.XmlSchemaDerivationMethod.Factory.parse(reader));
+                        object.set_final(org.apache.ws.commons.schema.xsd.XmlSchemaDerivationMethod.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1481,9 +1453,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "finalResolved").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "finalResolved").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1494,8 +1465,7 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
                     } else {
 
-                        object.setFinalResolved(
-                            org.apache.ws.commons.schema.xsd.XmlSchemaDerivationMethod.Factory.parse(reader));
+                        object.setFinalResolved(org.apache.ws.commons.schema.xsd.XmlSchemaDerivationMethod.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1510,9 +1480,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "mixed").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "mixed").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -1531,9 +1500,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd", "name").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://schema.commons.ws.apache.org/xsd",
+                    "name").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1568,7 +1536,8 @@ public class XmlSchemaType extends org.apache.ws.commons.schema.xsd.XmlSchemaAnn
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

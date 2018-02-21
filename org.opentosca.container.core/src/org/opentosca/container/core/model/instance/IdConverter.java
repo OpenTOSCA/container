@@ -28,7 +28,8 @@ public class IdConverter {
 
         try {
             return Integer.parseInt(path);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return nodeInstanceUriToID(path);
         }
 
@@ -48,7 +49,8 @@ public class IdConverter {
         if (paths[paths.length - 2].equals("Instances") & paths[paths.length - 4].equals("NodeTemplates")) {
             try {
                 return Integer.parseInt(paths[paths.length - 1]);
-            } catch (final NumberFormatException e) {
+            }
+            catch (final NumberFormatException e) {
                 return null;
             }
 
@@ -68,7 +70,8 @@ public class IdConverter {
 
         try {
             return Integer.parseInt(path);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return relationInstanceUriToID(path);
         }
 
@@ -81,7 +84,8 @@ public class IdConverter {
         if (paths[paths.length - 2].equals("Instances") & paths[paths.length - 4].equals("RelationshipTemplates")) {
             try {
                 return Integer.parseInt(paths[paths.length - 1]);
-            } catch (final NumberFormatException e) {
+            }
+            catch (final NumberFormatException e) {
                 return null;
             }
 
@@ -101,7 +105,8 @@ public class IdConverter {
 
         try {
             return Integer.parseInt(path);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return null;
         }
     }
@@ -109,7 +114,8 @@ public class IdConverter {
     public static URI relationInstanceIDtoURI(final int id) {
         try {
             return new URI(containerApiRoot + relationInstancePath + id);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             return null;
         }
     }
@@ -117,7 +123,8 @@ public class IdConverter {
     public static URI nodeInstanceIDtoURI(final int id) {
         try {
             return new URI(containerApiRoot + nodeInstancePath + id);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             return null;
         }
     }
@@ -125,7 +132,8 @@ public class IdConverter {
     public static URI serviceInstanceIDtoURI(final int id) {
         try {
             return new URI(containerApiRoot + serviceInstancePath + id);
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             return null;
         }
     }

@@ -30,15 +30,15 @@ public class PolicyConsolidation {
      */
     public boolean consolidate(final CSARID csarID) {
 
-        this.LOG.info(
-            "Consolidate the Policies of ServiceTemplates and NodeTemplates inside the CSAR \"" + csarID + "\".");
+        this.LOG.info("Consolidate the Policies of ServiceTemplates and NodeTemplates inside the CSAR \"" + csarID
+            + "\".");
 
         for (final QName serviceTemplateID : this.toscaReferenceMapper.getServiceTemplateIDsContainedInCSAR(csarID)) {
 
             this.LOG.debug("Processing the Service Template \"" + serviceTemplateID + "\".");
 
-            final TServiceTemplate serviceTemplate = (TServiceTemplate) this.toscaReferenceMapper.getJAXBReference(
-                csarID, serviceTemplateID);
+            final TServiceTemplate serviceTemplate =
+                (TServiceTemplate) this.toscaReferenceMapper.getJAXBReference(csarID, serviceTemplateID);
 
             // Policies contained in the Service Template itself
             if (null != serviceTemplate.getBoundaryDefinitions()) {
@@ -63,8 +63,9 @@ public class PolicyConsolidation {
                         final TNodeTemplate nodeTemplate = (TNodeTemplate) template;
                         if (null != nodeTemplate.getPolicies()) {
                             this.createAndStorePolicies(csarID,
-                                new QName(serviceTemplateID.getNamespaceURI(), nodeTemplate.getId()),
-                                nodeTemplate.getPolicies().getPolicy());
+                                                        new QName(serviceTemplateID.getNamespaceURI(),
+                                                            nodeTemplate.getId()),
+                                                        nodeTemplate.getPolicies().getPolicy());
                         }
                     }
                 }

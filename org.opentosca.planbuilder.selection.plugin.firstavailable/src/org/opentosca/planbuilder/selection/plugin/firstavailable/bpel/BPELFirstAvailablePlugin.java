@@ -42,14 +42,15 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
-                    final List<String> selectionStrategies) {
+                          final List<String> selectionStrategies) {
         // fetch instance variables
         final String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
         String serviceInstanceIDVar = null;
         try {
-            serviceInstanceIDVar = new ServiceInstanceInitializer().getServiceInstanceVariableName(
-                context.getMainVariableNames());
-        } catch (final ParserConfigurationException e1) {
+            serviceInstanceIDVar =
+                new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames());
+        }
+        catch (final ParserConfigurationException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
@@ -59,35 +60,40 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         }
 
         final String responseVarName = "selectFirstInstance_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
-        final QName anyTypeDeclId = context.importQName(
-            new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
+        final QName anyTypeDeclId =
+            context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
         context.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
 
         try {
 
             // TODO SELECT THE FIRST STARTED INSTANCE (use get with query, is already in
             // fragments)
-            Node getNodeInstances = new BPELProcessFragments().createBPEL4RESTLightNodeInstancesGETAsNode(
-                nodeTemplate.getId(), serviceInstanceIDVar, responseVarName);
+            Node getNodeInstances =
+                new BPELProcessFragments().createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(),
+                                                                                      serviceInstanceIDVar,
+                                                                                      responseVarName);
             getNodeInstances = context.importNode(getNodeInstances);
             context.getPrePhaseElement().appendChild(getNodeInstances);
 
             final String xpath2Query = "$" + responseVarName
                 + "/*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']][1]/@*[local-name()='href']/string()";
-            Node fetchNodeInstance = new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode(
-                "selectFirstInstance_" + nodeTemplate.getId() + "_FetchSourceNodeInstance_"
-                    + System.currentTimeMillis(),
-                xpath2Query, nodeTemplateInstanceVar);
+            Node fetchNodeInstance =
+                new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_"
+                    + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query,
+                                                                                           nodeTemplateInstanceVar);
             fetchNodeInstance = context.importNode(fetchNodeInstance);
             context.getPrePhaseElement().appendChild(fetchNodeInstance);
 
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -96,7 +102,8 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
             final NodeInstanceInitializer nodeInit = new NodeInstanceInitializer(new BPELPlanHandler());
 
             nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

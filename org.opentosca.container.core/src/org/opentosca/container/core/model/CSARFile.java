@@ -44,8 +44,8 @@ public class CSARFile extends AbstractFile {
      * Note: Must be {@code static}, because otherwise, if we instantiate this class manually with
      * {@code new} and not (automatically) by the OSGi framework, this variable would be not set.
      */
-    private static Map<String, ICoreInternalFileStorageProviderService> STORAGE_PROVIDERS = Collections.synchronizedMap(
-        new HashMap<String, ICoreInternalFileStorageProviderService>());
+    private static Map<String, ICoreInternalFileStorageProviderService> STORAGE_PROVIDERS =
+        Collections.synchronizedMap(new HashMap<String, ICoreInternalFileStorageProviderService>());
 
     /**
      * Must be {@code static}, because this class will be instantiated with {@code new}.
@@ -87,8 +87,8 @@ public class CSARFile extends AbstractFile {
 
         CSARFile.LOG.debug("Checking if storage provider \"{}\" is ready...", storageProviderID);
 
-        final ICoreInternalFileStorageProviderService storageProvider = CSARFile.STORAGE_PROVIDERS.get(
-            storageProviderID);
+        final ICoreInternalFileStorageProviderService storageProvider =
+            CSARFile.STORAGE_PROVIDERS.get(storageProviderID);
 
         if (storageProvider != null) {
             if (storageProvider.isStorageProviderReady()) {
@@ -114,13 +114,13 @@ public class CSARFile extends AbstractFile {
 
         if (this.isStorageProviderReady(this.STORAGE_PROVIDER_ID)) {
 
-            final ICoreInternalFileStorageProviderService storageProvider = CSARFile.STORAGE_PROVIDERS.get(
-                this.STORAGE_PROVIDER_ID);
+            final ICoreInternalFileStorageProviderService storageProvider =
+                CSARFile.STORAGE_PROVIDERS.get(this.STORAGE_PROVIDER_ID);
 
             final Path targetFile = CSARFile.fileAccessService.getTemp().toPath().resolve(this.getName());
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(this.CSAR_ID,
-                this.getPath());
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(this.CSAR_ID, this.getPath());
 
             storageProvider.getFile(relFilePathOnStorageProvider, targetFile);
 
@@ -142,11 +142,11 @@ public class CSARFile extends AbstractFile {
 
         if (this.isStorageProviderReady(this.STORAGE_PROVIDER_ID)) {
 
-            final ICoreInternalFileStorageProviderService storageProvider = CSARFile.STORAGE_PROVIDERS.get(
-                this.STORAGE_PROVIDER_ID);
+            final ICoreInternalFileStorageProviderService storageProvider =
+                CSARFile.STORAGE_PROVIDERS.get(this.STORAGE_PROVIDER_ID);
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(this.CSAR_ID,
-                this.getPath());
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(this.CSAR_ID, this.getPath());
 
             InputStream fileInputStream;
 
@@ -250,12 +250,11 @@ public class CSARFile extends AbstractFile {
      *
      * @param storageProvider to bind
      */
-    protected void bindCoreInternalFileStorageProviderService(
-                    final ICoreInternalFileStorageProviderService storageProvider) {
+    protected void bindCoreInternalFileStorageProviderService(final ICoreInternalFileStorageProviderService storageProvider) {
         if (storageProvider != null) {
             CSARFile.STORAGE_PROVIDERS.put(storageProvider.getStorageProviderID(), storageProvider);
             CSARFile.LOG.debug("Storage provider \"{}\" ({}) bound.", storageProvider.getStorageProviderID(),
-                storageProvider.getStorageProviderName());
+                               storageProvider.getStorageProviderName());
         } else {
             CSARFile.LOG.warn("Binding a storage provider failed.");
         }
@@ -266,13 +265,12 @@ public class CSARFile extends AbstractFile {
      *
      * @param storageProvider to unbind
      */
-    protected void unbindCoreInternalFileStorageProviderService(
-                    final ICoreInternalFileStorageProviderService storageProvider) {
+    protected void unbindCoreInternalFileStorageProviderService(final ICoreInternalFileStorageProviderService storageProvider) {
         if (storageProvider != null) {
             final String storageProviderID = storageProvider.getStorageProviderID();
             CSARFile.STORAGE_PROVIDERS.remove(storageProviderID);
             CSARFile.LOG.debug("Storage provider \"{}\" ({}) unbound.", storageProvider.getStorageProviderID(),
-                storageProvider.getStorageProviderName());
+                               storageProvider.getStorageProviderName());
         } else {
             CSARFile.LOG.warn("Unbinding a storage provider failed.");
         }

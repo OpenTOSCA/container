@@ -103,9 +103,9 @@ public class CSARsResource {
     public References getRefs() {
         final References refs = new References();
         for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
-            final Reference ref = new Reference(
-                Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE,
-                csarID.toString());
+            final Reference ref =
+                new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()),
+                    XLinkConstants.SIMPLE, csarID.toString());
             refs.getReference().add(ref);
 
             CSARsResource.LOG.debug("CSAR \"{}\" added as Reference.", csarID);
@@ -129,8 +129,8 @@ public class CSARsResource {
      */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response uploadCSAR(final String fileLocation)
-        throws UserException, SystemException, IOException, URISyntaxException {
+    public Response uploadCSAR(final String fileLocation) throws UserException, SystemException, IOException,
+                                                          URISyntaxException {
         CSARsResource.LOG.info("Upload file from location: {}", fileLocation);
 
         try {
@@ -140,7 +140,8 @@ public class CSARsResource {
             // try {
             return this.handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
 
-        } catch (final java.nio.file.InvalidPathException exc) {
+        }
+        catch (final java.nio.file.InvalidPathException exc) {
 
             final java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
 
@@ -182,15 +183,16 @@ public class CSARsResource {
             url = new URL(urlStr);
             CSARsResource.LOG.trace("\n{}\n{}", urlStr, url);
 
-            fileName = CSARsResource.createXMLidAsString(
-                url.toExternalForm().substring(url.toExternalForm().lastIndexOf("/") + 1));
+            fileName = CSARsResource.createXMLidAsString(url.toExternalForm()
+                                                            .substring(url.toExternalForm().lastIndexOf("/") + 1));
             fileName = fileName.replace("?", ".");
 
             CSARsResource.LOG.debug("Recieved URL " + urlStr);
             // } catch (UnsupportedEncodingException e1) {
             // CSARsResource.LOG.error("Encoding of recieved URL failed.");
             // e1.printStackTrace();
-        } catch (final MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             CSARsResource.LOG.error("Generation of URL of encoded URL failed.");
             e.printStackTrace();
         }
@@ -205,16 +207,20 @@ public class CSARsResource {
 
         try {
             return this.handleCSAR(fileName, url.openStream());
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             CSARsResource.LOG.error("There was an error while opening the input stream.");
             e.printStackTrace();
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -239,8 +245,10 @@ public class CSARsResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(ResourceConstants.APPLICATION_JSON)
     public Response uploadCSARAdminUI(@FormDataParam("file") final InputStream uploadedInputStream,
-                    @FormDataParam("file") final FormDataContentDisposition fileDetail)
-        throws IOException, URISyntaxException, UserException, SystemException {
+                                      @FormDataParam("file") final FormDataContentDisposition fileDetail) throws IOException,
+                                                                                                          URISyntaxException,
+                                                                                                          UserException,
+                                                                                                          SystemException {
 
         CSARsResource.LOG.info("Try to upload a new CSAR.");
 
@@ -281,8 +289,8 @@ public class CSARsResource {
 
         uploadedInputStream.close();
 
-        CSARsResource.LOG.debug(
-            "Temporary file: " + uploadFile.getAbsolutePath() + " with size " + uploadFile.getTotalSpace());
+        CSARsResource.LOG.debug("Temporary file: " + uploadFile.getAbsolutePath() + " with size "
+            + uploadFile.getTotalSpace());
 
         out.flush();
         out.close();
@@ -304,10 +312,9 @@ public class CSARsResource {
 
                 if (this.control.invokeTOSCAProcessing(csarID)) {
 
-                    final List<QName> serviceTemplates = ToscaServiceHandler.getToscaEngineService()
-                                                                            .getToscaReferenceMapper()
-                                                                            .getServiceTemplateIDsContainedInCSAR(
-                                                                                csarID);
+                    final List<QName> serviceTemplates =
+                        ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                                           .getServiceTemplateIDsContainedInCSAR(csarID);
 
                     for (final QName serviceTemplate : serviceTemplates) {
 
@@ -327,21 +334,26 @@ public class CSARsResource {
                     return csarID;
                 }
             }
-        } catch (final FileNotFoundException e) {
+        }
+        catch (final FileNotFoundException e) {
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             e.printStackTrace();
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    public Response handleCSAR(final String fileName, final InputStream uploadedInputStream)
-        throws IOException, URISyntaxException, UserException, SystemException {
+    public Response handleCSAR(final String fileName,
+                               final InputStream uploadedInputStream) throws IOException, URISyntaxException,
+                                                                      UserException, SystemException {
 
         final File uploadFile = this.storeTemporaryFile(fileName, uploadedInputStream);
 
@@ -363,8 +375,8 @@ public class CSARsResource {
 
                 this.control.deleteCSAR(csarID);
                 // TODO
-                return Response.status(Response.Status.NOT_ACCEPTABLE).entity(
-                    "{ \"Location\": \"" + winCon.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
+                    + winCon.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
                 // return
                 // Response.status(Response.Status.SEE_OTHER).location(new
                 // URI(winCon.getServiceTemplateURI(serviceTemplate).toString()+"/injector/options")).build();
@@ -444,8 +456,8 @@ public class CSARsResource {
 
             for (final QName serviceTemplate : serviceTemplates) {
 
-                CSARsResource.LOG.debug(
-                    "Invoke IADeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \"" + csarID + "\".");
+                CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \""
+                    + csarID + "\".");
                 if (!this.control.invokeIADeployment(csarID, serviceTemplate)) {
 
                     break;
@@ -485,10 +497,12 @@ public class CSARsResource {
         try {
             this.fileHandler.deleteCSAR(csarId);
             return this.fileHandler.storeCSAR(repackagedCsar.toPath());
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

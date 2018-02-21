@@ -30,10 +30,10 @@ public class RequestProcessor implements Processor {
 
         RequestProcessor.LOG.debug("Creation of the json request body...");
 
-        final String className = exchange.getIn().getHeader(ApplicationBusConstants.CLASS_NAME.toString(),
-            String.class);
-        final String operationName = exchange.getIn().getHeader(ApplicationBusConstants.OPERATION_NAME.toString(),
-            String.class);
+        final String className =
+            exchange.getIn().getHeader(ApplicationBusConstants.CLASS_NAME.toString(), String.class);
+        final String operationName =
+            exchange.getIn().getHeader(ApplicationBusConstants.OPERATION_NAME.toString(), String.class);
 
         final LinkedHashMap<String, Object> params = exchange.getIn().getBody(LinkedHashMap.class);
 

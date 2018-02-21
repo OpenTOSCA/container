@@ -26,10 +26,12 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.context = bundleContext;
-        this.registrationDockerContainerPlugin = Activator.context.registerService(
-            IPlanBuilderTypePlugin.class.getName(), new BPELDockerContainerTypePlugin(), null);
-        this.registrationOpenMTCDockerContainerPlugin = Activator.context.registerService(
-            IPlanBuilderTypePlugin.class.getName(), new BPELOpenMTCDockerContainerTypePlugin(), null);
+        this.registrationDockerContainerPlugin =
+            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(),
+                                              new BPELDockerContainerTypePlugin(), null);
+        this.registrationOpenMTCDockerContainerPlugin =
+            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(),
+                                              new BPELOpenMTCDockerContainerTypePlugin(), null);
 
     }
 

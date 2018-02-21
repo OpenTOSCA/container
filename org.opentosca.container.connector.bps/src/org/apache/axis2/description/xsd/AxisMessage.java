@@ -656,27 +656,27 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      */
     @Override
     public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
-                    final org.apache.axiom.om.OMFactory factory)
-        throws org.apache.axis2.databinding.ADBException {
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
 
 
 
-        final org.apache.axiom.om.OMDataSource dataSource = new org.apache.axis2.databinding.ADBDataSource(this,
-            parentQName);
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
         return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
 
     }
 
     @Override
-    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
         serialize(parentQName, xmlWriter, false);
     }
 
     @Override
     public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final boolean serializeType)
-        throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException {
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
 
 
 
@@ -691,11 +691,11 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
         if (serializeType) {
 
 
-            final java.lang.String namespacePrefix = registerPrefix(xmlWriter,
-                "http://description.axis2.apache.org/xsd");
+            final java.lang.String namespacePrefix =
+                registerPrefix(xmlWriter, "http://description.axis2.apache.org/xsd");
             if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
-                    namespacePrefix + ":AxisMessage", xmlWriter);
+                               namespacePrefix + ":AxisMessage", xmlWriter);
             } else {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "AxisMessage", xmlWriter);
             }
@@ -711,9 +711,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localAxisOperation.serialize(
-                    new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "axisOperation"),
-                    xmlWriter);
+                this.localAxisOperation.serialize(new javax.xml.namespace.QName(
+                    "http://description.axis2.apache.org/xsd", "axisOperation"), xmlWriter);
             }
         }
         if (this.localDirectionTracker) {
@@ -744,22 +743,20 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localEffectivePolicy.serialize(
-                    new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "effectivePolicy"),
-                    xmlWriter);
+                this.localEffectivePolicy.serialize(new javax.xml.namespace.QName(
+                    "http://description.axis2.apache.org/xsd", "effectivePolicy"), xmlWriter);
             }
         }
         if (this.localElementQNameTracker) {
 
             if (this.localElementQName != null) {
                 if (this.localElementQName instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localElementQName).serialize(
-                        new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "elementQName"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localElementQName).serialize(new javax.xml.namespace.QName(
+                        "http://description.axis2.apache.org/xsd", "elementQName"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://description.axis2.apache.org/xsd", "elementQName", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localElementQName,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
@@ -779,22 +776,20 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localExtensibilityAttributes != null) {
                 if (this.localExtensibilityAttributes instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localExtensibilityAttributes).serialize(
-                        new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
-                            "extensibilityAttributes"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localExtensibilityAttributes).serialize(new javax.xml.namespace.QName(
+                        "http://description.axis2.apache.org/xsd", "extensibilityAttributes"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://description.axis2.apache.org/xsd", "extensibilityAttributes",
-                        xmlWriter);
+                                      xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localExtensibilityAttributes,
-                        xmlWriter);
+                                                                                      xmlWriter);
                     xmlWriter.writeEndElement();
                 }
             } else {
 
                 // write null attribute
                 writeStartElement(null, "http://description.axis2.apache.org/xsd", "extensibilityAttributes",
-                    xmlWriter);
+                                  xmlWriter);
 
                 // write the nil attribute
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
@@ -808,9 +803,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localKey != null) {
                 if (this.localKey instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localKey).serialize(
-                        new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "key"), xmlWriter,
-                        true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localKey).serialize(new javax.xml.namespace.QName(
+                        "http://description.axis2.apache.org/xsd", "key"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://description.axis2.apache.org/xsd", "key", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localKey, xmlWriter);
@@ -833,9 +827,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
             if (this.localMessageFlow != null) {
                 if (this.localMessageFlow instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localMessageFlow).serialize(
-                        new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "messageFlow"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localMessageFlow).serialize(new javax.xml.namespace.QName(
+                        "http://description.axis2.apache.org/xsd", "messageFlow"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://description.axis2.apache.org/xsd", "messageFlow", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localMessageFlow, xmlWriter);
@@ -883,8 +876,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                         writeStartElement(null, namespace, "modulerefs", xmlWriter);
 
 
-                        xmlWriter.writeCharacters(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localModuleref));
+                        xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localModuleref));
 
                         xmlWriter.writeEndElement();
 
@@ -959,8 +951,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                 throw new org.apache.axis2.databinding.ADBException("policyUpdated cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localPolicyUpdated));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localPolicyUpdated));
             }
 
             xmlWriter.writeEndElement();
@@ -974,18 +965,16 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                 writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "nil", "1", xmlWriter);
                 xmlWriter.writeEndElement();
             } else {
-                this.localSchemaElement.serialize(
-                    new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "schemaElement"),
-                    xmlWriter);
+                this.localSchemaElement.serialize(new javax.xml.namespace.QName(
+                    "http://description.axis2.apache.org/xsd", "schemaElement"), xmlWriter);
             }
         }
         if (this.localSoapHeadersTracker) {
 
             if (this.localSoapHeaders != null) {
                 if (this.localSoapHeaders instanceof org.apache.axis2.databinding.ADBBean) {
-                    ((org.apache.axis2.databinding.ADBBean) this.localSoapHeaders).serialize(
-                        new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "soapHeaders"),
-                        xmlWriter, true);
+                    ((org.apache.axis2.databinding.ADBBean) this.localSoapHeaders).serialize(new javax.xml.namespace.QName(
+                        "http://description.axis2.apache.org/xsd", "soapHeaders"), xmlWriter, true);
                 } else {
                     writeStartElement(null, "http://description.axis2.apache.org/xsd", "soapHeaders", xmlWriter);
                     org.apache.axis2.databinding.utils.ConverterUtil.serializeAnyType(this.localSoapHeaders, xmlWriter);
@@ -1013,8 +1002,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                 throw new org.apache.axis2.databinding.ADBException("wrapped cannot be null!!");
 
             } else {
-                xmlWriter.writeCharacters(
-                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localWrapped));
+                xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localWrapped));
             }
 
             xmlWriter.writeEndElement();
@@ -1035,8 +1023,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      * Utility method to write an element start tag.
      */
     private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String localPart, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
         if (writerPrefix != null) {
             xmlWriter.writeStartElement(namespace, localPart);
@@ -1057,9 +1045,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute with the ns prefix
      */
     private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
-                    final java.lang.String attName, final java.lang.String attValue,
-                    final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (xmlWriter.getPrefix(namespace) == null) {
             xmlWriter.writeNamespace(prefix, namespace);
             xmlWriter.setPrefix(prefix, namespace);
@@ -1071,8 +1058,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final java.lang.String attValue, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         if (namespace.equals("")) {
             xmlWriter.writeAttribute(attName, attValue);
         } else {
@@ -1086,8 +1073,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      * Util method to write an attribute without the ns prefix
      */
     private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
-                    final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         final java.lang.String attributeNamespace = qname.getNamespaceURI();
         java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
@@ -1113,8 +1100,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      * method to handle Qnames
      */
 
-    private void writeQName(final javax.xml.namespace.QName qname, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
         final java.lang.String namespaceURI = qname.getNamespaceURI();
         if (namespaceURI != null) {
             java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
@@ -1125,8 +1112,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
             }
 
             if (prefix.trim().length() > 0) {
-                xmlWriter.writeCharacters(
-                    prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
                 // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
@@ -1137,8 +1124,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
         }
     }
 
-    private void writeQNames(final javax.xml.namespace.QName[] qnames, final javax.xml.stream.XMLStreamWriter xmlWriter)
-        throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
         if (qnames != null) {
             // we have to store this data until last moment since it is not possible to write any
@@ -1161,11 +1148,10 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     }
 
                     if (prefix.trim().length() > 0) {
-                        stringToWrite.append(prefix).append(":").append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
-                        stringToWrite.append(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
+                        stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
                 } else {
                     stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
@@ -1181,8 +1167,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      * Register a namespace prefix
      */
     private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
-                    final java.lang.String namespace)
-        throws javax.xml.stream.XMLStreamException {
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
         java.lang.String prefix = xmlWriter.getPrefix(namespace);
         if (prefix == null) {
             prefix = generatePrefix(namespace);
@@ -1202,8 +1187,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
      *
      */
     @Override
-    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName)
-        throws org.apache.axis2.databinding.ADBException {
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
 
 
 
@@ -1219,14 +1203,12 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
         if (this.localDirectionTracker) {
             elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "direction"));
 
-            elementList.add(
-                this.localDirection == null ? null
-                                            : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                this.localDirection));
+            elementList.add(this.localDirection == null ? null
+                                                        : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localDirection));
         }
         if (this.localEffectivePolicyTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "effectivePolicy"));
+            elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                "effectivePolicy"));
 
 
             elementList.add(this.localEffectivePolicy == null ? null : this.localEffectivePolicy);
@@ -1238,8 +1220,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
             elementList.add(this.localElementQName == null ? null : this.localElementQName);
         }
         if (this.localExtensibilityAttributesTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "extensibilityAttributes"));
+            elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                "extensibilityAttributes"));
 
 
             elementList.add(this.localExtensibilityAttributes == null ? null : this.localExtensibilityAttributes);
@@ -1257,27 +1239,24 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
             elementList.add(this.localMessageFlow == null ? null : this.localMessageFlow);
         }
         if (this.localMessagePartNameTracker) {
-            elementList.add(
-                new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "messagePartName"));
+            elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                "messagePartName"));
 
-            elementList.add(
-                this.localMessagePartName == null ? null
-                                                  : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                      this.localMessagePartName));
+            elementList.add(this.localMessagePartName == null ? null
+                                                              : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localMessagePartName));
         }
         if (this.localModulerefsTracker) {
             if (this.localModulerefs != null) {
                 for (final String localModuleref : this.localModulerefs) {
 
                     if (localModuleref != null) {
-                        elementList.add(
-                            new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "modulerefs"));
-                        elementList.add(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localModuleref));
+                        elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                            "modulerefs"));
+                        elementList.add(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localModuleref));
                     } else {
 
-                        elementList.add(
-                            new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "modulerefs"));
+                        elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                            "modulerefs"));
                         elementList.add(null);
 
                     }
@@ -1296,16 +1275,13 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
             elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "name"));
 
             elementList.add(this.localName == null ? null
-                                                   : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                                       this.localName));
+                                                   : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localName));
         }
         if (this.localPartNameTracker) {
             elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "partName"));
 
-            elementList.add(
-                this.localPartName == null ? null
-                                           : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(
-                                               this.localPartName));
+            elementList.add(this.localPartName == null ? null
+                                                       : org.apache.axis2.databinding.utils.ConverterUtil.convertToString(this.localPartName));
         }
         if (this.localPolicyUpdatedTracker) {
             elementList.add(new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "policyUpdated"));
@@ -1369,8 +1345,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
 
                 if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-                    final java.lang.String fullTypeName = reader.getAttributeValue(
-                        "http://www.w3.org/2001/XMLSchema-instance", "type");
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
                     if (fullTypeName != null) {
                         java.lang.String nsPrefix = null;
                         if (fullTypeName.indexOf(":") > -1) {
@@ -1384,7 +1360,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                             // find namespace for the prefix
                             final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
                             return (AxisMessage) org.apache.axis2.transaction.xsd.ExtensionMapper.getTypeObject(nsUri,
-                                type, reader);
+                                                                                                                type,
+                                                                                                                reader);
                         }
 
 
@@ -1410,9 +1387,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "axisOperation").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "axisOperation").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1438,9 +1414,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "direction").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "direction").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1495,12 +1470,11 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "elementQName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "elementQName").equals(reader.getName())) {
 
                     object.setElementQName(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                             org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1518,8 +1492,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                 if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
                     "extensibilityAttributes").equals(reader.getName())) {
 
-                    object.setExtensibilityAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(
-                        reader, org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                    object.setExtensibilityAttributes(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
+                                                                                                                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1534,12 +1508,11 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "key").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "key").equals(reader.getName())) {
 
                     object.setKey(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                    org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1554,12 +1527,11 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "messageFlow").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "messageFlow").equals(reader.getName())) {
 
                     object.setMessageFlow(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                            org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1582,8 +1554,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
                         final java.lang.String content = reader.getElementText();
 
-                        object.setMessagePartName(
-                            org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                        object.setMessagePartName(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
 
                     } else {
 
@@ -1604,9 +1575,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "modulerefs").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "modulerefs").equals(reader.getName())) {
 
 
 
@@ -1640,8 +1610,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                             if (new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
                                 "modulerefs").equals(reader.getName())) {
 
-                                nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                                    "nil");
+                                nillableValue =
+                                    reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                                 if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
                                     list9.add(null);
 
@@ -1669,9 +1639,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "name").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "name").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1699,9 +1668,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "partName").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "partName").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if (!"true".equals(nillableValue) && !"1".equals(nillableValue)) {
@@ -1729,9 +1697,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "policyUpdated").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "policyUpdated").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -1750,9 +1717,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "schemaElement").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "schemaElement").equals(reader.getName())) {
 
                     nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "nil");
                     if ("true".equals(nillableValue) || "1".equals(nillableValue)) {
@@ -1763,8 +1729,7 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
                     } else {
 
-                        object.setSchemaElement(
-                            org.apache.ws.commons.schema.xsd.XmlSchemaElement.Factory.parse(reader));
+                        object.setSchemaElement(org.apache.ws.commons.schema.xsd.XmlSchemaElement.Factory.parse(reader));
 
                         reader.next();
                     }
@@ -1779,12 +1744,11 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "soapHeaders").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "soapHeaders").equals(reader.getName())) {
 
                     object.setSoapHeaders(org.apache.axis2.databinding.utils.ConverterUtil.getAnyTypeObject(reader,
-                        org.apache.axis2.transaction.xsd.ExtensionMapper.class));
+                                                                                                            org.apache.axis2.transaction.xsd.ExtensionMapper.class));
 
                     reader.next();
 
@@ -1799,9 +1763,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
                     reader.next();
                 }
 
-                if (reader.isStartElement()
-                    && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd", "wrapped").equals(
-                        reader.getName())) {
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://description.axis2.apache.org/xsd",
+                    "wrapped").equals(reader.getName())) {
 
                     final java.lang.String content = reader.getElementText();
 
@@ -1827,7 +1790,8 @@ public class AxisMessage implements org.apache.axis2.databinding.ADBBean {
 
 
 
-            } catch (final javax.xml.stream.XMLStreamException e) {
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 

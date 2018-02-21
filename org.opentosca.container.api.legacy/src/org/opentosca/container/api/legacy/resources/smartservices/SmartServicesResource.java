@@ -161,7 +161,8 @@ public class SmartServicesResource {
 
             }
 
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -193,8 +194,8 @@ public class SmartServicesResource {
                 if (instanceProperties.containsKey("smartServiceType")) {
                     switch (instanceProperties.get("smartServiceType")) {
                         case "SensorDataProviderService":
-                            sensorDataProviderServicesElementString += this.createServiceElementAsString(
-                                instanceProperties);
+                            sensorDataProviderServicesElementString +=
+                                this.createServiceElementAsString(instanceProperties);
                             break;
                         case "UIProviderService":
                             uiProviderServicesElementString += this.createServiceElementAsString(instanceProperties);
@@ -202,7 +203,8 @@ public class SmartServicesResource {
                     }
                 }
             }
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -247,15 +249,14 @@ public class SmartServicesResource {
         return jsonObj;
     }
 
-    private Map<String, String> getSmartServiceInstanceData(final ServiceInstance smartServiceInstance)
-        throws UserException {
+    private Map<String, String> getSmartServiceInstanceData(final ServiceInstance smartServiceInstance) throws UserException {
         final CSARID csarId = smartServiceInstance.getCSAR_ID();
         // we take all properties and add them with their values into the map.
         // Additionally we fetch data set in self-service meta-data
         final Map<String, String> kvMap = this.getKVProperties(smartServiceInstance.getProperties());
 
-        final AbstractDirectory dir = FileRepositoryServiceHandler.getFileHandler().getCSAR(csarId)
-                                                                  .getDirectory("SELFSERVICE-Metadata");
+        final AbstractDirectory dir =
+            FileRepositoryServiceHandler.getFileHandler().getCSAR(csarId).getDirectory("SELFSERVICE-Metadata");
 
         final AbstractFile file = dir.getFile("data.xml");
 
@@ -294,8 +295,9 @@ public class SmartServicesResource {
                         case "iconUrl":
                             if (element.getNodeValue() != null) {
                                 selfServiceProperties.put("smartServiceIconURL",
-                                    Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
-                                        "SELFSERVICE-Metadata/" + element.getNodeValue()));
+                                                          Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
+                                                                             "SELFSERVICE-Metadata/"
+                                                                                 + element.getNodeValue()));
                             } else {
                                 selfServiceProperties.put("smartServiceIconURL", null);
                             }
@@ -304,16 +306,20 @@ public class SmartServicesResource {
                 }
             }
 
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SAXException e) {
+        }
+        catch (final SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final IOException e) {
+        }
+        catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (final SystemException e) {
+        }
+        catch (final SystemException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -350,7 +356,8 @@ public class SmartServicesResource {
                 refs.getReference().add(new Reference(instance.getServiceInstanceID().toString(), XLinkConstants.SIMPLE,
                     "smartServiceInstance"));
             }
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -391,15 +398,17 @@ public class SmartServicesResource {
             final Map<CSARID, QName> smartServices = this.getSmartServiceTemplates();
             for (final CSARID csarId : smartServices.keySet()) {
                 final Reference ref = new Reference(
-                    Utilities.buildURI(
-                        this.uriInfo.getAbsolutePath().toString().replace("/SmartServices/templates", "/CSARs/"),
-                        csarId.toString() + "/Content/"
-                            + ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
-                                                 .getDefinitionsLocation(csarId, smartServices.get(csarId))),
+                    Utilities.buildURI(this.uriInfo.getAbsolutePath().toString().replace("/SmartServices/templates",
+                                                                                         "/CSARs/"),
+                                       csarId.toString() + "/Content/"
+                                           + ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                                                                .getDefinitionsLocation(csarId,
+                                                                                        smartServices.get(csarId))),
                     XLinkConstants.SIMPLE, smartServices.get(csarId).toString());
                 refs.getReference().add(ref);
             }
-        } catch (final UserException e) {
+        }
+        catch (final UserException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return refs;
@@ -424,7 +433,7 @@ public class SmartServicesResource {
 
                     for (final TExtensibleElements extElem : ModelRepositoryServiceHandler.getModelHandler()
                                                                                           .getDefinitions(csarId,
-                                                                                              serviceTemplateId)
+                                                                                                          serviceTemplateId)
                                                                                           .getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
                         if (extElem instanceof TServiceTemplate) {
                             final TServiceTemplate servTemplate = (TServiceTemplate) extElem;
@@ -450,7 +459,8 @@ public class SmartServicesResource {
                                         // service we can skip the csar
                                         break;
                                     }
-                                } catch (final XPathExpressionException e) {
+                                }
+                                catch (final XPathExpressionException e) {
                                     e.printStackTrace();
                                     // skip
                                     break;
@@ -473,15 +483,15 @@ public class SmartServicesResource {
         final String xpathExprSmartServiceSensorDataType = "//*[local-name()='sensorDataType']";
         final String xpathExprSmartServiceSensorDataValueType = "//*[local-name()='sensorDataValueType']";
 
-        final Node smartServiceTypeNode = (Node) xpath.evaluate(xpathExprSmartServiceType, element,
-            XPathConstants.NODE);
-        final Node smartServiceSensorDataTypeNode = (Node) xpath.evaluate(xpathExprSmartServiceSensorDataType, element,
-            XPathConstants.NODE);
-        final Node smartServiceSensorDataValueTypeNode = (Node) xpath.evaluate(xpathExprSmartServiceSensorDataValueType,
-            element, XPathConstants.NODE);
+        final Node smartServiceTypeNode =
+            (Node) xpath.evaluate(xpathExprSmartServiceType, element, XPathConstants.NODE);
+        final Node smartServiceSensorDataTypeNode =
+            (Node) xpath.evaluate(xpathExprSmartServiceSensorDataType, element, XPathConstants.NODE);
+        final Node smartServiceSensorDataValueTypeNode =
+            (Node) xpath.evaluate(xpathExprSmartServiceSensorDataValueType, element, XPathConstants.NODE);
 
         if (!Utilities.areNotNull(smartServiceTypeNode, smartServiceSensorDataTypeNode,
-            smartServiceSensorDataValueTypeNode)) {
+                                  smartServiceSensorDataValueTypeNode)) {
             return false;
         }
 

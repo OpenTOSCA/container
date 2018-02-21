@@ -33,23 +33,23 @@ public class ResponseParser {
      * @return CorrelationID
      */
     public String parseSOAPBody(final CSARID csarID, final QName planID, final String correlationID,
-                    final Document body) {
+                                final Document body) {
 
         this.LOG.debug("Parse a new response.");
 
         final TPlanDTO plan = ServiceProxy.correlationHandler.getPublicPlanForCorrelation(correlationID);
-        final ServiceTemplateInstanceID instanceID = ServiceProxy.csarInstanceManagement.getInstanceForCorrelation(
-            correlationID);
+        final ServiceTemplateInstanceID instanceID =
+            ServiceProxy.csarInstanceManagement.getInstanceForCorrelation(correlationID);
 
         // store the PublicPlan to the history
-        ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID,
-            new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
-                ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
-                ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-                ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
-                // !!!
-                false, // not active anymore
-                false));
+        ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, new PlanInvocationEvent(
+            csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
+            ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
+            ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
+            ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+            // !!!
+            false, // not active anymore
+            false));
         // delete correlation as running plan
         ServiceProxy.correlationHandler.removeCorrelation(csarID, correlationID);
 
@@ -119,23 +119,23 @@ public class ResponseParser {
      * @return CorrelationID
      */
     public String parseSOAPBody(final CSARID csarID, final QName planID, final String correlationID,
-                    final Map<String, String> outputParas) {
+                                final Map<String, String> outputParas) {
 
         this.LOG.debug("Parse a new response.");
 
         final TPlanDTO plan = ServiceProxy.correlationHandler.getPublicPlanForCorrelation(correlationID);
-        final ServiceTemplateInstanceID instanceID = ServiceProxy.csarInstanceManagement.getInstanceForCorrelation(
-            correlationID);
+        final ServiceTemplateInstanceID instanceID =
+            ServiceProxy.csarInstanceManagement.getInstanceForCorrelation(correlationID);
 
         // store the PublicPlan to the history
-        ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID,
-            new PlanInvocationEvent(csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
-                ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
-                ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
-                ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
-                // !!!
-                false, // not active anymore
-                false));
+        ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, new PlanInvocationEvent(
+            csarID.toString(), plan, correlationID, instanceID.getInstanceID(),
+            ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, planID),
+            ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, planID),
+            ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, planID), null, // TODO
+            // !!!
+            false, // not active anymore
+            false));
         // delete correlation as running plan
         ServiceProxy.correlationHandler.removeCorrelation(csarID, correlationID);
 
@@ -154,7 +154,7 @@ public class ResponseParser {
     }
 
     public String parseRESTResponse(final CSARID csarID, final QName planID, final String correlationID,
-                    final Object responseBody) {
+                                    final Object responseBody) {
 
         final String resp = (String) responseBody;
         String instanceID = resp.substring(resp.indexOf("href\":\"") + 7, resp.length());

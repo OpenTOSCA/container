@@ -58,8 +58,10 @@ public class Route extends RouteBuilder {
             + CxfHeaderFilterStrategy.class.getName();
 
         // Management Bus Endpoints
-        final String MANAGEMENT_BUS_IA = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
-        final String MANAGEMENT_BUS_PLAN = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
+        final String MANAGEMENT_BUS_IA =
+            "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
+        final String MANAGEMENT_BUS_PLAN =
+            "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
 
         // Checks if invoking a IA
         final Predicate INVOKE_IA = this.header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");

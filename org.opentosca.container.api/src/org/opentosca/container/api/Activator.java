@@ -55,7 +55,7 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-            bundleContext.getBundle().getVersion());
+                    bundleContext.getBundle().getVersion());
 
         context = bundleContext;
 
@@ -67,8 +67,8 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
 
         this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
         this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
-        this.services.add(
-            bundleContext.registerService(PlainTextMessageBodyWriter.class, new PlainTextMessageBodyWriter(), null));
+        this.services.add(bundleContext.registerService(PlainTextMessageBodyWriter.class,
+                                                        new PlainTextMessageBodyWriter(), null));
         this.services.add(bundleContext.registerService(ObjectMapperProvider.class, new ObjectMapperProvider(), null));
         this.services.add(bundleContext.registerService(JacksonFeature.class, new JacksonFeature(), null));
         this.services.add(bundleContext.registerService(MultiPartFeature.class, new MultiPartFeature(), null));
@@ -81,14 +81,14 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
         logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-            bundleContext.getBundle().getVersion());
+                    bundleContext.getBundle().getVersion());
         this.services.forEach(service -> service.unregister());
         context = null;
     }
 
     private void configurator(final BundleContext bundleContext) throws Exception {
-        final ServiceReference<?> configAdminRef = bundleContext.getServiceReference(
-            ConfigurationAdmin.class.getName());
+        final ServiceReference<?> configAdminRef =
+            bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
 
         if (configAdminRef == null) {
             logger.warn("Reference to <ConfigurationAdmin> service could not be found, did you activate the bundle?");

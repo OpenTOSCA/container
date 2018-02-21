@@ -34,7 +34,7 @@ public class DeploymentProcessStateResource {
     @Produces(ResourceConstants.TEXT_PLAIN)
     public Response getDeploymentProcessState() {
         DeploymentProcessStateResource.LOG.info("Get Request on DeploymentProcessStateResource State: {}",
-            this.deploymentState.toString());
+                                                this.deploymentState.toString());
         return Response.ok(this.deploymentState.toString()).build();
     }
 }

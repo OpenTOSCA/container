@@ -103,13 +103,13 @@ public class DefinitionsResolver {
         final TypesResolver typesResolver = new TypesResolver(referenceMapper);
         final ServiceTemplateResolver serviceTemplateResolver = new ServiceTemplateResolver(referenceMapper);
         final NodeTypeResolver nodeTypeResolver = new NodeTypeResolver(referenceMapper);
-        final NodeTypeImplementationResolver nodeTypeImplementationResolver = new NodeTypeImplementationResolver(
-            referenceMapper, csarID);
+        final NodeTypeImplementationResolver nodeTypeImplementationResolver =
+            new NodeTypeImplementationResolver(referenceMapper, csarID);
         final CapabilityTypeResolver capabilityTypeResolver = new CapabilityTypeResolver(referenceMapper);
         final RequirementTypeResolver requirementTypeResolver = new RequirementTypeResolver(referenceMapper);
         final RelationshipTypeResolver relationshipTypeResolver = new RelationshipTypeResolver(referenceMapper);
-        final RelationshipTypeImplementationResolver relationshipTypeImplementationResolver = new RelationshipTypeImplementationResolver(
-            referenceMapper);
+        final RelationshipTypeImplementationResolver relationshipTypeImplementationResolver =
+            new RelationshipTypeImplementationResolver(referenceMapper);
         final ArtifactTypeResolver artifactTypeResolver = new ArtifactTypeResolver(referenceMapper);
         final ArtifactTemplateResolver artifactTemplateResolver = new ArtifactTemplateResolver(referenceMapper);
         final PolicyTypeResolver policyTypeResolver = new PolicyTypeResolver(referenceMapper);
@@ -169,7 +169,8 @@ public class DefinitionsResolver {
             dbf.setNamespaceAware(true);
             dbf.setIgnoringComments(true);
             builder = dbf.newDocumentBuilder();
-        } catch (final ParserConfigurationException e) {
+        }
+        catch (final ParserConfigurationException e) {
             e.printStackTrace();
             return false;
         }
@@ -182,7 +183,8 @@ public class DefinitionsResolver {
         // get the csarContent
         try {
             this.csarContent = ServiceHandler.coreFileService.getCSAR(csarID);
-        } catch (final UserException exc) {
+        }
+        catch (final UserException exc) {
             this.LOG.warn("An User Exception occured.", exc);
             return false;
         }
@@ -203,7 +205,8 @@ public class DefinitionsResolver {
             try {
                 doc = builder.parse(file.getFileAsInputStream());
                 doc.getDocumentElement().normalize();
-            } catch (SAXException | IOException | SystemException e) {
+            }
+            catch (SAXException | IOException | SystemException e) {
                 e.printStackTrace();
                 this.LOG.error("There was an error while parsing a XML file.");
                 return false;
@@ -273,8 +276,8 @@ public class DefinitionsResolver {
                     // continue;
                     // }
 
-                    final String location = PathResolver.resolveRelativePath(file.getPath(), oldLocation,
-                        this.csarContent);
+                    final String location =
+                        PathResolver.resolveRelativePath(file.getPath(), oldLocation, this.csarContent);
 
                     this.LOG.trace("Import (at \"" + oldLocation + "\") should be at \"" + location + "\".");
 
@@ -288,7 +291,8 @@ public class DefinitionsResolver {
 
                         doc = builder.parse(newFile.getFileAsInputStream());
                         doc.getDocumentElement().normalize();
-                    } catch (SAXException | IOException | SystemException e) {
+                    }
+                    catch (SAXException | IOException | SystemException e) {
                         e.printStackTrace();
                         this.LOG.error("There was an error while parsing a XML file.");
                         return false;
@@ -326,8 +330,8 @@ public class DefinitionsResolver {
             }
         }
 
-        this.LOG.debug(
-            "TOSCA:" + this.listOfTOSCA.size() + " WSDL:" + this.listOfWSDL.size() + " XML:" + this.listOfXML.size());
+        this.LOG.debug("TOSCA:" + this.listOfTOSCA.size() + " WSDL:" + this.listOfWSDL.size() + " XML:"
+            + this.listOfXML.size());
         return true;
     }
 

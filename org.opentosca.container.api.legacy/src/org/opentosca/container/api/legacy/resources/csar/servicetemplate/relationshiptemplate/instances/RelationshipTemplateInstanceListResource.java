@@ -39,13 +39,13 @@ public class RelationshipTemplateInstanceListResource {
     @GET
     @Produces(MediaType.APPLICATION_XML)
     public Response doGetXML(@Context final UriInfo uriInfo,
-                    @QueryParam("relationInstanceID") final String relationInstanceID,
-                    @QueryParam("relationshipTemplateID") final String relationshipTemplateID,
-                    @QueryParam("serviceInstanceID") final String serviceInstanceID,
-                    @QueryParam("relationshipTemplateName") final String relationshipTemplateName) {
+                             @QueryParam("relationInstanceID") final String relationInstanceID,
+                             @QueryParam("relationshipTemplateID") final String relationshipTemplateID,
+                             @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                             @QueryParam("relationshipTemplateName") final String relationshipTemplateName) {
 
         final RelationInstanceList idr = this.getRefs(uriInfo, relationInstanceID, relationshipTemplateID,
-            serviceInstanceID, relationshipTemplateName);
+                                                      serviceInstanceID, relationshipTemplateName);
 
         return Response.ok(idr).build();
     }
@@ -53,20 +53,20 @@ public class RelationshipTemplateInstanceListResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response doGetJSON(@Context final UriInfo uriInfo,
-                    @QueryParam("relationInstanceID") final String relationInstanceID,
-                    @QueryParam("relationshipTemplateID") final String relationshipTemplateID,
-                    @QueryParam("serviceInstanceID") final String serviceInstanceID,
-                    @QueryParam("relationshipTemplateName") final String relationshipTemplateName) {
+                              @QueryParam("relationInstanceID") final String relationInstanceID,
+                              @QueryParam("relationshipTemplateID") final String relationshipTemplateID,
+                              @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                              @QueryParam("relationshipTemplateName") final String relationshipTemplateName) {
 
         final RelationInstanceList idr = this.getRefs(uriInfo, relationInstanceID, relationshipTemplateID,
-            serviceInstanceID, relationshipTemplateName);
+                                                      serviceInstanceID, relationshipTemplateName);
 
         return Response.ok(idr.toJSON()).build();
     }
 
     public RelationInstanceList getRefs(final UriInfo uriInfo, final String relationInstanceID,
-                    final String relationshipTemplateID, final String serviceInstanceID,
-                    final String relationshipTemplateName) {
+                                        final String relationshipTemplateID, final String serviceInstanceID,
+                                        final String relationshipTemplateName) {
 
         // these parameters are not required and cant therefore be generally
         // checked against null
@@ -92,15 +92,17 @@ public class RelationshipTemplateInstanceListResource {
             if (relationshipTemplateID != null) {
                 relationshipTemplateIDQName = QName.valueOf(relationshipTemplateID);
             }
-        } catch (final Exception e1) {
+        }
+        catch (final Exception e1) {
             throw new GenericRestException(Status.BAD_REQUEST,
                 "Bad Request due to bad variable content: " + e1.getMessage());
         }
 
         try {
             final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-            final List<RelationInstance> result = service.getRelationInstances(relationInstanceIdURI,
-                relationshipTemplateIDQName, relationshipTemplateName, serviceInstanceIdURI);
+            final List<RelationInstance> result =
+                service.getRelationInstances(relationInstanceIdURI, relationshipTemplateIDQName,
+                                             relationshipTemplateName, serviceInstanceIdURI);
             final List<SimpleXLink> links = new LinkedList<>();
 
             // add links to nodeInstances
@@ -114,7 +116,8 @@ public class RelationshipTemplateInstanceListResource {
             final RelationInstanceList ril = new RelationInstanceList(LinkBuilder.selfLink(uriInfo), links);
 
             return ril;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, "Internal Server Error: " + e.getMessage());
         }
     }
@@ -122,7 +125,8 @@ public class RelationshipTemplateInstanceListResource {
     @POST
     @Produces(MediaType.APPLICATION_XML)
     public Response createRelationInstance(@QueryParam("relationshipTemplateID") final String relationshipTemplateID,
-                    @QueryParam("serviceInstanceID") final String serviceInstanceID, @Context final UriInfo uriInfo) {
+                                           @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                                           @Context final UriInfo uriInfo) {
 
         final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
@@ -140,7 +144,8 @@ public class RelationshipTemplateInstanceListResource {
             }
             relationshipTemplateIDQName = QName.valueOf(relationshipTemplateID);
 
-        } catch (final Exception e1) {
+        }
+        catch (final Exception e1) {
             throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
         }
 
@@ -152,12 +157,13 @@ public class RelationshipTemplateInstanceListResource {
             // it seems this whole class is useless? Because I tried to
             // implement relation in the style of the nodeInstances but this
             // method makes literally no sense
-            final NodeInstance nodeInstance = service.createNodeInstance(relationshipTemplateIDQName,
-                serviceInstanceIdURI);
+            final NodeInstance nodeInstance =
+                service.createNodeInstance(relationshipTemplateIDQName, serviceInstanceIdURI);
             final SimpleXLink response = new SimpleXLink(LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId()),
                 nodeInstance.getNodeInstanceID().toString());
             return Response.ok(response).build();
-        } catch (final ReferenceNotFoundException e) {
+        }
+        catch (final ReferenceNotFoundException e) {
             throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
         }
     }

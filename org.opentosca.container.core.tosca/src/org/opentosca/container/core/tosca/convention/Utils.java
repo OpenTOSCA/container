@@ -178,7 +178,8 @@ public class Utils {
 
         try {
             Integer.parseInt(leftDashSplit[1]);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return false;
         }
 
@@ -188,7 +189,8 @@ public class Utils {
 
         try {
             Integer.parseInt(rightDashSplit[0]);
-        } catch (final NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return false;
         }
 

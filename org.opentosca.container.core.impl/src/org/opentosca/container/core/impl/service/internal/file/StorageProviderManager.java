@@ -39,8 +39,8 @@ public class StorageProviderManager {
      * Note: Must be {@code static}, because otherwise, if we instantiate this class manually with
      * {@code new} and not (automatically) by the OSGi framework, this variable would be not set.
      */
-    private static final Map<String, ICoreInternalFileStorageProviderService> STORAGE_PROVIDERS = Collections.synchronizedMap(
-        new HashMap<String, ICoreInternalFileStorageProviderService>());
+    private static final Map<String, ICoreInternalFileStorageProviderService> STORAGE_PROVIDERS =
+        Collections.synchronizedMap(new HashMap<String, ICoreInternalFileStorageProviderService>());
 
     /**
      * Active storage provider.<br />
@@ -82,7 +82,7 @@ public class StorageProviderManager {
 
             if (this.isStorageProviderReady(activeStorageProviderID)) {
                 StorageProviderManager.LOG.debug("Active storage provider \"{}\" will be used.",
-                    activeStorageProviderID);
+                                                 activeStorageProviderID);
                 return activeStorageProviderID;
             }
             StorageProviderManager.LOG.debug("Active storage provider \"{}\" can't be used.", activeStorageProviderID);
@@ -146,7 +146,7 @@ public class StorageProviderManager {
             StorageProviderManager.LOG.debug("No active storage provider is set.");
         } else {
             StorageProviderManager.LOG.debug("Active storage provider: {}",
-                StorageProviderManager.activeStorageProviderID);
+                                             StorageProviderManager.activeStorageProviderID);
         }
         return StorageProviderManager.activeStorageProviderID;
     }
@@ -237,15 +237,14 @@ public class StorageProviderManager {
      *         getting.
      */
     public void getFileOfCSAR(final CSARID csarID, final Path fileRelToCSARRoot, final String storageProviderID,
-                    final Path targetAbsPath)
-        throws SystemException {
+                              final Path targetAbsPath) throws SystemException {
 
         final ICoreInternalFileStorageProviderService storageProvider = this.getReadyStorageProvider(storageProviderID);
 
         if (storageProvider != null) {
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(csarID,
-                fileRelToCSARRoot);
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(csarID, fileRelToCSARRoot);
 
             storageProvider.getFile(relFilePathOnStorageProvider, targetAbsPath);
 
@@ -270,15 +269,14 @@ public class StorageProviderManager {
      *         or an error occurred during getting.
      */
     public InputStream getFileOfCSARAsInputStream(final CSARID csarID, final Path fileRelToCSARRoot,
-                    final String storageProviderID)
-        throws SystemException {
+                                                  final String storageProviderID) throws SystemException {
 
         final ICoreInternalFileStorageProviderService storageProvider = this.getReadyStorageProvider(storageProviderID);
 
         if (storageProvider != null) {
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(csarID,
-                fileRelToCSARRoot);
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(csarID, fileRelToCSARRoot);
 
             final InputStream fileInputStream = storageProvider.getFileAsInputStream(relFilePathOnStorageProvider);
 
@@ -304,15 +302,15 @@ public class StorageProviderManager {
      *         file {@code fileRelToCSARRoot} of CSAR {@code csarID} was not found on storage provider
      *         or an error occurred during getting size.
      */
-    public long getFileOfCSARSize(final CSARID csarID, final Path fileRelToCSARRoot, final String storageProviderID)
-        throws SystemException {
+    public long getFileOfCSARSize(final CSARID csarID, final Path fileRelToCSARRoot,
+                                  final String storageProviderID) throws SystemException {
 
         final ICoreInternalFileStorageProviderService storageProvider = this.getReadyStorageProvider(storageProviderID);
 
         if (storageProvider != null) {
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(csarID,
-                fileRelToCSARRoot);
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(csarID, fileRelToCSARRoot);
 
             final long fileSize = storageProvider.getFileSize(relFilePathOnStorageProvider);
 
@@ -340,15 +338,14 @@ public class StorageProviderManager {
      *         or an error occurred during storing.
      */
     public void storeFileOfCSAR(final Path absFilePath, final CSARID csarID, final Path fileRelToCSARRoot,
-                    final String storageProviderID)
-        throws SystemException {
+                                final String storageProviderID) throws SystemException {
 
         final ICoreInternalFileStorageProviderService storageProvider = this.getReadyStorageProvider(storageProviderID);
 
         if (storageProvider != null) {
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(csarID,
-                fileRelToCSARRoot);
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(csarID, fileRelToCSARRoot);
 
             storageProvider.storeFile(absFilePath, relFilePathOnStorageProvider);
 
@@ -372,15 +369,15 @@ public class StorageProviderManager {
      * @throws SystemException if storage provider {@code storageProviderID} is not available and ready
      *         or an error occurred during deleting.
      */
-    public void deleteFileOfCSAR(final CSARID csarID, final Path fileRelToCSARRoot, final String storageProviderID)
-        throws SystemException {
+    public void deleteFileOfCSAR(final CSARID csarID, final Path fileRelToCSARRoot,
+                                 final String storageProviderID) throws SystemException {
 
         final ICoreInternalFileStorageProviderService storageProvider = this.getReadyStorageProvider(storageProviderID);
 
         if (storageProvider != null) {
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(csarID,
-                fileRelToCSARRoot);
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(csarID, fileRelToCSARRoot);
 
             storageProvider.deleteFile(relFilePathOnStorageProvider);
 
@@ -406,15 +403,14 @@ public class StorageProviderManager {
      *         or an error occurred during storing.
      */
     public void storeFileOfCSAR(final CSARID csarID, final InputStream fileInputStream, final long fileSize,
-                    final Path fileRelToCSARRoot, final String storageProviderID)
-        throws SystemException {
+                                final Path fileRelToCSARRoot, final String storageProviderID) throws SystemException {
 
         final ICoreInternalFileStorageProviderService storageProvider = this.getReadyStorageProvider(storageProviderID);
 
         if (storageProvider != null) {
 
-            final String relFilePathOnStorageProvider = this.buildFileOfCSARStorageProviderPath(csarID,
-                fileRelToCSARRoot);
+            final String relFilePathOnStorageProvider =
+                this.buildFileOfCSARStorageProviderPath(csarID, fileRelToCSARRoot);
 
             storageProvider.storeFile(fileInputStream, fileSize, relFilePathOnStorageProvider);
         } else {
@@ -498,15 +494,14 @@ public class StorageProviderManager {
      *
      * @param storageProvider to bind
      */
-    protected void bindCoreInternalFileStorageProviderService(
-                    final ICoreInternalFileStorageProviderService storageProvider) {
+    protected void bindCoreInternalFileStorageProviderService(final ICoreInternalFileStorageProviderService storageProvider) {
         if (storageProvider != null) {
 
             final String storageProviderID = storageProvider.getStorageProviderID();
 
             StorageProviderManager.STORAGE_PROVIDERS.put(storageProviderID, storageProvider);
             StorageProviderManager.LOG.debug("Storage provider \"{}\" ({}) bound.", storageProviderID,
-                storageProvider.getStorageProviderName());
+                                             storageProvider.getStorageProviderName());
         } else {
             StorageProviderManager.LOG.warn("Binding a storage provider failed.");
         }
@@ -520,8 +515,7 @@ public class StorageProviderManager {
      * @param storageProvider to unbind
      * @see CoreInternalFileServiceImpl#setActiveStorageProvider(String)
      */
-    protected void unbindCoreInternalFileStorageProviderService(
-                    final ICoreInternalFileStorageProviderService storageProvider) {
+    protected void unbindCoreInternalFileStorageProviderService(final ICoreInternalFileStorageProviderService storageProvider) {
 
         if (storageProvider != null) {
 
@@ -529,15 +523,14 @@ public class StorageProviderManager {
 
             StorageProviderManager.STORAGE_PROVIDERS.remove(storageProviderID);
             StorageProviderManager.LOG.debug("Storage provider \"{}\" ({}) unbound.", storageProviderID,
-                storageProvider.getStorageProviderName());
+                                             storageProvider.getStorageProviderName());
 
             // if active storage provider was unbound clear active storage
             // provider setting
             if (this.getActiveStorageProvider() != null && this.getActiveStorageProvider().equals(storageProviderID)) {
                 StorageProviderManager.activeStorageProviderID = null;
-                StorageProviderManager.LOG.debug(
-                    "Active storage provider \"{}\" is not more available. Thus, active storage provider was unset.",
-                    storageProviderID);
+                StorageProviderManager.LOG.debug("Active storage provider \"{}\" is not more available. Thus, active storage provider was unset.",
+                                                 storageProviderID);
             }
 
         } else {

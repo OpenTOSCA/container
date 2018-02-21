@@ -63,7 +63,8 @@ public class Utilities {
 
             return new URI(null, null, path, null).toString();
 
-        } catch (final URISyntaxException e) {
+        }
+        catch (final URISyntaxException e) {
             Utilities.LOG.warn("Can't encode URI path \"{}\".", path, e);
         }
 
@@ -112,7 +113,8 @@ public class Utilities {
 
         try {
             LOG.debug("URL: {}", uri.toURL());
-        } catch (final MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -125,7 +127,8 @@ public class Utilities {
     public static String URLencode(final String s) {
         try {
             return URLEncoder.encode(s, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException();
         }
     }
@@ -137,7 +140,8 @@ public class Utilities {
     public static String URLdecode(final String s) {
         try {
             return URLDecoder.decode(s, "UTF-8");
-        } catch (final UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException();
         }
     }

@@ -77,10 +77,11 @@ public class JaxbFactory {
         final long credentialsID = credentials.getID();
 
         try {
-            final boolean injectedInStorageProvider = JaxbFactory.credentialsService.hasStorageProviderCredentials(
-                credentialsID);
+            final boolean injectedInStorageProvider =
+                JaxbFactory.credentialsService.hasStorageProviderCredentials(credentialsID);
             credentialsJaxb.setInjectedInStorageProvider(injectedInStorageProvider);
-        } catch (final UserException exc) {
+        }
+        catch (final UserException exc) {
             JaxbFactory.LOG.warn("An User Exception occured.", exc);
         }
 

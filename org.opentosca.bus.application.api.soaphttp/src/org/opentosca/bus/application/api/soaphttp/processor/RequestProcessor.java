@@ -49,7 +49,7 @@ public class RequestProcessor implements Processor {
             final InvokeMethodWithServiceInstanceID invoke1Request = (InvokeMethodWithServiceInstanceID) request;
 
             exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-                ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+                                       ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
             serviceInstanceID = invoke1Request.getServiceInstanceID();
             RequestProcessor.LOG.debug("ServiceInstanceID: " + serviceInstanceID);
@@ -78,7 +78,7 @@ public class RequestProcessor implements Processor {
             RequestProcessor.LOG.debug("Processing InvokeMethodWithNodeInstanceID Request");
 
             exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-                ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
+                                       ApplicationBusConstants.APPLICATION_BUS_METHOD_INVOKE.toString());
 
             final InvokeMethodWithNodeInstanceID invoke2Request = (InvokeMethodWithNodeInstanceID) request;
 
@@ -105,7 +105,7 @@ public class RequestProcessor implements Processor {
             RequestProcessor.LOG.debug("Processing IsFinished Request");
 
             exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-                ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
+                                       ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
 
             final IsFinished isFinishedRequest = (IsFinished) request;
 
@@ -121,7 +121,7 @@ public class RequestProcessor implements Processor {
             RequestProcessor.LOG.debug("Processing GetResult Request");
 
             exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-                ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
+                                       ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
 
             final GetResult getResultRequest = (GetResult) request;
 

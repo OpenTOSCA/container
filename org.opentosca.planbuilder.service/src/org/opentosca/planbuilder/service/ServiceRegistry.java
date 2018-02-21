@@ -63,10 +63,12 @@ public class ServiceRegistry {
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
             httpService.registerServlet("/planbuilder", new ServletContainer(), initParams, null);
-        } catch (final Exception ex) {
+        }
+        catch (final Exception ex) {
             ex.printStackTrace();
 
-        } finally {
+        }
+        finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }

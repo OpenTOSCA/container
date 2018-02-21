@@ -37,7 +37,8 @@ public class ServiceInstanceDAO {
             } else {
                 logger.info("NOT FOUND");
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not delete service instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }
@@ -49,12 +50,14 @@ public class ServiceInstanceDAO {
             final ServiceTemplateInstance sti = Converters.convert(serviceInstance);
             try {
                 this.repository.add(sti);
-            } catch (final Exception ex) {
+            }
+            catch (final Exception ex) {
                 logger.info("Object already added, trying to update");
                 this.repository.update(sti);
             }
             return Converters.convert(sti);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not save node instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }
@@ -62,7 +65,7 @@ public class ServiceInstanceDAO {
     }
 
     public List<ServiceInstance> getServiceInstances(final URI serviceInstanceID, final String serviceTemplateName,
-                    final QName serviceTemplateID) {
+                                                     final QName serviceTemplateID) {
 
         logger.info("Not Implemented: Service instances cannot be queried");
         return new ArrayList<>();
@@ -103,7 +106,7 @@ public class ServiceInstanceDAO {
     }
 
     public List<ServiceInstance> getServiceInstances(final CSARID csarId, final QName serviceTemplateId,
-                    final Integer serviceTemplateInstanceID) {
+                                                     final Integer serviceTemplateInstanceID) {
 
         logger.info("Not Implemented: Service instances cannot be queried");
         return new ArrayList<>();
@@ -158,13 +161,14 @@ public class ServiceInstanceDAO {
             final Optional<ServiceTemplateInstance> o = this.repository.find(DaoUtil.toLong(serviceInstance.getId()));
             if (o.isPresent()) {
                 final ServiceTemplateInstance sti = o.get();
-                sti.setState(
-                    Enums.valueOf(ServiceTemplateInstanceState.class, state, ServiceTemplateInstanceState.ERROR));
+                sti.setState(Enums.valueOf(ServiceTemplateInstanceState.class, state,
+                                           ServiceTemplateInstanceState.ERROR));
                 this.repository.update(sti);
             } else {
                 logger.info("NOT FOUND");
             }
-        } catch (final Exception e) {
+        }
+        catch (final Exception e) {
             logger.error("Could not update service instance: {}", e.getMessage(), e);
             e.printStackTrace();
         }

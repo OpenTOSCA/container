@@ -16,8 +16,7 @@ package org.wso2.bps.management.wsdl.instancemanagement;
 public class ExtensionMapper {
 
     public static java.lang.Object getTypeObject(final java.lang.String namespaceURI, final java.lang.String typeName,
-                    final javax.xml.stream.XMLStreamReader reader)
-        throws java.lang.Exception {
+                                                 final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
 
 
         if ("http://wso2.org/bps/management/schema".equals(namespaceURI) && "action_type1".equals(typeName)) {

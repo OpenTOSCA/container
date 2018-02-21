@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 public class PlanEngineImpl implements IPlanEngineService {
 
     // stores PlanReferencePlugins
-    private final Map<String, IPlanEnginePlanRefPluginService> refPluginsList = Collections.synchronizedMap(
-        new HashMap<String, IPlanEnginePlanRefPluginService>());
+    private final Map<String, IPlanEnginePlanRefPluginService> refPluginsList =
+        Collections.synchronizedMap(new HashMap<String, IPlanEnginePlanRefPluginService>());
     // stores PlanModelPlugins
-    private final Map<String, IPlanEnginePlanModelPluginService> modelPluginsList = Collections.synchronizedMap(
-        new HashMap<String, IPlanEnginePlanModelPluginService>());
+    private final Map<String, IPlanEnginePlanModelPluginService> modelPluginsList =
+        Collections.synchronizedMap(new HashMap<String, IPlanEnginePlanModelPluginService>());
     private ICoreCapabilityService capabilityService;
     private ICoreCapabilityService oldCapabilityService;
 
@@ -67,7 +67,7 @@ public class PlanEngineImpl implements IPlanEngineService {
             final QName planId = new QName(targetNamespace, plan.getId());
             PlanEngineImpl.LOG.debug("Created new management plan id " + planId);
             PlanEngineImpl.LOG.info("Searching PlanReferencePlugin for plan {} written in language {}", plan.getId(),
-                language);
+                                    language);
             final IPlanEnginePlanRefPluginService plugin = this.getRefPlugin(language);
             if (plugin != null) {
                 PlanEngineImpl.LOG.info("Found PlanReferencePlugin for plan {} ", plan.getId());
@@ -131,9 +131,8 @@ public class PlanEngineImpl implements IPlanEngineService {
         }
 
         if (namespace == null) {
-            PlanEngineImpl.LOG.error(
-                "No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
-                plans.toString());
+            PlanEngineImpl.LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
+                                     plans.toString());
             return p;
         }
 
@@ -169,9 +168,8 @@ public class PlanEngineImpl implements IPlanEngineService {
         }
 
         if (namespace == null) {
-            PlanEngineImpl.LOG.error(
-                "No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
-                plans.toString());
+            PlanEngineImpl.LOG.error("No namespace for Plans {} defined. Plugins communication with toscaEngine may be wrong",
+                                     plans.toString());
             return p;
         }
 
@@ -207,10 +205,9 @@ public class PlanEngineImpl implements IPlanEngineService {
             PlanEngineImpl.LOG.debug("Registering PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
             if (this.capabilityService != null) {
                 this.capabilityService.storeCapabilities(planModelPlugin.getCapabilties(), planModelPlugin.toString(),
-                    ProviderType.PLAN_PLUGIN);
+                                                         ProviderType.PLAN_PLUGIN);
             } else {
-                PlanEngineImpl.LOG.debug(
-                    "CapabilityService unavailable, couldn't store plugin capabilities, will do later");
+                PlanEngineImpl.LOG.debug("CapabilityService unavailable, couldn't store plugin capabilities, will do later");
             }
             this.modelPluginsList.put(planModelPlugin.getLanguageUsed(), planModelPlugin);
             LOG.debug("Registered PlanEnginePlanModel Plugin {}", planModelPlugin.toString());
@@ -244,13 +241,12 @@ public class PlanEngineImpl implements IPlanEngineService {
     protected void bindPlanReferencePlugin(final IPlanEnginePlanRefPluginService planRefPlugin) {
         if (planRefPlugin != null) {
             PlanEngineImpl.LOG.debug("Registering PlanEnginePlanRef Plugin {} for language {}",
-                planRefPlugin.toString(), planRefPlugin.getLanguageUsed());
+                                     planRefPlugin.toString(), planRefPlugin.getLanguageUsed());
             if (this.capabilityService != null) {
                 this.capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(),
-                    ProviderType.PLAN_PLUGIN);
+                                                         ProviderType.PLAN_PLUGIN);
             } else {
-                PlanEngineImpl.LOG.debug(
-                    "CapabilityService unavailable, couldn't store plugin capabilities, will do later");
+                PlanEngineImpl.LOG.debug("CapabilityService unavailable, couldn't store plugin capabilities, will do later");
             }
             this.refPluginsList.put(planRefPlugin.getLanguageUsed(), planRefPlugin);
             PlanEngineImpl.LOG.debug("Registered PlanEnginePlanRef Plugin {}", planRefPlugin.toString());
@@ -314,12 +310,12 @@ public class PlanEngineImpl implements IPlanEngineService {
             // storing capabilities of already registered plugins
             for (final IPlanEnginePlanModelPluginService planModelPlugin : this.modelPluginsList.values()) {
                 this.capabilityService.storeCapabilities(planModelPlugin.getCapabilties(), planModelPlugin.toString(),
-                    ProviderType.PLAN_PLUGIN);
+                                                         ProviderType.PLAN_PLUGIN);
             }
 
             for (final IPlanEnginePlanRefPluginService planRefPlugin : this.refPluginsList.values()) {
                 this.capabilityService.storeCapabilities(planRefPlugin.getCapabilties(), planRefPlugin.toString(),
-                    ProviderType.PLAN_PLUGIN);
+                                                         ProviderType.PLAN_PLUGIN);
             }
 
             PlanEngineImpl.LOG.debug("Registered CapabilityService {}", capabilityService.toString());

@@ -43,7 +43,7 @@ public class ApplicationBusServiceHandler {
         applicationBusRoutingEndpoint = appBus.getRoutingEndpoint();
 
         ApplicationBusServiceHandler.LOG.debug("Bound ApplicationBusService: {} with Endpoint: {}", appBus.toString(),
-            applicationBusRoutingEndpoint);
+                                               applicationBusRoutingEndpoint);
 
     }
 
@@ -54,7 +54,7 @@ public class ApplicationBusServiceHandler {
      */
     public void unbindApplicationBusService(final IApplicationBusService appBus) {
         ApplicationBusServiceHandler.LOG.debug("Unbind ApplicationBusService: {} with Endpoint: {}", appBus.toString(),
-            applicationBusRoutingEndpoint);
+                                               applicationBusRoutingEndpoint);
         applicationBusRoutingEndpoint = null;
     }
 }

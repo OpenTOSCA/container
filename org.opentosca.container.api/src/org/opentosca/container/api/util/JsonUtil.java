@@ -18,7 +18,8 @@ public abstract class JsonUtil {
     public static <T> String writeValueAsString(final T object) {
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (final JsonProcessingException e) {
+        }
+        catch (final JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }

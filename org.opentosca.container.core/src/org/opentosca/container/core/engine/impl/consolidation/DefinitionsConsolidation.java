@@ -14,7 +14,8 @@ public class DefinitionsConsolidation {
 
     private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
 
-    private final ExportedInterfacesConsolidation exportedInterfacesConsolidation = new ExportedInterfacesConsolidation();
+    private final ExportedInterfacesConsolidation exportedInterfacesConsolidation =
+        new ExportedInterfacesConsolidation();
     private final PolicyConsolidation policyConsolidation = new PolicyConsolidation();
 
 
@@ -29,13 +30,13 @@ public class DefinitionsConsolidation {
 
         boolean ret = this.exportedInterfacesConsolidation.consolidate(csarID);
         if (!ret) {
-            this.LOG.error(
-                "Consolidation of the exported interfaces of CSAR \"" + csarID + "\" produced one or more errors.");
+            this.LOG.error("Consolidation of the exported interfaces of CSAR \"" + csarID
+                + "\" produced one or more errors.");
         }
         ret = ret && this.policyConsolidation.consolidate(csarID);
         if (!ret) {
-            this.LOG.error(
-                "Consolidation of the Policies inside the CSAR \"" + csarID + "\" produced one or more errors.");
+            this.LOG.error("Consolidation of the Policies inside the CSAR \"" + csarID
+                + "\" produced one or more errors.");
         }
 
         return ret;
