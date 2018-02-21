@@ -6,6 +6,4 @@
       <provide interface="org.opentosca.container.api.service.PlanService"/>
    </service>
    <reference bind="setControlService" cardinality="1..1" interface="org.opentosca.container.control.IOpenToscaControlService" name="IOpenToscaControlService" policy="static"/>
-   <reference bind="setCsarInstanceService" cardinality="1..1" interface="org.opentosca.container.core.service.ICSARInstanceManagementService" name="ICSARInstanceManagementService" policy="static"/>
-   <reference bind="setVerificationService" cardinality="1..1" interface="org.opentosca.deployment.verification.VerificationService" name="VerificationService" policy="static"/>
 </scr:component>

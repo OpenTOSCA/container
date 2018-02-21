@@ -1,5 +1,6 @@
 package org.opentosca.container.api.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class JAXBContextProvider implements ContextResolver<JAXBContext> {
 
     private static Logger logger = LoggerFactory.getLogger(JAXBContextProvider.class);
 
-    private final Map<Class<?>, JAXBContext> contextMap = new HashMap<>();
+    private final Map<Class<?>, JAXBContext> contextMap = Collections.synchronizedMap(new HashMap<>());
 
 
     @Override

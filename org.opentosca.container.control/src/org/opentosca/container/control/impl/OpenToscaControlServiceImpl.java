@@ -210,7 +210,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
      * @throws UnsupportedEncodingException
      */
     @Override
-    public String invokePlanInvocation(final CSARID csarID, final QName serviceTemplateId, final int csarInstanceID,
+    public String invokePlanInvocation(final CSARID csarID, final QName serviceTemplateId, final long csarInstanceID,
                     final TPlanDTO plan)
         throws UnsupportedEncodingException {
 

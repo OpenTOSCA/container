@@ -64,6 +64,7 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
 
         // Jersey Configuration
         this.configurator(bundleContext);
+
         this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
         this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
         this.services.add(
@@ -105,7 +106,9 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
         properties.put("root", "/");
 
         config.update(properties);
+        // context.ungetService(configAdminRef);
     }
+
 
     @Override
     public Map<String, Object> getProperties() {

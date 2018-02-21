@@ -15,12 +15,13 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.container.api.legacy.resources.utilities.Utilities;
-import org.opentosca.container.api.util.UriUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.ApiOperation;
 
 public class DirectoryController {
 
@@ -37,23 +38,24 @@ public class DirectoryController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @ApiOperation(value = "Gets links", response = ResourceSupport.class)
     public Response getLinks(@Context final UriInfo uriInfo) {
         final ResourceSupport dto = new ResourceSupport();
         for (final AbstractDirectory directory : this.directory.getDirectories()) {
-            final URI uri = UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(directory.getName()).build());
+            final URI uri = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(directory.getName()).build());
             dto.add(Link.fromUri(uri).rel(directory.getName()).build());
         }
         for (final AbstractFile file : this.directory.getFiles()) {
-            final URI uri = UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(file.getName()).build());
+            final URI uri = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(file.getName()).build());
             dto.add(Link.fromUri(uri).rel(file.getName()).build());
         }
-        dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+        dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePath())).rel("self").build());
         return Response.ok(dto).build();
     }
 
     @Path("/{path}")
     public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
-        path = Utilities.URLencode(path);
+        path = UriUtil.encodePathSegment(path);
         logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());
         for (final AbstractDirectory directory : this.directory.getDirectories()) {
             if (directory.getName().equals(path)) {

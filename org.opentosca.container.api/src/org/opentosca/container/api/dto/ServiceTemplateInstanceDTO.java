@@ -6,7 +6,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.opentosca.container.core.model.instance.State;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -16,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ServiceTemplateInstanceDTO extends ResourceSupport {
 
-    private Integer id;
+    private Long id;
 
     private Date createdAt;
 
@@ -24,15 +25,15 @@ public class ServiceTemplateInstanceDTO extends ResourceSupport {
 
     private String serviceTemplateId;
 
-    private State.ServiceTemplate state;
+    private ServiceTemplateInstanceState state;
 
 
     @XmlAttribute
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(final Integer id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -63,11 +64,26 @@ public class ServiceTemplateInstanceDTO extends ResourceSupport {
         this.serviceTemplateId = serviceTemplateId;
     }
 
-    public State.ServiceTemplate getState() {
+    public ServiceTemplateInstanceState getState() {
         return this.state;
     }
 
-    public void setState(final State.ServiceTemplate state) {
+    public void setState(final ServiceTemplateInstanceState state) {
         this.state = state;
+    }
+
+    public static final class Converter {
+
+        public static ServiceTemplateInstanceDTO convert(final ServiceTemplateInstance object) {
+            final ServiceTemplateInstanceDTO dto = new ServiceTemplateInstanceDTO();
+
+            dto.setId(object.getId());
+            dto.setCreatedAt(object.getCreatedAt());
+            dto.setCsarId(object.getCsarId().toString());
+            dto.setServiceTemplateId(object.getTemplateId().toString());
+            dto.setState(object.getState());
+
+            return dto;
+        }
     }
 }

@@ -1,4 +1,4 @@
-package org.opentosca.container.api.dto;
+package org.opentosca.container.api.dto.plan;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
