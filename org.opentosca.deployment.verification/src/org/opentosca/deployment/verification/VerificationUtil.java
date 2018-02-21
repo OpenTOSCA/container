@@ -1,10 +1,10 @@
 package org.opentosca.deployment.verification;
 
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -64,9 +64,7 @@ public abstract class VerificationUtil {
 
     public static synchronized <T> Map<String, String> map(final Set<T> nodes,
             final Function<? super T, ? extends Map<String, String>> mapper) {
-        final Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        map.putAll(nodes.stream().map(mapper).filter(Objects::nonNull).collect(TreeMap::new,
-                Map::putAll, Map::putAll));
-        return map;
+        return nodes.stream().map(mapper).filter(Objects::nonNull).collect(Hashtable::new,
+                Map::putAll, Map::putAll);
     }
 }

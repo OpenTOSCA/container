@@ -44,6 +44,11 @@ public class HttpTest implements TestExecutionPlugin {
             final NodeTemplateInstance nodeTemplateInstance,
             final AbstractPolicyTemplate policyTemplate) {
 
+        logger.debug(
+                "Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
+                this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
+                policyTemplate.getId());
+
         final VerificationResult result = new VerificationResult();
         result.setName(policyTemplate.getId());
         result.setNodeTemplateInstance(nodeTemplateInstance);

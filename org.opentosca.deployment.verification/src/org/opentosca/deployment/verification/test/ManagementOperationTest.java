@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import javax.xml.namespace.QName;
 
@@ -54,6 +55,11 @@ public class ManagementOperationTest implements TestExecutionPlugin {
             final NodeTemplateInstance nodeTemplateInstance,
             final AbstractPolicyTemplate policyTemplate) {
 
+        logger.debug(
+                "Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
+                this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
+                policyTemplate.getId());
+
         final VerificationResult result = new VerificationResult();
         result.setName(policyTemplate.getId());
         result.setNodeTemplateInstance(nodeTemplateInstance);
@@ -100,10 +106,20 @@ public class ManagementOperationTest implements TestExecutionPlugin {
         inputParameters.putAll(parsedInputParameters);
         logger.debug("Merged input parameters: {}", inputParameters);
 
+        /*
+         * Filter input parameters that only the required ones are submitted
+         */
+        final Set<String> requiredInputParameters =
+                getRequiredInputParameters(nodeTemplate.getType(), interfaceName, operationName);
+        final Map<String, Object> body = inputParameters.entrySet().stream()
+                .filter(e -> requiredInputParameters.contains(e.getKey()))
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+        logger.debug("Message body: {}", body);
+
         try {
             logger.debug("Invoke management operation...");
             final CompletableFuture<Map<String, String>> future =
-                    invoke(context, nodeTemplate, interfaceName, operationName, inputParameters);
+                    invoke(context, nodeTemplate, interfaceName, operationName, body);
             final Map<String, String> output = future.get();
             logger.debug("Received output: {}", output);
             output.entrySet().stream().forEach(e -> result.append(e.toString()));
@@ -120,7 +136,7 @@ public class ManagementOperationTest implements TestExecutionPlugin {
 
     private CompletableFuture<Map<String, String>> invoke(final VerificationContext context,
             final AbstractNodeTemplate nodeTemplate, final String interfaceName,
-            final String operationName, final Map<String, String> body) throws Exception {
+            final String operationName, final Map<String, Object> body) throws Exception {
 
         final Map<String, Object> headers = new HashMap<>();
         headers.put(MBHeader.CSARID.toString(), context.getServiceTemplateInstance().getCsarId());
@@ -141,6 +157,9 @@ public class ManagementOperationTest implements TestExecutionPlugin {
     }
 
     private Map<String, String> parseInputParameters(final String parameters) {
+        if (parameters == null) {
+            return new HashMap<>();
+        }
         final Type type = new TypeToken<Map<String, String>>() {}.getType();
         final Gson gson = new Gson();
         try {
@@ -153,6 +172,9 @@ public class ManagementOperationTest implements TestExecutionPlugin {
 
     private Map<String, String> resolveInputParameters(final String id,
             final VerificationContext context) {
+        if (id == null || context == null) {
+            return new HashMap<>();
+        }
         final Collection<AbstractNodeTemplate> nodeTemplates = context.getNodeTemplates();
         for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             if (nodeTemplate.getId().equals(id)) {
@@ -183,6 +205,27 @@ public class ManagementOperationTest implements TestExecutionPlugin {
                 "Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
                 operationName, interfaceName, nodeType.getId());
         return false;
+    }
+
+    private Set<String> getRequiredInputParameters(final AbstractNodeType nodeType,
+            final String interfaceName, final String operationName) {
+        for (AbstractInterface i : nodeType.getInterfaces()) {
+            if (i.getName().equals(interfaceName)) {
+                for (AbstractOperation o : i.getOperations()) {
+                    if (o.getName().equals(operationName)) {
+                        final Set<String> inputParameters = o.getInputParameters().stream()
+                                .map(p -> p.getName()).collect(Collectors.toSet());
+                        logger.debug("Required input parameters of operation \"{}\" ({}): {}",
+                                operationName, interfaceName, inputParameters);
+                        return inputParameters;
+                    }
+                }
+            }
+        }
+        logger.debug(
+                "Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
+                operationName, interfaceName, nodeType.getId());
+        return Sets.newHashSet();
     }
 
     @Override

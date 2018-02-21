@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -109,9 +108,7 @@ public class NodeTemplateInstance extends PersistenceObject {
                 this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
                         .collect(Collectors.reducing((a, b) -> null)).orElse(null);
         if (prop != null) {
-            final Map<String, String> properties = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            properties.putAll(parser.parse(prop.getValue()));
-            return properties;
+            return parser.parse(prop.getValue());
         }
         return null;
     }
