@@ -27,75 +27,68 @@ import org.opentosca.container.core.common.Settings;
  */
 public class InvocationRoute extends RouteBuilder {
 
-  private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-  private static final String PORT = "8086";
-  static final String BASE_ENDPOINT = HOST + ":" + PORT;
+    private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+    private static final String PORT = "8086";
+    static final String BASE_ENDPOINT = HOST + ":" + PORT;
 
-  public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
+    public static final String INVOKE_ENDPOINT = "/ManagementBus/v1/invoker";
 
-  public static final String ID = "id";
-  public static final String ID_PLACEHODLER = "{" + ID + "}";
-  public static final String POLL_ENDPOINT = INVOKE_ENDPOINT + "/activeRequests/" + ID_PLACEHODLER;
-  public static final String GET_RESULT_ENDPOINT = POLL_ENDPOINT + "/response";
+    public static final String ID = "id";
+    public static final String ID_PLACEHODLER = "{" + ID + "}";
+    public static final String POLL_ENDPOINT = INVOKE_ENDPOINT + "/activeRequests/" + ID_PLACEHODLER;
+    public static final String GET_RESULT_ENDPOINT = POLL_ENDPOINT + "/response";
 
-  // Management Bus Endpoints
-  private static final String MANAGEMENT_BUS_IA =
-      "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
-  private static final String MANAGEMENT_BUS_PLAN =
-      "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
+    // Management Bus Endpoints
+    private static final String MANAGEMENT_BUS_IA = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokeIA";
+    private static final String MANAGEMENT_BUS_PLAN = "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
 
-  private static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
+    private static final String MANAGEMENT_BUS_REQUEST_ID_HEADER = "ManagementBusRequestID";
 
 
-  @Override
-  public void configure() throws Exception {
+    @Override
+    public void configure() throws Exception {
 
-    // Checks if invoking a IA
-    final Predicate INVOKE_IA =
-        PredicateBuilder.or(this.header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
+        // Checks if invoking a IA
+        final Predicate INVOKE_IA = PredicateBuilder.or(
+            this.header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
             this.header(MBHeader.PLANID_QNAME.toString()).isNotNull());
-    // Checks if invoking a Plan
-    final Predicate INVOKE_PLAN = this.header(MBHeader.PLANID_QNAME.toString()).isNotNull();
+        // Checks if invoking a Plan
+        final Predicate INVOKE_PLAN = this.header(MBHeader.PLANID_QNAME.toString()).isNotNull();
 
-    final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
-    final InvocationResponseProcessor invocationResponseProcessor =
-        new InvocationResponseProcessor();
-    final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+        final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
+        final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
+        final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-    // handle exceptions
-    this.onException(Exception.class).handled(true)
-        .setBody(this.property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
+        // handle exceptions
+        this.onException(Exception.class).handled(true).setBody(this.property(Exchange.EXCEPTION_CAUGHT))
+            .process(exceptionProcessor);
 
-    // invoke main route
-    this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethods=post").doTry()
-        .process(invocationRequestProcessor).doCatch(Exception.class).end().choice()
-        .when(this.property(Exchange.EXCEPTION_CAUGHT).isNull()).to("direct:invoke").otherwise()
-        .to("direct:exception").end().removeHeaders("*");
+        // invoke main route
+        this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethods=post").doTry()
+            .process(invocationRequestProcessor).doCatch(Exception.class).end().choice()
+            .when(this.property(Exchange.EXCEPTION_CAUGHT).isNull()).to("direct:invoke").otherwise()
+            .to("direct:exception").end().removeHeaders("*");
 
-    // route if no exception was caught
-    this.from("direct:invoke")
-        .setHeader(MANAGEMENT_BUS_REQUEST_ID_HEADER, this.method(RequestID.class, "getNextID"))
-        .wireTap("direct:toManagementBus").end().to("direct:init")
-        .process(invocationResponseProcessor);
+        // route if no exception was caught
+        this.from("direct:invoke")
+            .setHeader(MANAGEMENT_BUS_REQUEST_ID_HEADER, this.method(RequestID.class, "getNextID"))
+            .wireTap("direct:toManagementBus").end().to("direct:init").process(invocationResponseProcessor);
 
-    // route in case an exception was caught
-    this.from("direct:exception").setBody(this.property(Exchange.EXCEPTION_CAUGHT))
-        .process(exceptionProcessor);
+        // route in case an exception was caught
+        this.from("direct:exception").setBody(this.property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
 
-    // set "isFinsihed"-flag to false for this request
-    this.from("direct:init")
-        .bean(QueueMap.class, "notFinished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
-        .setBody(this.simple("${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
+        // set "isFinsihed"-flag to false for this request
+        this.from("direct:init").bean(QueueMap.class, "notFinished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
+            .setBody(this.simple("${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}"));
 
-    // route to management bus engine
-    this.from("direct:toManagementBus").choice().when(INVOKE_IA).to(MANAGEMENT_BUS_IA)
-        .when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).end();
+        // route to management bus engine
+        this.from("direct:toManagementBus").choice().when(INVOKE_IA).to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN)
+            .to(MANAGEMENT_BUS_PLAN).end();
 
-    // invoke response route
-    this.from("direct-vm:" + Activator.apiID)
-        .bean(QueueMap.class, "finished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
-        .bean(ResultMap.class, "put(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}, ${body})")
-        .stop();
+        // invoke response route
+        this.from("direct-vm:" + Activator.apiID)
+            .bean(QueueMap.class, "finished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
+            .bean(ResultMap.class, "put(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "}, ${body})").stop();
 
-  }
+    }
 }

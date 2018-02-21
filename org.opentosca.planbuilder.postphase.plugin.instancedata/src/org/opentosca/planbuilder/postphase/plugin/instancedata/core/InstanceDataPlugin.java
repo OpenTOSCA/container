@@ -8,8 +8,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of
- * NodeTemplate Instances to the OpenTOSCA Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
+ * the OpenTOSCA Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -17,24 +17,25 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
-public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T>, IPlanBuilderPolicyAwarePrePhasePlugin<T> {
+public abstract class InstanceDataPlugin<T extends PlanContext> implements IPlanBuilderPostPhasePlugin<T>,
+                                        IPlanBuilderPolicyAwarePrePhasePlugin<T> {
 
-	private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
+    private static final String PLAN_ID = "OpenTOSCA InstanceData Post Phase Plugin";
 
-	@Override
-	public boolean canHandle(AbstractNodeTemplate nodeTemplate) {
-		// we can handle nodes
-		return true;
-	}
+    @Override
+    public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+        // we can handle nodes
+        return true;
+    }
 
-	@Override
-	public boolean canHandle(AbstractRelationshipTemplate relationshipTemplate) {
-		// we can't handle relations
-		return true;
-	}
+    @Override
+    public boolean canHandle(final AbstractRelationshipTemplate relationshipTemplate) {
+        // we can't handle relations
+        return true;
+    }
 
-	@Override
-	public String getID() {
-		return PLAN_ID;
-	}
+    @Override
+    public String getID() {
+        return PLAN_ID;
+    }
 }

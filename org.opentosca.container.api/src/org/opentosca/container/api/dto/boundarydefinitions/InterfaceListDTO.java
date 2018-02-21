@@ -14,14 +14,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @XmlRootElement(name = "InterfaceResources")
 public class InterfaceListDTO extends ResourceSupport {
-	
-	@JsonProperty
-	@XmlElement(name = "Interface")
-	@XmlElementWrapper(name = "Interfaces")
-	private final List<InterfaceDTO> interfaces = new ArrayList<>();
-	
-	
-	public void add(final InterfaceDTO... interfaces) {
-		this.interfaces.addAll(Arrays.asList(interfaces));
-	}
+
+    @JsonProperty
+    @XmlElement(name = "Interface")
+    @XmlElementWrapper(name = "Interfaces")
+    private final List<InterfaceDTO> interfaces = new ArrayList<>();
+
+
+    public void add(final InterfaceDTO... interfaces) {
+        this.interfaces.addAll(Arrays.asList(interfaces));
+    }
 }

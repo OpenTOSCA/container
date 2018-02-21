@@ -14,29 +14,28 @@ import javax.servlet.http.HttpServletResponse;
 public class CorsFilter implements Filter {
 
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse res = (HttpServletResponse) response;
+    @Override
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+        throws IOException, ServletException {
+        final HttpServletRequest req = (HttpServletRequest) request;
+        final HttpServletResponse res = (HttpServletResponse) response;
 
-		if (req.getHeader("Origin") != null) {
-			res.addHeader("Access-Control-Allow-Origin", "*");
-			res.addHeader("Access-Control-Expose-Headers", "Origin, Content-Type, X-Cache-Date, Location");
-		}
+        if (req.getHeader("Origin") != null) {
+            res.addHeader("Access-Control-Allow-Origin", "*");
+            res.addHeader("Access-Control-Expose-Headers", "Origin, Content-Type, X-Cache-Date, Location");
+        }
 
-		if ("OPTIONS".equals(req.getMethod())) {
-			res.addHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
-			res.addHeader("Access-Control-Allow-Headers", "Origin, Content-Type, X-Cache-Date, Location");
-			res.addHeader("Access-Control-Max-Age", "-1");
-		}
-		chain.doFilter(req, res);
-	}
+        if ("OPTIONS".equals(req.getMethod())) {
+            res.addHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
+            res.addHeader("Access-Control-Allow-Headers", "Origin, Content-Type, X-Cache-Date, Location");
+            res.addHeader("Access-Control-Max-Age", "-1");
+        }
+        chain.doFilter(req, res);
+    }
 
-	@Override
-	public void destroy() {
-	}
+    @Override
+    public void destroy() {}
 
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-	}
+    @Override
+    public void init(final FilterConfig filterConfig) throws ServletException {}
 }

@@ -14,48 +14,48 @@ import org.slf4j.LoggerFactory;
 /**
  * GetResultResponseProcessor of the Application Bus-JSON/HTTP-API.<br>
  * <br>
- * 
+ *
  * This processor handles the responses of "getResult" requests.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class GetResultResponseProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(GetResultResponseProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(GetResultResponseProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		GetResultResponseProcessor.LOG.debug("Processing GetResult response....");
+        GetResultResponseProcessor.LOG.debug("Processing GetResult response....");
 
-		String requestID = exchange.getIn().getHeader(Route.ID, String.class);
+        final String requestID = exchange.getIn().getHeader(Route.ID, String.class);
 
-		GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
+        GetResultResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-		Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-		if (exchange.getIn().getBody() instanceof Exception) {
+        if (exchange.getIn().getBody() instanceof Exception) {
 
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-		} else {
+        } else {
 
-			String result = exchange.getIn().getBody(String.class);
+            final String result = exchange.getIn().getBody(String.class);
 
-			JSONObject obj = new JSONObject();
-			obj.put("result", result);
+            final JSONObject obj = new JSONObject();
+            obj.put("result", result);
 
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+            response.setStatus(Status.SUCCESS_OK);
+            response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
 
-		}
+        }
 
-		exchange.getOut().setBody(response);
+        exchange.getOut().setBody(response);
 
-	}
+    }
 
 }

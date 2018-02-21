@@ -32,61 +32,68 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  *
  */
 public class MarketplaceServiceTemplateResource {
-	
-	UriInfo uriInfo;
-	
-	private final WineryConnector connector = new WineryConnector();
-	private final QName serviceTemplate;
-	
-	
-	public MarketplaceServiceTemplateResource(final QName qname) {
-		this.serviceTemplate = qname;
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getXMLString()).build();
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getJSONString()).build();
-	}
-	
-	public References getRefs() {
-		final References refs = new References();
-		
-		refs.getReference().add(new Reference(this.getWineryUri(), XLinkConstants.REFERENCE, this.serviceTemplate.toString()));
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
-		return refs;
-	}
-	
-	private String getWineryUri() {
-		final String encodedNamespace = Utilities.URLencode(Utilities.URLencode(this.serviceTemplate.getNamespaceURI()));
-		return Utilities.buildURI(this.connector.getWineryPath() + "servicetemplates/" + encodedNamespace, this.serviceTemplate.getLocalPart());
-	}
-	
-	@POST
-	public Response deploy(@Context final UriInfo uriInfo) throws MalformedURLException, IOException, URISyntaxException {
-		this.uriInfo = uriInfo;
-		// example url:
-		// http://localhost:8080/winery/servicetemplates/http%253A%252F%252Fopentosca.org%252Fdeclarative%252Fbpel/BPELStack/?csar
-		final String csarUrl = this.getWineryUri() + "/?csar";
-		
-		final InputStream inputStream = new URL(csarUrl).openConnection().getInputStream();
-		
-		final CSARsResource res = new CSARsResource();
-		
-		final CSARID csarId = res.storeCSAR(this.serviceTemplate.getLocalPart() + ".csar", inputStream);
-		
-		final String csarsResourcePath = this.uriInfo.getAbsolutePath().getScheme() + "://" + this.uriInfo.getAbsolutePath().getHost() + ":" + this.uriInfo.getAbsolutePath().getPort() + "/containerapi/CSARs/" + csarId.toString();
-		
-		return Response.created(URI.create(csarsResourcePath)).build();
-	}
-	
+
+    UriInfo uriInfo;
+
+    private final WineryConnector connector = new WineryConnector();
+    private final QName serviceTemplate;
+
+
+    public MarketplaceServiceTemplateResource(final QName qname) {
+        this.serviceTemplate = qname;
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getJSONString()).build();
+    }
+
+    public References getRefs() {
+        final References refs = new References();
+
+        refs.getReference()
+            .add(new Reference(this.getWineryUri(), XLinkConstants.REFERENCE, this.serviceTemplate.toString()));
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        return refs;
+    }
+
+    private String getWineryUri() {
+        final String encodedNamespace = Utilities.URLencode(
+            Utilities.URLencode(this.serviceTemplate.getNamespaceURI()));
+        return Utilities.buildURI(this.connector.getWineryPath() + "servicetemplates/" + encodedNamespace,
+            this.serviceTemplate.getLocalPart());
+    }
+
+    @POST
+    public Response deploy(@Context final UriInfo uriInfo)
+        throws MalformedURLException, IOException, URISyntaxException {
+        this.uriInfo = uriInfo;
+        // example url:
+        // http://localhost:8080/winery/servicetemplates/http%253A%252F%252Fopentosca.org%252Fdeclarative%252Fbpel/BPELStack/?csar
+        final String csarUrl = this.getWineryUri() + "/?csar";
+
+        final InputStream inputStream = new URL(csarUrl).openConnection().getInputStream();
+
+        final CSARsResource res = new CSARsResource();
+
+        final CSARID csarId = res.storeCSAR(this.serviceTemplate.getLocalPart() + ".csar", inputStream);
+
+        final String csarsResourcePath = this.uriInfo.getAbsolutePath().getScheme() + "://"
+            + this.uriInfo.getAbsolutePath().getHost() + ":" + this.uriInfo.getAbsolutePath().getPort()
+            + "/containerapi/CSARs/" + csarId.toString();
+
+        return Response.created(URI.create(csarsResourcePath)).build();
+    }
+
 }

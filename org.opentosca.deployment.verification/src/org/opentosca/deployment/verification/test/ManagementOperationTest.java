@@ -37,7 +37,7 @@ import com.google.gson.reflect.TypeToken;
 public class ManagementOperationTest implements TestExecutionPlugin {
 
     public static final QName ANNOTATION_MANAGEMENT_OPERATION_TEST = new QName(
-            "http://opentosca.org/policytypes/annotations/tests", "ManagementOperationTest");
+        "http://opentosca.org/policytypes/annotations/tests", "ManagementOperationTest");
 
     private static Logger logger = LoggerFactory.getLogger(ManagementOperationTest.class);
 
@@ -50,15 +50,12 @@ public class ManagementOperationTest implements TestExecutionPlugin {
     }
 
     @Override
-    public VerificationResult execute(final VerificationContext context,
-            final AbstractNodeTemplate nodeTemplate,
-            final NodeTemplateInstance nodeTemplateInstance,
-            final AbstractPolicyTemplate policyTemplate) {
+    public VerificationResult execute(final VerificationContext context, final AbstractNodeTemplate nodeTemplate,
+                    final NodeTemplateInstance nodeTemplateInstance, final AbstractPolicyTemplate policyTemplate) {
 
-        logger.debug(
-                "Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
-                this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
-                policyTemplate.getId());
+        logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
+            this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
+            policyTemplate.getId());
 
         final VerificationResult result = new VerificationResult();
         result.setName(policyTemplate.getId());
@@ -78,8 +75,7 @@ public class ManagementOperationTest implements TestExecutionPlugin {
          */
         final String interfaceName = inputProperties.get("InterfaceName");
         final String operationName = inputProperties.get("OperationName");
-        if (!checkInterfaceOperationSpecification(nodeTemplate.getType(), interfaceName,
-                operationName)) {
+        if (!checkInterfaceOperationSpecification(nodeTemplate.getType(), interfaceName, operationName)) {
             result.append("Wrong InterfaceName and/or OperationName specified");
             result.failed();
         }
@@ -87,15 +83,15 @@ public class ManagementOperationTest implements TestExecutionPlugin {
         /*
          * Try to resolve input parameters from given Node Templates
          */
-        final Map<String, String> resolvedInputParameters =
-                resolveInputParameters(inputProperties.get("ResolveInputParameters"), context);
+        final Map<String, String> resolvedInputParameters = resolveInputParameters(
+            inputProperties.get("ResolveInputParameters"), context);
         logger.debug("Resolved input parameters: {}", resolvedInputParameters);
 
         /*
          * Try to parse specified input parameters
          */
-        final Map<String, String> parsedInputParameters =
-                parseInputParameters(inputProperties.get("TestInputParameters"));
+        final Map<String, String> parsedInputParameters = parseInputParameters(
+            inputProperties.get("TestInputParameters"));
         logger.debug("Parsed input parameters: {}", parsedInputParameters);
 
         /*
@@ -109,22 +105,22 @@ public class ManagementOperationTest implements TestExecutionPlugin {
         /*
          * Filter input parameters that only the required ones are submitted
          */
-        final Set<String> requiredInputParameters =
-                getRequiredInputParameters(nodeTemplate.getType(), interfaceName, operationName);
+        final Set<String> requiredInputParameters = getRequiredInputParameters(nodeTemplate.getType(), interfaceName,
+            operationName);
         final Map<String, Object> body = inputParameters.entrySet().stream()
-                .filter(e -> requiredInputParameters.contains(e.getKey()))
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+                                                        .filter(e -> requiredInputParameters.contains(e.getKey()))
+                                                        .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
         logger.debug("Message body: {}", body);
 
         try {
             logger.debug("Invoke management operation...");
-            final CompletableFuture<Map<String, String>> future =
-                    invoke(context, nodeTemplate, interfaceName, operationName, body);
+            final CompletableFuture<Map<String, String>> future = invoke(context, nodeTemplate, interfaceName,
+                operationName, body);
             final Map<String, String> output = future.get();
             logger.debug("Received output: {}", output);
             output.entrySet().stream().forEach(e -> result.append(e.toString()));
             result.success();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error executing test: {}", e.getMessage(), e);
             result.append(String.format("Error executing test: " + e.getMessage()));
             result.failed();
@@ -135,25 +131,24 @@ public class ManagementOperationTest implements TestExecutionPlugin {
     }
 
     private CompletableFuture<Map<String, String>> invoke(final VerificationContext context,
-            final AbstractNodeTemplate nodeTemplate, final String interfaceName,
-            final String operationName, final Map<String, Object> body) throws Exception {
+                    final AbstractNodeTemplate nodeTemplate, final String interfaceName, final String operationName,
+                    final Map<String, Object> body)
+        throws Exception {
 
         final Map<String, Object> headers = new HashMap<>();
         headers.put(MBHeader.CSARID.toString(), context.getServiceTemplateInstance().getCsarId());
-        headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(),
-                context.getServiceTemplate().getQName());
+        headers.put(MBHeader.SERVICETEMPLATEID_QNAME.toString(), context.getServiceTemplate().getQName());
         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(),
-                new URI(String.valueOf(context.getServiceTemplateInstance().getId())));
+            new URI(String.valueOf(context.getServiceTemplateInstance().getId())));
         headers.put(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplate.getId());
         headers.put(MBHeader.NODEINSTANCEID_STRING.toString(),
-                String.valueOf(context.getNodeTemplateInstance(nodeTemplate).getId()));
+            String.valueOf(context.getNodeTemplateInstance(nodeTemplate).getId()));
         headers.put(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
         headers.put(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
         headers.put(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
         headers.put(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
 
-        return producer.asyncRequestBodyAndHeaders("direct:invokeIA", body, headers,
-                Types.generify(Map.class));
+        return this.producer.asyncRequestBodyAndHeaders("direct:invokeIA", body, headers, Types.generify(Map.class));
     }
 
     private Map<String, String> parseInputParameters(final String parameters) {
@@ -164,19 +159,18 @@ public class ManagementOperationTest implements TestExecutionPlugin {
         final Gson gson = new Gson();
         try {
             return gson.fromJson(parameters, type);
-        } catch (JsonSyntaxException e) {
+        } catch (final JsonSyntaxException e) {
             logger.error("Could not parse JSON: {}", e.getMessage(), e);
             return new HashMap<>();
         }
     }
 
-    private Map<String, String> resolveInputParameters(final String id,
-            final VerificationContext context) {
+    private Map<String, String> resolveInputParameters(final String id, final VerificationContext context) {
         if (id == null || context == null) {
             return new HashMap<>();
         }
         final Collection<AbstractNodeTemplate> nodeTemplates = context.getNodeTemplates();
-        for (AbstractNodeTemplate nodeTemplate : nodeTemplates) {
+        for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             if (nodeTemplate.getId().equals(id)) {
                 final NodeTemplateInstance instance = context.getNodeTemplateInstance(nodeTemplate);
                 final Set<NodeTemplateInstance> nodes = Sets.newHashSet(instance);
@@ -188,49 +182,46 @@ public class ManagementOperationTest implements TestExecutionPlugin {
         return new HashMap<>();
     }
 
-    private boolean checkInterfaceOperationSpecification(final AbstractNodeType nodeType,
-            final String interfaceName, final String operationName) {
-        for (AbstractInterface i : nodeType.getInterfaces()) {
+    private boolean checkInterfaceOperationSpecification(final AbstractNodeType nodeType, final String interfaceName,
+                    final String operationName) {
+        for (final AbstractInterface i : nodeType.getInterfaces()) {
             if (i.getName().equals(interfaceName)) {
-                for (AbstractOperation o : i.getOperations()) {
+                for (final AbstractOperation o : i.getOperations()) {
                     if (o.getName().equals(operationName)) {
-                        logger.debug("Found specified operation \"{}\" on interface \"{}\"",
-                                operationName, interfaceName);
+                        logger.debug("Found specified operation \"{}\" on interface \"{}\"", operationName,
+                            interfaceName);
                         return true;
                     }
                 }
             }
         }
-        logger.debug(
-                "Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
-                operationName, interfaceName, nodeType.getId());
+        logger.debug("Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
+            operationName, interfaceName, nodeType.getId());
         return false;
     }
 
-    private Set<String> getRequiredInputParameters(final AbstractNodeType nodeType,
-            final String interfaceName, final String operationName) {
-        for (AbstractInterface i : nodeType.getInterfaces()) {
+    private Set<String> getRequiredInputParameters(final AbstractNodeType nodeType, final String interfaceName,
+                    final String operationName) {
+        for (final AbstractInterface i : nodeType.getInterfaces()) {
             if (i.getName().equals(interfaceName)) {
-                for (AbstractOperation o : i.getOperations()) {
+                for (final AbstractOperation o : i.getOperations()) {
                     if (o.getName().equals(operationName)) {
-                        final Set<String> inputParameters = o.getInputParameters().stream()
-                                .map(p -> p.getName()).collect(Collectors.toSet());
-                        logger.debug("Required input parameters of operation \"{}\" ({}): {}",
-                                operationName, interfaceName, inputParameters);
+                        final Set<String> inputParameters = o.getInputParameters().stream().map(p -> p.getName())
+                                                             .collect(Collectors.toSet());
+                        logger.debug("Required input parameters of operation \"{}\" ({}): {}", operationName,
+                            interfaceName, inputParameters);
                         return inputParameters;
                     }
                 }
             }
         }
-        logger.debug(
-                "Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
-                operationName, interfaceName, nodeType.getId());
+        logger.debug("Could not find operation \"{}\" on interface \"{}\", not specified in Node Type {}",
+            operationName, interfaceName, nodeType.getId());
         return Sets.newHashSet();
     }
 
     @Override
-    public boolean canExecute(final AbstractNodeTemplate nodeTemplate,
-            final AbstractPolicyTemplate policyTemplate) {
+    public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
 
         if (policyTemplate.getType().getId().equals(ANNOTATION_MANAGEMENT_OPERATION_TEST)) {
             return true;

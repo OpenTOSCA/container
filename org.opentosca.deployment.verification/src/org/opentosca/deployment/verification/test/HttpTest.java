@@ -31,23 +31,20 @@ import com.google.common.collect.Sets;
 
 public class HttpTest implements TestExecutionPlugin {
 
-    public static final QName ANNOTATION_HTTP_TEST =
-            new QName("http://opentosca.org/policytypes/annotations/tests", "HttpTest");
-    public static final QName ANNOTATION_HTTPS_TEST =
-            new QName("http://opentosca.org/policytypes/annotations/tests", "HttpsTest");
+    public static final QName ANNOTATION_HTTP_TEST = new QName("http://opentosca.org/policytypes/annotations/tests",
+        "HttpTest");
+    public static final QName ANNOTATION_HTTPS_TEST = new QName("http://opentosca.org/policytypes/annotations/tests",
+        "HttpsTest");
 
     private static Logger logger = LoggerFactory.getLogger(HttpTest.class);
 
     @Override
-    public VerificationResult execute(final VerificationContext context,
-            final AbstractNodeTemplate nodeTemplate,
-            final NodeTemplateInstance nodeTemplateInstance,
-            final AbstractPolicyTemplate policyTemplate) {
+    public VerificationResult execute(final VerificationContext context, final AbstractNodeTemplate nodeTemplate,
+                    final NodeTemplateInstance nodeTemplateInstance, final AbstractPolicyTemplate policyTemplate) {
 
-        logger.debug(
-                "Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
-                this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
-                policyTemplate.getId());
+        logger.debug("Execute test \"{}\" for node template \"{}\" (instance={}) based on policy template \"{}\"",
+            this.getClass().getSimpleName(), nodeTemplate.getId(), nodeTemplateInstance.getId(),
+            policyTemplate.getId());
 
         final VerificationResult result = new VerificationResult();
         result.setName(policyTemplate.getId());
@@ -64,20 +61,19 @@ public class HttpTest implements TestExecutionPlugin {
         final Map<String, String> inputProperties = policyTemplate.getProperties().asMap();
         logger.debug("Input properties: {}", inputProperties);
         // TODO String testMethod = inputProperties.get("TestMethod");
-        String testPath = inputProperties.get("TestPath");
+        final String testPath = inputProperties.get("TestPath");
         // TODO String testHeader = inputProperties.get("TestHeader");
         // TODO String testBody = inputProperties.get("TestBody");
-        Integer expectedStatus = Integer.parseInt(inputProperties.get("ExpectedStatus"));
+        final Integer expectedStatus = Integer.parseInt(inputProperties.get("ExpectedStatus"));
         // TODO String expectedHeader = inputProperties.get("ExpectedHeader");
         // TODO String expectedBody = inputProperties.get("ExpectedBody");
-        String hostnameProperty = inputProperties.get("HostnamePropertyName");
+        final String hostnameProperty = inputProperties.get("HostnamePropertyName");
         String port = inputProperties.get("Port");
-        String portProperty = inputProperties.get("PortPropertyName");
+        final String portProperty = inputProperties.get("PortPropertyName");
 
         nodes = Sets.newHashSet(nodeTemplateInstance);
         VerificationUtil.resolveInfrastructureNodes(nodeTemplateInstance, context, nodes);
-        final Map<String, String> nodeProperties =
-                VerificationUtil.map(nodes, n -> n.getPropertiesAsMap());
+        final Map<String, String> nodeProperties = VerificationUtil.map(nodes, n -> n.getPropertiesAsMap());
         logger.debug("Node stack properties: {}", nodeProperties);
 
         /*
@@ -85,8 +81,7 @@ public class HttpTest implements TestExecutionPlugin {
          */
         final String hostname = nodeProperties.get(hostnameProperty);
         if (Strings.isNullOrEmpty(hostname)) {
-            result.append(String.format("Could not determine hostname by property \"%s\".",
-                    hostnameProperty));
+            result.append(String.format("Could not determine hostname by property \"%s\".", hostnameProperty));
             result.failed();
             return result;
         }
@@ -101,8 +96,7 @@ public class HttpTest implements TestExecutionPlugin {
             final Map<String, String> p = VerificationUtil.map(nodes, n -> n.getPropertiesAsMap());
             port = p.get(portProperty);
             if (Strings.isNullOrEmpty(port)) {
-                result.append(String.format("Could not determine port by property \"%s\".",
-                        portProperty));
+                result.append(String.format("Could not determine port by property \"%s\".", portProperty));
                 result.failed();
                 return result;
             }
@@ -122,14 +116,13 @@ public class HttpTest implements TestExecutionPlugin {
             final URL endpoint = new URL(url);
             final HttpURLConnection con = getConnection(endpoint, policyTemplate.getType().getId());
             con.setRequestMethod("GET");
-            int status = con.getResponseCode();
+            final int status = con.getResponseCode();
             con.disconnect();
             if (status != expectedStatus) {
-                result.append(String.format("Test failed: expected \"%s\" but was \"%s\".",
-                        expectedStatus, status));
+                result.append(String.format("Test failed: expected \"%s\" but was \"%s\".", expectedStatus, status));
                 result.failed();
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error executing test: {}", e.getMessage(), e);
             result.append("Error executing test: " + e.getMessage());
             result.failed();
@@ -140,13 +133,11 @@ public class HttpTest implements TestExecutionPlugin {
         return result;
     }
 
-    private HttpURLConnection getConnection(final URL url, final QName annotation)
-            throws Exception {
+    private HttpURLConnection getConnection(final URL url, final QName annotation) throws Exception {
         final HttpURLConnection connection;
         if (annotation.equals(ANNOTATION_HTTPS_TEST)) {
             final SSLContext ctx = SSLContext.getInstance("TLS");
-            ctx.init(new KeyManager[0], new TrustManager[] {new LaxTrustManager()},
-                    new SecureRandom());
+            ctx.init(new KeyManager[0], new TrustManager[] {new LaxTrustManager()}, new SecureRandom());
             SSLContext.setDefault(ctx);
             HttpsURLConnection.setDefaultSSLSocketFactory(ctx.getSocketFactory());
             final HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -162,11 +153,10 @@ public class HttpTest implements TestExecutionPlugin {
     }
 
     @Override
-    public boolean canExecute(final AbstractNodeTemplate nodeTemplate,
-            final AbstractPolicyTemplate policyTemplate) {
+    public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
 
         if (policyTemplate.getType().getId().equals(ANNOTATION_HTTP_TEST)
-                || policyTemplate.getType().getId().equals(ANNOTATION_HTTPS_TEST)) {
+            || policyTemplate.getType().getId().equals(ANNOTATION_HTTPS_TEST)) {
             return true;
         }
 
@@ -178,11 +168,11 @@ public class HttpTest implements TestExecutionPlugin {
     private static class LaxTrustManager implements X509TrustManager {
         @Override
         public void checkClientTrusted(final X509Certificate[] certificates, final String s)
-                throws CertificateException {}
+            throws CertificateException {}
 
         @Override
         public void checkServerTrusted(final X509Certificate[] certificates, final String s)
-                throws CertificateException {}
+            throws CertificateException {}
 
         @Override
         public X509Certificate[] getAcceptedIssuers() {

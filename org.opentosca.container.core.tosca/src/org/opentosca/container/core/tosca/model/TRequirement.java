@@ -19,11 +19,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tRequirement complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tRequirement">
  *   &lt;complexContent>
@@ -34,35 +33,35 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRequirement")
 public class TRequirement extends TEntityTemplate {
-	
-	@XmlAttribute(name = "name", required = true)
-	protected String name;
-	
-	
-	/**
-	 * Gets the value of the name property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getName() {
-		return this.name;
-	}
-	
-	/**
-	 * Sets the value of the name property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setName(String value) {
-		this.name = value;
-	}
-	
+
+    @XmlAttribute(name = "name", required = true)
+    protected String name;
+
+
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
+
 }

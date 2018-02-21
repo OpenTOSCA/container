@@ -98,15 +98,15 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
 
     /*
-     * Currently, the plan writes all properties as one XML document into the database. Therefore,
-     * we parse this XML and return a Map<String, String>.
+     * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+     * parse this XML and return a Map<String, String>.
      */
     @JsonProperty("properties")
     public Map<String, String> getPropertiesAsMap() {
         final PropertyParser parser = new PropertyParser();
-        final NodeTemplateInstanceProperty prop =
-                this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
-                        .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+        final NodeTemplateInstanceProperty prop = this.getProperties().stream()
+                                                      .filter(p -> p.getType().equalsIgnoreCase("xml"))
+                                                      .collect(Collectors.reducing((a, b) -> null)).orElse(null);
         if (prop != null) {
             return parser.parse(prop.getValue());
         }
@@ -128,8 +128,7 @@ public class NodeTemplateInstance extends PersistenceObject {
         return this.incomingRelations;
     }
 
-    public void setIncomingRelations(
-            final Collection<RelationshipTemplateInstance> incomingRelations) {
+    public void setIncomingRelations(final Collection<RelationshipTemplateInstance> incomingRelations) {
         this.incomingRelations = incomingRelations;
     }
 
@@ -144,8 +143,7 @@ public class NodeTemplateInstance extends PersistenceObject {
         return this.outgoingRelations;
     }
 
-    public void setOutgoingRelations(
-            final Collection<RelationshipTemplateInstance> outgoingRelations) {
+    public void setOutgoingRelations(final Collection<RelationshipTemplateInstance> outgoingRelations) {
         this.outgoingRelations = outgoingRelations;
     }
 
@@ -157,7 +155,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
 
     public QName getTemplateId() {
-        return templateId;
+        return this.templateId;
     }
 
     public void setTemplateId(final QName templateId) {
@@ -165,7 +163,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
 
     public QName getTemplateType() {
-        return templateType;
+        return this.templateType;
     }
 
     public void setTemplateType(final QName templateType) {
@@ -173,7 +171,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
 
     public List<VerificationResult> getVerificationResults() {
-        return verificationResults;
+        return this.verificationResults;
     }
 
     public void setVerificationResults(final List<VerificationResult> verificationResults) {

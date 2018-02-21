@@ -14,17 +14,17 @@ import com.google.common.collect.Lists;
 @XmlRootElement(name = "PlanInstanceResources")
 public class PlanInstanceListDTO extends ResourceSupport {
 
-	@JsonProperty
-	@XmlElement(name = "PlanInstance")
-	@XmlElementWrapper(name = "PlanInstances")
-	private final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "PlanInstance")
+    @XmlElementWrapper(name = "PlanInstances")
+    private final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
 
 
-	public void add(final PlanInstanceDTO... planInstances) {
-		this.planInstances.addAll(Arrays.asList(planInstances));
-	}
+    public void add(final PlanInstanceDTO... planInstances) {
+        this.planInstances.addAll(Arrays.asList(planInstances));
+    }
 
-	public void add(final Collection<PlanInstanceDTO> planInstances) {
-		this.planInstances.addAll(planInstances);
-	}
+    public void add(final Collection<PlanInstanceDTO> planInstances) {
+        this.planInstances.addAll(planInstances);
+    }
 }

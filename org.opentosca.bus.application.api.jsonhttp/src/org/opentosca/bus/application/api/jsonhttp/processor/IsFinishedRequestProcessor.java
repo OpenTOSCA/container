@@ -11,32 +11,32 @@ import org.slf4j.LoggerFactory;
 /**
  * IsFinishedRequestProcessor of the Application Bus-JSON/HTTP-API.<br>
  * <br>
- * 
+ *
  * This processor handles "isFinished" requests.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class IsFinishedRequestProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(IsFinishedRequestProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(IsFinishedRequestProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		IsFinishedRequestProcessor.LOG.debug("Processing IsFinished request....");
+        IsFinishedRequestProcessor.LOG.debug("Processing IsFinished request....");
 
-		Integer requestID = exchange.getIn().getHeader(Route.ID, Integer.class);
+        final Integer requestID = exchange.getIn().getHeader(Route.ID, Integer.class);
 
-		IsFinishedRequestProcessor.LOG.debug("RequestID: {}", requestID);
+        IsFinishedRequestProcessor.LOG.debug("RequestID: {}", requestID);
 
-		exchange.getIn().setBody(requestID);
+        exchange.getIn().setBody(requestID);
 
-		exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-				ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
+        exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
+            ApplicationBusConstants.APPLICATION_BUS_METHOD_IS_FINISHED.toString());
 
-	}
+    }
 
 }

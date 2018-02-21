@@ -9,48 +9,48 @@ import org.slf4j.LoggerFactory;
 
 public class PolicyTemplateImpl extends AbstractPolicyTemplate {
 
-  private static Logger logger = LoggerFactory.getLogger(PolicyTemplateImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(PolicyTemplateImpl.class);
 
-  private TPolicyTemplate policyTemplate;
-  private DefinitionsImpl defs;
+    private final TPolicyTemplate policyTemplate;
+    private final DefinitionsImpl defs;
 
-  public PolicyTemplateImpl(TPolicyTemplate element, DefinitionsImpl definitionsImpl) {
-    this.policyTemplate = element;
-    this.defs = definitionsImpl;
-  }
-
-  @Override
-  public String getName() {
-    return this.policyTemplate.getName();
-  }
-
-  @Override
-  public String getId() {
-    return this.policyTemplate.getId();
-  }
-
-  @Override
-  public AbstractPolicyType getType() {
-    if (this.policyTemplate == null) {
-      logger.debug("Internal policyTemplate is null");
+    public PolicyTemplateImpl(final TPolicyTemplate element, final DefinitionsImpl definitionsImpl) {
+        this.policyTemplate = element;
+        this.defs = definitionsImpl;
     }
-    if (this.policyTemplate.getType() == null) {
-      logger.debug("Internal policyTemplate type is null");
-    }
-    for (AbstractPolicyType policyType : this.defs.getAllPolicyTypes()) {
-      if (policyType.getId().equals(this.policyTemplate.getType())) {
-        return policyType;
-      }
-    }
-    return null;
-  }
 
-  @Override
-  public AbstractProperties getProperties() {
-    if (this.policyTemplate.getProperties() != null) {
-      return new PropertiesImpl(this.policyTemplate.getProperties().getAny());
-    } else {
-      return null;
+    @Override
+    public String getName() {
+        return this.policyTemplate.getName();
     }
-  }
+
+    @Override
+    public String getId() {
+        return this.policyTemplate.getId();
+    }
+
+    @Override
+    public AbstractPolicyType getType() {
+        if (this.policyTemplate == null) {
+            logger.debug("Internal policyTemplate is null");
+        }
+        if (this.policyTemplate.getType() == null) {
+            logger.debug("Internal policyTemplate type is null");
+        }
+        for (final AbstractPolicyType policyType : this.defs.getAllPolicyTypes()) {
+            if (policyType.getId().equals(this.policyTemplate.getType())) {
+                return policyType;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public AbstractProperties getProperties() {
+        if (this.policyTemplate.getProperties() != null) {
+            return new PropertiesImpl(this.policyTemplate.getProperties().getAny());
+        } else {
+            return null;
+        }
+    }
 }

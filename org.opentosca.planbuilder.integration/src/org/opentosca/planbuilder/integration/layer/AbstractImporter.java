@@ -35,9 +35,8 @@ public abstract class AbstractImporter {
      *        Document
      * @return a BuildPlan if generating a BuildPlan was successful, else null
      */
-    public AbstractPlan buildPlan(AbstractDefinitions defs, String csarName,
-            QName serviceTemplate) {
-        AbstractPlanBuilder planBuilder = new BPELBuildProcessBuilder();
+    public AbstractPlan buildPlan(final AbstractDefinitions defs, final String csarName, final QName serviceTemplate) {
+        final AbstractPlanBuilder planBuilder = new BPELBuildProcessBuilder();
         return planBuilder.buildPlan(csarName, defs, serviceTemplate);
     }
 
@@ -48,10 +47,10 @@ public abstract class AbstractImporter {
      * @param csarName the FileName of the CSAR the given Definitions is contained in
      * @return a List of Plans
      */
-    public List<AbstractPlan> buildPlans(AbstractDefinitions defs, String csarName) {
-        List<AbstractPlan> plans = new ArrayList<AbstractPlan>();
+    public List<AbstractPlan> buildPlans(final AbstractDefinitions defs, final String csarName) {
+        final List<AbstractPlan> plans = new ArrayList<>();
 
-        AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
+        final AbstractPlanBuilder buildPlanBuilder = new BPELBuildProcessBuilder();
 
         // FIXME: This does not work for me (Michael W. - 2018-02-19)
         // if (!this.hasPolicies(defs)) {
@@ -60,8 +59,8 @@ public abstract class AbstractImporter {
         // buildPlanBuilder = new PolicyAwareBPELBuildProcessBuilder();
         // }
 
-        AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
-        AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
+        final AbstractPlanBuilder terminationPlanBuilder = new BPELTerminationProcessBuilder();
+        final AbstractPlanBuilder scalingPlanBuilder = new BPELScaleOutProcessBuilder();
 
         plans.addAll(scalingPlanBuilder.buildPlans(csarName, defs));
         plans.addAll(buildPlanBuilder.buildPlans(csarName, defs));
@@ -69,10 +68,9 @@ public abstract class AbstractImporter {
         return plans;
     }
 
-    private boolean hasPolicies(AbstractDefinitions defs) {
-        for (AbstractServiceTemplate serv : defs.getServiceTemplates()) {
-            for (AbstractNodeTemplate nodeTemplate : serv.getTopologyTemplate()
-                    .getNodeTemplates()) {
+    private boolean hasPolicies(final AbstractDefinitions defs) {
+        for (final AbstractServiceTemplate serv : defs.getServiceTemplates()) {
+            for (final AbstractNodeTemplate nodeTemplate : serv.getTopologyTemplate().getNodeTemplates()) {
                 if (!nodeTemplate.getPolicies().isEmpty()) {
                     return true;
                 }

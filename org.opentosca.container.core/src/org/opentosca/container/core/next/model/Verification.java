@@ -25,91 +25,91 @@ import com.google.common.collect.Maps;
 @Table(name = Verification.TABLE_NAME)
 public class Verification extends PersistenceObject {
 
-  public static final String TABLE_NAME = "VERIFICATION";
+    public static final String TABLE_NAME = "VERIFICATION";
 
-  private static final long serialVersionUID = 4929775787088737689L;
+    private static final long serialVersionUID = 4929775787088737689L;
 
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp;
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp;
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private VerificationState state = VerificationState.UNKNOWN;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private VerificationState state = VerificationState.UNKNOWN;
 
-  @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "verification", cascade = {CascadeType.ALL})
-  private List<VerificationResult> verificationResults = Lists.newArrayList();
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "verification", cascade = {CascadeType.ALL})
+    private List<VerificationResult> verificationResults = Lists.newArrayList();
 
-  @ManyToOne
-  @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
-  @JsonIgnore
-  private ServiceTemplateInstance serviceTemplateInstance;
-
-
-  public Verification() {
-    this.timestamp = new Date();
-  }
+    @ManyToOne
+    @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
+    @JsonIgnore
+    private ServiceTemplateInstance serviceTemplateInstance;
 
 
-  @Override
-  @JsonIgnore
-  public Long getId() {
-    return super.getId();
-  }
-
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(final Date timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  public VerificationState getState() {
-    return state;
-  }
-
-  public void setState(final VerificationState state) {
-    this.state = state;
-  }
-
-  public List<VerificationResult> getVerificationResults() {
-    return verificationResults;
-  }
-
-  public void setVerificationResults(final List<VerificationResult> verificationResults) {
-    this.verificationResults = verificationResults;
-  }
-
-  public void addVerificationResult(final VerificationResult verificationResult) {
-    this.verificationResults.add(verificationResult);
-    if (verificationResult.getVerification() != this) {
-      verificationResult.setVerification(this);
+    public Verification() {
+        this.timestamp = new Date();
     }
-  }
 
-  public ServiceTemplateInstance getServiceTemplateInstance() {
-    return this.serviceTemplateInstance;
-  }
 
-  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
-    this.serviceTemplateInstance = serviceTemplateInstance;
-    if (!serviceTemplateInstance.getVerifications().contains(this)) {
-      serviceTemplateInstance.getVerifications().add(this);
+    @Override
+    @JsonIgnore
+    public Long getId() {
+        return super.getId();
     }
-  }
 
-  public Map<String, Object> getStatistics() {
-    final Map<String, Object> stats = Maps.newHashMap();
-    stats.put("total", this.verificationResults.size());
-    stats.put("success", this.countJobsByState(VerificationState.SUCCESS));
-    stats.put("failed", this.countJobsByState(VerificationState.FAILED));
-    stats.put("unknown", this.countJobsByState(VerificationState.UNKNOWN));
-    return stats;
-  }
+    public Date getTimestamp() {
+        return this.timestamp;
+    }
 
-  private long countJobsByState(final VerificationState state) {
-    return this.verificationResults.stream().filter(r -> r.getState().equals(state)).count();
-  }
+    public void setTimestamp(final Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public VerificationState getState() {
+        return this.state;
+    }
+
+    public void setState(final VerificationState state) {
+        this.state = state;
+    }
+
+    public List<VerificationResult> getVerificationResults() {
+        return this.verificationResults;
+    }
+
+    public void setVerificationResults(final List<VerificationResult> verificationResults) {
+        this.verificationResults = verificationResults;
+    }
+
+    public void addVerificationResult(final VerificationResult verificationResult) {
+        this.verificationResults.add(verificationResult);
+        if (verificationResult.getVerification() != this) {
+            verificationResult.setVerification(this);
+        }
+    }
+
+    public ServiceTemplateInstance getServiceTemplateInstance() {
+        return this.serviceTemplateInstance;
+    }
+
+    public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+        this.serviceTemplateInstance = serviceTemplateInstance;
+        if (!serviceTemplateInstance.getVerifications().contains(this)) {
+            serviceTemplateInstance.getVerifications().add(this);
+        }
+    }
+
+    public Map<String, Object> getStatistics() {
+        final Map<String, Object> stats = Maps.newHashMap();
+        stats.put("total", this.verificationResults.size());
+        stats.put("success", this.countJobsByState(VerificationState.SUCCESS));
+        stats.put("failed", this.countJobsByState(VerificationState.FAILED));
+        stats.put("unknown", this.countJobsByState(VerificationState.UNKNOWN));
+        return stats;
+    }
+
+    private long countJobsByState(final VerificationState state) {
+        return this.verificationResults.stream().filter(r -> r.getState().equals(state)).count();
+    }
 }

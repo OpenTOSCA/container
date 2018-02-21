@@ -18,27 +18,32 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
  */
 public abstract class VerificationUtil {
 
-    public static synchronized void resolveInfrastructureNodes(
-            final NodeTemplateInstance nodeTemplateInstance, final VerificationContext context,
-            final Set<NodeTemplateInstance> nodes) {
+    public static synchronized void resolveInfrastructureNodes(final NodeTemplateInstance nodeTemplateInstance,
+                    final VerificationContext context, final Set<NodeTemplateInstance> nodes) {
 
-        List<RelationshipTemplateInstance> outgoingRelations =
-                nodeTemplateInstance.getOutgoingRelations().stream()
-                        .filter(r -> r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-                                || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)
-                                || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_HOSTEDON))
-                        .collect(Collectors.toList());
+        final List<RelationshipTemplateInstance> outgoingRelations = nodeTemplateInstance.getOutgoingRelations()
+                                                                                         .stream()
+                                                                                         .filter(r -> r
+                                                                                                       .getTemplateType()
+                                                                                                       .equals(
+                                                                                                           ModelUtils.TOSCABASETYPE_DEPENDSON)
+                                                                                             || r.getTemplateType()
+                                                                                                 .equals(
+                                                                                                     ModelUtils.TOSCABASETYPE_DEPLOYEDON)
+                                                                                             || r.getTemplateType()
+                                                                                                 .equals(
+                                                                                                     ModelUtils.TOSCABASETYPE_HOSTEDON))
+                                                                                         .collect(Collectors.toList());
 
-        for (RelationshipTemplateInstance r : outgoingRelations) {
+        for (final RelationshipTemplateInstance r : outgoingRelations) {
 
             final NodeTemplateInstance target = r.getTarget();
             final AbstractNodeTemplate targetTemplate = context.getNodeTemplate(target);
 
-            if (org.opentosca.container.core.tosca.convention.Utils
-                    .isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(targetTemplate))
-                    || org.opentosca.container.core.tosca.convention.Utils
-                            .isSupportedCloudProviderNodeType(
-                                    ModelUtils.getNodeBaseType(targetTemplate))) {
+            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(
+                ModelUtils.getNodeBaseType(targetTemplate))
+                || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(
+                    ModelUtils.getNodeBaseType(targetTemplate))) {
                 nodes.add(target);
             }
 
@@ -46,16 +51,20 @@ public abstract class VerificationUtil {
         }
     }
 
-    public static synchronized void resolveChildNodes(
-            final NodeTemplateInstance nodeTemplateInstance, final VerificationContext context,
-            final Set<NodeTemplateInstance> nodes) {
+    public static synchronized void resolveChildNodes(final NodeTemplateInstance nodeTemplateInstance,
+                    final VerificationContext context, final Set<NodeTemplateInstance> nodes) {
         // Only follow deployedOn and hostedOn relations
-        List<RelationshipTemplateInstance> outgoingRelations =
-                nodeTemplateInstance.getOutgoingRelations().stream()
-                        .filter(r -> r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)
-                                || r.getTemplateType().equals(ModelUtils.TOSCABASETYPE_HOSTEDON))
-                        .collect(Collectors.toList());
-        for (RelationshipTemplateInstance r : outgoingRelations) {
+        final List<RelationshipTemplateInstance> outgoingRelations = nodeTemplateInstance.getOutgoingRelations()
+                                                                                         .stream()
+                                                                                         .filter(
+                                                                                             r -> r.getTemplateType()
+                                                                                                   .equals(
+                                                                                                       ModelUtils.TOSCABASETYPE_DEPLOYEDON)
+                                                                                                 || r.getTemplateType()
+                                                                                                     .equals(
+                                                                                                         ModelUtils.TOSCABASETYPE_HOSTEDON))
+                                                                                         .collect(Collectors.toList());
+        for (final RelationshipTemplateInstance r : outgoingRelations) {
             final NodeTemplateInstance target = r.getTarget();
             nodes.add(target);
             resolveChildNodes(target, context, nodes);
@@ -63,8 +72,7 @@ public abstract class VerificationUtil {
     }
 
     public static synchronized <T> Map<String, String> map(final Set<T> nodes,
-            final Function<? super T, ? extends Map<String, String>> mapper) {
-        return nodes.stream().map(mapper).filter(Objects::nonNull).collect(Hashtable::new,
-                Map::putAll, Map::putAll);
+                    final Function<? super T, ? extends Map<String, String>> mapper) {
+        return nodes.stream().map(mapper).filter(Objects::nonNull).collect(Hashtable::new, Map::putAll, Map::putAll);
     }
 }

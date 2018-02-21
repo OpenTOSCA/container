@@ -8,47 +8,47 @@ import java.io.Serializable;
 // TODO: Rename to CsarId
 public class CSARID implements Comparable<CSARID>, Serializable {
 
-	private static final long serialVersionUID = 1889149925607823116L;
+    private static final long serialVersionUID = 1889149925607823116L;
 
-	protected String fileName;
+    protected String fileName;
 
 
-	protected CSARID() {
+    protected CSARID() {
 
-	}
-	
-	public CSARID(final String fileName) {
-		this.fileName = fileName;
-	}
+    }
 
-	public String getFileName() {
-		return this.fileName;
-	}
+    public CSARID(final String fileName) {
+        this.fileName = fileName;
+    }
 
-	public void setFileName(final String fileName) {
-		this.fileName = fileName;
-	}
-	
-	@Override
-	public String toString() {
-		return this.getFileName();
-	}
+    public String getFileName() {
+        return this.fileName;
+    }
 
-	@Override
-	public int compareTo(final CSARID csarID) {
-		return this.toString().compareTo(csarID.toString());
-	}
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
+    }
 
-	@Override
-	public boolean equals(final Object id) {
-		if (id instanceof CSARID) {
-			return this.toString().equals(((CSARID) id).toString());
-		}
-		return false;
-	}
+    @Override
+    public String toString() {
+        return this.getFileName();
+    }
 
-	@Override
-	public int hashCode() {
-		return this.toString().hashCode();
-	}
+    @Override
+    public int compareTo(final CSARID csarID) {
+        return this.toString().compareTo(csarID.toString());
+    }
+
+    @Override
+    public boolean equals(final Object id) {
+        if (id instanceof CSARID) {
+            return this.toString().equals(((CSARID) id).toString());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.toString().hashCode();
+    }
 }

@@ -18,7 +18,7 @@ public class VerificationContext {
 
 
     public AbstractServiceTemplate getServiceTemplate() {
-        return serviceTemplate;
+        return this.serviceTemplate;
     }
 
     public void setServiceTemplate(final AbstractServiceTemplate serviceTemplate) {
@@ -45,12 +45,11 @@ public class VerificationContext {
     }
 
     public Verification getVerification() {
-        return verification;
+        return this.verification;
     }
 
-    public synchronized void setVerificationResults(
-            final List<VerificationResult> verificationResults) {
-        if (verification == null) {
+    public synchronized void setVerificationResults(final List<VerificationResult> verificationResults) {
+        if (this.verification == null) {
             throw new IllegalStateException();
         }
         verificationResults.stream().forEach(this.verification::addVerificationResult);
@@ -73,17 +72,15 @@ public class VerificationContext {
         return this.serviceTemplateInstance.getNodeTemplateInstances();
     }
 
-    public synchronized AbstractNodeTemplate getNodeTemplate(
-            final NodeTemplateInstance nodeTemplateInstance) {
+    public synchronized AbstractNodeTemplate getNodeTemplate(final NodeTemplateInstance nodeTemplateInstance) {
         return this.getNodeTemplates().stream()
-                .filter(o -> o.getType().getId().equals(nodeTemplateInstance.getTemplateType()))
-                .findFirst().orElseThrow(IllegalStateException::new);
+                   .filter(o -> o.getType().getId().equals(nodeTemplateInstance.getTemplateType())).findFirst()
+                   .orElseThrow(IllegalStateException::new);
     }
 
-    public synchronized NodeTemplateInstance getNodeTemplateInstance(
-            final AbstractNodeTemplate nodeTemplate) {
+    public synchronized NodeTemplateInstance getNodeTemplateInstance(final AbstractNodeTemplate nodeTemplate) {
         return this.getNodeTemplateInstances().stream()
-                .filter(o -> o.getTemplateId().getLocalPart().equals(nodeTemplate.getId()))
-                .findFirst().orElseThrow(IllegalStateException::new);
+                   .filter(o -> o.getTemplateId().getLocalPart().equals(nodeTemplate.getId())).findFirst()
+                   .orElseThrow(IllegalStateException::new);
     }
 }

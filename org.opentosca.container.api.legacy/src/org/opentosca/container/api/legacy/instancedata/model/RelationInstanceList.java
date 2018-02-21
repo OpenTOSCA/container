@@ -19,55 +19,55 @@ import com.google.gson.JsonObject;
 @XmlType(propOrder = {"selfLink", "links"})
 public class RelationInstanceList {
 
-	private List<SimpleXLink> links;
+    private List<SimpleXLink> links;
 
-	private SimpleXLink selfLink;
-	
-	
-	public RelationInstanceList() {
+    private SimpleXLink selfLink;
 
-	}
 
-	public RelationInstanceList(final SimpleXLink selfLink, final List<SimpleXLink> links) {
-		super();
-		this.selfLink = selfLink;
-		this.links = links;
-	}
+    public RelationInstanceList() {
 
-	@XmlElement(name = "self")
-	public SimpleXLink getSelfLink() {
-		return this.selfLink;
-	}
+    }
 
-	public void setSelfLink(final SimpleXLink selfLink) {
-		this.selfLink = selfLink;
-	}
+    public RelationInstanceList(final SimpleXLink selfLink, final List<SimpleXLink> links) {
+        super();
+        this.selfLink = selfLink;
+        this.links = links;
+    }
 
-	@XmlElement(name = "link")
-	@XmlElementWrapper(name = "nodeinstances")
-	public List<SimpleXLink> getLinks() {
-		return this.links;
-	}
+    @XmlElement(name = "self")
+    public SimpleXLink getSelfLink() {
+        return this.selfLink;
+    }
 
-	public void setLinks(final List<SimpleXLink> links) {
-		this.links = links;
-	}
+    public void setSelfLink(final SimpleXLink selfLink) {
+        this.selfLink = selfLink;
+    }
 
-	public String toJSON() {
+    @XmlElement(name = "link")
+    @XmlElementWrapper(name = "nodeinstances")
+    public List<SimpleXLink> getLinks() {
+        return this.links;
+    }
 
-		final JsonObject ret = new JsonObject();
-		final JsonArray refs = new JsonArray();
+    public void setLinks(final List<SimpleXLink> links) {
+        this.links = links;
+    }
 
-		for (final SimpleXLink ref : this.links) {
-			final JsonObject obj = new JsonObject();
-			obj.addProperty("type", ref.getType());
-			obj.addProperty("href", ref.getHref());
-			obj.addProperty("title", ref.getTitle());
-			refs.add(obj);
-		}
-		ret.add("References", refs);
+    public String toJSON() {
 
-		return ret.toString();
-	}
+        final JsonObject ret = new JsonObject();
+        final JsonArray refs = new JsonArray();
+
+        for (final SimpleXLink ref : this.links) {
+            final JsonObject obj = new JsonObject();
+            obj.addProperty("type", ref.getType());
+            obj.addProperty("href", ref.getHref());
+            obj.addProperty("title", ref.getTitle());
+            refs.add(obj);
+        }
+        ret.add("References", refs);
+
+        return ret.toString();
+    }
 
 }

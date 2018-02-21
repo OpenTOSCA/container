@@ -47,235 +47,229 @@ import com.google.common.collect.Lists;
 
 public class PlanController {
 
-  private static Logger logger = LoggerFactory.getLogger(PlanController.class);
+    private static Logger logger = LoggerFactory.getLogger(PlanController.class);
 
-  private final PlanService planService;
-  private final InstanceService instanceService;
+    private final PlanService planService;
+    private final InstanceService instanceService;
 
-  private final CSARID csarId;
-  private final QName serviceTemplate;
-  private final Integer serviceTemplateInstanceId;
+    private final CSARID csarId;
+    private final QName serviceTemplate;
+    private final Integer serviceTemplateInstanceId;
 
-  private final List<PlanTypes> planTypes = Lists.newArrayList();
+    private final List<PlanTypes> planTypes = Lists.newArrayList();
 
 
-  public PlanController(final CSARID csarId, final QName serviceTemplate,
-      final Integer serviceTemplateInstanceId, final PlanService planService,
-      final InstanceService instanceService, final PlanTypes... planTypes) {
-    this.csarId = csarId;
-    this.serviceTemplate = serviceTemplate;
-    this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-    this.planService = planService;
-    this.instanceService = instanceService;
-    this.planTypes.addAll(Arrays.asList(planTypes));
-  }
-
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getPlans(@Context final UriInfo uriInfo) {
-
-    final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
-    logger.debug("Found <{}> plans for ServiceTemplate \"{}\" in CSAR \"{}\"", buildPlans.size(),
-        this.serviceTemplate, this.csarId);
-
-    final PlanListDTO list = new PlanListDTO();
-    buildPlans.stream().forEach(p -> {
-      final PlanDTO plan = new PlanDTO(p);
-      plan.add(
-          Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
-              .rel("self").build());
-      list.add(plan);
-    });
-    list.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
-
-    return Response.ok(list).build();
-  }
-
-  @GET
-  @Path("/{plan}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getPlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo) {
-
-    final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
-    logger.debug("Found <{}> plans for ServiceTemplate \"{}\" in CSAR \"{}\"", buildPlans.size(),
-        this.serviceTemplate, this.csarId);
-
-    final TPlan p = this.planService.getPlan(plan, this.csarId);
-
-    if (p == null) {
-      logger.info("Plan \"" + plan + "\" of ServiceTemplate \"" + this.serviceTemplate
-          + "\" in CSAR \"" + this.csarId + "\" not found");
-      throw new NotFoundException("Plan \"" + plan + "\" of ServiceTemplate \""
-          + this.serviceTemplate + "\" in CSAR \"" + this.csarId + "\" not found");
+    public PlanController(final CSARID csarId, final QName serviceTemplate, final Integer serviceTemplateInstanceId,
+                          final PlanService planService, final InstanceService instanceService,
+                          final PlanTypes... planTypes) {
+        this.csarId = csarId;
+        this.serviceTemplate = serviceTemplate;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+        this.planService = planService;
+        this.instanceService = instanceService;
+        this.planTypes.addAll(Arrays.asList(planTypes));
     }
 
-    final PlanDTO dto = new PlanDTO(p);
-    dto.add(
-        Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
-            .rel("instances").build());
-    dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
-    return Response.ok(dto).build();
-  }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPlans(@Context final UriInfo uriInfo) {
 
-  @GET
-  @Path("/{plan}/instances")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getPlanInstances(@PathParam("plan") final String plan,
-      @Context final UriInfo uriInfo) {
+        final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
+        logger.debug("Found <{}> plans for ServiceTemplate \"{}\" in CSAR \"{}\"", buildPlans.size(),
+            this.serviceTemplate, this.csarId);
 
-    if (!this.planService.hasPlan(this.csarId, this.planTypes, plan)) {
-      logger.info("Plan \"" + plan + "\" could not be found");
-      throw new NotFoundException("Plan \"" + plan + "\" could not be found");
+        final PlanListDTO list = new PlanListDTO();
+        buildPlans.stream().forEach(p -> {
+            final PlanDTO plan = new PlanDTO(p);
+            plan.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
+                         .rel("self").build());
+            list.add(plan);
+        });
+        list.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+
+        return Response.ok(list).build();
     }
 
-    ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+    @GET
+    @Path("/{plan}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo) {
 
-    final Collection<ServiceTemplateInstance> serviceInstances;
-    if (this.serviceTemplateInstanceId != null) {
-      serviceInstances = Lists.newArrayList();
-      serviceInstances.add(repo.find(Long.valueOf(this.serviceTemplateInstanceId)).get());
-    } else {
-      serviceInstances = repo.findByCsarId(csarId);
+        final List<TPlan> buildPlans = this.planService.getPlansByType(this.planTypes, this.csarId);
+        logger.debug("Found <{}> plans for ServiceTemplate \"{}\" in CSAR \"{}\"", buildPlans.size(),
+            this.serviceTemplate, this.csarId);
+
+        final TPlan p = this.planService.getPlan(plan, this.csarId);
+
+        if (p == null) {
+            logger.info("Plan \"" + plan + "\" of ServiceTemplate \"" + this.serviceTemplate + "\" in CSAR \""
+                + this.csarId + "\" not found");
+            throw new NotFoundException("Plan \"" + plan + "\" of ServiceTemplate \"" + this.serviceTemplate
+                + "\" in CSAR \"" + this.csarId + "\" not found");
+        }
+
+        final PlanDTO dto = new PlanDTO(p);
+        dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path("instances").build()))
+                    .rel("instances").build());
+        dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+        return Response.ok(dto).build();
     }
 
+    @GET
+    @Path("/{plan}/instances")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPlanInstances(@PathParam("plan") final String plan, @Context final UriInfo uriInfo) {
 
-    final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
-    for (ServiceTemplateInstance sti : serviceInstances) {
-      List<PlanInstanceDTO> foo = sti.getPlanInstances().stream()
-          .filter(p -> !this.planTypes
-              .contains(PlanTypes.isPlanTypeEnumRepresentation(p.getType().toString())))
-          .map(p -> new PlanInstanceDTO(p)).collect(Collectors.toList());
-      planInstances.addAll(foo);
+        if (!this.planService.hasPlan(this.csarId, this.planTypes, plan)) {
+            logger.info("Plan \"" + plan + "\" could not be found");
+            throw new NotFoundException("Plan \"" + plan + "\" could not be found");
+        }
+
+        final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+
+        final Collection<ServiceTemplateInstance> serviceInstances;
+        if (this.serviceTemplateInstanceId != null) {
+            serviceInstances = Lists.newArrayList();
+            serviceInstances.add(repo.find(Long.valueOf(this.serviceTemplateInstanceId)).get());
+        } else {
+            serviceInstances = repo.findByCsarId(this.csarId);
+        }
+
+
+        final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
+        for (final ServiceTemplateInstance sti : serviceInstances) {
+            final List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(
+                p -> !this.planTypes.contains(PlanTypes.isPlanTypeEnumRepresentation(p.getType().toString())))
+                                                 .map(p -> new PlanInstanceDTO(p)).collect(Collectors.toList());
+            planInstances.addAll(foo);
+        }
+
+        for (final PlanInstanceDTO pi : planInstances) {
+
+            // Add service template instance link
+            final Long id = pi.getServiceTemplateInstance().getId();
+            if (id != null) {
+                final URI uri = uriInfo.getBaseUriBuilder()
+                                       .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
+                                       .build(this.csarId.toString(), this.serviceTemplate.toString(),
+                                           String.valueOf(id));
+                pi.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
+            }
+
+            // Add self link
+            pi.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(pi.getId()).build())).rel("self")
+                       .build());
+        }
+
+        final PlanInstanceListDTO list = new PlanInstanceListDTO();
+
+        list.add(planInstances);
+        list.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+
+        return Response.ok(list).build();
     }
 
-    for (final PlanInstanceDTO pi : planInstances) {
+    @POST
+    @Path("/{plan}/instances")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response invokePlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo,
+                    final List<TParameter> parameters) {
 
-      // Add service template instance link
-      final Long id = pi.getServiceTemplateInstance().getId();
-      if (id != null) {
-        final URI uri = uriInfo.getBaseUriBuilder()
-            .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-            .build(this.csarId.toString(), this.serviceTemplate.toString(), String.valueOf(id));
-        pi.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
-      }
+        if (parameters == null) {
+            return Response.status(Status.BAD_REQUEST).build();
+        }
 
-      // Add self link
-      pi.add(
-          Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(pi.getId()).build()))
-              .rel("self").build());
+        if (!this.planService.hasPlan(this.csarId, this.planTypes, plan)) {
+            logger.info("Plan \"" + plan + "\" could not be found");
+            throw new NotFoundException("Plan \"" + plan + "\" could not be found");
+        }
+
+        logger.info("Received a payload for plan \"{}\" in ServiceTemplate \"{}\" of CSAR \"{}\"", plan,
+            this.serviceTemplate, this.csarId);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Request payload:\n{}", JsonUtil.writeValueAsString(parameters));
+        }
+
+        /*
+         * Add paramater "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
+         */
+        if (this.serviceTemplateInstanceId != null) {
+            String url = Settings.CONTAINER_INSTANCEDATA_API + this.serviceTemplateInstanceId;
+            url = url.replace("{csarid}", this.csarId.getFileName());
+            url = url.replace("{servicetemplateid}",
+                UriComponent.encode(this.serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
+            final URI uri = UriUtils.encode(URI.create(url));
+            final TParameter param = new TParameter();
+            param.setName("OpenTOSCAContainerAPIServiceInstanceID");
+            param.setRequired(TBoolean.fromValue("yes"));
+            param.setType("String");
+            param.setValue(uri.toString());
+            parameters.add(param);
+        }
+
+        final TPlan p = this.planService.getPlan(plan, this.csarId);
+        final String correlationId = this.planService.invokePlan(this.csarId, this.serviceTemplate, p, parameters,
+            this.planTypes.contains(PlanTypes.BUILD));
+        final URI location = UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
+        return Response.created(location).build();
     }
 
-    final PlanInstanceListDTO list = new PlanInstanceListDTO();
+    @GET
+    @Path("/{plan}/instances/{instance}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPlanInstance(@PathParam("plan") final String plan, @PathParam("instance") final String instance,
+                    @Context final UriInfo uriInfo) {
 
-    list.add(planInstances);
-    list.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+        if (!this.planService.hasPlan(this.csarId, this.planTypes, plan)) {
+            logger.info("Plan \"" + plan + "\" could not be found");
+            throw new NotFoundException("Plan \"" + plan + "\" could not be found");
+        }
 
-    return Response.ok(list).build();
-  }
+        final PlanInstanceRepository repository = new PlanInstanceRepository();
+        final PlanInstance pi = repository.findByCorrelationId(instance);
+        if (pi == null) {
+            return Response.status(Status.NOT_FOUND).entity("Plan instance '" + instance + "' not found").build();
+        }
 
-  @POST
-  @Path("/{plan}/instances")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response invokePlan(@PathParam("plan") final String plan, @Context final UriInfo uriInfo,
-      final List<TParameter> parameters) {
+        // if (!this.planService.hasPlanInstance(instance)) {
+        // logger.info("Plan instance \"" + instance + "\" could not be found");
+        // throw new NotFoundException("Plan instance \"" + instance + "\" could not be found");
+        // }
+        //
+        // final List<ServiceInstance> serviceInstances;
+        // if (this.serviceTemplateInstanceId != null) {
+        // serviceInstances = Lists.newArrayList();
+        // serviceInstances.add(this.instanceService.getServiceTemplateInstance(
+        // this.serviceTemplateInstanceId, this.csarId, this.serviceTemplate));
+        // } else {
+        // serviceInstances =
+        // this.instanceService.getServiceTemplateInstances(this.csarId, this.serviceTemplate);
+        // }
+        // final List<PlanInstanceDTO> planInstances =
+        // this.planService.getPlanInstances(serviceInstances, this.planTypes);
+        //
+        // final Optional<PlanInstanceDTO> pio =
+        // planInstances.stream().filter(p -> p.getId().equals(instance)).findFirst();
+        // if (!pio.isPresent()) {
+        // logger.info("Plan instance \"" + instance + "\" could not be found");
+        // throw new NotFoundException("Plan instance \"" + instance + "\" could not be found");
+        // }
 
-    if (parameters == null) {
-      return Response.status(Status.BAD_REQUEST).build();
+        final PlanInstanceDTO dto = new PlanInstanceDTO(pi);
+
+        // Add service template instance link
+        final Long id = pi.getServiceTemplateInstance().getId();
+        if (id != null) {
+            final URI uri = uriInfo.getBaseUriBuilder()
+                                   .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
+                                   .build(this.csarId.toString(), this.serviceTemplate.toString(), String.valueOf(id));
+            dto.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
+        }
+
+        // Add self link
+        dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
+
+        return Response.ok(dto).build();
     }
-
-    if (!this.planService.hasPlan(this.csarId, this.planTypes, plan)) {
-      logger.info("Plan \"" + plan + "\" could not be found");
-      throw new NotFoundException("Plan \"" + plan + "\" could not be found");
-    }
-
-    logger.info("Received a payload for plan \"{}\" in ServiceTemplate \"{}\" of CSAR \"{}\"", plan,
-        this.serviceTemplate, this.csarId);
-    if (logger.isDebugEnabled()) {
-      logger.debug("Request payload:\n{}", JsonUtil.writeValueAsString(parameters));
-    }
-
-    /*
-     * Add paramater "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
-     */
-    if (this.serviceTemplateInstanceId != null) {
-      String url = Settings.CONTAINER_INSTANCEDATA_API + this.serviceTemplateInstanceId;
-      url = url.replace("{csarid}", this.csarId.getFileName());
-      url = url.replace("{servicetemplateid}",
-          UriComponent.encode(this.serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
-      final URI uri = UriUtils.encode(URI.create(url));
-      final TParameter param = new TParameter();
-      param.setName("OpenTOSCAContainerAPIServiceInstanceID");
-      param.setRequired(TBoolean.fromValue("yes"));
-      param.setType("String");
-      param.setValue(uri.toString());
-      parameters.add(param);
-    }
-
-    final TPlan p = this.planService.getPlan(plan, this.csarId);
-    final String correlationId = this.planService.invokePlan(this.csarId, this.serviceTemplate, p,
-        parameters, planTypes.contains(PlanTypes.BUILD));
-    final URI location =
-        UriUtils.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
-    return Response.created(location).build();
-  }
-
-  @GET
-  @Path("/{plan}/instances/{instance}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getPlanInstance(@PathParam("plan") final String plan,
-      @PathParam("instance") final String instance, @Context final UriInfo uriInfo) {
-
-    if (!this.planService.hasPlan(this.csarId, this.planTypes, plan)) {
-      logger.info("Plan \"" + plan + "\" could not be found");
-      throw new NotFoundException("Plan \"" + plan + "\" could not be found");
-    }
-
-    PlanInstanceRepository repository = new PlanInstanceRepository();
-    PlanInstance pi = repository.findByCorrelationId(instance);
-    if (pi == null) {
-      return Response.status(Status.NOT_FOUND).entity("Plan instance '" + instance + "' not found")
-          .build();
-    }
-
-    // if (!this.planService.hasPlanInstance(instance)) {
-    // logger.info("Plan instance \"" + instance + "\" could not be found");
-    // throw new NotFoundException("Plan instance \"" + instance + "\" could not be found");
-    // }
-    //
-    // final List<ServiceInstance> serviceInstances;
-    // if (this.serviceTemplateInstanceId != null) {
-    // serviceInstances = Lists.newArrayList();
-    // serviceInstances.add(this.instanceService.getServiceTemplateInstance(
-    // this.serviceTemplateInstanceId, this.csarId, this.serviceTemplate));
-    // } else {
-    // serviceInstances =
-    // this.instanceService.getServiceTemplateInstances(this.csarId, this.serviceTemplate);
-    // }
-    // final List<PlanInstanceDTO> planInstances =
-    // this.planService.getPlanInstances(serviceInstances, this.planTypes);
-    //
-    // final Optional<PlanInstanceDTO> pio =
-    // planInstances.stream().filter(p -> p.getId().equals(instance)).findFirst();
-    // if (!pio.isPresent()) {
-    // logger.info("Plan instance \"" + instance + "\" could not be found");
-    // throw new NotFoundException("Plan instance \"" + instance + "\" could not be found");
-    // }
-
-    final PlanInstanceDTO dto = new PlanInstanceDTO(pi);
-
-    // Add service template instance link
-    final Long id = pi.getServiceTemplateInstance().getId();
-    if (id != null) {
-      final URI uri = uriInfo.getBaseUriBuilder()
-          .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/{instance}")
-          .build(this.csarId.toString(), this.serviceTemplate.toString(), String.valueOf(id));
-      dto.add(Link.fromUri(UriUtils.encode(uri)).rel("service_template_instance").build());
-    }
-
-    // Add self link
-    dto.add(Link.fromUri(UriUtils.encode(uriInfo.getAbsolutePath())).rel("self").build());
-
-    return Response.ok(dto).build();
-  }
 }

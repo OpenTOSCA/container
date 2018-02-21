@@ -42,135 +42,144 @@ import org.slf4j.LoggerFactory;
  */
 public class DirectoryResource {
 
-	private static Logger LOG = LoggerFactory.getLogger(DirectoryResource.class);
-	
-	private final AbstractDirectory CSAR_DIRECTORY;
-	private final CSARID CSAR_ID;
-	
-	UriInfo uriInfo;
+    private static Logger LOG = LoggerFactory.getLogger(DirectoryResource.class);
+
+    private final AbstractDirectory CSAR_DIRECTORY;
+    private final CSARID CSAR_ID;
+
+    UriInfo uriInfo;
 
 
-	/**
-	 *
-	 *
-	 * @param resourceFile
-	 */
-	public DirectoryResource(final AbstractDirectory csarDirectory, final CSARID csarID) {
-		this.CSAR_DIRECTORY = csarDirectory;
-		this.CSAR_ID = csarID;
-		DirectoryResource.LOG.info("{} created: {}", this.getClass(), this);
-		DirectoryResource.LOG.info("Directory path: {}", csarDirectory.getPath());
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getReferences().getXMLString()).build();
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getReferences().getJSONString()).build();
-	}
-	
-	public References getReferences() {
-		
-		if (this.CSAR_DIRECTORY == null) {
-			return null;
-		}
-		
-		final References refs = new References();
-		
-		// References refs = new References();
-		
-		final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
-		for (final AbstractDirectory directory : directories) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, directory.getName()), XLinkConstants.SIMPLE, directory.getName()));
-		}
-		
-		final Set<AbstractFile> files = this.CSAR_DIRECTORY.getFiles();
-		for (final AbstractFile file : files) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, file.getName()), XLinkConstants.SIMPLE, file.getName()));
-		}
-		
-		final Reference self = new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF);
-		refs.getReference().add(self);
-		return refs;
-		
-	}
-	
-	@Path("{directoryOrFile}")
-	public Object getDirectoryOrFile(@PathParam("directoryOrFile") String directoryOrFile) {
-		
-		directoryOrFile = Utilities.URLencode(directoryOrFile);
-		DirectoryResource.LOG.debug("Checking if \"{}\" exists in directory \"{}\" of CSAR \"{}\"...", directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+    /**
+     *
+     *
+     * @param resourceFile
+     */
+    public DirectoryResource(final AbstractDirectory csarDirectory, final CSARID csarID) {
+        this.CSAR_DIRECTORY = csarDirectory;
+        this.CSAR_ID = csarID;
+        DirectoryResource.LOG.info("{} created: {}", this.getClass(), this);
+        DirectoryResource.LOG.info("Directory path: {}", csarDirectory.getPath());
+    }
 
-		final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
-		
-		for (final AbstractDirectory directory : directories) {
-			if (directory.getName().equals(directoryOrFile)) {
-				DirectoryResource.LOG.debug("\"{}\" is a directory in directory \"{}\" of CSAR \"{}\".", directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
-				return new DirectoryResource(directory, this.CSAR_ID);
-			}
-		}
-		
-		final Set<AbstractFile> files = this.CSAR_DIRECTORY.getFiles();
-		
-		for (final AbstractFile file : files) {
-			if (file.getName().equals(directoryOrFile)) {
-				DirectoryResource.LOG.debug("\"{}\" is a file in directory \"{}\" of CSAR \"{}\".", directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
-				return new FileResource(file, this.CSAR_ID);
-			}
-		}
-		
-		DirectoryResource.LOG.warn("\"{}\" does not exist in directory \"{}\" of CSAR \"{}\".", directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
-		return null;
-		
-	}
-	
-	/**
-	 * Moves this directory of a CSAR to the active / default storage provider
-	 * if {@code move} is passed in {@code input} (body of a POST message).
-	 *
-	 * @param input
-	 * @return 200 (OK) - directory was moved successful.<br />
-	 *         400 (bad request) - {@code move} was not passed.<br />
-	 *         500 (internal server error) - moving directory failed.
-	 * @throws SystemException
-	 * @throws UserException
-	 *
-	 *
-	 * @see ICoreFileService#moveFileOrDirectoryOfCSAR(CSARID, File)
-	 */
-	@POST
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response moveDirectoryOfCSAR(final String input) throws UserException, SystemException {
-		
-		if (input.equalsIgnoreCase("move")) {
-			
-			// try {
-			
-			FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(this.CSAR_ID, Paths.get(this.CSAR_DIRECTORY.getPath()));
-			
-			return Response.ok("Moving directory \"" + this.CSAR_DIRECTORY.getPath() + "\" of CSAR \"" + this.CSAR_ID.toString() + "\" was successful.").build();
-			
-			// } catch (UserException exc) {
-			// CSARDirectoryResource.LOG.warn("An User Exception occured.",
-			// exc);
-			// } catch (SystemException exc) {
-			// CSARDirectoryResource.LOG.warn("An System Exception occured.",
-			// exc);
-			// }
-			//
-			// return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-			
-		}
-		
-		return Response.status(Status.BAD_REQUEST).build();
-		
-	}
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getJSONString()).build();
+    }
+
+    public References getReferences() {
+
+        if (this.CSAR_DIRECTORY == null) {
+            return null;
+        }
+
+        final References refs = new References();
+
+        // References refs = new References();
+
+        final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
+        for (final AbstractDirectory directory : directories) {
+            refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, directory.getName()),
+                XLinkConstants.SIMPLE, directory.getName()));
+        }
+
+        final Set<AbstractFile> files = this.CSAR_DIRECTORY.getFiles();
+        for (final AbstractFile file : files) {
+            refs.getReference().add(
+                new Reference(Utilities.buildURI(this.uriInfo, file.getName()), XLinkConstants.SIMPLE, file.getName()));
+        }
+
+        final Reference self = new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE,
+            XLinkConstants.SELF);
+        refs.getReference().add(self);
+        return refs;
+
+    }
+
+    @Path("{directoryOrFile}")
+    public Object getDirectoryOrFile(@PathParam("directoryOrFile") String directoryOrFile) {
+
+        directoryOrFile = Utilities.URLencode(directoryOrFile);
+        DirectoryResource.LOG.debug("Checking if \"{}\" exists in directory \"{}\" of CSAR \"{}\"...", directoryOrFile,
+            this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+
+        final Set<AbstractDirectory> directories = this.CSAR_DIRECTORY.getDirectories();
+
+        for (final AbstractDirectory directory : directories) {
+            if (directory.getName().equals(directoryOrFile)) {
+                DirectoryResource.LOG.debug("\"{}\" is a directory in directory \"{}\" of CSAR \"{}\".",
+                    directoryOrFile, this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+                return new DirectoryResource(directory, this.CSAR_ID);
+            }
+        }
+
+        final Set<AbstractFile> files = this.CSAR_DIRECTORY.getFiles();
+
+        for (final AbstractFile file : files) {
+            if (file.getName().equals(directoryOrFile)) {
+                DirectoryResource.LOG.debug("\"{}\" is a file in directory \"{}\" of CSAR \"{}\".", directoryOrFile,
+                    this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+                return new FileResource(file, this.CSAR_ID);
+            }
+        }
+
+        DirectoryResource.LOG.warn("\"{}\" does not exist in directory \"{}\" of CSAR \"{}\".", directoryOrFile,
+            this.CSAR_DIRECTORY.getPath(), this.CSAR_ID);
+        return null;
+
+    }
+
+    /**
+     * Moves this directory of a CSAR to the active / default storage provider if {@code move} is passed
+     * in {@code input} (body of a POST message).
+     *
+     * @param input
+     * @return 200 (OK) - directory was moved successful.<br />
+     *         400 (bad request) - {@code move} was not passed.<br />
+     *         500 (internal server error) - moving directory failed.
+     * @throws SystemException
+     * @throws UserException
+     *
+     *
+     * @see ICoreFileService#moveFileOrDirectoryOfCSAR(CSARID, File)
+     */
+    @POST
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response moveDirectoryOfCSAR(final String input) throws UserException, SystemException {
+
+        if (input.equalsIgnoreCase("move")) {
+
+            // try {
+
+            FileRepositoryServiceHandler.getFileHandler().moveFileOrDirectoryOfCSAR(this.CSAR_ID,
+                Paths.get(this.CSAR_DIRECTORY.getPath()));
+
+            return Response.ok("Moving directory \"" + this.CSAR_DIRECTORY.getPath() + "\" of CSAR \""
+                + this.CSAR_ID.toString() + "\" was successful.").build();
+
+            // } catch (UserException exc) {
+            // CSARDirectoryResource.LOG.warn("An User Exception occured.",
+            // exc);
+            // } catch (SystemException exc) {
+            // CSARDirectoryResource.LOG.warn("An System Exception occured.",
+            // exc);
+            // }
+            //
+            // return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+
+        }
+
+        return Response.status(Status.BAD_REQUEST).build();
+
+    }
 }

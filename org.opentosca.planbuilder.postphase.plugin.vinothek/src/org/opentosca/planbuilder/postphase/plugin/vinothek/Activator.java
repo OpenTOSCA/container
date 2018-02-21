@@ -20,33 +20,31 @@ public class Activator implements BundleActivator {
     private ServiceRegistration<?> registration;
 
     static BundleContext getContext() {
-	return Activator.context;
+        return Activator.context;
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
+     *
+     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
      */
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
-	Activator.context = bundleContext;
-	this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(),
-		new BPELVinothekPlugin(), null);
+    public void start(final BundleContext bundleContext) throws Exception {
+        Activator.context = bundleContext;
+        this.registration = Activator.context.registerService(IPlanBuilderPostPhasePlugin.class.getName(),
+            new BPELVinothekPlugin(), null);
 
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     *
+     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	Activator.context = null;
-	this.registration.unregister();
+    public void stop(final BundleContext bundleContext) throws Exception {
+        Activator.context = null;
+        this.registration.unregister();
     }
 
 }

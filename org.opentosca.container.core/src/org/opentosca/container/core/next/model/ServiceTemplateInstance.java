@@ -93,8 +93,7 @@ public class ServiceTemplateInstance extends PersistenceObject {
         return this.nodeTemplateInstances;
     }
 
-    public void setNodeTemplateInstances(
-            final Collection<NodeTemplateInstance> nodeTemplateInstances) {
+    public void setNodeTemplateInstances(final Collection<NodeTemplateInstance> nodeTemplateInstances) {
         this.nodeTemplateInstances = nodeTemplateInstances;
     }
 
@@ -106,18 +105,18 @@ public class ServiceTemplateInstance extends PersistenceObject {
     }
 
     public CSARID getCsarId() {
-        return csarId;
+        return this.csarId;
     }
 
-    public void setCsarId(CSARID csarId) {
+    public void setCsarId(final CSARID csarId) {
         this.csarId = csarId;
     }
 
     public QName getTemplateId() {
-        return templateId;
+        return this.templateId;
     }
 
-    public void setTemplateId(QName templateId) {
+    public void setTemplateId(final QName templateId) {
         this.templateId = templateId;
     }
 
@@ -140,15 +139,15 @@ public class ServiceTemplateInstance extends PersistenceObject {
     }
 
     /*
-     * Currently, the plan writes all properties as one XML document into the database. Therefore,
-     * we parse this XML and return a Map<String, String>.
+     * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+     * parse this XML and return a Map<String, String>.
      */
     @JsonProperty("properties")
     public Map<String, String> getPropertiesAsMap() {
         final PropertyParser parser = new PropertyParser();
-        final ServiceTemplateInstanceProperty prop =
-                this.getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
-                        .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+        final ServiceTemplateInstanceProperty prop = this.getProperties().stream()
+                                                         .filter(p -> p.getType().equalsIgnoreCase("xml"))
+                                                         .collect(Collectors.reducing((a, b) -> null)).orElse(null);
         if (prop != null) {
             return parser.parse(prop.getValue());
         }

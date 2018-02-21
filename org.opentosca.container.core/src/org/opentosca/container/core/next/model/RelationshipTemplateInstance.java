@@ -23,100 +23,100 @@ import com.google.common.collect.Sets;
 @Table(name = RelationshipTemplateInstance.TABLE_NAME)
 public class RelationshipTemplateInstance extends PersistenceObject {
 
-  private static final long serialVersionUID = -2035127822277983705L;
+    private static final long serialVersionUID = -2035127822277983705L;
 
-  public static final String TABLE_NAME = "RELATIONSHIP_TEMPLATE_INSTANCE";
+    public static final String TABLE_NAME = "RELATIONSHIP_TEMPLATE_INSTANCE";
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private RelationshipTemplateInstanceState state;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RelationshipTemplateInstanceState state;
 
-  @OrderBy("createdAt DESC")
-  @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
-  private Set<RelationshipTemplateInstanceProperty> properties = Sets.newHashSet();
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
+    private Set<RelationshipTemplateInstanceProperty> properties = Sets.newHashSet();
 
-  @ManyToOne
-  @JoinColumn(name = "SOURCE_ID")
-  private NodeTemplateInstance source;
+    @ManyToOne
+    @JoinColumn(name = "SOURCE_ID")
+    private NodeTemplateInstance source;
 
-  @ManyToOne
-  @JoinColumn(name = "TARGET_ID")
-  private NodeTemplateInstance target;
+    @ManyToOne
+    @JoinColumn(name = "TARGET_ID")
+    private NodeTemplateInstance target;
 
-  @Convert("QNameConverter")
-  @Column(name = "TEMPLATE_ID", nullable = false)
-  private QName templateId;
+    @Convert("QNameConverter")
+    @Column(name = "TEMPLATE_ID", nullable = false)
+    private QName templateId;
 
-  @Convert("QNameConverter")
-  @Column(name = "TEMPLATE_TYPE", nullable = false)
-  private QName templateType;
+    @Convert("QNameConverter")
+    @Column(name = "TEMPLATE_TYPE", nullable = false)
+    private QName templateType;
 
 
-  public RelationshipTemplateInstance() {
+    public RelationshipTemplateInstance() {
 
-  }
-
-  public RelationshipTemplateInstanceState getState() {
-    return this.state;
-  }
-
-  public void setState(final RelationshipTemplateInstanceState state) {
-    this.state = state;
-  }
-
-  public Collection<RelationshipTemplateInstanceProperty> getProperties() {
-    return this.properties;
-  }
-
-  public void setProperties(final Set<RelationshipTemplateInstanceProperty> properties) {
-    this.properties = properties;
-  }
-
-  public void addProperty(final RelationshipTemplateInstanceProperty property) {
-    if (!this.properties.add(property)) {
-      this.properties.remove(property);
-      this.properties.add(property);
     }
-    if (property.getRelationshipTemplateInstance() != this) {
-      property.setRelationshipTemplateInstance(this);
+
+    public RelationshipTemplateInstanceState getState() {
+        return this.state;
     }
-  }
 
-  public NodeTemplateInstance getSource() {
-    return this.source;
-  }
-
-  public void setSource(final NodeTemplateInstance source) {
-    this.source = source;
-    if (!source.getOutgoingRelations().contains(this)) {
-      source.getOutgoingRelations().add(this);
+    public void setState(final RelationshipTemplateInstanceState state) {
+        this.state = state;
     }
-  }
 
-  public NodeTemplateInstance getTarget() {
-    return this.target;
-  }
-
-  public void setTarget(final NodeTemplateInstance target) {
-    this.target = target;
-    if (!target.getIncomingRelations().contains(this)) {
-      target.getIncomingRelations().add(this);
+    public Collection<RelationshipTemplateInstanceProperty> getProperties() {
+        return this.properties;
     }
-  }
 
-  public QName getTemplateId() {
-    return templateId;
-  }
+    public void setProperties(final Set<RelationshipTemplateInstanceProperty> properties) {
+        this.properties = properties;
+    }
 
-  public void setTemplateId(QName templateId) {
-    this.templateId = templateId;
-  }
+    public void addProperty(final RelationshipTemplateInstanceProperty property) {
+        if (!this.properties.add(property)) {
+            this.properties.remove(property);
+            this.properties.add(property);
+        }
+        if (property.getRelationshipTemplateInstance() != this) {
+            property.setRelationshipTemplateInstance(this);
+        }
+    }
 
-  public QName getTemplateType() {
-    return templateType;
-  }
+    public NodeTemplateInstance getSource() {
+        return this.source;
+    }
 
-  public void setTemplateType(QName templateType) {
-    this.templateType = templateType;
-  }
+    public void setSource(final NodeTemplateInstance source) {
+        this.source = source;
+        if (!source.getOutgoingRelations().contains(this)) {
+            source.getOutgoingRelations().add(this);
+        }
+    }
+
+    public NodeTemplateInstance getTarget() {
+        return this.target;
+    }
+
+    public void setTarget(final NodeTemplateInstance target) {
+        this.target = target;
+        if (!target.getIncomingRelations().contains(this)) {
+            target.getIncomingRelations().add(this);
+        }
+    }
+
+    public QName getTemplateId() {
+        return this.templateId;
+    }
+
+    public void setTemplateId(final QName templateId) {
+        this.templateId = templateId;
+    }
+
+    public QName getTemplateType() {
+        return this.templateType;
+    }
+
+    public void setTemplateType(final QName templateType) {
+        this.templateType = templateType;
+    }
 }

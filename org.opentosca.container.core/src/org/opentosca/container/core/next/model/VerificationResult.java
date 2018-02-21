@@ -49,8 +49,8 @@ public class VerificationResult extends PersistenceObject {
 
     @ManyToOne
     @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID")
-    @JsonIgnoreProperties({"state", "service_template_instance", "incoming_relations",
-            "outgoing_relations", "properties"})
+    @JsonIgnoreProperties({"state", "service_template_instance", "incoming_relations", "outgoing_relations",
+                           "properties"})
     private NodeTemplateInstance nodeTemplateInstance;
 
 
@@ -64,7 +64,7 @@ public class VerificationResult extends PersistenceObject {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(final String name) {
@@ -72,7 +72,7 @@ public class VerificationResult extends PersistenceObject {
     }
 
     public Date getStart() {
-        return start;
+        return this.start;
     }
 
     public void setStart(final Date start) {
@@ -80,7 +80,7 @@ public class VerificationResult extends PersistenceObject {
     }
 
     public Date getEnd() {
-        return end;
+        return this.end;
     }
 
     public void setEnd(final Date end) {
@@ -88,7 +88,7 @@ public class VerificationResult extends PersistenceObject {
     }
 
     public VerificationState getState() {
-        return state;
+        return this.state;
     }
 
     public void setState(final VerificationState state) {
@@ -96,7 +96,7 @@ public class VerificationResult extends PersistenceObject {
     }
 
     public String getOutput() {
-        return output;
+        return this.output;
     }
 
     public void setOutput(final String output) {
@@ -104,7 +104,7 @@ public class VerificationResult extends PersistenceObject {
     }
 
     public Verification getVerification() {
-        return verification;
+        return this.verification;
     }
 
     public void setVerification(final Verification verification) {
@@ -133,8 +133,7 @@ public class VerificationResult extends PersistenceObject {
         if (this.output == null) {
             this.output = output;
         } else {
-            this.output =
-                    new StringBuilder(this.output).append(Consts.NL).append(output).toString();
+            this.output = new StringBuilder(this.output).append(Consts.NL).append(output).toString();
         }
     }
 
@@ -156,7 +155,7 @@ public class VerificationResult extends PersistenceObject {
 
     @Override
     public String toString() {
-        return "[duration=" + (end.getTime() - start.getTime()) + ", state=" + state + ", output="
-                + output + "]";
+        return "[duration=" + (this.end.getTime() - this.start.getTime()) + ", state=" + this.state + ", output="
+            + this.output + "]";
     }
 }

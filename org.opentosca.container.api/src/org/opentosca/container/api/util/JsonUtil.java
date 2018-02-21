@@ -7,23 +7,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 public final class JsonUtil {
-	
-	private static ObjectMapper objectMapper = ObjectMapperProvider.createDefaultMapper();
 
-	static {
-		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-	}
-	
-	
-	public static <T> String writeValueAsString(final T object) {
-		try {
-			return objectMapper.writeValueAsString(object);
-		} catch (final JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private JsonUtil() {
-		throw new UnsupportedOperationException();
-	}
+    private static ObjectMapper objectMapper = ObjectMapperProvider.createDefaultMapper();
+
+    static {
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }
+
+
+    public static <T> String writeValueAsString(final T object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (final JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private JsonUtil() {
+        throw new UnsupportedOperationException();
+    }
 }

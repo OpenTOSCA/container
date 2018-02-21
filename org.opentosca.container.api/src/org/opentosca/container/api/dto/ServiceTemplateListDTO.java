@@ -13,13 +13,13 @@ import com.google.common.collect.Lists;
 @XmlRootElement(name = "ServiceTemplateResources")
 public class ServiceTemplateListDTO extends ResourceSupport {
 
-	@JsonProperty
-	@XmlElement(name = "ServiceTemplate")
-	@XmlElementWrapper(name = "ServiceTemplates")
-	private final List<ServiceTemplateDTO> serviceTemplates = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "ServiceTemplate")
+    @XmlElementWrapper(name = "ServiceTemplates")
+    private final List<ServiceTemplateDTO> serviceTemplates = Lists.newArrayList();
 
 
-	public void add(final ServiceTemplateDTO... serviceTemplates) {
-		this.serviceTemplates.addAll(Arrays.asList(serviceTemplates));
-	}
+    public void add(final ServiceTemplateDTO... serviceTemplates) {
+        this.serviceTemplates.addAll(Arrays.asList(serviceTemplates));
+    }
 }

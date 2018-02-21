@@ -18,45 +18,45 @@ import com.google.gson.JsonObject;
 @XmlRootElement(name = "InstanceDataAPI")
 public class InstanceDataEntry {
 
-	private final String version = "0.1";
+    private final String version = "0.1";
 
-	private List<SimpleXLink> links = new LinkedList<>();
-	
-	
-	protected InstanceDataEntry() {
-		super();
-	}
+    private List<SimpleXLink> links = new LinkedList<>();
 
-	public InstanceDataEntry(final List<SimpleXLink> links) {
-		super();
-		this.links = links;
-	}
 
-	@XmlAttribute(name = "version", required = true)
-	public String getVersion() {
-		return this.version;
-	}
+    protected InstanceDataEntry() {
+        super();
+    }
 
-	@XmlElement(name = "Link")
-	public List<SimpleXLink> getLinks() {
-		return this.links;
-	}
+    public InstanceDataEntry(final List<SimpleXLink> links) {
+        super();
+        this.links = links;
+    }
 
-	public String toJSON() {
+    @XmlAttribute(name = "version", required = true)
+    public String getVersion() {
+        return this.version;
+    }
 
-		final JsonObject ret = new JsonObject();
-		final JsonArray refs = new JsonArray();
+    @XmlElement(name = "Link")
+    public List<SimpleXLink> getLinks() {
+        return this.links;
+    }
 
-		for (final SimpleXLink ref : this.links) {
-			final JsonObject obj = new JsonObject();
-			obj.addProperty("type", ref.getType());
-			obj.addProperty("href", ref.getHref());
-			obj.addProperty("title", ref.getTitle());
-			refs.add(obj);
-		}
-		ret.add("References", refs);
+    public String toJSON() {
 
-		return ret.toString();
-	}
+        final JsonObject ret = new JsonObject();
+        final JsonArray refs = new JsonArray();
+
+        for (final SimpleXLink ref : this.links) {
+            final JsonObject obj = new JsonObject();
+            obj.addProperty("type", ref.getType());
+            obj.addProperty("href", ref.getHref());
+            obj.addProperty("title", ref.getTitle());
+            refs.add(obj);
+        }
+        ret.add("References", refs);
+
+        return ret.toString();
+    }
 
 }

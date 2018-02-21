@@ -8,10 +8,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 
 public interface TestExecutionPlugin {
 
-  VerificationResult execute(final VerificationContext context,
-      final AbstractNodeTemplate nodeTemplate, final NodeTemplateInstance nodeTemplateInstance,
-      final AbstractPolicyTemplate policyTemplate);
+    VerificationResult execute(final VerificationContext context, final AbstractNodeTemplate nodeTemplate,
+                    final NodeTemplateInstance nodeTemplateInstance, final AbstractPolicyTemplate policyTemplate);
 
-  boolean canExecute(final AbstractNodeTemplate nodeTemplate,
-      final AbstractPolicyTemplate policyTemplate);
+    boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate);
 }

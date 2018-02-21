@@ -16,26 +16,24 @@ import org.slf4j.LoggerFactory;
  */
 public class XMLSerializerFactory implements IXMLSerializerFactory {
 
-	final private static Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
+    final private static Logger LOG = LoggerFactory.getLogger(XMLSerializer.class);
 
 
-	public XMLSerializerFactory() {
-		XMLSerializerFactory.LOG.debug("Initialize the SerializerFactory.");
-	}
+    public XMLSerializerFactory() {
+        XMLSerializerFactory.LOG.debug("Initialize the SerializerFactory.");
+    }
 
-	/**
-	 * Creates a new instance of the XML Serializer of the TOSCA universe for a
-	 * passed class which marks the context and a File object which represents
-	 * the TOSCA Schema.
-	 *
-	 * @param classContext A JAXB class which marks the context in which the
-	 *            Serializer is instantiated.
-	 * @param schemaFile A File object which provides the Schema file of TOSCA.
-	 * @return An instance of the XML Serializer of the TOSCA universe.
-	 */
-	@Override
-	public IXMLSerializer createSerializer(final Class<?> classContext, final File schemaFile) {
-		XMLSerializerFactory.LOG.debug("Create a new ISerializer.");
-		return new XMLSerializer(classContext, schemaFile);
-	}
+    /**
+     * Creates a new instance of the XML Serializer of the TOSCA universe for a passed class which marks
+     * the context and a File object which represents the TOSCA Schema.
+     *
+     * @param classContext A JAXB class which marks the context in which the Serializer is instantiated.
+     * @param schemaFile A File object which provides the Schema file of TOSCA.
+     * @return An instance of the XML Serializer of the TOSCA universe.
+     */
+    @Override
+    public IXMLSerializer createSerializer(final Class<?> classContext, final File schemaFile) {
+        XMLSerializerFactory.LOG.debug("Create a new ISerializer.");
+        return new XMLSerializer(classContext, schemaFile);
+    }
 }

@@ -15,236 +15,219 @@ import org.w3c.dom.Node;
 
 /**
  * <p>
- * This class is used to initialize Template properties as variables in
- * BuildPlans.
+ * This class is used to initialize Template properties as variables in BuildPlans.
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class PropertyVariableInitializer {
 
-	private final static Logger LOG = LoggerFactory.getLogger(PropertyVariableInitializer.class);
+    private final static Logger LOG = LoggerFactory.getLogger(PropertyVariableInitializer.class);
 
-	private BPELPlanHandler planHandler;
+    private final BPELPlanHandler planHandler;
 
-	/**
-	 * <p>
-	 * This class represents a mapping from TemplateId to Property LocalName and
-	 * VariableName
-	 * </p>
-	 * Copyright 2013 IAAS University of Stuttgart <br>
-	 * <br>
-	 * 
-	 * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
-	 * 
-	 */
-	public class PropertyMap {
+    /**
+     * <p>
+     * This class represents a mapping from TemplateId to Property LocalName and VariableName
+     * </p>
+     * Copyright 2013 IAAS University of Stuttgart <br>
+     * <br>
+     *
+     * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
+     *
+     */
+    public class PropertyMap {
 
-		// the internal map TemplateId -> PropertyLocalName,VariableName
-		private Map<String, Map<String, String>> internalMap;
+        // the internal map TemplateId -> PropertyLocalName,VariableName
+        private final Map<String, Map<String, String>> internalMap;
 
-		/**
-		 * Constructor
-		 */
-		public PropertyMap() {
-			this.internalMap = new HashMap<String, Map<String, String>>();
-		}
+        /**
+         * Constructor
+         */
+        public PropertyMap() {
+            this.internalMap = new HashMap<>();
+        }
 
-		/**
-		 * Adds a mapping from TemplateId to Property LocalName and VariableName
-		 * 
-		 * @param templateId
-		 *            the Id of the Template
-		 * @param propertyName
-		 *            a localName of Template Property
-		 * @param propertyVariableName
-		 *            a variable name
-		 * @return true if adding was successful, else false
-		 */
-		public boolean addPropertyMapping(String templateId, String propertyName, String propertyVariableName) {
-			if (this.internalMap.containsKey(templateId)) {
-				// template has already properties set
-				Map<String, String> propertyMappingMap = this.internalMap.get(templateId);
-				if (propertyMappingMap.containsKey(propertyName)) {
-					// this is an error, because we don't map properties to two
-					// variables
-					return false;
-				} else {
-					// add property and propertyVariableName
-					propertyMappingMap.put(propertyName, propertyVariableName);
-					// FIXME ? don't know yet if the retrieved map is backed in
-					// the internalMap
-					this.internalMap.put(templateId, propertyMappingMap);
-					return true;
-				}
-			} else {
-				// template has no properties assigned
-				Map<String, String> propertyMappingMap = new HashMap<String, String>();
-				propertyMappingMap.put(propertyName, propertyVariableName);
-				this.internalMap.put(templateId, propertyMappingMap);
-				return true;
-			}
-		}
+        /**
+         * Adds a mapping from TemplateId to Property LocalName and VariableName
+         *
+         * @param templateId the Id of the Template
+         * @param propertyName a localName of Template Property
+         * @param propertyVariableName a variable name
+         * @return true if adding was successful, else false
+         */
+        public boolean addPropertyMapping(final String templateId, final String propertyName,
+                        final String propertyVariableName) {
+            if (this.internalMap.containsKey(templateId)) {
+                // template has already properties set
+                final Map<String, String> propertyMappingMap = this.internalMap.get(templateId);
+                if (propertyMappingMap.containsKey(propertyName)) {
+                    // this is an error, because we don't map properties to two
+                    // variables
+                    return false;
+                } else {
+                    // add property and propertyVariableName
+                    propertyMappingMap.put(propertyName, propertyVariableName);
+                    // FIXME ? don't know yet if the retrieved map is backed in
+                    // the internalMap
+                    this.internalMap.put(templateId, propertyMappingMap);
+                    return true;
+                }
+            } else {
+                // template has no properties assigned
+                final Map<String, String> propertyMappingMap = new HashMap<>();
+                propertyMappingMap.put(propertyName, propertyVariableName);
+                this.internalMap.put(templateId, propertyMappingMap);
+                return true;
+            }
+        }
 
-		/**
-		 * Returns all mappings from Property localName to variable name for a given
-		 * TemplateId
-		 * 
-		 * @param templateid
-		 *            the Id of a Template
-		 * @return a Map from String to String representing Property localName as key
-		 *         and variable name as value
-		 */
-		public Map<String, String> getPropertyMappingMap(String templateid) {
-			return this.internalMap.get(templateid);
-		}
-	}
+        /**
+         * Returns all mappings from Property localName to variable name for a given TemplateId
+         *
+         * @param templateid the Id of a Template
+         * @return a Map from String to String representing Property localName as key and variable name as
+         *         value
+         */
+        public Map<String, String> getPropertyMappingMap(final String templateid) {
+            return this.internalMap.get(templateid);
+        }
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param planHandler
-	 *            a BuildPlanHandler for the class
-	 * @param templateHandler
-	 *            a TemplateBuildPlanHandler for the class
-	 */
-	public PropertyVariableInitializer(BPELPlanHandler planHandler) {
-		this.planHandler = planHandler;
-	}
+    /**
+     * Constructor
+     *
+     * @param planHandler a BuildPlanHandler for the class
+     * @param templateHandler a TemplateBuildPlanHandler for the class
+     */
+    public PropertyVariableInitializer(final BPELPlanHandler planHandler) {
+        this.planHandler = planHandler;
+    }
 
-	/**
-	 * Initializes the BuildPlan with variables for Template Properties and returns
-	 * the Mappings for the Properties and variables
-	 * 
-	 * @param buildPlan
-	 *            the BuildPlan to initialize
-	 * @return a PropertyMap which holds mappings from Template to Template Property
-	 *         and BuildPlan variable
-	 */
-	public PropertyMap initializePropertiesAsVariables(BPELPlan buildPlan) {
-		PropertyMap map = new PropertyMap();
-		for (BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
-			this.initializePropertiesAsVariables(map, templatePlan);
-		}
-		return map;
-	}
+    /**
+     * Initializes the BuildPlan with variables for Template Properties and returns the Mappings for the
+     * Properties and variables
+     *
+     * @param buildPlan the BuildPlan to initialize
+     * @return a PropertyMap which holds mappings from Template to Template Property and BuildPlan
+     *         variable
+     */
+    public PropertyMap initializePropertiesAsVariables(final BPELPlan buildPlan) {
+        final PropertyMap map = new PropertyMap();
+        for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
+            this.initializePropertiesAsVariables(map, templatePlan);
+        }
+        return map;
+    }
 
-	/**
-	 * Initializes Properties inside the given PropertyMap of the given
-	 * TemplateBuildPlan
-	 * 
-	 * @param map
-	 *            a PropertyMap to save the mappings to
-	 * @param templatePlan
-	 *            the TemplateBuildPlan to initialize its properties
-	 */
-	public void initializePropertiesAsVariables(PropertyMap map, BPELScopeActivity templatePlan) {
-		if (templatePlan.getRelationshipTemplate() != null) {
-			// template corresponds to a relationshiptemplate
-			this.initPropsAsVarsInRelationship(map, templatePlan);
-		} else {
-			this.initPropsAsVarsInNode(map, templatePlan);
-		}
-	}
+    /**
+     * Initializes Properties inside the given PropertyMap of the given TemplateBuildPlan
+     *
+     * @param map a PropertyMap to save the mappings to
+     * @param templatePlan the TemplateBuildPlan to initialize its properties
+     */
+    public void initializePropertiesAsVariables(final PropertyMap map, final BPELScopeActivity templatePlan) {
+        if (templatePlan.getRelationshipTemplate() != null) {
+            // template corresponds to a relationshiptemplate
+            this.initPropsAsVarsInRelationship(map, templatePlan);
+        } else {
+            this.initPropsAsVarsInNode(map, templatePlan);
+        }
+    }
 
-	/**
-	 * Initializes Property variables and mappings for a TemplateBuildPlan which
-	 * handles a RelationshipTemplate
-	 * 
-	 * @param map
-	 *            the PropertyMap to save the result to
-	 * @param templatePlan
-	 *            a TemplateBuildPlan which handles a RelationshipTemplate
-	 */
-	private void initPropsAsVarsInRelationship(PropertyMap map, BPELScopeActivity templatePlan) {
-		AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
-		if (relationshipTemplate.getProperties() != null) {
-			Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
-			for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
+    /**
+     * Initializes Property variables and mappings for a TemplateBuildPlan which handles a
+     * RelationshipTemplate
+     *
+     * @param map the PropertyMap to save the result to
+     * @param templatePlan a TemplateBuildPlan which handles a RelationshipTemplate
+     */
+    private void initPropsAsVarsInRelationship(final PropertyMap map, final BPELScopeActivity templatePlan) {
+        final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
+        if (relationshipTemplate.getProperties() != null) {
+            final Element propertyElement = relationshipTemplate.getProperties().getDOMElement();
+            for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
 
-				if (propertyElement.getChildNodes().item(i).getNodeType() == Node.TEXT_NODE) {
-					continue;
-				}
+                if (propertyElement.getChildNodes().item(i).getNodeType() == Node.TEXT_NODE) {
+                    continue;
+                }
 
-				String propName = propertyElement.getChildNodes().item(i).getLocalName();
-				String propVarName = relationshipTemplate.getId() + "_"
-						+ propertyElement.getChildNodes().item(i).getLocalName();
-				map.addPropertyMapping(relationshipTemplate.getId(), propName, "prop_" + propVarName);
-				// String value =
-				// propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
-				String value = "";
+                final String propName = propertyElement.getChildNodes().item(i).getLocalName();
+                final String propVarName = relationshipTemplate.getId() + "_"
+                    + propertyElement.getChildNodes().item(i).getLocalName();
+                map.addPropertyMapping(relationshipTemplate.getId(), propName, "prop_" + propVarName);
+                // String value =
+                // propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
+                String value = "";
 
-				for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
-					if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
-							.getNodeType() == Node.TEXT_NODE) {
-						value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
-					}
-				}
+                for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
+                    if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
+                                       .getNodeType() == Node.TEXT_NODE) {
+                        value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
+                    }
+                }
 
-				PropertyVariableInitializer.LOG.debug("Setting property variable " + propVarName);
-				PropertyVariableInitializer.LOG.debug("with value: " + value);
+                PropertyVariableInitializer.LOG.debug("Setting property variable " + propVarName);
+                PropertyVariableInitializer.LOG.debug("with value: " + value);
 
-				// tempID_PropLocalName as property variable name
-				this.planHandler.addPropertyVariable(propVarName, templatePlan.getBuildPlan());
+                // tempID_PropLocalName as property variable name
+                this.planHandler.addPropertyVariable(propVarName, templatePlan.getBuildPlan());
 
-				if (!value.trim().isEmpty() && !value.trim().equals("")) {
-					// init the variable with the node value
-					this.planHandler.initializePropertyVariable(propVarName, value, templatePlan.getBuildPlan());
-				}
+                if (!value.trim().isEmpty() && !value.trim().equals("")) {
+                    // init the variable with the node value
+                    this.planHandler.initializePropertyVariable(propVarName, value, templatePlan.getBuildPlan());
+                }
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	/**
-	 * Initializes Property variables for the given TemplateBuildPlan which handles
-	 * a NodeTemplate
-	 * 
-	 * @param map
-	 *            a PropertyMap to save the result/mappings to
-	 * @param templatePlan
-	 *            a TemplateBuildPlan which handles a NodeTemplate
-	 */
-	private void initPropsAsVarsInNode(PropertyMap map, BPELScopeActivity templatePlan) {
-		AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
-		if (nodeTemplate.getProperties() != null) {
-			Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-			for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
+    /**
+     * Initializes Property variables for the given TemplateBuildPlan which handles a NodeTemplate
+     *
+     * @param map a PropertyMap to save the result/mappings to
+     * @param templatePlan a TemplateBuildPlan which handles a NodeTemplate
+     */
+    private void initPropsAsVarsInNode(final PropertyMap map, final BPELScopeActivity templatePlan) {
+        final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
+        if (nodeTemplate.getProperties() != null) {
+            final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
+            for (int i = 0; i < propertyElement.getChildNodes().getLength(); i++) {
 
-				if (propertyElement.getChildNodes().item(i).getNodeType() == Node.TEXT_NODE) {
-					continue;
-				}
+                if (propertyElement.getChildNodes().item(i).getNodeType() == Node.TEXT_NODE) {
+                    continue;
+                }
 
-				String propName = propertyElement.getChildNodes().item(i).getLocalName();
-				String propVarName = nodeTemplate.getId() + "_"
-						+ propertyElement.getChildNodes().item(i).getLocalName();
+                final String propName = propertyElement.getChildNodes().item(i).getLocalName();
+                final String propVarName = nodeTemplate.getId() + "_"
+                    + propertyElement.getChildNodes().item(i).getLocalName();
 
-				// TODO that "prop_" is a huge hack cause official only the
-				// buildplanhandler knows about the "prop_" piece
-				map.addPropertyMapping(nodeTemplate.getId(), propName, "prop_" + propVarName);
+                // TODO that "prop_" is a huge hack cause official only the
+                // buildplanhandler knows about the "prop_" piece
+                map.addPropertyMapping(nodeTemplate.getId(), propName, "prop_" + propVarName);
 
-				String value = "";
+                String value = "";
 
-				for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
-					if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
-							.getNodeType() == Node.TEXT_NODE) {
-						value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
-					}
-				}
+                for (int j = 0; j < propertyElement.getChildNodes().item(i).getChildNodes().getLength(); j++) {
+                    if (propertyElement.getChildNodes().item(i).getChildNodes().item(j)
+                                       .getNodeType() == Node.TEXT_NODE) {
+                        value += propertyElement.getChildNodes().item(i).getChildNodes().item(j).getNodeValue();
+                    }
+                }
 
-				PropertyVariableInitializer.LOG.debug("Setting property variable " + propVarName);
-				PropertyVariableInitializer.LOG.debug("with value: " + value);
+                PropertyVariableInitializer.LOG.debug("Setting property variable " + propVarName);
+                PropertyVariableInitializer.LOG.debug("with value: " + value);
 
-				// tempID_PropLocalName as property variable name
-				this.planHandler.addPropertyVariable(propVarName, templatePlan.getBuildPlan());
+                // tempID_PropLocalName as property variable name
+                this.planHandler.addPropertyVariable(propVarName, templatePlan.getBuildPlan());
 
-				// init the variable with the node value
-				this.planHandler.initializePropertyVariable(propVarName, value, templatePlan.getBuildPlan());
-			}
-		}
-	}
+                // init the variable with the node value
+                this.planHandler.initializePropertyVariable(propVarName, value, templatePlan.getBuildPlan());
+            }
+        }
+    }
 
 }

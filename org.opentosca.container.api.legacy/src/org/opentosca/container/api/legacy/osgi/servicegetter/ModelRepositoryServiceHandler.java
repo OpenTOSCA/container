@@ -15,22 +15,22 @@ import org.slf4j.LoggerFactory;
  */
 public class ModelRepositoryServiceHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(ModelRepositoryServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(ModelRepositoryServiceHandler.class);
 
-	private static ICoreModelRepositoryService modelHandler;
+    private static ICoreModelRepositoryService modelHandler;
 
 
-	public static ICoreModelRepositoryService getModelHandler() {
-		return ModelRepositoryServiceHandler.modelHandler;
-	}
+    public static ICoreModelRepositoryService getModelHandler() {
+        return ModelRepositoryServiceHandler.modelHandler;
+    }
 
-	public void bindModelRepository(final ICoreModelRepositoryService ms) {
-		ModelRepositoryServiceHandler.LOG.debug("ContainerApi: Bind ICoreModelRepositoryService");
-		ModelRepositoryServiceHandler.modelHandler = ms;
-	}
+    public void bindModelRepository(final ICoreModelRepositoryService ms) {
+        ModelRepositoryServiceHandler.LOG.debug("ContainerApi: Bind ICoreModelRepositoryService");
+        ModelRepositoryServiceHandler.modelHandler = ms;
+    }
 
-	public void unbindModelRepository(final ICoreModelRepositoryService ms) {
-		ModelRepositoryServiceHandler.LOG.debug("ContainerApi: Unbind ICoreModelRepositoryService");
-		ModelRepositoryServiceHandler.modelHandler = null;
-	}
+    public void unbindModelRepository(final ICoreModelRepositoryService ms) {
+        ModelRepositoryServiceHandler.LOG.debug("ContainerApi: Unbind ICoreModelRepositoryService");
+        ModelRepositoryServiceHandler.modelHandler = null;
+    }
 }

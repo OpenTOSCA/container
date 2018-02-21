@@ -30,8 +30,8 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class contains all logic to append BPEL code which updates the
- * InstanceData of a NodeTemplate
+ * This class contains all logic to append BPEL code which updates the InstanceData of a
+ * NodeTemplate
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -45,995 +45,987 @@ public class BPELHandler implements InstanceDataHandler<BPELPlanContext> {
 
     private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
     private Fragments fragments;
-    private XPathFactory xPathfactory = XPathFactory.newInstance();;
+    private final XPathFactory xPathfactory = XPathFactory.newInstance();;
 
     public BPELHandler() {
 
-	try {
-	    this.fragments = new Fragments();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+        try {
+            this.fragments = new Fragments();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * <p>
-     * This method is initializing a Map from BpelVariableName to a DomElement of
-     * the given Properties and Context.
+     * This method is initializing a Map from BpelVariableName to a DomElement of the given Properties
+     * and Context.
      * </p>
      *
-     * @param context
-     *            BPELPlanContext
-     * @param properties
-     *            AbstractProperties with proper DOM Element
-     * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the
-     *         mapping is not complete, e.g. some bpel variable was not found or the
-     *         properties weren't parsed right.
+     * @param context BPELPlanContext
+     * @param properties AbstractProperties with proper DOM Element
+     * @return a Map<String,Node> of BpelVariableName to DOM Node. Maybe null if the mapping is not
+     *         complete, e.g. some bpel variable was not found or the properties weren't parsed right.
      */
-    private Map<String, Node> buildMappingsFromVarNameToDomElement(BPELPlanContext context,
-	    AbstractProperties properties) {
-	Element propRootElement = properties.getDOMElement();
+    private Map<String, Node> buildMappingsFromVarNameToDomElement(final BPELPlanContext context,
+                    final AbstractProperties properties) {
+        final Element propRootElement = properties.getDOMElement();
 
-	Map<String, Node> mapping = new HashMap<String, Node>();
+        final Map<String, Node> mapping = new HashMap<>();
 
-	// get list of child elements
-	NodeList childList = propRootElement.getChildNodes();
+        // get list of child elements
+        final NodeList childList = propRootElement.getChildNodes();
 
-	for (int i = 0; i < childList.getLength(); i++) {
-	    Node child = childList.item(i);
-	    if (child.getNodeType() == Node.ELEMENT_NODE) {
-		String propertyName = child.getLocalName();
-		String propVarName = context.getVarNameOfTemplateProperty(propertyName);
-		mapping.put(propVarName, child);
-	    }
+        for (int i = 0; i < childList.getLength(); i++) {
+            final Node child = childList.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                final String propertyName = child.getLocalName();
+                final String propVarName = context.getVarNameOfTemplateProperty(propertyName);
+                mapping.put(propVarName, child);
+            }
 
-	}
-	return mapping;
+        }
+        return mapping;
     }
 
     /**
      * <p>
-     * Checks the given AbstractProperties against following criteria:
-     * Nullpointer-Check for properties itself and its given DOM Element, followed
-     * by whether the dom element has any child elements (if not, we have no
-     * properties/bpel-variables defined)
+     * Checks the given AbstractProperties against following criteria: Nullpointer-Check for properties
+     * itself and its given DOM Element, followed by whether the dom element has any child elements (if
+     * not, we have no properties/bpel-variables defined)
      * </p>
      *
-     * @param properties
-     *            AbstractProperties of an AbstractNodeTemplate or
-     *            AbstractRelationshipTemplate
-     * @return true iff properties and properties.getDomElement() != null and
-     *         DomElement.hasChildNodes() == true
+     * @param properties AbstractProperties of an AbstractNodeTemplate or AbstractRelationshipTemplate
+     * @return true iff properties and properties.getDomElement() != null and DomElement.hasChildNodes()
+     *         == true
      */
-    private boolean checkProperties(AbstractProperties properties) {
-	if (properties == null) {
-	    return false;
-	}
+    private boolean checkProperties(final AbstractProperties properties) {
+        if (properties == null) {
+            return false;
+        }
 
-	if (properties.getDOMElement() == null) {
-	    return false;
-	}
+        if (properties.getDOMElement() == null) {
+            return false;
+        }
 
-	Element propertiesRootElement = properties.getDOMElement();
+        final Element propertiesRootElement = properties.getDOMElement();
 
-	if (!propertiesRootElement.hasChildNodes()) {
-	    return false;
-	}
+        if (!propertiesRootElement.hasChildNodes()) {
+            return false;
+        }
 
-	return true;
+        return true;
     }
 
-    private String createInstanceVar(BPELPlanContext context, String templateId) {
-	String instanceURLVarName = ((context.getRelationshipTemplate() == null) ? "node" : "relationship")
-		+ "InstanceURL_" + templateId + "_" + context.getIdForNames();
-	QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-	if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
-	    return null;
-	}
+    private String createInstanceVar(final BPELPlanContext context, final String templateId) {
+        final String instanceURLVarName = (context.getRelationshipTemplate() == null ? "node" : "relationship")
+            + "InstanceURL_" + templateId + "_" + context.getIdForNames();
+        final QName stringTypeDeclId = context.importQName(
+            new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+        if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
+            return null;
+        }
 
-	return instanceURLVarName;
+        return instanceURLVarName;
     }
 
-    private String createRESTResponseVar(BPELPlanContext context) {
-	String restCallResponseVarName = "bpel4restlightVarResponse" + context.getIdForNames();
-	QName restCallResponseDeclId = context
-		.importQName(new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
-	if (!context.addGlobalVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, restCallResponseDeclId)) {
-	    return null;
-	}
-	return restCallResponseVarName;
+    private String createRESTResponseVar(final BPELPlanContext context) {
+        final String restCallResponseVarName = "bpel4restlightVarResponse" + context.getIdForNames();
+        final QName restCallResponseDeclId = context.importQName(
+            new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd"));
+        if (!context.addGlobalVariable(restCallResponseVarName, BPELPlan.VariableType.TYPE, restCallResponseDeclId)) {
+            return null;
+        }
+        return restCallResponseVarName;
     }
 
-    private String createStateVar(BPELPlanContext context, String templateId) {
-	// create state variable inside scope
-	String stateVarName = templateId + "_state_" + context.getIdForNames();
-	QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
-	if (!context.addGlobalVariable(stateVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
-	    return null;
-	}
+    private String createStateVar(final BPELPlanContext context, final String templateId) {
+        // create state variable inside scope
+        final String stateVarName = templateId + "_state_" + context.getIdForNames();
+        final QName stringTypeDeclId = context.importQName(
+            new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+        if (!context.addGlobalVariable(stateVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
+            return null;
+        }
 
-	return stateVarName;
+        return stateVarName;
     }
 
-    private Node fetchFromNode(Element assignContentElement) {
-	Node parent = assignContentElement.getParentNode();
+    private Node fetchFromNode(final Element assignContentElement) {
+        Node parent = assignContentElement.getParentNode();
 
-	while (parent != null & !parent.getNodeName().contains("from")) {
-	    parent = parent.getParentNode();
-	}
+        while (parent != null & !parent.getNodeName().contains("from")) {
+            parent = parent.getParentNode();
+        }
 
-	return parent;
+        return parent;
     }
 
-    private List<Element> fetchInvokerCallAssigns(Element provisioningPhaseElement) {
-	XPath xpath = this.xPathfactory.newXPath();
-	List<Element> assignElements = new ArrayList<Element>();
-	String xpathQuery = ".//*[local-name()='invokeOperationAsync']";
-	try {
-	    NodeList nodeList = (NodeList) xpath.evaluate(xpathQuery, provisioningPhaseElement, XPathConstants.NODESET);
+    private List<Element> fetchInvokerCallAssigns(final Element provisioningPhaseElement) {
+        final XPath xpath = this.xPathfactory.newXPath();
+        final List<Element> assignElements = new ArrayList<>();
+        final String xpathQuery = ".//*[local-name()='invokeOperationAsync']";
+        try {
+            final NodeList nodeList = (NodeList) xpath.evaluate(xpathQuery, provisioningPhaseElement,
+                XPathConstants.NODESET);
 
-	    for (int i = 0; i < nodeList.getLength(); i++) {
-		if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-		    assignElements.add((Element) nodeList.item(i));
-		}
-	    }
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                    assignElements.add((Element) nodeList.item(i));
+                }
+            }
 
-	} catch (XPathExpressionException e) {
-	    e.printStackTrace();
-	}
+        } catch (final XPathExpressionException e) {
+            e.printStackTrace();
+        }
 
-	return assignElements;
+        return assignElements;
     }
 
-    private Element fetchInvokerReceive(Element invokerAssign, String requestVarName) {
+    private Element fetchInvokerReceive(final Element invokerAssign, final String requestVarName) {
 
-	Node sibling = invokerAssign.getNextSibling();
+        Node sibling = invokerAssign.getNextSibling();
 
-	while (sibling != null & !sibling.getNodeName().contains("invoke")) {
-	    sibling = sibling.getNextSibling();
-	}
+        while (sibling != null & !sibling.getNodeName().contains("invoke")) {
+            sibling = sibling.getNextSibling();
+        }
 
-	if (sibling.getNodeType() == Node.ELEMENT_NODE
-		& sibling.getAttributes().getNamedItem("inputVariable").getTextContent().equals(requestVarName)) {
-	    return (Element) sibling.getNextSibling();
-	}
+        if (sibling.getNodeType() == Node.ELEMENT_NODE
+            & sibling.getAttributes().getNamedItem("inputVariable").getTextContent().equals(requestVarName)) {
+            return (Element) sibling.getNextSibling();
+        }
 
-	return null;
+        return null;
     }
 
-    private Node fetchNextNamedNodeRecursively(Node node, String name) {
-	Node sibling = node.getNextSibling();
+    private Node fetchNextNamedNodeRecursively(final Node node, final String name) {
+        Node sibling = node.getNextSibling();
 
-	while (sibling != null & !sibling.getNodeName().contains(name)) {
-	    sibling = sibling.getNextSibling();
-	}
+        while (sibling != null & !sibling.getNodeName().contains(name)) {
+            sibling = sibling.getNextSibling();
+        }
 
-	return sibling;
+        return sibling;
     }
 
-    private String fetchOperationName(Element assignElement) {
-	XPath xpath = this.xPathfactory.newXPath();
-	String operationName = null;
+    private String fetchOperationName(final Element assignElement) {
+        final XPath xpath = this.xPathfactory.newXPath();
+        String operationName = null;
 
-	try {
+        try {
 
-	    operationName = (String) xpath.evaluate(".//*[local-name()='OperationName']/node()", assignElement,
-		    XPathConstants.STRING);
-	} catch (XPathExpressionException e) {
-	    e.printStackTrace();
-	}
+            operationName = (String) xpath.evaluate(".//*[local-name()='OperationName']/node()", assignElement,
+                XPathConstants.STRING);
+        } catch (final XPathExpressionException e) {
+            e.printStackTrace();
+        }
 
-	return operationName;
+        return operationName;
     }
 
-    private String fetchRequestVarNameFromInvokerAssign(Element assignContentElement) {
-	String reqVarName = null;
+    private String fetchRequestVarNameFromInvokerAssign(final Element assignContentElement) {
+        String reqVarName = null;
 
-	Node fromNode = this.fetchFromNode(assignContentElement);
+        final Node fromNode = this.fetchFromNode(assignContentElement);
 
-	Node toNode = this.fetchNextNamedNodeRecursively(fromNode, "to");
+        final Node toNode = this.fetchNextNamedNodeRecursively(fromNode, "to");
 
-	reqVarName = toNode.getAttributes().getNamedItem("variable").getTextContent();
+        reqVarName = toNode.getAttributes().getNamedItem("variable").getTextContent();
 
-	return reqVarName;
+        return reqVarName;
     }
 
-    private String findInstanceVar(BPELPlanContext context, String templateId, boolean isNode) {
-	String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
-	for (String varName : context.getMainVariableNames()) {
-	    if (varName.contains(instanceURLVarName)) {
-		return varName;
-	    }
-	}
-	return null;
+    private String findInstanceVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
+        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
+        for (final String varName : context.getMainVariableNames()) {
+            if (varName.contains(instanceURLVarName)) {
+                return varName;
+            }
+        }
+        return null;
     }
 
-    private String getServiceInstanceVarName(BPELPlanContext context) {
-	// check whether main sequence already contains service instance calls
-	// to container API
-	List<String> mainVarNames = context.getMainVariableNames();
-	String serviceInstanceVarName = null;
-	String instanceDataUrlVarName = null;
-	for (String varName : mainVarNames) {
-	    // pretty lame but should work
-	    if (varName.contains(BPELHandler.ServiceInstanceVarKeyword)) {
-		serviceInstanceVarName = varName;
-	    }
-	    if (varName.contains(BPELHandler.InstanceDataAPIUrlKeyword)) {
-		instanceDataUrlVarName = varName;
-	    }
-	}
+    private String getServiceInstanceVarName(final BPELPlanContext context) {
+        // check whether main sequence already contains service instance calls
+        // to container API
+        final List<String> mainVarNames = context.getMainVariableNames();
+        String serviceInstanceVarName = null;
+        String instanceDataUrlVarName = null;
+        for (final String varName : mainVarNames) {
+            // pretty lame but should work
+            if (varName.contains(BPELHandler.ServiceInstanceVarKeyword)) {
+                serviceInstanceVarName = varName;
+            }
+            if (varName.contains(BPELHandler.InstanceDataAPIUrlKeyword)) {
+                instanceDataUrlVarName = varName;
+            }
+        }
 
-	// if at least one is null we need to init the whole
+        // if at least one is null we need to init the whole
 
-	if (instanceDataUrlVarName == null) {
-	    return null;
-	}
+        if (instanceDataUrlVarName == null) {
+            return null;
+        }
 
-	if (serviceInstanceVarName == null) {
-	    return null;
-	}
-	return serviceInstanceVarName;
+        if (serviceInstanceVarName == null) {
+            return null;
+        }
+        return serviceInstanceVarName;
     }
 
     @Override
-    public boolean handle(BPELPlanContext context, AbstractRelationshipTemplate relationshipTemplate) {
+    public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
 
-	String serviceInstanceVarName = this.getServiceInstanceVarName(context);
-	if (serviceInstanceVarName == null) {
-	    return false;
-	}
+        final String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+        if (serviceInstanceVarName == null) {
+            return false;
+        }
 
-	/*
-	 * Pre Phase code
-	 */
+        /*
+         * Pre Phase code
+         */
 
-	// create variable for all responses
-	String restCallResponseVarName = this.createRESTResponseVar(context);
+        // create variable for all responses
+        final String restCallResponseVarName = this.createRESTResponseVar(context);
 
-	if (restCallResponseVarName == null) {
-	    return false;
-	}
+        if (restCallResponseVarName == null) {
+            return false;
+        }
 
-	// create state variable inside scope
-	String stateVarName = this.createStateVar(context, context.getRelationshipTemplate().getId());
+        // create state variable inside scope
+        final String stateVarName = this.createStateVar(context, context.getRelationshipTemplate().getId());
 
-	if (stateVarName == null) {
-	    return false;
-	}
+        if (stateVarName == null) {
+            return false;
+        }
 
-	// based on the relatioships baseType we add the logic into different
-	// phases of relations AND nodes
-	// connectsTo = own phases
-	// else = source node phasesl
+        // based on the relatioships baseType we add the logic into different
+        // phases of relations AND nodes
+        // connectsTo = own phases
+        // else = source node phasesl
 
-	Element injectionPreElement = null;
-	Element injectionPostElement = null;
-	String sourceInstanceVarName = this.findInstanceVar(context,
-		context.getRelationshipTemplate().getSource().getId(), true);
-	String targetInstanceVarName = this.findInstanceVar(context,
-		context.getRelationshipTemplate().getTarget().getId(), true);
+        Element injectionPreElement = null;
+        Element injectionPostElement = null;
+        final String sourceInstanceVarName = this.findInstanceVar(context,
+            context.getRelationshipTemplate().getSource().getId(), true);
+        final String targetInstanceVarName = this.findInstanceVar(context,
+            context.getRelationshipTemplate().getTarget().getId(), true);
 
-	if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
-		.contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
-	    injectionPreElement = context.getPrePhaseElement();
-	    injectionPostElement = context.getPostPhaseElement();
-	} else {
-	    // fetch nodeTemplate
-	    AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
-	    injectionPreElement = context.createContext(sourceNodeTemplate).getPrePhaseElement();
-	    injectionPostElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
-	}
+        if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
+                      .contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            injectionPreElement = context.getPrePhaseElement();
+            injectionPostElement = context.getPostPhaseElement();
+        } else {
+            // fetch nodeTemplate
+            final AbstractNodeTemplate sourceNodeTemplate = context.getRelationshipTemplate().getSource();
+            injectionPreElement = context.createContext(sourceNodeTemplate).getPrePhaseElement();
+            injectionPostElement = context.createContext(sourceNodeTemplate).getPostPhaseElement();
+        }
 
-	if (injectionPostElement == null | injectionPreElement == null | sourceInstanceVarName == null
-		| targetInstanceVarName == null) {
-	    return false;
-	}
+        if (injectionPostElement == null | injectionPreElement == null | sourceInstanceVarName == null
+            | targetInstanceVarName == null) {
+            return false;
+        }
 
-	/*
-	 * (i) append bpel code to create the nodeInstance (ii) append bpel code to
-	 * fetch nodeInstanceURL
-	 */
+        /*
+         * (i) append bpel code to create the nodeInstance (ii) append bpel code to fetch nodeInstanceURL
+         */
 
-	try {
-	    // create bpel extension activity and append
-	    String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceInstanceVarName,
-		    context.getRelationshipTemplate().getId(), restCallResponseVarName, sourceInstanceVarName,
-		    targetInstanceVarName);
-	    Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
-	    createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
-	    injectionPreElement.appendChild(createRelationInstanceExActiv);
-	} catch (IOException e) {
-	    e.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+        try {
+            // create bpel extension activity and append
+            final String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceInstanceVarName,
+                context.getRelationshipTemplate().getId(), restCallResponseVarName, sourceInstanceVarName,
+                targetInstanceVarName);
+            Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
+            createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
+            injectionPreElement.appendChild(createRelationInstanceExActiv);
+        } catch (final IOException e) {
+            e.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-	// generate String var for relationInstance URL
-	String relationInstanceURLVarName = "";
+        // generate String var for relationInstance URL
+        String relationInstanceURLVarName = "";
 
-	if (this.findInstanceVar(context, context.getRelationshipTemplate().getId(), false) == null) {
-	    // generate String var for nodeInstance URL
-	    relationInstanceURLVarName = this.createInstanceVar(context, context.getRelationshipTemplate().getId());
-	} else {
-	    relationInstanceURLVarName = this.findInstanceVar(context, context.getRelationshipTemplate().getId(),
-		    false);
-	}
+        if (this.findInstanceVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+            // generate String var for nodeInstance URL
+            relationInstanceURLVarName = this.createInstanceVar(context, context.getRelationshipTemplate().getId());
+        } else {
+            relationInstanceURLVarName = this.findInstanceVar(context, context.getRelationshipTemplate().getId(),
+                false);
+        }
 
-	if (relationInstanceURLVarName == null) {
-	    return false;
-	}
+        if (relationInstanceURLVarName == null) {
+            return false;
+        }
 
-	try {
-	    // save relationInstance url from response
-	    String bpelString = this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(
-		    relationInstanceURLVarName, restCallResponseVarName);
-	    Node assignRelationInstanceUrl = ModelUtils.string2dom(bpelString);
-	    assignRelationInstanceUrl = context.importNode(assignRelationInstanceUrl);
-	    injectionPreElement.appendChild(assignRelationInstanceUrl);
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
+        try {
+            // save relationInstance url from response
+            final String bpelString = this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(
+                relationInstanceURLVarName, restCallResponseVarName);
+            Node assignRelationInstanceUrl = ModelUtils.string2dom(bpelString);
+            assignRelationInstanceUrl = context.importNode(assignRelationInstanceUrl);
+            injectionPreElement.appendChild(assignRelationInstanceUrl);
+        } catch (final IOException e2) {
+            e2.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	// we'll use this later when we determine that the handle Node doesn't
-	// have lifecycle operations. Without this check all nodes without
-	// lifecycle (or cloud prov operations) will be in an uninstalled state
-	String lastSetState = "initial";
+        // we'll use this later when we determine that the handle Node doesn't
+        // have lifecycle operations. Without this check all nodes without
+        // lifecycle (or cloud prov operations) will be in an uninstalled state
+        final String lastSetState = "initial";
 
-	try {
-	    // update state variable to uninstalled
-	    BPELProcessFragments frag = new BPELProcessFragments();
-	    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-		    "assignInitRelationState" + System.currentTimeMillis(), "string('" + lastSetState + "')",
-		    stateVarName);
-	    assignNode = context.importNode(assignNode);
-	    injectionPreElement.appendChild(assignNode);
+        try {
+            // update state variable to uninstalled
+            final BPELProcessFragments frag = new BPELProcessFragments();
+            Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                "assignInitRelationState" + System.currentTimeMillis(), "string('" + lastSetState + "')", stateVarName);
+            assignNode = context.importNode(assignNode);
+            injectionPreElement.appendChild(assignNode);
 
-	    // send state to api
-	    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName,
-		    stateVarName);
-	    Node extActiv = ModelUtils.string2dom(bpelString);
-	    extActiv = context.importNode(extActiv);
-	    injectionPreElement.appendChild(extActiv);
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+            // send state to api
+            final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName,
+                stateVarName);
+            Node extActiv = ModelUtils.string2dom(bpelString);
+            extActiv = context.importNode(extActiv);
+            injectionPreElement.appendChild(extActiv);
+        } catch (final IOException e2) {
+            e2.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-	try {
-	    // set state
-	    BPELProcessFragments frag = new BPELProcessFragments();
-	    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-		    "assignFinalNodeState" + System.currentTimeMillis(), "string('initialized')", stateVarName);
-	    assignNode = context.importNode(assignNode);
+        try {
+            // set state
+            final BPELProcessFragments frag = new BPELProcessFragments();
+            Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                "assignFinalNodeState" + System.currentTimeMillis(), "string('initialized')", stateVarName);
+            assignNode = context.importNode(assignNode);
 
-	    // create PUT activity
-	    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName,
-		    stateVarName);
-	    Node extActiv = ModelUtils.string2dom(bpelString);
-	    extActiv = context.importNode(extActiv);
+            // create PUT activity
+            final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(relationInstanceURLVarName,
+                stateVarName);
+            Node extActiv = ModelUtils.string2dom(bpelString);
+            extActiv = context.importNode(extActiv);
 
-	    injectionPostElement.appendChild(assignNode);
-	    injectionPostElement.appendChild(extActiv);
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+            injectionPostElement.appendChild(assignNode);
+            injectionPostElement.appendChild(extActiv);
+        } catch (final IOException e2) {
+            e2.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-	// needs property update only if the relation has properties
-	if (this.checkProperties(relationshipTemplate.getProperties())) {
-	    // make a GET on the nodeInstance properties
+        // needs property update only if the relation has properties
+        if (this.checkProperties(relationshipTemplate.getProperties())) {
+            // make a GET on the nodeInstance properties
 
-	    try {
-		// fetch properties
-		Node nodeInstancePropsGETNode = this.fragments
-			.generateInstancePropertiesGETAsNode(relationInstanceURLVarName, restCallResponseVarName);
-		nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
-		injectionPostElement.appendChild(nodeInstancePropsGETNode);
-	    } catch (SAXException e1) {
-		e1.printStackTrace();
-		return false;
-	    } catch (IOException e1) {
-		e1.printStackTrace();
-		return false;
-	    }
+            try {
+                // fetch properties
+                Node nodeInstancePropsGETNode = this.fragments.generateInstancePropertiesGETAsNode(
+                    relationInstanceURLVarName, restCallResponseVarName);
+                nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
+                injectionPostElement.appendChild(nodeInstancePropsGETNode);
+            } catch (final SAXException e1) {
+                e1.printStackTrace();
+                return false;
+            } catch (final IOException e1) {
+                e1.printStackTrace();
+                return false;
+            }
 
-	    // assign the values from the property variables into REST/HTTP
-	    // Request
-	    // and send
-	    // first build a mapping from property variable names to dom element
-	    Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
-		    relationshipTemplate.getProperties());
-	    try {
-		// then generate an assign to have code that writes the runtime
-		// values into the instance data db.
-		// we use the restCallResponseVarName from the GET before, as it
-		// has
-		// proper format
-		Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-			propertyVarNameToDOMMapping);
-		assignNode = context.importNode(assignNode);
-		injectionPostElement.appendChild(assignNode);
-	    } catch (SAXException e) {
-		e.printStackTrace();
-		return false;
-	    } catch (IOException e) {
-		e.printStackTrace();
-		return false;
-	    }
+            // assign the values from the property variables into REST/HTTP
+            // Request
+            // and send
+            // first build a mapping from property variable names to dom element
+            final Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
+                relationshipTemplate.getProperties());
+            try {
+                // then generate an assign to have code that writes the runtime
+                // values into the instance data db.
+                // we use the restCallResponseVarName from the GET before, as it
+                // has
+                // proper format
+                Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
+                    propertyVarNameToDOMMapping);
+                assignNode = context.importNode(assignNode);
+                injectionPostElement.appendChild(assignNode);
+            } catch (final SAXException e) {
+                e.printStackTrace();
+                return false;
+            } catch (final IOException e) {
+                e.printStackTrace();
+                return false;
+            }
 
-	    // generate BPEL4RESTLight PUT request to update the instance data
-	    try {
-		Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-			relationInstanceURLVarName);
-		bpel4restPUTNode = context.importNode(bpel4restPUTNode);
-		injectionPostElement.appendChild(bpel4restPUTNode);
-	    } catch (IOException e) {
-		e.printStackTrace();
-		return false;
-	    } catch (SAXException e) {
-		e.printStackTrace();
-		return false;
-	    }
-	}
+            // generate BPEL4RESTLight PUT request to update the instance data
+            try {
+                Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
+                    relationInstanceURLVarName);
+                bpel4restPUTNode = context.importNode(bpel4restPUTNode);
+                injectionPostElement.appendChild(bpel4restPUTNode);
+            } catch (final IOException e) {
+                e.printStackTrace();
+                return false;
+            } catch (final SAXException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
 
-	return true;
+        return true;
     }
 
     /**
-     * Appends BPEL Code that updates InstanceData for the given NodeTemplate. Needs
-     * initialization code on the global level in the plan. This will be checked and
-     * appended if needed.
+     * Appends BPEL Code that updates InstanceData for the given NodeTemplate. Needs initialization code
+     * on the global level in the plan. This will be checked and appended if needed.
      *
-     * @param context
-     *            the TemplateContext of the NodeTemplate
-     * @param nodeTemplate
-     *            the NodeTemplate to handle
+     * @param context the TemplateContext of the NodeTemplate
+     * @param nodeTemplate the NodeTemplate to handle
      * @return true iff appending all BPEL code was successful
      */
     @Override
-    public boolean handleBuild(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
-	boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
+    public boolean handleBuild(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+        final boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 
-	String serviceInstanceVarName = this.getServiceInstanceVarName(context);
-	if (serviceInstanceVarName == null) {
-	    return false;
-	}
+        final String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+        if (serviceInstanceVarName == null) {
+            return false;
+        }
 
-	/*
-	 * Pre Phase code
-	 */
+        /*
+         * Pre Phase code
+         */
 
-	// create variable for all responses
-	String restCallResponseVarName = this.createRESTResponseVar(context);
+        // create variable for all responses
+        final String restCallResponseVarName = this.createRESTResponseVar(context);
 
-	if (restCallResponseVarName == null) {
-	    return false;
-	}
+        if (restCallResponseVarName == null) {
+            return false;
+        }
 
-	// create state variable inside scope
-	String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
+        // create state variable inside scope
+        final String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
 
-	if (stateVarName == null) {
-	    return false;
-	}
+        if (stateVarName == null) {
+            return false;
+        }
 
-	/*
-	 * (i) append bpel code to create the nodeInstance (ii) append bpel code to
-	 * fetch nodeInstanceURL
-	 */
+        /*
+         * (i) append bpel code to create the nodeInstance (ii) append bpel code to fetch nodeInstanceURL
+         */
 
-	try {
-	    // create bpel extension activity and append
-	    String bpelString = this.fragments.generateBPEL4RESTLightNodeInstancePOST(serviceInstanceVarName,
-		    context.getNodeTemplate().getId(), restCallResponseVarName);
-	    Node createNodeInstanceExActiv = ModelUtils.string2dom(bpelString);
-	    createNodeInstanceExActiv = context.importNode(createNodeInstanceExActiv);
-	    context.getPrePhaseElement().appendChild(createNodeInstanceExActiv);
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+        try {
+            // create bpel extension activity and append
+            final String bpelString = this.fragments.generateBPEL4RESTLightNodeInstancePOST(serviceInstanceVarName,
+                context.getNodeTemplate().getId(), restCallResponseVarName);
+            Node createNodeInstanceExActiv = ModelUtils.string2dom(bpelString);
+            createNodeInstanceExActiv = context.importNode(createNodeInstanceExActiv);
+            context.getPrePhaseElement().appendChild(createNodeInstanceExActiv);
+        } catch (final IOException e2) {
+            e2.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-	String nodeInstanceURLVarName = "";
+        String nodeInstanceURLVarName = "";
 
-	if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
-	    // generate String var for nodeInstance URL
-	    nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
-	} else {
-	    nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
-	}
+        if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
+            // generate String var for nodeInstance URL
+            nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+        } else {
+            nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
+        }
 
-	if (nodeInstanceURLVarName == null) {
-	    return false;
-	}
+        if (nodeInstanceURLVarName == null) {
+            return false;
+        }
 
-	try {
-	    // save nodeInstance url from response
-	    String bpelString = this.fragments.generateAssignFromNodeInstancePOSTResponseToStringVar(
-		    nodeInstanceURLVarName, restCallResponseVarName);
-	    Node assignNodeInstanceUrl = ModelUtils.string2dom(bpelString);
-	    assignNodeInstanceUrl = context.importNode(assignNodeInstanceUrl);
-	    context.getPrePhaseElement().appendChild(assignNodeInstanceUrl);
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+        try {
+            // save nodeInstance url from response
+            final String bpelString = this.fragments.generateAssignFromNodeInstancePOSTResponseToStringVar(
+                nodeInstanceURLVarName, restCallResponseVarName);
+            Node assignNodeInstanceUrl = ModelUtils.string2dom(bpelString);
+            assignNodeInstanceUrl = context.importNode(assignNodeInstanceUrl);
+            context.getPrePhaseElement().appendChild(assignNodeInstanceUrl);
+        } catch (final IOException e2) {
+            e2.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-	try {
-	    // update state variable to uninstalled
-	    BPELProcessFragments frag = new BPELProcessFragments();
-	    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-		    "assignInitNodeState" + System.currentTimeMillis(), "string('initial')", stateVarName);
-	    assignNode = context.importNode(assignNode);
-	    context.getPrePhaseElement().appendChild(assignNode);
+        try {
+            // update state variable to uninstalled
+            final BPELProcessFragments frag = new BPELProcessFragments();
+            Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                "assignInitNodeState" + System.currentTimeMillis(), "string('initial')", stateVarName);
+            assignNode = context.importNode(assignNode);
+            context.getPrePhaseElement().appendChild(assignNode);
 
-	    // send state to api
-	    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
-		    stateVarName);
-	    Node extActiv = ModelUtils.string2dom(bpelString);
-	    extActiv = context.importNode(extActiv);
-	    context.getPrePhaseElement().appendChild(extActiv);
-	} catch (IOException e2) {
-	    e2.printStackTrace();
-	} catch (SAXException e) {
-	    e.printStackTrace();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+            // send state to api
+            final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
+                stateVarName);
+            Node extActiv = ModelUtils.string2dom(bpelString);
+            extActiv = context.importNode(extActiv);
+            context.getPrePhaseElement().appendChild(extActiv);
+        } catch (final IOException e2) {
+            e2.printStackTrace();
+        } catch (final SAXException e) {
+            e.printStackTrace();
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-	// we'll use this later when we determine that the handle Node doesn't
-	// have lifecycle operations. Without this check all nodes without
-	// lifecycle (or cloud prov operations) will be in an uninstalled state
-	String lastSetState = "initial";
+        // we'll use this later when we determine that the handle Node doesn't
+        // have lifecycle operations. Without this check all nodes without
+        // lifecycle (or cloud prov operations) will be in an uninstalled state
+        String lastSetState = "initial";
 
-	/*
-	 * Prov Phase code
-	 */
+        /*
+         * Prov Phase code
+         */
 
-	// fetch all assigns that assign an invoke async operation request
+        // fetch all assigns that assign an invoke async operation request
 
-	Element provisioningPhaseElement = context.getProvisioningPhaseElement();
-	List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
+        final Element provisioningPhaseElement = context.getProvisioningPhaseElement();
+        final List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
 
-	List<String> operationNames = new ArrayList<>();
+        final List<String> operationNames = new ArrayList<>();
 
-	// for each assign element we fetch the operation name, determine the
-	// pre and post states, and append the pre state before the found assign
-	// and the post state after the receive of the invoker iteraction
-	for (Element assignContentElement : assignContentElements) {
+        // for each assign element we fetch the operation name, determine the
+        // pre and post states, and append the pre state before the found assign
+        // and the post state after the receive of the invoker iteraction
+        for (final Element assignContentElement : assignContentElements) {
 
-	    // fetch operationName from literal contents
-	    String operationName = this.fetchOperationName(assignContentElement);
-	    operationNames.add(operationName);
-	    // determine pre and post state for operation
-	    String preState = InstanceStates.getOperationPreState(operationName);
-	    String postState = InstanceStates.getOperationPostState(operationName);
+            // fetch operationName from literal contents
+            final String operationName = this.fetchOperationName(assignContentElement);
+            operationNames.add(operationName);
+            // determine pre and post state for operation
+            final String preState = InstanceStates.getOperationPreState(operationName);
+            final String postState = InstanceStates.getOperationPostState(operationName);
 
-	    if (preState != null) {
+            if (preState != null) {
 
-		try {
+                try {
 
-		    // assign prestate to state variable
-		    BPELProcessFragments frag = new BPELProcessFragments();
-		    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-			    "assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(),
-			    "string('" + preState + "')", stateVarName);
-		    assignNode = context.importNode(assignNode);
-		    lastSetState = preState;
+                    // assign prestate to state variable
+                    final BPELProcessFragments frag = new BPELProcessFragments();
+                    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                        "assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(),
+                        "string('" + preState + "')", stateVarName);
+                    assignNode = context.importNode(assignNode);
+                    lastSetState = preState;
 
-		    // assign the state before the assign of the invoker request
-		    // is made
-		    Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
-			    .getParentNode();
-		    bpelAssignNode.getParentNode().insertBefore(assignNode, bpelAssignNode);
+                    // assign the state before the assign of the invoker request
+                    // is made
+                    final Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
+                                                                    .getParentNode();
+                    bpelAssignNode.getParentNode().insertBefore(assignNode, bpelAssignNode);
 
-		    // create REST Put activity
-		    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
-			    stateVarName);
-		    Node extActiv = ModelUtils.string2dom(bpelString);
-		    extActiv = context.importNode(extActiv);
+                    // create REST Put activity
+                    final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(
+                        nodeInstanceURLVarName, stateVarName);
+                    Node extActiv = ModelUtils.string2dom(bpelString);
+                    extActiv = context.importNode(extActiv);
 
-		    // send the state before the assign of the invoker request
-		    // is made
-		    bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
-		} catch (IOException e2) {
-		    e2.printStackTrace();
-		} catch (SAXException e) {
-		    e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-		    e.printStackTrace();
-		}
-	    }
+                    // send the state before the assign of the invoker request
+                    // is made
+                    bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
+                } catch (final IOException e2) {
+                    e2.printStackTrace();
+                } catch (final SAXException e) {
+                    e.printStackTrace();
+                } catch (final ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+            }
 
-	    if (postState != null) {
-		try {
-		    // create state assign activity
-		    BPELProcessFragments frag = new BPELProcessFragments();
-		    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-			    "assignNodeState_" + operationName + "_" + System.currentTimeMillis(),
-			    "string('" + postState + "')", stateVarName);
-		    assignNode = context.importNode(assignNode);
+            if (postState != null) {
+                try {
+                    // create state assign activity
+                    final BPELProcessFragments frag = new BPELProcessFragments();
+                    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                        "assignNodeState_" + operationName + "_" + System.currentTimeMillis(),
+                        "string('" + postState + "')", stateVarName);
+                    assignNode = context.importNode(assignNode);
 
-		    lastSetState = postState;
+                    lastSetState = postState;
 
-		    /*
-		     * assign the state after the receiving the response of the
-		     */
+                    /*
+                     * assign the state after the receiving the response of the
+                     */
 
-		    // fetch assign node
-		    Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
-			    .getParentNode();
+                    // fetch assign node
+                    final Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
+                                                                    .getParentNode();
 
-		    // fetch the variable name which is used as request body
-		    String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
+                    // fetch the variable name which is used as request body
+                    final String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
 
-		    // from the assign element search for the receive element
-		    // that is witing for the response
-		    Element invokerReceiveElement = this.fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
+                    // from the assign element search for the receive element
+                    // that is witing for the response
+                    final Element invokerReceiveElement = this.fetchInvokerReceive((Element) bpelAssignNode,
+                        reqVarName);
 
-		    // insert assign after the receive
-		    assignNode = invokerReceiveElement.getParentNode().insertBefore(assignNode,
-			    invokerReceiveElement.getNextSibling());
+                    // insert assign after the receive
+                    assignNode = invokerReceiveElement.getParentNode().insertBefore(assignNode,
+                        invokerReceiveElement.getNextSibling());
 
-		    // create PUT activity
-		    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
-			    stateVarName);
-		    Node extActiv = ModelUtils.string2dom(bpelString);
-		    extActiv = context.importNode(extActiv);
+                    // create PUT activity
+                    final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(
+                        nodeInstanceURLVarName, stateVarName);
+                    Node extActiv = ModelUtils.string2dom(bpelString);
+                    extActiv = context.importNode(extActiv);
 
-		    // insert REST call after the assign
-		    invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
+                    // insert REST call after the assign
+                    invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
 
-		} catch (IOException e2) {
-		    e2.printStackTrace();
-		} catch (SAXException e) {
-		    e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-		    e.printStackTrace();
-		}
-	    }
+                } catch (final IOException e2) {
+                    e2.printStackTrace();
+                } catch (final SAXException e) {
+                    e.printStackTrace();
+                } catch (final ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+            }
 
-	}
+        }
 
-	/*
-	 * Post Phase code
-	 */
+        /*
+         * Post Phase code
+         */
 
-	if (lastSetState.equals("initial")) {
-	    try {
-		// set state
-		String nextState = InstanceStates.getNextStableOperationState(lastSetState);
-		// if this node never was handled by lifecycle ops we just set it to started
-		if (operationNames.isEmpty()) {
-		    nextState = "started";
-		}
-		BPELProcessFragments frag = new BPELProcessFragments();
-		Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-			"assignFinalNodeState" + System.currentTimeMillis(), "string('" + nextState + "')",
-			stateVarName);
-		assignNode = context.importNode(assignNode);
+        if (lastSetState.equals("initial")) {
+            try {
+                // set state
+                String nextState = InstanceStates.getNextStableOperationState(lastSetState);
+                // if this node never was handled by lifecycle ops we just set it to started
+                if (operationNames.isEmpty()) {
+                    nextState = "started";
+                }
+                final BPELProcessFragments frag = new BPELProcessFragments();
+                Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                    "assignFinalNodeState" + System.currentTimeMillis(), "string('" + nextState + "')", stateVarName);
+                assignNode = context.importNode(assignNode);
 
-		// create PUT activity
-		String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
-			stateVarName);
-		Node extActiv = ModelUtils.string2dom(bpelString);
-		extActiv = context.importNode(extActiv);
+                // create PUT activity
+                final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
+                    stateVarName);
+                Node extActiv = ModelUtils.string2dom(bpelString);
+                extActiv = context.importNode(extActiv);
 
-		context.getPostPhaseElement().appendChild(assignNode);
-		context.getPostPhaseElement().appendChild(extActiv);
-	    } catch (IOException e2) {
-		e2.printStackTrace();
-	    } catch (SAXException e) {
-		e.printStackTrace();
-	    } catch (ParserConfigurationException e) {
-		e.printStackTrace();
-	    }
-	}
+                context.getPostPhaseElement().appendChild(assignNode);
+                context.getPostPhaseElement().appendChild(extActiv);
+            } catch (final IOException e2) {
+                e2.printStackTrace();
+            } catch (final SAXException e) {
+                e.printStackTrace();
+            } catch (final ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+        }
 
-	// needs property update only if the node has properties
-	if (hasProps) {
-	    // make a GET on the nodeInstance properties
+        // needs property update only if the node has properties
+        if (hasProps) {
+            // make a GET on the nodeInstance properties
 
-	    try {
-		// fetch properties
-		Node nodeInstancePropsGETNode = this.fragments
-			.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
-		nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
-		context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
-	    } catch (SAXException e1) {
-		e1.printStackTrace();
-		return false;
-	    } catch (IOException e1) {
-		e1.printStackTrace();
-		return false;
-	    }
+            try {
+                // fetch properties
+                Node nodeInstancePropsGETNode = this.fragments.generateInstancePropertiesGETAsNode(
+                    nodeInstanceURLVarName, restCallResponseVarName);
+                nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
+                context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
+            } catch (final SAXException e1) {
+                e1.printStackTrace();
+                return false;
+            } catch (final IOException e1) {
+                e1.printStackTrace();
+                return false;
+            }
 
-	    // assign the values from the property variables into REST/HTTP
-	    // Request
-	    // and send
-	    // first build a mapping from property variable names to dom element
-	    Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
-		    nodeTemplate.getProperties());
-	    try {
-		// then generate an assign to have code that writes the runtime
-		// values into the instance data db.
-		// we use the restCallResponseVarName from the GET before, as it
-		// has
-		// proper format
-		Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-			propertyVarNameToDOMMapping);
-		assignNode = context.importNode(assignNode);
-		context.getPostPhaseElement().appendChild(assignNode);
-	    } catch (SAXException e) {
-		e.printStackTrace();
-		return false;
-	    } catch (IOException e) {
-		e.printStackTrace();
-		return false;
-	    }
+            // assign the values from the property variables into REST/HTTP
+            // Request
+            // and send
+            // first build a mapping from property variable names to dom element
+            final Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
+                nodeTemplate.getProperties());
+            try {
+                // then generate an assign to have code that writes the runtime
+                // values into the instance data db.
+                // we use the restCallResponseVarName from the GET before, as it
+                // has
+                // proper format
+                Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
+                    propertyVarNameToDOMMapping);
+                assignNode = context.importNode(assignNode);
+                context.getPostPhaseElement().appendChild(assignNode);
+            } catch (final SAXException e) {
+                e.printStackTrace();
+                return false;
+            } catch (final IOException e) {
+                e.printStackTrace();
+                return false;
+            }
 
-	    // generate BPEL4RESTLight PUT request to update the instance data
-	    try {
-		Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-			nodeInstanceURLVarName);
-		bpel4restPUTNode = context.importNode(bpel4restPUTNode);
-		context.getPostPhaseElement().appendChild(bpel4restPUTNode);
-	    } catch (IOException e) {
-		e.printStackTrace();
-		return false;
-	    } catch (SAXException e) {
-		e.printStackTrace();
-		return false;
-	    }
-	}
-	return true;
+            // generate BPEL4RESTLight PUT request to update the instance data
+            try {
+                Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
+                    nodeInstanceURLVarName);
+                bpel4restPUTNode = context.importNode(bpel4restPUTNode);
+                context.getPostPhaseElement().appendChild(bpel4restPUTNode);
+            } catch (final IOException e) {
+                e.printStackTrace();
+                return false;
+            } catch (final SAXException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
-    public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
-	boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
+    public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
+        final boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
 
-	String serviceInstanceVarName = this.getServiceInstanceVarName(context);
-	if (serviceInstanceVarName == null) {
-	    return false;
-	}
+        final String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+        if (serviceInstanceVarName == null) {
+            return false;
+        }
 
-	/*
-	 * Pre Phase code
-	 */
+        /*
+         * Pre Phase code
+         */
 
-	// create variable for all responses
-	String restCallResponseVarName = this.createRESTResponseVar(context);
+        // create variable for all responses
+        final String restCallResponseVarName = this.createRESTResponseVar(context);
 
-	if (restCallResponseVarName == null) {
-	    return false;
-	}
+        if (restCallResponseVarName == null) {
+            return false;
+        }
 
-	// create state variable inside scope
-	String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
+        // create state variable inside scope
+        final String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
 
-	if (stateVarName == null) {
-	    return false;
-	}
+        if (stateVarName == null) {
+            return false;
+        }
 
-	String nodeInstanceURLVarName = "";
+        String nodeInstanceURLVarName = "";
 
-	if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
-	    // generate String var for nodeInstance URL
-	    nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
-	} else {
-	    nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
-	}
+        if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
+            // generate String var for nodeInstance URL
+            nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+        } else {
+            nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
+        }
 
-	if (nodeInstanceURLVarName == null) {
-	    return false;
-	}
+        if (nodeInstanceURLVarName == null) {
+            return false;
+        }
 
-	// we'll use this later when we determine that the handle Node doesn't
-	// have lifecycle operations. Without this check all nodes without
-	// lifecycle (or cloud prov operations) will be in an uninstalled state
-	String lastSetState = "deleted";
+        // we'll use this later when we determine that the handle Node doesn't
+        // have lifecycle operations. Without this check all nodes without
+        // lifecycle (or cloud prov operations) will be in an uninstalled state
+        String lastSetState = "deleted";
 
-	/*
-	 * Prov Phase code
-	 */
+        /*
+         * Prov Phase code
+         */
 
-	// fetch all assigns that assign an invoke async operation request
+        // fetch all assigns that assign an invoke async operation request
 
-	Element provisioningPhaseElement = context.getProvisioningPhaseElement();
-	List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
+        final Element provisioningPhaseElement = context.getProvisioningPhaseElement();
+        final List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
 
-	// for each assign element we fetch the operation name, determine the
-	// pre and post states, and append the pre state before the found assign
-	// and the post state after the receive of the invoker iteraction
-	for (Element assignContentElement : assignContentElements) {
+        // for each assign element we fetch the operation name, determine the
+        // pre and post states, and append the pre state before the found assign
+        // and the post state after the receive of the invoker iteraction
+        for (final Element assignContentElement : assignContentElements) {
 
-	    // fetch operationName from literal contents
-	    String operationName = this.fetchOperationName(assignContentElement);
-	    // determine pre and post state for operation
-	    String preState = InstanceStates.getOperationPreState(operationName);
-	    String postState = InstanceStates.getOperationPostState(operationName);
+            // fetch operationName from literal contents
+            final String operationName = this.fetchOperationName(assignContentElement);
+            // determine pre and post state for operation
+            final String preState = InstanceStates.getOperationPreState(operationName);
+            final String postState = InstanceStates.getOperationPostState(operationName);
 
-	    if (preState != null) {
+            if (preState != null) {
 
-		try {
+                try {
 
-		    // assign prestate to state variable
-		    BPELProcessFragments frag = new BPELProcessFragments();
-		    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-			    "assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(),
-			    "string('" + preState + "')", stateVarName);
-		    assignNode = context.importNode(assignNode);
-		    lastSetState = preState;
+                    // assign prestate to state variable
+                    final BPELProcessFragments frag = new BPELProcessFragments();
+                    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                        "assignNodeStateFor_" + operationName + "_" + System.currentTimeMillis(),
+                        "string('" + preState + "')", stateVarName);
+                    assignNode = context.importNode(assignNode);
+                    lastSetState = preState;
 
-		    // assign the state before the assign of the invoker request
-		    // is made
-		    Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
-			    .getParentNode();
-		    bpelAssignNode.getParentNode().insertBefore(assignNode, bpelAssignNode);
+                    // assign the state before the assign of the invoker request
+                    // is made
+                    final Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
+                                                                    .getParentNode();
+                    bpelAssignNode.getParentNode().insertBefore(assignNode, bpelAssignNode);
 
-		    // create REST Put activity
-		    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
-			    stateVarName);
-		    Node extActiv = ModelUtils.string2dom(bpelString);
-		    extActiv = context.importNode(extActiv);
+                    // create REST Put activity
+                    final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(
+                        nodeInstanceURLVarName, stateVarName);
+                    Node extActiv = ModelUtils.string2dom(bpelString);
+                    extActiv = context.importNode(extActiv);
 
-		    // send the state before the assign of the invoker request
-		    // is made
-		    bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
-		} catch (IOException e2) {
-		    e2.printStackTrace();
-		} catch (SAXException e) {
-		    e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-		    e.printStackTrace();
-		}
-	    }
+                    // send the state before the assign of the invoker request
+                    // is made
+                    bpelAssignNode.getParentNode().insertBefore(extActiv, bpelAssignNode);
+                } catch (final IOException e2) {
+                    e2.printStackTrace();
+                } catch (final SAXException e) {
+                    e.printStackTrace();
+                } catch (final ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+            }
 
-	    if (postState != null) {
-		try {
-		    // create state assign activity
-		    BPELProcessFragments frag = new BPELProcessFragments();
-		    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-			    "assignNodeState_" + operationName + "_" + System.currentTimeMillis(),
-			    "string('" + postState + "')", stateVarName);
-		    assignNode = context.importNode(assignNode);
+            if (postState != null) {
+                try {
+                    // create state assign activity
+                    final BPELProcessFragments frag = new BPELProcessFragments();
+                    Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
+                        "assignNodeState_" + operationName + "_" + System.currentTimeMillis(),
+                        "string('" + postState + "')", stateVarName);
+                    assignNode = context.importNode(assignNode);
 
-		    lastSetState = postState;
+                    lastSetState = postState;
 
-		    /*
-		     * assign the state after the receiving the response of the
-		     */
+                    /*
+                     * assign the state after the receiving the response of the
+                     */
 
-		    // fetch assign node
-		    Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
-			    .getParentNode();
+                    // fetch assign node
+                    final Node bpelAssignNode = assignContentElement.getParentNode().getParentNode().getParentNode()
+                                                                    .getParentNode();
 
-		    // fetch the variable name which is used as request body
-		    String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
+                    // fetch the variable name which is used as request body
+                    final String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
 
-		    // from the assign element search for the receive element
-		    // that is witing for the response
-		    Element invokerReceiveElement = this.fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
+                    // from the assign element search for the receive element
+                    // that is witing for the response
+                    final Element invokerReceiveElement = this.fetchInvokerReceive((Element) bpelAssignNode,
+                        reqVarName);
 
-		    // insert assign after the receive
-		    assignNode = invokerReceiveElement.getParentNode().insertBefore(assignNode,
-			    invokerReceiveElement.getNextSibling());
+                    // insert assign after the receive
+                    assignNode = invokerReceiveElement.getParentNode().insertBefore(assignNode,
+                        invokerReceiveElement.getNextSibling());
 
-		    // create PUT activity
-		    String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(nodeInstanceURLVarName,
-			    stateVarName);
-		    Node extActiv = ModelUtils.string2dom(bpelString);
-		    extActiv = context.importNode(extActiv);
+                    // create PUT activity
+                    final String bpelString = this.fragments.generateBPEL4RESTLightPUTInstanceState(
+                        nodeInstanceURLVarName, stateVarName);
+                    Node extActiv = ModelUtils.string2dom(bpelString);
+                    extActiv = context.importNode(extActiv);
 
-		    // insert REST call after the assign
-		    invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
+                    // insert REST call after the assign
+                    invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
 
-		} catch (IOException e2) {
-		    e2.printStackTrace();
-		} catch (SAXException e) {
-		    e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-		    e.printStackTrace();
-		}
-	    }
+                } catch (final IOException e2) {
+                    e2.printStackTrace();
+                } catch (final SAXException e) {
+                    e.printStackTrace();
+                } catch (final ParserConfigurationException e) {
+                    e.printStackTrace();
+                }
+            }
 
-	}
+        }
 
-	// needs property update only if the node has properties
-	if (hasProps) {
-	    // make a GET on the nodeInstance properties
+        // needs property update only if the node has properties
+        if (hasProps) {
+            // make a GET on the nodeInstance properties
 
-	    try {
-		// fetch properties
-		Node nodeInstancePropsGETNode = this.fragments
-			.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
-		nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
-		context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
-	    } catch (SAXException e1) {
-		e1.printStackTrace();
-		return false;
-	    } catch (IOException e1) {
-		e1.printStackTrace();
-		return false;
-	    }
+            try {
+                // fetch properties
+                Node nodeInstancePropsGETNode = this.fragments.generateInstancePropertiesGETAsNode(
+                    nodeInstanceURLVarName, restCallResponseVarName);
+                nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
+                context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
+            } catch (final SAXException e1) {
+                e1.printStackTrace();
+                return false;
+            } catch (final IOException e1) {
+                e1.printStackTrace();
+                return false;
+            }
 
-	    // assign the values from the property variables into REST/HTTP
-	    // Request
-	    // and send
-	    // first build a mapping from property variable names to dom element
-	    Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
-		    nodeTemplate.getProperties());
-	    try {
-		// then generate an assign to have code that writes the runtime
-		// values into the instance data db.
-		// we use the restCallResponseVarName from the GET before, as it
-		// has
-		// proper format
-		Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-			propertyVarNameToDOMMapping);
-		assignNode = context.importNode(assignNode);
-		context.getPostPhaseElement().appendChild(assignNode);
-	    } catch (SAXException e) {
-		e.printStackTrace();
-		return false;
-	    } catch (IOException e) {
-		e.printStackTrace();
-		return false;
-	    }
+            // assign the values from the property variables into REST/HTTP
+            // Request
+            // and send
+            // first build a mapping from property variable names to dom element
+            final Map<String, Node> propertyVarNameToDOMMapping = this.buildMappingsFromVarNameToDomElement(context,
+                nodeTemplate.getProperties());
+            try {
+                // then generate an assign to have code that writes the runtime
+                // values into the instance data db.
+                // we use the restCallResponseVarName from the GET before, as it
+                // has
+                // proper format
+                Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
+                    propertyVarNameToDOMMapping);
+                assignNode = context.importNode(assignNode);
+                context.getPostPhaseElement().appendChild(assignNode);
+            } catch (final SAXException e) {
+                e.printStackTrace();
+                return false;
+            } catch (final IOException e) {
+                e.printStackTrace();
+                return false;
+            }
 
-	    // generate BPEL4RESTLight PUT request to update the instance data
-	    try {
-		Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-			nodeInstanceURLVarName);
-		bpel4restPUTNode = context.importNode(bpel4restPUTNode);
-		context.getPostPhaseElement().appendChild(bpel4restPUTNode);
-	    } catch (IOException e) {
-		e.printStackTrace();
-		return false;
-	    } catch (SAXException e) {
-		e.printStackTrace();
-		return false;
-	    }
-	}
+            // generate BPEL4RESTLight PUT request to update the instance data
+            try {
+                Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
+                    nodeInstanceURLVarName);
+                bpel4restPUTNode = context.importNode(bpel4restPUTNode);
+                context.getPostPhaseElement().appendChild(bpel4restPUTNode);
+            } catch (final IOException e) {
+                e.printStackTrace();
+                return false;
+            } catch (final SAXException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
 
-	// try {
-	// Node deleteNode =
-	// this.fragments.createRESTDeleteOnURLBPELVarAsNode(nodeInstanceURLVarName,
-	// restCallResponseVarName);
-	//
-	// deleteNode = context.importNode(deleteNode);
-	//
-	// context.getPostPhaseElement().appendChild(deleteNode);
-	//
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// return false;
-	// } catch (SAXException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	return true;
+        // try {
+        // Node deleteNode =
+        // this.fragments.createRESTDeleteOnURLBPELVarAsNode(nodeInstanceURLVarName,
+        // restCallResponseVarName);
+        //
+        // deleteNode = context.importNode(deleteNode);
+        //
+        // context.getPostPhaseElement().appendChild(deleteNode);
+        //
+        // } catch (IOException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // return false;
+        // } catch (SAXException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        return true;
     }
 }

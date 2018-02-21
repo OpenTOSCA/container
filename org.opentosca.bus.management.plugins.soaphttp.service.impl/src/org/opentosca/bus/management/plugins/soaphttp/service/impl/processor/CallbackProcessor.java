@@ -27,8 +27,8 @@ import org.w3c.dom.Element;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
- * This processor processes incoming soap messages. It checks if the messages
- * are containing existing messageIDs.
+ * This processor processes incoming soap messages. It checks if the messages are containing
+ * existing messageIDs.
  *
  *
  *
@@ -36,68 +36,69 @@ import org.w3c.dom.Element;
  *
  */
 public class CallbackProcessor implements Processor {
-	
-	final private static Logger LOG = LoggerFactory.getLogger(CallbackProcessor.class);
+
+    final private static Logger LOG = LoggerFactory.getLogger(CallbackProcessor.class);
 
 
-	@Override
-	public void process(final Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		final Set<String> messageIDs = ManagementBusPluginSoapHttpServiceImpl.getMessageIDs();
+        final Set<String> messageIDs = ManagementBusPluginSoapHttpServiceImpl.getMessageIDs();
 
-		CallbackProcessor.LOG.debug("Stored messageIDs: {}", messageIDs.toString());
+        CallbackProcessor.LOG.debug("Stored messageIDs: {}", messageIDs.toString());
 
-		// copy SOAP headers in camel exchange header
-		@SuppressWarnings("unchecked")
-		final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
-		Element element;
-		if (soapHeaders != null) {
-			for (final SoapHeader header : soapHeaders) {
-				element = (Element) header.getObject();
-				exchange.getIn().setHeader(element.getLocalName(), element.getTextContent());
-			}
-		}
+        // copy SOAP headers in camel exchange header
+        @SuppressWarnings("unchecked")
+        final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
+        Element element;
+        if (soapHeaders != null) {
+            for (final SoapHeader header : soapHeaders) {
+                element = (Element) header.getObject();
+                exchange.getIn().setHeader(element.getLocalName(), element.getTextContent());
+            }
+        }
 
-		final String message = exchange.getIn().getBody(String.class);
-		final Map<String, Object> headers = exchange.getIn().getHeaders();
+        final String message = exchange.getIn().getBody(String.class);
+        final Map<String, Object> headers = exchange.getIn().getHeaders();
 
-		CallbackProcessor.LOG.debug("Searching the callback Message for a MessageID matching the stored ones...");
+        CallbackProcessor.LOG.debug("Searching the callback Message for a MessageID matching the stored ones...");
 
-		for (final String messageID : messageIDs) {
+        for (final String messageID : messageIDs) {
 
-			// checks if the callback message contains a stored messageID
-			// if (message.matches("(?s).*\\s*[^a-zA-Z0-9-]" + messageID +
-			// "[^a-zA-Z0-9-]\\s*(?s).*") || headers.containsValue(messageID)) {
-			if (message.contains(messageID) || headers.containsValue(messageID)) {
-				
-				CallbackProcessor.LOG.debug("Found MessageID: {}", messageID);
+            // checks if the callback message contains a stored messageID
+            // if (message.matches("(?s).*\\s*[^a-zA-Z0-9-]" + messageID +
+            // "[^a-zA-Z0-9-]\\s*(?s).*") || headers.containsValue(messageID)) {
+            if (message.contains(messageID) || headers.containsValue(messageID)) {
 
-				final MessageFactory messageFactory = MessageFactory.newInstance();
+                CallbackProcessor.LOG.debug("Found MessageID: {}", messageID);
 
-				final InputStream inputStream = new ByteArrayInputStream(message.getBytes("UTF-8"));
-				final SOAPMessage soapMessage = messageFactory.createMessage(null, inputStream);
+                final MessageFactory messageFactory = MessageFactory.newInstance();
 
-				exchange.getIn().setHeader("MessageID", messageID);
-				exchange.getIn().setHeader("AvailableMessageID", "true");
+                final InputStream inputStream = new ByteArrayInputStream(message.getBytes("UTF-8"));
+                final SOAPMessage soapMessage = messageFactory.createMessage(null, inputStream);
 
-				Document doc;
+                exchange.getIn().setHeader("MessageID", messageID);
+                exchange.getIn().setHeader("AvailableMessageID", "true");
 
-				try {
-					doc = soapMessage.getSOAPBody().extractContentAsDocument();
-					exchange.getIn().setBody(doc);
+                Document doc;
 
-				} catch (final SOAPException e) {
+                try {
+                    doc = soapMessage.getSOAPBody().extractContentAsDocument();
+                    exchange.getIn().setBody(doc);
 
-					doc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
+                } catch (final SOAPException e) {
 
-					CallbackProcessor.LOG.warn("SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
-					exchange.getIn().setBody(doc);
-				}
+                    doc = soapMessage.getSOAPPart().getEnvelope().getOwnerDocument();
 
-				break;
+                    CallbackProcessor.LOG.warn(
+                        "SOAP response body can't be parsed and/or isn't well formatted. Returning alternative response.");
+                    exchange.getIn().setBody(doc);
+                }
 
-			}
-		}
+                break;
 
-	}
+            }
+        }
+
+    }
 }

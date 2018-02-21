@@ -32,74 +32,78 @@ import org.w3c.dom.Document;
  *
  */
 public class ServiceTemplateInstancePropertiesResource {
-	
-	private final CSARID csarId;
-	private final QName serviceTemplateID;
-	private final int serviceInstanceID;
+
+    private final CSARID csarId;
+    private final QName serviceTemplateID;
+    private final int serviceInstanceID;
 
 
-	public ServiceTemplateInstancePropertiesResource(final CSARID csarId, final QName serviceTemplateID, final int id) {
-		this.csarId = csarId;
-		this.serviceTemplateID = serviceTemplateID;
-		this.serviceInstanceID = id;
-	}
+    public ServiceTemplateInstancePropertiesResource(final CSARID csarId, final QName serviceTemplateID, final int id) {
+        this.csarId = csarId;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceInstanceID = id;
+    }
 
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@QueryParam("property") final List<String> propertiesList) {
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response doGetXML(@QueryParam("property") final List<String> propertiesList) {
 
-		final Document idr = this.getRefs(propertiesList);
+        final Document idr = this.getRefs(propertiesList);
 
-		return Response.ok(idr).build();
-	}
+        return Response.ok(idr).build();
+    }
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@QueryParam("property") final List<String> propertiesList) {
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response doGetJSON(@QueryParam("property") final List<String> propertiesList) {
 
-		final Document idr = this.getRefs(propertiesList);
+        final Document idr = this.getRefs(propertiesList);
 
-		return Response.ok(new JSONUtils().xmlToGenericJsonObject(idr.getChildNodes()).toString()).build();
-	}
+        return Response.ok(new JSONUtils().xmlToGenericJsonObject(idr.getChildNodes()).toString()).build();
+    }
 
-	public Document getRefs(final List<String> propertiesList) {
-		final List<QName> qnameList = new ArrayList<>();
+    public Document getRefs(final List<String> propertiesList) {
+        final List<QName> qnameList = new ArrayList<>();
 
-		// convert all String in propertyList to qnames
-		try {
-			if (propertiesList != null) {
-				for (final String stringValue : propertiesList) {
-					qnameList.add(QName.valueOf(stringValue));
-				}
-			}
-		} catch (final Exception e) {
-			throw new GenericRestException(Status.BAD_REQUEST, "error converting one of the properties-parameters: " + e.getMessage());
-		}
+        // convert all String in propertyList to qnames
+        try {
+            if (propertiesList != null) {
+                for (final String stringValue : propertiesList) {
+                    qnameList.add(QName.valueOf(stringValue));
+                }
+            }
+        } catch (final Exception e) {
+            throw new GenericRestException(Status.BAD_REQUEST,
+                "error converting one of the properties-parameters: " + e.getMessage());
+        }
 
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-		try {
-			final Document properties = service.getServiceInstanceProperties(IdConverter.serviceInstanceIDtoURI(this.serviceInstanceID), qnameList);
-			return properties;
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
-		}
-	}
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        try {
+            final Document properties = service.getServiceInstanceProperties(
+                IdConverter.serviceInstanceIDtoURI(this.serviceInstanceID), qnameList);
+            return properties;
+        } catch (final ReferenceNotFoundException e) {
+            throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
+        }
+    }
 
-	@PUT
-	@Produces(MediaType.APPLICATION_XML)
-	@Consumes(MediaType.APPLICATION_XML)
-	public Response setProperties(@Context final UriInfo uriInfo, final Document xml) {
+    @PUT
+    @Produces(MediaType.APPLICATION_XML)
+    @Consumes(MediaType.APPLICATION_XML)
+    public Response setProperties(@Context final UriInfo uriInfo, final Document xml) {
 
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
-		try {
-			service.setServiceInstanceProperties(IdConverter.serviceInstanceIDtoURI(this.serviceInstanceID), xml);
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
-		}
+        try {
+            service.setServiceInstanceProperties(IdConverter.serviceInstanceIDtoURI(this.serviceInstanceID), xml);
+        } catch (final ReferenceNotFoundException e) {
+            throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
+        }
 
-		final SimpleXLink xLink = new SimpleXLink(LinkBuilder.linkToServiceInstanceProperties(uriInfo, this.serviceInstanceID), "ServiceInstance: " + this.serviceInstanceID + " Properties");
-		return Response.ok(xLink).build();
-	}
+        final SimpleXLink xLink = new SimpleXLink(
+            LinkBuilder.linkToServiceInstanceProperties(uriInfo, this.serviceInstanceID),
+            "ServiceInstance: " + this.serviceInstanceID + " Properties");
+        return Response.ok(xLink).build();
+    }
 
 }

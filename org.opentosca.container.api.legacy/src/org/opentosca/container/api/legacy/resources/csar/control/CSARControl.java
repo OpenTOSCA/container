@@ -33,45 +33,48 @@ import org.slf4j.LoggerFactory;
 @Path("/CSARControl")
 public class CSARControl {
 
-	private static Logger LOG = LoggerFactory.getLogger(CSARControl.class);
-	private final ICoreFileService fileHandler;
-	@Context
-	UriInfo uriInfo;
-	@Context
-	Request request;
+    private static Logger LOG = LoggerFactory.getLogger(CSARControl.class);
+    private final ICoreFileService fileHandler;
+    @Context
+    UriInfo uriInfo;
+    @Context
+    Request request;
 
 
-	public CSARControl() {
-		this.fileHandler = FileRepositoryServiceHandler.getFileHandler();
-		CSARControl.LOG.info("{} created: {}", this.getClass(), this);
-	}
+    public CSARControl() {
+        this.fileHandler = FileRepositoryServiceHandler.getFileHandler();
+        CSARControl.LOG.info("{} created: {}", this.getClass(), this);
+    }
 
-	@GET
-	@Produces(ResourceConstants.TOSCA_XML)
-	public Response getReferences() {
-		final References refs = new References();
-		// If a CSAR file is stored, it automatically is an ongoing
-		// DeploymentProcess
-		for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
-			final Reference ref = new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE, csarID.toString());
-			refs.getReference().add(ref);
-		}
+    @GET
+    @Produces(ResourceConstants.TOSCA_XML)
+    public Response getReferences() {
+        final References refs = new References();
+        // If a CSAR file is stored, it automatically is an ongoing
+        // DeploymentProcess
+        for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
+            final Reference ref = new Reference(
+                Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), csarID.toString()), XLinkConstants.SIMPLE,
+                csarID.toString());
+            refs.getReference().add(ref);
+        }
 
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return Response.ok(refs.getXMLString()).build();
-	}
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        return Response.ok(refs.getXMLString()).build();
+    }
 
-	@Path("{id}")
-	public DeploymentProcessResource getDeploymentProcessResource(@PathParam("id") final String id) {
-		CSARID processID = null;
-		CSARControl.LOG.info("Trying to find DeploymentProcess with id: {}", id);
-		for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
-			if (csarID.toString().trim().equals(id.trim())) {
-				CSARControl.LOG.info("Found DeploymentProcess with id: {}", id);
-				processID = csarID;
-			}
-		}
-		return new DeploymentProcessResource(processID);
-	}
+    @Path("{id}")
+    public DeploymentProcessResource getDeploymentProcessResource(@PathParam("id") final String id) {
+        CSARID processID = null;
+        CSARControl.LOG.info("Trying to find DeploymentProcess with id: {}", id);
+        for (final CSARID csarID : this.fileHandler.getCSARIDs()) {
+            if (csarID.toString().trim().equals(id.trim())) {
+                CSARControl.LOG.info("Found DeploymentProcess with id: {}", id);
+                processID = csarID;
+            }
+        }
+        return new DeploymentProcessResource(processID);
+    }
 }

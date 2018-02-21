@@ -9,90 +9,90 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 
 public class ReferenceMap implements Map<CSARID, MapQNameNode> {
 
-	private Map<CSARID, MapQNameNode> csarIDToMapQNameNode = new HashMap<>();
-	
-	
-	@Override
-	public void clear() {
+    private Map<CSARID, MapQNameNode> csarIDToMapQNameNode = new HashMap<>();
 
-		this.csarIDToMapQNameNode.clear();
-	}
 
-	@Override
-	public boolean containsKey(final Object key) {
+    @Override
+    public void clear() {
 
-		return this.csarIDToMapQNameNode.containsKey(key);
-	}
+        this.csarIDToMapQNameNode.clear();
+    }
 
-	@Override
-	public boolean containsValue(final Object value) {
+    @Override
+    public boolean containsKey(final Object key) {
 
-		return this.csarIDToMapQNameNode.containsValue(value);
-	}
+        return this.csarIDToMapQNameNode.containsKey(key);
+    }
 
-	@Override
-	public Set<java.util.Map.Entry<CSARID, MapQNameNode>> entrySet() {
+    @Override
+    public boolean containsValue(final Object value) {
 
-		return this.csarIDToMapQNameNode.entrySet();
-	}
+        return this.csarIDToMapQNameNode.containsValue(value);
+    }
 
-	@Override
-	public MapQNameNode get(final Object key) {
+    @Override
+    public Set<java.util.Map.Entry<CSARID, MapQNameNode>> entrySet() {
 
-		return this.csarIDToMapQNameNode.get(key);
-	}
+        return this.csarIDToMapQNameNode.entrySet();
+    }
 
-	@Override
-	public boolean isEmpty() {
+    @Override
+    public MapQNameNode get(final Object key) {
 
-		return this.csarIDToMapQNameNode.isEmpty();
-	}
+        return this.csarIDToMapQNameNode.get(key);
+    }
 
-	@Override
-	public Set<CSARID> keySet() {
+    @Override
+    public boolean isEmpty() {
 
-		return this.csarIDToMapQNameNode.keySet();
-	}
+        return this.csarIDToMapQNameNode.isEmpty();
+    }
 
-	@Override
-	public MapQNameNode put(final CSARID key, final MapQNameNode value) {
+    @Override
+    public Set<CSARID> keySet() {
 
-		final MapQNameNode result = this.csarIDToMapQNameNode.put(key, value);
-		return result;
-	}
+        return this.csarIDToMapQNameNode.keySet();
+    }
 
-	@Override
-	public void putAll(final Map<? extends CSARID, ? extends MapQNameNode> m) {
+    @Override
+    public MapQNameNode put(final CSARID key, final MapQNameNode value) {
 
-		this.csarIDToMapQNameNode.putAll(m);
-	}
+        final MapQNameNode result = this.csarIDToMapQNameNode.put(key, value);
+        return result;
+    }
 
-	@Override
-	public MapQNameNode remove(final Object key) {
+    @Override
+    public void putAll(final Map<? extends CSARID, ? extends MapQNameNode> m) {
 
-		final MapQNameNode result = this.csarIDToMapQNameNode.remove(key);
-		return result;
-	}
+        this.csarIDToMapQNameNode.putAll(m);
+    }
 
-	@Override
-	public int size() {
+    @Override
+    public MapQNameNode remove(final Object key) {
 
-		return this.csarIDToMapQNameNode.size();
-	}
+        final MapQNameNode result = this.csarIDToMapQNameNode.remove(key);
+        return result;
+    }
 
-	@Override
-	public Collection<MapQNameNode> values() {
+    @Override
+    public int size() {
 
-		return this.csarIDToMapQNameNode.values();
-	}
+        return this.csarIDToMapQNameNode.size();
+    }
 
-	public Map<CSARID, MapQNameNode> getCsarIDToMapQNameNode() {
+    @Override
+    public Collection<MapQNameNode> values() {
 
-		return this.csarIDToMapQNameNode;
-	}
+        return this.csarIDToMapQNameNode.values();
+    }
 
-	public void setCsarIDToMapQNameNode(final Map<CSARID, MapQNameNode> referenceMap) {
+    public Map<CSARID, MapQNameNode> getCsarIDToMapQNameNode() {
 
-		this.csarIDToMapQNameNode = referenceMap;
-	}
+        return this.csarIDToMapQNameNode;
+    }
+
+    public void setCsarIDToMapQNameNode(final Map<CSARID, MapQNameNode> referenceMap) {
+
+        this.csarIDToMapQNameNode = referenceMap;
+    }
 }

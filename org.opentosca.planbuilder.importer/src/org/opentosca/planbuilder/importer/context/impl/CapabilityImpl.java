@@ -11,46 +11,46 @@ import org.opentosca.planbuilder.model.tosca.AbstractCapability;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class CapabilityImpl extends AbstractCapability {
-	
-	private TCapability capability;
-	
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param capability a JAXB TCapability Object
-	 */
-	public CapabilityImpl(TCapability capability) {
-		this.capability = capability;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getId() {
-		return this.capability.getId();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getName() {
-		return this.capability.getName();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public QName getType() {
-		return this.capability.getType();
-	}
-	
+
+    private final TCapability capability;
+
+
+    /**
+     * Constructor
+     *
+     * @param capability a JAXB TCapability Object
+     */
+    public CapabilityImpl(final TCapability capability) {
+        this.capability = capability;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getId() {
+        return this.capability.getId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return this.capability.getName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QName getType() {
+        return this.capability.getType();
+    }
+
 }

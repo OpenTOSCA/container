@@ -12,37 +12,37 @@ import org.slf4j.LoggerFactory;
 /**
  * InvocationResponseProcessor of the Application Bus-REST/HTTP-API.<br>
  * <br>
- * 
+ *
  * This processor handles the responses of "invokeOperation" requests.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class InvocationResponseProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(InvocationResponseProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(InvocationResponseProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		InvocationResponseProcessor.LOG.debug("Processing Invocation response....");
+        InvocationResponseProcessor.LOG.debug("Processing Invocation response....");
 
-		String requestID = exchange.getIn().getBody(String.class);
+        final String requestID = exchange.getIn().getBody(String.class);
 
-		InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
+        InvocationResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-		String invokeURI = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
-		String pollingURI = invokeURI + Route.POLL_ENDPOINT_SUFFIX.replace(Route.ID_PLACEHODLER, requestID);
+        final String invokeURI = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
+        final String pollingURI = invokeURI + Route.POLL_ENDPOINT_SUFFIX.replace(Route.ID_PLACEHODLER, requestID);
 
-		InvocationResponseProcessor.LOG.debug("Polling URI: {}", pollingURI);
+        InvocationResponseProcessor.LOG.debug("Polling URI: {}", pollingURI);
 
-		Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
-		response.setStatus(Status.SUCCESS_ACCEPTED);
-		response.setLocationRef(pollingURI);
-		exchange.getOut().setBody(response);
+        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        response.setStatus(Status.SUCCESS_ACCEPTED);
+        response.setLocationRef(pollingURI);
+        exchange.getOut().setBody(response);
 
-	}
+    }
 
 }

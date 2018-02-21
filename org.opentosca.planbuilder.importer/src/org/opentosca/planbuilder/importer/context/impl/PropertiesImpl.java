@@ -12,17 +12,16 @@ public class PropertiesImpl extends AbstractProperties {
     private Object props = null;
     private boolean isDOM = false;
 
-    public PropertiesImpl(Object properties) {
+    public PropertiesImpl(final Object properties) {
         this.props = properties;
-        if (properties.getClass().getName()
-                .equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
+        if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
             this.isDOM = true;
         }
     }
 
     @Override
     public Element getDOMElement() {
-        return (this.isDOM) ? (Element) this.props : null;
+        return this.isDOM ? (Element) this.props : null;
     }
 
     @Override

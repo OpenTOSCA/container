@@ -8,8 +8,8 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of
- * NodeTemplate Instances to the OpenTOSCA Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
+ * the OpenTOSCA Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -19,17 +19,17 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
  */
 public abstract class SelectionInputPlugin<T extends PlanContext> implements IScalingPlanBuilderSelectionPlugin<T> {
 
-	private static final String PLUGIN_ID = "OpenTOSCA Input Selection Plugin";
-	private static final String INPUT_SELECTION_STRATEGY = "UserProvided";
+    private static final String PLUGIN_ID = "OpenTOSCA Input Selection Plugin";
+    private static final String INPUT_SELECTION_STRATEGY = "UserProvided";
 
-	@Override
-	public boolean canHandle(AbstractNodeTemplate nodeTemplate, List<String> selectionStrategies) {
-		return selectionStrategies.contains(SelectionInputPlugin.INPUT_SELECTION_STRATEGY);
-	}
+    @Override
+    public boolean canHandle(final AbstractNodeTemplate nodeTemplate, final List<String> selectionStrategies) {
+        return selectionStrategies.contains(SelectionInputPlugin.INPUT_SELECTION_STRATEGY);
+    }
 
-	@Override
-	public String getID() {
-		return SelectionInputPlugin.PLUGIN_ID;
-	}
+    @Override
+    public String getID() {
+        return SelectionInputPlugin.PLUGIN_ID;
+    }
 
 }

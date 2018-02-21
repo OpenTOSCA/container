@@ -25,78 +25,78 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanInstanceDTO extends ResourceSupport {
 
-  @JsonIgnore
-  private PlanInstance pi;
+    @JsonIgnore
+    private PlanInstance pi;
 
 
-  public PlanInstanceDTO() {
+    public PlanInstanceDTO() {
 
-  }
+    }
 
-  public PlanInstanceDTO(PlanInstance pi) {
-    this.pi = pi;
-  }
+    public PlanInstanceDTO(final PlanInstance pi) {
+        this.pi = pi;
+    }
 
-  @JsonProperty
-  @XmlAttribute(name = "id")
-  public String getId() {
-    return this.pi.getCorrelationId();
-  }
+    @JsonProperty
+    @XmlAttribute(name = "id")
+    public String getId() {
+        return this.pi.getCorrelationId();
+    }
 
-  public void setId(final String id) {
-    this.pi.setCorrelationId(id);
-  }
+    public void setId(final String id) {
+        this.pi.setCorrelationId(id);
+    }
 
-  @JsonProperty
-  @XmlAttribute(name = "state")
-  public PlanInstanceState getState() {
-    return this.pi.getState();
-  }
+    @JsonProperty
+    @XmlAttribute(name = "state")
+    public PlanInstanceState getState() {
+        return this.pi.getState();
+    }
 
-  public void setState(final PlanInstanceState state) {
-    this.pi.setState(state);
-  }
+    public void setState(final PlanInstanceState state) {
+        this.pi.setState(state);
+    }
 
-  @JsonProperty
-  @XmlElement(name = "OutputParameter")
-  @XmlElementWrapper(name = "OutputParameters")
-  public Collection<PlanInstanceOutput> getOutput() {
-    return this.pi.getOutputs();
-  }
+    @JsonProperty
+    @XmlElement(name = "OutputParameter")
+    @XmlElementWrapper(name = "OutputParameters")
+    public Collection<PlanInstanceOutput> getOutput() {
+        return this.pi.getOutputs();
+    }
 
-  public void setOutput(final Set<PlanInstanceOutput> output) {
-    this.pi.setOutputs(output);
-  }
+    public void setOutput(final Set<PlanInstanceOutput> output) {
+        this.pi.setOutputs(output);
+    }
 
-  @JsonProperty
-  @XmlElement(name = "InputParameter")
-  @XmlElementWrapper(name = "InputParameters")
-  public Collection<PlanInstanceInput> getInput() {
-    return this.pi.getInputs();
-  }
+    @JsonProperty
+    @XmlElement(name = "InputParameter")
+    @XmlElementWrapper(name = "InputParameters")
+    public Collection<PlanInstanceInput> getInput() {
+        return this.pi.getInputs();
+    }
 
-  public void setInput(final Set<PlanInstanceInput> input) {
-    this.pi.setInputs(input);
-  }
+    public void setInput(final Set<PlanInstanceInput> input) {
+        this.pi.setInputs(input);
+    }
 
-  @JsonProperty
-  @XmlElement(name = "LogEntry")
-  @XmlElementWrapper(name = "Logs")
-  public List<PlanInstanceEvent> getLogs() {
-    return this.pi.getEvents();
-  }
+    @JsonProperty
+    @XmlElement(name = "LogEntry")
+    @XmlElementWrapper(name = "Logs")
+    public List<PlanInstanceEvent> getLogs() {
+        return this.pi.getEvents();
+    }
 
-  public void setLogs(final List<PlanInstanceEvent> logs) {
-    this.pi.setEvents(logs);
-  }
+    public void setLogs(final List<PlanInstanceEvent> logs) {
+        this.pi.setEvents(logs);
+    }
 
-  @JsonIgnore
-  @XmlTransient
-  public ServiceTemplateInstance getServiceTemplateInstance() {
-    return this.pi.getServiceTemplateInstance();
-  }
+    @JsonIgnore
+    @XmlTransient
+    public ServiceTemplateInstance getServiceTemplateInstance() {
+        return this.pi.getServiceTemplateInstance();
+    }
 
-  public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
-    this.pi.setServiceTemplateInstance(serviceTemplateInstance);
-  }
+    public void setServiceTemplateInstance(final ServiceTemplateInstance serviceTemplateInstance) {
+        this.pi.setServiceTemplateInstance(serviceTemplateInstance);
+    }
 }

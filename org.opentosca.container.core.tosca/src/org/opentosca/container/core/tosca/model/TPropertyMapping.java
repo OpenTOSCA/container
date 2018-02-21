@@ -21,11 +21,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tPropertyMapping complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tPropertyMapping">
  *   &lt;complexContent>
@@ -37,81 +36,81 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tPropertyMapping")
 public class TPropertyMapping {
-	
-	@XmlAttribute(name = "serviceTemplatePropertyRef", required = true)
-	protected String serviceTemplatePropertyRef;
-	@XmlAttribute(name = "targetObjectRef", required = true)
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
-	protected Object targetObjectRef;
-	@XmlAttribute(name = "targetPropertyRef", required = true)
-	protected String targetPropertyRef;
-	
-	
-	/**
-	 * Gets the value of the serviceTemplatePropertyRef property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getServiceTemplatePropertyRef() {
-		return this.serviceTemplatePropertyRef;
-	}
-	
-	/**
-	 * Sets the value of the serviceTemplatePropertyRef property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setServiceTemplatePropertyRef(String value) {
-		this.serviceTemplatePropertyRef = value;
-	}
-	
-	/**
-	 * Gets the value of the targetObjectRef property.
-	 * 
-	 * @return possible object is {@link Object }
-	 * 
-	 */
-	public Object getTargetObjectRef() {
-		return this.targetObjectRef;
-	}
-	
-	/**
-	 * Sets the value of the targetObjectRef property.
-	 * 
-	 * @param value allowed object is {@link Object }
-	 * 
-	 */
-	public void setTargetObjectRef(Object value) {
-		this.targetObjectRef = value;
-	}
-	
-	/**
-	 * Gets the value of the targetPropertyRef property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getTargetPropertyRef() {
-		return this.targetPropertyRef;
-	}
-	
-	/**
-	 * Sets the value of the targetPropertyRef property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setTargetPropertyRef(String value) {
-		this.targetPropertyRef = value;
-	}
-	
+
+    @XmlAttribute(name = "serviceTemplatePropertyRef", required = true)
+    protected String serviceTemplatePropertyRef;
+    @XmlAttribute(name = "targetObjectRef", required = true)
+    @XmlIDREF
+    @XmlSchemaType(name = "IDREF")
+    protected Object targetObjectRef;
+    @XmlAttribute(name = "targetPropertyRef", required = true)
+    protected String targetPropertyRef;
+
+
+    /**
+     * Gets the value of the serviceTemplatePropertyRef property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getServiceTemplatePropertyRef() {
+        return this.serviceTemplatePropertyRef;
+    }
+
+    /**
+     * Sets the value of the serviceTemplatePropertyRef property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setServiceTemplatePropertyRef(final String value) {
+        this.serviceTemplatePropertyRef = value;
+    }
+
+    /**
+     * Gets the value of the targetObjectRef property.
+     *
+     * @return possible object is {@link Object }
+     *
+     */
+    public Object getTargetObjectRef() {
+        return this.targetObjectRef;
+    }
+
+    /**
+     * Sets the value of the targetObjectRef property.
+     *
+     * @param value allowed object is {@link Object }
+     *
+     */
+    public void setTargetObjectRef(final Object value) {
+        this.targetObjectRef = value;
+    }
+
+    /**
+     * Gets the value of the targetPropertyRef property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getTargetPropertyRef() {
+        return this.targetPropertyRef;
+    }
+
+    /**
+     * Sets the value of the targetPropertyRef property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setTargetPropertyRef(final String value) {
+        this.targetPropertyRef = value;
+    }
+
 }

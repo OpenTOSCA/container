@@ -46,8 +46,7 @@ public final class PropertyParser {
         for (int x = 0; x < nodes.getLength(); x++) {
             final Node node = nodes.item(x);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
-                properties.put(node.getLocalName(),
-                        StringUtils.trimToNull(DomUtil.getNodeValue(node)));
+                properties.put(node.getLocalName(), StringUtils.trimToNull(DomUtil.getNodeValue(node)));
             }
         }
 
@@ -60,7 +59,7 @@ public final class PropertyParser {
             factory.setNamespaceAware(true);
             final DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(new StringReader(xml)));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error parsing XML string", e);
             throw new IllegalArgumentException(e);
         }
