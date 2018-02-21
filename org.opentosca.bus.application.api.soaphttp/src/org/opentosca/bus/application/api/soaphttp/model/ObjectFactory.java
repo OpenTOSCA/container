@@ -157,8 +157,8 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://opentosca.org/appinvoker/", name = "invokeMethodWithNodeInstanceID")
     public JAXBElement<InvokeMethodWithNodeInstanceID> createInvokeMethodWithNodeInstanceID(
                     final InvokeMethodWithNodeInstanceID value) {
-        return new JAXBElement<>(_InvokeMethodWithNodeInstanceID_QNAME,
-            InvokeMethodWithNodeInstanceID.class, null, value);
+        return new JAXBElement<>(_InvokeMethodWithNodeInstanceID_QNAME, InvokeMethodWithNodeInstanceID.class, null,
+            value);
     }
 
     /**
@@ -190,9 +190,8 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://opentosca.org/appinvoker/", name = "invokeMethodWithServiceInstanceIDResponse")
     public JAXBElement<InvokeMethodWithServiceInstanceIDResponse> createInvokeMethodWithServiceInstanceIDResponse(
                     final InvokeMethodWithServiceInstanceIDResponse value) {
-        return new JAXBElement<>(
-            _InvokeMethodWithServiceInstanceIDResponse_QNAME, InvokeMethodWithServiceInstanceIDResponse.class, null,
-            value);
+        return new JAXBElement<>(_InvokeMethodWithServiceInstanceIDResponse_QNAME,
+            InvokeMethodWithServiceInstanceIDResponse.class, null, value);
     }
 
     /**
@@ -201,8 +200,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://opentosca.org/appinvoker/", name = "ApplicationBusException")
     public JAXBElement<ApplicationBusException> createApplicationBusException(final ApplicationBusException value) {
-        return new JAXBElement<>(_ApplicationBusException_QNAME, ApplicationBusException.class,
-            null, value);
+        return new JAXBElement<>(_ApplicationBusException_QNAME, ApplicationBusException.class, null, value);
     }
 
     /**
@@ -222,8 +220,8 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://opentosca.org/appinvoker/", name = "invokeMethodWithServiceInstanceID")
     public JAXBElement<InvokeMethodWithServiceInstanceID> createInvokeMethodWithServiceInstanceID(
                     final InvokeMethodWithServiceInstanceID value) {
-        return new JAXBElement<>(_InvokeMethodWithServiceInstanceID_QNAME,
-            InvokeMethodWithServiceInstanceID.class, null, value);
+        return new JAXBElement<>(_InvokeMethodWithServiceInstanceID_QNAME, InvokeMethodWithServiceInstanceID.class,
+            null, value);
     }
 
     /**

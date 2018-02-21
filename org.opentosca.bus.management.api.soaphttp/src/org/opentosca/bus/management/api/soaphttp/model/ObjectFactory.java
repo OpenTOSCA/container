@@ -105,8 +105,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://siserver.org/schema", name = "invokeOperationAsync")
     public JAXBElement<InvokeOperationAsync> createInvokeOperationAsync(final InvokeOperationAsync value) {
-        return new JAXBElement<>(_InvokeOperationAsync_QNAME, InvokeOperationAsync.class, null,
-            value);
+        return new JAXBElement<>(_InvokeOperationAsync_QNAME, InvokeOperationAsync.class, null, value);
     }
 
     /**

@@ -41,7 +41,6 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TBoolean;
 import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.deployment.verification.VerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

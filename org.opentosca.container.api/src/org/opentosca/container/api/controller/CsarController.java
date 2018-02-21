@@ -61,9 +61,6 @@ public class CsarController {
     @Context
     private UriInfo uriInfo;
 
-    @Context
-    private Request request;
-
     private CsarService csarService;
 
     private ICoreFileService fileService;
@@ -164,7 +161,7 @@ public class CsarController {
         }
 
         logger.info("Uploading new CSAR file \"{}\", size {}", file.getFileName(), file.getSize());
-        return this.handleCsarUpload(file.getFileName(), is);
+        return handleCsarUpload(file.getFileName(), is);
     }
 
     @POST
@@ -194,7 +191,7 @@ public class CsarController {
 
         try {
             final URL url = new URL(request.getUrl());
-            return this.handleCsarUpload(filename, url.openStream());
+            return handleCsarUpload(filename, url.openStream());
         } catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
             return Response.serverError().build();

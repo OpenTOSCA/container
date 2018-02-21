@@ -2,6 +2,8 @@ package org.opentosca.container.api.controller;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -24,13 +26,18 @@ import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
+import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtil;
+import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.model.Verification;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.VerificationRepository;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.deployment.verification.VerificationService;
 import org.slf4j.Logger;
@@ -62,14 +69,19 @@ public class ServiceTemplateInstanceController {
 
     private final PlanService planService;
 
-    private VerificationService verificationService;
+    private final CsarService csarService;
 
-    public ServiceTemplateInstanceController(final InstanceService instanceService, final PlanService planService) {
-      this.instanceService = instanceService;
-      this.planService = planService;
+    private final VerificationService verificationService;
+
+
+    public ServiceTemplateInstanceController(final InstanceService instanceService, final PlanService planService,
+                                             final CsarService csarService,
+                                             final VerificationService verificationService) {
+        this.instanceService = instanceService;
+        this.planService = planService;
+        this.csarService = csarService;
+        this.verificationService = verificationService;
     }
-
-
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -110,9 +122,9 @@ public class ServiceTemplateInstanceController {
     public Response createServiceTemplateInstance(
                     @ApiParam("The correlation id that corresponds to the build plan instance that created this service template instance") final CreateServiceTemplateInstanceRequest request) {
 
-        if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
+        if ((request == null) || (request.getCorrelationId() == null)
+            || (request.getCorrelationId().trim().length() == 0))
             return Response.status(Status.BAD_REQUEST).build();
-        }
 
         try {
             final ServiceTemplateInstance createdInstance = this.instanceService.createServiceTemplateInstance(
@@ -137,7 +149,7 @@ public class ServiceTemplateInstanceController {
     public Response getServiceTemplateInstance(
                     @ApiParam("service template instance id") @PathParam("id") final Long id) {
 
-        final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
+        final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
 
         // Build plan: Determine plan instance that created this service
@@ -152,6 +164,7 @@ public class ServiceTemplateInstanceController {
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "managementplans", false, "managementplans"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "state", false, "state"));
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
+        dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "verifications", false, "verifications"));
         dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
         return Response.ok(dto).build();
@@ -170,7 +183,7 @@ public class ServiceTemplateInstanceController {
     @Path("/{id}/managementplans")
     public ManagementPlanController getManagementPlans(
                     @ApiParam("service template instance id") @PathParam("id") final Long id) {
-        final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
+        final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
 
         return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id,
             this.planService, PlanTypes.TERMINATION);
@@ -209,38 +222,24 @@ public class ServiceTemplateInstanceController {
         return Response.ok().build();
     }
 
-
-    @POST
-    @Path("/{id}/verifications")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createVerification(@PathParam("csar") final String csar,
-                    @PathParam("servicetemplate") final String servicetemplate, @PathParam("id") final Integer id) {
-
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
-        }
-
     @GET
     @Path("/{id}/properties")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces(MediaType.APPLICATION_XML)
     @ApiOperation(value = "Get the set of properties of a service template instance identified by its id.",
                   response = Document.class)
     public Response getServiceTemplateInstanceProperties(
                     @ApiParam("service template instance id") @PathParam("id") final Long id) {
         final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
 
-        if (properties == null) {
+        if (properties == null)
             return Response.noContent().build();
-        } else {
+        else
             return Response.ok(properties).build();
-        }
     }
 
     @PUT
     @Path("/{id}/properties")
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes(MediaType.APPLICATION_XML)
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @ApiOperation(value = "Changes the set of properties of a service template instance identified by its id.",
                   response = Response.class)
@@ -284,5 +283,104 @@ public class ServiceTemplateInstanceController {
         }
 
         return instance;
+    }
+
+    @GET
+    @Path("/{id}/verifications")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getVerifications(@PathParam("csar") final String csar,
+                    @PathParam("servicetemplate") final String servicetemplate, @PathParam("id") final Integer id) {
+
+        final CSARContent csarContent = this.csarService.findById(csar);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        }
+
+        // TODO: Check if instance belongs to CSAR and Service Template
+        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        if (sti == null) {
+            logger.info(
+                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException(
+                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+        }
+
+        final List<ResourceDecorator> items = sti.getVerifications().stream().map(v -> {
+            final ResourceDecorator decorator = new ResourceDecorator();
+            decorator.setObject(v);
+            decorator.add(Link
+                              .fromUri(UriUtil.encode(
+                                  this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(v.getId())).build()))
+                              .rel("self").build());
+            return decorator;
+        }).collect(Collectors.toList());
+
+        final ResourceDecorator response = new ResourceDecorator();
+        response.setObject(items);
+        response.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+
+        return Response.ok(response).build();
+    }
+
+    @GET
+    @Path("/{id}/verifications/{verification}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getVerification(@PathParam("csar") final String csar,
+                    @PathParam("servicetemplate") final String servicetemplate, @PathParam("id") final Integer id,
+                    @PathParam("verification") final Integer verification) {
+
+        final CSARContent csarContent = this.csarService.findById(csar);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        }
+
+        // TODO: Check if instance belongs to CSAR and Service Template
+        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        if (sti == null) {
+            logger.info(
+                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException(
+                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+        }
+
+        // TODO: Check if verification belongs the current instance
+        final Verification v = new VerificationRepository().find(Long.valueOf(verification)).orElse(null);
+        if (v == null)
+            throw new NotFoundException();
+
+        final ResourceDecorator response = new ResourceDecorator();
+        response.setObject(v);
+        response.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+
+        return Response.ok(response).build();
+    }
+
+
+    @POST
+    @Path("/{id}/verifications")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createVerification(@PathParam("csar") final String csar,
+                    @PathParam("servicetemplate") final String servicetemplate, @PathParam("id") final Integer id) {
+
+        final CSARContent csarContent = this.csarService.findById(csar);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+            logger.info("Service template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        }
+
+        // TODO: Check if instance belongs to CSAR and Service Template
+        final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
+        if (sti == null) {
+            logger.info(
+                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException(
+                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+        }
+
+        final Verification result = this.verificationService.run(csarContent.getCSARID(), sti);
+        final URI location = this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
+        return Response.created(UriUtil.encode(location)).build();
     }
 }
