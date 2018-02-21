@@ -16,8 +16,8 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class represents a POST-Phase Plugin which sends runtime values of
- * NodeTemplate Instances to the OpenTOSCA Container InstanceData API
+ * This class represents a POST-Phase Plugin which sends runtime values of NodeTemplate Instances to
+ * the OpenTOSCA Container InstanceData API
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -27,44 +27,44 @@ import org.xml.sax.SAXException;
  */
 public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanContext> {
 
-	private String findInstanceVar(BPELPlanContext context, String templateId, boolean isNode) {
-		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
-		for (String varName : context.getMainVariableNames()) {
-			if (varName.contains(instanceURLVarName)) {
-				return varName;
-			}
-		}
-		return null;
-	}
+    private String findInstanceVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
+        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
+        for (final String varName : context.getMainVariableNames()) {
+            if (varName.contains(instanceURLVarName)) {
+                return varName;
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public boolean handle(BPELPlanContext context, AbstractNodeTemplate nodeTemplate,
-			List<String> selectionStrategies) {
-		// add input field
-		String inputFieldName = nodeTemplate.getId() + "_InstanceID";
-		context.addStringValueToPlanRequest(inputFieldName);
+    @Override
+    public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+                    final List<String> selectionStrategies) {
+        // add input field
+        final String inputFieldName = nodeTemplate.getId() + "_InstanceID";
+        context.addStringValueToPlanRequest(inputFieldName);
 
-		// fetch nodeInstanceVar
-		String nodeInstanceVarName = this.findInstanceVar(context, nodeTemplate.getId(), true);
+        // fetch nodeInstanceVar
+        final String nodeInstanceVarName = this.findInstanceVar(context, nodeTemplate.getId(), true);
 
-		// add assign from input to nodeInstanceVar
-		try {
-			Node assignFromInputToNodeInstanceIdVar = new BPELProcessFragments()
-					.generateAssignFromInputMessageToStringVariableAsNode(inputFieldName, nodeInstanceVarName);
-			assignFromInputToNodeInstanceIdVar = context.importNode(assignFromInputToNodeInstanceIdVar);
-			context.getPrePhaseElement().appendChild(assignFromInputToNodeInstanceIdVar);
-		} catch (IOException | ParserConfigurationException | SAXException e) {
-			e.printStackTrace();
-		}
+        // add assign from input to nodeInstanceVar
+        try {
+            Node assignFromInputToNodeInstanceIdVar = new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode(
+                inputFieldName, nodeInstanceVarName);
+            assignFromInputToNodeInstanceIdVar = context.importNode(assignFromInputToNodeInstanceIdVar);
+            context.getPrePhaseElement().appendChild(assignFromInputToNodeInstanceIdVar);
+        } catch (IOException | ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+        }
 
-		try {
-			new NodeInstanceInitializer(new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context,
-					nodeTemplate);
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
+        try {
+            new NodeInstanceInitializer(new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context,
+                nodeTemplate);
+        } catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 }

@@ -16,76 +16,75 @@ import org.xml.sax.SAXParseException;
 /**
  * ExceptionProcessor of the Application Bus-REST/HTTP-API.<br>
  * <br>
- * 
- * This processor handles the exceptions and sends a reasonable response back to
- * the caller.
- * 
- * 
- * 
+ *
+ * This processor handles the exceptions and sends a reasonable response back to the caller.
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class ExceptionProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(ExceptionProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		ExceptionProcessor.LOG.debug("Exception handling...");
+        ExceptionProcessor.LOG.debug("Exception handling...");
 
-		Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-		if (exchange.getIn().getBody() instanceof ParseException) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response.setEntity("JSON is not valid: " + exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+        if (exchange.getIn().getBody() instanceof ParseException) {
+            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            response.setEntity("JSON is not valid: " + exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-		}
+        }
 
-		else if (exchange.getIn().getBody() instanceof SAXParseException) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response.setEntity("XML is not valid: " + exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+        else if (exchange.getIn().getBody() instanceof SAXParseException) {
+            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            response.setEntity("XML is not valid: " + exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-		}
+        }
 
-		else if (exchange.getIn().getBody() instanceof NullPointerException) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
+        else if (exchange.getIn().getBody() instanceof NullPointerException) {
+            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            response.setEntity("Needed information not specified.", MediaType.TEXT_ALL);
 
-		}
+        }
 
-		else if (exchange.getIn().getBody() instanceof ApplicationBusExternalException) {
+        else if (exchange.getIn().getBody() instanceof ApplicationBusExternalException) {
 
-			ApplicationBusExternalException e = exchange.getIn().getBody(ApplicationBusExternalException.class);
-			if (e.getErrorCode() != 0) {
-				response.setStatus(new Status(e.getErrorCode()));
-			} else {
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			}
+            final ApplicationBusExternalException e = exchange.getIn().getBody(ApplicationBusExternalException.class);
+            if (e.getErrorCode() != 0) {
+                response.setStatus(new Status(e.getErrorCode()));
+            } else {
+                response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            }
 
-			response.setEntity(e.getMessage(), MediaType.TEXT_ALL);
-		}
+            response.setEntity(e.getMessage(), MediaType.TEXT_ALL);
+        }
 
-		else if (exchange.getIn().getBody() instanceof ApplicationBusInternalException) {
+        else if (exchange.getIn().getBody() instanceof ApplicationBusInternalException) {
 
-			ApplicationBusInternalException e = exchange.getIn().getBody(ApplicationBusInternalException.class);
-			if (e.getErrorCode() != 0) {
-				response.setStatus(new Status(e.getErrorCode()));
-			} else {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
-			}
+            final ApplicationBusInternalException e = exchange.getIn().getBody(ApplicationBusInternalException.class);
+            if (e.getErrorCode() != 0) {
+                response.setStatus(new Status(e.getErrorCode()));
+            } else {
+                response.setStatus(Status.SERVER_ERROR_INTERNAL);
+            }
 
-			response.setEntity(e.getMessage(), MediaType.TEXT_ALL);
-		}
+            response.setEntity(e.getMessage(), MediaType.TEXT_ALL);
+        }
 
-		else if (exchange.getIn().getBody() instanceof Exception) {
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-			response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+        else if (exchange.getIn().getBody() instanceof Exception) {
+            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-		}
+        }
 
-		exchange.getOut().setBody(response);
+        exchange.getOut().setBody(response);
 
-	}
+    }
 
 }

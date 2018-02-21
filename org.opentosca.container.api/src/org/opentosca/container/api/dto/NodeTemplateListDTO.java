@@ -12,13 +12,13 @@ import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "NodeTemplateResources")
 public class NodeTemplateListDTO extends ResourceSupport {
-	@JsonProperty
-	@XmlElement(name = "NodeTemplate")
-	@XmlElementWrapper(name = "NodeTemplates")
-	private final List<NodeTemplateDTO> nodeTemplates = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "NodeTemplate")
+    @XmlElementWrapper(name = "NodeTemplates")
+    private final List<NodeTemplateDTO> nodeTemplates = Lists.newArrayList();
 
 
-	public void add(final NodeTemplateDTO... nodeTemplates) {
-		this.nodeTemplates.addAll(Arrays.asList(nodeTemplates));
-	}
+    public void add(final NodeTemplateDTO... nodeTemplates) {
+        this.nodeTemplates.addAll(Arrays.asList(nodeTemplates));
+    }
 }

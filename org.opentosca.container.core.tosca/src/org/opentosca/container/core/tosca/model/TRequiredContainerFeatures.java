@@ -22,11 +22,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tRequiredContainerFeatures complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tRequiredContainerFeatures">
  *   &lt;complexContent>
@@ -38,45 +37,43 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRequiredContainerFeatures", propOrder = {"requiredContainerFeature"})
 public class TRequiredContainerFeatures {
-	
-	@XmlElement(name = "RequiredContainerFeature", required = true)
-	protected List<TRequiredContainerFeature> requiredContainerFeature;
-	
-	
-	/**
-	 * Gets the value of the requiredContainerFeature property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the requiredContainerFeature property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getRequiredContainerFeature().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link TRequiredContainerFeature }
-	 * 
-	 * 
-	 */
-	public List<TRequiredContainerFeature> getRequiredContainerFeature() {
-		if (this.requiredContainerFeature == null) {
-			this.requiredContainerFeature = new ArrayList<TRequiredContainerFeature>();
-		}
-		return this.requiredContainerFeature;
-	}
-	
+
+    @XmlElement(name = "RequiredContainerFeature", required = true)
+    protected List<TRequiredContainerFeature> requiredContainerFeature;
+
+
+    /**
+     * Gets the value of the requiredContainerFeature property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+     * modification you make to the returned list will be present inside the JAXB object. This is why
+     * there is not a <CODE>set</CODE> method for the requiredContainerFeature property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getRequiredContainerFeature().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link TRequiredContainerFeature }
+     *
+     *
+     */
+    public List<TRequiredContainerFeature> getRequiredContainerFeature() {
+        if (this.requiredContainerFeature == null) {
+            this.requiredContainerFeature = new ArrayList<>();
+        }
+        return this.requiredContainerFeature;
+    }
+
 }

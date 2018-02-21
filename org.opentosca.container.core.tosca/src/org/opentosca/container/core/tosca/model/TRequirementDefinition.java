@@ -24,11 +24,10 @@ import javax.xml.namespace.QName;
 /**
  * <p>
  * Java class for tRequirementDefinition complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tRequirementDefinition">
  *   &lt;complexContent>
@@ -70,194 +69,191 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tRequirementDefinition", propOrder = {"constraints"})
 public class TRequirementDefinition extends TExtensibleElements {
-	
-	@XmlElement(name = "Constraints")
-	protected TRequirementDefinition.Constraints constraints;
-	@XmlAttribute(name = "name", required = true)
-	protected String name;
-	@XmlAttribute(name = "requirementType", required = true)
-	protected QName requirementType;
-	@XmlAttribute(name = "lowerBound")
-	protected Integer lowerBound;
-	@XmlAttribute(name = "upperBound")
-	protected String upperBound;
-	
-	
-	/**
-	 * Gets the value of the constraints property.
-	 * 
-	 * @return possible object is {@link TRequirementDefinition.Constraints }
-	 * 
-	 */
-	public TRequirementDefinition.Constraints getConstraints() {
-		return this.constraints;
-	}
-	
-	/**
-	 * Sets the value of the constraints property.
-	 * 
-	 * @param value allowed object is {@link TRequirementDefinition.Constraints }
-	 * 
-	 */
-	public void setConstraints(TRequirementDefinition.Constraints value) {
-		this.constraints = value;
-	}
-	
-	/**
-	 * Gets the value of the name property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getName() {
-		return this.name;
-	}
-	
-	/**
-	 * Sets the value of the name property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setName(String value) {
-		this.name = value;
-	}
-	
-	/**
-	 * Gets the value of the requirementType property.
-	 * 
-	 * @return possible object is {@link QName }
-	 * 
-	 */
-	public QName getRequirementType() {
-		return this.requirementType;
-	}
-	
-	/**
-	 * Sets the value of the requirementType property.
-	 * 
-	 * @param value allowed object is {@link QName }
-	 * 
-	 */
-	public void setRequirementType(QName value) {
-		this.requirementType = value;
-	}
-	
-	/**
-	 * Gets the value of the lowerBound property.
-	 * 
-	 * @return possible object is {@link Integer }
-	 * 
-	 */
-	public int getLowerBound() {
-		if (this.lowerBound == null) {
-			return 1;
-		} else {
-			return this.lowerBound;
-		}
-	}
-	
-	/**
-	 * Sets the value of the lowerBound property.
-	 * 
-	 * @param value allowed object is {@link Integer }
-	 * 
-	 */
-	public void setLowerBound(Integer value) {
-		this.lowerBound = value;
-	}
-	
-	/**
-	 * Gets the value of the upperBound property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getUpperBound() {
-		if (this.upperBound == null) {
-			return "1";
-		} else {
-			return this.upperBound;
-		}
-	}
-	
-	/**
-	 * Sets the value of the upperBound property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setUpperBound(String value) {
-		this.upperBound = value;
-	}
-	
-	
-	/**
-	 * <p>
-	 * Java class for anonymous complex type.
-	 * 
-	 * <p>
-	 * The following schema fragment specifies the expected content contained
-	 * within this class.
-	 * 
-	 * <pre>
-	 * &lt;complexType>
-	 *   &lt;complexContent>
-	 *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-	 *       &lt;sequence>
-	 *         &lt;element name="Constraint" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tConstraint" maxOccurs="unbounded"/>
-	 *       &lt;/sequence>
-	 *     &lt;/restriction>
-	 *   &lt;/complexContent>
-	 * &lt;/complexType>
-	 * </pre>
-	 * 
-	 * 
-	 */
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "", propOrder = {"constraint"})
-	public static class Constraints {
-		
-		@XmlElement(name = "Constraint", required = true)
-		protected List<TConstraint> constraint;
-		
-		
-		/**
-		 * Gets the value of the constraint property.
-		 * 
-		 * <p>
-		 * This accessor method returns a reference to the live list, not a
-		 * snapshot. Therefore any modification you make to the returned list
-		 * will be present inside the JAXB object. This is why there is not a
-		 * <CODE>set</CODE> method for the constraint property.
-		 * 
-		 * <p>
-		 * For example, to add a new item, do as follows:
-		 * 
-		 * <pre>
-		 * getConstraint().add(newItem);
-		 * </pre>
-		 * 
-		 * 
-		 * <p>
-		 * Objects of the following type(s) are allowed in the list
-		 * {@link TConstraint }
-		 * 
-		 * 
-		 */
-		public List<TConstraint> getConstraint() {
-			if (this.constraint == null) {
-				this.constraint = new ArrayList<TConstraint>();
-			}
-			return this.constraint;
-		}
-		
-	}
-	
+
+    @XmlElement(name = "Constraints")
+    protected TRequirementDefinition.Constraints constraints;
+    @XmlAttribute(name = "name", required = true)
+    protected String name;
+    @XmlAttribute(name = "requirementType", required = true)
+    protected QName requirementType;
+    @XmlAttribute(name = "lowerBound")
+    protected Integer lowerBound;
+    @XmlAttribute(name = "upperBound")
+    protected String upperBound;
+
+
+    /**
+     * Gets the value of the constraints property.
+     *
+     * @return possible object is {@link TRequirementDefinition.Constraints }
+     *
+     */
+    public TRequirementDefinition.Constraints getConstraints() {
+        return this.constraints;
+    }
+
+    /**
+     * Sets the value of the constraints property.
+     *
+     * @param value allowed object is {@link TRequirementDefinition.Constraints }
+     *
+     */
+    public void setConstraints(final TRequirementDefinition.Constraints value) {
+        this.constraints = value;
+    }
+
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
+
+    /**
+     * Gets the value of the requirementType property.
+     *
+     * @return possible object is {@link QName }
+     *
+     */
+    public QName getRequirementType() {
+        return this.requirementType;
+    }
+
+    /**
+     * Sets the value of the requirementType property.
+     *
+     * @param value allowed object is {@link QName }
+     *
+     */
+    public void setRequirementType(final QName value) {
+        this.requirementType = value;
+    }
+
+    /**
+     * Gets the value of the lowerBound property.
+     *
+     * @return possible object is {@link Integer }
+     *
+     */
+    public int getLowerBound() {
+        if (this.lowerBound == null) {
+            return 1;
+        } else {
+            return this.lowerBound;
+        }
+    }
+
+    /**
+     * Sets the value of the lowerBound property.
+     *
+     * @param value allowed object is {@link Integer }
+     *
+     */
+    public void setLowerBound(final Integer value) {
+        this.lowerBound = value;
+    }
+
+    /**
+     * Gets the value of the upperBound property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getUpperBound() {
+        if (this.upperBound == null) {
+            return "1";
+        } else {
+            return this.upperBound;
+        }
+    }
+
+    /**
+     * Sets the value of the upperBound property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setUpperBound(final String value) {
+        this.upperBound = value;
+    }
+
+
+    /**
+     * <p>
+     * Java class for anonymous complex type.
+     *
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
+     *
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence>
+     *         &lt;element name="Constraint" type="{http://docs.oasis-open.org/tosca/ns/2011/12}tConstraint" maxOccurs="unbounded"/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
+     *
+     *
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {"constraint"})
+    public static class Constraints {
+
+        @XmlElement(name = "Constraint", required = true)
+        protected List<TConstraint> constraint;
+
+
+        /**
+         * Gets the value of the constraint property.
+         *
+         * <p>
+         * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+         * modification you make to the returned list will be present inside the JAXB object. This is why
+         * there is not a <CODE>set</CODE> method for the constraint property.
+         *
+         * <p>
+         * For example, to add a new item, do as follows:
+         *
+         * <pre>
+         * getConstraint().add(newItem);
+         * </pre>
+         *
+         *
+         * <p>
+         * Objects of the following type(s) are allowed in the list {@link TConstraint }
+         *
+         *
+         */
+        public List<TConstraint> getConstraint() {
+            if (this.constraint == null) {
+                this.constraint = new ArrayList<>();
+            }
+            return this.constraint;
+        }
+
+    }
+
 }

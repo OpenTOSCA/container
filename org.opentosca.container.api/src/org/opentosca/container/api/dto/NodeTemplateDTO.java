@@ -12,38 +12,38 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NodeTemplateDTO extends ResourceSupport {
-	@XmlAttribute(name = "id")
-	private String id;
-	
-	@XmlElement(name = "Name")
-	private String name;
-	
-	@XmlElement(name = "NodeType")
-	private String nodeType;
+    @XmlAttribute(name = "id")
+    private String id;
 
-	public String getId() {
-		return id;
-	}
+    @XmlElement(name = "Name")
+    private String name;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @XmlElement(name = "NodeType")
+    private String nodeType;
 
-	public String getName() {
-		return name;
-	}
+    public String getId() {
+        return this.id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-	public String getNodeType() {
-		return nodeType;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public void setNodeType(String nodeType) {
-		this.nodeType = nodeType;
-	}
-	
-	
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getNodeType() {
+        return this.nodeType;
+    }
+
+    public void setNodeType(final String nodeType) {
+        this.nodeType = nodeType;
+    }
+
+
 }

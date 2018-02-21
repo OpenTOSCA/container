@@ -4,8 +4,8 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 
 /**
  * <p>
- * This class contains all the logic to add BPEL Code which installs a PhpModule
- * on an Apache HTTP Server
+ * This class contains all the logic to add BPEL Code which installs a PhpModule on an Apache HTTP
+ * Server
  * </p>
  * Copyright 2014 IAAS University of Stuttgart <br>
  * <br>
@@ -14,5 +14,5 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
  *
  */
 public interface DockerContainerTypePluginHandler<T extends PlanContext> {
-	public boolean handle(final T context);
+    public boolean handle(final T context);
 }

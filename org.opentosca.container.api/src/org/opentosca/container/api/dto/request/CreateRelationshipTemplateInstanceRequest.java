@@ -11,27 +11,27 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateRelationshipTemplateInstanceRequest {
-	@XmlAttribute(name = "source-instance-id")
-	private Long sourceNodeTemplateInstanceId;
-	
-	@XmlAttribute(name = "target-instance-id")
-	private Long targetNodeTemplateInstanceId;
+    @XmlAttribute(name = "source-instance-id")
+    private Long sourceNodeTemplateInstanceId;
 
-	public Long getSourceNodeTemplateInstanceId() {
-		return sourceNodeTemplateInstanceId;
-	}
+    @XmlAttribute(name = "target-instance-id")
+    private Long targetNodeTemplateInstanceId;
 
-	public void setSourceNodeTemplateInstanceId(Long sourceNodeTemplateInstanceId) {
-		this.sourceNodeTemplateInstanceId = sourceNodeTemplateInstanceId;
-	}
+    public Long getSourceNodeTemplateInstanceId() {
+        return this.sourceNodeTemplateInstanceId;
+    }
 
-	public Long getTargetNodeTemplateInstanceId() {
-		return targetNodeTemplateInstanceId;
-	}
+    public void setSourceNodeTemplateInstanceId(final Long sourceNodeTemplateInstanceId) {
+        this.sourceNodeTemplateInstanceId = sourceNodeTemplateInstanceId;
+    }
 
-	public void setTargetNodeTemplateInstanceId(Long targetNodeTemplateInstanceId) {
-		this.targetNodeTemplateInstanceId = targetNodeTemplateInstanceId;
-	}
-	
-	
+    public Long getTargetNodeTemplateInstanceId() {
+        return this.targetNodeTemplateInstanceId;
+    }
+
+    public void setTargetNodeTemplateInstanceId(final Long targetNodeTemplateInstanceId) {
+        this.targetNodeTemplateInstanceId = targetNodeTemplateInstanceId;
+    }
+
+
 }

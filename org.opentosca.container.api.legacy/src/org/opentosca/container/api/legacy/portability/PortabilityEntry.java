@@ -10,34 +10,34 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.opentosca.container.api.legacy.instancedata.model.SimpleXLink;
 
 /**
- * 
+ *
  * @author Marcus Eisele <marcus.eisele@gmail.com>
  *
  */
 @XmlRootElement(name = "PortabilityAPI")
 public class PortabilityEntry {
-	
-	private String version = "0.1";
-	
-	private List<SimpleXLink> links = new LinkedList<SimpleXLink>();
-	
-	protected PortabilityEntry() {
-		super();
-	}
-	
-	public PortabilityEntry(List<SimpleXLink> links) {
-		super();
-		this.links = links;
-	}
-	
-	@XmlAttribute(name = "version", required = true)
-	public String getVersion() {
-		return version;
-	}
-	
-	@XmlElement(name = "Link")
-	public List<SimpleXLink> getLinks() {
-		return links;
-	}
-	
+
+    private final String version = "0.1";
+
+    private List<SimpleXLink> links = new LinkedList<>();
+
+    protected PortabilityEntry() {
+        super();
+    }
+
+    public PortabilityEntry(final List<SimpleXLink> links) {
+        super();
+        this.links = links;
+    }
+
+    @XmlAttribute(name = "version", required = true)
+    public String getVersion() {
+        return this.version;
+    }
+
+    @XmlElement(name = "Link")
+    public List<SimpleXLink> getLinks() {
+        return this.links;
+    }
+
 }

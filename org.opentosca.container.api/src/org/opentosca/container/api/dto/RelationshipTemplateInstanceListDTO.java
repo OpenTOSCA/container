@@ -12,14 +12,14 @@ import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "RelationshipTemplateInstanceResources")
 public class RelationshipTemplateInstanceListDTO extends ResourceSupport {
-	
-	@JsonProperty
-	@XmlElement(name = "RelationshipTemplateInstance")
-	@XmlElementWrapper(name = "RelationshipTemplateInstances")
-	private final List<RelationshipTemplateInstanceDTO> relationshipTemplateInstances = Lists.newArrayList();
-	
-	
-	public void add(final RelationshipTemplateInstanceDTO... relationshipTemplateInstances) {
-		this.relationshipTemplateInstances.addAll(Arrays.asList(relationshipTemplateInstances));
-	}
+
+    @JsonProperty
+    @XmlElement(name = "RelationshipTemplateInstance")
+    @XmlElementWrapper(name = "RelationshipTemplateInstances")
+    private final List<RelationshipTemplateInstanceDTO> relationshipTemplateInstances = Lists.newArrayList();
+
+
+    public void add(final RelationshipTemplateInstanceDTO... relationshipTemplateInstances) {
+        this.relationshipTemplateInstances.addAll(Arrays.asList(relationshipTemplateInstances));
+    }
 }

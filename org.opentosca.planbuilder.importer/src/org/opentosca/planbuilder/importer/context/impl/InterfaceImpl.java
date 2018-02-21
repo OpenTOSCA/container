@@ -14,53 +14,53 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class InterfaceImpl extends AbstractInterface {
-	
-	private DefinitionsImpl defs;
-	private TInterface inter;
-	private List<AbstractOperation> operations;
-	
-	
-	/**
-	 * Constructor
-	 * 
-	 * @param definitions a DefinitionsImpl
-	 * @param a JAXB TInterface
-	 */
-	public InterfaceImpl(DefinitionsImpl definitions, TInterface i) {
-		this.inter = i;
-		this.defs = definitions;
-		this.operations = new ArrayList<AbstractOperation>();
-		this.setUp();
-	}
-	
-	/**
-	 * Initializes the internal Operations
-	 */
-	private void setUp() {
-		for (TOperation operation : this.inter.getOperation()) {
-			this.operations.add(new OperationImpl(this.defs, operation));
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<AbstractOperation> getOperations() {
-		return this.operations;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getName() {
-		return this.inter.getName();
-	}
-	
+
+    private final DefinitionsImpl defs;
+    private final TInterface inter;
+    private final List<AbstractOperation> operations;
+
+
+    /**
+     * Constructor
+     *
+     * @param definitions a DefinitionsImpl
+     * @param a JAXB TInterface
+     */
+    public InterfaceImpl(final DefinitionsImpl definitions, final TInterface i) {
+        this.inter = i;
+        this.defs = definitions;
+        this.operations = new ArrayList<>();
+        this.setUp();
+    }
+
+    /**
+     * Initializes the internal Operations
+     */
+    private void setUp() {
+        for (final TOperation operation : this.inter.getOperation()) {
+            this.operations.add(new OperationImpl(this.defs, operation));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AbstractOperation> getOperations() {
+        return this.operations;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return this.inter.getName();
+    }
+
 }

@@ -23,8 +23,8 @@ import org.w3c.dom.NodeList;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
- * This processor processes the from the Management Bus incoming response of a
- * invoked service. The response is transformed into a marshallable object.
+ * This processor processes the from the Management Bus incoming response of a invoked service. The
+ * response is transformed into a marshallable object.
  *
  * @see MBHeader
  *
@@ -33,74 +33,74 @@ import org.w3c.dom.NodeList;
  *
  */
 public class ResponseProcessor implements Processor {
-	
-	
-	final private static Logger LOG = LoggerFactory.getLogger(ResponseProcessor.class);
 
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void process(Exchange exchange) throws Exception {
-		
-		ResponseProcessor.LOG.debug("Processing the response...");
+    final private static Logger LOG = LoggerFactory.getLogger(ResponseProcessor.class);
 
-		InvokeResponse invokeResponse = new InvokeResponse();
 
-		if (exchange.getIn().getBody() instanceof HashMap) {
-			
-			ResponseProcessor.LOG.debug("Response is of type HashMap.");
+    @SuppressWarnings("unchecked")
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-			HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
+        ResponseProcessor.LOG.debug("Processing the response...");
 
-			ParamsMapItemType mapItem;
-			ParamsMap paramsMap = new ParamsMap();
+        final InvokeResponse invokeResponse = new InvokeResponse();
 
-			for (Entry<String, String> entry : responseMap.entrySet()) {
-				String key = entry.getKey();
-				String value = entry.getValue();
-				mapItem = new ParamsMapItemType();
-				mapItem.setKey(key);
-				mapItem.setValue(value);
-				paramsMap.getParam().add(mapItem);
-			}
+        if (exchange.getIn().getBody() instanceof HashMap) {
 
-			invokeResponse.setParams(paramsMap);
+            ResponseProcessor.LOG.debug("Response is of type HashMap.");
 
-			exchange.getIn().setBody(invokeResponse);
+            final HashMap<String, String> responseMap = exchange.getIn().getBody(HashMap.class);
 
-		}
+            ParamsMapItemType mapItem;
+            final ParamsMap paramsMap = new ParamsMap();
 
-		if (exchange.getIn().getBody() instanceof Document) {
-			
-			ResponseProcessor.LOG.debug("Response is of type Document.");
+            for (final Entry<String, String> entry : responseMap.entrySet()) {
+                final String key = entry.getKey();
+                final String value = entry.getValue();
+                mapItem = new ParamsMapItemType();
+                mapItem.setKey(key);
+                mapItem.setValue(value);
+                paramsMap.getParam().add(mapItem);
+            }
 
-			Document responseDoc = exchange.getIn().getBody(Document.class);
-			NodeList nodeList = responseDoc.getChildNodes();
+            invokeResponse.setParams(paramsMap);
 
-			Doc ar = new Doc();
+            exchange.getIn().setBody(invokeResponse);
 
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				ar.setAny((Element) nodeList.item(i));
+        }
 
-			}
-			invokeResponse.setDoc(ar);
-			exchange.getIn().setBody(invokeResponse);
+        if (exchange.getIn().getBody() instanceof Document) {
 
-		}
+            ResponseProcessor.LOG.debug("Response is of type Document.");
 
-		// Async
-		if (exchange.getIn().getHeader("MessageID") != null) {
-			
-			String messageID = exchange.getIn().getHeader("MessageID", String.class);
+            final Document responseDoc = exchange.getIn().getBody(Document.class);
+            final NodeList nodeList = responseDoc.getChildNodes();
 
-			exchange.getIn().setHeader("operationName", "callback");
-			exchange.getIn().setHeader("operationNamespace", "http://siserver.org/wsdl");
+            final Doc ar = new Doc();
 
-			exchange.getIn().setHeader("RelatesTo", messageID);
-			invokeResponse.setMessageID(messageID);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                ar.setAny((Element) nodeList.item(i));
 
-		}
+            }
+            invokeResponse.setDoc(ar);
+            exchange.getIn().setBody(invokeResponse);
 
-	}
+        }
+
+        // Async
+        if (exchange.getIn().getHeader("MessageID") != null) {
+
+            final String messageID = exchange.getIn().getHeader("MessageID", String.class);
+
+            exchange.getIn().setHeader("operationName", "callback");
+            exchange.getIn().setHeader("operationNamespace", "http://siserver.org/wsdl");
+
+            exchange.getIn().setHeader("RelatesTo", messageID);
+            invokeResponse.setMessageID(messageID);
+
+        }
+
+    }
 
 }

@@ -12,15 +12,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreatePlanInstanceLogEntryRequest {
-	
-	@XmlValue
-	private String logEntry;
 
-	public String getLogEntry() {
-		return logEntry;
-	}
+    @XmlValue
+    private String logEntry;
 
-	public void setLogEntry(String logEntry) {
-		this.logEntry = logEntry;
-	}
+    public String getLogEntry() {
+        return this.logEntry;
+    }
+
+    public void setLogEntry(final String logEntry) {
+        this.logEntry = logEntry;
+    }
 }

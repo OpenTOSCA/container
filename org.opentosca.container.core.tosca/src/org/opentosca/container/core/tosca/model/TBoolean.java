@@ -18,12 +18,11 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tBoolean.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
+ * The following schema fragment specifies the expected content contained within this class.
  * <p>
- * 
+ *
  * <pre>
  * &lt;simpleType name="tBoolean">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
@@ -32,34 +31,34 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
+ *
  */
 @XmlType(name = "tBoolean")
 @XmlEnum
 public enum TBoolean {
-	
-	@XmlEnumValue("yes")
-	YES("yes"), @XmlEnumValue("no")
-	NO("no");
-	
-	private final String value;
-	
-	
-	TBoolean(String v) {
-		this.value = v;
-	}
-	
-	public String value() {
-		return this.value;
-	}
-	
-	public static TBoolean fromValue(String v) {
-		for (TBoolean c : TBoolean.values()) {
-			if (c.value.equals(v)) {
-				return c;
-			}
-		}
-		throw new IllegalArgumentException(v);
-	}
-	
+
+    @XmlEnumValue("yes")
+    YES("yes"), @XmlEnumValue("no")
+    NO("no");
+
+    private final String value;
+
+
+    TBoolean(final String v) {
+        this.value = v;
+    }
+
+    public String value() {
+        return this.value;
+    }
+
+    public static TBoolean fromValue(final String v) {
+        for (final TBoolean c : TBoolean.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
+    }
+
 }

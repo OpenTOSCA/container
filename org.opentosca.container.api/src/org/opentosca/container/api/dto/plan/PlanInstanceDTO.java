@@ -26,136 +26,136 @@ import com.google.common.collect.Lists;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanInstanceDTO extends ResourceSupport {
-	
-	@JsonIgnore
-	@XmlTransient
-	private Long serviceTemplateInstanceId;
-	
-	@XmlAttribute(name = "correlationId")
-	private String correlationId;
-	
-	@XmlElement(name = "state")
-	private PlanInstanceState state;
-	
-	@XmlElement(name = "type")
-	private PlanType type;
-	
-	@XmlElement(name = "InputParameter")
-	@XmlElementWrapper(name = "InputParameters")
-	private Collection<PlanInstanceInputDTO> inputs;
-	
-	@XmlElement(name = "OutputParameter")
-	@XmlElementWrapper(name = "OutputParameters")
-	private Collection<PlanInstanceOutputDTO> outputs;
-	
-	@XmlElement(name = "LogEntry")
-	@XmlElementWrapper(name = "Logs")
-	private Collection<PlanInstanceEventDTO> logs;
+
+    @JsonIgnore
+    @XmlTransient
+    private Long serviceTemplateInstanceId;
+
+    @XmlAttribute(name = "correlationId")
+    private String correlationId;
+
+    @XmlElement(name = "state")
+    private PlanInstanceState state;
+
+    @XmlElement(name = "type")
+    private PlanType type;
+
+    @XmlElement(name = "InputParameter")
+    @XmlElementWrapper(name = "InputParameters")
+    private Collection<PlanInstanceInputDTO> inputs;
+
+    @XmlElement(name = "OutputParameter")
+    @XmlElementWrapper(name = "OutputParameters")
+    private Collection<PlanInstanceOutputDTO> outputs;
+
+    @XmlElement(name = "LogEntry")
+    @XmlElementWrapper(name = "Logs")
+    private Collection<PlanInstanceEventDTO> logs;
 
 
-	public String getCorrelationId() {
-		return correlationId;
-	}
+    public String getCorrelationId() {
+        return this.correlationId;
+    }
 
 
-	public void setCorrelationId(String correlationId) {
-		this.correlationId = correlationId;
-	}
+    public void setCorrelationId(final String correlationId) {
+        this.correlationId = correlationId;
+    }
 
 
-	public Collection<PlanInstanceOutputDTO> getOutputs() {
-		return outputs;
-	}
-	
-
-	public PlanType getType() {
-		return type;
-	}
+    public Collection<PlanInstanceOutputDTO> getOutputs() {
+        return this.outputs;
+    }
 
 
-	public void setType(PlanType type) {
-		this.type = type;
-	}
-
-	public Collection<PlanInstanceInputDTO> getInputs() {
-		return inputs;
-	}
+    public PlanType getType() {
+        return this.type;
+    }
 
 
+    public void setType(final PlanType type) {
+        this.type = type;
+    }
 
-	public void setInputs(Collection<PlanInstanceInputDTO> inputs) {
-		this.inputs = inputs;
-	}
-
-	
-	public PlanInstanceState getState() {
-		return state;
-	}
+    public Collection<PlanInstanceInputDTO> getInputs() {
+        return this.inputs;
+    }
 
 
 
-	public void setState(PlanInstanceState state) {
-		this.state = state;
-	}
-
-	public void setOutputs(Collection<PlanInstanceOutputDTO> outputs) {
-		this.outputs = outputs;
-	}
+    public void setInputs(final Collection<PlanInstanceInputDTO> inputs) {
+        this.inputs = inputs;
+    }
 
 
-
-	public Collection<PlanInstanceEventDTO> getLogs() {
-		return logs;
-	}
+    public PlanInstanceState getState() {
+        return this.state;
+    }
 
 
 
-	public void setLogs(Collection<PlanInstanceEventDTO> logs) {
-		this.logs = logs;
-	}
+    public void setState(final PlanInstanceState state) {
+        this.state = state;
+    }
+
+    public void setOutputs(final Collection<PlanInstanceOutputDTO> outputs) {
+        this.outputs = outputs;
+    }
 
 
-	public Long getServiceTemplateInstanceId() {
-		return this.serviceTemplateInstanceId;
-	}
 
-	public void setServiceTemplateInstanceId(Long serviceTemplateInstanceId) {
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-	}
+    public Collection<PlanInstanceEventDTO> getLogs() {
+        return this.logs;
+    }
 
 
-	public static final class Converter {
 
-		public static PlanInstanceDTO convert(final PlanInstance object) {
-			final PlanInstanceDTO dto = new PlanInstanceDTO();
-			
-			dto.setCorrelationId(object.getCorrelationId());
+    public void setLogs(final Collection<PlanInstanceEventDTO> logs) {
+        this.logs = logs;
+    }
 
-			dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
-			dto.setType(object.getType());
-			
-			dto.setLogs(Lists.newArrayList());
-			dto.setOutputs(Lists.newArrayList());
-			
-			dto.setState(object.getState());
-			dto.setInputs(Lists.newArrayList());
-			
-			for(final PlanInstanceInput output: object.getInputs()) {
-				dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));
-			}
-			
-			for(final PlanInstanceEvent event: object.getEvents()) {
-				dto.getLogs().add(PlanInstanceEventDTO.Converter.convert(event));
-			}
-			
-			for(final PlanInstanceOutput output: object.getOutputs()) {
-				dto.getOutputs().add(PlanInstanceOutputDTO.Converter.convert(output));
-			}
-		
-			
-			return dto;
-		}
 
-	}
-	
+    public Long getServiceTemplateInstanceId() {
+        return this.serviceTemplateInstanceId;
+    }
+
+    public void setServiceTemplateInstanceId(final Long serviceTemplateInstanceId) {
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+    }
+
+
+    public static final class Converter {
+
+        public static PlanInstanceDTO convert(final PlanInstance object) {
+            final PlanInstanceDTO dto = new PlanInstanceDTO();
+
+            dto.setCorrelationId(object.getCorrelationId());
+
+            dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
+            dto.setType(object.getType());
+
+            dto.setLogs(Lists.newArrayList());
+            dto.setOutputs(Lists.newArrayList());
+
+            dto.setState(object.getState());
+            dto.setInputs(Lists.newArrayList());
+
+            for (final PlanInstanceInput output : object.getInputs()) {
+                dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));
+            }
+
+            for (final PlanInstanceEvent event : object.getEvents()) {
+                dto.getLogs().add(PlanInstanceEventDTO.Converter.convert(event));
+            }
+
+            for (final PlanInstanceOutput output : object.getOutputs()) {
+                dto.getOutputs().add(PlanInstanceOutputDTO.Converter.convert(output));
+            }
+
+
+            return dto;
+        }
+
+    }
+
 }

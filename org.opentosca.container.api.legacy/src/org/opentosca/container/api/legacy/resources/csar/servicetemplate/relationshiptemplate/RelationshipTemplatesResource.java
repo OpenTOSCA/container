@@ -23,55 +23,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RelationshipTemplatesResource {
-	
-	private final Logger log = LoggerFactory.getLogger(RelationshipTemplatesResource.class);
-	private final CSARID csarId;
-	private final QName serviceTemplateID;
-	private final int serviceTemplateInstanceId;
-	private UriInfo uriInfo;
+
+    private final Logger log = LoggerFactory.getLogger(RelationshipTemplatesResource.class);
+    private final CSARID csarId;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
+    private UriInfo uriInfo;
 
 
-	public RelationshipTemplatesResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId) {
-		this.csarId = csarId;
-		this.serviceTemplateID = serviceTemplateID;
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-	}
+    public RelationshipTemplatesResource(final CSARID csarId, final QName serviceTemplateID,
+                                         final int serviceTemplateInstanceId) {
+        this.csarId = csarId;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+    }
 
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getXMLString()).build();
-	}
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getXMLString()).build();
+    }
 
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getJSONString()).build();
-	}
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getJSONString()).build();
+    }
 
-	public References getRefs() throws UnsupportedEncodingException {
+    public References getRefs() throws UnsupportedEncodingException {
 
-		if (this.csarId == null) {
-			return null;
-		}
+        if (this.csarId == null) {
+            return null;
+        }
 
-		final References refs = new References();
+        final References refs = new References();
 
-		for (final String rtID : ToscaServiceHandler.getToscaEngineService().getRelationshipTemplatesOfServiceTemplate(this.csarId, this.serviceTemplateID)) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, rtID), XLinkConstants.SIMPLE, rtID));
-		}
+        for (final String rtID : ToscaServiceHandler.getToscaEngineService().getRelationshipTemplatesOfServiceTemplate(
+            this.csarId, this.serviceTemplateID)) {
+            refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, rtID), XLinkConstants.SIMPLE, rtID));
+        }
 
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
 
-		return refs;
-	}
-	
-	@Path("{PlanIdLocalPart}")
-	@Produces(ResourceConstants.TOSCA_JSON)
-	public RelationshipTemplateResource getRelationshipTemplate(@Context final UriInfo uriInfo, @PathParam("PlanIdLocalPart") final String planIdLocalPart) throws URISyntaxException {
-		return new RelationshipTemplateResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, planIdLocalPart);
-	}
+        return refs;
+    }
+
+    @Path("{PlanIdLocalPart}")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public RelationshipTemplateResource getRelationshipTemplate(@Context final UriInfo uriInfo,
+                    @PathParam("PlanIdLocalPart") final String planIdLocalPart)
+        throws URISyntaxException {
+        return new RelationshipTemplateResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            planIdLocalPart);
+    }
 }

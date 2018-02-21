@@ -13,23 +13,23 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ServiceRegistry {
-	
-	final private static Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
-	
-	private static ICoreFileService openTOSCACoreFileService = null;
-	
-	
-	protected void bindOpenTOSCACoreFileService(final ICoreFileService fileService) {
-		LOG.debug("Binding CoreFileService");
-		ServiceRegistry.openTOSCACoreFileService = fileService;
-	}
-	
-	protected void unbindOpenTOSCACoreFileService(final ICoreFileService fileService) {
-		LOG.debug("Unbinding CoreFileService");
-		ServiceRegistry.openTOSCACoreFileService = null;
-	}
-	
-	protected static ICoreFileService getCoreFileService() {
-		return ServiceRegistry.openTOSCACoreFileService;
-	}
+
+    final private static Logger LOG = LoggerFactory.getLogger(ServiceRegistry.class);
+
+    private static ICoreFileService openTOSCACoreFileService = null;
+
+
+    protected void bindOpenTOSCACoreFileService(final ICoreFileService fileService) {
+        LOG.debug("Binding CoreFileService");
+        ServiceRegistry.openTOSCACoreFileService = fileService;
+    }
+
+    protected void unbindOpenTOSCACoreFileService(final ICoreFileService fileService) {
+        LOG.debug("Unbinding CoreFileService");
+        ServiceRegistry.openTOSCACoreFileService = null;
+    }
+
+    protected static ICoreFileService getCoreFileService() {
+        return ServiceRegistry.openTOSCACoreFileService;
+    }
 }

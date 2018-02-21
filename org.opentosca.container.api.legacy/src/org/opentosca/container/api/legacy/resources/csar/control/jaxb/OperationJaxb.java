@@ -26,18 +26,17 @@ import org.opentosca.container.core.model.deployment.process.DeploymentProcessOp
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OperationJaxb {
 
-	@XmlElement(name = "Operation")
-	private DeploymentProcessOperation operation;
+    @XmlElement(name = "Operation")
+    private DeploymentProcessOperation operation;
 
 
-	public OperationJaxb() {
-	}
+    public OperationJaxb() {}
 
-	public DeploymentProcessOperation getOperation() {
-		return this.operation;
-	}
+    public DeploymentProcessOperation getOperation() {
+        return this.operation;
+    }
 
-	public void setOperation(final DeploymentProcessOperation operation) {
-		this.operation = operation;
-	}
+    public void setOperation(final DeploymentProcessOperation operation) {
+        this.operation = operation;
+    }
 }

@@ -22,33 +22,36 @@ import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
  */
 @Path("/marketplace")
 public class MarketplaceRootResource {
-	
-	@Context
-	UriInfo uriInfo;
-	
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML() {
-		return Response.ok(this.getRefs().getXMLString()).build();
-	}
 
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON() {
-		return Response.ok(this.getRefs().getJSONString()).build();
-	}
-	
-	public References getRefs() {
-		References refs = new References();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "servicetemplates"), XLinkConstants.SIMPLE, "servicetemplates"));
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return refs;
-	}
-	
-	@Path("/servicetemplates")
-	public MarketplaceServiceTemplatesResource getServiceTemplates() {
-		return new MarketplaceServiceTemplatesResource();
-	}
+    @Context
+    UriInfo uriInfo;
+
+
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML() {
+        return Response.ok(this.getRefs().getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON() {
+        return Response.ok(this.getRefs().getJSONString()).build();
+    }
+
+    public References getRefs() {
+        final References refs = new References();
+
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), "servicetemplates"),
+                XLinkConstants.SIMPLE, "servicetemplates"));
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        return refs;
+    }
+
+    @Path("/servicetemplates")
+    public MarketplaceServiceTemplatesResource getServiceTemplates() {
+        return new MarketplaceServiceTemplatesResource();
+    }
 }

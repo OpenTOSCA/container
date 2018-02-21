@@ -11,57 +11,59 @@ import org.slf4j.LoggerFactory;
 
 public class ArtifactTypeResolver extends GenericResolver {
 
-	private final Logger LOG = LoggerFactory.getLogger(ArtifactTypeResolver.class);
+    private final Logger LOG = LoggerFactory.getLogger(ArtifactTypeResolver.class);
 
 
-	public ArtifactTypeResolver(final ReferenceMapper referenceMapper) {
-		super(referenceMapper);
-	}
+    public ArtifactTypeResolver(final ReferenceMapper referenceMapper) {
+        super(referenceMapper);
+    }
 
-	/**
-	 *
-	 * @param definitions
-	 * @return true if an error occurred, false if not
-	 */
-	public boolean resolve(final Definitions definitions) {
+    /**
+     *
+     * @param definitions
+     * @return true if an error occurred, false if not
+     */
+    public boolean resolve(final Definitions definitions) {
 
-		boolean errorOccurred = false;
-		
-		for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-			if (element instanceof TArtifactType) {
+        boolean errorOccurred = false;
 
-				final TArtifactType artifactType = (TArtifactType) element;
+        for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+            if (element instanceof TArtifactType) {
 
-				// store the ArtifactType
-				String targetNamespace;
-				if ((artifactType.getTargetNamespace() != null) && !artifactType.getTargetNamespace().equals("")) {
-					targetNamespace = artifactType.getTargetNamespace();
-				} else {
-					targetNamespace = definitions.getTargetNamespace();
-				}
-				this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(targetNamespace, artifactType.getName()), artifactType);
+                final TArtifactType artifactType = (TArtifactType) element;
 
-				this.LOG.debug("Resolve the ArtifactType \"" + targetNamespace + ":" + artifactType.getName() + "\".");
+                // store the ArtifactType
+                String targetNamespace;
+                if (artifactType.getTargetNamespace() != null && !artifactType.getTargetNamespace().equals("")) {
+                    targetNamespace = artifactType.getTargetNamespace();
+                } else {
+                    targetNamespace = definitions.getTargetNamespace();
+                }
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(
+                    new QName(targetNamespace, artifactType.getName()), artifactType);
 
-				// DerivedFrom
-				if ((artifactType.getDerivedFrom() != null) && (artifactType.getDerivedFrom().getTypeRef() != null)) {
-					errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(artifactType.getDerivedFrom().getTypeRef(), ElementNamesEnum.ARTIFACTTYPE);
-				}
+                this.LOG.debug("Resolve the ArtifactType \"" + targetNamespace + ":" + artifactType.getName() + "\".");
 
-				// PropertiesDefinition
-				// if (artifactType.getPropertiesDefinition() != null) {
-				// if (!(new
-				// PropertiesDefinitionResolver(this.referenceMapper)).resolve(artifactType.getPropertiesDefinition()))
-				// {
-				// this.LOG.error("The ArtifactType \"" + targetNamespace + ":"
-				// + artifactType.getName() +
-				// "\" specifies both attributes in its child element
-				// PropertiesDefinition which is not allowed.");
-				// }
-				// }
-			}
-		}
-		return errorOccurred;
-	}
+                // DerivedFrom
+                if (artifactType.getDerivedFrom() != null && artifactType.getDerivedFrom().getTypeRef() != null) {
+                    errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(
+                        artifactType.getDerivedFrom().getTypeRef(), ElementNamesEnum.ARTIFACTTYPE);
+                }
+
+                // PropertiesDefinition
+                // if (artifactType.getPropertiesDefinition() != null) {
+                // if (!(new
+                // PropertiesDefinitionResolver(this.referenceMapper)).resolve(artifactType.getPropertiesDefinition()))
+                // {
+                // this.LOG.error("The ArtifactType \"" + targetNamespace + ":"
+                // + artifactType.getName() +
+                // "\" specifies both attributes in its child element
+                // PropertiesDefinition which is not allowed.");
+                // }
+                // }
+            }
+        }
+        return errorOccurred;
+    }
 
 }

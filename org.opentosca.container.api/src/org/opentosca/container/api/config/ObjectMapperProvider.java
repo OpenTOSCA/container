@@ -1,16 +1,14 @@
 /*******************************************************************************
  * Copyright 2017 University of Stuttgart
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  *******************************************************************************/
 package org.opentosca.container.api.config;
@@ -26,27 +24,27 @@ import dk.nykredit.jackson.dataformat.hal.HALMapper;
 
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
-	
-	private ObjectMapper objectMapper;
+
+    private ObjectMapper objectMapper;
 
 
-	@Override
-	public ObjectMapper getContext(final Class<?> type) {
-		if (this.objectMapper == null) {
-			this.objectMapper = createDefaultMapper();
-		}
-		return this.objectMapper;
-	}
-	
-	public static ObjectMapper createSimpleMapper() {
-		final ObjectMapper om = new HALMapper();
-		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		return om;
-	}
-	
-	public static ObjectMapper createDefaultMapper() {
-		final ObjectMapper om = createSimpleMapper();
-		om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-		return om;
-	}
+    @Override
+    public ObjectMapper getContext(final Class<?> type) {
+        if (this.objectMapper == null) {
+            this.objectMapper = createDefaultMapper();
+        }
+        return this.objectMapper;
+    }
+
+    public static ObjectMapper createSimpleMapper() {
+        final ObjectMapper om = new HALMapper();
+        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return om;
+    }
+
+    public static ObjectMapper createDefaultMapper() {
+        final ObjectMapper om = createSimpleMapper();
+        om.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        return om;
+    }
 }

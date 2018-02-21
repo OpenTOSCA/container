@@ -42,76 +42,87 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceTemplatesResource {
 
-	private final Logger log = LoggerFactory.getLogger(ServiceTemplatesResource.class);
-	private final CSARContent csarContent;
-	UriInfo uriInfo;
-	
-	
-	public ServiceTemplatesResource(final CSARContent csar) {
-		
-		this.csarContent = csar;
-		this.log.info("{} created: {}", this.getClass(), this);
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo, @DefaultValue("false") @QueryParam("main") final boolean onlyMainServiceTemplate) throws UnsupportedEncodingException, UserException, SystemException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs(onlyMainServiceTemplate).getXMLString()).build();
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo, @QueryParam("main") final boolean onlyMainServiceTemplate) throws UnsupportedEncodingException, UserException, SystemException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs(onlyMainServiceTemplate).getJSONString()).build();
-	}
-	
-	public References getRefs(final boolean onlyMainServiceTemplate) throws UnsupportedEncodingException, UserException, SystemException {
-		
-		if (this.csarContent == null) {
-			return null;
-		}
-		
-		final References refs = new References();
-		
-		if (onlyMainServiceTemplate) {
-			this.log.debug("Only reference to main Service Template is requested.");
-			final String st = this.getEntryServiceTemplateName();
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), st), XLinkConstants.SIMPLE, st));
-			
-		} else {
-			for (final QName qname : ToscaServiceHandler.getToscaEngineService().getServiceTemplatesInCSAR(this.csarContent.getCSARID())) {
-				final String name = URLEncoder.encode(qname.toString(), "UTF-8");
-				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), name), XLinkConstants.SIMPLE, name));
-			}
-		}
-		
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
-		return refs;
-	}
-	
-	private String getEntryServiceTemplateName() throws UserException, SystemException, UnsupportedEncodingException {
-		
-		final AbstractFile root = FileRepositoryServiceHandler.getFileHandler().getCSAR(this.csarContent.getCSARID()).getRootTOSCA();
-		final Definitions def = ToscaServiceHandler.getIXMLSerializer().unmarshal(root.getFileAsInputStream());
-		
-		for (final TExtensibleElements el : def.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-			if (el instanceof TServiceTemplate) {
-				final TServiceTemplate st = (TServiceTemplate) el;
-				final QName qn = new QName(st.getTargetNamespace(), st.getId());
-				return URLEncoder.encode(qn.toString(), "UTF-8");
-			}
-		}
-		
-		return null;
-	}
-	
-	@Path("{qname}")
-	public ServiceTemplateResource getServiceTemplate(@PathParam("qname") final String qname) throws UnsupportedEncodingException {
-		this.log.debug("Create Service Template resource for {}", qname);
-		return new ServiceTemplateResource(this.csarContent, URLDecoder.decode(qname, "UTF-8"));
-	}
+    private final Logger log = LoggerFactory.getLogger(ServiceTemplatesResource.class);
+    private final CSARContent csarContent;
+    UriInfo uriInfo;
+
+
+    public ServiceTemplatesResource(final CSARContent csar) {
+
+        this.csarContent = csar;
+        this.log.info("{} created: {}", this.getClass(), this);
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo,
+                    @DefaultValue("false") @QueryParam("main") final boolean onlyMainServiceTemplate)
+        throws UnsupportedEncodingException, UserException, SystemException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs(onlyMainServiceTemplate).getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo,
+                    @QueryParam("main") final boolean onlyMainServiceTemplate)
+        throws UnsupportedEncodingException, UserException, SystemException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs(onlyMainServiceTemplate).getJSONString()).build();
+    }
+
+    public References getRefs(final boolean onlyMainServiceTemplate)
+        throws UnsupportedEncodingException, UserException, SystemException {
+
+        if (this.csarContent == null) {
+            return null;
+        }
+
+        final References refs = new References();
+
+        if (onlyMainServiceTemplate) {
+            this.log.debug("Only reference to main Service Template is requested.");
+            final String st = this.getEntryServiceTemplateName();
+            refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), st),
+                XLinkConstants.SIMPLE, st));
+
+        } else {
+            for (final QName qname : ToscaServiceHandler.getToscaEngineService()
+                                                        .getServiceTemplatesInCSAR(this.csarContent.getCSARID())) {
+                final String name = URLEncoder.encode(qname.toString(), "UTF-8");
+                refs.getReference().add(new Reference(
+                    Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), name), XLinkConstants.SIMPLE, name));
+            }
+        }
+
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        return refs;
+    }
+
+    private String getEntryServiceTemplateName() throws UserException, SystemException, UnsupportedEncodingException {
+
+        final AbstractFile root = FileRepositoryServiceHandler.getFileHandler().getCSAR(this.csarContent.getCSARID())
+                                                              .getRootTOSCA();
+        final Definitions def = ToscaServiceHandler.getIXMLSerializer().unmarshal(root.getFileAsInputStream());
+
+        for (final TExtensibleElements el : def.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+            if (el instanceof TServiceTemplate) {
+                final TServiceTemplate st = (TServiceTemplate) el;
+                final QName qn = new QName(st.getTargetNamespace(), st.getId());
+                return URLEncoder.encode(qn.toString(), "UTF-8");
+            }
+        }
+
+        return null;
+    }
+
+    @Path("{qname}")
+    public ServiceTemplateResource getServiceTemplate(@PathParam("qname") final String qname)
+        throws UnsupportedEncodingException {
+        this.log.debug("Create Service Template resource for {}", qname);
+        return new ServiceTemplateResource(this.csarContent, URLDecoder.decode(qname, "UTF-8"));
+    }
 }

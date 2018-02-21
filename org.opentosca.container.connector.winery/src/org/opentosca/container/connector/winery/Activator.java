@@ -12,31 +12,33 @@ import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
-	private static Logger logger = LoggerFactory.getLogger(Activator.class);
+    private static Logger logger = LoggerFactory.getLogger(Activator.class);
 
-	private static BundleContext context;
-	
-	
-	static BundleContext getContext() {
-		return context;
-	}
-	
-	@Override
-	public void start(final BundleContext bundleContext) throws Exception {
-		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
-		context = bundleContext;
-		
-		String url = context.getProperty("org.opentosca.container.connector.winery.url");
-		
-		if(url != null) {
-			Settings.setSetting("org.opentosca.container.connector.winery.url", url);
-		}
-		
-	}
-	
-	@Override
-	public void stop(final BundleContext bundleContext) throws Exception {
-		logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
-		Activator.context = null;
-	}
+    private static BundleContext context;
+
+
+    static BundleContext getContext() {
+        return context;
+    }
+
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
+        logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+            bundleContext.getBundle().getVersion());
+        context = bundleContext;
+
+        final String url = context.getProperty("org.opentosca.container.connector.winery.url");
+
+        if (url != null) {
+            Settings.setSetting("org.opentosca.container.connector.winery.url", url);
+        }
+
+    }
+
+    @Override
+    public void stop(final BundleContext bundleContext) throws Exception {
+        logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+            bundleContext.getBundle().getVersion());
+        Activator.context = null;
+    }
 }

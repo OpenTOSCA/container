@@ -7,27 +7,28 @@ import org.opentosca.bus.management.plugins.soaphttp.service.impl.processor.Head
 /**
  * Request-only route of SOAP/HTTP-Management Bus-Plug-in.<br>
  * <br>
- * 
+ *
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * This class manages the request-only invocation of an service.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class RequestOnlyRoute extends RouteBuilder {
-	
-	@Override
-	public void configure() throws Exception {
-		
-		final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
-		
-		Processor headerProcessor = new HeaderProcessor();
-		
-		this.from("direct:RequestOnly-WS-Invoke").to("stream:out").process(headerProcessor).recipientList(this.simple(ENDPOINT));
-	}
-	
+
+    @Override
+    public void configure() throws Exception {
+
+        final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+
+        final Processor headerProcessor = new HeaderProcessor();
+
+        this.from("direct:RequestOnly-WS-Invoke").to("stream:out").process(headerProcessor)
+            .recipientList(this.simple(ENDPOINT));
+    }
+
 }

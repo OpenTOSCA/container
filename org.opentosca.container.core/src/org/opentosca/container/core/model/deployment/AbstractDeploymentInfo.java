@@ -14,34 +14,34 @@ import org.opentosca.container.core.model.csar.id.CSARIDConverter;
 @MappedSuperclass
 @Converter(name = "CSARIDConverter", converterClass = CSARIDConverter.class)
 public abstract class AbstractDeploymentInfo {
-	
-	// TODO: Rename property to csarId
-	@Convert("CSARIDConverter")
-	@Column(name = "csarID")
-	private CSARID csarID;
+
+    // TODO: Rename property to csarId
+    @Convert("CSARIDConverter")
+    @Column(name = "csarID")
+    private CSARID csarID;
 
 
-	protected AbstractDeploymentInfo() {
-		
-	}
+    protected AbstractDeploymentInfo() {
 
-	/**
-	 * @param csarID that uniquely identifies a CSAR file
-	 */
-	public AbstractDeploymentInfo(final CSARID csarID) {
-		this.csarID = csarID;
-	}
+    }
 
-	public CSARID getCsarID() {
-		return this.csarID;
-	}
+    /**
+     * @param csarID that uniquely identifies a CSAR file
+     */
+    public AbstractDeploymentInfo(final CSARID csarID) {
+        this.csarID = csarID;
+    }
 
-	public void setCsarID(final CSARID csarID) {
-		this.csarID = csarID;
-	}
+    public CSARID getCsarID() {
+        return this.csarID;
+    }
 
-	// TODO: Remove this method
-	public CSARID getCSARID() {
-		return this.csarID;
-	}
+    public void setCsarID(final CSARID csarID) {
+        this.csarID = csarID;
+    }
+
+    // TODO: Remove this method
+    public CSARID getCSARID() {
+        return this.csarID;
+    }
 }

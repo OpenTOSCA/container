@@ -1,7 +1,6 @@
 package org.opentosca.container.api.legacy.resources.csar.servicetemplate.relationshiptemplate.instances;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,128 +39,125 @@ import org.slf4j.LoggerFactory;
  */
 public class RelationshipTemplateInstanceResource {
 
-  private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
+    private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstanceResource.class);
 
-  private final CSARID csarId;
-  private final QName serviceTemplateID;
-  private final int serviceTemplateInstanceId;
-  private final QName relationshipTemplateID;
-  private final int relationshipTemplateInstanceId;
+    private final CSARID csarId;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
+    private final QName relationshipTemplateID;
+    private final int relationshipTemplateInstanceId;
 
 
-  public RelationshipTemplateInstanceResource(final CSARID csarId, final QName serviceTemplateID,
-      final int serviceTemplateInstanceId, final QName relationshipTemplateID, final int id) {
-    this.csarId = csarId;
-    this.serviceTemplateID = serviceTemplateID;
-    this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-    this.relationshipTemplateID = relationshipTemplateID;
-    this.relationshipTemplateInstanceId = id;
-  }
-
-  @GET
-  @Produces(MediaType.APPLICATION_XML)
-  public Response doGetXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-
-    final References idr = this.getRefs(uriInfo);
-
-    return Response.ok(idr.getXMLString()).build();
-  }
-
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response doGetJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-
-    final References idr = this.getRefs(uriInfo);
-
-    return Response.ok(idr.getJSONString()).build();
-  }
-
-  public References getRefs(final UriInfo uriInfo) throws UnsupportedEncodingException {
-
-    final References refs = new References();
-
-    this.log.debug("try to build relation template instance resource");
-    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-    final List<RelationInstance> relationInstances = service.getRelationInstances(
-        IdConverter.relationInstanceIDtoURI(this.relationshipTemplateInstanceId), null, null, null);
-
-    // existence of instance is already checked before invoking this class
-    // and its methods
-    final RelationInstance relationInstance = relationInstances.get(0);
-
-    final QName relationshipTypeQName = relationInstance.getRelationshipType();
-    final List<String> relationshipType = new ArrayList<>();
-    relationshipType.add(relationshipTypeQName.toString());
-
-    final List<SimpleXLink> links = new LinkedList<>();
-    links.add(LinkBuilder.selfLink(uriInfo));
-
-    // final URI serviceInstanceID = relationInstance.getServiceInstance().getServiceInstanceID();
-    // URI linkToServiceInstance =
-    // LinkBuilder.linkToServiceInstance(uriInfo,
-    // IdConverter.serviceInstanceUriToID(serviceInstanceID));
-
-    // String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" +
-    // URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") +
-    // "/Instances/" + serviceTemplateInstanceId;
-    // refs.getReference().add(new
-    // Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(),
-    // nodeUrl), XLinkConstants.REFERENCE,
-    // "ParentServiceTemplateInstance"));
-
-    // links.add(new SimpleXLink(linkToServiceInstance, "ServiceInstance"));
-    // // properties link
-    // URI linkToProperties =
-    // LinkBuilder.linkToNodeInstanceProperties(uriInfo,
-    // nodeTemplateInstanceId);
-    // links.add(new SimpleXLink(linkToProperties, "Properties"));
-    // // state link
-    // links.add(new
-    // SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
-    // nodeTemplateInstanceId), "State"));
-    // NodeInstanceEntry nie = new NodeInstanceEntry(nodeInstance, links);
-
-    refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "Properties"),
-        XLinkConstants.SIMPLE, "Properties"));
-    refs.getReference()
-        .add(new Reference(Utilities.buildURI(uriInfo, "State"), XLinkConstants.SIMPLE, "State"));
-
-    if (relationInstance.getSourceInstance() != null) {
-      refs.getReference()
-          .add(new Reference(relationInstance.getSourceInstance().getNodeInstanceID().toString(),
-              XLinkConstants.SIMPLE, "SourceInstanceId"));
+    public RelationshipTemplateInstanceResource(final CSARID csarId, final QName serviceTemplateID,
+                                                final int serviceTemplateInstanceId, final QName relationshipTemplateID,
+                                                final int id) {
+        this.csarId = csarId;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+        this.relationshipTemplateID = relationshipTemplateID;
+        this.relationshipTemplateInstanceId = id;
     }
 
-    if (relationInstance.getTargetInstance() != null) {
-      refs.getReference()
-          .add(new Reference(relationInstance.getTargetInstance().getNodeInstanceID().toString(),
-              XLinkConstants.SIMPLE, "TargetInstanceId"));
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response doGetXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+
+        final References idr = this.getRefs(uriInfo);
+
+        return Response.ok(idr.getXMLString()).build();
     }
 
-    // selflink
-    refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(),
-        XLinkConstants.SIMPLE, XLinkConstants.SELF));
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response doGetJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
 
-    return refs;
-  }
+        final References idr = this.getRefs(uriInfo);
 
-  @DELETE
-  public Response deleteRelationInstance() {
-    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-    service.deleteRelationInstance(
-        IdConverter.relationInstanceIDtoURI(this.relationshipTemplateInstanceId));
-    return Response.noContent().build();
+        return Response.ok(idr.getJSONString()).build();
+    }
 
-  }
+    public References getRefs(final UriInfo uriInfo) throws UnsupportedEncodingException {
 
-  @Path("/Properties")
-  public Object getProperties() {
-    return new RelationshipTemplateInstancePropertiesResource(this.relationshipTemplateInstanceId);
-  }
+        final References refs = new References();
 
-  @Path("/State")
-  public Object getState() {
-    return new RelationshipTemplateInstanceStateResource(this.relationshipTemplateInstanceId);
-  }
+        this.log.debug("try to build relation template instance resource");
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        final List<RelationInstance> relationInstances = service.getRelationInstances(
+            IdConverter.relationInstanceIDtoURI(this.relationshipTemplateInstanceId), null, null, null);
+
+        // existence of instance is already checked before invoking this class
+        // and its methods
+        final RelationInstance relationInstance = relationInstances.get(0);
+
+        final QName relationshipTypeQName = relationInstance.getRelationshipType();
+        final List<String> relationshipType = new ArrayList<>();
+        relationshipType.add(relationshipTypeQName.toString());
+
+        final List<SimpleXLink> links = new LinkedList<>();
+        links.add(LinkBuilder.selfLink(uriInfo));
+
+        // final URI serviceInstanceID = relationInstance.getServiceInstance().getServiceInstanceID();
+        // URI linkToServiceInstance =
+        // LinkBuilder.linkToServiceInstance(uriInfo,
+        // IdConverter.serviceInstanceUriToID(serviceInstanceID));
+
+        // String nodeUrl = "/CSARs/" + csarId + "/ServiceTemplates/" +
+        // URLEncoder.encode(serviceTemplateID.toString(), "UTF-8") +
+        // "/Instances/" + serviceTemplateInstanceId;
+        // refs.getReference().add(new
+        // Reference(Utilities.buildURI(uriInfo.getBaseUri().toString(),
+        // nodeUrl), XLinkConstants.REFERENCE,
+        // "ParentServiceTemplateInstance"));
+
+        // links.add(new SimpleXLink(linkToServiceInstance, "ServiceInstance"));
+        // // properties link
+        // URI linkToProperties =
+        // LinkBuilder.linkToNodeInstanceProperties(uriInfo,
+        // nodeTemplateInstanceId);
+        // links.add(new SimpleXLink(linkToProperties, "Properties"));
+        // // state link
+        // links.add(new
+        // SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
+        // nodeTemplateInstanceId), "State"));
+        // NodeInstanceEntry nie = new NodeInstanceEntry(nodeInstance, links);
+
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(uriInfo, "Properties"), XLinkConstants.SIMPLE, "Properties"));
+        refs.getReference().add(new Reference(Utilities.buildURI(uriInfo, "State"), XLinkConstants.SIMPLE, "State"));
+
+        if (relationInstance.getSourceInstance() != null) {
+            refs.getReference().add(new Reference(relationInstance.getSourceInstance().getNodeInstanceID().toString(),
+                XLinkConstants.SIMPLE, "SourceInstanceId"));
+        }
+
+        if (relationInstance.getTargetInstance() != null) {
+            refs.getReference().add(new Reference(relationInstance.getTargetInstance().getNodeInstanceID().toString(),
+                XLinkConstants.SIMPLE, "TargetInstanceId"));
+        }
+
+        // selflink
+        refs.getReference()
+            .add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        return refs;
+    }
+
+    @DELETE
+    public Response deleteRelationInstance() {
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        service.deleteRelationInstance(IdConverter.relationInstanceIDtoURI(this.relationshipTemplateInstanceId));
+        return Response.noContent().build();
+
+    }
+
+    @Path("/Properties")
+    public Object getProperties() {
+        return new RelationshipTemplateInstancePropertiesResource(this.relationshipTemplateInstanceId);
+    }
+
+    @Path("/State")
+    public Object getState() {
+        return new RelationshipTemplateInstanceStateResource(this.relationshipTemplateInstanceId);
+    }
 
 }

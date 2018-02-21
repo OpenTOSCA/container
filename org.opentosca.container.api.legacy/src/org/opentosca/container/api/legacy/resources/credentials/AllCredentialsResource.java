@@ -36,104 +36,105 @@ import org.opentosca.container.core.service.ICoreCredentialsService;
  */
 @Path("/Credentials")
 public class AllCredentialsResource {
-	
-	// private static Logger LOG =
-	// LoggerFactory.getLogger(AllCredentialsResource.class);
-	
-	private final ICoreCredentialsService CREDENTIALS_SERVICE = CredentialsServiceHandler.getCredentialsService();
-	
-	@Context
-	private UriInfo uriInfo;
-	@Context
-	private Request request;
-	
-	
-	/**
-	 * @return 200 (OK) with entity {@link AllCredentialsJaxb} containing all
-	 *         credentials.
-	 */
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getAllCredentialsXML(@QueryParam("storageProviderID") final String storageProviderID) {
-		return Response.ok(JaxbFactory.createAllCredentialsJaxb(storageProviderID)).build();
-	}
-	
-	/**
-	 * Creates a {@link CredentialsResource} of credentials
-	 * {@code credentialsIDAsString}. If these credentials are not stored it
-	 * will be created with {@code null}.<br/>
-	 * <br />
-	 * A resource of credentials is located at:<br />
-	 * {@code ...\<credentialsID>}
-	 *
-	 * @param credentialsIDAsString of credentials
-	 * @return {@link CredentialsResource}
-	 * @throws UserException
-	 */
-	@Path("{credentialsID}")
-	public CredentialsResource getCredentialsResource(@PathParam("credentialsID") final String credentialsIDAsString) throws UserException {
-		
-		Credentials credentials = null;
-		
-		try {
-			final long credentialsID = Long.parseLong(credentialsIDAsString);
-			credentials = this.CREDENTIALS_SERVICE.getCredentials(credentialsID);
-		} catch (final NumberFormatException exc) {
-			throw new UserException("Credentials ID must be a whole number.", exc);
-		}
-		
-		return new CredentialsResource(credentials);
-		
-	}
-	
-	/**
-	 * Stores the {@code credentials} given as XML in the body of a POST message
-	 * in the Core Credentials Service.
-	 *
-	 * @param credentials to store.
-	 * @return 200 (OK) - credentials were successfully stored.<br />
-	 *         500 (internal server error) - storing credentials failed.
-	 * @throws UserException
-	 *
-	 * @see Credentials
-	 * @see ICoreCredentialsService#storeCredentials(Credentials)
-	 */
-	@POST
-	@Consumes(MediaType.APPLICATION_XML)
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response storeCredentials(final Credentials credentials) throws UserException {
-		
-		// try {
-		
-		final Long credentialsID = this.CREDENTIALS_SERVICE.storeCredentials(credentials);
-		
-		return Response.created(URI.create(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), Long.toString(credentialsID)))).build();
-		
-		// } catch (UserException exc) {
-		// AllCredentialsResource.LOG.warn("An User Exception occured.", exc);
-		// }
-		
-		// return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		
-	}
-	
-	/**
-	 * Deletes all credentials in the Core Credentials Service in case of a
-	 * DELETE message (with arbitrary body).
-	 *
-	 * @param input
-	 * @return 200 (OK)
-	 *
-	 * @see Credentials
-	 * @see ICoreCredentialsService#deleteAllCredentials()
-	 */
-	@DELETE
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(ResourceConstants.TEXT_PLAIN)
-	public Response deleteAllCredentials() {
-		
-		this.CREDENTIALS_SERVICE.deleteAllCredentials();
-		return Response.ok("All credentials were deleted.").build();
-		
-	}
+
+    // private static Logger LOG =
+    // LoggerFactory.getLogger(AllCredentialsResource.class);
+
+    private final ICoreCredentialsService CREDENTIALS_SERVICE = CredentialsServiceHandler.getCredentialsService();
+
+    @Context
+    private UriInfo uriInfo;
+    @Context
+    private Request request;
+
+
+    /**
+     * @return 200 (OK) with entity {@link AllCredentialsJaxb} containing all credentials.
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getAllCredentialsXML(@QueryParam("storageProviderID") final String storageProviderID) {
+        return Response.ok(JaxbFactory.createAllCredentialsJaxb(storageProviderID)).build();
+    }
+
+    /**
+     * Creates a {@link CredentialsResource} of credentials {@code credentialsIDAsString}. If these
+     * credentials are not stored it will be created with {@code null}.<br/>
+     * <br />
+     * A resource of credentials is located at:<br />
+     * {@code ...\<credentialsID>}
+     *
+     * @param credentialsIDAsString of credentials
+     * @return {@link CredentialsResource}
+     * @throws UserException
+     */
+    @Path("{credentialsID}")
+    public CredentialsResource getCredentialsResource(@PathParam("credentialsID") final String credentialsIDAsString)
+        throws UserException {
+
+        Credentials credentials = null;
+
+        try {
+            final long credentialsID = Long.parseLong(credentialsIDAsString);
+            credentials = this.CREDENTIALS_SERVICE.getCredentials(credentialsID);
+        } catch (final NumberFormatException exc) {
+            throw new UserException("Credentials ID must be a whole number.", exc);
+        }
+
+        return new CredentialsResource(credentials);
+
+    }
+
+    /**
+     * Stores the {@code credentials} given as XML in the body of a POST message in the Core Credentials
+     * Service.
+     *
+     * @param credentials to store.
+     * @return 200 (OK) - credentials were successfully stored.<br />
+     *         500 (internal server error) - storing credentials failed.
+     * @throws UserException
+     *
+     * @see Credentials
+     * @see ICoreCredentialsService#storeCredentials(Credentials)
+     */
+    @POST
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response storeCredentials(final Credentials credentials) throws UserException {
+
+        // try {
+
+        final Long credentialsID = this.CREDENTIALS_SERVICE.storeCredentials(credentials);
+
+        return Response.created(
+            URI.create(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), Long.toString(credentialsID))))
+                       .build();
+
+        // } catch (UserException exc) {
+        // AllCredentialsResource.LOG.warn("An User Exception occured.", exc);
+        // }
+
+        // return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+
+    }
+
+    /**
+     * Deletes all credentials in the Core Credentials Service in case of a DELETE message (with
+     * arbitrary body).
+     *
+     * @param input
+     * @return 200 (OK)
+     *
+     * @see Credentials
+     * @see ICoreCredentialsService#deleteAllCredentials()
+     */
+    @DELETE
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(ResourceConstants.TEXT_PLAIN)
+    public Response deleteAllCredentials() {
+
+        this.CREDENTIALS_SERVICE.deleteAllCredentials();
+        return Response.ok("All credentials were deleted.").build();
+
+    }
 }

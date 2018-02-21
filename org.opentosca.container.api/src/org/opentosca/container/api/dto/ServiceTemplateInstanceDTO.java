@@ -15,75 +15,75 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 // TODO: Add State
 @XmlRootElement(name = "ServiceTemplateInstance")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ServiceTemplateInstanceDTO  extends ResourceSupport {
-	
-	private Long id;
-	
-	private Date createdAt;
-	
-	private String csarId;
-	
-	private String serviceTemplateId;
+public class ServiceTemplateInstanceDTO extends ResourceSupport {
 
-	private ServiceTemplateInstanceState state;
-	
-	
-	@XmlAttribute
-	public Long getId() {
-		return this.id;
-	}
+    private Long id;
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    private Date createdAt;
 
-	@XmlElement(name = "CreatedAt")
-	public Date getCreatedAt() {
-		return this.createdAt;
-	}
+    private String csarId;
 
-	public void setCreatedAt(final Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    private String serviceTemplateId;
 
-	@XmlElement(name = "CsarId")
-	public String getCsarId() {
-		return this.csarId;
-	}
+    private ServiceTemplateInstanceState state;
 
-	public void setCsarId(final String csarId) {
-		this.csarId = csarId;
-	}
 
-	@XmlElement(name = "ServiceTemplateId")
-	public String getServiceTemplateId() {
-		return this.serviceTemplateId;
-	}
+    @XmlAttribute
+    public Long getId() {
+        return this.id;
+    }
 
-	public void setServiceTemplateId(final String serviceTemplateId) {
-		this.serviceTemplateId = serviceTemplateId;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	public ServiceTemplateInstanceState getState() {
-		return this.state;
-	}
-	
-	public void setState(final ServiceTemplateInstanceState state) {
-		this.state = state;
-	}
-	
-	public static final class Converter {
+    @XmlElement(name = "CreatedAt")
+    public Date getCreatedAt() {
+        return this.createdAt;
+    }
 
-		public static ServiceTemplateInstanceDTO convert(final ServiceTemplateInstance object) {
-			final ServiceTemplateInstanceDTO dto = new ServiceTemplateInstanceDTO();
+    public void setCreatedAt(final Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-			dto.setId(object.getId());
-			dto.setCreatedAt(object.getCreatedAt());
-			dto.setCsarId(object.getCsarId().toString());
-			dto.setServiceTemplateId(object.getTemplateId().toString());
-			dto.setState(object.getState());
-			
-			return dto;
-		}
-	}
+    @XmlElement(name = "CsarId")
+    public String getCsarId() {
+        return this.csarId;
+    }
+
+    public void setCsarId(final String csarId) {
+        this.csarId = csarId;
+    }
+
+    @XmlElement(name = "ServiceTemplateId")
+    public String getServiceTemplateId() {
+        return this.serviceTemplateId;
+    }
+
+    public void setServiceTemplateId(final String serviceTemplateId) {
+        this.serviceTemplateId = serviceTemplateId;
+    }
+
+    public ServiceTemplateInstanceState getState() {
+        return this.state;
+    }
+
+    public void setState(final ServiceTemplateInstanceState state) {
+        this.state = state;
+    }
+
+    public static final class Converter {
+
+        public static ServiceTemplateInstanceDTO convert(final ServiceTemplateInstance object) {
+            final ServiceTemplateInstanceDTO dto = new ServiceTemplateInstanceDTO();
+
+            dto.setId(object.getId());
+            dto.setCreatedAt(object.getCreatedAt());
+            dto.setCsarId(object.getCsarId().toString());
+            dto.setServiceTemplateId(object.getTemplateId().toString());
+            dto.setState(object.getState());
+
+            return dto;
+        }
+    }
 }

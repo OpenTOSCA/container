@@ -20,7 +20,7 @@ public class Activator implements BundleActivator {
 
     private static BundleContext context;
 
-    private BPELAnsibleOperationPlugin plugin = new BPELAnsibleOperationPlugin();
+    private final BPELAnsibleOperationPlugin plugin = new BPELAnsibleOperationPlugin();
 
     private ServiceRegistration<?> registration;
 
@@ -30,26 +30,26 @@ public class Activator implements BundleActivator {
      * @return a BundleContext
      */
     static BundleContext getContext() {
-	return Activator.context;
+        return Activator.context;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
-	Activator.context = bundleContext;
-	this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
-		this.plugin, null);
+    public void start(final BundleContext bundleContext) throws Exception {
+        Activator.context = bundleContext;
+        this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
+            this.plugin, null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	this.registration.unregister();
-	Activator.context = null;
+    public void stop(final BundleContext bundleContext) throws Exception {
+        this.registration.unregister();
+        Activator.context = null;
     }
 
 }

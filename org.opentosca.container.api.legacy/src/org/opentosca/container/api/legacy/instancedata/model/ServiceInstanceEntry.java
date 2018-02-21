@@ -23,111 +23,113 @@ import com.google.gson.JsonObject;
 @XmlRootElement(name = "ServiceInstance")
 public class ServiceInstanceEntry {
 
-	private URI serviceInstanceID;
-	private String csarID;
-	private String serviceTemplateID;
-	private String serviceTemplateName;
-	private Date created;
-	private List<SimpleXLink> links = new LinkedList<>();
+    private URI serviceInstanceID;
+    private String csarID;
+    private String serviceTemplateID;
+    private String serviceTemplateName;
+    private Date created;
+    private List<SimpleXLink> links = new LinkedList<>();
 
-	private List<SimpleXLink> nodeInstanceList = new LinkedList<>();
-	
-	private List<SimpleXLink> relationInstanceList = new LinkedList<SimpleXLink>();
-	
-	/**
-	 * @param serviceInstanceID
-	 * @param csarID
-	 * @param serviceTemplateID
-	 * @param serviceTemplateName
-	 * @param created
-	 * @param links
-	 * @param nodeInstanceList
-	 */
-	public ServiceInstanceEntry(final ServiceInstance si, final List<SimpleXLink> links, final NodeInstanceList nodeInstanceList) {
-		super();
-		this.serviceInstanceID = si.getServiceInstanceID();
-		this.csarID = si.getCSAR_ID().toString();
-		this.serviceTemplateID = si.getServiceTemplateID().toString();
-		this.serviceTemplateName = si.getServiceTemplateName();
-		this.created = si.getCreated();
+    private List<SimpleXLink> nodeInstanceList = new LinkedList<>();
 
-		this.links = links;
-		this.nodeInstanceList = nodeInstanceList.getLinks();
-	}
+    private List<SimpleXLink> relationInstanceList = new LinkedList<>();
 
-	public ServiceInstanceEntry(ServiceInstance si, List<SimpleXLink> links, RelationInstanceList relationInstanceList) {
-		super();
-		serviceInstanceID = si.getServiceInstanceID();
-		csarID = si.getCSAR_ID().toString();
-		serviceTemplateID = si.getServiceTemplateID().toString();
-		serviceTemplateName = si.getServiceTemplateName();
-		created = si.getCreated();
-		
-		this.links = links;
-		this.relationInstanceList = relationInstanceList.getLinks();
-	}
-	
-	protected ServiceInstanceEntry() {
-		super();
-	}
+    /**
+     * @param serviceInstanceID
+     * @param csarID
+     * @param serviceTemplateID
+     * @param serviceTemplateName
+     * @param created
+     * @param links
+     * @param nodeInstanceList
+     */
+    public ServiceInstanceEntry(final ServiceInstance si, final List<SimpleXLink> links,
+                                final NodeInstanceList nodeInstanceList) {
+        super();
+        this.serviceInstanceID = si.getServiceInstanceID();
+        this.csarID = si.getCSAR_ID().toString();
+        this.serviceTemplateID = si.getServiceTemplateID().toString();
+        this.serviceTemplateName = si.getServiceTemplateName();
+        this.created = si.getCreated();
 
-	@XmlAttribute(name = "serviceInstanceID", required = true)
-	public URI getServiceInstanceID() {
-		return this.serviceInstanceID;
-	}
+        this.links = links;
+        this.nodeInstanceList = nodeInstanceList.getLinks();
+    }
 
-	@XmlAttribute(name = "csarID", required = true)
-	public String getCsarID() {
-		return this.csarID;
-	}
+    public ServiceInstanceEntry(final ServiceInstance si, final List<SimpleXLink> links,
+                                final RelationInstanceList relationInstanceList) {
+        super();
+        this.serviceInstanceID = si.getServiceInstanceID();
+        this.csarID = si.getCSAR_ID().toString();
+        this.serviceTemplateID = si.getServiceTemplateID().toString();
+        this.serviceTemplateName = si.getServiceTemplateName();
+        this.created = si.getCreated();
 
-	@XmlAttribute(name = "serviceTemplateID", required = true)
-	public String getServiceTemplateID() {
-		return this.serviceTemplateID;
-	}
+        this.links = links;
+        this.relationInstanceList = relationInstanceList.getLinks();
+    }
 
-	@XmlAttribute(name = "serviceTemplateName")
-	public String getServiceTemplateName() {
-		return this.serviceTemplateName;
-	}
+    protected ServiceInstanceEntry() {
+        super();
+    }
 
-	@XmlAttribute(name = "created-at")
-	public Date getCreated() {
-		return this.created;
-	}
+    @XmlAttribute(name = "serviceInstanceID", required = true)
+    public URI getServiceInstanceID() {
+        return this.serviceInstanceID;
+    }
 
-	@XmlElement(name = "Link")
-	public List<SimpleXLink> getLinks() {
-		return this.links;
-	}
+    @XmlAttribute(name = "csarID", required = true)
+    public String getCsarID() {
+        return this.csarID;
+    }
 
-	@XmlElementWrapper(name = "nodeInstances")
-	@XmlElement(name = "nodeInstance")
-	public List<SimpleXLink> getNodeInstanceList() {
-		return this.nodeInstanceList;
-	}
+    @XmlAttribute(name = "serviceTemplateID", required = true)
+    public String getServiceTemplateID() {
+        return this.serviceTemplateID;
+    }
 
-	@XmlElementWrapper(name = "relationInstances")
-	@XmlElement(name = "relationInstance")
-	public List<SimpleXLink> getRelationInstanceList() {
-		return relationInstanceList;
-	}
-	
-	public String toJSON() {
+    @XmlAttribute(name = "serviceTemplateName")
+    public String getServiceTemplateName() {
+        return this.serviceTemplateName;
+    }
 
-		final JsonObject ret = new JsonObject();
-		final JsonArray refs = new JsonArray();
+    @XmlAttribute(name = "created-at")
+    public Date getCreated() {
+        return this.created;
+    }
 
-		for (final SimpleXLink ref : this.links) {
-			final JsonObject obj = new JsonObject();
-			obj.addProperty("type", ref.getType());
-			obj.addProperty("href", ref.getHref());
-			obj.addProperty("title", ref.getTitle());
-			refs.add(obj);
-		}
-		ret.add("References", refs);
+    @XmlElement(name = "Link")
+    public List<SimpleXLink> getLinks() {
+        return this.links;
+    }
 
-		return ret.toString();
-	}
+    @XmlElementWrapper(name = "nodeInstances")
+    @XmlElement(name = "nodeInstance")
+    public List<SimpleXLink> getNodeInstanceList() {
+        return this.nodeInstanceList;
+    }
+
+    @XmlElementWrapper(name = "relationInstances")
+    @XmlElement(name = "relationInstance")
+    public List<SimpleXLink> getRelationInstanceList() {
+        return this.relationInstanceList;
+    }
+
+    public String toJSON() {
+
+        final JsonObject ret = new JsonObject();
+        final JsonArray refs = new JsonArray();
+
+        for (final SimpleXLink ref : this.links) {
+            final JsonObject obj = new JsonObject();
+            obj.addProperty("type", ref.getType());
+            obj.addProperty("href", ref.getHref());
+            obj.addProperty("title", ref.getTitle());
+            refs.add(obj);
+        }
+        ret.add("References", refs);
+
+        return ret.toString();
+    }
 
 }

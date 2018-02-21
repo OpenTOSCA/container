@@ -22,53 +22,57 @@ import org.slf4j.LoggerFactory;
 
 public class NodeTemplateResource {
 
-	private final Logger log = LoggerFactory.getLogger(NodeTemplateResource.class);
-	private final CSARID csarId;
-	private final QName serviceTemplateID;
-	private final int serviceTemplateInstanceId;
-	private final QName nodeTemplateID;
-	private UriInfo uriInfo;
-	
-	
-	public NodeTemplateResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId, final String planIdLocalPart) {
-		this.csarId = csarId;
-		this.serviceTemplateID = serviceTemplateID;
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-		this.nodeTemplateID = new QName(serviceTemplateID.getNamespaceURI(), planIdLocalPart);
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getXMLString()).build();
-	}
+    private final Logger log = LoggerFactory.getLogger(NodeTemplateResource.class);
+    private final CSARID csarId;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
+    private final QName nodeTemplateID;
+    private UriInfo uriInfo;
 
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getJSONString()).build();
-	}
-	
-	public References getRefs() throws UnsupportedEncodingException {
-		
-		if (this.csarId == null) {
-			return null;
-		}
-		
-		final References refs = new References();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Instances"), XLinkConstants.SIMPLE, "Instances"));
-		
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
-		return refs;
-	}
-	
-	@Path("Instances")
-	public NodeTemplateInstancesResource getNodeTemplateInstances() {
-		return new NodeTemplateInstancesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, this.nodeTemplateID);
-	}
+
+    public NodeTemplateResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId,
+                                final String planIdLocalPart) {
+        this.csarId = csarId;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+        this.nodeTemplateID = new QName(serviceTemplateID.getNamespaceURI(), planIdLocalPart);
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getJSONString()).build();
+    }
+
+    public References getRefs() throws UnsupportedEncodingException {
+
+        if (this.csarId == null) {
+            return null;
+        }
+
+        final References refs = new References();
+
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(this.uriInfo, "Instances"), XLinkConstants.SIMPLE, "Instances"));
+
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        return refs;
+    }
+
+    @Path("Instances")
+    public NodeTemplateInstancesResource getNodeTemplateInstances() {
+        return new NodeTemplateInstancesResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            this.nodeTemplateID);
+    }
 }

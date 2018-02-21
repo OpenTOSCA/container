@@ -19,42 +19,43 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ToscaServiceHandler {
-	
-	final private static Logger LOG = LoggerFactory.getLogger(ToscaServiceHandler.class);
 
-	private static IXMLSerializerService xmlSerializerService;
-	private static IToscaEngineService toscaEngineService;
+    final private static Logger LOG = LoggerFactory.getLogger(ToscaServiceHandler.class);
+
+    private static IXMLSerializerService xmlSerializerService;
+    private static IToscaEngineService toscaEngineService;
 
 
-	public static IXMLSerializer getIXMLSerializer() {
-		final BundleContext context = Activator.getContext();
-		final ServiceReference<IXMLSerializerService> service = context.getServiceReference(IXMLSerializerService.class);
-		return context.getService(service).getXmlSerializer();
-	}
+    public static IXMLSerializer getIXMLSerializer() {
+        final BundleContext context = Activator.getContext();
+        final ServiceReference<IXMLSerializerService> service = context.getServiceReference(
+            IXMLSerializerService.class);
+        return context.getService(service).getXmlSerializer();
+    }
 
-	public void bindIXMLSerializerService(final IXMLSerializerService fa) {
-		ToscaServiceHandler.LOG.debug("ContainerApi: Bind IXMLSerializerService");
-		ToscaServiceHandler.xmlSerializerService = fa;
-	}
+    public void bindIXMLSerializerService(final IXMLSerializerService fa) {
+        ToscaServiceHandler.LOG.debug("ContainerApi: Bind IXMLSerializerService");
+        ToscaServiceHandler.xmlSerializerService = fa;
+    }
 
-	public void unbindIXMLSerializerService(final IXMLSerializerService fa) {
-		ToscaServiceHandler.LOG.debug("ContainerApi: Unbind IXMLSerializerService");
-		ToscaServiceHandler.xmlSerializerService = null;
-	}
+    public void unbindIXMLSerializerService(final IXMLSerializerService fa) {
+        ToscaServiceHandler.LOG.debug("ContainerApi: Unbind IXMLSerializerService");
+        ToscaServiceHandler.xmlSerializerService = null;
+    }
 
-	public static IToscaEngineService getToscaEngineService() {
-		final BundleContext context = Activator.getContext();
-		final ServiceReference<IToscaEngineService> service = context.getServiceReference(IToscaEngineService.class);
-		return context.getService(service);
-	}
+    public static IToscaEngineService getToscaEngineService() {
+        final BundleContext context = Activator.getContext();
+        final ServiceReference<IToscaEngineService> service = context.getServiceReference(IToscaEngineService.class);
+        return context.getService(service);
+    }
 
-	public void bindToscaEngineService(final IToscaEngineService fa) {
-		ToscaServiceHandler.LOG.debug("ContainerApi: Bind IToscaEngineService");
-		ToscaServiceHandler.toscaEngineService = fa;
-	}
+    public void bindToscaEngineService(final IToscaEngineService fa) {
+        ToscaServiceHandler.LOG.debug("ContainerApi: Bind IToscaEngineService");
+        ToscaServiceHandler.toscaEngineService = fa;
+    }
 
-	public void unbindToscaEngineService(final IToscaEngineService fa) {
-		ToscaServiceHandler.LOG.debug("ContainerApi: Unbind IToscaEngineService");
-		ToscaServiceHandler.toscaEngineService = null;
-	}
+    public void unbindToscaEngineService(final IToscaEngineService fa) {
+        ToscaServiceHandler.LOG.debug("ContainerApi: Unbind IToscaEngineService");
+        ToscaServiceHandler.toscaEngineService = null;
+    }
 }

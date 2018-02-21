@@ -12,36 +12,36 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RelationshipTemplateDTO extends ResourceSupport {
-	@XmlAttribute(name = "id")
-	private String id;
-	
-	@XmlElement(name = "Name")
-	private String name;
-	
-	@XmlElement(name = "RelationshipType")
-	private String relationshipType;
+    @XmlAttribute(name = "id")
+    private String id;
 
-	public String getId() {
-		return id;
-	}
+    @XmlElement(name = "Name")
+    private String name;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @XmlElement(name = "RelationshipType")
+    private String relationshipType;
 
-	public String getName() {
-		return name;
-	}
+    public String getId() {
+        return this.id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-	public String getRelationshipType() {
-		return relationshipType;
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	public void setRelationshipType(String relationshipType) {
-		this.relationshipType = relationshipType;
-	}
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public String getRelationshipType() {
+        return this.relationshipType;
+    }
+
+    public void setRelationshipType(final String relationshipType) {
+        this.relationshipType = relationshipType;
+    }
 }

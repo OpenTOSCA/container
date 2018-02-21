@@ -19,58 +19,58 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class JerseyServletComponent {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(JerseyServletComponent.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyServletComponent.class);
 
 
-	protected void bindHttpService(final ExtendedHttpService httpService) {
-		JerseyServletComponent.LOG.debug("Binding HTTP Service");
-		try {
-			
-			// final JerseyApplication app = new JerseyApplication();
-			final ServletContainer container = new ServletContainer();
+    protected void bindHttpService(final ExtendedHttpService httpService) {
+        JerseyServletComponent.LOG.debug("Binding HTTP Service");
+        try {
 
-			// this is for supporting json, but unfortunately we need further
-			// bundles in the target platform ...
-			// <init-param>
-			// <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-			// <param-value>true</param-value>
-			// </init-param>
-			final Dictionary<String, String> initParams = new Hashtable<>();
-			initParams.put("javax.ws.rs.Application", JerseyApplication.class.getName());
-			// initParams.put("com.sun.jersey.api.json.POJOMappingFeature",
-			// "true");
+            // final JerseyApplication app = new JerseyApplication();
+            final ServletContainer container = new ServletContainer();
 
-			// TODO: Temporary workaround
-			// This is a workaround related to issue JERSEY-2093; grizzly
-			// (1.9.5)
-			final ClassLoader classLoader = this.getClass().getClassLoader();
-			final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-			try {
-				Thread.currentThread().setContextClassLoader(classLoader);
-				httpService.registerServlet(ResourceConstants.ROOT, container, initParams, null);
-				httpService.registerFilter("/", new CorsFilter(), null, null);
-			} finally {
-				Thread.currentThread().setContextClassLoader(contextClassLoader);
-			}
+            // this is for supporting json, but unfortunately we need further
+            // bundles in the target platform ...
+            // <init-param>
+            // <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+            // <param-value>true</param-value>
+            // </init-param>
+            final Dictionary<String, String> initParams = new Hashtable<>();
+            initParams.put("javax.ws.rs.Application", JerseyApplication.class.getName());
+            // initParams.put("com.sun.jersey.api.json.POJOMappingFeature",
+            // "true");
 
-		} catch (final Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+            // TODO: Temporary workaround
+            // This is a workaround related to issue JERSEY-2093; grizzly
+            // (1.9.5)
+            final ClassLoader classLoader = this.getClass().getClassLoader();
+            final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(classLoader);
+                httpService.registerServlet(ResourceConstants.ROOT, container, initParams, null);
+                httpService.registerFilter("/", new CorsFilter(), null, null);
+            } finally {
+                Thread.currentThread().setContextClassLoader(contextClassLoader);
+            }
 
-	protected void unbindHttpService(final ExtendedHttpService httpService) {
-		JerseyServletComponent.LOG.debug("Unbinding HTTP Service");
-		httpService.unregister(ResourceConstants.ROOT);
-	}
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
-	protected void activate(final ComponentContext componentContext) {
-		// the Uri for the ContainerApi is also stored in the SettingsBundle
-		String port = componentContext.getBundleContext().getProperty("org.osgi.service.http.port");
-		if ((port == null) || (port.trim().length() == 0)) {
-			port = "1337";
-		}
+    protected void unbindHttpService(final ExtendedHttpService httpService) {
+        JerseyServletComponent.LOG.debug("Unbinding HTTP Service");
+        httpService.unregister(ResourceConstants.ROOT);
+    }
 
-		JerseyServletComponent.LOG.info("Container API started: http://localhost:{}{}", port, ResourceConstants.ROOT);
-	}
+    protected void activate(final ComponentContext componentContext) {
+        // the Uri for the ContainerApi is also stored in the SettingsBundle
+        String port = componentContext.getBundleContext().getProperty("org.osgi.service.http.port");
+        if (port == null || port.trim().length() == 0) {
+            port = "1337";
+        }
+
+        JerseyServletComponent.LOG.info("Container API started: http://localhost:{}{}", port, ResourceConstants.ROOT);
+    }
 }

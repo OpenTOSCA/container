@@ -8,17 +8,17 @@ import org.w3c.dom.Element;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public abstract class AbstractProperties {
-	
-	/**
-	 * Returns the first Properties Element
-	 * 
-	 * @return a Properties representation as DOM Element
-	 */
-	public abstract Element getDOMElement();
-	
+
+    /**
+     * Returns the first Properties Element
+     *
+     * @return a Properties representation as DOM Element
+     */
+    public abstract Element getDOMElement();
+
 }

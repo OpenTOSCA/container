@@ -17,18 +17,18 @@ import org.slf4j.LoggerFactory;
  */
 public class CSARInstanceManagementHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(CSARInstanceManagementHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(CSARInstanceManagementHandler.class);
 
-	public static ICSARInstanceManagementService csarInstanceManagement;
+    public static ICSARInstanceManagementService csarInstanceManagement;
 
 
-	public void bindService(final ICSARInstanceManagementService service) {
-		CSARInstanceManagementHandler.LOG.debug("ContainerApi: Bind ICSARInstanceManagementService");
-		CSARInstanceManagementHandler.csarInstanceManagement = service;
-	}
+    public void bindService(final ICSARInstanceManagementService service) {
+        CSARInstanceManagementHandler.LOG.debug("ContainerApi: Bind ICSARInstanceManagementService");
+        CSARInstanceManagementHandler.csarInstanceManagement = service;
+    }
 
-	public void unbindService(final ICSARInstanceManagementService service) {
-		CSARInstanceManagementHandler.LOG.debug("ContainerApi: Unbind ICSARInstanceManagementService");
-		CSARInstanceManagementHandler.csarInstanceManagement = null;
-	}
+    public void unbindService(final ICSARInstanceManagementService service) {
+        CSARInstanceManagementHandler.LOG.debug("ContainerApi: Unbind ICSARInstanceManagementService");
+        CSARInstanceManagementHandler.csarInstanceManagement = null;
+    }
 }
