@@ -101,7 +101,7 @@ public class DeploymentTestService {
             final TestContext context = new TestContext();
             context.setServiceTemplate(serviceTemplate);
             context.setServiceTemplateInstance(serviceTemplateInstance);
-            context.setVerification(result);
+            context.setDeploymentTest(result);
             final CompletableFuture<Void> future = this.executor.verify(context);
             logger.info("Wait until jobs has been finished...");
             try {

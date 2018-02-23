@@ -38,7 +38,7 @@ public class TestExecutor {
         ThreadFactory threadFactory;
         threadFactory = new ThreadFactoryBuilder().setNameFormat("job-pool-%d").setDaemon(true).build();
         this.jobExecutor = Executors.newFixedThreadPool(20, threadFactory);
-        threadFactory = new ThreadFactoryBuilder().setNameFormat("verification-pool-%d").setDaemon(true).build();
+        threadFactory = new ThreadFactoryBuilder().setNameFormat("test-pool-%d").setDaemon(true).build();
         this.testExecutor = Executors.newFixedThreadPool(5, threadFactory);
     }
 
@@ -74,8 +74,8 @@ public class TestExecutor {
             final List<DeploymentTestResult> results =
                 futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
-            context.setVerificationResults(results);
-            logger.info("Job statistics: {}", context.getVerification().getStatistics());
+            context.setDeploymentTestResults(results);
+            logger.info("Job statistics: {}", context.getDeploymentTest().getStatistics());
 
             return null;
         }, this.testExecutor);

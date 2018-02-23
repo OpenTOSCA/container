@@ -37,22 +37,22 @@ public class TestContext {
         this.serviceTemplateInstance = serviceTemplateInstance;
     }
 
-    public synchronized void setVerification(final DeploymentTest deploymentTest) {
+    public synchronized void setDeploymentTest(final DeploymentTest deploymentTest) {
         this.deploymentTest = deploymentTest;
         if (this.serviceTemplateInstance != null) {
             this.deploymentTest.setServiceTemplateInstance(this.serviceTemplateInstance);
         }
     }
 
-    public DeploymentTest getVerification() {
+    public DeploymentTest getDeploymentTest() {
         return this.deploymentTest;
     }
 
-    public synchronized void setVerificationResults(final List<DeploymentTestResult> verificationResults) {
+    public synchronized void setDeploymentTestResults(final List<DeploymentTestResult> deploymentTestResults) {
         if (this.deploymentTest == null) {
             throw new IllegalStateException();
         }
-        verificationResults.stream().forEach(this.deploymentTest::addDeploymentTestResult);
+        deploymentTestResults.stream().forEach(this.deploymentTest::addDeploymentTestResult);
         if (this.serviceTemplateInstance != null) {
             this.deploymentTest.setServiceTemplateInstance(this.serviceTemplateInstance);
         }
