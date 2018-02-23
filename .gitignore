@@ -1,12 +1,13 @@
 
-# IntelliJ
+# Custom
+
+### Intellij ###
 .idea
 
-# Eclipse Core
+### Eclipse ###
 .project
-
-# JDT-specific (Eclipse Java Development Tools)
 .classpath
+
 
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij,visualstudiocode
 
