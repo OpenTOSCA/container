@@ -56,7 +56,6 @@ public class BoundaryDefinitionController {
 
     private CsarService csarService;
 
-    @SuppressWarnings("unused")
     private IToscaEngineService engineService;
 
     private IToscaReferenceMapper referenceMapper;
@@ -94,8 +93,8 @@ public class BoundaryDefinitionController {
 
     @GET
     @Path("/properties")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets properties of a service tempate", response = PropertiesDTO.class,
+    @Produces({MediaType.APPLICATION_JSON})
+    @ApiOperation(value = "Gets the properties of a service tempate", response = PropertiesDTO.class,
                   responseContainer = "List")
     public Response getProperties(@ApiParam("CSAR id") @PathParam("csar") final String csar,
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
@@ -117,8 +116,8 @@ public class BoundaryDefinitionController {
         dto.setXmlFragment(xmlFragment);
         if (propertyMappings != null) {
             this.logger.debug("Found <{}> property mappings", propertyMappings.size());
-            dto.setPropertyMappings(propertyMappings);
         }
+        dto.setPropertyMappings(propertyMappings);
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
 
         return Response.ok(dto).build();
@@ -173,7 +172,7 @@ public class BoundaryDefinitionController {
         }
 
         final List<TExportedOperation> operations =
-            this.getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
+            getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
         this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
                           operations.size(), name, servicetemplate, csar);
 
@@ -192,18 +191,17 @@ public class BoundaryDefinitionController {
                 // Compute the according URL for the Build or Management Plan
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
-                    // If it's a build plan
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 } else {
-                    // ... else we assume it's a management plan
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 }
+
                 plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
                 op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
             }
@@ -241,6 +239,6 @@ public class BoundaryDefinitionController {
         // We cannot inject an instance of {@link IToscaReferenceMapper} since
         // it is manually created in our default implementation of {@link
         // IToscaEngineService}
-        this.referenceMapper = engineService.getToscaReferenceMapper();
+        this.referenceMapper = this.engineService.getToscaReferenceMapper();
     }
 }
