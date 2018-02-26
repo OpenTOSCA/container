@@ -46,4 +46,5 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
 Service-Component: OSGI-INF/*
 Export-Package: org.opentosca.container.api.controller,
  org.opentosca.container.api.dto,
+ org.opentosca.container.api.dto.request,
  org.opentosca.container.api.service

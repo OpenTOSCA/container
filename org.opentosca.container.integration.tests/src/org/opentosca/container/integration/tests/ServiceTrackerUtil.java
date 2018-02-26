@@ -1,6 +1,6 @@
 package org.opentosca.container.integration.tests;
 
-import org.opentosca.deployment.verification.VerificationIntegrationTest;
+import org.opentosca.deployment.tests.TestExecutorTest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
@@ -12,7 +12,7 @@ public final class ServiceTrackerUtil {
   private static Logger logger = LoggerFactory.getLogger(ServiceTrackerUtil.class);
 
   public static <T> T getService(final Class<T> clazz) {
-    final Bundle bundle = FrameworkUtil.getBundle(VerificationIntegrationTest.class);
+    final Bundle bundle = FrameworkUtil.getBundle(TestExecutorTest.class);
     if (bundle == null) {
       logger.warn("Could not resolve bundle for class {}, returning null...", clazz);
       return null;
