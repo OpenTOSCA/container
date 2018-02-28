@@ -110,7 +110,7 @@ public class ServiceTemplateInstanceController {
         try {
             final ServiceTemplateInstance createdInstance =
                 this.instanceService.createServiceTemplateInstance(this.csarId, this.serviceTemplateId,
-                                                                   request.getCorrelationId());
+                                                                   request.getCorrelationId().trim());
 
             final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
 
@@ -132,7 +132,7 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(value = "Get a service template instance by id", response = ServiceTemplateInstanceDTO.class)
     public Response getServiceTemplateInstance(@ApiParam("service template instance id") @PathParam("id") final Long id) {
 
-        final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
+        final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
 
         // Build plan: Determine plan instance that created this service
@@ -164,7 +164,7 @@ public class ServiceTemplateInstanceController {
 
     @Path("/{id}/managementplans")
     public ManagementPlanController getManagementPlans(@ApiParam("service template instance id") @PathParam("id") final Long id) {
-        final ServiceTemplateInstance instance = this.resolveInstance(id, this.serviceTemplateId);
+        final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
 
         return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id,
             this.planService, PlanTypes.TERMINATION);
