@@ -1,7 +1,10 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,7 +18,10 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.next.xml.PropertyParser;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -47,7 +53,13 @@ public class ServiceTemplateInstance extends PersistenceObject {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
+    @JsonIgnore
     private Set<ServiceTemplateInstanceProperty> properties = Sets.newHashSet();
+
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "serviceTemplateInstance")
+    @JsonIgnore
+    private List<DeploymentTest> deploymentTests = Lists.newArrayList();
 
 
     public ServiceTemplateInstance() {
@@ -123,6 +135,37 @@ public class ServiceTemplateInstance extends PersistenceObject {
         }
         if (property.getServiceTemplateInstance() != this) {
             property.setServiceTemplateInstance(this);
+        }
+    }
+
+    /*
+     * Currently, the plan writes all properties as one XML document into the database. Therefore, we
+     * parse this XML and return a Map<String, String>.
+     */
+    @JsonProperty("properties")
+    public Map<String, String> getPropertiesAsMap() {
+        final PropertyParser parser = new PropertyParser();
+        final ServiceTemplateInstanceProperty prop =
+            getProperties().stream().filter(p -> p.getType().equalsIgnoreCase("xml"))
+                           .collect(Collectors.reducing((a, b) -> null)).orElse(null);
+        if (prop != null) {
+            return parser.parse(prop.getValue());
+        }
+        return null;
+    }
+
+    public List<DeploymentTest> getDeploymentTests() {
+        return this.deploymentTests;
+    }
+
+    public void setDeploymentTests(final List<DeploymentTest> deploymentTests) {
+        this.deploymentTests = deploymentTests;
+    }
+
+    public void addDeploymentTest(final DeploymentTest deploymentTest) {
+        this.deploymentTests.add(deploymentTest);
+        if (deploymentTest.getServiceTemplateInstance() != this) {
+            deploymentTest.setServiceTemplateInstance(this);
         }
     }
 }

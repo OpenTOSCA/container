@@ -29,7 +29,7 @@ local.properties
 .externalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
-*.launch
+# *.launch
 
 # PyDev specific (Python IDE for Eclipse)
 *.pydevproject

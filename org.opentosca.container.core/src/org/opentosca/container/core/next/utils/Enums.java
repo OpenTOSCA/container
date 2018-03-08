@@ -1,6 +1,6 @@
 package org.opentosca.container.core.next.utils;
 
-public final class Enums {
+public abstract class Enums {
 
     /**
      * A utility method for all enums for string to enum conversion

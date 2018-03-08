@@ -19,6 +19,7 @@ import org.oasis_open.docs.tosca.ns._2011._12.TExtensibleElements;
 import org.oasis_open.docs.tosca.ns._2011._12.TImport;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeType;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeTypeImplementation;
+import org.oasis_open.docs.tosca.ns._2011._12.TPolicyTemplate;
 import org.oasis_open.docs.tosca.ns._2011._12.TPolicyType;
 import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipType;
 import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipTypeImplementation;
@@ -31,6 +32,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
+import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicyType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
@@ -64,6 +66,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private List<AbstractArtifactTemplate> artifactTemplates = null;
     private List<AbstractArtifactType> artifactTypes = null;
     private List<AbstractPolicyType> policyTypes = null;
+    private List<AbstractPolicyTemplate> policyTemlates = null;
 
     /**
      * Constructor with a Definitions file as File Object and all referenced File Artifacts as a File
@@ -101,6 +104,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
         this.artifactTemplates = new ArrayList<>();
         this.artifactTypes = new ArrayList<>();
         this.policyTypes = new ArrayList<>();
+        this.policyTemlates = new ArrayList<>();
         this.initTypesAndTemplates();
 
         if (isEntryDefinitions) {
@@ -238,7 +242,10 @@ public class DefinitionsImpl extends AbstractDefinitions {
                 this.addArtifactType(new ArtifactTypeImpl(this, (TArtifactType) element));
             }
             if (element instanceof TPolicyType) {
-                this.addPolicyType(new AbstractPolicyTypeImpl((TPolicyType) element, this));
+                this.addPolicyType(new PolicyTypeImpl((TPolicyType) element, this));
+            }
+            if (element instanceof TPolicyTemplate) {
+                this.addPolicyTemplate(new PolicyTemplateImpl((TPolicyTemplate) element, this));
             }
         }
 
@@ -259,6 +266,15 @@ public class DefinitionsImpl extends AbstractDefinitions {
      */
     public void addPolicyType(final AbstractPolicyType policyType) {
         this.policyTypes.add(policyType);
+    }
+
+    /**
+     * Adds an AbstractPolicyTemplate to this DefinitionsImpl
+     *
+     * @param policyTemplate an AbstractPolicyTemplate to add to this DefinitionsImpl
+     */
+    public void addPolicyTemplate(final AbstractPolicyTemplate policyTemplate) {
+        this.policyTemlates.add(policyTemplate);
     }
 
     /**
@@ -485,6 +501,19 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     /**
+     * Returns a List of all policyTemplates in the current csar context of this definitions document
+     *
+     * @return a List of PolicyTemplates
+     */
+    protected List<AbstractPolicyTemplate> getAllPolicyTemplates() {
+        final List<AbstractPolicyTemplate> policyTemplates = new ArrayList<>();
+        for (final DefinitionsImpl def : this.allFoundDefinitions) {
+            policyTemplates.addAll(def.getPolicyTemplates());
+        }
+        return policyTemplates;
+    }
+
+    /**
      * Returns a List of all nodeTypes in the current csar context of this definitions document
      *
      * @return a List of AbstractNodeType
@@ -519,4 +548,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
         return this.policyTypes;
     }
 
+    @Override
+    public List<AbstractPolicyTemplate> getPolicyTemplates() {
+        return this.policyTemlates;
+    }
 }

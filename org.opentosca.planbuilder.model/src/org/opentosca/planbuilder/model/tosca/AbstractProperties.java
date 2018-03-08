@@ -1,5 +1,7 @@
 package org.opentosca.planbuilder.model.tosca;
 
+import java.util.Map;
+
 import org.w3c.dom.Element;
 
 /**
@@ -21,4 +23,10 @@ public abstract class AbstractProperties {
      */
     public abstract Element getDOMElement();
 
+    /**
+     * Return the first Properties Element as a Map when it can be parsed to key/value pairs.
+     *
+     * @return Map<String, String>
+     */
+    public abstract Map<String, String> asMap();
 }

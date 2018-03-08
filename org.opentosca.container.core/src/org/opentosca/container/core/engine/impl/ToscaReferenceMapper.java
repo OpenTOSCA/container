@@ -561,7 +561,11 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
                         builder.append(" --> " + writer.toString().replaceAll("\\n|\\r", ""));
                     }
                     catch (final JAXBException e) {
-                        e.printStackTrace();
+                        // FIXME: (miwurster; 2018-03-08) Not sure if we can ignore this, but we get an exception here
+                        // if TPolicy is tried to be
+                        // serialized. Anyhow, such exceptions are not handled, so I assume the stack trace print is not
+                        // necessary.
+                        // e.printStackTrace();
                     }
                     builder.append(ls);
                     // builder.append(" name=\"" + pol.getName() +

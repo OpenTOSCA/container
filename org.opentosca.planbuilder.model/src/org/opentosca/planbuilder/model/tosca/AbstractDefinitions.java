@@ -160,8 +160,14 @@ public abstract class AbstractDefinitions {
     /**
      * Returns all {@link AbstractPolicyType} objects of this {@link AbstractDefinitions} object.
      *
-     * @return
+     * @return a {@link List} of {@link AbstractPolicyType}
      */
     public abstract List<AbstractPolicyType> getPolicyTypes();
 
+    /**
+     * Returns all {@link AbstractPolicyTemplate} objects of this {@link AbstractDefinitions} object.
+     *
+     * @return a {@link List} of {@link AbstractPolicyTemplate}
+     */
+    public abstract List<AbstractPolicyTemplate> getPolicyTemplates();
 }

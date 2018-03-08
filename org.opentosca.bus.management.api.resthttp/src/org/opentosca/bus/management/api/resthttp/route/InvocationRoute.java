@@ -8,7 +8,6 @@ import org.opentosca.bus.management.api.resthttp.Activator;
 import org.opentosca.bus.management.api.resthttp.model.QueueMap;
 import org.opentosca.bus.management.api.resthttp.model.RequestID;
 import org.opentosca.bus.management.api.resthttp.model.ResultMap;
-import org.opentosca.bus.management.api.resthttp.processor.CORSProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
@@ -61,11 +60,10 @@ public class InvocationRoute extends RouteBuilder {
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
-        final CORSProcessor corsProcessor = new CORSProcessor();
 
         // handle exceptions
         this.onException(Exception.class).handled(true).setBody(this.property(Exchange.EXCEPTION_CAUGHT))
-            .process(corsProcessor).process(exceptionProcessor);
+            .process(exceptionProcessor);
 
         // invoke main route
         this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethods=post").doTry()
@@ -76,8 +74,7 @@ public class InvocationRoute extends RouteBuilder {
         // route if no exception was caught
         this.from("direct:invoke")
             .setHeader(MANAGEMENT_BUS_REQUEST_ID_HEADER, this.method(RequestID.class, "getNextID"))
-            .wireTap("direct:toManagementBus").end().to("direct:init").process(corsProcessor)
-            .process(invocationResponseProcessor);
+            .wireTap("direct:toManagementBus").end().to("direct:init").process(invocationResponseProcessor);
 
         // route in case an exception was caught
         this.from("direct:exception").setBody(this.property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);

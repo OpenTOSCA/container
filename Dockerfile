@@ -16,6 +16,7 @@ ENV CONTAINER_HOSTNAME localhost
 ENV CONTAINER_REPOSITORY_HOSTNAME localhost
 ENV ENGINE_PLAN_HOSTNAME localhost
 ENV ENGINE_IA_HOSTNAME localhost
+ENV CONTAINER_DEPLOYMENT_TESTS false
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
