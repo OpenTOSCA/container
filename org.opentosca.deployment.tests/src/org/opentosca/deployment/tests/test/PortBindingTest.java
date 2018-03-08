@@ -33,7 +33,7 @@ public class PortBindingTest implements TestExecutionPlugin {
 
         // TODO
 
-        result.success();
+        result.failed();
         logger.info("Test executed: {}", result);
         return result;
     }
