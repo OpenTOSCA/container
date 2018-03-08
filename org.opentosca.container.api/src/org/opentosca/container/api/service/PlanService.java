@@ -41,6 +41,7 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TBoolean;
 import org.opentosca.container.core.tosca.model.TPlan;
+import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,8 @@ public class PlanService {
     private IToscaReferenceMapper referenceMapper;
 
     private IOpenToscaControlService controlService;
+
+    private DeploymentTestService deploymentTestService;
 
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
 
@@ -78,7 +81,7 @@ public class PlanService {
     }
 
     public TPlan getPlan(final String name, final CSARID id) {
-        final List<TPlan> plans = this.getPlansByType(id, ALL_PLAN_TYPES);
+        final List<TPlan> plans = getPlansByType(id, ALL_PLAN_TYPES);
         for (final TPlan plan : plans) {
             if (plan.getId() != null && plan.getId().equalsIgnoreCase(name)) {
                 return plan;
@@ -97,8 +100,15 @@ public class PlanService {
         dto.setInputParameters(parameters);
 
         try {
-            return this.controlService.invokePlanInvocation(csarId, serviceTemplate, serviceTemplateInstanceId,
-                                                            PlanDTO.Converter.convert(dto));
+            final String correlationId =
+                this.controlService.invokePlanInvocation(csarId, serviceTemplate, serviceTemplateInstanceId,
+                                                         PlanDTO.Converter.convert(dto));
+            if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
+                && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
+                logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
+                this.deploymentTestService.runAfterPlan(csarId, correlationId);
+            }
+            return correlationId;
         }
         catch (final UnsupportedEncodingException e) {
             throw new ServerErrorException(500, e);
@@ -182,6 +192,10 @@ public class PlanService {
 
     public void setControlService(final IOpenToscaControlService controlService) {
         this.controlService = controlService;
+    }
+
+    public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
+        this.deploymentTestService = deploymentTestService;
     }
 
     /* API Operations Helper Methods */
@@ -333,8 +347,8 @@ public class PlanService {
                                     final CSARID csarId, final QName serviceTemplate,
                                     final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
         if (pi.getServiceTemplateInstance() != null) {
@@ -358,8 +372,8 @@ public class PlanService {
     public Response getPlanInstanceState(final String plan, final String instance, final UriInfo uriInfo,
                                          final CSARID csarId, final QName serviceTemplate,
                                          final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
 
         return Response.ok(pi.getState().toString()).build();
     }
@@ -367,8 +381,8 @@ public class PlanService {
     public Response changePlanInstanceState(final String newState, final String plan, final String instance,
                                             final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                                             final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
 
         try {
             final PlanInstanceState parsedState = PlanInstanceState.valueOf(newState);
@@ -389,8 +403,8 @@ public class PlanService {
     public Response getPlanInstanceLogs(final String plan, final String instance, final UriInfo uriInfo,
                                         final CSARID csarId, final QName serviceTemplate,
                                         final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
         dto.add(UriUtil.generateSelfLink(uriInfo));
@@ -406,8 +420,8 @@ public class PlanService {
 
 
         if (entry != null && entry.length() > 0) {
-            final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                             serviceTemplateInstanceId, planTypes);
+            final PlanInstance pi = resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+                                                        serviceTemplateInstanceId, planTypes);
             final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
             pi.addEvent(event);
             this.planInstanceRepository.update(pi);
@@ -420,5 +434,4 @@ public class PlanService {
             return Response.status(Status.BAD_REQUEST).build();
         }
     }
-
 }

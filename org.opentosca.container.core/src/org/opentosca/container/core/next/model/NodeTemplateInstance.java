@@ -71,6 +71,10 @@ public class NodeTemplateInstance extends PersistenceObject {
     public NodeTemplateInstance() {}
 
 
+    public String getName() {
+        return this.templateId.getLocalPart();
+    }
+
     public NodeTemplateInstanceState getState() {
         return this.state;
     }

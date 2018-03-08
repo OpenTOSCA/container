@@ -36,7 +36,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class ManagementOperationTest implements TestExecutionPlugin {
 
-    public static final QName ANNOTATION_MANAGEMENT_OPERATION_TEST =
+    public static final QName ANNOTATION =
         new QName("http://opentosca.org/policytypes/annotations/tests", "ManagementOperationTest");
 
     private static Logger logger = LoggerFactory.getLogger(ManagementOperationTest.class);
@@ -249,7 +249,7 @@ public class ManagementOperationTest implements TestExecutionPlugin {
     @Override
     public boolean canExecute(final AbstractNodeTemplate nodeTemplate, final AbstractPolicyTemplate policyTemplate) {
 
-        if (policyTemplate.getType().getId().equals(ANNOTATION_MANAGEMENT_OPERATION_TEST)) {
+        if (policyTemplate.getType().getId().equals(ANNOTATION)) {
             return true;
         }
 
