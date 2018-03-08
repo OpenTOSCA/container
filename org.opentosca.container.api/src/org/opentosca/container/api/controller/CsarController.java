@@ -93,10 +93,10 @@ public class CsarController {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{csar}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets a given CSAR", response = CsarDTO.class)
-    public Response getCsar(@ApiParam("CSAR id") @PathParam("id") final String id) {
+    public Response getCsar(@ApiParam("CSAR id") @PathParam("csar") final String id) {
 
         final CSARContent csarContent = this.csarService.findById(id);
         final Application metadata = this.csarService.getSelfserviceMetadata(csarContent);
@@ -132,8 +132,8 @@ public class CsarController {
         return Response.ok(csar).build();
     }
 
-    @Path("/{id}/content")
-    public DirectoryController getContent(@ApiParam("CSAR id") @PathParam("id") final String id) {
+    @Path("/{csar}/content")
+    public DirectoryController getContent(@ApiParam("CSAR id") @PathParam("csar") final String id) {
         final CSARContent csarContent = this.csarService.findById(id);
         return new DirectoryController(csarContent.getCsarRoot());
     }
@@ -191,7 +191,7 @@ public class CsarController {
 
         try {
             final URL url = new URL(request.getUrl());
-            return this.handleCsarUpload(filename, url.openStream());
+            return handleCsarUpload(filename, url.openStream());
         }
         catch (final Exception e) {
             logger.error("Error uploading CSAR: {}", e.getMessage(), e);
@@ -290,9 +290,9 @@ public class CsarController {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("/{csar}")
     @ApiOperation(value = "Deletes a CSAR file", response = Response.class)
-    public Response delete(@ApiParam("CSAR id") @PathParam("id") final String id) {
+    public Response delete(@ApiParam("CSAR id") @PathParam("csar") final String id) {
 
         final CSARContent csarContent = this.csarService.findById(id);
 

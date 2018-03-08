@@ -90,8 +90,7 @@ public class BuildPlanController {
                                     @ApiParam(required = true,
                                               value = "input parameters for the plan") final List<TParameter> parameters) {
         return this.planService.invokePlan(plan, uriInfo, parameters, this.csarId, this.serviceTemplate, -1L,
-                                           this.PLAN_TYPE);// We
-        // pass
+                                           this.PLAN_TYPE);// We pass
         // -1
         // because
         // "PlanInvocationEngine.invokePlan()"

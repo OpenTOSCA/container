@@ -1290,9 +1290,11 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     @Override
     public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(final CSARID csarID) {
         final List<PropertyMappings> ret = new ArrayList<>();
+
         for (final QName st : this.serviceTemplatePropertyMappings.get(csarID).keySet()) {
             ret.add(this.serviceTemplatePropertyMappings.get(csarID).get(st));
         }
+
         return ret;
     }
 

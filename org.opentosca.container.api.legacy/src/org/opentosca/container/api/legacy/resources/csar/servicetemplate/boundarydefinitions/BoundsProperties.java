@@ -60,7 +60,7 @@ public class BoundsProperties {
 
         LOG.trace("Return Boundary Definitions Properties for CSAR {}.", this.csarID);
 
-        final References refs = this.getRefs(uriInfo);
+        final References refs = getRefs(uriInfo);
 
         return Response.ok(refs.getXMLString()).build();
     }
@@ -75,7 +75,7 @@ public class BoundsProperties {
 
         LOG.trace("Return Boundary Definitions Properties for CSAR {}.", this.csarID);
 
-        final References refs = this.getRefs(uriInfo);
+        final References refs = getRefs(uriInfo);
 
         return Response.ok(refs.getJSONString()).build();
     }
