@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -151,7 +152,8 @@ public class BPELProcessFragments {
 	public String createAssignFromNodeInstancePropertyToBPELVariableAsString(String assignName,
 			String nodeInstancePropertyResponseVarName, Map<Element, String> propElement2BpelVarNameMap)
 			throws IOException {
-		URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
+		URL url = FrameworkUtil.getBundle(this.getClass())
+				.getResource("BpelCopyFromPropertyVarToNodeInstanceProperty.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 
@@ -204,30 +206,28 @@ public class BPELProcessFragments {
 
 	public Node createIfTrueThrowsError(String xpath, QName faultName) {
 		Document doc = this.docBuilder.newDocument();
-		
+
 		Element ifElement = doc.createElementNS(BPELPlan.bpelNamespace, "if");
-		
+
 		Element conditionElement = doc.createElementNS(BPELPlan.bpelNamespace, "condition");
-		
+
 		conditionElement.setAttribute("expressionLanguage", BPELPlan.xpath2Namespace);
-		
-		
+
 		Text textSectionValue = doc.createTextNode(xpath);
 		conditionElement.appendChild(textSectionValue);
-		
+
 		ifElement.appendChild(conditionElement);
-		
-		
+
 		Element throwElement = doc.createElementNS(BPELPlan.bpelNamespace, "throw");
-		
+
 		String nsPrefix = "ns" + System.currentTimeMillis();
-		
+
 		throwElement.setAttribute("xmlns:" + nsPrefix, faultName.getNamespaceURI());
-		
+
 		throwElement.setAttribute("faultName", nsPrefix + ":" + faultName.getLocalPart());
-		
+
 		ifElement.appendChild(throwElement);
-		
+
 		return ifElement;
 	}
 
@@ -306,23 +306,20 @@ public class BPELProcessFragments {
 		return template;
 	}
 
-	public String createBPEL4RESTLightPlanInstanceLOGsPOST(String urlVarName, String requestVarName,
-			String correlationIdVarName) throws IOException {
+	public String createBPEL4RESTLightPlanInstanceLOGsPOST(String urlVarName, String stringVarNameWithLogContent, String unassignedLogReqMessage) throws IOException {
 		// BPEL4RESTLightPOST_PlanInstance_Logs.xml
 		// <!-- $urlVarName, $requestVar, $correlationId -->
 		URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightPOST_PlanInstance_Logs.xml");
 		File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelFragmentFile);
-		template = template.replace("$urlVarName", urlVarName);
-		template = template.replace("$requestVar", requestVarName);
-		template = template.replace("$correlationId", correlationIdVarName);
+		template = template.replaceAll("\\$urlVarName", urlVarName);
+		template = template.replaceAll("\\$requestVar", unassignedLogReqMessage);
+		template = template.replaceAll("\\$contentStringVar", stringVarNameWithLogContent);
 		return template;
 	}
 
-	public Node createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(String urlVarName, String requestVarName,
-			String correlationIdVarName) throws IOException, SAXException {
-		String templateString = this.createBPEL4RESTLightPlanInstanceLOGsPOST(urlVarName, requestVarName,
-				correlationIdVarName);
+	public Node createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(String urlVarName, String stringVarNameWithLogContent, String unassignedLogReqMessage) throws IOException, SAXException {
+		String templateString = this.createBPEL4RESTLightPlanInstanceLOGsPOST(urlVarName, stringVarNameWithLogContent,unassignedLogReqMessage);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
@@ -508,7 +505,8 @@ public class BPELProcessFragments {
 
 		// <!-- $InstanceDataURLVar, $ResponseVarName, $nodeType -->
 
-		URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
+		URL url = FrameworkUtil.getBundle(this.getClass())
+				.getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
 		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
 		String template = FileUtils.readFileToString(bpelfragmentfile);
 		template = template.replaceAll("\\$InstanceDataURLVar", serviceInstanceUrlVar);
@@ -523,6 +521,7 @@ public class BPELProcessFragments {
 
 		return template;
 	}
+
 
 	/**
 	 * Creates a RESTExtension GET to fetch properties of NodeInstance
@@ -580,9 +579,33 @@ public class BPELProcessFragments {
 	 */
 	public String createXPathQueryForURLRemoteFilePath(String artifactPath) {
 		BPELProcessFragments.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-		String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/"
+		String filePath = "string(concat(substring-before($input.payload//*[local-name()='instanceDataAPIUrl']/text(),'/servicetemplates'),'/content/"
 				+ artifactPath + "'))";
 		return filePath;
+	}
+
+	public String generateServiceInstanceRequestMessageAssign(String inputMessageElementLocalName,
+			String anyElementariableName) throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass())
+				.getResource("BpelAssignServiceInstanceCorrelationIdPOSTRequest.xml");
+		File bpelAssignFile = new File(FileLocator.toFileURL(url).getPath());
+		String bpelAssignString = FileUtils.readFileToString(bpelAssignFile);
+		// <!-- $inputElementLocalName, $StringVariableName, $assignName -->
+		bpelAssignString = bpelAssignString.replaceAll("\\$inputElementLocalName", inputMessageElementLocalName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$StringVariableName", anyElementariableName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$assignName",
+				"assignServiceInstanceCreateRequest" + System.currentTimeMillis());
+		return bpelAssignString;
+	}
+
+	public Node generateServiceInstanceRequestMessageAssignAsNode(String inputMessageElementLocalName,
+			String anyElementariableName) throws IOException, SAXException {
+		String templateString = this.generateServiceInstanceRequestMessageAssign(inputMessageElementLocalName,
+				anyElementariableName);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
 	}
 
 	/**
@@ -674,7 +697,8 @@ public class BPELProcessFragments {
 			QName serviceTemplateId, String responseVariableName) throws IOException {
 		// tags in xml snippet: $InstanceDataURLVar, $CSARName,
 		// $serviceTemplateId, $ResponseVarName
-		URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
+		URL url = FrameworkUtil.getBundle(this.getClass())
+				.getResource("BPEL4RESTLightPOST_ServiceInstance_InstanceDataAPI.xml");
 		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 
@@ -684,6 +708,24 @@ public class BPELProcessFragments {
 		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
 
 		return bpel4RestString;
+	}
+
+	public File getOpenTOSCAAPISchemaFile() throws IOException {
+		URL url = FrameworkUtil.getBundle(this.getClass()).getResource("schemas/opentoscaapischema.xsd");
+		File schemaFile = new File(FileLocator.toFileURL(url).getPath());
+		return schemaFile;
+	}
+
+	public QName getOpenToscaApiCorrelationElementQname() {
+		return new QName("http://opentosca.org/api", "correlationID");
+	}
+
+	public QName getOpenToscaApiCreateRelationshipTemplateInstanceRequestElementQname() {
+		return new QName("http://opentosca.org/api", "CreateRelationshipTemplateInstanceRequest");
+	}
+	
+	public QName getOpenToscaApiLogMsgReqElementQName() {
+		return new QName("http://opentosca.org/api", "log");
 	}
 
 	/**
@@ -703,8 +745,8 @@ public class BPELProcessFragments {
 	 * @throws IOException
 	 *             is thrown when reading internal files fail
 	 */
-	public String generateBPEL4RESTLightServiceInstancePOST(String instanceDataAPIUrlVariableName, String csarId,
-			QName serviceTemplateId, String requestVariableName, String responseVariableName) throws IOException {
+	public String generateBPEL4RESTLightServiceInstancePOST(String instanceDataAPIUrlVariableName,
+			String requestVariableName, String responseVariableName) throws IOException {
 		// tags in xml snippet: $InstanceDataURLVar, $CSARName,
 		// $serviceTemplateId, $ResponseVarName
 		URL url = FrameworkUtil.getBundle(this.getClass())
@@ -713,8 +755,6 @@ public class BPELProcessFragments {
 		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 
 		bpel4RestString = bpel4RestString.replace("$InstanceDataURLVar", instanceDataAPIUrlVariableName);
-		bpel4RestString = bpel4RestString.replace("$CSARName", csarId);
-		bpel4RestString = bpel4RestString.replace("$serviceTemplateId", serviceTemplateId.toString());
 		bpel4RestString = bpel4RestString.replace("$RequestVarName", requestVariableName);
 		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
 
@@ -771,11 +811,10 @@ public class BPELProcessFragments {
 	 * @throws SAXException
 	 *             is thrown when parsing internal files fail
 	 */
-	public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(String instanceDataAPIUrlVariableName, String csarId,
-			QName serviceTemplateId, String requestVariableName, String responseVariableName)
-			throws IOException, SAXException {
-		String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId,
-				serviceTemplateId, requestVariableName, responseVariableName);
+	public Node generateBPEL4RESTLightServiceInstancePOSTAsNode(String instanceDataAPIUrlVariableName,
+			String requestVariableName, String responseVariableName) throws IOException, SAXException {
+		String templateString = this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName,
+				requestVariableName, responseVariableName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
@@ -901,23 +940,33 @@ public class BPELProcessFragments {
 	}
 
 	/**
-	 * Generates a BPEL assign that retrieves the URL/ID of a serviceInstance POST
-	 * response
+	 * Generates a BPEL assign that sets serviceInstanceURL, ID and serviceTemplate
+	 * URL from the given serviceTemplateInstance POST response message
 	 *
 	 * @param serviceInstanceResponseVarName
-	 *            the var name of the POST response
+	 *            the varariable name of the POST response message
 	 * @param serviceInstanceURLVarName
-	 *            the var name to save the URL/ID into
-	 * @return a String containing a BPEL assign activity
+	 *            the varariable name to save the serviceTemplateInstance URL
+	 * @param serviceTemplateInstancesURLVar
+	 *            the variable name that holds the serviceTemplateInstances URL
+	 * @param serviceInstanceIDVarName
+	 *            the variable name to save the serviceTemplateInstance ID in (e.g.
+	 *            ID=123)
+	 * @param serviceTemplateURLVarName
+	 *            the variable name to save the serviceTemplate URL in
+	 * @return a DOM Node containing a BPEL assign activity
 	 * @throws IOException
 	 *             is thrown when reading internal files fail
 	 * @throws SAXException
 	 *             is thrown when parsing internal files fail
 	 */
-	public Node generateServiceInstanceURLVarAssignAsNode(String serviceInstanceResponseVarName,
-			String serviceInstanceURLVarName) throws IOException, SAXException {
-		String templateString = this.generateServiceInstanceURLVarAssignAsString(serviceInstanceResponseVarName,
-				serviceInstanceURLVarName);
+	public Node generateServiceInstanceDataVarsAssignAsNode(String serviceInstanceResponseVarName,
+			String serviceInstanceURLVarName, String serviceTemplateInstancesURLVar, String serviceInstanceIdVarName,
+			String serviceTemplateURLVarName, String planName, String buildPlanUrlVarName)
+			throws IOException, SAXException {
+		String templateString = this.generateServiceInstanceDataVarsAssignAsString(serviceInstanceResponseVarName,
+				serviceInstanceURLVarName, serviceTemplateInstancesURLVar, serviceInstanceIdVarName,
+				serviceTemplateURLVarName, planName, buildPlanUrlVarName);
 		InputSource is = new InputSource();
 		is.setCharacterStream(new StringReader(templateString));
 		Document doc = this.docBuilder.parse(is);
@@ -936,18 +985,27 @@ public class BPELProcessFragments {
 	 * @throws IOException
 	 *             is thrown when reading internal files fail
 	 */
-	public String generateServiceInstanceURLVarAssignAsString(String serviceInstanceResponseVarName,
-			String serviceInstanceURLVarName) throws IOException {
+	public String generateServiceInstanceDataVarsAssignAsString(String serviceInstanceResponseVarName,
+			String serviceInstanceURLVarName, String serviceTemplateInstancesURLVar, String serviceInstanceIdVarName,
+			String serviceTemplateURLVarName, String planName, String buildPlanUrlVarName) throws IOException {
 		URL url = FrameworkUtil.getBundle(this.getClass()).getResource("BpelAssignServiceInstancePOSTResponse.xml");
 		File bpelAssigntFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpelAssignString = FileUtils.readFileToString(bpelAssigntFile);
 		// <!-- $assignName $ServiceInstanceResponseVarName
 		// $ServiceInstanceURLVarName-->
 
-		bpelAssignString = bpelAssignString.replace("$assignName",
+		bpelAssignString = bpelAssignString.replaceAll("\\$assignName",
 				"assignServiceInstance" + System.currentTimeMillis());
-		bpelAssignString = bpelAssignString.replace("$ServiceInstanceResponseVarName", serviceInstanceResponseVarName);
-		bpelAssignString = bpelAssignString.replace("$ServiceInstanceURLVarName", serviceInstanceURLVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$ServiceInstanceResponseVarName",
+				serviceInstanceResponseVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$ServiceInstanceURLVarName", serviceInstanceURLVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$ServiceInstanceIDVarName", serviceInstanceIdVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$serviceTemplateURLVarName", serviceTemplateURLVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$serviceTemplateInstancesURLVar",
+				serviceTemplateInstancesURLVar);
+		bpelAssignString = bpelAssignString.replaceAll("\\$planName", planName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$planInstanceURL", buildPlanUrlVarName);
+
 		return bpelAssignString;
 	}
 

@@ -118,22 +118,23 @@ public class Fragments {
 	 * NodeInstance create response and writes it into the referenced string
 	 * variable
 	 * 
-	 * @param stringVarName the string variable to write the data into
+	 * @param nodeInstanceURLVarName the string variable to write the data into
 	 * @param nodeInstancePOSTResponseVarName the response variable of a
 	 *            nodeInstance create POST
 	 * @return a String containing a BPEL assign
 	 * @throws IOException is thrown when reading a internal file fails
 	 */
-	public String generateAssignFromNodeInstancePOSTResponseToStringVar(String stringVarName, String nodeInstancePOSTResponseVarName) throws IOException {
+	public String generateAssignFromNodeInstancePOSTResponseToStringVar(String nodeInstanceURLVarName, String nodeInstanceIDVarName, String nodeInstancePOSTResponseVarName) throws IOException {
 		// BPELAssignFromNodeInstancePOSTResponseToStringVar.xml
 		// <!-- $stringVarName, $NodeInstanceResponseVarName -->
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPELAssignFromNodeInstancePOSTResponseToStringVar.xml");
 		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpelAssignString = FileUtils.readFileToString(bpel4RestFile);
 		
-		bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
-		bpelAssignString = bpelAssignString.replace("$NodeInstanceResponseVarName", nodeInstancePOSTResponseVarName);
-		
+		bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", nodeInstanceURLVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$NodeInstanceResponseVarName", nodeInstancePOSTResponseVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$nodeInstanceIDVar", nodeInstanceIDVarName);
+				
 		return bpelAssignString;
 	}
 	
@@ -148,15 +149,16 @@ public class Fragments {
 	 * @return a String containing a BPEL assign
 	 * @throws IOException is thrown when reading a internal file fails
 	 */
-	public String generateAssignFromRelationInstancePOSTResponseToStringVar(String stringVarName, String relationInstancePOSTResponseVarName) throws IOException {
+	public String generateAssignFromRelationInstancePOSTResponseToStringVar(String stringVarName, String relationInstanceIDVar, String relationInstancePOSTResponseVarName) throws IOException {
 		// BPELAssignFromNodeInstancePOSTResponseToStringVar.xml
-		// <!-- $stringVarName, $NodeInstanceResponseVarName -->
+		// <!-- $stringVarName, $RelationInstanceResponseVarName, relationInstanceIDVar-->
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPELAssignFromRelationInstancePOSTResponseToStringVar.xml");
 		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpelAssignString = FileUtils.readFileToString(bpel4RestFile);
 		
-		bpelAssignString = bpelAssignString.replace("$stringVarName", stringVarName);
-		bpelAssignString = bpelAssignString.replace("$RelationInstanceResponseVarName", relationInstancePOSTResponseVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$stringVarName", stringVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$RelationInstanceResponseVarName", relationInstancePOSTResponseVarName);
+		bpelAssignString = bpelAssignString.replaceAll("\\$relationInstanceIDVar", relationInstanceIDVar);
 		
 		return bpelAssignString;
 	}
@@ -171,15 +173,16 @@ public class Fragments {
 	 * @return a String containing a BPEL extension activity
 	 * @throws IOException is thrown when reading the internal file fails
 	 */
-	public String generateBPEL4RESTLightNodeInstancePOST(String serviceInstanceURLVar, String nodeTemplateId, String responseVariableName) throws IOException {
+	public String generateBPEL4RESTLightNodeInstancePOST(String serviceInstanceURLVar, String serviceInstanceIDVarName, String nodeTemplateId, String responseVariableName) throws IOException {
 		// <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightPOST_NodeInstance_InstanceDataAPI.xml");
 		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 		
-		bpel4RestString = bpel4RestString.replace("$serviceInstanceURLVar", serviceInstanceURLVar);
-		bpel4RestString = bpel4RestString.replace("$nodeTemplateId", nodeTemplateId);
-		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
+		bpel4RestString = bpel4RestString.replaceAll("\\$serviceInstanceURLVar", serviceInstanceURLVar);
+		bpel4RestString = bpel4RestString.replaceAll("\\$serviceInstanceIDVar", serviceInstanceIDVarName);
+		bpel4RestString = bpel4RestString.replaceAll("\\$nodeTemplateId", nodeTemplateId);
+		bpel4RestString = bpel4RestString.replaceAll("\\$ResponseVarName", responseVariableName);
 		
 		return bpel4RestString;
 	}
@@ -200,17 +203,18 @@ public class Fragments {
 	 * @return a String containing a BPEL extension activity
 	 * @throws IOException is thrown when reading the internal file fails
 	 */
-	public String generateBPEL4RESTLightRelationInstancePOST(String serviceInstanceURLVar, String relationshipTemplateId, String responseVariableName, String sourceInstanceIdVarName, String targetInstanceIdVarName) throws IOException {
+	public String generateBPEL4RESTLightRelationInstancePOST(String serviceInstanceURLVar, String relationshipTemplateId, String requestVariableName, String responseVariableName, String sourceInstanceIdVarName, String targetInstanceIdVarName) throws IOException {
 		// <!-- $serviceInstanceURLVar, $nodeTemplateId, $ResponseVarName -->
 		URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("BPEL4RESTLightPOST_RelationInstance_InstanceDataAPI.xml");
 		File bpel4RestFile = new File(FileLocator.toFileURL(url).getPath());
 		String bpel4RestString = FileUtils.readFileToString(bpel4RestFile);
 		
-		bpel4RestString = bpel4RestString.replace("$serviceInstanceURLVar", serviceInstanceURLVar);
-		bpel4RestString = bpel4RestString.replace("$relationshipTemplateId", relationshipTemplateId);
-		bpel4RestString = bpel4RestString.replace("$ResponseVarName", responseVariableName);
-		bpel4RestString = bpel4RestString.replace("$sourceInstanceIdVarName", sourceInstanceIdVarName);
-		bpel4RestString = bpel4RestString.replace("$targetInstanceIdVarName", targetInstanceIdVarName);
+		bpel4RestString = bpel4RestString.replaceAll("\\$serviceInstanceURLVar", serviceInstanceURLVar);
+		bpel4RestString = bpel4RestString.replaceAll("\\$relationshipTemplateId", relationshipTemplateId);
+		bpel4RestString = bpel4RestString.replaceAll("\\$RequestVarName", requestVariableName);
+		bpel4RestString = bpel4RestString.replaceAll("\\$ResponseVarName", responseVariableName);
+		bpel4RestString = bpel4RestString.replaceAll("\\$sourceInstanceIdVarName", sourceInstanceIdVarName);
+		bpel4RestString = bpel4RestString.replaceAll("\\$targetInstanceIdVarName", targetInstanceIdVarName);
 		
 		return bpel4RestString;
 	}

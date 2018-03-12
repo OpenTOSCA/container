@@ -17,13 +17,12 @@ import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
@@ -64,7 +63,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	// serviceTemplate
 	private PropertyMappingsToOutputInitializer propertyOutputInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-	private ServiceInstanceInitializer serviceInstanceInitializer;
+	private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
 	private BPELFinalizer finalizer;
@@ -72,9 +71,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	private List<String> opNames = new ArrayList<String>();
 
 	private BPELPlanHandler planHandler;
-	private NodeInstanceInitializer instanceInit;
-
-	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
+	private NodeInstanceVariablesHandler instanceInit;	
 
 	private EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
 
@@ -86,8 +83,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 	public BPELBuildProcessBuilder() {
 		try {
 			this.planHandler = new BPELPlanHandler();
-			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
-			this.instanceInit = new NodeInstanceInitializer(this.planHandler);
+			this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+			this.instanceInit = new NodeInstanceVariablesHandler(this.planHandler);
 		} catch (ParserConfigurationException e) {
 			BPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
@@ -170,7 +167,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
 				this.runPlugins(newBuildPlan, propMap);
 
-				this.idInit.addCorrellationID(newBuildPlan);
+				this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
 
 				this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
 						newBuildPlan.getBpelMainFlowElement(), "CREATING");

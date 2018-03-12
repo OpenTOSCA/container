@@ -50,11 +50,11 @@ public class RESTMessageGenerator {
 				this.LOG.debug("Found csarName Element! Put in csarName \"" + csarID + "\".");
 				map.put(para.getName(), csarID.toString());
 			} else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
-				this.LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API + "\".");
-				map.put(para.getName(), Settings.CONTAINER_API);
+				this.LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \"" + Settings.CONTAINER_API_LEGACY + "\".");
+				map.put(para.getName(), Settings.CONTAINER_API_LEGACY);
 			} else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
-				this.LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_API + "\".");
-				map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_API);
+				this.LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_INSTANCEDATA_LEGACY_API + "\".");
+				map.put(para.getName(), Settings.CONTAINER_INSTANCEDATA_LEGACY_API);
 			} else {
 				if ((para.getName() == null) || para.getValue().equals("")) {
 					this.LOG.debug("The parameter \"" + para.getName() + "\" has an empty value, thus search in the properties.");

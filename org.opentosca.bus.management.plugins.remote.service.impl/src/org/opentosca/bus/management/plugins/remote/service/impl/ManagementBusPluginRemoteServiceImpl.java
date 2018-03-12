@@ -147,13 +147,13 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
 						for (final String artifactRef : artifactReferences) {
 
-							fileSource = Settings.CONTAINER_API + "/CSARs/" + csarID.getFileName() + "/Content/" + artifactRef;
+							fileSource = Settings.CONTAINER_API + "/csars/" + csarID.getFileName() + "/content/" + artifactRef;
 
 							targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
 
 							targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
 
-							final String createDirCommand = "sleep 5 && mkdir -p " + targetFileFolderPath;
+							final String createDirCommand = "sleep 1 && mkdir -p " + targetFileFolderPath;
 
 							// create directory before uploading file
 							this.runScript(createDirCommand, headers);

@@ -165,7 +165,7 @@ public class NodeInstance {
   public void setNodeInstanceID() {
     try {
       this.nodeInstanceID =
-          new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID()
+          new URI(Settings.CONTAINER_API_LEGACY + "/CSARs/" + this.serviceInstance.getCSAR_ID()
               + "/ServiceTemplates/"
               + URLEncoder.encode(URLEncoder
                   .encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"), "UTF-8")

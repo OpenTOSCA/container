@@ -65,7 +65,6 @@ public class BPELPlanContext implements PlanContext {
 
 	private BPELScopeHandler bpelTemplateHandler;
 
-	private Map<String, String> namespaceMap;
 	private PropertyMap propertyMap;
 
 	private String planNamespace = "ba.example";
@@ -159,7 +158,6 @@ public class BPELPlanContext implements PlanContext {
 			BPELPlanContext.LOG.warn("Coulnd't initialize internal handlers", e);
 		}
 		this.bpelTemplateHandler = new BPELScopeHandler();
-		this.namespaceMap = new HashMap<String, String>();
 		this.propertyMap = map;
 	}
 
@@ -204,7 +202,7 @@ public class BPELPlanContext implements PlanContext {
 	 *            a QName with set prefix and namespace
 	 * @return true if adding the namespace was successful, else false
 	 */
-	private boolean addNamespaceToBPELDoc(QName qname) {
+	public boolean addNamespaceToBPELDoc(QName qname) {
 		return this.bpelProcessHandler.addNamespaceToBPELDoc(qname.getPrefix(), qname.getNamespaceURI(),
 				this.templateBuildPlan.getBuildPlan());
 	}
@@ -907,7 +905,7 @@ public class BPELPlanContext implements PlanContext {
 		// TODO check if this enough
 		return string.replace(" ", "_");
 	}
-	
+
 	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName,
 			Map<AbstractParameter, Variable> param2propertyMapping,
 			Map<AbstractParameter, Variable> param2propertyOutputMapping, boolean appendToPrePhase) {
@@ -937,14 +935,14 @@ public class BPELPlanContext implements PlanContext {
 		/*
 		 * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
 		 */
-		if (param2propertyMapping == null) {			
+		if (param2propertyMapping == null) {
 			chain.executeOperationProvisioning(context, opNames);
 		} else {
 			if (param2propertyOutputMapping == null) {
 				chain.executeOperationProvisioning(context, opNames, param2propertyMapping, appendToPrePhase);
 			} else {
-				chain.executeOperationProvisioning(context, opNames, param2propertyMapping,
-						param2propertyOutputMapping, appendToPrePhase);
+				chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
+						appendToPrePhase);
 			}
 		}
 
@@ -953,9 +951,8 @@ public class BPELPlanContext implements PlanContext {
 		this.templateBuildPlan.setRelationshipTemplate(relationBackup);
 
 		return true;
-	
-	}
 
+	}
 
 	public boolean executeOperation(AbstractNodeTemplate nodeTemplate, String interfaceName, String operationName,
 			Map<AbstractParameter, Variable> param2propertyMapping,
@@ -987,7 +984,7 @@ public class BPELPlanContext implements PlanContext {
 		/*
 		 * chain.executeIAProvisioning(context); chain.executeDAProvisioning(context);
 		 */
-		if (param2propertyMapping == null) {			
+		if (param2propertyMapping == null) {
 			chain.executeOperationProvisioning(context, opNames);
 		} else {
 			if (param2propertyOutputMapping == null) {
@@ -1139,24 +1136,6 @@ public class BPELPlanContext implements PlanContext {
 	 */
 	public Element getPostPhaseElement() {
 		return this.templateBuildPlan.getBpelSequencePostPhaseElement();
-	}
-
-	/**
-	 * Returns a prefix for the given namespace if it is declared in the buildPlan
-	 *
-	 * @param namespace
-	 *            the namespace to get the prefix for
-	 * @return a String containing the prefix, else null
-	 */
-	public String getPrefixForNamespace(String namespace) {
-		if (this.namespaceMap.containsValue(namespace)) {
-			for (String key : this.namespaceMap.keySet()) {
-				if (this.namespaceMap.get(key).equals(namespace)) {
-					return key;
-				}
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -1476,57 +1455,12 @@ public class BPELPlanContext implements PlanContext {
 	 * @param qname
 	 *            a QName to import
 	 * @return the QName with set prefix
+	 * @deprecated Use
+	 *             {@link org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler#importNamespace(org.opentosca.planbuilder.core.bpel.context.BPELPlanContext,QName)}
+	 *             instead
 	 */
-	private QName importNamespace(QName qname) {
-		String prefix = qname.getPrefix();
-		String namespace = qname.getNamespaceURI();
-		boolean prefixInUse = false;
-		boolean namespaceInUse = false;
-
-		// check if prefix is in use
-		if ((prefix != null) && !prefix.isEmpty()) {
-			prefixInUse = this.namespaceMap.containsKey(prefix);
-		}
-
-		// check if namespace is in use
-		if ((namespace != null) && !namespace.isEmpty()) {
-			namespaceInUse = this.namespaceMap.containsValue(namespace);
-		}
-
-		// TODO refactor this whole thing
-		if (prefixInUse & namespaceInUse) {
-			// both is already registered, this means we set the prefix of the
-			// given qname to the prefix used in the system
-			for (String key : this.namespaceMap.keySet()) {
-				if (this.namespaceMap.get(key).equals(namespace)) {
-					prefix = key;
-				}
-			}
-		} else if (!prefixInUse & namespaceInUse) {
-			// the prefix isn't in use, but the namespace is, re-set the prefix
-			for (String key : this.namespaceMap.keySet()) {
-				if (this.namespaceMap.get(key).equals(namespace)) {
-					prefix = key;
-				}
-			}
-		} else if (!prefixInUse & !namespaceInUse) {
-			// just add the namespace and prefix to the system
-			if ((prefix == null) || prefix.isEmpty()) {
-				// generate new prefix
-				prefix = "ns" + this.namespaceMap.keySet().size();
-			}
-			this.namespaceMap.put(prefix, namespace);
-			this.addNamespaceToBPELDoc(new QName(namespace, qname.getLocalPart(), prefix));
-
-		} else {
-			if ((prefix == null) || prefix.isEmpty()) {
-				// generate new prefix
-				prefix = "ns" + this.namespaceMap.keySet().size();
-			}
-			this.namespaceMap.put(prefix, namespace);
-			this.addNamespaceToBPELDoc(new QName(namespace, qname.getLocalPart(), prefix));
-		}
-		return new QName(namespace, qname.getLocalPart(), prefix);
+	public QName importNamespace(QName qname) {
+		return bpelProcessHandler.importNamespace(qname, this.templateBuildPlan.getBuildPlan());
 	}
 
 	/**

@@ -12,13 +12,11 @@ import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.CorrelationIDInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPostPhasePlugin;
-import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -45,17 +43,15 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	// class for initializing properties inside the build plan
 	private final PropertyVariableInitializer propertyInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-	private ServiceInstanceInitializer serviceInstanceInitializer;
+	private ServiceInstanceVariablesHandler serviceInstanceVarsHandler;
 	// adds nodeInstanceIDs to each templatePlan
-	private NodeInstanceInitializer nodeInstanceInitializer;
+	private NodeInstanceVariablesHandler nodeInstanceVarsHandler;
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
 	private final BPELFinalizer finalizer;
 
 	// accepted operations for provisioning
 	private final List<String> opNames = new ArrayList<>();
-
-	private final CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 
 	/**
 	 * <p>
@@ -65,8 +61,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 	public BPELTerminationProcessBuilder() {
 		try {
 			this.planHandler = new BPELPlanHandler();
-			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
-			this.nodeInstanceInitializer = new NodeInstanceInitializer(this.planHandler);
+			this.serviceInstanceVarsHandler = new ServiceInstanceVariablesHandler();
+			this.nodeInstanceVarsHandler = new NodeInstanceVariablesHandler(this.planHandler);
 		} catch (final ParserConfigurationException e) {
 			BPELTerminationProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
@@ -145,13 +141,13 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				// initialize instanceData handling, add
 				// instanceDataAPI/serviceInstanceID into input, add global
 				// variables to hold the value for plugins
-				this.serviceInstanceInitializer
-						.initializeInstanceDataAPIandServiceInstanceIDFromInput(newTerminationPlan);
-				this.serviceInstanceInitializer.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
+				this.serviceInstanceVarsHandler
+						.addServiceInstanceVarHandlingFromInput(newTerminationPlan);				
+				this.serviceInstanceVarsHandler.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 
-				this.nodeInstanceInitializer.addNodeInstanceFindLogic(newTerminationPlan,
+				this.nodeInstanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
 						"?state=STARTED,CREATED,CONFIGURED");
-				this.nodeInstanceInitializer.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
+				this.nodeInstanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
 						propMap);
 
 				// TODO Create a for loop over the three sequences inside the
@@ -160,9 +156,9 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
 				List<BPELScopeActivity> changedActivities = this.runPlugins(newTerminationPlan, propMap);
 
-				this.serviceInstanceInitializer.appendServiceInstanceDelete(newTerminationPlan);
+				this.serviceInstanceVarsHandler.appendServiceInstanceDelete(newTerminationPlan);
 				
-				this.idInit.addCorrellationID(newTerminationPlan);
+				this.serviceInstanceVarsHandler.addCorrellationID(newTerminationPlan);
 				
 				this.finalizer.finalize(newTerminationPlan);
 
@@ -170,7 +166,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 					if (activ.getNodeTemplate() != null) {
 						final BPELPlanContext context = new BPELPlanContext(activ, propMap,
 								newTerminationPlan.getServiceTemplate());
-						this.nodeInstanceInitializer.appendCountInstancesLogic(context, activ.getNodeTemplate(),
+						this.nodeInstanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
 								"?state=STARTED,CREATED,CONFIGURED");
 					}
 				}

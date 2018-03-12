@@ -9,8 +9,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.selection.plugin.firstavailable.core.FirstAvailablePlugin;
@@ -47,7 +47,7 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
 		String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
 		String serviceInstanceIDVar = null;
 		try {
-			serviceInstanceIDVar = new ServiceInstanceInitializer()
+			serviceInstanceIDVar = new ServiceInstanceVariablesHandler()
 					.getServiceInstanceVariableName(context.getMainVariableNames());
 		} catch (ParserConfigurationException e1) {
 			// TODO Auto-generated catch block
@@ -92,7 +92,7 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
 		}
 
 		try {
-			final NodeInstanceInitializer nodeInit = new NodeInstanceInitializer(new BPELPlanHandler());
+			final NodeInstanceVariablesHandler nodeInit = new NodeInstanceVariablesHandler(new BPELPlanHandler());
 
 			nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
 		} catch (ParserConfigurationException e) {

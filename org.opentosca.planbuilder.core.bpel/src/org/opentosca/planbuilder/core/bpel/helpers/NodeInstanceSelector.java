@@ -33,13 +33,13 @@ public class NodeInstanceSelector {
 
 	private BPELProcessFragments bpelFragments;
 	private BPELPlanHandler bpelProcessHandler;
-	private ServiceInstanceInitializer serviceInstanceInitializer;
+	private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 
 	public NodeInstanceSelector() {
 		try {
 			this.bpelFragments = new BPELProcessFragments();
 			this.bpelProcessHandler = new BPELPlanHandler();
-			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
+			this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -159,7 +159,7 @@ public class NodeInstanceSelector {
 
 			String nodeInstanceIDVarName = null;
 			try {
-				nodeInstanceIDVarName = new NodeInstanceInitializer(this.bpelProcessHandler).findInstanceIdVarName(plan,
+				nodeInstanceIDVarName = new NodeInstanceVariablesHandler(this.bpelProcessHandler).findInstanceIdVarName(plan,
 						nodeTemplate.getId());
 			} catch (ParserConfigurationException e) {
 				// TODO Auto-generated catch block

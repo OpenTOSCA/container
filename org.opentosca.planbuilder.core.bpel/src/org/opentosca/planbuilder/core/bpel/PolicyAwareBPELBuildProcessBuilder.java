@@ -21,13 +21,12 @@ import org.opentosca.planbuilder.AbstractPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwareTypePlugin;
@@ -71,7 +70,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 	// serviceTemplate
 	private PropertyMappingsToOutputInitializer propertyOutputInitializer;
 	// adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-	private ServiceInstanceInitializer serviceInstanceInitializer;
+	private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
 	private BPELFinalizer finalizer;
@@ -79,9 +78,8 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 	private List<String> opNames = new ArrayList<String>();
 
 	private BPELPlanHandler planHandler;
-	private NodeInstanceInitializer instanceInit;
+	private NodeInstanceVariablesHandler instanceInit;
 
-	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 
 	private EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
 
@@ -93,8 +91,8 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 	public PolicyAwareBPELBuildProcessBuilder() {
 		try {
 			this.planHandler = new BPELPlanHandler();
-			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
-			this.instanceInit = new NodeInstanceInitializer(this.planHandler);
+			this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+			this.instanceInit = new NodeInstanceVariablesHandler(this.planHandler);
 		} catch (ParserConfigurationException e) {
 			PolicyAwareBPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
@@ -199,7 +197,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 
 				this.runPlugins(newBuildPlan, propMap);
 
-				this.idInit.addCorrellationID(newBuildPlan);
+				this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
 
 				this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
 						newBuildPlan.getBpelMainFlowElement(), "CREATING");

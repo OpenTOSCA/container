@@ -20,7 +20,8 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -60,7 +61,7 @@ public class BPELPlanHandler {
 	private DocumentBuilderFactory documentBuilderFactory;
 	private DocumentBuilder documentBuilder;
 
-	private NodeInstanceInitializer instanceInit;
+	private NodeInstanceVariablesHandler instanceInit;
 
 	private ObjectFactory ddFactory;
 
@@ -78,7 +79,40 @@ public class BPELPlanHandler {
 		this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
 		this.bpelScopeHandler = new BPELScopeHandler();
 		this.ddFactory = new ObjectFactory();
-		this.instanceInit = new NodeInstanceInitializer(this);
+		this.instanceInit = new NodeInstanceVariablesHandler(this);
+	}
+
+	/**
+	 * Returns a prefix for the given namespace if it is declared in the buildPlan
+	 *
+	 * @param namespace
+	 *            the namespace to get the prefix for
+	 * @return a String containing the prefix, else null
+	 */
+	public String getPrefixForNamespace(String namespace, BPELPlan plan) {
+		if (plan.namespaceMap.containsValue(namespace)) {
+			for (String key : plan.namespaceMap.keySet()) {
+				if (plan.namespaceMap.get(key).equals(namespace)) {
+					return key;
+				}
+			}
+		}
+		return null;
+	}
+
+	public String addGlobalStringVariable(String varNamePrefix, BPELPlan plan) {
+		QName stringXsdDeclQName = new QName("http://www.w3.org/2001/XMLSchema", "string",
+				"xsd" + System.currentTimeMillis());
+		
+		String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+		String xsdPrefix = "xsd" + System.currentTimeMillis();
+		this.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+
+		String serviceTemplateURLVarName = varNamePrefix + System.currentTimeMillis();
+
+		this.addVariable(serviceTemplateURLVarName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+
+		return serviceTemplateURLVarName;
 	}
 
 	/**
@@ -260,6 +294,7 @@ public class BPELPlanHandler {
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 
 		for (TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
+
 			if (inv.getPartnerLink().equals(partnerLinkName)) {
 				BPELPlanHandler.LOG.warn(
 						"Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name",
@@ -527,7 +562,7 @@ public class BPELPlanHandler {
 		BPELPlanHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to Plan {}", name,
 				variableType, declarationId.toString(), buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (this.hasVariable(name, buildPlan)) {
-			BPELPlanHandler.LOG.warn("Adding variable failed");
+			BPELPlanHandler.LOG.warn("Adding variable failed, as it is already declared");
 			return false;
 		}
 
@@ -542,6 +577,9 @@ public class BPELPlanHandler {
 			break;
 		case TYPE:
 			variableElement.setAttribute("type", declarationId.getPrefix() + ":" + declarationId.getLocalPart());
+			break;
+		case ELEMENT:
+			variableElement.setAttribute("element", declarationId.getPrefix() + ":" + declarationId.getLocalPart());
 			break;
 		default:
 			;
@@ -1300,6 +1338,68 @@ public class BPELPlanHandler {
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 		wsdl.setId(namespace, name);
+	}
+
+	/**
+	 * Imports the given QName Namespace into the BuildPlan
+	 *
+	 * @param bpelPlanContext
+	 *            TODO
+	 * @param qname
+	 *            a QName to import
+	 * @return the QName with set prefix
+	 */
+	public QName importNamespace(QName qname, BPELPlan plan) {
+		String prefix = qname.getPrefix();
+		String namespace = qname.getNamespaceURI();
+		boolean prefixInUse = false;
+		boolean namespaceInUse = false;
+
+		// check if prefix is in use
+		if ((prefix != null) && !prefix.isEmpty()) {
+			prefixInUse = plan.namespaceMap.containsKey(prefix);
+		}
+
+		// check if namespace is in use
+		if ((namespace != null) && !namespace.isEmpty()) {
+			namespaceInUse = plan.namespaceMap.containsValue(namespace);
+		}
+
+		// TODO refactor this whole thing
+		if (prefixInUse & namespaceInUse) {
+			// both is already registered, this means we set the prefix of the
+			// given qname to the prefix used in the system
+			for (String key : plan.namespaceMap.keySet()) {
+				if (plan.namespaceMap.get(key).equals(namespace)) {
+					prefix = key;
+				}
+			}
+		} else if (!prefixInUse & namespaceInUse) {
+			// the prefix isn't in use, but the namespace is, re-set the prefix
+			for (String key : plan.namespaceMap.keySet()) {
+				if (plan.namespaceMap.get(key).equals(namespace)) {
+					prefix = key;
+				}
+			}
+		} else if (!prefixInUse & !namespaceInUse) {
+			// just add the namespace and prefix to the system
+			if ((prefix == null) || prefix.isEmpty()) {
+				// generate new prefix
+				prefix = "ns" + plan.namespaceMap.keySet().size();
+			}
+			plan.namespaceMap.put(prefix, namespace);
+
+			this.addNamespaceToBPELDoc(prefix, namespace, plan);
+
+		} else {
+			if ((prefix == null) || prefix.isEmpty()) {
+				// generate new prefix
+				prefix = "ns" + plan.namespaceMap.keySet().size();
+			}
+			plan.namespaceMap.put(prefix, namespace);
+			this.addNamespaceToBPELDoc(prefix, namespace, plan);
+		}
+		return new QName(namespace, qname.getLocalPart(), prefix);
 	}
 
 }

@@ -17,12 +17,11 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin;
@@ -58,15 +57,13 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 	private PropertyVariableInitializer propertyInitializer;
 
 	// adds serviceInstance Variable and instanceDataAPIUrl to Plans
-	private ServiceInstanceInitializer serviceInstanceInitializer;
+	private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 
-	private NodeInstanceInitializer instanceInitializer;
+	private NodeInstanceVariablesHandler instanceInitializer;
 
 	// class for finalizing build plans (e.g when some template didn't receive
 	// some provisioning logic and they must be filled with empty elements)
 	private BPELFinalizer finalizer;
-
-	private CorrelationIDInitializer idInit = new CorrelationIDInitializer();
 
 	private BPELPlanHandler planHandler;
 
@@ -78,8 +75,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 	public BPELScaleOutProcessBuilder() {
 		try {
 			this.planHandler = new BPELPlanHandler();
-			this.serviceInstanceInitializer = new ServiceInstanceInitializer();
-			this.instanceInitializer = new NodeInstanceInitializer(planHandler);
+			this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+			this.instanceInitializer = new NodeInstanceVariablesHandler(planHandler);
 		} catch (ParserConfigurationException e) {
 			BPELScaleOutProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
 		}
@@ -102,7 +99,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 		this.planHandler.addStringElementToPlanRequest(inputName, activ.getBuildPlan());
 
 		try {
-			String varName = new NodeInstanceInitializer(planHandler).findInstanceIdVarName(activ);
+			String varName = new NodeInstanceVariablesHandler(planHandler).findInstanceIdVarName(activ);
 			this.planHandler.assginOutputWithVariableValue(varName, inputName, activ.getBuildPlan());
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
@@ -296,11 +293,11 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 			this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
 					bpelScaleOutProcess);
 
-			this.serviceInstanceInitializer.initializeInstanceDataAPIandServiceInstanceIDFromInput(bpelScaleOutProcess);
+			this.serviceInstanceInitializer.addServiceInstanceVarHandlingFromInput(bpelScaleOutProcess);
 
 			this.instanceInitializer.addInstanceIDVarToTemplatePlans(bpelScaleOutProcess);
 
-			this.idInit.addCorrellationID(bpelScaleOutProcess);
+			this.serviceInstanceInitializer.addCorrellationID(bpelScaleOutProcess);
 
 			List<BPELScopeActivity> provScopeActivities = new ArrayList<BPELScopeActivity>();
 

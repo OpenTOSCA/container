@@ -84,7 +84,7 @@ public class NodeTemplateInstanceController {
 
 	@POST
 	@Consumes({ MediaType.TEXT_PLAIN })
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Creates a new node template instance that belongs to a specific service template instance", response = Response.class)
 	@ApiResponses({
 			@ApiResponse(code = 400, message = "Bad Request - The format of the service template instance id is invalid"),
@@ -185,7 +185,7 @@ public class NodeTemplateInstanceController {
 	@PUT
 	@Path("/{id}/properties")
 	@Consumes({ MediaType.APPLICATION_XML })
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML })
 	@ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.", response = Response.class)
 	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),
 			@ApiResponse(code = 404, message = "Not Found - The node template instance cannot be found"),

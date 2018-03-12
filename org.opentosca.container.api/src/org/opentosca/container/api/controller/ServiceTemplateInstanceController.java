@@ -89,8 +89,8 @@ public class ServiceTemplateInstanceController {
 	}
 
 	@POST
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN , MediaType.APPLICATION_XML})
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	@ApiOperation(value = "Creates a new service template instance that corresponds to an existing build plan instance identified with a correlation id. The instance will be in the INITIAL state and will contain initial set of properties retrieved from the boundary definitions of the corresponding service template.", response = Response.class)
 	@ApiResponses({
 			@ApiResponse(code = 400, message = "Bad Request - The format of the request is invalid, or the plan instance with the given correlation id is already associated with an existing service template instance"),
@@ -108,6 +108,7 @@ public class ServiceTemplateInstanceController {
 
 			final URI uri = UriUtil.generateSubResourceURI(uriInfo, createdInstance.getId().toString(), false);
 
+			logger.debug("Created Service Instance " + uri.toString());
 			return Response.ok(uri).build();
 		} catch (IllegalArgumentException e) {
 			return Response.status(Status.BAD_REQUEST).build();
@@ -115,6 +116,9 @@ public class ServiceTemplateInstanceController {
 			logger.debug("Internal error occurred: {}", e.getMessage());
 
 			return Response.serverError().build();
+		} catch (NotFoundException e) {
+			logger.debug("Didn't find PlanInstances with given correlationId: {}", e.getMessage());
+			return Response.status(Status.BAD_REQUEST).entity("Didn't find PlanInstances with given correlationId").build();
 		}
 	}
 
@@ -177,7 +181,7 @@ public class ServiceTemplateInstanceController {
 
 	@PUT
 	@Path("/{id}/state")
-	@Consumes({ MediaType.TEXT_PLAIN })
+	@Consumes({ MediaType.TEXT_PLAIN })	
 	@ApiOperation(value = "Changes the state of a service template instance identified by its id.", response = Response.class)
 	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request - The state is invalid"),
 			@ApiResponse(code = 404, message = "Not Found - The service template instance cannot be found"),

@@ -1,5 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata.bpel;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +52,9 @@ public class Handler {
 	private Fragments fragments;
 	private BPELProcessFragments bpelFrags;
 
-	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
+	private static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
+	private static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
+	private static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 	private XPathFactory xPathfactory = XPathFactory.newInstance();
 
@@ -65,6 +68,71 @@ public class Handler {
 		}
 	}
 
+	private String getInstanceDataAPIURL(BPELPlanContext context) {
+		// check whether main sequence already contains service instance calls
+		// to container API
+		List<String> mainVarNames = context.getMainVariableNames();
+
+		String instanceDataUrlVarName = null;
+		for (String varName : mainVarNames) {
+			// pretty lame but should work
+
+			if (varName.contains(Handler.InstanceDataAPIUrlKeyword)) {
+				instanceDataUrlVarName = varName;
+			}
+		}
+
+		// if at least one is null we need to init the whole
+
+		if (instanceDataUrlVarName == null) {
+			return null;
+		}
+
+		return instanceDataUrlVarName;
+	}
+
+	private String getServiceTemplateURLVar(BPELPlanContext context) {
+		// check whether main sequence already contains service instance calls
+		// to container API
+		List<String> mainVarNames = context.getMainVariableNames();
+
+		String instanceDataUrlVarName = null;
+		for (String varName : mainVarNames) {
+			// pretty lame but should work
+
+			if (varName.contains(Handler.ServiceTemplateURLVarKeyword)) {
+				instanceDataUrlVarName = varName;
+			}
+		}
+
+		// if at least one is null we need to init the whole
+
+		if (instanceDataUrlVarName == null) {
+			return null;
+		}
+
+		return instanceDataUrlVarName;
+	}
+
+	private String getServiceInstanceIDVarName(BPELPlanContext context) {
+		// check whether main sequence already contains service instance calls
+		// to container API
+		List<String> mainVarNames = context.getMainVariableNames();
+		String serviceInstanceVarName = null;
+		for (String varName : mainVarNames) {
+			// pretty lame but should work
+			if (varName.contains(Handler.ServiceInstanceIDVarKeyword)) {
+				serviceInstanceVarName = varName;
+			}
+
+		}
+
+		if (serviceInstanceVarName == null) {
+			return null;
+		}
+		return serviceInstanceVarName;
+	}
+
 	private String getServiceInstanceVarName(BPELPlanContext context) {
 		// check whether main sequence already contains service instance calls
 		// to container API
@@ -73,7 +141,7 @@ public class Handler {
 		String instanceDataUrlVarName = null;
 		for (String varName : mainVarNames) {
 			// pretty lame but should work
-			if (varName.contains(Handler.ServiceInstanceVarKeyword)) {
+			if (varName.contains(Handler.ServiceInstanceURLVarKeyword)) {
 				serviceInstanceVarName = varName;
 			}
 			if (varName.contains(Handler.InstanceDataAPIUrlKeyword)) {
@@ -114,7 +182,7 @@ public class Handler {
 		return stateVarName;
 	}
 
-	private String findInstanceVar(BPELPlanContext context, String templateId, boolean isNode) {
+	private String findInstanceURLVar(BPELPlanContext context, String templateId, boolean isNode) {
 		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
 		for (String varName : context.getMainVariableNames()) {
 			if (varName.contains(instanceURLVarName)) {
@@ -124,7 +192,7 @@ public class Handler {
 		return null;
 	}
 
-	private String createInstanceVar(BPELPlanContext context, String templateId) {
+	private String createInstanceURLVar(BPELPlanContext context, String templateId) {
 		String instanceURLVarName = ((context.getRelationshipTemplate() == null) ? "node" : "relationship")
 				+ "InstanceURL_" + templateId + "_" + context.getIdForNames();
 		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
@@ -133,6 +201,27 @@ public class Handler {
 		}
 
 		return instanceURLVarName;
+	}
+
+	private String createInstanceIDVar(BPELPlanContext context, String templateId) {
+		String instanceURLVarName = ((context.getRelationshipTemplate() == null) ? "node" : "relationship")
+				+ "InstanceID_" + templateId + "_" + context.getIdForNames();
+		QName stringTypeDeclId = context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
+		if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
+			return null;
+		}
+
+		return instanceURLVarName;
+	}
+
+	private String findInstanceIDVar(BPELPlanContext context, String templateId, boolean isNode) {
+		String instanceURLVarName = ((isNode) ? "node" : "relationship") + "InstanceID_" + templateId + "_";
+		for (String varName : context.getMainVariableNames()) {
+			if (varName.contains(instanceURLVarName)) {
+				return varName;
+			}
+		}
+		return null;
 	}
 
 	public boolean handleTerminate(BPELPlanContext context, AbstractNodeTemplate nodeTemplate) {
@@ -163,11 +252,11 @@ public class Handler {
 
 		String nodeInstanceURLVarName = "";
 
-		if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
+		if (this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
 			// generate String var for nodeInstance URL
-			nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+			nodeInstanceURLVarName = this.createInstanceURLVar(context, context.getNodeTemplate().getId());
 		} else {
-			nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
+			nodeInstanceURLVarName = this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
 		}
 
 		if (nodeInstanceURLVarName == null) {
@@ -177,7 +266,7 @@ public class Handler {
 		// we'll use this later when we determine that the handle Node doesn't
 		// have lifecycle operations. Without this check all nodes without
 		// lifecycle (or cloud prov operations) will be in an uninstalled state
-		String lastSetState = "deleted";
+		String lastSetState = "DELETED";
 
 		/*
 		 * Prov Phase code
@@ -342,23 +431,6 @@ public class Handler {
 			}
 		}
 
-		// try {
-		// Node deleteNode =
-		// this.fragments.createRESTDeleteOnURLBPELVarAsNode(nodeInstanceURLVarName,
-		// restCallResponseVarName);
-		//
-		// deleteNode = context.importNode(deleteNode);
-		//
-		// context.getPostPhaseElement().appendChild(deleteNode);
-		//
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// return false;
-		// } catch (SAXException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 		return true;
 	}
 
@@ -378,6 +450,16 @@ public class Handler {
 
 		String serviceInstanceVarName = this.getServiceInstanceVarName(context);
 		if (serviceInstanceVarName == null) {
+			return false;
+		}
+
+		String serviceInstanceIDVarName = this.getServiceInstanceIDVarName(context);
+		if (serviceInstanceIDVarName == null) {
+			return false;
+		}
+
+		String instanceDataAPIVarName = this.getServiceTemplateURLVar(context);
+		if (instanceDataAPIVarName == null) {
 			return false;
 		}
 
@@ -406,8 +488,8 @@ public class Handler {
 
 		try {
 			// create bpel extension activity and append
-			String bpelString = this.fragments.generateBPEL4RESTLightNodeInstancePOST(serviceInstanceVarName,
-					context.getNodeTemplate().getId(), restCallResponseVarName);
+			String bpelString = this.fragments.generateBPEL4RESTLightNodeInstancePOST(instanceDataAPIVarName,
+					serviceInstanceIDVarName, context.getNodeTemplate().getId(), restCallResponseVarName);
 			Node createNodeInstanceExActiv = ModelUtils.string2dom(bpelString);
 			createNodeInstanceExActiv = context.importNode(createNodeInstanceExActiv);
 			context.getPrePhaseElement().appendChild(createNodeInstanceExActiv);
@@ -422,21 +504,33 @@ public class Handler {
 
 		String nodeInstanceURLVarName = "";
 
-		if (this.findInstanceVar(context, context.getNodeTemplate().getId(), true) == null) {
+		if (this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
 			// generate String var for nodeInstance URL
-			nodeInstanceURLVarName = this.createInstanceVar(context, context.getNodeTemplate().getId());
+			nodeInstanceURLVarName = this.createInstanceURLVar(context, context.getNodeTemplate().getId());
 		} else {
-			nodeInstanceURLVarName = this.findInstanceVar(context, context.getNodeTemplate().getId(), true);
+			nodeInstanceURLVarName = this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
 		}
 
 		if (nodeInstanceURLVarName == null) {
 			return false;
 		}
 
+		String nodeInstanceIDVarName = "";
+
+		if (this.findInstanceIDVar(context, context.getNodeTemplate().getId(), true) == null) {
+			nodeInstanceIDVarName = this.createInstanceIDVar(context, context.getNodeTemplate().getId());
+		} else {
+			nodeInstanceIDVarName = this.findInstanceIDVar(context, context.getNodeTemplate().getId(), true);
+		}
+
+		if (nodeInstanceIDVarName == null) {
+			return false;
+		}
+
 		try {
 			// save nodeInstance url from response
 			String bpelString = this.fragments.generateAssignFromNodeInstancePOSTResponseToStringVar(
-					nodeInstanceURLVarName, restCallResponseVarName);
+					nodeInstanceURLVarName, nodeInstanceIDVarName, restCallResponseVarName);
 			Node assignNodeInstanceUrl = ModelUtils.string2dom(bpelString);
 			assignNodeInstanceUrl = context.importNode(assignNodeInstanceUrl);
 			context.getPrePhaseElement().appendChild(assignNodeInstanceUrl);
@@ -453,7 +547,7 @@ public class Handler {
 			// update state variable to uninstalled
 			BPELProcessFragments frag = new BPELProcessFragments();
 			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-					"assignInitNodeState" + System.currentTimeMillis(), "string('initial')", stateVarName);
+					"assignInitNodeState" + System.currentTimeMillis(), "string('INITIAL')", stateVarName);
 			assignNode = context.importNode(assignNode);
 			context.getPrePhaseElement().appendChild(assignNode);
 
@@ -474,7 +568,7 @@ public class Handler {
 		// we'll use this later when we determine that the handle Node doesn't
 		// have lifecycle operations. Without this check all nodes without
 		// lifecycle (or cloud prov operations) will be in an uninstalled state
-		String lastSetState = "initial";
+		String lastSetState = "INITIAL";
 
 		/*
 		 * Prov Phase code
@@ -589,14 +683,14 @@ public class Handler {
 		 * Post Phase code
 		 */
 
-		if (lastSetState.equals("initial")) {
+		if (lastSetState.equals("INITIAL")) {
 			try {
 				// set state
 				String nextState = InstanceStates.getNextStableOperationState(lastSetState);
 				// if this node never was handled by lifecycle ops we just set
 				// it to started
 				if (operationNames.isEmpty()) {
-					nextState = "started";
+					nextState = "STARTED";
 				}
 				BPELProcessFragments frag = new BPELProcessFragments();
 				Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
@@ -687,6 +781,11 @@ public class Handler {
 			return false;
 		}
 
+		String serviceTemplateUrlVarName = this.getServiceTemplateURLVar(context);
+		if (serviceTemplateUrlVarName == null) {
+			return false;
+		}
+
 		/*
 		 * Pre Phase code
 		 */
@@ -712,9 +811,9 @@ public class Handler {
 
 		Element injectionPreElement = null;
 		Element injectionPostElement = null;
-		String sourceInstanceVarName = this.findInstanceVar(context,
+		String sourceInstanceVarName = this.findInstanceIDVar(context,
 				context.getRelationshipTemplate().getSource().getId(), true);
-		String targetInstanceVarName = this.findInstanceVar(context,
+		String targetInstanceVarName = this.findInstanceIDVar(context,
 				context.getRelationshipTemplate().getTarget().getId(), true);
 
 		if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
@@ -734,15 +833,36 @@ public class Handler {
 		}
 
 		/*
+		 * import request message type and create variable
+		 */
+
+		String createRelTInstanceReqVarName = "createRelationshipTemplateRequest" + context.getIdForNames();
+
+		try {
+			File opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
+			QName createRelationshipTemplateInstanceRequestQName = this.bpelFrags
+					.getOpenToscaApiCreateRelationshipTemplateInstanceRequestElementQname();
+			context.registerType(createRelationshipTemplateInstanceRequestQName, opentoscaApiSchemaFile);
+			createRelationshipTemplateInstanceRequestQName = context
+					.importQName(createRelationshipTemplateInstanceRequestQName);
+
+			context.addGlobalVariable(createRelTInstanceReqVarName, BPELPlan.VariableType.ELEMENT,
+					createRelationshipTemplateInstanceRequestQName);
+		} catch (IOException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+
+		/*
 		 * (i) append bpel code to create the nodeInstance (ii) append bpel code to
 		 * fetch nodeInstanceURL
 		 */
 
 		try {
 			// create bpel extension activity and append
-			String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceInstanceVarName,
-					context.getRelationshipTemplate().getId(), restCallResponseVarName, sourceInstanceVarName,
-					targetInstanceVarName);
+			String bpelString = this.fragments.generateBPEL4RESTLightRelationInstancePOST(serviceTemplateUrlVarName,
+					context.getRelationshipTemplate().getId(), createRelTInstanceReqVarName, restCallResponseVarName,
+					sourceInstanceVarName, targetInstanceVarName);
 			Node createRelationInstanceExActiv = ModelUtils.string2dom(bpelString);
 			createRelationInstanceExActiv = context.importNode(createRelationInstanceExActiv);
 			injectionPreElement.appendChild(createRelationInstanceExActiv);
@@ -758,11 +878,11 @@ public class Handler {
 		// generate String var for relationInstance URL
 		String relationInstanceURLVarName = "";
 
-		if (this.findInstanceVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+		if (this.findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false) == null) {
 			// generate String var for nodeInstance URL
-			relationInstanceURLVarName = this.createInstanceVar(context, context.getRelationshipTemplate().getId());
+			relationInstanceURLVarName = this.createInstanceURLVar(context, context.getRelationshipTemplate().getId());
 		} else {
-			relationInstanceURLVarName = this.findInstanceVar(context, context.getRelationshipTemplate().getId(),
+			relationInstanceURLVarName = this.findInstanceURLVar(context, context.getRelationshipTemplate().getId(),
 					false);
 		}
 
@@ -770,10 +890,24 @@ public class Handler {
 			return false;
 		}
 
+		String relationInstanceIDVarName = "";
+
+		if (this.findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+			// generate String var for nodeInstance URL
+			relationInstanceIDVarName = this.createInstanceIDVar(context, context.getRelationshipTemplate().getId());
+		} else {
+			relationInstanceIDVarName = this.findInstanceIDVar(context, context.getRelationshipTemplate().getId(),
+					false);
+		}
+
+		if (relationInstanceIDVarName == null) {
+			return false;
+		}
+
 		try {
 			// save relationInstance url from response
 			String bpelString = this.fragments.generateAssignFromRelationInstancePOSTResponseToStringVar(
-					relationInstanceURLVarName, restCallResponseVarName);
+					relationInstanceURLVarName, relationInstanceIDVarName, restCallResponseVarName);
 			Node assignRelationInstanceUrl = ModelUtils.string2dom(bpelString);
 			assignRelationInstanceUrl = context.importNode(assignRelationInstanceUrl);
 			injectionPreElement.appendChild(assignRelationInstanceUrl);
@@ -789,7 +923,7 @@ public class Handler {
 		// we'll use this later when we determine that the handle Node doesn't
 		// have lifecycle operations. Without this check all nodes without
 		// lifecycle (or cloud prov operations) will be in an uninstalled state
-		String lastSetState = "initial";
+		String lastSetState = "INITIAL";
 
 		try {
 			// update state variable to uninstalled
@@ -818,7 +952,7 @@ public class Handler {
 			// set state
 			BPELProcessFragments frag = new BPELProcessFragments();
 			Node assignNode = frag.createAssignXpathQueryToStringVarFragmentAsNode(
-					"assignFinalNodeState" + System.currentTimeMillis(), "string('initialized')", stateVarName);
+					"assignFinalNodeState" + System.currentTimeMillis(), "string('CREATED')", stateVarName);
 			assignNode = context.importNode(assignNode);
 
 			// create PUT activity

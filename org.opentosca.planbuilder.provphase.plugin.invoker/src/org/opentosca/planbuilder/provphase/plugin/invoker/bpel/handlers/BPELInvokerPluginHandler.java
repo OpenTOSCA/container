@@ -20,6 +20,7 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -38,9 +39,12 @@ import org.xml.sax.SAXException;
 
 public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanContext> {
 
-	private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPluginHandler.class);
-	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
+	private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPluginHandler.class);	
+	private static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
+	private static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
+	
 	private ResourceHandler resHandler;
+	private BPELProcessFragments bpelFrags;
 	private DocumentBuilderFactory docFactory;
 
 	private DocumentBuilder docBuilder;
@@ -48,6 +52,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 	public BPELInvokerPluginHandler() {
 		try {
 			this.resHandler = new ResourceHandler();
+			this.bpelFrags = new BPELProcessFragments();
 			this.docFactory = DocumentBuilderFactory.newInstance();
 			this.docFactory.setNamespaceAware(true);
 			this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -57,39 +62,35 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 	}
 
 	private void appendLOGActivity(final BPELPlanContext context, final String operation) {
-		String logMessageVarName = null;
+		String logMessageTempStringVarName = null;
 		String logMessageContent = null;
 		if (context.getNodeTemplate() != null) {
-			logMessageVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId() + "_" + operation + "_"
+			logMessageTempStringVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId() + "_" + operation + "_"
 					+ System.currentTimeMillis();
-			logMessageContent = "<log>Executing operation " + operation + " of NodeTemplate "
-					+ context.getNodeTemplate().getId() + "</log>";
+			logMessageContent = "Executing operation " + operation + " of NodeTemplate "
+					+ context.getNodeTemplate().getId();
 		} else {
-			logMessageVarName = "instanceDataLogMsg_" + context.getRelationshipTemplate().getId()
+			logMessageTempStringVarName = "instanceDataLogMsg_" + context.getRelationshipTemplate().getId()
 					+ (operation != null ? "_" + operation : "") + "_" + System.currentTimeMillis();
-			logMessageContent = "<log>Executing " + (operation != null ? "operation " + operation + " of " : "")
-					+ "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "</log>";
+			logMessageContent = "Executing " + (operation != null ? "operation " + operation + " of " : "")
+					+ "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "";
 		}
 
-		// create variable
-		logMessageVarName = context.createGlobalStringVariable(logMessageVarName, logMessageContent).getName();
-		final Variable correlationIdVar = context.generateVariableWithRandomValue();
-		String serviceInstanceURLVar = null;
-		for (final String varName : context.getMainVariableNames()) {
-			if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceVarKeyword)) {
-				serviceInstanceURLVar = varName;
-			}
-		}
+		
+		
+		// create variables
+		logMessageTempStringVarName = context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getName();
+		
+		String logMessageReqVarName = this.createLogRequestMsgVar(context);
+		String planInstanceURLVar = this.findPlanInstanceURLVar(context);
 
 		try {
-			Node assignInputToVar = new BPELProcessFragments()
-					.generateAssignFromInputMessageToStringVariableAsNode("CorrelationID", correlationIdVar.getName());
+						
+			
 			Node logPOSTNode = new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(
-					serviceInstanceURLVar, logMessageVarName, correlationIdVar.getName());
-			assignInputToVar = context.importNode(assignInputToVar);
+					planInstanceURLVar, logMessageTempStringVarName, logMessageReqVarName);			
 			logPOSTNode = context.importNode(logPOSTNode);
-
-			context.getProvisioningPhaseElement().appendChild(assignInputToVar);
+			
 			context.getProvisioningPhaseElement().appendChild(logPOSTNode);
 
 		} catch (final IOException e) {
@@ -103,20 +104,35 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 			e.printStackTrace();
 		}
 	}
+	
+	private String findPlanInstanceURLVar(BPELPlanContext context) {
+		String planInstanceURLVar = null;
+		for (final String varName : context.getMainVariableNames()) {
+			if (varName.contains(BPELInvokerPluginHandler.PlanInstanceURLVarKeyword)) {
+				planInstanceURLVar = varName;
+			}
+		}
+		return planInstanceURLVar;
+	}
+	
+	private String createLogRequestMsgVar(BPELPlanContext context) {
+		String logMsgReqVarName = "logMessage" + context.getIdForNames();
 
-	/**
-	 * Returns an XPath Query which contructs a valid String, to GET a File from the
-	 * openTOSCA API
-	 *
-	 * @param artifactPath
-	 *            a path inside an ArtifactTemplate
-	 * @return a String containing an XPath query
-	 */
-	public String createXPathQueryForURLRemoteFilePath(final String artifactPath) {
-		LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-		final String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/"
-				+ artifactPath + "'))";
-		return filePath;
+		try {
+			File opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
+			QName logMsgRequestQName = this.bpelFrags.getOpenToscaApiLogMsgReqElementQName();
+			context.registerType(logMsgRequestQName, opentoscaApiSchemaFile);
+			logMsgRequestQName = context
+					.importQName(logMsgRequestQName);
+
+			context.addGlobalVariable(logMsgReqVarName, BPELPlan.VariableType.ELEMENT,
+					logMsgRequestQName);
+		} catch (IOException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		
+		return logMsgReqVarName;
 	}
 
 	/**
@@ -282,9 +298,9 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 		// fetch serviceInstanceId
 
 		String serviceInstanceIdVarName = null;
-
+		
 		for (final String varName : context.getMainVariableNames()) {
-			if (varName.contains("OpenTOSCAContainerAPIServiceInstanceID")) {
+			if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceURLVarKeyword)) {
 				serviceInstanceIdVarName = varName;
 			}
 		}
@@ -482,7 +498,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 		String serviceInstanceIdVarName = null;
 
 		for (final String varName : context.getMainVariableNames()) {
-			if (varName.contains("OpenTOSCAContainerAPIServiceInstanceID")) {
+			if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceURLVarKeyword)) {
 				serviceInstanceIdVarName = varName;
 			}
 		}
@@ -652,7 +668,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 				ubuntuFilePath);
 		// the folder which has to be created on the ubuntu vm
 		final String ubuntuFolderPathScript = "sleep 5 && mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
-		final String containerAPIAbsoluteURIXPathQuery = this.createXPathQueryForURLRemoteFilePath(ref.getReference());
+		final String containerAPIAbsoluteURIXPathQuery = this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
 		final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
 		/*
 		 * create a string variable with a complete URL to the file we want to upload

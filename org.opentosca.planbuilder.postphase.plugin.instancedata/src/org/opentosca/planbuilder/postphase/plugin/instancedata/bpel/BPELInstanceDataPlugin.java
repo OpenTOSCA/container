@@ -7,7 +7,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.postphase.plugin.instancedata.bpel.handler.BPELHandler;
 import org.opentosca.planbuilder.postphase.plugin.instancedata.core.InstanceDataPlugin;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

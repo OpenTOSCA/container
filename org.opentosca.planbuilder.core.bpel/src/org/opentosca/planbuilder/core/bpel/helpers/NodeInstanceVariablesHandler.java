@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class NodeInstanceInitializer {
+public class NodeInstanceVariablesHandler {
 
 	private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
 	private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
@@ -41,7 +41,7 @@ public class NodeInstanceInitializer {
 
 	private BPELProcessFragments bpelFragments;
 
-	public NodeInstanceInitializer(BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
+	public NodeInstanceVariablesHandler(BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
 		this.bpelTemplateScopeHandler = new BPELScopeHandler();
 		this.bpelFragments = new BPELProcessFragments();
 		this.bpelProcessHandler = bpelProcessHandler;
@@ -389,7 +389,7 @@ public class NodeInstanceInitializer {
 		try {
 
 			Node getNodeInstancesREST = this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(
-					new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames()),
+					new ServiceInstanceVariablesHandler().getServiceInstanceVariableName(context.getMainVariableNames()),
 					responseVarName, nodeTemplate.getId(), query);
 			getNodeInstancesREST = context.importNode(getNodeInstancesREST);
 			templateMainSequeceNode.appendChild(getNodeInstancesREST);
