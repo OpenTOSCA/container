@@ -11,6 +11,7 @@ eclipse.p2.profile=DefaultProfile
 eclipse.p2.data.area=@config.dir/../p2
 equinox.use.ds=true
 org.eclipse.equinox.simpleconfigurator.configUrl=file\:org.eclipse.equinox.simpleconfigurator/bundles.info
+org.opentosca.container.engine.ia.publicip={{ .Env.PUBLIC_IP }}
 org.opentosca.container.engine.ia.plugin.tomcat.url=http\://{{ .Env.ENGINE_IA_HOSTNAME }}\:8080
 org.opentosca.container.engine.ia.plugin.tomcat.username=admin
 org.opentosca.container.engine.ia.plugin.tomcat.password=admin

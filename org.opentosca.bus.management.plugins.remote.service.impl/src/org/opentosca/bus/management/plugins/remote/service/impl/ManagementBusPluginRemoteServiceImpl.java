@@ -86,6 +86,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
         ManagementBusPluginRemoteServiceImpl.LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
         ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
+        final String publicIP = message.getHeader(MBHeader.OPENTOSCA_PUBLIC_IP.toString(), String.class);
+        ManagementBusPluginRemoteServiceImpl.LOG.debug("OPENTOSCA_PUBLIC_IP: {}", publicIP);
 
         if (nodeTemplateID == null && relationshipTemplateID != null) {
 
@@ -143,6 +145,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         headers.put(MBHeader.INTERFACENAME_STRING.toString(),
                                     MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
                         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
+                        headers.put(MBHeader.OPENTOSCA_PUBLIC_IP.toString(), publicIP);
 
                         // install packages
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages...");

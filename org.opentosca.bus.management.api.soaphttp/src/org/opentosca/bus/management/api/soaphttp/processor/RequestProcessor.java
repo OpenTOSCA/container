@@ -45,8 +45,8 @@ import com.google.gson.Gson;
  * <br>
  *
  * This processor processes the incoming requests of the Management Bus-SOAP/HTTP-API. It transforms
- * the incoming unmarshalled SOAP message into a from the Management Bus understandable camel
- * exchange message. The MBHeader-Enum is used here to define the headers of the exchange message.
+ * the incoming unmarshalled SOAP message into a from the Management Bus understandable camel exchange
+ * message. The MBHeader-Enum is used here to define the headers of the exchange message.
  *
  * @see MBHeader
  *
@@ -82,6 +82,9 @@ public class RequestProcessor implements Processor {
                 exchange.getIn().setHeader(elementx.getLocalName(), elementx.getTextContent());
             }
         }
+
+        // add header with public IP of engine-ia for the raspbian pull IA
+        exchange.getIn().setHeader("OPENTOSCA_PUBLIC_IP", Settings.OPENTOSCA_PUBLIC_IP);
 
         if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
 

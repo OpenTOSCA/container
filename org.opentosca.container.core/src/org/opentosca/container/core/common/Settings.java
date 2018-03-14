@@ -11,6 +11,8 @@ public class Settings {
         System.getProperty("org.opentosca.container.hostname", "localhost");
     public final static String OPENTOSCA_CONTAINER_PORT = System.getProperty("org.opentosca.container.port", "1337");
 
+    public final static String OPENTOSCA_PUBLIC_IP = System.getProperty("org.opentosca.container.engine.ia.publicip");
+
     public final static String CONTAINER_API =
         "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
     public final static String CONTAINER_INSTANCEDATA_API =
