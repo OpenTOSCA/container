@@ -27,8 +27,7 @@ public class RequestOnlyRoute extends RouteBuilder {
 
         final Processor headerProcessor = new HeaderProcessor();
 
-        this.from("direct:RequestOnly-WS-Invoke").process(headerProcessor)
-            .recipientList(this.simple(ENDPOINT));
+        this.from("direct:RequestOnly-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
     }
 
 }

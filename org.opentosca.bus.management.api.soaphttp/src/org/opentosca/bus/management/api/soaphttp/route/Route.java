@@ -87,7 +87,7 @@ public class Route extends RouteBuilder {
 
         this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(INVOKE_IA)
             .to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).end();
-        this.from("direct-vm:" + Activator.apiID).process(responseProcessor).marshal(responseJaxb)
-            .choice().when(ASYNC).recipientList(this.simple(CALLBACK_ENDPOINT)).end();
+        this.from("direct-vm:" + Activator.apiID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
+            .recipientList(this.simple(CALLBACK_ENDPOINT)).end();
     }
 }
