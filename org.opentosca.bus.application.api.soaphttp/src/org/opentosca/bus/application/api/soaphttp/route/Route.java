@@ -15,7 +15,6 @@ import org.opentosca.bus.application.api.soaphttp.processor.RequestProcessor;
 import org.opentosca.bus.application.api.soaphttp.processor.ResponseProcessor;
 import org.opentosca.bus.application.api.soaphttp.servicehandler.ApplicationBusServiceHandler;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
-import org.opentosca.container.core.common.Settings;
 
 /**
  * Route of the Application Bus-SOAP/HTTP-API.<br>
@@ -31,7 +30,7 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 
-    private final static String ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8084/appBus";
+    private final static String ENDPOINT = "http://0.0.0.0:8084/appBus";
     private final static QName PORT = new QName("http://opentosca.org/appinvoker/", "AppInvokerSoapWebServicePort");
 
 

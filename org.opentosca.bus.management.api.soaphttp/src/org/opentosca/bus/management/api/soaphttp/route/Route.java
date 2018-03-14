@@ -39,7 +39,8 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 
-    public final static String ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
+    public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
+    private final static String ENDPOINT = "http://0.0.0.0:8081/invoker";
     public final static QName PORT = new QName("http://siserver.org/wsdl", "InvokePort");
     public final static QName PORTTYPE = new QName("http://siserver.org/wsdl", "InvokePortType");
 
@@ -64,14 +65,14 @@ public class Route extends RouteBuilder {
             "bean:org.opentosca.bus.management.service.IManagementBusService?method=invokePlan";
 
         // Checks if invoking a IA
-        final Predicate INVOKE_IA = this.header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
+        final Predicate INVOKE_IA = header(CxfConstants.OPERATION_NAME).isEqualTo("invokeIA");
 
         // Checks if invoking a Plan
-        final Predicate INVOKE_PLAN = this.header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
+        final Predicate INVOKE_PLAN = header(CxfConstants.OPERATION_NAME).isEqualTo("invokePlan");
 
         // Checks if invoke is sync or async
-        final Predicate MESSAGEID = this.header("MessageID").isNotNull();
-        final Predicate REPLYTO = this.header("ReplyTo").isNotNull();
+        final Predicate MESSAGEID = header("MessageID").isNotNull();
+        final Predicate REPLYTO = header("ReplyTo").isNotNull();
         final Predicate ASYNC = PredicateBuilder.and(MESSAGEID, REPLYTO);
 
         final ClassLoader cl = org.opentosca.bus.management.api.soaphttp.model.ObjectFactory.class.getClassLoader();

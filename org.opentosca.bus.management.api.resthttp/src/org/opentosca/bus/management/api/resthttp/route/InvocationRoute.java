@@ -12,7 +12,6 @@ import org.opentosca.bus.management.api.resthttp.processor.ExceptionProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationRequestProcessor;
 import org.opentosca.bus.management.api.resthttp.processor.InvocationResponseProcessor;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.container.core.common.Settings;
 
 /**
  * InvocationRoute of the Management Bus REST-API.<br>
@@ -27,7 +26,7 @@ import org.opentosca.container.core.common.Settings;
  */
 public class InvocationRoute extends RouteBuilder {
 
-    private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+    private static final String HOST = "http://localhost";
     private static final String PORT = "8086";
     static final String BASE_ENDPOINT = HOST + ":" + PORT;
 
@@ -51,25 +50,24 @@ public class InvocationRoute extends RouteBuilder {
     public void configure() throws Exception {
 
         // Checks if invoking a IA
-        final Predicate INVOKE_IA =
-            PredicateBuilder.or(this.header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
-                                this.header(MBHeader.PLANID_QNAME.toString()).isNotNull());
+        final Predicate INVOKE_IA = PredicateBuilder.or(header(MBHeader.NODETEMPLATEID_STRING.toString()).isNotNull(),
+                                                        header(MBHeader.PLANID_QNAME.toString()).isNotNull());
         // Checks if invoking a Plan
-        final Predicate INVOKE_PLAN = this.header(MBHeader.PLANID_QNAME.toString()).isNotNull();
+        final Predicate INVOKE_PLAN = header(MBHeader.PLANID_QNAME.toString()).isNotNull();
 
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
-        this.onException(Exception.class).handled(true).setBody(this.property(Exchange.EXCEPTION_CAUGHT))
+        this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
             .process(exceptionProcessor);
 
         // invoke main route
         this.from("restlet:" + BASE_ENDPOINT + INVOKE_ENDPOINT + "?restletMethods=post").doTry()
             .process(invocationRequestProcessor).doCatch(Exception.class).end().choice()
-            .when(this.property(Exchange.EXCEPTION_CAUGHT).isNull()).to("direct:invoke").otherwise()
-            .to("direct:exception").end().removeHeaders("*");
+            .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).to("direct:invoke").otherwise().to("direct:exception")
+            .end().removeHeaders("*");
 
         // route if no exception was caught
         this.from("direct:invoke")
@@ -77,7 +75,7 @@ public class InvocationRoute extends RouteBuilder {
             .wireTap("direct:toManagementBus").end().to("direct:init").process(invocationResponseProcessor);
 
         // route in case an exception was caught
-        this.from("direct:exception").setBody(this.property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
+        this.from("direct:exception").setBody(property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
 
         // set "isFinsihed"-flag to false for this request
         this.from("direct:init").bean(QueueMap.class, "notFinished(${header." + MANAGEMENT_BUS_REQUEST_ID_HEADER + "})")
