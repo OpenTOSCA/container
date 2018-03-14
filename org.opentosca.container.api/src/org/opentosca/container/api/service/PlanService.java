@@ -53,7 +53,7 @@ public class PlanService {
 
     private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
 
-    // this service is used to retrieve a reference to IToscaReferenceMapper
+    // To retrieve a reference to IToscaReferenceMapper
     private IToscaEngineService engineService;
 
     private IToscaReferenceMapper referenceMapper;
@@ -63,6 +63,7 @@ public class PlanService {
     private DeploymentTestService deploymentTestService;
 
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
+
 
     public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
         logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
@@ -180,30 +181,6 @@ public class PlanService {
         return pi;
     }
 
-    /* Service Injection */
-    /********************/
-    public void setEngineService(final IToscaEngineService engineService) {
-        this.engineService = engineService;
-        // We cannot inject an instance of {@link IToscaReferenceMapper} since
-        // it is manually created in our default implementation of {@link
-        // IToscaEngineService}
-        this.referenceMapper = this.engineService.getToscaReferenceMapper();
-    }
-
-    public void setControlService(final IOpenToscaControlService controlService) {
-        this.controlService = controlService;
-    }
-
-    public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
-        this.deploymentTestService = deploymentTestService;
-    }
-
-    /* API Operations Helper Methods */
-    /*********************************/
-    /*********************************/
-
-    /* Plan Templates */
-    /******************/
     public Response getPlans(final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                              final PlanTypes... planTypes) {
 
@@ -289,8 +266,6 @@ public class PlanService {
         return Response.created(location).build();
     }
 
-    /* Plan Instances */
-    /*****************/
     public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
                                      final QName serviceTemplate, final Long serviceTemplateInstanceId,
                                      final PlanTypes... planTypes) {
@@ -433,5 +408,21 @@ public class PlanService {
             logger.info("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
+    }
+
+    public void setEngineService(final IToscaEngineService engineService) {
+        this.engineService = engineService;
+        // FIXME: We cannot inject an instance of {@link IToscaReferenceMapper} since
+        // it is manually created in our default implementation of {@link
+        // IToscaEngineService}
+        this.referenceMapper = this.engineService.getToscaReferenceMapper();
+    }
+
+    public void setControlService(final IOpenToscaControlService controlService) {
+        this.controlService = controlService;
+    }
+
+    public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
+        this.deploymentTestService = deploymentTestService;
     }
 }
