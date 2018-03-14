@@ -28,7 +28,7 @@ public class SyncRoute extends RouteBuilder {
 
         final Processor headerProcessor = new HeaderProcessor();
 
-        this.from("direct:Sync-WS-Invoke").to("stream:out").process(headerProcessor)
+        this.from("direct:Sync-WS-Invoke").process(headerProcessor)
             .recipientList(this.simple(ENDPOINT));
     }
 }

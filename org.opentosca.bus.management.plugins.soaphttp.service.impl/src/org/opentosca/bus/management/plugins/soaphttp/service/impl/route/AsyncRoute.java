@@ -13,8 +13,8 @@ import org.opentosca.container.core.common.Settings;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
- * This class manages the asynchronous communication with a service. Both invoking and handling the
- * callback are done here.
+ * This class manages the asynchronous communication with a service. Both
+ * invoking and handling the callback are done here.
  *
  *
  *
@@ -23,26 +23,24 @@ import org.opentosca.container.core.common.Settings;
  */
 public class AsyncRoute extends RouteBuilder {
 
-    public final static String PUBLIC_CALLBACKADDRESS =
-        "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8087/callback";
-    private final static String CALLBACKADDRESS = "http://0.0.0.0:8087/callback";
+	public final static String PUBLIC_CALLBACKADDRESS = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME
+			+ ":8087/callback";
+	private final static String CALLBACKADDRESS = "http://0.0.0.0:8087/callback";
 
+	@Override
+	public void configure() throws Exception {
 
-    @Override
-    public void configure() throws Exception {
+		final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
-        final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+		final Processor headerProcessor = new HeaderProcessor();
 
-        final Processor headerProcessor = new HeaderProcessor();
+		this.from("direct:Async-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT)).end();
 
-        this.from("direct:Async-WS-Invoke").to("stream:out").process(headerProcessor)
-            .recipientList(this.simple(ENDPOINT)).end();
+		final Processor callbackProcessor = new CallbackProcessor();
 
-        final Processor callbackProcessor = new CallbackProcessor();
-
-        this.from("jetty:" + AsyncRoute.CALLBACKADDRESS).to("stream:out").process(callbackProcessor).to("stream:out")
-            .choice().when(header("AvailableMessageID").isEqualTo("true"))
-            .recipientList(this.simple("direct:Async-WS-Callback${header.MessageID}")).end();
-    }
+		this.from("jetty:" + AsyncRoute.CALLBACKADDRESS).to("stream:out").process(callbackProcessor).choice()
+				.when(header("AvailableMessageID").isEqualTo("true"))
+				.recipientList(this.simple("direct:Async-WS-Callback${header.MessageID}")).end();
+	}
 
 }
