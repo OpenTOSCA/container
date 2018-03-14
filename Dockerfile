@@ -12,7 +12,7 @@ LABEL maintainer "Johannes Wettinger <jowettinger@gmail.com>, Michael Wurster <m
 
 ARG DOCKERIZE_VERSION=v0.3.0
 
-ENV CONTAINER_HOSTNAME localhost
+ENV PUBLIC_HOSTNAME localhost
 ENV CONTAINER_REPOSITORY_HOSTNAME localhost
 ENV ENGINE_PLAN_HOSTNAME localhost
 ENV ENGINE_IA_HOSTNAME localhost
