@@ -13,8 +13,6 @@ import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.deployment.tests.test.HttpTest;
 import org.opentosca.deployment.tests.test.ManagementOperationTest;
-import org.opentosca.deployment.tests.test.PortBindingTest;
-import org.opentosca.deployment.tests.test.SqlConnectionTest;
 import org.opentosca.deployment.tests.test.TcpPingTest;
 import org.opentosca.deployment.tests.test.TestExecutionPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -31,8 +29,10 @@ public class TestExecutor {
     private static Logger logger = LoggerFactory.getLogger(TestExecutor.class);
 
     private final List<TestExecutionPlugin> plugins =
-        Lists.newArrayList(new HttpTest(), new ManagementOperationTest(), new TcpPingTest(), new PortBindingTest(),
-                           new SqlConnectionTest());
+        Lists.newArrayList(new HttpTest(), new ManagementOperationTest(), new TcpPingTest()
+        // new PortBindingTest(),
+        // new SqlConnectionTest()
+        );
 
     private final ExecutorService jobExecutor;
     private final ExecutorService testExecutor;
