@@ -23,7 +23,9 @@ import org.opentosca.container.core.common.Settings;
  */
 public class AsyncRoute extends RouteBuilder {
 
-    public final static String CALLBACKADDRESS = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8090/callback";
+    public final static String PUBLIC_CALLBACKADDRESS =
+        "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8087/callback";
+    private final static String CALLBACKADDRESS = "http://0.0.0.0:8087/callback";
 
 
     @Override
@@ -39,7 +41,7 @@ public class AsyncRoute extends RouteBuilder {
         final Processor callbackProcessor = new CallbackProcessor();
 
         this.from("jetty:" + AsyncRoute.CALLBACKADDRESS).to("stream:out").process(callbackProcessor).to("stream:out")
-            .choice().when(this.header("AvailableMessageID").isEqualTo("true"))
+            .choice().when(header("AvailableMessageID").isEqualTo("true"))
             .recipientList(this.simple("direct:Async-WS-Callback${header.MessageID}")).end();
     }
 

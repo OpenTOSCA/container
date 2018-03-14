@@ -28,7 +28,7 @@ public class SOAPMessageGenerator implements EventHandler {
 
     private final Logger LOG = LoggerFactory.getLogger(SOAPMessageGenerator.class);
 
-    private static String callbackAddress = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8090/callback";
+    private static String callbackAddress = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8087/callback";
 
 
     /**

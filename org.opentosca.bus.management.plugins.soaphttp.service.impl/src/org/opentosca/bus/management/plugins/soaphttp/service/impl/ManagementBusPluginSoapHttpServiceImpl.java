@@ -167,7 +167,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
                                 if (op.getOutput() == null && hastOutputParams) {
                                     messagingPattern = this.CALLBACK;
-                                    final String callbackAddress = AsyncRoute.CALLBACKADDRESS;
+                                    final String callbackAddress = AsyncRoute.PUBLIC_CALLBACKADDRESS;
 
                                     String messageId = message.getMessageId();
                                     if (paramsMap.containsKey("CorrelationID")) {
@@ -214,7 +214,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                 return null;
             }
 
-            document = this.mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
+            document = mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
 
         }
 
@@ -222,7 +222,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
             document = (Document) params;
 
-            messagingPattern = this.determineMP(message, operationName, hastOutputParams, endpoint);
+            messagingPattern = determineMP(message, operationName, hastOutputParams, endpoint);
 
         }
 
@@ -384,7 +384,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                 // Plug-in needs to determine with wsdl.
             } else if (operationName != null) {
 
-                final Boolean hasOutputDefinedInWSDL = this.hasOutputDefinedInWSDL(endpoint, operationName);
+                final Boolean hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
 
                 if (hasOutputDefinedInWSDL != null) {
                     if (hasOutputDefinedInWSDL) {
@@ -400,7 +400,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
             ManagementBusPluginSoapHttpServiceImpl.LOG.debug("Invoking an operation of an implementation artifact with document as input.");
 
-            final Boolean hasOutputDefinedInWSDL = this.hasOutputDefinedInWSDL(endpoint, operationName);
+            final Boolean hasOutputDefinedInWSDL = hasOutputDefinedInWSDL(endpoint, operationName);
 
             if (hasOutputDefinedInWSDL != null) {
 
