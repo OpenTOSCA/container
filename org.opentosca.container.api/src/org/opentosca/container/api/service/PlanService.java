@@ -254,13 +254,13 @@ public class PlanService {
 		 * plan engine
 		 */
 		if (serviceTemplateInstanceId != null) {
-			String url = Settings.CONTAINER_INSTANCEDATA_LEGACY_API + serviceTemplateInstanceId;
+			String url = Settings.CONTAINER_INSTANCEDATA_API + "/"+ serviceTemplateInstanceId;
 			url = url.replace("{csarid}", csarId.getFileName());
 			url = url.replace("{servicetemplateid}",
 					UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
 			final URI uri = UriUtil.encode(URI.create(url));
 			final TParameter param = new TParameter();
-			param.setName("OpenTOSCAContainerAPIServiceInstanceID");
+			param.setName("OpenTOSCAContainerAPIServiceInstanceURL");
 			param.setRequired(TBoolean.fromValue("yes"));
 			param.setType("String");
 			param.setValue(uri.toString());

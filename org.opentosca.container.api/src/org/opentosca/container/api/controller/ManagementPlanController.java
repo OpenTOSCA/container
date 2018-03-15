@@ -152,7 +152,7 @@ public class ManagementPlanController {
 	@POST
 	@Path("/{plan}/instances/{instance}/logs")
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN , MediaType.APPLICATION_XML})
 	@ApiOperation(value = "Adds an entry to the log associated with the plan instance")
 	@ApiResponses({ @ApiResponse(code = 400, message = "Bad Request - Empty log entry given."),
 			@ApiResponse(code = 404, message = "Not Found - Plan instance not found"),

@@ -214,12 +214,16 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
 		this.LOG.info("Invoke Plan Invocation!");
 
-		final String correlationID = OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID,
+		final String correlationID = OpenToscaControlServiceImpl.planInvocationEngine.createCorrelationId(csarID,
 				serviceTemplateId, csarInstanceID, plan);
+
 		if (null != correlationID) {
 			this.LOG.info("The Plan Invocation was successfull!!!");
+			OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID, serviceTemplateId, csarInstanceID, plan,
+					correlationID);
 		} else {
 			this.LOG.error("The Plan Invocation was not successfull!!!");
+			return null;
 		}
 
 		return correlationID;
@@ -252,11 +256,11 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 		// return errors;
 		// }
 
-		if(!this.undeployPlans(csarID)){
+		if (!this.undeployPlans(csarID)) {
 			this.LOG.warn("It was not possible to undeploy all plans of the CSAR \"" + csarID + ".");
 			errors.add("Could not undeploy all plans.");
 		}
-		
+
 		if (!OpenToscaControlServiceImpl.iAEngine.undeployImplementationArtifacts(csarID)) {
 			this.LOG.warn("It was not possible to delete all ImplementationArtifacts of the CSAR \"" + csarID + ".");
 			errors.add("Could not undeploy all ImplementationArtifacts.");
@@ -297,11 +301,11 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 	private boolean undeployPlans(CSARID csarID) {
 		final List<TPlan> listOfUndeployedPlans = new ArrayList<>();
 		// invoke PlanEngine
-		if(this.toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
+		if (this.toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
 			// nothing to delete
 			return true;
 		}
-		
+
 		for (QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
 			this.LOG.info("Invoke the PlanEngine for processing the Plans.");
@@ -340,9 +344,8 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 						listOfUndeployedPlans.add(plan);
 					}
 				}
-				
 
-			} 
+			}
 		}
 		return true;
 	}

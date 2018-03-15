@@ -142,11 +142,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 				// instanceDataAPI/serviceInstanceID into input, add global
 				// variables to hold the value for plugins
 				this.serviceInstanceVarsHandler
-						.addServiceInstanceVarHandlingFromInput(newTerminationPlan);				
+						.addManagementPlanServiceInstanceVarHandlingFromInput(newTerminationPlan);				
 				this.serviceInstanceVarsHandler.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 
 				this.nodeInstanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
-						"?state=STARTED,CREATED,CONFIGURED");
+						"?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 				this.nodeInstanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
 						propMap);
 
@@ -156,7 +156,8 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
 				List<BPELScopeActivity> changedActivities = this.runPlugins(newTerminationPlan, propMap);
 
-				this.serviceInstanceVarsHandler.appendServiceInstanceDelete(newTerminationPlan);
+				this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newTerminationPlan,
+						newTerminationPlan.getBpelMainSequenceOutputAssignElement(), "DELETED");
 				
 				this.serviceInstanceVarsHandler.addCorrellationID(newTerminationPlan);
 				
@@ -167,7 +168,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 						final BPELPlanContext context = new BPELPlanContext(activ, propMap,
 								newTerminationPlan.getServiceTemplate());
 						this.nodeInstanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
-								"?state=STARTED,CREATED,CONFIGURED");
+								"?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
 					}
 				}
 				// TODO we need to wrap the pre-, prov- and post-phase sequences

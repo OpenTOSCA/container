@@ -48,7 +48,7 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
 		String serviceInstanceIDVar = null;
 		try {
 			serviceInstanceIDVar = new ServiceInstanceVariablesHandler()
-					.getServiceInstanceVariableName(context.getMainVariableNames());
+					.getServiceInstanceURLVariableName(context.getMainVariableNames());
 		} catch (ParserConfigurationException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
