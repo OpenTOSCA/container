@@ -293,7 +293,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 			this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
 					bpelScaleOutProcess);
 
-			this.serviceInstanceInitializer.addServiceInstanceVarHandlingFromInput(bpelScaleOutProcess);
+			this.serviceInstanceInitializer.addManagementPlanServiceInstanceVarHandlingFromInput(bpelScaleOutProcess);
 
 			this.instanceInitializer.addInstanceIDVarToTemplatePlans(bpelScaleOutProcess);
 

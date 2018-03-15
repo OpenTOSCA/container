@@ -27,6 +27,7 @@ import org.opentosca.container.api.config.CorsFilter;
 import org.opentosca.container.api.config.JAXBContextProvider;
 import org.opentosca.container.api.config.ObjectMapperProvider;
 import org.opentosca.container.api.config.PlainTextMessageBodyWriter;
+import org.opentosca.container.api.config.URI2XMLMessageBodyWriter;
 import org.opentosca.container.api.controller.RootController;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

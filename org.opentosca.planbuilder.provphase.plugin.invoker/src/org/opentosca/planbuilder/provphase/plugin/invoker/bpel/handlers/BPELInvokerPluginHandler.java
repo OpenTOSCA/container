@@ -667,7 +667,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 		final Variable ubuntuFilePathVar = templateContext.createGlobalStringVariable(ubuntuFilePathVarName,
 				ubuntuFilePath);
 		// the folder which has to be created on the ubuntu vm
-		final String ubuntuFolderPathScript = "sleep 5 && mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
+		final String ubuntuFolderPathScript = "sleep 1 && mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
 		final String containerAPIAbsoluteURIXPathQuery = this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
 		final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
 		/*

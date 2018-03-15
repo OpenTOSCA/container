@@ -75,6 +75,27 @@ public class BPELProcessFragments {
 		Document doc = this.docBuilder.parse(is);
 		return doc.getFirstChild();
 	}
+	
+	public Node createAssignVarToVarWithXpathQueryAsNode(String assignName, String fromVarName, String toVarName, String xpathQuery) throws IOException, SAXException {
+		String templateString = this.createAssignVarToVarWithXPathQuery(assignName, fromVarName, toVarName, xpathQuery);
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(templateString));
+		Document doc = this.docBuilder.parse(is);
+		return doc.getFirstChild();
+	}
+	
+	public String createAssignVarToVarWithXPathQuery(String assignName, String fromVarName, String toVarName, String xpathQuery) throws IOException {
+		//<!-- $xpath2query, $fromVarName, $toVarName -->
+		URL url = FrameworkUtil.getBundle(this.getClass())
+				.getResource("assignVarFromVarWithXpath2Query.xml");
+		File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+		String template = FileUtils.readFileToString(bpelfragmentfile);		
+		template = template.replaceAll("\\$assignName", assignName);
+		template = template.replaceAll("\\$fromVarName", fromVarName);
+		template = template.replaceAll("\\$toVarName", toVarName);
+		template = template.replaceAll("\\$xpath2query", xpathQuery);
+		return template;		
+	}
 
 	/**
 	 * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances

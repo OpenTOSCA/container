@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.w3c.dom.Document;
@@ -44,7 +45,7 @@ public class ServiceInstanceVariablesHandler {
 	private BPELProcessFragments fragments;
 
 	private BPELPlanHandler bpelProcessHandler;
-	
+
 	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder docBuilder;
 
@@ -57,29 +58,34 @@ public class ServiceInstanceVariablesHandler {
 	}
 
 	/**
-	 * Appends the logic to handle instanceDataAPI interaction. Adds instanceDataAPI
-	 * and serviceInstanceAPI elements into the input message of the given plan and
-	 * assign internal global variables with the input values
+	 * Sets the main variables such as ServiceInstanceID, ServiceTemplateURL for
+	 * management plans
 	 *
 	 * @param plan
 	 *            a plan
 	 */
-	public void addServiceInstanceVarHandlingFromInput(BPELPlan plan) {
+	public void addManagementPlanServiceInstanceVarHandlingFromInput(BPELPlan plan) {
 		this.appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.InstanceDataAPIUrlKeyword);
-		
-		this.bpelProcessHandler.addGlobalStringVariable(ServiceInstanceVariablesHandler.ServiceInstanceURLVarKeyword, plan);
-		
-		// TODO assign serviceInstanceURL variable, which is right now not set in the input of the plan?
+		this.appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.ServiceInstanceURLVarKeyword);
 
 		this.bpelProcessHandler.addGlobalStringVariable(ServiceTemplateURLVarKeyword, plan);
 		this.addAssignServiceTemplateURLVariable(plan);
 
 		this.bpelProcessHandler.addGlobalStringVariable(PlanInstanceURLVarKeyword, plan);
-		this.addAssignPlanInstanceURLVariable(plan);
+		this.addAssignManagementPlanInstanceUrlVariable(plan);
+	}
+	
+	protected static String findServiceInstanceUrlVariableName(BPELPlanHandler bpelProcessHandler, BPELPlan plan) {
+		for (String varName : bpelProcessHandler.getMainVariableNames(plan)) {
+			if (varName.contains(ServiceInstanceURLVarKeyword)) {
+				return varName;
+			}
+		}
+		return null;
 	}
 
-	private String findInstanceDataAPIUrlVariableName(BPELPlan plan) {
-		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+	protected static String findInstanceDataAPIUrlVariableName(BPELPlanHandler bpelProcessHandler, BPELPlan plan) {
+		for (String varName : bpelProcessHandler.getMainVariableNames(plan)) {
 			if (varName.contains(InstanceDataAPIUrlKeyword)) {
 				return varName;
 			}
@@ -87,8 +93,8 @@ public class ServiceInstanceVariablesHandler {
 		return null;
 	}
 
-	private String findServiceInstancesUrlVariableName(BPELPlan plan) {
-		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+	protected static String findServiceInstancesUrlVariableName(BPELPlanHandler bpelProcessHandler, BPELPlan plan) {
+		for (String varName : bpelProcessHandler.getMainVariableNames(plan)) {
 			if (varName.contains(ServiceInstancesURLVarKeyword)) {
 				return varName;
 			}
@@ -96,8 +102,8 @@ public class ServiceInstanceVariablesHandler {
 		return null;
 	}
 
-	private String findServiceTemplateUrlVariableName(BPELPlan plan) {
-		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+	protected static String findServiceTemplateUrlVariableName(BPELPlanHandler bpelProcessHandler, BPELPlan plan) {
+		for (String varName : bpelProcessHandler.getMainVariableNames(plan)) {
 			if (varName.contains(ServiceTemplateURLVarKeyword)) {
 				return varName;
 			}
@@ -105,25 +111,23 @@ public class ServiceInstanceVariablesHandler {
 		return null;
 	}
 
-	private String findPlanInstanceUrlVariableName(BPELPlan plan) {
-		for (String varName : this.bpelProcessHandler.getMainVariableNames(plan)) {
+	protected static String findPlanInstanceUrlVariableName(BPELPlanHandler bpelProcessHandler, BPELPlan plan) {
+		for (String varName : bpelProcessHandler.getMainVariableNames(plan)) {
 			if (varName.contains(PlanInstanceURLVarKeyword)) {
 				return varName;
 			}
 		}
 		return null;
 	}
-	
-	private void addAssignServiceInstanceUrlVariable(BPELPlan plan) {
-		
-	}
 
 	private void addAssignServiceTemplateURLVariable(BPELPlan plan) {
 
-		String instanceDataAPIUrlVarName = this.findInstanceDataAPIUrlVariableName(plan);
+		String instanceDataAPIUrlVarName = ServiceInstanceVariablesHandler
+				.findInstanceDataAPIUrlVariableName(this.bpelProcessHandler, plan);
 
 		// create variable
-		String serviceTemplateUrlVariableName = this.findServiceTemplateUrlVariableName(plan);
+		String serviceTemplateUrlVariableName = ServiceInstanceVariablesHandler
+				.findServiceTemplateUrlVariableName(this.bpelProcessHandler, plan);
 
 		String xpath2Query = "string(replace($" + instanceDataAPIUrlVarName + ", '/instances', ''))";
 		try {
@@ -141,10 +145,41 @@ public class ServiceInstanceVariablesHandler {
 		}
 	}
 
-	private void addAssignPlanInstanceURLVariable(BPELPlan plan) {
+	private void addAssignManagementPlanInstanceUrlVariable(BPELPlan plan) {
+		String planInstanceUrlVarName = ServiceInstanceVariablesHandler
+				.findPlanInstanceUrlVariableName(this.bpelProcessHandler, plan);
+		String serviceTemplateInstanceUrlVarName = ServiceInstanceVariablesHandler
+				.findServiceInstanceUrlVariableName(this.bpelProcessHandler, plan);
 
-		String planInstanceUrlVarName = this.findPlanInstanceUrlVariableName(plan);
-		String serviceTemplateUrlVarName = this.findServiceTemplateUrlVariableName(plan);
+		String xpath2Query = "string(concat($" + serviceTemplateInstanceUrlVarName + ", '/managementplans/', '"
+				+ plan.getId().substring(plan.getId().lastIndexOf("}") + 1)
+				+ "', '/instances/', $input.payload/*[local-name()='CorrelationID']))";
+		try {
+			Node assignFragment = this.fragments.createAssignXpathQueryToStringVarFragmentAsNode(
+					"assignPlanInstanceUrl" + System.currentTimeMillis(), xpath2Query, planInstanceUrlVarName);
+			assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
+			this.appendToInitSequence(assignFragment, plan);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Adds BPEL activities to set the PlanInstanceURL Variable for BuildPlans
+	 * 
+	 * @param plan
+	 *            the BPEL Plan to add the assign to
+	 */
+	private void addAssignBuildPlanInstanceURLVariable(BPELPlan plan) {
+
+		String planInstanceUrlVarName = ServiceInstanceVariablesHandler
+				.findPlanInstanceUrlVariableName(this.bpelProcessHandler, plan);
+		String serviceTemplateUrlVarName = ServiceInstanceVariablesHandler
+				.findServiceTemplateUrlVariableName(this.bpelProcessHandler, plan);
 
 		String xpath2Query = "string(concat($" + serviceTemplateUrlVarName + ", '/buildplans/', '"
 				+ plan.getId().substring(plan.getId().lastIndexOf("}") + 1)
@@ -202,7 +237,16 @@ public class ServiceInstanceVariablesHandler {
 
 	}
 
-	public String getServiceInstanceVariableName(Collection<String> names) {
+	public static String getServiceTemplateURLVariableName(Collection<String> varNames) {
+		for (String varName : varNames) {
+			if (varName.contains(ServiceInstanceVariablesHandler.ServiceTemplateURLVarKeyword)) {
+				return varName;
+			}
+		}
+		return null;
+	}
+
+	public String getServiceInstanceURLVariableName(Collection<String> names) {
 		for (String varName : names) {
 			if (varName.contains(ServiceInstanceVariablesHandler.ServiceInstanceURLVarKeyword)) {
 				return varName;
@@ -212,7 +256,7 @@ public class ServiceInstanceVariablesHandler {
 	}
 
 	public String getServiceInstanceVariableName(BPELPlan plan) {
-		return this.getServiceInstanceVariableName(this.bpelProcessHandler.getMainVariableNames(plan));
+		return this.getServiceInstanceURLVariableName(this.bpelProcessHandler.getMainVariableNames(plan));
 	}
 
 	public boolean appendSetServiceInstanceState(BPELPlan plan, Element insertBeforeElement, String state) {
@@ -346,6 +390,9 @@ public class ServiceInstanceVariablesHandler {
 			return false;
 		}
 
+		String serviceTemplateUrlVarName = ServiceInstanceVariablesHandler
+				.findServiceTemplateUrlVariableName(this.bpelProcessHandler, plan);
+
 		for (BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
 
 			if (templatePlan.getNodeTemplate() == null) {
@@ -359,8 +406,8 @@ public class ServiceInstanceVariablesHandler {
 			// find nodeInstance with query at instanceDataAPI
 			try {
 				Node nodeInstanceGETNode = this.fragments.createRESTExtensionGETForNodeInstanceDataAsNode(
-						ServiceInstanceVariablesHandler.ServiceInstanceURLVarKeyword, restCallResponseVarName,
-						templatePlan.getNodeTemplate().getId(), null);
+						serviceTemplateUrlVarName, restCallResponseVarName, templatePlan.getNodeTemplate().getId(),
+						null);
 				nodeInstanceGETNode = templatePlan.getBpelDocument().importNode(nodeInstanceGETNode, true);
 				plan.getBpelMainFlowElement().getParentNode().insertBefore(nodeInstanceGETNode,
 						plan.getBpelMainFlowElement());
@@ -653,15 +700,15 @@ public class ServiceInstanceVariablesHandler {
 		// send back with the response
 		this.bpelProcessHandler.addStringElementToPlanRequest("CorrelationID", buildPlan);
 		this.bpelProcessHandler.addStringElementToPlanResponse("CorrelationID", buildPlan);
-	
+
 		// add an assign
 		try {
 			Node assignNode = this.createAssignFromInputToOutputAsNode(buildPlan.getWsdl().getTargetNamespace());
 			assignNode = buildPlan.getBpelDocument().importNode(assignNode, true);
 			Element flowElement = buildPlan.getBpelMainFlowElement();
-	
+
 			Node mainSequenceNode = flowElement.getParentNode();
-	
+
 			mainSequenceNode.insertBefore(assignNode, flowElement);
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
