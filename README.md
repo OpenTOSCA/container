@@ -1,8 +1,8 @@
-
 # OpenTOSCA Container - TOSCA Runtime
 
 [![Build Status](https://travis-ci.org/OpenTOSCA/container.svg?branch=master)](https://travis-ci.org/OpenTOSCA/container)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FOpenTOSCA%2Fcontainer.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FOpenTOSCA%2Fcontainer?ref=badge_shield)
 
 Part of the [OpenTOSCA Ecosystem](http://www.opentosca.org)
 
@@ -33,3 +33,7 @@ Die Haftung für entgangenen Gewinn, Produktionsausfall, Betriebsunterbrechung, 
 
 Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE.
 You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FOpenTOSCA%2Fcontainer.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FOpenTOSCA%2Fcontainer?ref=badge_large)
