@@ -191,6 +191,9 @@ public class PlanService {
         final PlanListDTO list = new PlanListDTO();
         buildPlans.stream().forEach(p -> {
             final PlanDTO plan = new PlanDTO(p);
+            plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).path("instances")
+                                                        .build()))
+                         .rel("instances").build());
             plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
                          .rel("self").build());
             list.add(plan);
