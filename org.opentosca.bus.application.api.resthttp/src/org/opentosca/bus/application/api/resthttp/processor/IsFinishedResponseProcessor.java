@@ -15,79 +15,79 @@ import org.slf4j.LoggerFactory;
 /**
  * IsFinishedResponseProcessor of the Application Bus-REST/HTTP-API.<br>
  * <br>
- * 
+ *
  * This processor handles the responses of "isFinished" requests.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class IsFinishedResponseProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(IsFinishedResponseProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(IsFinishedResponseProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
+        IsFinishedResponseProcessor.LOG.debug("Processing IsFinished response....");
 
-		String requestID = exchange.getIn().getHeader(Route.ID, String.class);
+        final String requestID = exchange.getIn().getHeader(Route.ID, String.class);
 
-		IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
+        IsFinishedResponseProcessor.LOG.debug("RequestID: {}", requestID);
 
-		Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
+        final Response response = exchange.getIn().getHeader(RestletConstants.RESTLET_RESPONSE, Response.class);
 
-		if (exchange.getIn().getBody() instanceof Exception) {
+        if (exchange.getIn().getBody() instanceof Exception) {
 
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
+            response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            response.setEntity(exchange.getIn().getBody(String.class), MediaType.TEXT_ALL);
 
-		} else {
+        } else {
 
-			Boolean isFinished = exchange.getIn().getBody(Boolean.class);
+            final Boolean isFinished = exchange.getIn().getBody(Boolean.class);
 
-			if (isFinished) {
-				IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
+            if (isFinished) {
+                IsFinishedResponseProcessor.LOG.debug("Invocation has finished, send location of result.");
 
-				String pollingURI = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
-				String getResultURI = pollingURI
-						+ Route.GET_RESULT_ENDPOINT_SUFFIX.replace(Route.ID_PLACEHODLER, requestID);
+                final String pollingURI = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
+                final String getResultURI =
+                    pollingURI + Route.GET_RESULT_ENDPOINT_SUFFIX.replace(Route.ID_PLACEHODLER, requestID);
 
-				IsFinishedResponseProcessor.LOG.debug("GetResult URI: {}", getResultURI);
+                IsFinishedResponseProcessor.LOG.debug("GetResult URI: {}", getResultURI);
 
-				response.setStatus(Status.REDIRECTION_SEE_OTHER);
-				response.setLocationRef(getResultURI);
+                response.setStatus(Status.REDIRECTION_SEE_OTHER);
+                response.setLocationRef(getResultURI);
 
-			} else {
-				IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
+            } else {
+                IsFinishedResponseProcessor.LOG.debug("Invocation has not finished yet.");
 
-				String acceptContentType = exchange.getIn().getHeader(Exchange.ACCEPT_CONTENT_TYPE, String.class);
+                final String acceptContentType = exchange.getIn().getHeader(Exchange.ACCEPT_CONTENT_TYPE, String.class);
 
-				IsFinishedResponseProcessor.LOG.debug("AcceptContentType: {}", acceptContentType);
+                IsFinishedResponseProcessor.LOG.debug("AcceptContentType: {}", acceptContentType);
 
-				if (acceptContentType.equals(MediaType.APPLICATION_JSON)) {
+                if (acceptContentType.equals(MediaType.APPLICATION_JSON)) {
 
-					JSONObject obj = new JSONObject();
-					obj.put("status", "PENDING");
+                    final JSONObject obj = new JSONObject();
+                    obj.put("status", "PENDING");
 
-					response.setStatus(Status.SUCCESS_OK);
-					response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
+                    response.setStatus(Status.SUCCESS_OK);
+                    response.setEntity(obj.toJSONString(), MediaType.APPLICATION_JSON);
 
-				} else if (acceptContentType.equals(MediaType.APPLICATION_XML)) {
+                } else if (acceptContentType.equals(MediaType.APPLICATION_XML)) {
 
-					response.setStatus(Status.SUCCESS_OK);
-					response.setEntity("<status>PENDING</status>", MediaType.APPLICATION_XML);
+                    response.setStatus(Status.SUCCESS_OK);
+                    response.setEntity("<status>PENDING</status>", MediaType.APPLICATION_XML);
 
-				} else {
-					IsFinishedResponseProcessor.LOG.warn("The requested entity media type is not supported.");
-					throw new ApplicationBusExternalException("The requested entity media type is not supported.",
-							Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE.getCode());
-				}
+                } else {
+                    IsFinishedResponseProcessor.LOG.warn("The requested entity media type is not supported.");
+                    throw new ApplicationBusExternalException("The requested entity media type is not supported.",
+                        Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE.getCode());
+                }
 
-			}
-			exchange.getOut().setBody(response);
-		}
-	}
+            }
+            exchange.getOut().setBody(response);
+        }
+    }
 
 }

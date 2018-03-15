@@ -15,22 +15,22 @@ import org.slf4j.LoggerFactory;
  */
 public class FileAccessServiceHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(FileAccessServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(FileAccessServiceHandler.class);
 
-	private static IFileAccessService fileAccessService;
+    private static IFileAccessService fileAccessService;
 
 
-	public static IFileAccessService getFileAccessService() {
-		return FileAccessServiceHandler.fileAccessService;
-	}
+    public static IFileAccessService getFileAccessService() {
+        return FileAccessServiceHandler.fileAccessService;
+    }
 
-	public void bind(final IFileAccessService fa) {
-		FileAccessServiceHandler.LOG.debug("ContainerApi: Bind IFileAccessService");
-		FileAccessServiceHandler.fileAccessService = fa;
-	}
+    public void bind(final IFileAccessService fa) {
+        FileAccessServiceHandler.LOG.debug("ContainerApi: Bind IFileAccessService");
+        FileAccessServiceHandler.fileAccessService = fa;
+    }
 
-	public void unbind(final IFileAccessService fa) {
-		FileAccessServiceHandler.LOG.debug("ContainerApi: Unbind IFileAccessService");
-		FileAccessServiceHandler.fileAccessService = null;
-	}
+    public void unbind(final IFileAccessService fa) {
+        FileAccessServiceHandler.LOG.debug("ContainerApi: Unbind IFileAccessService");
+        FileAccessServiceHandler.fileAccessService = null;
+    }
 }

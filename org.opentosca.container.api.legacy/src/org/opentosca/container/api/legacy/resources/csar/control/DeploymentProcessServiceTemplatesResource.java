@@ -15,36 +15,37 @@ import org.slf4j.LoggerFactory;
 
 public class DeploymentProcessServiceTemplatesResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DeploymentProcessOperationsResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeploymentProcessOperationsResource.class);
 
-	private final String sep = "&";
-	private final CSARID csarid;
+    private final String sep = "&";
+    private final CSARID csarid;
 
 
-	public DeploymentProcessServiceTemplatesResource(final CSARID csarid) {
-		this.csarid = csarid;
-		DeploymentProcessServiceTemplatesResource.LOG.info("{} created: {}", this.getClass(), this);
+    public DeploymentProcessServiceTemplatesResource(final CSARID csarid) {
+        this.csarid = csarid;
+        DeploymentProcessServiceTemplatesResource.LOG.info("{} created: {}", this.getClass(), this);
 
-	}
+    }
 
-	/**
-	 *
-	 * @return all available Operations as String separated by "&"
-	 */
-	@GET
-	@Produces(ResourceConstants.TEXT_PLAIN)
-	public Response getServiceTemplates() {
-		DeploymentProcessServiceTemplatesResource.LOG.info("Get Request on DeploymentProcessOperationsResource");
-		String sTemplates = "";
-		final List<QName> ServiceTemplates = IOpenToscaControlServiceHandler.getOpenToscaControlService().getAllContainedServiceTemplates(this.csarid);
-		for (final QName serviceTemplate : ServiceTemplates) {
-			sTemplates = sTemplates + this.sep + serviceTemplate.toString();
-		}
-		sTemplates = sTemplates.substring(1);
+    /**
+     *
+     * @return all available Operations as String separated by "&"
+     */
+    @GET
+    @Produces(ResourceConstants.TEXT_PLAIN)
+    public Response getServiceTemplates() {
+        DeploymentProcessServiceTemplatesResource.LOG.info("Get Request on DeploymentProcessOperationsResource");
+        String sTemplates = "";
+        final List<QName> ServiceTemplates =
+            IOpenToscaControlServiceHandler.getOpenToscaControlService().getAllContainedServiceTemplates(this.csarid);
+        for (final QName serviceTemplate : ServiceTemplates) {
+            sTemplates = sTemplates + this.sep + serviceTemplate.toString();
+        }
+        sTemplates = sTemplates.substring(1);
 
-		// for (DeploymentProcessOperation operation : this.operations) {
-		// operations = operations + this.sep + operation.toString();
-		// }
-		return Response.ok(sTemplates).build();
-	}
+        // for (DeploymentProcessOperation operation : this.operations) {
+        // operations = operations + this.sep + operation.toString();
+        // }
+        return Response.ok(sTemplates).build();
+    }
 }

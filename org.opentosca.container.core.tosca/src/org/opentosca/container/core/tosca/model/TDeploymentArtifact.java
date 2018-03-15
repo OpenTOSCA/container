@@ -20,11 +20,10 @@ import javax.xml.namespace.QName;
 /**
  * <p>
  * Java class for tDeploymentArtifact complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tDeploymentArtifact">
  *   &lt;complexContent>
@@ -37,79 +36,79 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tDeploymentArtifact")
 public class TDeploymentArtifact extends TExtensibleElements {
-	
-	@XmlAttribute(name = "name", required = true)
-	protected String name;
-	@XmlAttribute(name = "artifactType", required = true)
-	protected QName artifactType;
-	@XmlAttribute(name = "artifactRef")
-	protected QName artifactRef;
-	
-	
-	/**
-	 * Gets the value of the name property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getName() {
-		return this.name;
-	}
-	
-	/**
-	 * Sets the value of the name property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setName(String value) {
-		this.name = value;
-	}
-	
-	/**
-	 * Gets the value of the artifactType property.
-	 * 
-	 * @return possible object is {@link QName }
-	 * 
-	 */
-	public QName getArtifactType() {
-		return this.artifactType;
-	}
-	
-	/**
-	 * Sets the value of the artifactType property.
-	 * 
-	 * @param value allowed object is {@link QName }
-	 * 
-	 */
-	public void setArtifactType(QName value) {
-		this.artifactType = value;
-	}
-	
-	/**
-	 * Gets the value of the artifactRef property.
-	 * 
-	 * @return possible object is {@link QName }
-	 * 
-	 */
-	public QName getArtifactRef() {
-		return this.artifactRef;
-	}
-	
-	/**
-	 * Sets the value of the artifactRef property.
-	 * 
-	 * @param value allowed object is {@link QName }
-	 * 
-	 */
-	public void setArtifactRef(QName value) {
-		this.artifactRef = value;
-	}
-	
+
+    @XmlAttribute(name = "name", required = true)
+    protected String name;
+    @XmlAttribute(name = "artifactType", required = true)
+    protected QName artifactType;
+    @XmlAttribute(name = "artifactRef")
+    protected QName artifactRef;
+
+
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
+
+    /**
+     * Gets the value of the artifactType property.
+     *
+     * @return possible object is {@link QName }
+     *
+     */
+    public QName getArtifactType() {
+        return this.artifactType;
+    }
+
+    /**
+     * Sets the value of the artifactType property.
+     *
+     * @param value allowed object is {@link QName }
+     *
+     */
+    public void setArtifactType(final QName value) {
+        this.artifactType = value;
+    }
+
+    /**
+     * Gets the value of the artifactRef property.
+     *
+     * @return possible object is {@link QName }
+     *
+     */
+    public QName getArtifactRef() {
+        return this.artifactRef;
+    }
+
+    /**
+     * Sets the value of the artifactRef property.
+     *
+     * @param value allowed object is {@link QName }
+     *
+     */
+    public void setArtifactRef(final QName value) {
+        this.artifactRef = value;
+    }
+
 }

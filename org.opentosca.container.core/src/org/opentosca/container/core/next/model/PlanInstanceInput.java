@@ -11,32 +11,32 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = PlanInstanceInput.TABLE_NAME)
 public class PlanInstanceInput extends Property {
 
-  private static final long serialVersionUID = 2934309146421765176L;
+    private static final long serialVersionUID = 2934309146421765176L;
 
-  public static final String TABLE_NAME = "PLAN_INSTANCE_INPUT";
+    public static final String TABLE_NAME = "PLAN_INSTANCE_INPUT";
 
-  @ManyToOne
-  @JoinColumn(name = "PLAN_INSTANCE_ID")
-  @JsonIgnore
-  private PlanInstance planInstance;
+    @ManyToOne
+    @JoinColumn(name = "PLAN_INSTANCE_ID")
+    @JsonIgnore
+    private PlanInstance planInstance;
 
 
-  public PlanInstanceInput() {
-    super();
-  }
-
-  public PlanInstanceInput(final String name, final String value, final String type) {
-    super(name, value, type);
-  }
-
-  public PlanInstance getPlanInstance() {
-    return this.planInstance;
-  }
-
-  public void setPlanInstance(final PlanInstance planInstance) {
-    this.planInstance = planInstance;
-    if (!planInstance.getInputs().contains(this)) {
-      planInstance.getInputs().add(this);
+    public PlanInstanceInput() {
+        super();
     }
-  }
+
+    public PlanInstanceInput(final String name, final String value, final String type) {
+        super(name, value, type);
+    }
+
+    public PlanInstance getPlanInstance() {
+        return this.planInstance;
+    }
+
+    public void setPlanInstance(final PlanInstance planInstance) {
+        this.planInstance = planInstance;
+        if (!planInstance.getInputs().contains(this)) {
+            planInstance.getInputs().add(this);
+        }
+    }
 }

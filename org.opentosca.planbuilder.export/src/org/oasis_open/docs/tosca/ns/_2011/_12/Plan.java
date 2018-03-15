@@ -4,5 +4,5 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Plan")
 public class Plan extends TPlan {
-	
+
 }

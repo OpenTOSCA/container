@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Resource class representing the current State of a DeploymentProcess
- * Copyright 2012 IAAS University of Stuttgart <br>
+ * Resource class representing the current State of a DeploymentProcess Copyright 2012 IAAS
+ * University of Stuttgart <br>
  * <br>
  *
  * @author Markus Fischer fischema@studi.informatik.uni-stuttgart.de
@@ -19,21 +19,22 @@ import org.slf4j.LoggerFactory;
  */
 public class DeploymentProcessStateResource {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DeploymentProcessStateResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeploymentProcessStateResource.class);
 
-	private final DeploymentProcessState deploymentState;
+    private final DeploymentProcessState deploymentState;
 
 
-	public DeploymentProcessStateResource(final DeploymentProcessState deploymentState) {
-		this.deploymentState = deploymentState;
-		DeploymentProcessStateResource.LOG.info("{} created: {}", this.getClass(), this);
+    public DeploymentProcessStateResource(final DeploymentProcessState deploymentState) {
+        this.deploymentState = deploymentState;
+        DeploymentProcessStateResource.LOG.info("{} created: {}", this.getClass(), this);
 
-	}
+    }
 
-	@GET
-	@Produces(ResourceConstants.TEXT_PLAIN)
-	public Response getDeploymentProcessState() {
-		DeploymentProcessStateResource.LOG.info("Get Request on DeploymentProcessStateResource State: {}", this.deploymentState.toString());
-		return Response.ok(this.deploymentState.toString()).build();
-	}
+    @GET
+    @Produces(ResourceConstants.TEXT_PLAIN)
+    public Response getDeploymentProcessState() {
+        DeploymentProcessStateResource.LOG.info("Get Request on DeploymentProcessStateResource State: {}",
+                                                this.deploymentState.toString());
+        return Response.ok(this.deploymentState.toString()).build();
+    }
 }

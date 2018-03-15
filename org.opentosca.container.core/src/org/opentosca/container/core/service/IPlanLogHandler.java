@@ -5,8 +5,8 @@ import java.util.Map;
 @Deprecated
 public interface IPlanLogHandler {
 
-  void log(String corrId, String logMsg);
+    void log(String corrId, String logMsg);
 
-  Map<String, String> getLogsOfPlanInstance(String corrId);
+    Map<String, String> getLogsOfPlanInstance(String corrId);
 
 }

@@ -10,10 +10,9 @@ import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.ConnectsTo
  * Copyright 2016 IAAS University of Stuttgart <br>
  * <br>
  *
- * This class implements a PlanBuilder Type Plugin for the RelationshipType
- * MosquittoConnectsTo. The plugin looks for a connection of the given
- * RelationshipTemplate with a Moquitto Stack which entails a Topic and
- * Mosquitto node.
+ * This class implements a PlanBuilder Type Plugin for the RelationshipType MosquittoConnectsTo. The
+ * plugin looks for a connection of the given RelationshipTemplate with a Moquitto Stack which
+ * entails a Topic and Mosquitto node.
  *
  * @author Kalman Kepes - kalman.kepes@iaas.uni-stuttgart.de
  *
@@ -23,11 +22,12 @@ public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanConte
     private BPELConnectsToPluginHandler handler;
 
     public BPELConnectsToTypePlugin() {
-	try {
-	    this.handler = new BPELConnectsToPluginHandler();
-	} catch (ParserConfigurationException e) {
-	    e.printStackTrace();
-	}
+        try {
+            this.handler = new BPELConnectsToPluginHandler();
+        }
+        catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -37,8 +37,8 @@ public class BPELConnectsToTypePlugin extends ConnectsToTypePlugin<BPELPlanConte
      * opentosca.planbuilder.plugins.context.BPELPlanContext)
      */
     @Override
-    public boolean handle(BPELPlanContext templateContext) {
-	return this.handler.handle(templateContext);
+    public boolean handle(final BPELPlanContext templateContext) {
+        return this.handler.handle(templateContext);
     }
 
 }

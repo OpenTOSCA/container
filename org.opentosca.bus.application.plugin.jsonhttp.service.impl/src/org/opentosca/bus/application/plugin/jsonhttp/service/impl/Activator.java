@@ -12,55 +12,55 @@ import org.slf4j.LoggerFactory;
 /**
  * Activator of the JSON/HTTP-Application Bus-Plugin.<br>
  * <br>
- * 
- * The activator is needed to add and start the camel routes. The bundleID is
- * used for generating the routing endpoint of this plugin.
- * 
- * 
- * 
+ *
+ * The activator is needed to add and start the camel routes. The bundleID is used for generating
+ * the routing endpoint of this plugin.
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Activator implements BundleActivator {
 
-	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-	private static DefaultCamelContext camelContext;
+    private static DefaultCamelContext camelContext;
 
-	private static String bundleID;
+    private static String bundleID;
 
-	static String getBundleID() {
-		return bundleID;
-	}
+    static String getBundleID() {
+        return bundleID;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
-	 * BundleContext)
-	 */
-	public void start(BundleContext bundleContext) throws Exception {
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework. BundleContext)
+     */
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
 
-		bundleID = bundleContext.getBundle().getSymbolicName();
+        bundleID = bundleContext.getBundle().getSymbolicName();
 
-		OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-		camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
+        camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
 
-		camelContext.addRoutes(new Route());
+        camelContext.addRoutes(new Route());
 
-		camelContext.start();
-		Activator.LOG.info("Application Bus JSON-HTTP plugin started!");
-	}
+        camelContext.start();
+        Activator.LOG.info("Application Bus JSON-HTTP plugin started!");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.camelContext = null;
-		Activator.LOG.info("Application Bus JSON-HTTP plugin stopped!");
-	}
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void stop(final BundleContext bundleContext) throws Exception {
+        Activator.camelContext = null;
+        Activator.LOG.info("Application Bus JSON-HTTP plugin stopped!");
+    }
 
 }

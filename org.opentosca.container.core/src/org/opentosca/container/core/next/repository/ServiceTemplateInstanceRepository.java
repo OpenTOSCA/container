@@ -16,41 +16,41 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 
 public class ServiceTemplateInstanceRepository extends JpaRepository<ServiceTemplateInstance> {
 
-  public ServiceTemplateInstanceRepository() {
-    super(ServiceTemplateInstance.class);
-  }
-
-  public Collection<ServiceTemplateInstance> findByTemplateId(QName templateId) {
-    try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      // Parameters
-      ParameterExpression<QName> templateIdParameter = cb.parameter(QName.class);
-      // Build the Criteria Query
-      CriteriaQuery<ServiceTemplateInstance> cq = cb.createQuery(ServiceTemplateInstance.class);
-      Root<ServiceTemplateInstance> sti = cq.from(ServiceTemplateInstance.class);
-      cq.select(sti).where(cb.equal(sti.get("templateId"), templateIdParameter));
-      // Create a TypedQuery
-      TypedQuery<ServiceTemplateInstance> q = em.createQuery(cq);
-      q.setParameter(templateIdParameter, templateId);
-      // Execute
-      return q.getResultList();
+    public ServiceTemplateInstanceRepository() {
+        super(ServiceTemplateInstance.class);
     }
-  }
 
-  public Collection<ServiceTemplateInstance> findByCsarId(CSARID csarId) {
-    try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      // Parameters
-      ParameterExpression<CSARID> csarIdParameter = cb.parameter(CSARID.class);
-      // Build the Criteria Query
-      CriteriaQuery<ServiceTemplateInstance> cq = cb.createQuery(ServiceTemplateInstance.class);
-      Root<ServiceTemplateInstance> sti = cq.from(ServiceTemplateInstance.class);
-      cq.select(sti).where(cb.equal(sti.get("csarId"), csarIdParameter));
-      // Create a TypedQuery
-      TypedQuery<ServiceTemplateInstance> q = em.createQuery(cq);
-      q.setParameter(csarIdParameter, csarId);
-      // Execute
-      return q.getResultList();
+    public Collection<ServiceTemplateInstance> findByTemplateId(final QName templateId) {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+            final CriteriaBuilder cb = em.getCriteriaBuilder();
+            // Parameters
+            final ParameterExpression<QName> templateIdParameter = cb.parameter(QName.class);
+            // Build the Criteria Query
+            final CriteriaQuery<ServiceTemplateInstance> cq = cb.createQuery(ServiceTemplateInstance.class);
+            final Root<ServiceTemplateInstance> sti = cq.from(ServiceTemplateInstance.class);
+            cq.select(sti).where(cb.equal(sti.get("templateId"), templateIdParameter));
+            // Create a TypedQuery
+            final TypedQuery<ServiceTemplateInstance> q = em.createQuery(cq);
+            q.setParameter(templateIdParameter, templateId);
+            // Execute
+            return q.getResultList();
+        }
     }
-  }
+
+    public Collection<ServiceTemplateInstance> findByCsarId(final CSARID csarId) {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+            final CriteriaBuilder cb = em.getCriteriaBuilder();
+            // Parameters
+            final ParameterExpression<CSARID> csarIdParameter = cb.parameter(CSARID.class);
+            // Build the Criteria Query
+            final CriteriaQuery<ServiceTemplateInstance> cq = cb.createQuery(ServiceTemplateInstance.class);
+            final Root<ServiceTemplateInstance> sti = cq.from(ServiceTemplateInstance.class);
+            cq.select(sti).where(cb.equal(sti.get("csarId"), csarIdParameter));
+            // Create a TypedQuery
+            final TypedQuery<ServiceTemplateInstance> q = em.createQuery(cq);
+            q.setParameter(csarIdParameter, csarId);
+            // Execute
+            return q.getResultList();
+        }
+    }
 }

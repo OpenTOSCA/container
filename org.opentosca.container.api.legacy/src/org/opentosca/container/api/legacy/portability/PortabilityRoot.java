@@ -16,8 +16,9 @@ import org.opentosca.container.api.legacy.instancedata.LinkBuilder;
 import org.opentosca.container.api.legacy.instancedata.model.SimpleXLink;
 
 /**
- * Root-Resource represents all the portabilityAPI and all its features by linking to additional Resources<br />
- * 
+ * Root-Resource represents all the portabilityAPI and all its features by linking to additional
+ * Resources<br />
+ *
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
@@ -25,33 +26,32 @@ import org.opentosca.container.api.legacy.instancedata.model.SimpleXLink;
 @Path("/portability")
 public class PortabilityRoot {
 
-	@Context
-	UriInfo uriInfo;
-	@Context
-	Request request;
+    @Context
+    UriInfo uriInfo;
+    @Context
+    Request request;
 
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response doGet() {
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response doGet() {
 
-		List<SimpleXLink> links = new LinkedList<SimpleXLink>();
-		links.add(LinkBuilder.selfLink(uriInfo));
-		links.add(new SimpleXLink(LinkBuilder.linkToArtifactList(uriInfo),
-				"Artifacts"));
-		links.add(new SimpleXLink(LinkBuilder.linkToPoliciesList(uriInfo), "Policies"));
+        final List<SimpleXLink> links = new LinkedList<>();
+        links.add(LinkBuilder.selfLink(this.uriInfo));
+        links.add(new SimpleXLink(LinkBuilder.linkToArtifactList(this.uriInfo), "Artifacts"));
+        links.add(new SimpleXLink(LinkBuilder.linkToPoliciesList(this.uriInfo), "Policies"));
 
-		PortabilityEntry pe = new PortabilityEntry(links);
+        final PortabilityEntry pe = new PortabilityEntry(links);
 
-		return Response.ok(pe).build();
-	}
+        return Response.ok(pe).build();
+    }
 
-	@Path("/artifacts")
-	public Object getArtifacts() {
-		return new ArtifactsListResource();
-	}
+    @Path("/artifacts")
+    public Object getArtifacts() {
+        return new ArtifactsListResource();
+    }
 
-	@Path("/policies")
-	public Object getPolicies() {
-		return new PoliciesListResource();
-	}
+    @Path("/policies")
+    public Object getPolicies() {
+        return new PoliciesListResource();
+    }
 }

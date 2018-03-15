@@ -16,55 +16,57 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationBusPluginServiceHandler {
 
-	// HashMap that stores available plug-ins. The supported InvocationType is
-	// used as key and the corresponding routing endpoint as value.
-	private static ConcurrentHashMap<String, String> pluginServices = new ConcurrentHashMap<>();
+    // HashMap that stores available plug-ins. The supported InvocationType is
+    // used as key and the corresponding routing endpoint as value.
+    private static ConcurrentHashMap<String, String> pluginServices = new ConcurrentHashMap<>();
 
-	final private static Logger LOG = LoggerFactory.getLogger(ApplicationBusPluginServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(ApplicationBusPluginServiceHandler.class);
 
 
-	/**
-	 * @param invocationType
-	 * @return BundleID of the matching ApplicationBusPlugin
-	 */
-	public static String getApplicationBusPluginBundleID(final String invocationType) {
+    /**
+     * @param invocationType
+     * @return BundleID of the matching ApplicationBusPlugin
+     */
+    public static String getApplicationBusPluginBundleID(final String invocationType) {
 
-		return pluginServices.get(invocationType);
-	}
+        return pluginServices.get(invocationType);
+    }
 
-	/**
-	 * Bind IApplicationBusPluginService and store InvocationType & BundleID in
-	 * local HashMap.
-	 *
-	 * @param plugin - A AppInvokerPluginService to register.
-	 */
-	public void bindPluginService(final IApplicationBusPluginService plugin) {
+    /**
+     * Bind IApplicationBusPluginService and store InvocationType & BundleID in local HashMap.
+     *
+     * @param plugin - A AppInvokerPluginService to register.
+     */
+    public void bindPluginService(final IApplicationBusPluginService plugin) {
 
-		final List<String> types = plugin.getSupportedInvocationTypes();
+        final List<String> types = plugin.getSupportedInvocationTypes();
 
-		for (final String type : types) {
-			pluginServices.put(type, plugin.getRoutingEndpoint());
-			ApplicationBusPluginServiceHandler.LOG.debug("Bound IApplicationBusPluginService: {} for Type: {}", plugin.toString(), type);
-		}
+        for (final String type : types) {
+            pluginServices.put(type, plugin.getRoutingEndpoint());
+            ApplicationBusPluginServiceHandler.LOG.debug("Bound IApplicationBusPluginService: {} for Type: {}",
+                                                         plugin.toString(), type);
+        }
 
-	}
+    }
 
-	/**
-	 * Unbind IApplicationBusPluginService.
-	 *
-	 * @param plugin - A IApplicationBusPluginService to unregister.
-	 */
-	public void unbindPluginService(final IApplicationBusPluginService plugin) {
+    /**
+     * Unbind IApplicationBusPluginService.
+     *
+     * @param plugin - A IApplicationBusPluginService to unregister.
+     */
+    public void unbindPluginService(final IApplicationBusPluginService plugin) {
 
-		final List<String> types = plugin.getSupportedInvocationTypes();
+        final List<String> types = plugin.getSupportedInvocationTypes();
 
-		for (final String type : types) {
-			final Object deletedObject = pluginServices.remove(type);
-			if (deletedObject != null) {
-				ApplicationBusPluginServiceHandler.LOG.debug("Unbound IApplicationBusPluginService: {} for Type: {}", plugin.toString(), type);
-			} else {
-				ApplicationBusPluginServiceHandler.LOG.debug("IApplicationBusPluginService {} could not be unbound, because it is not bound!", plugin.toString());
-			}
-		}
-	}
+        for (final String type : types) {
+            final Object deletedObject = pluginServices.remove(type);
+            if (deletedObject != null) {
+                ApplicationBusPluginServiceHandler.LOG.debug("Unbound IApplicationBusPluginService: {} for Type: {}",
+                                                             plugin.toString(), type);
+            } else {
+                ApplicationBusPluginServiceHandler.LOG.debug("IApplicationBusPluginService {} could not be unbound, because it is not bound!",
+                                                             plugin.toString());
+            }
+        }
+    }
 }

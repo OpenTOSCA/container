@@ -28,56 +28,62 @@ import org.opentosca.container.connector.winery.WineryConnector;
  *
  */
 public class MarketplaceServiceTemplatesResource {
-	
-	UriInfo uriInfo;
-	
-	private final WineryConnector connector = new WineryConnector();
-	
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getXMLString()).build();
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getJSONString()).build();
-	}
-	
-	@Path("/{serviceTemplateId}")
-	public MarketplaceServiceTemplateResource getServiceTemplate(@PathParam("serviceTemplateId") final String serviceTemplateId) {
 
-		QName serviceTemplate = null;
-		try {
-			final String decodedServiceTemplateId = URLDecoder.decode(serviceTemplateId, "UTF-8");
-			final String namespace = decodedServiceTemplateId.substring(1).split("}")[0];
-			final String localPart = decodedServiceTemplateId.substring(1).split("}")[1];
-			serviceTemplate = new QName(namespace, localPart);
-		} catch (final UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    UriInfo uriInfo;
 
-		if (serviceTemplate == null) {
-			throw new IllegalArgumentException("ServiceTemplateId couldn't be read");
-		}
+    private final WineryConnector connector = new WineryConnector();
 
-		return new MarketplaceServiceTemplateResource(serviceTemplate);
-	}
 
-	public References getRefs() {
-		final References refs = new References();
-		
-		for (final QName serviceTemplateId : this.connector.getServiceTemplates()) {
-			refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(), URLEncoder.encode(serviceTemplateId.toString())), XLinkConstants.SIMPLE, serviceTemplateId.toString()));
-		}
-		
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return refs;
-	}
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getJSONString()).build();
+    }
+
+    @Path("/{serviceTemplateId}")
+    public MarketplaceServiceTemplateResource getServiceTemplate(@PathParam("serviceTemplateId") final String serviceTemplateId) {
+
+        QName serviceTemplate = null;
+        try {
+            final String decodedServiceTemplateId = URLDecoder.decode(serviceTemplateId, "UTF-8");
+            final String namespace = decodedServiceTemplateId.substring(1).split("}")[0];
+            final String localPart = decodedServiceTemplateId.substring(1).split("}")[1];
+            serviceTemplate = new QName(namespace, localPart);
+        }
+        catch (final UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (serviceTemplate == null) {
+            throw new IllegalArgumentException("ServiceTemplateId couldn't be read");
+        }
+
+        return new MarketplaceServiceTemplateResource(serviceTemplate);
+    }
+
+    public References getRefs() {
+        final References refs = new References();
+
+        for (final QName serviceTemplateId : this.connector.getServiceTemplates()) {
+            refs.getReference()
+                .add(new Reference(
+                    Utilities.buildURI(this.uriInfo.getAbsolutePath().toString(),
+                                       URLEncoder.encode(serviceTemplateId.toString())),
+                    XLinkConstants.SIMPLE, serviceTemplateId.toString()));
+        }
+
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        return refs;
+    }
 
 }

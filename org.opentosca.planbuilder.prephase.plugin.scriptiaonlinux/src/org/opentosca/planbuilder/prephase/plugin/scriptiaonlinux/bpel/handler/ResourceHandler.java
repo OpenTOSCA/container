@@ -22,8 +22,7 @@ import org.xml.sax.SAXException;
 
 /**
  * <p>
- * This class holds all BPEL Fragments and other Artifacts for the
- * ScriptIAOnLinux Plugin
+ * This class holds all BPEL Fragments and other Artifacts for the ScriptIAOnLinux Plugin
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
@@ -35,482 +34,402 @@ public class ResourceHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(ResourceHandler.class);
 
-    private DocumentBuilderFactory docFactory;
-    private DocumentBuilder docBuilder;
+    private final DocumentBuilderFactory docFactory;
+    private final DocumentBuilder docBuilder;
 
     /**
      * Constructor
-     * 
-     * @throws ParserConfigurationException
-     *             is thrown when initializing the DOM Parsers fails
+     *
+     * @throws ParserConfigurationException is thrown when initializing the DOM Parsers fails
      */
     public ResourceHandler() throws ParserConfigurationException {
-	this.docFactory = DocumentBuilderFactory.newInstance();
-	this.docFactory.setNamespaceAware(true);
-	this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        this.docFactory = DocumentBuilderFactory.newInstance();
+        this.docFactory.setNamespaceAware(true);
+        this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
     }
 
     /**
-     * Generates a DOM Node containing a BPEL Fragment that assigns an EC2 Linux
-     * RunScript request
-     * 
-     * @param assignName
-     *            the name for the assign
-     * @param prefix
-     *            the prefix of the EC2 Linux Service
-     * @param requestVarName
-     *            the name of the RunScript request variable
-     * @param serverIpName
-     *            the name of variable containing an address to a linux machine
-     * @param inputMessageVarName
-     *            the name of the BuildPlan input message
-     * @param script
-     *            the script to execute on the remote machine
+     * Generates a DOM Node containing a BPEL Fragment that assigns an EC2 Linux RunScript request
+     *
+     * @param assignName the name for the assign
+     * @param prefix the prefix of the EC2 Linux Service
+     * @param requestVarName the name of the RunScript request variable
+     * @param serverIpName the name of variable containing an address to a linux machine
+     * @param inputMessageVarName the name of the BuildPlan input message
+     * @param script the script to execute on the remote machine
      * @return a DOM Node containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
-     * @throws SAXException
-     *             is thrown when transforming the internal files to a DOM Node
+     * @throws IOException is thrown when reading internal files fails
+     * @throws SAXException is thrown when transforming the internal files to a DOM Node
      */
-    public Node generateAssignRequestMsgAsNode(String assignName, String prefix, String requestVarName,
-	    String serverIpName, String inputMessageVarName, String script) throws IOException, SAXException {
-	String templateString = this.generateAssignRequestMsgAsString(assignName, prefix, requestVarName, serverIpName,
-		inputMessageVarName, script);
-	InputSource is = new InputSource();
-	is.setCharacterStream(new StringReader(templateString));
-	Document doc = this.docBuilder.parse(is);
-	return doc.getFirstChild();
+    public Node generateAssignRequestMsgAsNode(final String assignName, final String prefix,
+                                               final String requestVarName, final String serverIpName,
+                                               final String inputMessageVarName,
+                                               final String script) throws IOException, SAXException {
+        final String templateString = this.generateAssignRequestMsgAsString(assignName, prefix, requestVarName,
+                                                                            serverIpName, inputMessageVarName, script);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
-     * Generates a String containing a BPEL Fragment that assigns an EC2 Linux
-     * RunScript request
-     * 
-     * @param assignName
-     *            the name for the assign
-     * @param prefix
-     *            the prefix of the EC2 Linux Service
-     * @param requestVarName
-     *            the name of the RunScript request variable
-     * @param serverIpName
-     *            the name of variable containing an address to a linux machine
-     * @param inputMessageVarName
-     *            the name of the BuildPlan input message
-     * @param script
-     *            the script to execute on the remote machine
+     * Generates a String containing a BPEL Fragment that assigns an EC2 Linux RunScript request
+     *
+     * @param assignName the name for the assign
+     * @param prefix the prefix of the EC2 Linux Service
+     * @param requestVarName the name of the RunScript request variable
+     * @param serverIpName the name of variable containing an address to a linux machine
+     * @param inputMessageVarName the name of the BuildPlan input message
+     * @param script the script to execute on the remote machine
      * @return a String containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
+     * @throws IOException is thrown when reading internal files fails
      */
-    public String generateAssignRequestMsgAsString(String assignName, String prefix, String requestVarName,
-	    String serverIpName, String inputMessageVarName, String script) throws IOException {
-	// <!--
-	// {assignName}{prefix}{requestVarName}{serverIpVarName}{requestVarName}{inputMessageVarName}{script}
-	// -->
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("assRunScriptRequest.xml");
-	File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-	String template = FileUtils.readFileToString(bpelfragmentfile);
-	template = template.replace("{assignName}", assignName);
-	template = template.replace("{prefix}", prefix);
-	template = template.replace("{requestVarName}", requestVarName);
-	template = template.replace("{serverIpVarName}", serverIpName);
-	template = template.replace("{inputMessageVarName}", inputMessageVarName);
-	template = template.replace("{script}", script);
-	return template;
+    public String generateAssignRequestMsgAsString(final String assignName, final String prefix,
+                                                   final String requestVarName, final String serverIpName,
+                                                   final String inputMessageVarName,
+                                                   final String script) throws IOException {
+        // <!--
+        // {assignName}{prefix}{requestVarName}{serverIpVarName}{requestVarName}{inputMessageVarName}{script}
+        // -->
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("assRunScriptRequest.xml");
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        template = template.replace("{assignName}", assignName);
+        template = template.replace("{prefix}", prefix);
+        template = template.replace("{requestVarName}", requestVarName);
+        template = template.replace("{serverIpVarName}", serverIpName);
+        template = template.replace("{inputMessageVarName}", inputMessageVarName);
+        template = template.replace("{script}", script);
+        return template;
     }
 
     /**
      * Generates an BPEL Invoke Element as String.
-     * 
-     * @param invokeName
-     *            the name attribute of the Invoke Element
-     * @param partnerLinkName
-     *            the partnerLink attribute of the invoke
-     * @param operationName
-     *            the name of the operation used on the given porttype
-     * @param portType
-     *            the porttype to call on
-     * @param inputVarName
-     *            the input variable name
-     * @param outputVarName
-     *            the output variable name
+     *
+     * @param invokeName the name attribute of the Invoke Element
+     * @param partnerLinkName the partnerLink attribute of the invoke
+     * @param operationName the name of the operation used on the given porttype
+     * @param portType the porttype to call on
+     * @param inputVarName the input variable name
+     * @param outputVarName the output variable name
      * @return BPEL Invoke Element as Node
      */
-    public Node generateInvokeAsNode(String invokeName, String partnerLinkName, String operationname, QName portType,
-	    String inputVarName, String outputVarName) throws SAXException, IOException {
-	String templateString = this.generateInvokeAsString(invokeName, partnerLinkName, operationname, portType,
-		inputVarName, outputVarName);
-	InputSource is = new InputSource();
-	is.setCharacterStream(new StringReader(templateString));
-	Document doc = this.docBuilder.parse(is);
-	return doc.getFirstChild();
+    public Node generateInvokeAsNode(final String invokeName, final String partnerLinkName, final String operationname,
+                                     final QName portType, final String inputVarName,
+                                     final String outputVarName) throws SAXException, IOException {
+        final String templateString = this.generateInvokeAsString(invokeName, partnerLinkName, operationname, portType,
+                                                                  inputVarName, outputVarName);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
      * Generates an BPEL Invoke Element as String.
-     * 
-     * @param invokeName
-     *            the name attribute of the Invoke Element
-     * @param partnerLinkName
-     *            the partnerLink attribute of the invoke
-     * @param operationName
-     *            the name of the operation used on the given porttype
-     * @param portType
-     *            the porttype to call on
-     * @param inputVarName
-     *            the input variable name
-     * @param outputVarName
-     *            the output variable name
+     *
+     * @param invokeName the name attribute of the Invoke Element
+     * @param partnerLinkName the partnerLink attribute of the invoke
+     * @param operationName the name of the operation used on the given porttype
+     * @param portType the porttype to call on
+     * @param inputVarName the input variable name
+     * @param outputVarName the output variable name
      * @return BPEL Invoke Element as String
      */
-    public String generateInvokeAsString(String invokeName, String partnerLinkName, String operationName,
-	    QName portType, String inputVarName, String outputVarName) {
-	// Example:
-	// <bpel:invoke name="getPublicDNS" partnerLink="EC2VMIAServicePL"
-	// operation="getPublicDNS" portType="ns:EC2VMIAService"
-	// inputVariable="webapp_getPublicDNS_Request"
-	// outputVariable="webapp_getPublicDNS_Response"></bpel:invoke>
-	String invokeAsString = "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\""
-		+ invokeName + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\""
-		+ " portType=\"" + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\""
-		+ inputVarName + "\"" + " outputVariable=\"" + outputVarName + "\"></bpel:invoke>";
-	return invokeAsString;
+    public String generateInvokeAsString(final String invokeName, final String partnerLinkName,
+                                         final String operationName, final QName portType, final String inputVarName,
+                                         final String outputVarName) {
+        // Example:
+        // <bpel:invoke name="getPublicDNS" partnerLink="EC2VMIAServicePL"
+        // operation="getPublicDNS" portType="ns:EC2VMIAService"
+        // inputVariable="webapp_getPublicDNS_Request"
+        // outputVariable="webapp_getPublicDNS_Response"></bpel:invoke>
+        final String invokeAsString =
+            "<bpel:invoke xmlns:bpel=\"http://docs.oasis-open.org/wsbpel/2.0/process/executable\" name=\"" + invokeName
+                + "\" partnerLink=\"" + partnerLinkName + "\" operation=\"" + operationName + "\"" + " portType=\""
+                + portType.getPrefix() + ":" + portType.getLocalPart() + "\"" + " inputVariable=\"" + inputVarName
+                + "\"" + " outputVariable=\"" + outputVarName + "\"></bpel:invoke>";
+        return invokeAsString;
     }
 
     /**
      * Returns the WSDL file of the EC2Linux IA WebService
-     * 
+     *
      * @return a File containing the absolute path to the WSDL file
-     * @throws IOException
-     *             is thrown when reading internal files fails
+     * @throws IOException is thrown when reading internal files fails
      */
     public File getLinuxFileUploadWSDLFile() throws IOException {
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("EC2LinuxIAService.wsdl");
-	File wsdlFile = new File(FileLocator.toFileURL(url).getPath());
-	return wsdlFile;
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("EC2LinuxIAService.wsdl");
+        final File wsdlFile = new File(FileLocator.toFileURL(url).getPath());
+        return wsdlFile;
     }
 
     /**
      * Returns the openTOSCA References Schema file
-     * 
-     * @return a File containing the absolute path to the openTOSCA References
-     *         Schema file
-     * @throws IOException
-     *             is thrown when reading internal files fails
+     *
+     * @return a File containing the absolute path to the openTOSCA References Schema file
+     * @throws IOException is thrown when reading internal files fails
      */
     public File getOpenToscaReferencesSchema() throws IOException {
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("openTOSCAReferencesSchema.xsd");
-	File xsdFile = new File(FileLocator.toFileURL(url).getPath());
-	return xsdFile;
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("openTOSCAReferencesSchema.xsd");
+        final File xsdFile = new File(FileLocator.toFileURL(url).getPath());
+        return xsdFile;
     }
 
     /**
      * Returns the WSDL PortType of the EC2Linux IA WebService
-     * 
+     *
      * @return a QName denoting the PortType of the EC2Linux IA WebService
      */
     public QName getPortTypeFromLinuxUploadWSDL() {
-	return new QName("http://ec2linux.aws.ia.opentosca.org", "EC2LinuxIAService", "ec2linuxport");
+        return new QName("http://ec2linux.aws.ia.opentosca.org", "EC2LinuxIAService", "ec2linuxport");
     }
 
     /**
-     * Returns an XPath Query which contructs a valid String, to GET a File from the
-     * openTOSCA API
-     * 
-     * @param artifactPath
-     *            a path inside an ArtifactTemplate
+     * Returns an XPath Query which contructs a valid String, to GET a File from the openTOSCA API
+     *
+     * @param artifactPath a path inside an ArtifactTemplate
      * @return a String containing an XPath query
      */
-    public String getRemoteFilePathString(String artifactPath) {
-	ResourceHandler.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-	String filePath = "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/"
-		+ artifactPath + "'))";
-	return filePath;
+    public String getRemoteFilePathString(final String artifactPath) {
+        ResourceHandler.LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
+        final String filePath =
+            "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
+        return filePath;
     }
 
     /**
      * <p>
-     * Returns a DOM Node containing a BPEL Fragment that assigns values to Ec2
-     * Linux FileTransfer Request
+     * Returns a DOM Node containing a BPEL Fragment that assigns values to Ec2 Linux FileTransfer
+     * Request
      * </p>
-     * 
-     * @param assignName
-     *            the name of the assign
-     * @param requestVarName
-     *            the name of the FileTransferRequest variable
-     * @param prefix
-     *            the prefix for the EC2 Linux Service
-     * @param serverIpVarName
-     *            the name of a variable holding an address to a linux machine
-     * @param planRequestName
-     *            the name of BuildPlan input variable
-     * @param remoteFilePath
-     *            the path of the file to be transfered
-     * @param remotePath
-     *            the path for the file to upload unto the linux machine
+     *
+     * @param assignName the name of the assign
+     * @param requestVarName the name of the FileTransferRequest variable
+     * @param prefix the prefix for the EC2 Linux Service
+     * @param serverIpVarName the name of a variable holding an address to a linux machine
+     * @param planRequestName the name of BuildPlan input variable
+     * @param remoteFilePath the path of the file to be transfered
+     * @param remotePath the path for the file to upload unto the linux machine
      * @return a DOM Node containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown if reading internal files fails
-     * @throws SAXException
-     *             is thrown if transforming internal files to DOM fails
+     * @throws IOException is thrown if reading internal files fails
+     * @throws SAXException is thrown if transforming internal files to DOM fails
      */
-    public Node getRemoteTransferFileAssignAsNode(String assignName, String requestVarName, String prefix,
-	    String serverIpVarName, String planRequestName, String remoteFilePath, String remotePath)
-	    throws SAXException, IOException {
-	String templateString = this.getRemoteTransferFileAssignAsString(assignName, requestVarName, prefix,
-		serverIpVarName, planRequestName, remoteFilePath, remotePath);
-	InputSource is = new InputSource();
-	is.setCharacterStream(new StringReader(templateString));
-	Document doc = this.docBuilder.parse(is);
-	return doc.getFirstChild();
+    public Node getRemoteTransferFileAssignAsNode(final String assignName, final String requestVarName,
+                                                  final String prefix, final String serverIpVarName,
+                                                  final String planRequestName, final String remoteFilePath,
+                                                  final String remotePath) throws SAXException, IOException {
+        final String templateString =
+            this.getRemoteTransferFileAssignAsString(assignName, requestVarName, prefix, serverIpVarName,
+                                                     planRequestName, remoteFilePath, remotePath);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
      * <p>
-     * Returns a String containing a BPEL Fragment that assigns values to Ec2 Linux
-     * RemoteFileTransfer Request
+     * Returns a String containing a BPEL Fragment that assigns values to Ec2 Linux RemoteFileTransfer
+     * Request
      * </p>
-     * 
-     * @param assignName
-     *            the name of the assign
-     * @param requestVarName
-     *            the name of the FileTransferRequest variable
-     * @param prefix
-     *            the prefix for the EC2 Linux Service
-     * @param serverIpVarName
-     *            the name of a variable holding an address to a linux machine
-     * @param planRequestName
-     *            the name of BuildPlan input variable
-     * @param remoteFilePath
-     *            the path of the file to be transfered
-     * @param remotePath
-     *            the path for the file to upload unto the linux machine
+     *
+     * @param assignName the name of the assign
+     * @param requestVarName the name of the FileTransferRequest variable
+     * @param prefix the prefix for the EC2 Linux Service
+     * @param serverIpVarName the name of a variable holding an address to a linux machine
+     * @param planRequestName the name of BuildPlan input variable
+     * @param remoteFilePath the path of the file to be transfered
+     * @param remotePath the path for the file to upload unto the linux machine
      * @return a String containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown if reading internal files fails
+     * @throws IOException is thrown if reading internal files fails
      */
-    public String getRemoteTransferFileAssignAsString(String assignName, String requestVarName, String prefix,
-	    String serverIpVarName, String planRequestName, String remoteFilePath, String remotePath)
-	    throws IOException {
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("assignRemoteTransferFileRequestFragment.xml");
-	File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-	String template = FileUtils.readFileToString(bpelfragmentfile);
-	template = template.replace("{AssignName}", assignName);
-	template = template.replace("{RequestVarName}", requestVarName);
-	template = template.replace("{ServerIpPropVarName}", serverIpVarName);
-	template = template.replace("{prefix}", prefix);
-	template = template.replace("{remoteFilePath}", remoteFilePath);
-	template = template.replace("{remotePath}", remotePath);
-	template = template.replace("{planRequestName}", planRequestName);
-	return template;
+    public String getRemoteTransferFileAssignAsString(final String assignName, final String requestVarName,
+                                                      final String prefix, final String serverIpVarName,
+                                                      final String planRequestName, final String remoteFilePath,
+                                                      final String remotePath) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("assignRemoteTransferFileRequestFragment.xml");
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        template = template.replace("{AssignName}", assignName);
+        template = template.replace("{RequestVarName}", requestVarName);
+        template = template.replace("{ServerIpPropVarName}", serverIpVarName);
+        template = template.replace("{prefix}", prefix);
+        template = template.replace("{remoteFilePath}", remoteFilePath);
+        template = template.replace("{remotePath}", remotePath);
+        template = template.replace("{planRequestName}", planRequestName);
+        return template;
     }
 
     /**
-     * 
-     * Returns a DOM Node containing a BPEL Fragment to fetch Data from the
-     * openTOSCA ContainerAPI with the BPEL4RESTLight Extension
-     * 
-     * @param csarFileName
-     *            the file name of the csar the build plan belongs to
-     * @param responseName
-     *            the variable name of the response variable
-     * @param relativeFilePath
-     *            a relative path on the containerAPI
+     *
+     * Returns a DOM Node containing a BPEL Fragment to fetch Data from the openTOSCA ContainerAPI with
+     * the BPEL4RESTLight Extension
+     *
+     * @param csarFileName the file name of the csar the build plan belongs to
+     * @param responseName the variable name of the response variable
+     * @param relativeFilePath a relative path on the containerAPI
      * @return a DOM Node containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
-     * @throws SAXException
-     *             is thrown when parsing internal files fails
-     * 
+     * @throws IOException is thrown when reading internal files fails
+     * @throws SAXException is thrown when parsing internal files fails
+     *
      */
-    public Node getRESTExtensionGETAsNode(String csarFileName, String responseName, String relativeFilePath)
-	    throws SAXException, IOException {
-	String templateString = this.getRESTExtensionGETAsString(csarFileName, responseName, relativeFilePath);
-	InputSource is = new InputSource();
-	is.setCharacterStream(new StringReader(templateString));
-	Document doc = this.docBuilder.parse(is);
-	return doc.getFirstChild();
+    public Node getRESTExtensionGETAsNode(final String csarFileName, final String responseName,
+                                          final String relativeFilePath) throws SAXException, IOException {
+        final String templateString = this.getRESTExtensionGETAsString(csarFileName, responseName, relativeFilePath);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
-     * Returns a String containing a BPEL Fragment to fetch Data from the openTOSCA
-     * ContainerAPI with the BPEL4RESTLight Extension
-     * 
-     * @param csarFileName
-     *            the file name of the csar the build plan belongs to
-     * @param responseName
-     *            the variable name of the response variable
-     * @param relativeFilePath
-     *            a relative path on the containerAPI
+     * Returns a String containing a BPEL Fragment to fetch Data from the openTOSCA ContainerAPI with
+     * the BPEL4RESTLight Extension
+     *
+     * @param csarFileName the file name of the csar the build plan belongs to
+     * @param responseName the variable name of the response variable
+     * @param relativeFilePath a relative path on the containerAPI
      * @return a String containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
+     * @throws IOException is thrown when reading internal files fails
      */
-    public String getRESTExtensionGETAsString(String csarFileName, String responseName, String relativeFilePath)
-	    throws IOException {
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("restExtensionGetFragment.xml");
-	File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
-	String template = FileUtils.readFileToString(bpelfragmentfile);
-	template = template.replace("{CSAR_filename}", csarFileName);
-	template = template.replace("{response_var_name}", responseName);
-	template = template.replace("{relative_path_to_file}", relativeFilePath);
-	return template;
+    public String getRESTExtensionGETAsString(final String csarFileName, final String responseName,
+                                              final String relativeFilePath) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("restExtensionGetFragment.xml");
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        template = template.replace("{CSAR_filename}", csarFileName);
+        template = template.replace("{response_var_name}", responseName);
+        template = template.replace("{relative_path_to_file}", relativeFilePath);
+        return template;
     }
 
     /**
-     * Generates a DOM Node containing a BPEL Fragment that assigns values to an EC2
-     * Linux TransferFile request
-     * 
-     * @param assignName
-     *            the name for the assign
-     * @param requestVarName
-     *            the name of the TranferFile request variable
-     * @param prefix
-     *            the prefix of the EC2 Linux Service
-     * @param serverIpVarName
-     *            the name of a variable containing an address to a linux machine
-     * @param planRequestName
-     *            the name of the BuildPlan input message
-     * @param localPathVarName
-     *            a local path of a file on the machine the BuildPlan will be
-     *            executed
-     * @param remotePath
-     *            the remote path where the file must be uploaded to, on the remote
-     *            machine
+     * Generates a DOM Node containing a BPEL Fragment that assigns values to an EC2 Linux TransferFile
+     * request
+     *
+     * @param assignName the name for the assign
+     * @param requestVarName the name of the TranferFile request variable
+     * @param prefix the prefix of the EC2 Linux Service
+     * @param serverIpVarName the name of a variable containing an address to a linux machine
+     * @param planRequestName the name of the BuildPlan input message
+     * @param localPathVarName a local path of a file on the machine the BuildPlan will be executed
+     * @param remotePath the remote path where the file must be uploaded to, on the remote machine
      * @return a DOM Node containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
-     * @throws SAXException
-     *             is thrown when transforming internal data to DOM fails
+     * @throws IOException is thrown when reading internal files fails
+     * @throws SAXException is thrown when transforming internal data to DOM fails
      */
-    public Node getTransferFileAssignAsNode(String assignName, String requestVarName, String prefix,
-	    String serverIpVarName, String planRequestName, String localPathVarName, String remotePath)
-	    throws IOException, SAXException {
-	String templateString = this.getTransferFileAssignAsString(assignName, requestVarName, prefix, serverIpVarName,
-		planRequestName, localPathVarName, remotePath);
-	InputSource is = new InputSource();
-	is.setCharacterStream(new StringReader(templateString));
-	Document doc = this.docBuilder.parse(is);
-	return doc.getFirstChild();
+    public Node getTransferFileAssignAsNode(final String assignName, final String requestVarName, final String prefix,
+                                            final String serverIpVarName, final String planRequestName,
+                                            final String localPathVarName,
+                                            final String remotePath) throws IOException, SAXException {
+        final String templateString =
+            this.getTransferFileAssignAsString(assignName, requestVarName, prefix, serverIpVarName, planRequestName,
+                                               localPathVarName, remotePath);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
-     * Generates a String containing a BPEL Fragment that assigns values to an EC2
-     * Linux TransferFile request
-     * 
-     * @param assignName
-     *            the name for the assign
-     * @param requestVarName
-     *            the name of the TranferFile request variable
-     * @param prefix
-     *            the prefix of the EC2 Linux Service
-     * @param serverIpVarName
-     *            the name of a variable containing an address to a linux machine
-     * @param planRequestName
-     *            the name of the BuildPlan input message
-     * @param localPathVarName
-     *            a local path of a file on the machine the BuildPlan will be
-     *            executed
-     * @param remotePath
-     *            the remote path where the file must be uploaded to, on the remote
-     *            machine
+     * Generates a String containing a BPEL Fragment that assigns values to an EC2 Linux TransferFile
+     * request
+     *
+     * @param assignName the name for the assign
+     * @param requestVarName the name of the TranferFile request variable
+     * @param prefix the prefix of the EC2 Linux Service
+     * @param serverIpVarName the name of a variable containing an address to a linux machine
+     * @param planRequestName the name of the BuildPlan input message
+     * @param localPathVarName a local path of a file on the machine the BuildPlan will be executed
+     * @param remotePath the remote path where the file must be uploaded to, on the remote machine
      * @return a String containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
+     * @throws IOException is thrown when reading internal files fails
      */
-    public String getTransferFileAssignAsString(String assignName, String requestVarName, String prefix,
-	    String serverIpVarName, String planRequestName, String localPathVarName, String remotePath)
-	    throws IOException {
-	// <!--
-	// {AssignName},{RequestVarName},{ServerIpPropVarName},{prefix},{localPath},{remotePath},{SSHKey}
-	// -->
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("assignTransferFileRequestFragment.xml");
-	File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
-	String template = FileUtils.readFileToString(bpelFragmentFile);
-	template = template.replace("{AssignName}", assignName);
-	template = template.replace("{RequestVarName}", requestVarName);
-	template = template.replace("{ServerIpPropVarName}", serverIpVarName);
-	template = template.replace("{prefix}", prefix);
-	template = template.replace("{localFilePathVarName}", localPathVarName);
-	template = template.replace("{remotePath}", remotePath);
-	template = template.replace("{planRequestName}", planRequestName);
-	return template;
+    public String getTransferFileAssignAsString(final String assignName, final String requestVarName,
+                                                final String prefix, final String serverIpVarName,
+                                                final String planRequestName, final String localPathVarName,
+                                                final String remotePath) throws IOException {
+        // <!--
+        // {AssignName},{RequestVarName},{ServerIpPropVarName},{prefix},{localPath},{remotePath},{SSHKey}
+        // -->
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("assignTransferFileRequestFragment.xml");
+        final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelFragmentFile);
+        template = template.replace("{AssignName}", assignName);
+        template = template.replace("{RequestVarName}", requestVarName);
+        template = template.replace("{ServerIpPropVarName}", serverIpVarName);
+        template = template.replace("{prefix}", prefix);
+        template = template.replace("{localFilePathVarName}", localPathVarName);
+        template = template.replace("{remotePath}", remotePath);
+        template = template.replace("{planRequestName}", planRequestName);
+        return template;
     }
 
     /**
-     * Generates a DOM Node containing a BPEL Fragment that invokes an EC2 Linux
-     * Service with the transferFile operation
-     * 
-     * @param invokeName
-     *            the name of the invoke
-     * @param partnerLinkName
-     *            the name of the partnerLink
-     * @param portTypeprefix
-     *            the prefix of the portType
-     * @param inputVarName
-     *            the name of the input variable
-     * @param outputVarName
-     *            the name of the output variable
-     * @param operationName
-     *            the name of the operation
+     * Generates a DOM Node containing a BPEL Fragment that invokes an EC2 Linux Service with the
+     * transferFile operation
+     *
+     * @param invokeName the name of the invoke
+     * @param partnerLinkName the name of the partnerLink
+     * @param portTypeprefix the prefix of the portType
+     * @param inputVarName the name of the input variable
+     * @param outputVarName the name of the output variable
+     * @param operationName the name of the operation
      * @return a DOM Node containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
-     * @throws SAXException
-     *             is thrown when transforming internal data to DOM fails
+     * @throws IOException is thrown when reading internal files fails
+     * @throws SAXException is thrown when transforming internal data to DOM fails
      */
-    public Node getTransferFileInvokeAsNode(String invokeName, String partnerLinkName, String portTypeprefix,
-	    String inputVarName, String outputVarName, String operationName) throws SAXException, IOException {
-	String templateString = this.getTransferFileInvokeAsString(invokeName, partnerLinkName, portTypeprefix,
-		inputVarName, outputVarName, operationName);
-	InputSource is = new InputSource();
-	is.setCharacterStream(new StringReader(templateString));
-	Document doc = this.docBuilder.parse(is);
-	return doc.getFirstChild();
+    public Node getTransferFileInvokeAsNode(final String invokeName, final String partnerLinkName,
+                                            final String portTypeprefix, final String inputVarName,
+                                            final String outputVarName,
+                                            final String operationName) throws SAXException, IOException {
+        final String templateString = this.getTransferFileInvokeAsString(invokeName, partnerLinkName, portTypeprefix,
+                                                                         inputVarName, outputVarName, operationName);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**
-     * Generates a String containing a BPEL Fragment that invokes an EC2 Linux
-     * Service with the transferFile operation
-     * 
-     * @param invokeName
-     *            the name of the invoke
-     * @param partnerLinkName
-     *            the name of the partnerLink
-     * @param portTypeprefix
-     *            the prefix of the portType
-     * @param inputVarName
-     *            the name of the input variable
-     * @param outputVarName
-     *            the name of the output variable
-     * @param operationName
-     *            the name of the operation
+     * Generates a String containing a BPEL Fragment that invokes an EC2 Linux Service with the
+     * transferFile operation
+     *
+     * @param invokeName the name of the invoke
+     * @param partnerLinkName the name of the partnerLink
+     * @param portTypeprefix the prefix of the portType
+     * @param inputVarName the name of the input variable
+     * @param outputVarName the name of the output variable
+     * @param operationName the name of the operation
      * @return a String containing a complete BPEL Fragment
-     * @throws IOException
-     *             is thrown when reading internal files fails
+     * @throws IOException is thrown when reading internal files fails
      */
-    public String getTransferFileInvokeAsString(String invokeName, String partnerLinkName, String portTypeprefix,
-	    String inputVarName, String outputVarName, String operationName) throws IOException {
-	// <!-- {InvokeName} {partnerlinkName} {portTypePrefix} {inputVarName}
-	// {outputVarName}-->
-	URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
-		.getResource("invokeTransferFile.xml");
-	File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
-	String template = FileUtils.readFileToString(bpelFragmentFile);
-	template = template.replace("{InvokeName}", invokeName);
-	template = template.replace("{partnerlinkName}", partnerLinkName);
-	template = template.replace("{portTypePrefix}", portTypeprefix);
-	template = template.replace("{inputVarName}", inputVarName);
-	template = template.replace("{outputVarName}", outputVarName);
-	template = template.replace("{operation}", operationName);
-	return template;
+    public String getTransferFileInvokeAsString(final String invokeName, final String partnerLinkName,
+                                                final String portTypeprefix, final String inputVarName,
+                                                final String outputVarName,
+                                                final String operationName) throws IOException {
+        // <!-- {InvokeName} {partnerlinkName} {portTypePrefix} {inputVarName}
+        // {outputVarName}-->
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle()
+                                     .getResource("invokeTransferFile.xml");
+        final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelFragmentFile);
+        template = template.replace("{InvokeName}", invokeName);
+        template = template.replace("{partnerlinkName}", partnerLinkName);
+        template = template.replace("{portTypePrefix}", portTypeprefix);
+        template = template.replace("{inputVarName}", inputVarName);
+        template = template.replace("{outputVarName}", outputVarName);
+        template = template.replace("{operation}", operationName);
+        return template;
     }
 
 }

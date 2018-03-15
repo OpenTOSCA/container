@@ -17,33 +17,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Artifacts")
 public class Artifacts {
-	
-	@XmlTransient
-	public static final String NAMESPACE = "http://opentosca.org/planportability/rest";
 
-	@XmlElement(name = "deploymentArtifact")
-	@XmlElementWrapper(name = "deploymentArtifacts")
-	private List<DeploymentArtifact> deploymentArtifact;
+    @XmlTransient
+    public static final String NAMESPACE = "http://opentosca.org/planportability/rest";
 
-	@XmlElement(name = "implementationArtifact")
-	@XmlElementWrapper(name = "implementationtArtifacts")
-	private List<ImplementationArtifact> implementationArtifact;
-	
-	
-	public List<ImplementationArtifact> getImplementationArtifact() {
-		return this.implementationArtifact;
-	}
+    @XmlElement(name = "deploymentArtifact")
+    @XmlElementWrapper(name = "deploymentArtifacts")
+    private List<DeploymentArtifact> deploymentArtifact;
 
-	public void setImplementationArtifact(final List<ImplementationArtifact> implementationArtifact) {
-		this.implementationArtifact = implementationArtifact;
-	}
+    @XmlElement(name = "implementationArtifact")
+    @XmlElementWrapper(name = "implementationtArtifacts")
+    private List<ImplementationArtifact> implementationArtifact;
 
-	public List<DeploymentArtifact> getDeploymentArtifact() {
-		return this.deploymentArtifact;
-	}
 
-	public void setDeploymentArtifact(final List<DeploymentArtifact> deploymentArtifact) {
-		this.deploymentArtifact = deploymentArtifact;
-	}
+    public List<ImplementationArtifact> getImplementationArtifact() {
+        return this.implementationArtifact;
+    }
+
+    public void setImplementationArtifact(final List<ImplementationArtifact> implementationArtifact) {
+        this.implementationArtifact = implementationArtifact;
+    }
+
+    public List<DeploymentArtifact> getDeploymentArtifact() {
+        return this.deploymentArtifact;
+    }
+
+    public void setDeploymentArtifact(final List<DeploymentArtifact> deploymentArtifact) {
+        this.deploymentArtifact = deploymentArtifact;
+    }
 
 }

@@ -42,91 +42,85 @@ import com.eclipsesource.jaxrs.publisher.ApplicationConfiguration;
 
 public class Activator implements BundleActivator, ApplicationConfiguration {
 
-  private static Logger logger = LoggerFactory.getLogger(Activator.class);
+    private static Logger logger = LoggerFactory.getLogger(Activator.class);
 
-  private static BundleContext context;
+    private static BundleContext context;
 
-  private final List<ServiceRegistration<?>> services = new ArrayList<>();
+    private final List<ServiceRegistration<?>> services = new ArrayList<>();
 
 
-  static BundleContext getContext() {
-    return context;
-  }
-
-  @Override
-  public void start(final BundleContext bundleContext) throws Exception {
-    logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-        bundleContext.getBundle().getVersion());
-
-    context = bundleContext;
-
-    // Non-OSGi Endpoint Resources
-    this.services
-        .add(bundleContext.registerService(RootController.class, new RootController(), null));
-
-    // Jersey Configuration
-    this.configurator(bundleContext);
-
-    this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
-    this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
-    
-    
-    this.services.add(bundleContext.registerService(PlainTextMessageBodyWriter.class,
-        new PlainTextMessageBodyWriter(), null));
-    this.services.add(bundleContext.registerService(URI2XMLMessageBodyWriter.class,
-            new URI2XMLMessageBodyWriter(), null));    
-    this.services.add(bundleContext.registerService(ObjectMapperProvider.class,
-        new ObjectMapperProvider(), null));
-    this.services
-        .add(bundleContext.registerService(JacksonFeature.class, new JacksonFeature(), null));
-    this.services
-        .add(bundleContext.registerService(MultiPartFeature.class, new MultiPartFeature(), null));
-
-    // Custom JAXBContext provider to have proper error logging. Can be
-    // removed once the API is in a stable state.
-    this.services.add(
-        bundleContext.registerService(JAXBContextProvider.class, new JAXBContextProvider(), null));
-  }
-
-  @Override
-  public void stop(final BundleContext bundleContext) throws Exception {
-    logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
-        bundleContext.getBundle().getVersion());
-    this.services.forEach(service -> service.unregister());
-    context = null;
-  }
-
-  private void configurator(final BundleContext bundleContext) throws Exception {
-    final ServiceReference<?> configAdminRef =
-        bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
-
-    if (configAdminRef == null) {
-      logger.warn(
-          "Reference to <ConfigurationAdmin> service could not be found, did you activate the bundle?");
-      return;
+    static BundleContext getContext() {
+        return context;
     }
 
-    final ConfigurationAdmin configAdmin =
-        (ConfigurationAdmin) bundleContext.getService(configAdminRef);
-    final Configuration config =
-        configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null);
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
+        logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+                    bundleContext.getBundle().getVersion());
 
-    Dictionary<String, Object> properties = config.getProperties();
-    if (properties == null) {
-      properties = new Hashtable<>();
+        context = bundleContext;
+
+        // Non-OSGi Endpoint Resources
+        this.services.add(bundleContext.registerService(RootController.class, new RootController(), null));
+
+        // Jersey Configuration
+        this.configurator(bundleContext);
+
+        this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
+        this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
+
+        // this.services.add(bundleContext.registerService(LoggingFilter.class, new LoggingFilter(), null));
+        // this.services.add(bundleContext.registerService(LogFilter.class, new LogFilter(), null));
+
+        this.services.add(bundleContext.registerService(PlainTextMessageBodyWriter.class,
+                                                        new PlainTextMessageBodyWriter(), null));
+        this.services.add(bundleContext.registerService(URI2XMLMessageBodyWriter.class, new URI2XMLMessageBodyWriter(),
+                                                        null));
+        this.services.add(bundleContext.registerService(ObjectMapperProvider.class, new ObjectMapperProvider(), null));
+        this.services.add(bundleContext.registerService(JacksonFeature.class, new JacksonFeature(), null));
+        this.services.add(bundleContext.registerService(MultiPartFeature.class, new MultiPartFeature(), null));
+
+        // Custom JAXBContext provider to have proper error logging. Can be
+        // removed once the API is in a stable state.
+        this.services.add(bundleContext.registerService(JAXBContextProvider.class, new JAXBContextProvider(), null));
     }
 
-    properties.put("root", "/");
+    @Override
+    public void stop(final BundleContext bundleContext) throws Exception {
+        logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+                    bundleContext.getBundle().getVersion());
+        this.services.forEach(service -> service.unregister());
+        context = null;
+    }
 
-    config.update(properties);
-    //context.ungetService(configAdminRef);
-  }
+    private void configurator(final BundleContext bundleContext) throws Exception {
+        final ServiceReference<?> configAdminRef =
+            bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+
+        if (configAdminRef == null) {
+            logger.warn("Reference to <ConfigurationAdmin> service could not be found, did you activate the bundle?");
+            return;
+        }
+
+        final ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminRef);
+        final Configuration config = configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null);
+
+        Dictionary<String, Object> properties = config.getProperties();
+        if (properties == null) {
+            properties = new Hashtable<>();
+        }
+
+        properties.put("root", "/");
+
+        config.update(properties);
+        // context.ungetService(configAdminRef);
+    }
 
 
-  @Override
-  public Map<String, Object> getProperties() {
-    final Map<String, Object> properties = new HashMap<>();
-    properties.put(ServerProperties.WADL_FEATURE_DISABLE, true);
-    return properties;
-  }
+    @Override
+    public Map<String, Object> getProperties() {
+        final Map<String, Object> properties = new HashMap<>();
+        properties.put(ServerProperties.WADL_FEATURE_DISABLE, true);
+        return properties;
+    }
 }

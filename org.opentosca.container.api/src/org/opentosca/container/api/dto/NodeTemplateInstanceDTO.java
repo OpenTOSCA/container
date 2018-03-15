@@ -18,102 +18,102 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NodeTemplateInstanceDTO extends ResourceSupport {
-	@XmlAttribute(name = "id")
-	private Long id;
-	
-	@XmlElement(name = "NodeTemplateId")
-	private String nodeTemplateId;
-	
-	@XmlElement(name = "NodeTemplateType")
-	private String nodeTemplateType;
+    @XmlAttribute(name = "id")
+    private Long id;
 
-	@XmlElement(name = "State")
-	private NodeTemplateInstanceState state;
-	
-	@XmlElement(name = "CreatedAt")
-	private Date createdAt;
-	
-	@XmlElement(name = "CsarId")
-	private String csarId;
-	
-	@XmlElement(name = "ServiceTemplateId")
-	private String serviceTemplateId;
-	
-	
-	public Long getId() {
-		return this.id;
-	}
+    @XmlElement(name = "NodeTemplateId")
+    private String nodeTemplateId;
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
+    @XmlElement(name = "NodeTemplateType")
+    private String nodeTemplateType;
 
-	
-	public Date getCreatedAt() {
-		return this.createdAt;
-	}
+    @XmlElement(name = "State")
+    private NodeTemplateInstanceState state;
 
-	public void setCreatedAt(final Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    @XmlElement(name = "CreatedAt")
+    private Date createdAt;
 
-	
-	public String getCsarId() {
-		return this.csarId;
-	}
+    @XmlElement(name = "CsarId")
+    private String csarId;
 
-	public void setCsarId(final String csarId) {
-		this.csarId = csarId;
-	}
+    @XmlElement(name = "ServiceTemplateId")
+    private String serviceTemplateId;
 
-	
-	public String getServiceTemplateId() {
-		return this.serviceTemplateId;
-	}
 
-	public void setServiceTemplateId(final String serviceTemplateId) {
-		this.serviceTemplateId = serviceTemplateId;
-	}
+    public Long getId() {
+        return this.id;
+    }
 
-	public NodeTemplateInstanceState getState() {
-		return this.state;
-	}
-	
-	public void setState(final NodeTemplateInstanceState state) {
-		this.state = state;
-	}
-	
-	public String getNodeTemplateId() {
-		return nodeTemplateId;
-	}
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
-	public void setNodeTemplateId(String nodeTemplateId) {
-		this.nodeTemplateId = nodeTemplateId;
-	}
 
-	public String getNodeTemplateType() {
-		return nodeTemplateType;
-	}
+    public Date getCreatedAt() {
+        return this.createdAt;
+    }
 
-	public void setNodeTemplateType(String nodeTemplateType) {
-		this.nodeTemplateType = nodeTemplateType;
-	}
-	
-	public static final class Converter {
+    public void setCreatedAt(final Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-		public static NodeTemplateInstanceDTO convert(final NodeTemplateInstance object) {
-			final NodeTemplateInstanceDTO dto = new NodeTemplateInstanceDTO();
 
-			dto.setId(object.getId());
-			dto.setNodeTemplateId(object.getTemplateId().getLocalPart());
-			dto.setNodeTemplateType(object.getTemplateType().toString());
-			dto.setCreatedAt(object.getCreatedAt());
-			dto.setState(object.getState());
-			dto.setServiceTemplateId(object.getServiceTemplateInstance().getTemplateId().toString());
-			dto.setCsarId(object.getServiceTemplateInstance().getCsarId().toString());
-			
-			
-			return dto;
-		}
-	}
+    public String getCsarId() {
+        return this.csarId;
+    }
+
+    public void setCsarId(final String csarId) {
+        this.csarId = csarId;
+    }
+
+
+    public String getServiceTemplateId() {
+        return this.serviceTemplateId;
+    }
+
+    public void setServiceTemplateId(final String serviceTemplateId) {
+        this.serviceTemplateId = serviceTemplateId;
+    }
+
+    public NodeTemplateInstanceState getState() {
+        return this.state;
+    }
+
+    public void setState(final NodeTemplateInstanceState state) {
+        this.state = state;
+    }
+
+    public String getNodeTemplateId() {
+        return this.nodeTemplateId;
+    }
+
+    public void setNodeTemplateId(final String nodeTemplateId) {
+        this.nodeTemplateId = nodeTemplateId;
+    }
+
+    public String getNodeTemplateType() {
+        return this.nodeTemplateType;
+    }
+
+    public void setNodeTemplateType(final String nodeTemplateType) {
+        this.nodeTemplateType = nodeTemplateType;
+    }
+
+    public static final class Converter {
+
+        public static NodeTemplateInstanceDTO convert(final NodeTemplateInstance object) {
+            final NodeTemplateInstanceDTO dto = new NodeTemplateInstanceDTO();
+
+            dto.setId(object.getId());
+            dto.setNodeTemplateId(object.getTemplateId().getLocalPart());
+            dto.setNodeTemplateType(object.getTemplateType().toString());
+            dto.setCreatedAt(object.getCreatedAt());
+            dto.setState(object.getState());
+            dto.setServiceTemplateId(object.getServiceTemplateInstance().getTemplateId().toString());
+            dto.setCsarId(object.getServiceTemplateInstance().getCsarId().toString());
+
+
+            return dto;
+        }
+    }
 }

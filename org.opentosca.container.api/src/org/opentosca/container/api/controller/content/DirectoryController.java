@@ -25,51 +25,51 @@ import io.swagger.annotations.ApiOperation;
 
 public class DirectoryController {
 
-  private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
+    private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
 
-  private final AbstractDirectory directory;
+    private final AbstractDirectory directory;
 
 
-  public DirectoryController(final AbstractDirectory directory) {
-    Objects.nonNull(directory);
-    this.directory = directory;
-    logger.info("Directory path: {}", directory.getPath());
-  }
-
-  @GET
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  @ApiOperation(value = "Gets links", response = ResourceSupport.class)
-  public Response getLinks(@Context final UriInfo uriInfo) {
-    ResourceSupport dto = new ResourceSupport();
-    for (final AbstractDirectory directory : this.directory.getDirectories()) {
-      URI uri = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(directory.getName()).build());
-      dto.add(Link.fromUri(uri).rel(directory.getName()).build());
+    public DirectoryController(final AbstractDirectory directory) {
+        Objects.nonNull(directory);
+        this.directory = directory;
+        logger.info("Directory path: {}", directory.getPath());
     }
-    for (final AbstractFile file : this.directory.getFiles()) {
-      URI uri = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(file.getName()).build());
-      dto.add(Link.fromUri(uri).rel(file.getName()).build());
-    }
-    dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePath())).rel("self").build());
-    return Response.ok(dto).build();
-  }
 
-  @Path("/{path}")
-  public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
-    path = UriUtil.encodePathSegment(path);
-    logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());
-    for (final AbstractDirectory directory : this.directory.getDirectories()) {
-      if (directory.getName().equals(path)) {
-        logger.debug("Path '{}' is a directory...", path);
-        return new DirectoryController(directory);
-      }
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @ApiOperation(value = "Gets links", response = ResourceSupport.class)
+    public Response getLinks(@Context final UriInfo uriInfo) {
+        final ResourceSupport dto = new ResourceSupport();
+        for (final AbstractDirectory directory : this.directory.getDirectories()) {
+            final URI uri = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(directory.getName()).build());
+            dto.add(Link.fromUri(uri).rel(directory.getName()).build());
+        }
+        for (final AbstractFile file : this.directory.getFiles()) {
+            final URI uri = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(file.getName()).build());
+            dto.add(Link.fromUri(uri).rel(file.getName()).build());
+        }
+        dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePath())).rel("self").build());
+        return Response.ok(dto).build();
     }
-    for (final AbstractFile file : this.directory.getFiles()) {
-      if (file.getName().equals(path)) {
-        logger.debug("Path '{}' is a file...", path);
-        return new FileController(file);
-      }
+
+    @Path("/{path}")
+    public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
+        path = UriUtil.encodePathSegment(path);
+        logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());
+        for (final AbstractDirectory directory : this.directory.getDirectories()) {
+            if (directory.getName().equals(path)) {
+                logger.debug("Path '{}' is a directory...", path);
+                return new DirectoryController(directory);
+            }
+        }
+        for (final AbstractFile file : this.directory.getFiles()) {
+            if (file.getName().equals(path)) {
+                logger.debug("Path '{}' is a file...", path);
+                return new FileController(file);
+            }
+        }
+        logger.warn("Path '{}' does not exist in directory '{}'", path, this.directory.getPath());
+        return Response.status(Status.NOT_FOUND).build();
     }
-    logger.warn("Path '{}' does not exist in directory '{}'", path, directory.getPath());
-    return Response.status(Status.NOT_FOUND).build();
-  }
 }

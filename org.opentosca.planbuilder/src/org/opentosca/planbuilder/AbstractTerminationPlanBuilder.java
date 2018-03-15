@@ -23,47 +23,47 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public abstract class AbstractTerminationPlanBuilder extends AbstractPlanBuilder {
 
-	protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
-			AbstractServiceTemplate serviceTemplate) {
+    protected AbstractPlan generateTOG(final String id, final AbstractDefinitions definitions,
+                                       final AbstractServiceTemplate serviceTemplate) {
 
-		Collection<AbstractActivity> activities = new ArrayList<AbstractActivity>();
-		Set<Link> links = new HashSet<Link>();
+        final Collection<AbstractActivity> activities = new ArrayList<>();
+        final Set<Link> links = new HashSet<>();
 
-		Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<AbstractNodeTemplate, AbstractActivity>();
+        final Map<AbstractNodeTemplate, AbstractActivity> mapping =
+            new HashMap<>();
 
-		AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+        final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
-		for (AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-			ANodeTemplateActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_termination_activity",
-					"TERMINATION", nodeTemplate);
-			activities.add(activity);
-			mapping.put(nodeTemplate, activity);
-		}
+        for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
+            final ANodeTemplateActivity activity =
+                new ANodeTemplateActivity(nodeTemplate.getId() + "_termination_activity", "TERMINATION", nodeTemplate);
+            activities.add(activity);
+            mapping.put(nodeTemplate, activity);
+        }
 
-		for (AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
-			ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
-					relationshipTemplate.getId() + "_termination_activity", "TERMINATION", relationshipTemplate);
-			activities.add(activity);
+        for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
+            final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
+                relationshipTemplate.getId() + "_termination_activity", "TERMINATION", relationshipTemplate);
+            activities.add(activity);
 
-			QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
+            final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);
 
-			if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
-				links.add(new Link(activity, mapping.get(relationshipTemplate.getSource())));
-				links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-			} else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-					| baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
-					| baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
-				links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
-				links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
-			}
+            if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getSource())));
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+            } else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
+                | baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
+                | baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
+                links.add(new Link(mapping.get(relationshipTemplate.getSource()), activity));
+                links.add(new Link(activity, mapping.get(relationshipTemplate.getTarget())));
+            }
 
-		}
+        }
 
-		AbstractPlan abstractTerminationPlan = new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions,
-				serviceTemplate, activities, links) {
-		};
+        final AbstractPlan abstractTerminationPlan =
+            new AbstractPlan(id, AbstractPlan.PlanType.TERMINATE, definitions, serviceTemplate, activities, links) {};
 
-		return abstractTerminationPlan;
-	}
+        return abstractTerminationPlan;
+    }
 
 }

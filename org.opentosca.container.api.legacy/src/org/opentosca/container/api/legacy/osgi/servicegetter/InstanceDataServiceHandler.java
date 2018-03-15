@@ -15,23 +15,23 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceDataServiceHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(InstanceDataServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(InstanceDataServiceHandler.class);
 
-	private static IInstanceDataService instanceDataService;
-	
-	
-	public static IInstanceDataService getInstanceDataService() {
-		return InstanceDataServiceHandler.instanceDataService;
-	}
+    private static IInstanceDataService instanceDataService;
 
-	public void bindInstanceDataService(final IInstanceDataService instanceDataService) {
-		InstanceDataServiceHandler.LOG.debug("ContainerApi: Bind IInstanceDataService");
-		InstanceDataServiceHandler.instanceDataService = instanceDataService;
-	}
 
-	public void unbindInstanceDataService(final IInstanceDataService credentialsService) {
-		InstanceDataServiceHandler.LOG.debug("ContainerApi: Unbind IInstanceDataService");
-		InstanceDataServiceHandler.instanceDataService = null;
-	}
+    public static IInstanceDataService getInstanceDataService() {
+        return InstanceDataServiceHandler.instanceDataService;
+    }
+
+    public void bindInstanceDataService(final IInstanceDataService instanceDataService) {
+        InstanceDataServiceHandler.LOG.debug("ContainerApi: Bind IInstanceDataService");
+        InstanceDataServiceHandler.instanceDataService = instanceDataService;
+    }
+
+    public void unbindInstanceDataService(final IInstanceDataService credentialsService) {
+        InstanceDataServiceHandler.LOG.debug("ContainerApi: Unbind IInstanceDataService");
+        InstanceDataServiceHandler.instanceDataService = null;
+    }
 
 }

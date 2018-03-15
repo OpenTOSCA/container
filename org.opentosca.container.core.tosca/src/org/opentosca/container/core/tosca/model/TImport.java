@@ -20,11 +20,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tImport complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tImport">
  *   &lt;complexContent>
@@ -37,81 +36,81 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tImport")
 public class TImport extends TExtensibleElements {
-	
-	@XmlAttribute(name = "namespace")
-	@XmlSchemaType(name = "anyURI")
-	protected String namespace;
-	@XmlAttribute(name = "location")
-	@XmlSchemaType(name = "anyURI")
-	protected String location;
-	@XmlAttribute(name = "importType", required = true)
-	protected String importType;
-	
-	
-	/**
-	 * Gets the value of the namespace property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getNamespace() {
-		return this.namespace;
-	}
-	
-	/**
-	 * Sets the value of the namespace property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setNamespace(String value) {
-		this.namespace = value;
-	}
-	
-	/**
-	 * Gets the value of the location property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getLocation() {
-		return this.location;
-	}
-	
-	/**
-	 * Sets the value of the location property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setLocation(String value) {
-		this.location = value;
-	}
-	
-	/**
-	 * Gets the value of the importType property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getImportType() {
-		return this.importType;
-	}
-	
-	/**
-	 * Sets the value of the importType property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setImportType(String value) {
-		this.importType = value;
-	}
-	
+
+    @XmlAttribute(name = "namespace")
+    @XmlSchemaType(name = "anyURI")
+    protected String namespace;
+    @XmlAttribute(name = "location")
+    @XmlSchemaType(name = "anyURI")
+    protected String location;
+    @XmlAttribute(name = "importType", required = true)
+    protected String importType;
+
+
+    /**
+     * Gets the value of the namespace property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getNamespace() {
+        return this.namespace;
+    }
+
+    /**
+     * Sets the value of the namespace property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setNamespace(final String value) {
+        this.namespace = value;
+    }
+
+    /**
+     * Gets the value of the location property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getLocation() {
+        return this.location;
+    }
+
+    /**
+     * Sets the value of the location property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setLocation(final String value) {
+        this.location = value;
+    }
+
+    /**
+     * Gets the value of the importType property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getImportType() {
+        return this.importType;
+    }
+
+    /**
+     * Sets the value of the importType property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setImportType(final String value) {
+        this.importType = value;
+    }
+
 }

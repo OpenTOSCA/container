@@ -16,44 +16,44 @@ import org.slf4j.LoggerFactory;
 /**
  * Activator of the Management Bus REST-API.<br>
  * <br>
- * 
+ *
  * The activator is needed to add and start the camel routes.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@iaas.uni-stuttgart.de
- * 
+ *
  */
 public class Activator implements BundleActivator {
 
-	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-	public static String apiID;
+    public static String apiID;
 
-	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
 
-		Activator.apiID = bundleContext.getBundle().getSymbolicName();
+        Activator.apiID = bundleContext.getBundle().getSymbolicName();
 
-		OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
+        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
 
-		DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
 
-		camelContext.addRoutes(new InvocationRoute());
-		camelContext.addRoutes(new GetResultRoute());
-		camelContext.addRoutes(new IsFinishedRoute());
-		camelContext.addRoutes(new DeleteRoute());
-		camelContext.addRoutes(new OptionsRoute());
+        camelContext.addRoutes(new InvocationRoute());
+        camelContext.addRoutes(new GetResultRoute());
+        camelContext.addRoutes(new IsFinishedRoute());
+        camelContext.addRoutes(new DeleteRoute());
+        camelContext.addRoutes(new OptionsRoute());
 
-		camelContext.start();
+        camelContext.start();
 
-		Activator.LOG.info("Management Bus REST API started!");
-	}
+        Activator.LOG.info("Management Bus REST API started!");
+    }
 
-	@Override
-	public void stop(BundleContext arg0) throws Exception {
+    @Override
+    public void stop(final BundleContext arg0) throws Exception {
 
-		Activator.LOG.info("Management Bus REST API stopped!");
-	}
+        Activator.LOG.info("Management Bus REST API stopped!");
+    }
 
 }

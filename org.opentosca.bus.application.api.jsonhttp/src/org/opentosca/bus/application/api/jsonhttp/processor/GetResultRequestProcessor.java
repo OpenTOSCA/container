@@ -11,32 +11,32 @@ import org.slf4j.LoggerFactory;
 /**
  * GetResultRequestProcessor of the Application Bus-JSON/HTTP-API.<br>
  * <br>
- * 
+ *
  * This processor handles "getResult" requests.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class GetResultRequestProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(GetResultRequestProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(GetResultRequestProcessor.class);
 
-	@Override
-	public void process(Exchange exchange) throws Exception {
+    @Override
+    public void process(final Exchange exchange) throws Exception {
 
-		GetResultRequestProcessor.LOG.debug("Processing GetResult request....");
+        GetResultRequestProcessor.LOG.debug("Processing GetResult request....");
 
-		Integer requestID = exchange.getIn().getHeader(Route.ID, Integer.class);
+        final Integer requestID = exchange.getIn().getHeader(Route.ID, Integer.class);
 
-		GetResultRequestProcessor.LOG.debug("RequestID: {}", requestID);
+        GetResultRequestProcessor.LOG.debug("RequestID: {}", requestID);
 
-		exchange.getIn().setBody(requestID);
+        exchange.getIn().setBody(requestID);
 
-		exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
-				ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
+        exchange.getIn().setHeader(ApplicationBusConstants.APPLICATION_BUS_METHOD.toString(),
+                                   ApplicationBusConstants.APPLICATION_BUS_METHOD_GET_RESULT.toString());
 
-	}
+    }
 
 }

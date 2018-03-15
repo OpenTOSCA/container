@@ -34,117 +34,136 @@ import org.opentosca.container.core.service.IInstanceDataService;
  *
  */
 public class NodeTemplateInstanceListResource {
-	
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response doGetXML(@Context final UriInfo uriInfo, @QueryParam("nodeInstanceID") final String nodeInstanceID, @QueryParam("nodeTemplateID") final String nodeTemplateID, @QueryParam("serviceInstanceID") final String serviceInstanceID, @QueryParam("nodeTemplateName") final String nodeTemplateName) {
 
-		final NodeInstanceList idr = this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response doGetXML(@Context final UriInfo uriInfo, @QueryParam("nodeInstanceID") final String nodeInstanceID,
+                             @QueryParam("nodeTemplateID") final String nodeTemplateID,
+                             @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                             @QueryParam("nodeTemplateName") final String nodeTemplateName) {
 
-		return Response.ok(idr).build();
-	}
+        final NodeInstanceList idr =
+            this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON(@Context final UriInfo uriInfo, @QueryParam("nodeInstanceID") final String nodeInstanceID, @QueryParam("nodeTemplateID") final String nodeTemplateID, @QueryParam("serviceInstanceID") final String serviceInstanceID, @QueryParam("nodeTemplateName") final String nodeTemplateName) {
+        return Response.ok(idr).build();
+    }
 
-		final NodeInstanceList idr = this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response doGetJSON(@Context final UriInfo uriInfo, @QueryParam("nodeInstanceID") final String nodeInstanceID,
+                              @QueryParam("nodeTemplateID") final String nodeTemplateID,
+                              @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                              @QueryParam("nodeTemplateName") final String nodeTemplateName) {
 
-		return Response.ok(idr.toJSON()).build();
-	}
+        final NodeInstanceList idr =
+            this.getRefs(uriInfo, nodeInstanceID, nodeTemplateID, serviceInstanceID, nodeTemplateName);
 
-	public NodeInstanceList getRefs(final UriInfo uriInfo, final String nodeInstanceID, final String nodeTemplateID, final String serviceInstanceID, final String nodeTemplateName) {
+        return Response.ok(idr.toJSON()).build();
+    }
 
-		// these parameters are not required and cant therefore be generally
-		// checked against null
+    public NodeInstanceList getRefs(final UriInfo uriInfo, final String nodeInstanceID, final String nodeTemplateID,
+                                    final String serviceInstanceID, final String nodeTemplateName) {
 
-		URI nodeInstanceIdURI = null;
-		URI serviceInstanceIdURI = null;
-		QName nodeTemplateIDQName = null;
-		try {
-			if (nodeInstanceID != null) {
-				nodeInstanceIdURI = new URI(nodeInstanceID);
-				if (!IdConverter.isValidNodeInstanceID(nodeInstanceIdURI)) {
-					throw new Exception("Error converting nodeInstanceID: invalid format!");
-				}
-			}
+        // these parameters are not required and cant therefore be generally
+        // checked against null
 
-			if (serviceInstanceID != null) {
-				serviceInstanceIdURI = new URI(serviceInstanceID);
-				if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-					throw new Exception("Error converting serviceInstanceID: invalid format!");
-				}
-			}
+        URI nodeInstanceIdURI = null;
+        URI serviceInstanceIdURI = null;
+        QName nodeTemplateIDQName = null;
+        try {
+            if (nodeInstanceID != null) {
+                nodeInstanceIdURI = new URI(nodeInstanceID);
+                if (!IdConverter.isValidNodeInstanceID(nodeInstanceIdURI)) {
+                    throw new Exception("Error converting nodeInstanceID: invalid format!");
+                }
+            }
 
-			if (nodeTemplateID != null) {
-				nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
-			}
-		} catch (final Exception e1) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due to bad variable content: " + e1.getMessage());
-		}
+            if (serviceInstanceID != null) {
+                serviceInstanceIdURI = new URI(serviceInstanceID);
+                if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
+                    throw new Exception("Error converting serviceInstanceID: invalid format!");
+                }
+            }
 
-		try {
-			final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-			final List<NodeInstance> result = service.getNodeInstances(nodeInstanceIdURI, nodeTemplateIDQName, nodeTemplateName, serviceInstanceIdURI);
-			final List<SimpleXLink> links = new LinkedList<>();
+            if (nodeTemplateID != null) {
+                nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
+            }
+        }
+        catch (final Exception e1) {
+            throw new GenericRestException(Status.BAD_REQUEST,
+                "Bad Request due to bad variable content: " + e1.getMessage());
+        }
 
-			// add links to nodeInstances
-			for (final NodeInstance nodeInstance : result) {
-				final URI uriToNodeInstance = LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId());
-				// build simpleXLink with the internalID as LinkText
-				// TODO: is the id the correct linkText?
-				links.add(new SimpleXLink(uriToNodeInstance, nodeInstance.getId() + ""));
-			}
+        try {
+            final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+            final List<NodeInstance> result = service.getNodeInstances(nodeInstanceIdURI, nodeTemplateIDQName,
+                                                                       nodeTemplateName, serviceInstanceIdURI);
+            final List<SimpleXLink> links = new LinkedList<>();
 
-			final NodeInstanceList nil = new NodeInstanceList(LinkBuilder.selfLink(uriInfo), links);
+            // add links to nodeInstances
+            for (final NodeInstance nodeInstance : result) {
+                final URI uriToNodeInstance = LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId());
+                // build simpleXLink with the internalID as LinkText
+                // TODO: is the id the correct linkText?
+                links.add(new SimpleXLink(uriToNodeInstance, nodeInstance.getId() + ""));
+            }
 
-			return nil;
-		} catch (final Exception e) {
-			throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, "Internal Server Error: " + e.getMessage());
-		}
-	}
+            final NodeInstanceList nil = new NodeInstanceList(LinkBuilder.selfLink(uriInfo), links);
 
-	@POST
-	@Produces(MediaType.APPLICATION_XML)
-	public Response createNodeInstance(@QueryParam("nodeTemplateID") final String nodeTemplateID, @QueryParam("serviceInstanceID") final String serviceInstanceID, @Context final UriInfo uriInfo) {
+            return nil;
+        }
+        catch (final Exception e) {
+            throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, "Internal Server Error: " + e.getMessage());
+        }
+    }
 
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+    @POST
+    @Produces(MediaType.APPLICATION_XML)
+    public Response createNodeInstance(@QueryParam("nodeTemplateID") final String nodeTemplateID,
+                                       @QueryParam("serviceInstanceID") final String serviceInstanceID,
+                                       @Context final UriInfo uriInfo) {
 
-		if (Utilities.areEmpty(nodeTemplateID, serviceInstanceID)) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Missing one of the required parameters: nodeTemplateID, serviceInstanceID");
-		}
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
-		URI serviceInstanceIdURI = null;
-		QName nodeTemplateIDQName = null;
-		try {
-			serviceInstanceIdURI = new URI(serviceInstanceID);
-			if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-				throw new Exception("Error converting serviceInstanceID: invalid format!");
-			}
-			nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
+        if (Utilities.areEmpty(nodeTemplateID, serviceInstanceID)) {
+            throw new GenericRestException(Status.BAD_REQUEST,
+                "Missing one of the required parameters: nodeTemplateID, serviceInstanceID");
+        }
 
-		} catch (final Exception e1) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
-		}
+        URI serviceInstanceIdURI = null;
+        QName nodeTemplateIDQName = null;
+        try {
+            serviceInstanceIdURI = new URI(serviceInstanceID);
+            if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
+                throw new Exception("Error converting serviceInstanceID: invalid format!");
+            }
+            nodeTemplateIDQName = QName.valueOf(nodeTemplateID);
 
-		try {
-			final NodeInstance nodeInstance = service.createNodeInstance(nodeTemplateIDQName, serviceInstanceIdURI);
-			final SimpleXLink response = new SimpleXLink(LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId()), nodeInstance.getNodeInstanceID().toString());
-			return Response.ok(response).build();
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
-		}
-	}
+        }
+        catch (final Exception e1) {
+            throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter: " + e1.getMessage());
+        }
 
-	// @Path("/{" + Constants.NodeInstanceListResource_getNodeInstance_PARAM +
-	// "}")
-	// public Object
-	// getNodeInstance(@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM)
-	// int id, @Context UriInfo uriInfo) {
-	// IInstanceDataService service =
-	// InstanceDataServiceHandler.getInstanceDataService();
-	// ExistenceChecker.checkNodeInstanceWithException(id, service);
-	// return new NodeTemplateInstanceResource(id);
-	// }
+        try {
+            final NodeInstance nodeInstance = service.createNodeInstance(nodeTemplateIDQName, serviceInstanceIdURI);
+            final SimpleXLink response = new SimpleXLink(LinkBuilder.linkToNodeInstance(uriInfo, nodeInstance.getId()),
+                nodeInstance.getNodeInstanceID().toString());
+            return Response.ok(response).build();
+        }
+        catch (final ReferenceNotFoundException e) {
+            throw new GenericRestException(Status.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    // @Path("/{" + Constants.NodeInstanceListResource_getNodeInstance_PARAM +
+    // "}")
+    // public Object
+    // getNodeInstance(@PathParam(Constants.NodeInstanceListResource_getNodeInstance_PARAM)
+    // int id, @Context UriInfo uriInfo) {
+    // IInstanceDataService service =
+    // InstanceDataServiceHandler.getInstanceDataService();
+    // ExistenceChecker.checkNodeInstanceWithException(id, service);
+    // return new NodeTemplateInstanceResource(id);
+    // }
 
 }

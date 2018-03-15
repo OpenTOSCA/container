@@ -14,27 +14,27 @@ import com.google.common.collect.Lists;
 @XmlRootElement(name = "Properties")
 public class PropertiesDTO extends ResourceSupport {
 
-	private String xmlFragment;
-	
-	private List<TPropertyMapping> propertyMappings = Lists.newArrayList();
+    private String xmlFragment;
+
+    private List<TPropertyMapping> propertyMappings = Lists.newArrayList();
 
 
-	@XmlElement(name = "XmlFragment")
-	public String getXmlFragment() {
-		return this.xmlFragment;
-	}
-	
-	public void setXmlFragment(final String xmlFragment) {
-		this.xmlFragment = xmlFragment;
-	}
-	
-	@XmlElement(name = "PropertyMapping")
-	@XmlElementWrapper(name = "PropertyMappings")
-	public List<TPropertyMapping> getPropertyMappings() {
-		return this.propertyMappings;
-	}
-	
-	public void setPropertyMappings(final List<TPropertyMapping> propertyMappings) {
-		this.propertyMappings = propertyMappings;
-	}
+    @XmlElement(name = "XmlFragment")
+    public String getXmlFragment() {
+        return this.xmlFragment;
+    }
+
+    public void setXmlFragment(final String xmlFragment) {
+        this.xmlFragment = xmlFragment;
+    }
+
+    @XmlElement(name = "PropertyMapping")
+    @XmlElementWrapper(name = "PropertyMappings")
+    public List<TPropertyMapping> getPropertyMappings() {
+        return this.propertyMappings;
+    }
+
+    public void setPropertyMappings(final List<TPropertyMapping> propertyMappings) {
+        this.propertyMappings = propertyMappings;
+    }
 }

@@ -8,13 +8,13 @@ import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
 public class ArtifactSchemaOutputResolver extends SchemaOutputResolver {
-	
-	@Override
-	public Result createOutput(final String namespaceUri, final String suggestedFileName) throws IOException {
-		final File file = new File(suggestedFileName);
-		final StreamResult result = new StreamResult(file);
-		result.setSystemId(file.toURI().toURL().toString());
-		return result;
-	}
-	
+
+    @Override
+    public Result createOutput(final String namespaceUri, final String suggestedFileName) throws IOException {
+        final File file = new File(suggestedFileName);
+        final StreamResult result = new StreamResult(file);
+        result.setSystemId(file.toURI().toURL().toString());
+        return result;
+    }
+
 }

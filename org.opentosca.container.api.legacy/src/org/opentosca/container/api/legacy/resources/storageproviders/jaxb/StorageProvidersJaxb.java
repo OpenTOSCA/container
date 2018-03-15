@@ -16,32 +16,32 @@ import org.opentosca.container.api.legacy.resources.storageproviders.AvailableSt
  * <br />
  * Copyright 2013 IAAS University of Stuttgart<br />
  * <br />
- * 
+ *
  * @author Rene Trefft - rene.trefft@developers.opentosca.org
- * 
+ *
  */
 @XmlRootElement(name = "StorageProviders")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StorageProvidersJaxb {
-	
-	@XmlElement(name = "StorageProvider")
-	private Set<StorageProviderJaxb> storageProviders;
-	
-	
-	/**
-	 * @return Storage providers.
-	 */
-	public Set<StorageProviderJaxb> getStorageProviders() {
-		return this.storageProviders;
-	}
-	
-	/**
-	 * Sets the storage providers.
-	 * 
-	 * @param storageProviders to set.
-	 */
-	public void setStorageProvider(Set<StorageProviderJaxb> storageProviders) {
-		this.storageProviders = storageProviders;
-	}
-	
+
+    @XmlElement(name = "StorageProvider")
+    private Set<StorageProviderJaxb> storageProviders;
+
+
+    /**
+     * @return Storage providers.
+     */
+    public Set<StorageProviderJaxb> getStorageProviders() {
+        return this.storageProviders;
+    }
+
+    /**
+     * Sets the storage providers.
+     *
+     * @param storageProviders to set.
+     */
+    public void setStorageProvider(final Set<StorageProviderJaxb> storageProviders) {
+        this.storageProviders = storageProviders;
+    }
+
 }

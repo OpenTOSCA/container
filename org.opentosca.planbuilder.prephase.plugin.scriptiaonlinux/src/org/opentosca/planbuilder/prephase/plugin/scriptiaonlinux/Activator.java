@@ -26,33 +26,33 @@ public class Activator implements BundleActivator {
 
     /**
      * Returns the BundleContext of this Bundle
-     * 
+     *
      * @return a BundleContext
      */
     static BundleContext getContext() {
-	return Activator.context;
+        return Activator.context;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
-	Activator.context = bundleContext;
-	this.iaRegistration = Activator.context.registerService(IPlanBuilderPrePhaseIAPlugin.class.getName(),
-		Activator.plugin, null);
-	this.daRegistration = Activator.context.registerService(IPlanBuilderPrePhaseDAPlugin.class.getName(),
-		Activator.plugin, null);
+    public void start(final BundleContext bundleContext) throws Exception {
+        Activator.context = bundleContext;
+        this.iaRegistration =
+            Activator.context.registerService(IPlanBuilderPrePhaseIAPlugin.class.getName(), Activator.plugin, null);
+        this.daRegistration =
+            Activator.context.registerService(IPlanBuilderPrePhaseDAPlugin.class.getName(), Activator.plugin, null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	this.iaRegistration.unregister();
-	this.daRegistration.unregister();
-	Activator.context = null;
+    public void stop(final BundleContext bundleContext) throws Exception {
+        this.iaRegistration.unregister();
+        this.daRegistration.unregister();
+        Activator.context = null;
 
     }
 

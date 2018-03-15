@@ -31,47 +31,43 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 
-  private final static String ENDPOINT =
-      "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8084/appBus";
-  private final static QName PORT =
-      new QName("http://opentosca.org/appinvoker/", "AppInvokerSoapWebServicePort");
+    private final static String ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8084/appBus";
+    private final static QName PORT = new QName("http://opentosca.org/appinvoker/", "AppInvokerSoapWebServicePort");
 
 
-  @Override
-  public void configure() throws Exception {
+    @Override
+    public void configure() throws Exception {
 
-    final URL wsdlURL = this.getClass().getClassLoader().getResource("META-INF/wsdl/SoapAPI.wsdl");
+        final URL wsdlURL = this.getClass().getClassLoader().getResource("META-INF/wsdl/SoapAPI.wsdl");
 
-    // CXF Endpoint
-    final String SOAP_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
-        + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName="
-        + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
+        // CXF Endpoint
+        final String SOAP_ENDPOINT = "cxf:" + ENDPOINT + "?wsdlURL=" + wsdlURL.toString()
+            + "&serviceName={http://opentosca.org/appinvoker/}AppInvokerSoapWebServiceService&portName="
+            + Route.PORT.toString() + "&dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
-    final ValueBuilder APP_BUS_ENDPOINT = new ValueBuilder(
-        this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
-    final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
+        final ValueBuilder APP_BUS_ENDPOINT =
+            new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+        final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
-    final ClassLoader cl =
-        org.opentosca.bus.application.api.soaphttp.model.ObjectFactory.class.getClassLoader();
-    final JAXBContext jc =
-        JAXBContext.newInstance("org.opentosca.bus.application.api.soaphttp.model", cl);
-    final JaxbDataFormat jaxb = new JaxbDataFormat(jc);
+        final ClassLoader cl = org.opentosca.bus.application.api.soaphttp.model.ObjectFactory.class.getClassLoader();
+        final JAXBContext jc = JAXBContext.newInstance("org.opentosca.bus.application.api.soaphttp.model", cl);
+        final JaxbDataFormat jaxb = new JaxbDataFormat(jc);
 
-    final Processor requestProcessor = new RequestProcessor();
-    final Processor responseProcessor = new ResponseProcessor();
+        final Processor requestProcessor = new RequestProcessor();
+        final Processor responseProcessor = new ResponseProcessor();
 
-    this.from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor).choice()
-        .when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT).to("direct:handleResponse")
-        .endChoice().otherwise().to("direct:handleException");
+        this.from(SOAP_ENDPOINT).unmarshal(jaxb).process(requestProcessor).choice().when(APP_BUS_ENDPOINT_EXISTS)
+            .recipientList(APP_BUS_ENDPOINT).to("direct:handleResponse").endChoice().otherwise()
+            .to("direct:handleException");
 
-    // handle exception if Application Bus is not running or wasn't binded
-    this.from("direct:handleException").throwException(
-        new ApplicationBusInternalException("It seems like the Application Bus is not running."))
-        .to("direct:handleResponse");
+        // handle exception if Application Bus is not running or wasn't binded
+        this.from("direct:handleException")
+            .throwException(new ApplicationBusInternalException("It seems like the Application Bus is not running."))
+            .to("direct:handleResponse");
 
-    // handle response
-    this.from("direct:handleResponse").process(responseProcessor).marshal(jaxb);
+        // handle response
+        this.from("direct:handleResponse").process(responseProcessor).marshal(jaxb);
 
-  }
+    }
 
 }

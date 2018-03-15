@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This class is a PrePhase Plugin for IAs of type
- * {http://docs.oasis-open.org/tosca
- * /ns/2011/12/ToscaBaseTypes}ScriptArtifact,{http
- * ://www.example.com/ToscaTypes}WAR and DAs of type
+ * This class is a PrePhase Plugin for IAs of type {http://docs.oasis-open.org/tosca
+ * /ns/2011/12/ToscaBaseTypes}ScriptArtifact,{http ://www.example.com/ToscaTypes}WAR and DAs of type
  * {http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes}ArchiveArtifact
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
@@ -31,10 +29,10 @@ public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
 
     private final QName warArtifactTypeOld = new QName("http://www.example.com/ToscaTypes", "WAR");
     private final QName warArtifactType = new QName("http://opentosca.org/artifacttypes", "WAR");
-    private final QName dockerContainerArtefactTypeOld = new QName("http://opentosca.org/artefacttypes",
-	    "DockerContainerArtefact");
-    private final QName dockerContainerArtefactType = new QName("http://opentosca.org/artifacttypes",
-	    "DockerContainerArtifact");
+    private final QName dockerContainerArtefactTypeOld =
+        new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
+    private final QName dockerContainerArtefactType =
+        new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
 
     private final BPELPrePhasePluginHandler handler = new BPELPrePhasePluginHandler();
 
@@ -43,14 +41,14 @@ public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractDeploymentArtifact da,
-	    final AbstractNodeTemplate nodeTemplate) {
+                          final AbstractNodeTemplate nodeTemplate) {
 
-	if (da.getArtifactType().equals(this.dockerContainerArtefactType)
-		|| da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
-	    return true;
-	}
+        if (da.getArtifactType().equals(this.dockerContainerArtefactType)
+            || da.getArtifactType().equals(this.dockerContainerArtefactTypeOld)) {
+            return true;
+        }
 
-	return this.handler.handle(context, da, nodeTemplate);
+        return this.handler.handle(context, da, nodeTemplate);
     }
 
     /**
@@ -58,9 +56,9 @@ public class BPELPrePhasePlugin extends PrePhasePlugin<BPELPlanContext> {
      */
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractImplementationArtifact ia,
-	    final AbstractNodeTemplate nodeTemplate) {
-	QName type = ia.getArtifactType();
-	return type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld);
+                          final AbstractNodeTemplate nodeTemplate) {
+        final QName type = ia.getArtifactType();
+        return type.equals(this.warArtifactType) || type.equals(this.warArtifactTypeOld);
     }
 
 }

@@ -20,8 +20,8 @@ import org.opentosca.container.core.common.Settings;
  * Route of the Application Bus-JSON/HTTP-API.<br>
  * <br>
  *
- * The endpoint of the JSON/HTTP-API is created here. Incoming requests will be
- * routed to processors or the application bus in order to handle the requests.
+ * The endpoint of the JSON/HTTP-API is created here. Incoming requests will be routed to processors
+ * or the application bus in order to handle the requests.
  *
  *
  *
@@ -29,54 +29,65 @@ import org.opentosca.container.core.common.Settings;
  *
  */
 public class Route extends RouteBuilder {
-	
-	private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-	private static final String PORT = "8083";
-	private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
 
-	private static final String INVOKE_ENDPOINT = "/OTABService/v1/appInvoker";
+    private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+    private static final String PORT = "8083";
+    private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
 
-	public static final String ID = "id";
-	public static final String ID_PLACEHODLER = "{" + Route.ID + "}";
-	public static final String POLL_ENDPOINT = Route.INVOKE_ENDPOINT + "/activeRequests/" + Route.ID_PLACEHODLER;
-	public static final String GET_RESULT_ENDPOINT = Route.POLL_ENDPOINT + "/response";
+    private static final String INVOKE_ENDPOINT = "/OTABService/v1/appInvoker";
 
-	private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
+    public static final String ID = "id";
+    public static final String ID_PLACEHODLER = "{" + Route.ID + "}";
+    public static final String POLL_ENDPOINT = Route.INVOKE_ENDPOINT + "/activeRequests/" + Route.ID_PLACEHODLER;
+    public static final String GET_RESULT_ENDPOINT = Route.POLL_ENDPOINT + "/response";
+
+    private static final String TO_APP_BUS_ENDPOINT = "direct:toAppBus";
 
 
-	@Override
-	public void configure() throws Exception {
+    @Override
+    public void configure() throws Exception {
 
-		final ValueBuilder APP_BUS_ENDPOINT = new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
-		final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
+        final ValueBuilder APP_BUS_ENDPOINT =
+            new ValueBuilder(this.method(ApplicationBusServiceHandler.class, "getApplicationBusRoutingEndpoint"));
+        final Predicate APP_BUS_ENDPOINT_EXISTS = PredicateBuilder.isNotNull(APP_BUS_ENDPOINT);
 
-		final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
-		final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
-		final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
-		final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
-		final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
-		final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
-		final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
+        final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
+        final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();
+        final IsFinishedRequestProcessor isFinishedRequestProcessor = new IsFinishedRequestProcessor();
+        final IsFinishedResponseProcessor isFinishedResponseProcessor = new IsFinishedResponseProcessor();
+        final GetResultRequestProcessor getResultRequestProcessor = new GetResultRequestProcessor();
+        final GetResultResponseProcessor getResultResponseProcessor = new GetResultResponseProcessor();
+        final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
-		// handle exceptions
-		this.onException(Exception.class).handled(true).setBody(this.property(Exchange.EXCEPTION_CAUGHT)).process(exceptionProcessor);
+        // handle exceptions
+        this.onException(Exception.class).handled(true).setBody(this.property(Exchange.EXCEPTION_CAUGHT))
+            .process(exceptionProcessor);
 
-		// invoke route
-		this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethods=post").process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice().when(this.property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*").otherwise().process(exceptionProcessor);
+        // invoke route
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethods=post")
+            .process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
+            .when(this.property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor)
+            .removeHeaders("*").otherwise().process(exceptionProcessor);
 
-		// isFinished route
-		this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethods=get").process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(isFinishedResponseProcessor).removeHeaders("*");
+        // isFinished route
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethods=get")
+            .process(isFinishedRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(isFinishedResponseProcessor)
+            .removeHeaders("*");
 
-		// getResult route
-		this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT + "?restletMethods=get").process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(getResultResponseProcessor).removeHeaders("*");
+        // getResult route
+        this.from("restlet:" + Route.BASE_ENDPOINT + Route.GET_RESULT_ENDPOINT + "?restletMethods=get")
+            .process(getResultRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).process(getResultResponseProcessor)
+            .removeHeaders("*");
 
-		// applicationBus route, throws exception if Application Bus is not
-		// running or wasn't binded
-		this.from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT).endChoice().otherwise().to("direct:handleException");
+        // applicationBus route, throws exception if Application Bus is not
+        // running or wasn't binded
+        this.from(Route.TO_APP_BUS_ENDPOINT).choice().when(APP_BUS_ENDPOINT_EXISTS).recipientList(APP_BUS_ENDPOINT)
+            .endChoice().otherwise().to("direct:handleException");
 
-		// handle exception if Application Bus is not running or wasn't binded
-		this.from("direct:handleException").throwException(new ApplicationBusInternalException("The Application Bus is not running."));
+        // handle exception if Application Bus is not running or wasn't binded
+        this.from("direct:handleException")
+            .throwException(new ApplicationBusInternalException("The Application Bus is not running."));
 
-	}
+    }
 
 }

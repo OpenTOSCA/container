@@ -15,21 +15,21 @@ import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "PlanInstnaceEventResources")
 public class PlanInstanceEventListDTO extends ResourceSupport {
-	@JsonProperty
-	@XmlElement(name = "PlanInstnaceEvent")
-	@XmlElementWrapper(name = "PlanInstnaceEvents")
-	private final List<PlanInstanceEventDTO> planInstanceEvents = Lists.newArrayList();
+    @JsonProperty
+    @XmlElement(name = "PlanInstnaceEvent")
+    @XmlElementWrapper(name = "PlanInstnaceEvents")
+    private final List<PlanInstanceEventDTO> planInstanceEvents = Lists.newArrayList();
 
-	public PlanInstanceEventListDTO() {
-		
-	}
-	
-	public PlanInstanceEventListDTO(Collection<PlanInstanceEventDTO> events) {
-		this.planInstanceEvents.addAll(events);
-	}
+    public PlanInstanceEventListDTO() {
 
-	public void add(final PlanInstanceEventDTO... planInstanceEvents) {
-		this.planInstanceEvents.addAll(Arrays.asList(planInstanceEvents));
-	}
+    }
+
+    public PlanInstanceEventListDTO(final Collection<PlanInstanceEventDTO> events) {
+        this.planInstanceEvents.addAll(events);
+    }
+
+    public void add(final PlanInstanceEventDTO... planInstanceEvents) {
+        this.planInstanceEvents.addAll(Arrays.asList(planInstanceEvents));
+    }
 
 }

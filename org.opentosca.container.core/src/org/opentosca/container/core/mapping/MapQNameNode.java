@@ -14,91 +14,91 @@ import org.w3c.dom.Node;
  */
 public class MapQNameNode implements Map<QName, Node> {
 
-	private Map<QName, Node> qnameNode = new HashMap<>();
+    private Map<QName, Node> qnameNode = new HashMap<>();
 
 
-	@Override
-	public void clear() {
-		this.qnameNode.clear();
+    @Override
+    public void clear() {
+        this.qnameNode.clear();
 
-	}
+    }
 
-	@Override
-	public boolean containsKey(final Object key) {
+    @Override
+    public boolean containsKey(final Object key) {
 
-		return this.qnameNode.containsKey(key);
-	}
+        return this.qnameNode.containsKey(key);
+    }
 
-	@Override
-	public boolean containsValue(final Object value) {
+    @Override
+    public boolean containsValue(final Object value) {
 
-		return this.qnameNode.containsValue(value);
-	}
+        return this.qnameNode.containsValue(value);
+    }
 
-	@Override
-	public Set<java.util.Map.Entry<QName, Node>> entrySet() {
+    @Override
+    public Set<java.util.Map.Entry<QName, Node>> entrySet() {
 
-		return this.qnameNode.entrySet();
-	}
+        return this.qnameNode.entrySet();
+    }
 
-	@Override
-	public Node get(final Object key) {
+    @Override
+    public Node get(final Object key) {
 
-		return this.qnameNode.get(key);
-	}
+        return this.qnameNode.get(key);
+    }
 
-	@Override
-	public boolean isEmpty() {
+    @Override
+    public boolean isEmpty() {
 
-		return this.qnameNode.isEmpty();
-	}
+        return this.qnameNode.isEmpty();
+    }
 
-	@Override
-	public Set<QName> keySet() {
+    @Override
+    public Set<QName> keySet() {
 
-		return this.qnameNode.keySet();
-	}
+        return this.qnameNode.keySet();
+    }
 
-	@Override
-	public Node put(final QName key, final Node value) {
+    @Override
+    public Node put(final QName key, final Node value) {
 
-		final Node result = this.qnameNode.put(key, value);
-		return result;
-	}
+        final Node result = this.qnameNode.put(key, value);
+        return result;
+    }
 
-	@Override
-	public void putAll(final Map<? extends QName, ? extends Node> m) {
+    @Override
+    public void putAll(final Map<? extends QName, ? extends Node> m) {
 
-		this.qnameNode.putAll(m);
+        this.qnameNode.putAll(m);
 
-	}
+    }
 
-	@Override
-	public Node remove(final Object key) {
+    @Override
+    public Node remove(final Object key) {
 
-		final Node result = this.qnameNode.remove(key);
-		return result;
-	}
+        final Node result = this.qnameNode.remove(key);
+        return result;
+    }
 
-	@Override
-	public int size() {
+    @Override
+    public int size() {
 
-		return this.qnameNode.size();
-	}
+        return this.qnameNode.size();
+    }
 
-	@Override
-	public Collection<Node> values() {
+    @Override
+    public Collection<Node> values() {
 
-		return this.qnameNode.values();
-	}
+        return this.qnameNode.values();
+    }
 
-	public Map<QName, Node> getQnameNode() {
+    public Map<QName, Node> getQnameNode() {
 
-		return this.qnameNode;
-	}
+        return this.qnameNode;
+    }
 
-	public void setQnameNode(final Map<QName, Node> map) {
+    public void setQnameNode(final Map<QName, Node> map) {
 
-		this.qnameNode = map;
-	}
+        this.qnameNode = map;
+    }
 }

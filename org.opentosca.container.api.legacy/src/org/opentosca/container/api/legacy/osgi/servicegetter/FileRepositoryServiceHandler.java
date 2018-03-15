@@ -15,22 +15,22 @@ import org.slf4j.LoggerFactory;
  */
 public class FileRepositoryServiceHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(FileRepositoryServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(FileRepositoryServiceHandler.class);
 
-	private static ICoreFileService fileHandler;
+    private static ICoreFileService fileHandler;
 
 
-	public static ICoreFileService getFileHandler() {
-		return FileRepositoryServiceHandler.fileHandler;
-	}
+    public static ICoreFileService getFileHandler() {
+        return FileRepositoryServiceHandler.fileHandler;
+    }
 
-	public void bindFileRepository(final ICoreFileService is) {
-		FileRepositoryServiceHandler.LOG.debug("ContainerApi: Bind ICoreFileService");
-		FileRepositoryServiceHandler.fileHandler = is;
-	}
+    public void bindFileRepository(final ICoreFileService is) {
+        FileRepositoryServiceHandler.LOG.debug("ContainerApi: Bind ICoreFileService");
+        FileRepositoryServiceHandler.fileHandler = is;
+    }
 
-	public void unbindFileRepository(final ICoreFileService is) {
-		FileRepositoryServiceHandler.LOG.debug("ContainerApi: Unbind ICoreFileService");
-		FileRepositoryServiceHandler.fileHandler = null;
-	}
+    public void unbindFileRepository(final ICoreFileService is) {
+        FileRepositoryServiceHandler.LOG.debug("ContainerApi: Unbind ICoreFileService");
+        FileRepositoryServiceHandler.fileHandler = null;
+    }
 }

@@ -27,26 +27,26 @@ public class Activator implements BundleActivator {
      * @return a BundleContext
      */
     static BundleContext getContext() {
-	return Activator.context;
+        return Activator.context;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
-	Activator.context = bundleContext;
-	this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
-		new BPELInvokerPlugin(), null);
+    public void start(final BundleContext bundleContext) throws Exception {
+        Activator.context = bundleContext;
+        this.registration = Activator.context.registerService(IPlanBuilderProvPhaseOperationPlugin.class.getName(),
+                                                              new BPELInvokerPlugin(), null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-	this.registration.unregister();
-	Activator.context = null;
+    public void stop(final BundleContext bundleContext) throws Exception {
+        this.registration.unregister();
+        Activator.context = null;
 
     }
 

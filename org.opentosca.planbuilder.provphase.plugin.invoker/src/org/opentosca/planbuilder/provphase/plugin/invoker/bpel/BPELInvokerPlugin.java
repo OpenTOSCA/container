@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
@@ -28,237 +27,234 @@ import org.slf4j.LoggerFactory;
  */
 public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
-	private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
-	private BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
+    private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
+    private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
 
-	@Override
-	public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia) {
-		try {
-			return this.handler.handle(context, operation, ia);
-		} catch (Exception e) {
-			BPELInvokerPlugin.LOG
-					.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null
-							? context.getNodeTemplate().getId()
-							: context.getRelationshipTemplate().getId(), e);
-			return false;
-		}
-	}
+    @Override
+    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                          final AbstractImplementationArtifact ia) {
+        try {
+            return this.handler.handle(context, operation, ia);
+        }
+        catch (final Exception e) {
+            BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
+                + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
+                                                    : context.getRelationshipTemplate().getId(),
+                                        e);
+            return false;
+        }
+    }
 
-	@Override
-	public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
-			Map<AbstractParameter, Variable> param2propertyMapping, boolean appendToPrePhase) {
-		String templateId = "";
-		boolean isNodeTemplate = false;
-		if (context.getNodeTemplate() != null) {
-			templateId = context.getNodeTemplate().getId();
-			isNodeTemplate = true;
-		} else {
-			templateId = context.getRelationshipTemplate().getId();
-		}
+    @Override
+    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final boolean appendToPrePhase) {
+        String templateId = "";
+        boolean isNodeTemplate = false;
+        if (context.getNodeTemplate() != null) {
+            templateId = context.getNodeTemplate().getId();
+            isNodeTemplate = true;
+        } else {
+            templateId = context.getRelationshipTemplate().getId();
+        }
 
-		Map<String, Variable> inputParams = new HashMap<String, Variable>();
+        final Map<String, Variable> inputParams = new HashMap<>();
 
-		for (AbstractParameter key : param2propertyMapping.keySet()) {
-			inputParams.put(key.getName(), param2propertyMapping.get(key));
-		}
+        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+            inputParams.put(key.getName(), param2propertyMapping.get(key));
+        }
 
-		try {
-			return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-					null, inputParams, new HashMap<String, Variable>(), appendToPrePhase);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	@Override
-	public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
-			Map<AbstractParameter, Variable> param2propertyMapping) {
-		String templateId = "";
-		boolean isNodeTemplate = false;
-		if (context.getNodeTemplate() != null) {
-			templateId = context.getNodeTemplate().getId();
-			isNodeTemplate = true;
-		} else {
-			templateId = context.getRelationshipTemplate().getId();
-		}
+        try {
+            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
+                                       null, inputParams, new HashMap<String, Variable>(), appendToPrePhase);
+        }
+        catch (final Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-		Map<String, Variable> inputParams = new HashMap<String, Variable>();
+    @Override
+    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping) {
+        String templateId = "";
+        boolean isNodeTemplate = false;
+        if (context.getNodeTemplate() != null) {
+            templateId = context.getNodeTemplate().getId();
+            isNodeTemplate = true;
+        } else {
+            templateId = context.getRelationshipTemplate().getId();
+        }
 
-		for (AbstractParameter key : param2propertyMapping.keySet()) {
-			inputParams.put(key.getName(), param2propertyMapping.get(key));
-		}
+        final Map<String, Variable> inputParams = new HashMap<>();
 
-		try {
-			return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-					null, inputParams, new HashMap<String, Variable>(), false);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+            inputParams.put(key.getName(), param2propertyMapping.get(key));
+        }
 
-	/**
-	 * Method for adding a single call to the invoker with the given context and
-	 * specified nodeTemplate
-	 *
-	 * @param context
-	 *            the TemplateContext of the Template to call the Operation on
-	 * @param templateId
-	 *            the Id of the Template the operation belongs to
-	 * @param isNodeTemplate
-	 *            whether the template is a NodeTemplate or RelationshipTemplate
-	 * @param operationName
-	 *            the Operation to call on the Template
-	 * @param interfaceName
-	 *            the name of the interface the operation belongs to
-	 * @param callbackAddressVarName
-	 *            the name of the variable containing the callbackAddress of this
-	 *            BuildPlan
-	 * @param internalExternalPropsInput
-	 *            Mappings from TOSCA Input Parameters to Invoker Parameters
-	 * @param internalExternalPropsOutput
-	 *            Mappings from TOSCA Output Parameters to Invoker Parameters
-	 *
-	 * @return true iff adding logic for Invoker call was successful
-	 */
-	public boolean handle(BPELPlanContext context, String templateId, boolean isNodeTemplate, String operationName,
-			String interfaceName, String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput,
-			Map<String, Variable> internalExternalPropsOutput, boolean appendToPrePhase) {
-		try {
-			return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
-					callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
-		} catch (Exception e) {
-			BPELInvokerPlugin.LOG
-					.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null
-							? context.getNodeTemplate().getId()
-							: context.getRelationshipTemplate().getId(), e);
-			return false;
-		}
+        try {
+            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
+                                       null, inputParams, new HashMap<String, Variable>(), false);
+        }
+        catch (final Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	}
+    /**
+     * Method for adding a single call to the invoker with the given context and specified nodeTemplate
+     *
+     * @param context the TemplateContext of the Template to call the Operation on
+     * @param templateId the Id of the Template the operation belongs to
+     * @param isNodeTemplate whether the template is a NodeTemplate or RelationshipTemplate
+     * @param operationName the Operation to call on the Template
+     * @param interfaceName the name of the interface the operation belongs to
+     * @param callbackAddressVarName the name of the variable containing the callbackAddress of this
+     *        BuildPlan
+     * @param internalExternalPropsInput Mappings from TOSCA Input Parameters to Invoker Parameters
+     * @param internalExternalPropsOutput Mappings from TOSCA Output Parameters to Invoker Parameters
+     *
+     * @return true iff adding logic for Invoker call was successful
+     */
+    public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
+                          final String operationName, final String interfaceName, final String callbackAddressVarName,
+                          final Map<String, Variable> internalExternalPropsInput,
+                          final Map<String, Variable> internalExternalPropsOutput, final boolean appendToPrePhase) {
+        try {
+            return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
+                                       callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput,
+                                       appendToPrePhase);
+        }
+        catch (final Exception e) {
+            BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
+                + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
+                                                    : context.getRelationshipTemplate().getId(),
+                                        e);
+            return false;
+        }
 
-	/**
-	 * Method for adding a single call to the invoker with the given context
-	 *
-	 * @param context
-	 *            the TemplateContext of the Template to call the Operation on
-	 * @param operationName
-	 *            the Operation to call on the Template
-	 * @param interfaceName
-	 *            the name of the interface the operation belongs to
-	 * @param callbackAddressVarName
-	 *            the name of the variable containing the callbackAddress of this
-	 *            BuildPlan
-	 * @param internalExternalPropsInput
-	 *            Mappings from TOSCA Input Parameters to Invoker Parameters
-	 * @param internalExternalPropsOutput
-	 *            Mappings from TOSCA Output Parameters to Invoker Parameters
-	 *
-	 * @return true iff adding logic for Invoker call was successful
-	 */
-	public boolean handle(BPELPlanContext context, String operationName, String interfaceName,
-			String callbackAddressVarName, Map<String, Variable> internalExternalPropsInput,
-			Map<String, Variable> internalExternalPropsOutput) {
-		try {
-			return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
-					internalExternalPropsInput, internalExternalPropsOutput, false);
-		} catch (Exception e) {
-			BPELInvokerPlugin.LOG
-					.error(("Couldn't append logic to provphase of Template: " + context.getNodeTemplate()) != null
-							? context.getNodeTemplate().getId()
-							: context.getRelationshipTemplate().getId(), e);
-			return false;
-		}
-	}
+    }
 
-	/**
-	 * Adds bpel code to the given templateContext, which uploads the given
-	 * ArtifactReference ref to the given server ip. The destination of the artifact
-	 * will be a replica of the given csar on the home folder of the selected user.
-	 * The file must be available from the openTosca container api.
-	 *
-	 * @param ref
-	 *            the reference to upload
-	 * @param templateContext
-	 *            the templateContext to use
-	 * @param serverIp
-	 *            the ip to upload the file to
-	 * @param sshUser
-	 *            a variable containing the sshUser value, if null the user will be
-	 *            requested from the planInput
-	 * @param sshKey
-	 *            a variable containing the sshKey value, if null the key will be
-	 *            requested from the planInput
-	 * @param templateId
-	 *            the templateId the serverIp belongs to
-	 * @return true iff appending all bpel code was successful
-	 */
-	public boolean handleArtifactReferenceUpload(AbstractArtifactReference ref, BPELPlanContext templateContext,
-			Variable serverIp, Variable sshUser, Variable sshKey, String templateId) {
-		try {
-			return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
-					templateId, true);
-		} catch (Exception e) {
-			LOG.error("Couldn't load internal files", e);
-			return false;
-		}
-	}
+    /**
+     * Method for adding a single call to the invoker with the given context
+     *
+     * @param context the TemplateContext of the Template to call the Operation on
+     * @param operationName the Operation to call on the Template
+     * @param interfaceName the name of the interface the operation belongs to
+     * @param callbackAddressVarName the name of the variable containing the callbackAddress of this
+     *        BuildPlan
+     * @param internalExternalPropsInput Mappings from TOSCA Input Parameters to Invoker Parameters
+     * @param internalExternalPropsOutput Mappings from TOSCA Output Parameters to Invoker Parameters
+     *
+     * @return true iff adding logic for Invoker call was successful
+     */
+    public boolean handle(final BPELPlanContext context, final String operationName, final String interfaceName,
+                          final String callbackAddressVarName, final Map<String, Variable> internalExternalPropsInput,
+                          final Map<String, Variable> internalExternalPropsOutput) {
+        try {
+            return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
+                                       internalExternalPropsInput, internalExternalPropsOutput, false);
+        }
+        catch (final Exception e) {
+            BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
+                + context.getNodeTemplate() != null ? context.getNodeTemplate().getId()
+                                                    : context.getRelationshipTemplate().getId(),
+                                        e);
+            return false;
+        }
+    }
 
-	@Override
-	public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
-			Map<AbstractParameter, Variable> param2propertyMapping,
-			Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
-		String templateId = "";
-		boolean isNodeTemplate = false;
-		if (context.getNodeTemplate() != null) {
-			templateId = context.getNodeTemplate().getId();
-			isNodeTemplate = true;
-		} else {
-			templateId = context.getRelationshipTemplate().getId();
-		}
+    /**
+     * Adds bpel code to the given templateContext, which uploads the given ArtifactReference ref to the
+     * given server ip. The destination of the artifact will be a replica of the given csar on the home
+     * folder of the selected user. The file must be available from the openTosca container api.
+     *
+     * @param ref the reference to upload
+     * @param templateContext the templateContext to use
+     * @param serverIp the ip to upload the file to
+     * @param sshUser a variable containing the sshUser value, if null the user will be requested from
+     *        the planInput
+     * @param sshKey a variable containing the sshKey value, if null the key will be requested from the
+     *        planInput
+     * @param templateId the templateId the serverIp belongs to
+     * @return true iff appending all bpel code was successful
+     */
+    public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
+                                                 final BPELPlanContext templateContext, final Variable serverIp,
+                                                 final Variable sshUser, final Variable sshKey,
+                                                 final String templateId) {
+        try {
+            return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
+                                                              templateId, true);
+        }
+        catch (final Exception e) {
+            LOG.error("Couldn't load internal files", e);
+            return false;
+        }
+    }
 
-		Map<String, Variable> inputParams = new HashMap<String, Variable>();
-		Map<String, Variable> outputParams = new HashMap<String, Variable>();
+    @Override
+    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping) {
+        String templateId = "";
+        boolean isNodeTemplate = false;
+        if (context.getNodeTemplate() != null) {
+            templateId = context.getNodeTemplate().getId();
+            isNodeTemplate = true;
+        } else {
+            templateId = context.getRelationshipTemplate().getId();
+        }
 
-		for (AbstractParameter key : param2propertyMapping.keySet()) {
-			inputParams.put(key.getName(), param2propertyMapping.get(key));
-		}
-		for (AbstractParameter key : param2PropertyOutputMapping.keySet()) {
-			outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
-		}
+        final Map<String, Variable> inputParams = new HashMap<>();
+        final Map<String, Variable> outputParams = new HashMap<>();
 
-		try {
-			return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-					null, inputParams, outputParams, false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+            inputParams.put(key.getName(), param2propertyMapping.get(key));
+        }
+        for (final AbstractParameter key : param2PropertyOutputMapping.keySet()) {
+            outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
+        }
 
-	@Override
-	public boolean handle(BPELPlanContext context, AbstractOperation operation, AbstractImplementationArtifact ia,
-			Map<AbstractParameter, Variable> param2propertyMapping,
-			Map<AbstractParameter, Variable> param2PropertyOutputMapping, boolean appendToPrePhase) {
-		Map<String, Variable> inputParams = new HashMap<String, Variable>();
-		Map<String, Variable> outputParams = new HashMap<String, Variable>();
+        try {
+            return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
+                                       null, inputParams, outputParams, false);
+        }
+        catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-		for (AbstractParameter key : param2propertyMapping.keySet()) {
-			inputParams.put(key.getName(), param2propertyMapping.get(key));
-		}
-		for (AbstractParameter key : param2PropertyOutputMapping.keySet()) {
-			outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
-		}
+    @Override
+    public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
+                          final AbstractImplementationArtifact ia,
+                          final Map<AbstractParameter, Variable> param2propertyMapping,
+                          final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
+                          final boolean appendToPrePhase) {
+        final Map<String, Variable> inputParams = new HashMap<>();
+        final Map<String, Variable> outputParams = new HashMap<>();
 
-		try {
-			return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
-					outputParams, appendToPrePhase);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-	}
+        for (final AbstractParameter key : param2propertyMapping.keySet()) {
+            inputParams.put(key.getName(), param2propertyMapping.get(key));
+        }
+        for (final AbstractParameter key : param2PropertyOutputMapping.keySet()) {
+            outputParams.put(key.getName(), param2PropertyOutputMapping.get(key));
+        }
+
+        try {
+            return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
+                                       outputParams, appendToPrePhase);
+        }
+        catch (final Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

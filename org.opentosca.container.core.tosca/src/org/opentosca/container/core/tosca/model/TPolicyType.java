@@ -21,11 +21,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tPolicyType complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tPolicyType">
  *   &lt;complexContent>
@@ -39,58 +38,58 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tPolicyType", propOrder = {"appliesTo"})
 public class TPolicyType extends TEntityType {
-	
-	@XmlElement(name = "AppliesTo")
-	protected TAppliesTo appliesTo;
-	@XmlAttribute(name = "policyLanguage")
-	@XmlSchemaType(name = "anyURI")
-	protected String policyLanguage;
-	
-	
-	/**
-	 * Gets the value of the appliesTo property.
-	 * 
-	 * @return possible object is {@link TAppliesTo }
-	 * 
-	 */
-	public TAppliesTo getAppliesTo() {
-		return this.appliesTo;
-	}
-	
-	/**
-	 * Sets the value of the appliesTo property.
-	 * 
-	 * @param value allowed object is {@link TAppliesTo }
-	 * 
-	 */
-	public void setAppliesTo(TAppliesTo value) {
-		this.appliesTo = value;
-	}
-	
-	/**
-	 * Gets the value of the policyLanguage property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getPolicyLanguage() {
-		return this.policyLanguage;
-	}
-	
-	/**
-	 * Sets the value of the policyLanguage property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setPolicyLanguage(String value) {
-		this.policyLanguage = value;
-	}
-	
+
+    @XmlElement(name = "AppliesTo")
+    protected TAppliesTo appliesTo;
+    @XmlAttribute(name = "policyLanguage")
+    @XmlSchemaType(name = "anyURI")
+    protected String policyLanguage;
+
+
+    /**
+     * Gets the value of the appliesTo property.
+     *
+     * @return possible object is {@link TAppliesTo }
+     *
+     */
+    public TAppliesTo getAppliesTo() {
+        return this.appliesTo;
+    }
+
+    /**
+     * Sets the value of the appliesTo property.
+     *
+     * @param value allowed object is {@link TAppliesTo }
+     *
+     */
+    public void setAppliesTo(final TAppliesTo value) {
+        this.appliesTo = value;
+    }
+
+    /**
+     * Gets the value of the policyLanguage property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getPolicyLanguage() {
+        return this.policyLanguage;
+    }
+
+    /**
+     * Sets the value of the policyLanguage property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setPolicyLanguage(final String value) {
+        this.policyLanguage = value;
+    }
+
 }

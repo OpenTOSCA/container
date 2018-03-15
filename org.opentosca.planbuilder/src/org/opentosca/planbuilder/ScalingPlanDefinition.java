@@ -22,224 +22,230 @@ import org.opentosca.planbuilder.model.utils.ModelUtils;
 
 public class ScalingPlanDefinition {
 
-	// topology
-	public String name;
-	AbstractTopologyTemplate topology;
+    // topology
+    public String name;
+    AbstractTopologyTemplate topology;
 
-	// region
-	public List<AbstractNodeTemplate> nodeTemplates;
-	public List<AbstractRelationshipTemplate> relationshipTemplates;
+    // region
+    public List<AbstractNodeTemplate> nodeTemplates;
+    public List<AbstractRelationshipTemplate> relationshipTemplates;
 
-	// nodes with selection strategies
-	public Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes;
+    // nodes with selection strategies
+    public Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes;
 
-	public static class AnnotatedAbstractNodeTemplate extends AbstractNodeTemplate {
+    public static class AnnotatedAbstractNodeTemplate extends AbstractNodeTemplate {
 
-		private final Collection<String> annotations;
-		private final AbstractNodeTemplate nodeTemplate;
+        private final Collection<String> annotations;
+        private final AbstractNodeTemplate nodeTemplate;
 
-		public AnnotatedAbstractNodeTemplate(AbstractNodeTemplate nodeTemplate, Collection<String> annotations) {
-			this.annotations = annotations;
-			this.nodeTemplate = nodeTemplate;
-		}
+        public AnnotatedAbstractNodeTemplate(final AbstractNodeTemplate nodeTemplate,
+                                             final Collection<String> annotations) {
+            this.annotations = annotations;
+            this.nodeTemplate = nodeTemplate;
+        }
 
-		public Collection<String> getAnnotations() {
-			return this.annotations;
-		}
+        public Collection<String> getAnnotations() {
+            return this.annotations;
+        }
 
-		@Override
-		public List<AbstractRelationshipTemplate> getOutgoingRelations() {
-			return this.nodeTemplate.getOutgoingRelations();
-		}
+        @Override
+        public List<AbstractRelationshipTemplate> getOutgoingRelations() {
+            return this.nodeTemplate.getOutgoingRelations();
+        }
 
-		@Override
-		public List<AbstractRelationshipTemplate> getIngoingRelations() {
-			return this.nodeTemplate.getIngoingRelations();
-		}
+        @Override
+        public List<AbstractRelationshipTemplate> getIngoingRelations() {
+            return this.nodeTemplate.getIngoingRelations();
+        }
 
-		@Override
-		public List<AbstractCapability> getCapabilities() {
-			return this.nodeTemplate.getCapabilities();
-		}
+        @Override
+        public List<AbstractCapability> getCapabilities() {
+            return this.nodeTemplate.getCapabilities();
+        }
 
-		@Override
-		public List<AbstractRequirement> getRequirements() {
-			return this.nodeTemplate.getRequirements();
-		}
+        @Override
+        public List<AbstractRequirement> getRequirements() {
+            return this.nodeTemplate.getRequirements();
+        }
 
-		@Override
-		public String getName() {
-			return this.nodeTemplate.getId();
-		}
+        @Override
+        public String getName() {
+            return this.nodeTemplate.getId();
+        }
 
-		@Override
-		public List<AbstractNodeTypeImplementation> getImplementations() {
-			return this.nodeTemplate.getImplementations();
-		}
+        @Override
+        public List<AbstractNodeTypeImplementation> getImplementations() {
+            return this.nodeTemplate.getImplementations();
+        }
 
-		@Override
-		public String getId() {
-			return this.nodeTemplate.getId();
-		}
+        @Override
+        public String getId() {
+            return this.nodeTemplate.getId();
+        }
 
-		@Override
-		public AbstractNodeType getType() {
-			return this.nodeTemplate.getType();
-		}
+        @Override
+        public AbstractNodeType getType() {
+            return this.nodeTemplate.getType();
+        }
 
-		@Override
-		public AbstractProperties getProperties() {
-			return this.nodeTemplate.getProperties();
-		}
+        @Override
+        public AbstractProperties getProperties() {
+            return this.nodeTemplate.getProperties();
+        }
 
-		@Override
-		public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
-			return this.nodeTemplate.getDeploymentArtifacts();
-		}
+        @Override
+        public List<AbstractDeploymentArtifact> getDeploymentArtifacts() {
+            return this.nodeTemplate.getDeploymentArtifacts();
+        }
 
-		@Override
-		public int getMinInstances() {
-			return this.nodeTemplate.getMinInstances();
-		}
+        @Override
+        public int getMinInstances() {
+            return this.nodeTemplate.getMinInstances();
+        }
 
-		@Override
-		public List<AbstractPolicy> getPolicies() {
-			return this.nodeTemplate.getPolicies();
-		}
+        @Override
+        public List<AbstractPolicy> getPolicies() {
+            return this.nodeTemplate.getPolicies();
+        }
 
-	}
+    }
 
-	// recursive selections
-	public List<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
-	public List<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
+    // recursive selections
+    public List<AbstractNodeTemplate> nodeTemplatesRecursiveSelection;
+    public List<AbstractRelationshipTemplate> relationshipTemplatesRecursiveSelection;
 
-	// border crossing relations
-	public Set<AbstractRelationshipTemplate> borderCrossingRelations;
+    // border crossing relations
+    public Set<AbstractRelationshipTemplate> borderCrossingRelations;
 
-	public ScalingPlanDefinition(String name, AbstractTopologyTemplate topology,
-			List<AbstractNodeTemplate> nodeTemplates, List<AbstractRelationshipTemplate> relationshipTemplate,
-			Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes) {
-		this.name = name;
-		this.topology = topology;
-		this.nodeTemplates = nodeTemplates;
-		this.relationshipTemplates = relationshipTemplate;
-		this.selectionStrategy2BorderNodes = selectionStrategy2BorderNodes;
+    public ScalingPlanDefinition(final String name, final AbstractTopologyTemplate topology,
+                                 final List<AbstractNodeTemplate> nodeTemplates,
+                                 final List<AbstractRelationshipTemplate> relationshipTemplate,
+                                 final Collection<AnnotatedAbstractNodeTemplate> selectionStrategy2BorderNodes) {
+        this.name = name;
+        this.topology = topology;
+        this.nodeTemplates = nodeTemplates;
+        this.relationshipTemplates = relationshipTemplate;
+        this.selectionStrategy2BorderNodes = selectionStrategy2BorderNodes;
 
-		this.nodeTemplatesRecursiveSelection = new ArrayList<AbstractNodeTemplate>();
-		this.relationshipTemplatesRecursiveSelection = new ArrayList<AbstractRelationshipTemplate>();
+        this.nodeTemplatesRecursiveSelection = new ArrayList<>();
+        this.relationshipTemplatesRecursiveSelection = new ArrayList<>();
 
-		this.init();
+        this.init();
 
-		this.borderCrossingRelations = this.calculateBorderCrossingRelations();
-	}
+        this.borderCrossingRelations = this.calculateBorderCrossingRelations();
+    }
 
-	private void init() {
+    private void init() {
 
-		this.isValid();
+        this.isValid();
 
-		// calculate recursive nodes
-		for (AbstractNodeTemplate nodeTemplate : selectionStrategy2BorderNodes) {
-			List<AbstractNodeTemplate> sinkNodes = new ArrayList<AbstractNodeTemplate>();
+        // calculate recursive nodes
+        for (final AbstractNodeTemplate nodeTemplate : this.selectionStrategy2BorderNodes) {
+            final List<AbstractNodeTemplate> sinkNodes = new ArrayList<>();
 
-			ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON, sinkNodes);
-			ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPENDSON, sinkNodes);
-			ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPLOYEDON, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPENDSON, sinkNodes);
+            ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPLOYEDON, sinkNodes);
 
-			List<AbstractRelationshipTemplate> outgoing = ModelUtils.getOutgoingRelations(nodeTemplate,
-					ModelUtils.TOSCABASETYPE_HOSTEDON, ModelUtils.TOSCABASETYPE_DEPENDSON,
-					ModelUtils.TOSCABASETYPE_DEPLOYEDON);
+            final List<AbstractRelationshipTemplate> outgoing =
+                ModelUtils.getOutgoingRelations(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON,
+                                                ModelUtils.TOSCABASETYPE_DEPENDSON,
+                                                ModelUtils.TOSCABASETYPE_DEPLOYEDON);
 
-			this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
-			this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
-		}
-	}
+            this.nodeTemplatesRecursiveSelection.addAll(sinkNodes);
+            this.relationshipTemplatesRecursiveSelection.addAll(outgoing);
+        }
+    }
 
-	private Set<AbstractRelationshipTemplate> calculateBorderCrossingRelations() {
-		Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<AbstractRelationshipTemplate>();
+    private Set<AbstractRelationshipTemplate> calculateBorderCrossingRelations() {
+        final Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<>();
 
-		for (AbstractRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
-			AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relationshipTemplate, nodeTemplates);
-			if (nodeStratSelection != null && this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
-				borderCrossingRelations.add(relationshipTemplate);
-			}
-		}
+        for (final AbstractRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
+            final AbstractNodeTemplate nodeStratSelection =
+                this.crossesBorder(relationshipTemplate, this.nodeTemplates);
+            if (nodeStratSelection != null && this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
+                borderCrossingRelations.add(relationshipTemplate);
+            }
+        }
 
-		for (AbstractNodeTemplate nodeTemplate : this.nodeTemplates) {
-			List<AbstractRelationshipTemplate> relations = this.getBorderCrossingRelations(nodeTemplate, nodeTemplates);
-			borderCrossingRelations.addAll(relations);
-		}
-		return borderCrossingRelations;
-	}
+        for (final AbstractNodeTemplate nodeTemplate : this.nodeTemplates) {
+            final List<AbstractRelationshipTemplate> relations =
+                this.getBorderCrossingRelations(nodeTemplate, this.nodeTemplates);
+            borderCrossingRelations.addAll(relations);
+        }
+        return borderCrossingRelations;
+    }
 
-	private boolean isValid() {
-		// check if all nodes at the border are attached with a selection
-		// strategy
-		/* calculate all border crossing relations */
-		Set<AbstractRelationshipTemplate> borderCrossingRelations = this.calculateBorderCrossingRelations();
+    private boolean isValid() {
+        // check if all nodes at the border are attached with a selection
+        // strategy
+        /* calculate all border crossing relations */
+        final Set<AbstractRelationshipTemplate> borderCrossingRelations = this.calculateBorderCrossingRelations();
 
-		for (AbstractRelationshipTemplate relation : borderCrossingRelations) {
-			AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relation, nodeTemplates);
-			if (nodeStratSelection == null) {
-				// these edges MUST be connected to a strategically selected
-				// node
-				return false;
-			}
+        for (final AbstractRelationshipTemplate relation : borderCrossingRelations) {
+            final AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relation, this.nodeTemplates);
+            if (nodeStratSelection == null) {
+                // these edges MUST be connected to a strategically selected
+                // node
+                return false;
+            }
 
-			if (!this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
-				return false;
-			}
-		}
+            if (!this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	private List<AbstractRelationshipTemplate> getBorderCrossingRelations(AbstractNodeTemplate nodeTemplate,
-			List<AbstractNodeTemplate> nodesToScale) {
-		List<AbstractRelationshipTemplate> borderCrossingRelations = new ArrayList<AbstractRelationshipTemplate>();
+    private List<AbstractRelationshipTemplate> getBorderCrossingRelations(final AbstractNodeTemplate nodeTemplate,
+                                                                          final List<AbstractNodeTemplate> nodesToScale) {
+        final List<AbstractRelationshipTemplate> borderCrossingRelations =
+            new ArrayList<>();
 
-		for (AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-			if (this.crossesBorder(relation, nodesToScale) != null) {
-				borderCrossingRelations.add(relation);
-			}
-		}
+        for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
+            if (this.crossesBorder(relation, nodesToScale) != null) {
+                borderCrossingRelations.add(relation);
+            }
+        }
 
-		for (AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-			if (this.crossesBorder(relation, nodesToScale) != null) {
-				borderCrossingRelations.add(relation);
-			}
-		}
+        for (final AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
+            if (this.crossesBorder(relation, nodesToScale) != null) {
+                borderCrossingRelations.add(relation);
+            }
+        }
 
-		return borderCrossingRelations;
-	}
+        return borderCrossingRelations;
+    }
 
-	private AbstractNodeTemplate crossesBorder(AbstractRelationshipTemplate relationship,
-			List<AbstractNodeTemplate> nodesToScale) {
+    private AbstractNodeTemplate crossesBorder(final AbstractRelationshipTemplate relationship,
+                                               final List<AbstractNodeTemplate> nodesToScale) {
 
-		AbstractNodeTemplate source = relationship.getSource();
-		AbstractNodeTemplate target = relationship.getTarget();
+        final AbstractNodeTemplate source = relationship.getSource();
+        final AbstractNodeTemplate target = relationship.getTarget();
 
-		QName baseType = ModelUtils.getRelationshipBaseType(relationship);
+        final QName baseType = ModelUtils.getRelationshipBaseType(relationship);
 
-		if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
-			// if either the source or target is not in the nodesToScale
-			// list =>
-			// relation crosses border
-			if (!nodesToScale.contains(source)) {
-				return source;
-			} else if (!nodesToScale.contains(target)) {
-				return target;
-			}
-		} else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
-				| baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
-				| baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
-			// if target is not in the nodesToScale list => relation crosses
-			// border
-			if (!nodesToScale.contains(target)) {
-				return target;
-			}
+        if (baseType.equals(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
+            // if either the source or target is not in the nodesToScale
+            // list =>
+            // relation crosses border
+            if (!nodesToScale.contains(source)) {
+                return source;
+            } else if (!nodesToScale.contains(target)) {
+                return target;
+            }
+        } else if (baseType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
+            | baseType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
+            | baseType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON)) {
+            // if target is not in the nodesToScale list => relation crosses
+            // border
+            if (!nodesToScale.contains(target)) {
+                return target;
+            }
 
-		}
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

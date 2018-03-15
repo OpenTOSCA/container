@@ -24,11 +24,10 @@ import org.w3c.dom.Element;
 /**
  * <p>
  * Java class for tConstraint complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tConstraint">
  *   &lt;complexContent>
@@ -41,59 +40,59 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tConstraint", propOrder = {"any"})
 @XmlSeeAlso({TPropertyConstraint.class})
 public class TConstraint {
-	
-	@XmlAnyElement(lax = true)
-	protected Object any;
-	@XmlAttribute(name = "constraintType", required = true)
-	@XmlSchemaType(name = "anyURI")
-	protected String constraintType;
-	
-	
-	/**
-	 * Gets the value of the any property.
-	 * 
-	 * @return possible object is {@link Object } {@link Element }
-	 * 
-	 */
-	public Object getAny() {
-		return this.any;
-	}
-	
-	/**
-	 * Sets the value of the any property.
-	 * 
-	 * @param value allowed object is {@link Object } {@link Element }
-	 * 
-	 */
-	public void setAny(Object value) {
-		this.any = value;
-	}
-	
-	/**
-	 * Gets the value of the constraintType property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getConstraintType() {
-		return this.constraintType;
-	}
-	
-	/**
-	 * Sets the value of the constraintType property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setConstraintType(String value) {
-		this.constraintType = value;
-	}
-	
+
+    @XmlAnyElement(lax = true)
+    protected Object any;
+    @XmlAttribute(name = "constraintType", required = true)
+    @XmlSchemaType(name = "anyURI")
+    protected String constraintType;
+
+
+    /**
+     * Gets the value of the any property.
+     *
+     * @return possible object is {@link Object } {@link Element }
+     *
+     */
+    public Object getAny() {
+        return this.any;
+    }
+
+    /**
+     * Sets the value of the any property.
+     *
+     * @param value allowed object is {@link Object } {@link Element }
+     *
+     */
+    public void setAny(final Object value) {
+        this.any = value;
+    }
+
+    /**
+     * Gets the value of the constraintType property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getConstraintType() {
+        return this.constraintType;
+    }
+
+    /**
+     * Sets the value of the constraintType property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setConstraintType(final String value) {
+        this.constraintType = value;
+    }
+
 }

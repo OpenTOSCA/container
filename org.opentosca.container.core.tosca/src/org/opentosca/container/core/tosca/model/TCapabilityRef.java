@@ -21,11 +21,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tCapabilityRef complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tCapabilityRef">
  *   &lt;complexContent>
@@ -36,59 +35,59 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tCapabilityRef")
 public class TCapabilityRef {
-	
-	@XmlAttribute(name = "name")
-	protected String name;
-	@XmlAttribute(name = "ref", required = true)
-	@XmlIDREF
-	@XmlSchemaType(name = "IDREF")
-	protected Object ref;
-	
-	
-	/**
-	 * Gets the value of the name property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getName() {
-		return this.name;
-	}
-	
-	/**
-	 * Sets the value of the name property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setName(String value) {
-		this.name = value;
-	}
-	
-	/**
-	 * Gets the value of the ref property.
-	 * 
-	 * @return possible object is {@link Object }
-	 * 
-	 */
-	public Object getRef() {
-		return this.ref;
-	}
-	
-	/**
-	 * Sets the value of the ref property.
-	 * 
-	 * @param value allowed object is {@link Object }
-	 * 
-	 */
-	public void setRef(Object value) {
-		this.ref = value;
-	}
-	
+
+    @XmlAttribute(name = "name")
+    protected String name;
+    @XmlAttribute(name = "ref", required = true)
+    @XmlIDREF
+    @XmlSchemaType(name = "IDREF")
+    protected Object ref;
+
+
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
+
+    /**
+     * Gets the value of the ref property.
+     *
+     * @return possible object is {@link Object }
+     *
+     */
+    public Object getRef() {
+        return this.ref;
+    }
+
+    /**
+     * Sets the value of the ref property.
+     *
+     * @param value allowed object is {@link Object }
+     *
+     */
+    public void setRef(final Object value) {
+        this.ref = value;
+    }
+
 }
