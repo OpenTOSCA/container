@@ -19,6 +19,7 @@ import org.oasis_open.docs.tosca.ns._2011._12.TExtensibleElements;
 import org.oasis_open.docs.tosca.ns._2011._12.TImport;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeType;
 import org.oasis_open.docs.tosca.ns._2011._12.TNodeTypeImplementation;
+import org.oasis_open.docs.tosca.ns._2011._12.TPolicyTemplate;
 import org.oasis_open.docs.tosca.ns._2011._12.TPolicyType;
 import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipType;
 import org.oasis_open.docs.tosca.ns._2011._12.TRelationshipTypeImplementation;
@@ -31,6 +32,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractArtifactType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
+import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicyType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipType;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
@@ -64,6 +66,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private List<AbstractArtifactTemplate> artifactTemplates = null;
     private List<AbstractArtifactType> artifactTypes = null;
     private List<AbstractPolicyType> policyTypes = null;
+    private List<AbstractPolicyTemplate> policyTemlates = null;
 
     /**
      * Constructor with a Definitions file as File Object and all referenced File Artifacts as a File
@@ -77,13 +80,13 @@ public class DefinitionsImpl extends AbstractDefinitions {
     public DefinitionsImpl(final AbstractFile mainDefFile, final Set<AbstractFile> filesInCsar,
                            final boolean isEntryDefinitions) {
         DefinitionsImpl.LOG.debug("Initializing DefinitionsImpl");
-        this.definitions = this.parseDefinitionsFile(mainDefFile);
+        this.definitions = parseDefinitionsFile(mainDefFile);
         this.filesInCsar = filesInCsar;
         this.referencedDefinitions = new ArrayList<>();
 
         // resolve imported definitions
         // TODO XSD,WSDL they are just checked with the file ending
-        for (final AbstractFile def : this.resolveImportedDefinitions()) {
+        for (final AbstractFile def : resolveImportedDefinitions()) {
             if (def == null) {
                 DefinitionsImpl.LOG.warn("Resolving of imported Definitions produced file which is null");
                 continue;
@@ -92,7 +95,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
             this.referencedDefinitions.add(new DefinitionsImpl(def, this.filesInCsar, false));
         }
 
-        this.allFoundDefinitions = this.findAllDefinitions();
+        this.allFoundDefinitions = findAllDefinitions();
         this.serviceTemplates = new ArrayList<>();
         this.nodeTypes = new ArrayList<>();
         this.nodeTypeImpls = new ArrayList<>();
@@ -101,10 +104,11 @@ public class DefinitionsImpl extends AbstractDefinitions {
         this.artifactTemplates = new ArrayList<>();
         this.artifactTypes = new ArrayList<>();
         this.policyTypes = new ArrayList<>();
-        this.initTypesAndTemplates();
+        this.policyTemlates = new ArrayList<>();
+        initTypesAndTemplates();
 
         if (isEntryDefinitions) {
-            this.updateDefinitionsReferences(this.allFoundDefinitions);
+            updateDefinitionsReferences(this.allFoundDefinitions);
         }
 
     }
@@ -133,7 +137,7 @@ public class DefinitionsImpl extends AbstractDefinitions {
                     // parse it
                     // add it
                     DefinitionsImpl.LOG.debug("Trying to add Definitions import");
-                    importedDefinitions.add(this.getFileByLocation(imported.getLocation(), this.filesInCsar));
+                    importedDefinitions.add(getFileByLocation(imported.getLocation(), this.filesInCsar));
 
                 }
 
@@ -216,36 +220,39 @@ public class DefinitionsImpl extends AbstractDefinitions {
     private void initTypesAndTemplates() {
         for (final TExtensibleElements element : this.definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
             if (element instanceof TServiceTemplate) {
-                this.addServiceTemplate(new ServiceTemplateImpl((TServiceTemplate) element, this));
+                addServiceTemplate(new ServiceTemplateImpl((TServiceTemplate) element, this));
             }
             if (element instanceof TNodeType) {
-                this.addNodeType(new NodeTypeImpl((TNodeType) element, this));
+                addNodeType(new NodeTypeImpl((TNodeType) element, this));
             }
             if (element instanceof TRelationshipType) {
-                this.addRelationshipType(new RelationshipTypeImpl((TRelationshipType) element, this));
+                addRelationshipType(new RelationshipTypeImpl((TRelationshipType) element, this));
             }
             if (element instanceof TNodeTypeImplementation) {
-                this.addNodeTypeImplementation(new NodeTypeImplementationImpl((TNodeTypeImplementation) element, this));
+                addNodeTypeImplementation(new NodeTypeImplementationImpl((TNodeTypeImplementation) element, this));
             }
             if (element instanceof TRelationshipTypeImplementation) {
-                this.addRelationshipTypeImplementation(new RelationshipTypeImplementationImpl(
+                addRelationshipTypeImplementation(new RelationshipTypeImplementationImpl(
                     (TRelationshipTypeImplementation) element, this));
             }
             if (element instanceof TArtifactTemplate) {
-                this.addArtifactTemplate(new ArtifactTemplateImpl((TArtifactTemplate) element, this));
+                addArtifactTemplate(new ArtifactTemplateImpl((TArtifactTemplate) element, this));
             }
             if (element instanceof TArtifactType) {
-                this.addArtifactType(new ArtifactTypeImpl(this, (TArtifactType) element));
+                addArtifactType(new ArtifactTypeImpl(this, (TArtifactType) element));
             }
             if (element instanceof TPolicyType) {
-                this.addPolicyType(new AbstractPolicyTypeImpl((TPolicyType) element, this));
+                addPolicyType(new PolicyTypeImpl((TPolicyType) element, this));
+            }
+            if (element instanceof TPolicyTemplate) {
+                addPolicyTemplate(new PolicyTemplateImpl((TPolicyTemplate) element, this));
             }
         }
 
         if (this.definitions.getTypes() != null) {
             for (final Object obj : this.definitions.getTypes().getAny()) {
                 if (obj instanceof TNodeType) {
-                    this.addNodeType(new NodeTypeImpl((TNodeType) obj, this));
+                    addNodeType(new NodeTypeImpl((TNodeType) obj, this));
                 }
             }
         }
@@ -262,7 +269,16 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     /**
-     * Adds an AbstractArtifactTemplate to this DefinitionsImpl
+     * <<<<<<< HEAD ======= Adds an AbstractPolicyTemplate to this DefinitionsImpl
+     *
+     * @param policyTemplate an AbstractPolicyTemplate to add to this DefinitionsImpl
+     */
+    public void addPolicyTemplate(final AbstractPolicyTemplate policyTemplate) {
+        this.policyTemlates.add(policyTemplate);
+    }
+
+    /**
+     * >>>>>>> master Adds an AbstractArtifactTemplate to this DefinitionsImpl
      *
      * @param artifactTemplate an AbstractArtifactTemplate to add to this DefinitionsImpl
      */
@@ -485,7 +501,22 @@ public class DefinitionsImpl extends AbstractDefinitions {
     }
 
     /**
-     * Returns a List of all nodeTypes in the current csar context of this definitions document
+     * <<<<<<< HEAD ======= Returns a List of all policyTemplates in the current csar context of this
+     * definitions document
+     *
+     * @return a List of PolicyTemplates
+     */
+    protected List<AbstractPolicyTemplate> getAllPolicyTemplates() {
+        final List<AbstractPolicyTemplate> policyTemplates = new ArrayList<>();
+        for (final DefinitionsImpl def : this.allFoundDefinitions) {
+            policyTemplates.addAll(def.getPolicyTemplates());
+        }
+        return policyTemplates;
+    }
+
+    /**
+     * >>>>>>> master Returns a List of all nodeTypes in the current csar context of this definitions
+     * document
      *
      * @return a List of AbstractNodeType
      */
@@ -519,4 +550,8 @@ public class DefinitionsImpl extends AbstractDefinitions {
         return this.policyTypes;
     }
 
+    @Override
+    public List<AbstractPolicyTemplate> getPolicyTemplates() {
+        return this.policyTemlates;
+    }
 }

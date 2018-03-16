@@ -54,7 +54,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     // serviceTemplate
     private final PropertyMappingsToOutputInitializer propertyOutputInitializer;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
+
     private ServiceInstanceVariablesHandler serviceInstanceInitializer;
+
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
@@ -62,7 +64,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     private final List<String> opNames = new ArrayList<>();
 
     private BPELPlanHandler planHandler;
+
     private NodeInstanceVariablesHandler instanceInit;
+
 
     private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
 
@@ -157,7 +161,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
                 this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
 
-                this.runPlugins(newBuildPlan, propMap);
+                runPlugins(newBuildPlan, propMap);
 
                 this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
 
@@ -200,7 +204,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             if (!serviceTemplate.hasBuildPlan()) {
                 BPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                                                   serviceTemplateId.toString());
-                final BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
 
                 if (newBuildPlan != null) {
                     BPELBuildProcessBuilder.LOG.debug("Created BuildPlan "
@@ -272,7 +276,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // Note: if a generic plugin fails during execution the
                 // TemplateBuildPlan is broken here!
                 // TODO implement fallback
-                if (!this.canGenericPluginHandle(relationshipTemplate)) {
+                if (!canGenericPluginHandle(relationshipTemplate)) {
                     BPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains",
                                                       relationshipTemplate.getId());
                     final OperationChain sourceChain =
@@ -297,7 +301,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 } else {
                     BPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
                                                      relationshipTemplate.getId());
-                    this.handleWithTypePlugin(context, relationshipTemplate);
+                    handleWithTypePlugin(context, relationshipTemplate);
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {

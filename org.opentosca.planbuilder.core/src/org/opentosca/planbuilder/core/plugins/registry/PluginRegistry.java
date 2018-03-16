@@ -65,8 +65,7 @@ public class PluginRegistry {
      * @return a List of IPlanBuilderProvPhaseOperationPlugin
      */
     public List<IPlanBuilderProvPhaseOperationPlugin<?>> getProvPlugins() {
-        final List<IPlanBuilderProvPhaseOperationPlugin<?>> plugins =
-            new ArrayList<>();
+        final List<IPlanBuilderProvPhaseOperationPlugin<?>> plugins = new ArrayList<>();
 
         final BundleContext ctx = getCtx();
 
@@ -178,9 +177,7 @@ public class PluginRegistry {
      * @return a List of IScalingPlanBuilderSelectionPlugin
      */
     public List<IScalingPlanBuilderSelectionPlugin<?>> getSelectionPlugins() {
-        final List<IScalingPlanBuilderSelectionPlugin<?>> plugins =
-            new ArrayList<>();
-
+        final List<IScalingPlanBuilderSelectionPlugin<?>> plugins = new ArrayList<>();
         final BundleContext ctx = getCtx();
 
         try {
@@ -204,9 +201,7 @@ public class PluginRegistry {
 
 
     public List<IPlanBuilderPolicyAwareTypePlugin<?>> getPolicyAwareTypePlugins() {
-        final List<IPlanBuilderPolicyAwareTypePlugin<?>> plugins =
-            new ArrayList<>();
-
+        final List<IPlanBuilderPolicyAwareTypePlugin<?>> plugins = new ArrayList<>();
         final BundleContext ctx = getCtx();
 
         try {
@@ -228,8 +223,7 @@ public class PluginRegistry {
     }
 
     public List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> getPolicyAwarePostPhasePlugins() {
-        final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> plugins =
-            new ArrayList<>();
+        final List<IPlanBuilderPolicyAwarePostPhasePlugin<?>> plugins = new ArrayList<>();
 
         final BundleContext ctx = getCtx();
 
@@ -252,8 +246,7 @@ public class PluginRegistry {
     }
 
     public List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> getPolicyAwarePrePhasePlugins() {
-        final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> plugins =
-            new ArrayList<>();
+        final List<IPlanBuilderPolicyAwarePrePhasePlugin<?>> plugins = new ArrayList<>();
 
         final BundleContext ctx = getCtx();
 

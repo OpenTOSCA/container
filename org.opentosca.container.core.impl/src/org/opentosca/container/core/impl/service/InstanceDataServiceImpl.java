@@ -183,7 +183,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         ServiceInstance serviceInstance = new ServiceInstance(csarID, serviceTemplateID, serviceTemplateName);
 
         // construct initial properties of serviceTemplate
-        final Document properties = this.createServiceInstancePropertiesFromServiceTemplate(csarID, serviceTemplateID);
+        final Document properties = createServiceInstancePropertiesFromServiceTemplate(csarID, serviceTemplateID);
 
         serviceInstance.setProperties(properties);
 
@@ -337,8 +337,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                 final Collection<NodeTemplateInstance> result = i.getNodeTemplateInstances();
                 if (result != null) {
                     for (final NodeTemplateInstance nti : result) {
-                        rels.addAll(nti.getSourceRelations());
-                        rels.addAll(nti.getTargetRelations());
+                        rels.addAll(nti.getIncomingRelations());
+                        rels.addAll(nti.getOutgoingRelations());
                     }
                     logger.info("Result: {}", rels.size());
                     return rels.stream().map(nti -> Converters.convert(nti)).collect(Collectors.toList());
@@ -577,7 +577,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         logger.info("getServiceInstanceProperties(): {}", serviceInstanceID);
         logger.info("getServiceInstanceProperties(): {}", propertiesList);
 
-        final List<ServiceInstance> serviceInstances = this.getServiceInstances(serviceInstanceID, null, null);
+        final List<ServiceInstance> serviceInstances = getServiceInstances(serviceInstanceID, null, null);
 
         if (serviceInstances == null || serviceInstances.size() != 1) {
             final String msg = String.format("Failed to retrieve ServiceInstance: '%s'", serviceInstanceID);
@@ -587,7 +587,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         final ServiceInstance serviceInstance = serviceInstances.get(0);
 
-        this.updateServiceInstanceProperties(serviceInstance);
+        updateServiceInstanceProperties(serviceInstance);
 
         return serviceInstance.getProperties();
     }
@@ -673,7 +673,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         logger.info("getNodeInstanceProperties(): {}", nodeInstanceID);
         logger.info("getNodeInstanceProperties(): {}", propertiesList);
 
-        final List<NodeInstance> nodeInstances = this.getNodeInstances(nodeInstanceID, null, null, null);
+        final List<NodeInstance> nodeInstances = getNodeInstances(nodeInstanceID, null, null, null);
 
         if (nodeInstances == null || nodeInstances.size() != 1) {
             final String msg = String.format("Failed to retrieve NodeInstance: '%s'", nodeInstanceID);
@@ -773,7 +773,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         this.riDAO.setProperties(relationInstances.get(0), properties);
 
-        this.updateServiceInstanceProperties(relationInstances.get(0).getServiceInstance());
+        updateServiceInstanceProperties(relationInstances.get(0).getServiceInstance());
         return;
 
     }
@@ -795,7 +795,8 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         this.niDAO.setProperties(nodeInstances.get(0), properties);
 
-        this.updateServiceInstanceProperties(nodeInstances.get(0).getServiceInstance());
+
+        updateServiceInstanceProperties(nodeInstances.get(0).getServiceInstance());
         return;
 
     }
@@ -881,7 +882,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         for (final TPropertyMapping mapping : boundaryDefs.getProperties().getPropertyMappings().getPropertyMapping()) {
             final String serviceTemplatePropertyQuery = mapping.getServiceTemplatePropertyRef();
             final List<Element> serviceTemplatePropertyElements =
-                this.queryElementList(properties, serviceTemplatePropertyQuery);
+                queryElementList(properties, serviceTemplatePropertyQuery);
 
             // fetch element from serviceTemplateProperties
 
@@ -891,15 +892,14 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
             }
 
             // check whether the targetRef is concat query
-            if (this.isConcatQuery(mapping.getTargetPropertyRef())) {
+            if (isConcatQuery(mapping.getTargetPropertyRef())) {
                 // this query needs possibly multiple properties from different
                 // nodeInstances
 
                 final String propertyValue =
-                    this.generatePropertyValueFromConcatQuery(mapping.getTargetPropertyRef(),
-                                                              this.getNodeInstances(null, null, null,
-                                                                                    serviceInstance.getServiceInstanceID()));
-
+                    generatePropertyValueFromConcatQuery(mapping.getTargetPropertyRef(),
+                                                         getNodeInstances(null, null, null,
+                                                                          serviceInstance.getServiceInstanceID()));
                 serviceTemplatePropertyElements.get(0).setTextContent(propertyValue);
 
             } else {
@@ -907,7 +907,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                 // the referenced entity
 
                 final NodeInstance nodeInstance =
-                    this.getNodeInstanceFromMappingObject(serviceInstance, mapping.getTargetObjectRef());
+                    getNodeInstanceFromMappingObject(serviceInstance, mapping.getTargetObjectRef());
 
                 if (nodeInstance == null) {
                     continue;
@@ -922,7 +922,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                 final String nodeTemplatePropertyQuery = mapping.getTargetPropertyRef();
 
                 final List<Element> nodePropertyElements =
-                    this.queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
+                    queryElementList(nodePropertiesRoot, nodeTemplatePropertyQuery);
 
                 if (nodePropertyElements.size() != 1) {
                     // skip this property, we expect only one
@@ -979,12 +979,11 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                 final String nodeTemplateName = queryParts[0];
                 final String propertyName = queryParts[2];
 
-                if (this.getNodeInstanceWithName(nodeInstance, nodeTemplateName) != null) {
+                if (getNodeInstanceWithName(nodeInstance, nodeTemplateName) != null) {
 
                     final String propValue =
-                        this.fetchPropertyValueFromNodeInstance(this.getNodeInstanceWithName(nodeInstance,
-                                                                                             nodeTemplateName),
-                                                                propertyName);
+                        fetchPropertyValueFromNodeInstance(getNodeInstanceWithName(nodeInstance, nodeTemplateName),
+                                                           propertyName);
 
                     augmentedFunctionParts.add("'" + propValue + "'");
                 }
@@ -1064,7 +1063,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
             // serviceInstanceIDtoURI);
 
             final List<NodeInstance> nodeInstances =
-                this.getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID());
+                getNodeInstances(null, null, null, serviceInstance.getServiceInstanceID());
 
             if (nodeInstances == null) {
                 return null;
@@ -1197,7 +1196,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         logger.info("setServiceInstanceProperties(): {}", serviceInstanceID);
 
-        final List<ServiceInstance> serviceInstances = this.getServiceInstances(serviceInstanceID, null, null);
+        final List<ServiceInstance> serviceInstances = getServiceInstances(serviceInstanceID, null, null);
 
         if (serviceInstances.size() != 1) {
             throw new ReferenceNotFoundException("Couldn't find serviceInstance");
@@ -1209,7 +1208,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         this.siDAO.storeServiceInstance(serviceInstance);
 
-        this.updateServiceInstanceProperties(serviceInstance);
+        updateServiceInstanceProperties(serviceInstance);
     }
 
     @Override

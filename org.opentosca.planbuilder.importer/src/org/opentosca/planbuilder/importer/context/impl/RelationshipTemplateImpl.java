@@ -161,7 +161,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      */
     @Override
     public AbstractRelationshipType getRelationshipType() {
-        return this.searchRelationshipType(this.getType());
+        return searchRelationshipType(getType());
     }
 
     /**
@@ -192,10 +192,9 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      */
     @Override
     public List<AbstractRelationshipTypeImplementation> getImplementations() {
-        final List<AbstractRelationshipTypeImplementation> impls =
-            new ArrayList<>();
+        final List<AbstractRelationshipTypeImplementation> impls = new ArrayList<>();
 
-        for (final AbstractRelationshipTypeImplementation impl : this.findRelationshipTypeImpls(this.definitions)) {
+        for (final AbstractRelationshipTypeImplementation impl : findRelationshipTypeImpls(this.definitions)) {
             if (impl.getRelationshipType().getId().equals(this.relationshipTemplate.getType())) {
                 impls.add(impl);
             }
@@ -205,8 +204,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
     }
 
     private List<AbstractRelationshipTypeImplementation> findRelationshipTypeImpls(final AbstractDefinitions def) {
-        final List<AbstractRelationshipTypeImplementation> impls =
-            new ArrayList<>();
+        final List<AbstractRelationshipTypeImplementation> impls = new ArrayList<>();
 
         AbstractDefinitions currentDef = def;
         final Stack<AbstractDefinitions> defsToSearchIn = new Stack<>();

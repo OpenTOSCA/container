@@ -34,11 +34,12 @@ public class EndpointServiceHandler {
             EndpointServiceHandler.LOG.debug("Bind Endpoint Service: {} bound.", endpointService.toString());
 
             EndpointServiceHandler.LOG.debug("Storing the Management Bus SOAP-API endpoint: {} via EndpointService...",
-                                             Route.ENDPOINT);
+                                             Route.PUBLIC_ENDPOINT);
 
             URI uri = null;
             try {
-                uri = new URI(Route.ENDPOINT);
+                uri = new URI(Route.PUBLIC_ENDPOINT);
+
             }
             catch (final URISyntaxException e) {
                 // TODO Auto-generated catch block

@@ -243,8 +243,7 @@ public class TRelationshipTemplate extends TEntityTemplate {
          */
         public List<TRelationshipTemplate.RelationshipConstraints.RelationshipConstraint> getRelationshipConstraint() {
             if (this.relationshipConstraint == null) {
-                this.relationshipConstraint =
-                    new ArrayList<>();
+                this.relationshipConstraint = new ArrayList<>();
             }
             return this.relationshipConstraint;
         }

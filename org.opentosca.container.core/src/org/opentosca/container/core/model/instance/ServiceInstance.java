@@ -119,7 +119,7 @@ public class ServiceInstance {
         this.csarID = csarID;
         // needed to persist the object
         this.csarID_DB = csarID.getFileName();
-        this.setServiceTemplateID(serviceTemplateID);
+        setServiceTemplateID(serviceTemplateID);
         this.serviceTemplateName = serviceTemplateName;
 
         this.created = new Date();
@@ -139,7 +139,7 @@ public class ServiceInstance {
     }
 
     public QName getToscaID() {
-        return this.getServiceTemplateID();
+        return getServiceTemplateID();
     }
 
     public Date getCreated() {
@@ -200,7 +200,7 @@ public class ServiceInstance {
     @Override
     public String toString() {
         return "id:" + this.id + " created:" + this.created + " sID:" + this.serviceInstanceID + " templateID: "
-            + this.getToscaID().toString() + " template name: " + this.serviceTemplateName;
+            + getToscaID().toString() + " template name: " + this.serviceTemplateName;
     }
 
     /*
@@ -261,11 +261,11 @@ public class ServiceInstance {
         } else if (!this.serviceInstanceID.equals(other.serviceInstanceID)) {
             return false;
         }
-        if (this.getServiceTemplateID() == null) {
+        if (getServiceTemplateID() == null) {
             if (other.getServiceTemplateID() != null) {
                 return false;
             }
-        } else if (!this.getServiceTemplateID().equals(other.getServiceTemplateID())) {
+        } else if (!getServiceTemplateID().equals(other.getServiceTemplateID())) {
             return false;
         }
         if (this.serviceTemplateName == null) {

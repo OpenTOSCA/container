@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.core.bpel.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -148,6 +149,11 @@ public class TOSCAManagementInfrastructureNodeTemplate extends AbstractNodeTempl
 
             @Override
             public Element getDOMElement() {
+                return null;
+            }
+
+            @Override
+            public Map<String, String> asMap() {
                 return null;
             }
         };

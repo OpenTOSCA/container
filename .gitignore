@@ -1,9 +1,13 @@
 
-# Eclipse Core
-.project
+# Custom
 
-# JDT-specific (Eclipse Java Development Tools)
+### Intellij ###
+.idea
+
+### Eclipse ###
+.project
 .classpath
+
 
 # Created by https://www.gitignore.io/api/java,maven,eclipse,intellij,visualstudiocode
 
@@ -25,7 +29,7 @@ local.properties
 .externalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
-*.launch
+# *.launch
 
 # PyDev specific (Python IDE for Eclipse)
 *.pydevproject

@@ -89,16 +89,9 @@ public class BuildPlanController {
                                     @Context final UriInfo uriInfo,
                                     @ApiParam(required = true,
                                               value = "input parameters for the plan") final List<TParameter> parameters) {
+        // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
         return this.planService.invokePlan(plan, uriInfo, parameters, this.csarId, this.serviceTemplate, -1L,
-                                           this.PLAN_TYPE);// We
-        // pass
-        // -1
-        // because
-        // "PlanInvocationEngine.invokePlan()"
-        // expects
-        // it for
-        // build
-        // plans
+                                           this.PLAN_TYPE);
     }
 
     @GET

@@ -56,7 +56,6 @@ public class BoundaryDefinitionController {
 
     private CsarService csarService;
 
-    @SuppressWarnings("unused")
     private IToscaEngineService engineService;
 
     private IToscaReferenceMapper referenceMapper;
@@ -75,10 +74,9 @@ public class BoundaryDefinitionController {
         }
 
         final ResourceSupport links = new ResourceSupport();
-        links.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path("properties").build()))
-                      .rel("properties").build());
-        links.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path("interfaces").build()))
-                      .rel("interfaces").build());
+        links.add(UriUtil.generateSubResourceLink(this.uriInfo, "properties", false, "properties"));
+        links.add(UriUtil.generateSubResourceLink(this.uriInfo, "interfaces", false, "interfaces"));
+
         // TODO This resource seems to be unused and not implemented
         // links.add(Link.fromUri(UriUtils.encode(this.uriInfo.getAbsolutePathBuilder().path("propertyconstraints").build())).rel("propertyconstraints").build());
         // TODO This resource seems to be unused and not implemented
@@ -115,6 +113,7 @@ public class BoundaryDefinitionController {
         final PropertiesDTO dto = new PropertiesDTO();
         this.logger.debug("XML Fragement: {}", xmlFragment);
         dto.setXmlFragment(xmlFragment);
+
         if (propertyMappings != null) {
             this.logger.debug("Found <{}> property mappings", propertyMappings.size());
             dto.setPropertyMappings(propertyMappings);
@@ -148,11 +147,10 @@ public class BoundaryDefinitionController {
         list.add(interfaces.stream().map(name -> {
             final InterfaceDTO dto = new InterfaceDTO();
             dto.setName(name);
-            dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(name).build())).rel("self")
-                        .build());
+            dto.add(UriUtil.generateSubResourceLink(this.uriInfo, name, false, "self"));
             return dto;
         }).collect(Collectors.toList()).toArray(new InterfaceDTO[] {}));
-        list.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+        list.add(UriUtil.generateSelfLink(this.uriInfo));
 
         return Response.ok(list).build();
     }
@@ -173,7 +171,8 @@ public class BoundaryDefinitionController {
         }
 
         final List<TExportedOperation> operations =
-            this.getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
+            getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
+
         this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
                           operations.size(), name, servicetemplate, csar);
 
@@ -192,18 +191,22 @@ public class BoundaryDefinitionController {
                 // Compute the according URL for the Build or Management Plan
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
+
                     // If it's a build plan
+
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 } else {
                     // ... else we assume it's a management plan
+
                     planUrl =
                         this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 }
+
                 plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
                 op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
             }
@@ -214,7 +217,8 @@ public class BoundaryDefinitionController {
         final InterfaceDTO dto = new InterfaceDTO();
         dto.setName(name);
         dto.setOperations(ops);
-        dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
+        dto.add(UriUtil.generateSelfLink(this.uriInfo));
+
 
         return Response.ok(dto).build();
     }
@@ -241,6 +245,6 @@ public class BoundaryDefinitionController {
         // We cannot inject an instance of {@link IToscaReferenceMapper} since
         // it is manually created in our default implementation of {@link
         // IToscaEngineService}
-        this.referenceMapper = engineService.getToscaReferenceMapper();
+        this.referenceMapper = this.engineService.getToscaReferenceMapper();
     }
 }

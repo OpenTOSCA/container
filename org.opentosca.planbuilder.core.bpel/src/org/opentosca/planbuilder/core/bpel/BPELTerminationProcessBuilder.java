@@ -96,7 +96,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 
                 final AbstractPlan newAbstractTerminationPlan =
-                    this.generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
+                    generateTOG(new QName(processNamespace, processName).toString(), definitions, serviceTemplate);
 
                 final BPELPlan newTerminationPlan =
                     this.planHandler.createEmptyBPELPlan(processNamespace, processName, newAbstractTerminationPlan,
@@ -154,7 +154,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 // flow to iterate for the instance count deleting one instance
                 // at a time
 
-                final List<BPELScopeActivity> changedActivities = this.runPlugins(newTerminationPlan, propMap);
+                final List<BPELScopeActivity> changedActivities = runPlugins(newTerminationPlan, propMap);
 
                 this.serviceInstanceVarsHandler.appendSetServiceInstanceState(newTerminationPlan,
                                                                               newTerminationPlan.getBpelMainSequenceOutputAssignElement(),
@@ -216,7 +216,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             if (!serviceTemplate.hasBuildPlan()) {
                 BPELTerminationProcessBuilder.LOG.debug("ServiceTemplate {} has no TerminationPlan, generating TerminationPlan",
                                                         serviceTemplateId.toString());
-                final BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
 
                 if (newBuildPlan != null) {
                     BPELTerminationProcessBuilder.LOG.debug("Created TerminationPlan "
@@ -306,7 +306,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     final BPELPlanContext context =
                         new BPELPlanContext(templatePlan, propMap, plan.getServiceTemplate());
 
-                    if (!this.isDockerContainer(context.getNodeTemplate())) {
+                    if (!isDockerContainer(context.getNodeTemplate())) {
                         continue;
                     }
 

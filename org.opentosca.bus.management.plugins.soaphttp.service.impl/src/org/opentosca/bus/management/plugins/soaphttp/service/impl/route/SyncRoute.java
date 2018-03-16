@@ -23,12 +23,10 @@ public class SyncRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-
         final String ENDPOINT = "cxf:${header[endpoint]}?dataFormat=PAYLOAD&loggingFeatureEnabled=true";
 
         final Processor headerProcessor = new HeaderProcessor();
 
-        this.from("direct:Sync-WS-Invoke").to("stream:out").process(headerProcessor)
-            .recipientList(this.simple(ENDPOINT));
+        this.from("direct:Sync-WS-Invoke").process(headerProcessor).recipientList(this.simple(ENDPOINT));
     }
 }

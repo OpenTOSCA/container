@@ -14,7 +14,6 @@ import org.opentosca.bus.application.api.jsonhttp.processor.IsFinishedRequestPro
 import org.opentosca.bus.application.api.jsonhttp.processor.IsFinishedResponseProcessor;
 import org.opentosca.bus.application.api.jsonhttp.servicehandler.ApplicationBusServiceHandler;
 import org.opentosca.bus.application.model.exception.ApplicationBusInternalException;
-import org.opentosca.container.core.common.Settings;
 
 /**
  * Route of the Application Bus-JSON/HTTP-API.<br>
@@ -30,7 +29,9 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 
-    private static final String HOST = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+
+    private static final String HOST = "http://localhost";
+
     private static final String PORT = "8083";
     private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
 
@@ -60,14 +61,16 @@ public class Route extends RouteBuilder {
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
-        this.onException(Exception.class).handled(true).setBody(this.property(Exchange.EXCEPTION_CAUGHT))
+
+        this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
             .process(exceptionProcessor);
 
         // invoke route
         this.from("restlet:" + Route.BASE_ENDPOINT + Route.INVOKE_ENDPOINT + "?restletMethods=post")
             .process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
-            .when(this.property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor)
-            .removeHeaders("*").otherwise().process(exceptionProcessor);
+            .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
+            .otherwise().process(exceptionProcessor);
+
 
         // isFinished route
         this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethods=get")

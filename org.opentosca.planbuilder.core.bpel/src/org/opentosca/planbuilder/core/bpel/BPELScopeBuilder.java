@@ -58,8 +58,7 @@ public class BPELScopeBuilder {
      * @param chain a ProvisioningChain to filter
      */
     private static void filterIncompatibleIADACandidates(final OperationChain chain) {
-        final Map<IANodeTypeImplCandidate, DANodeTypeImplCandidate> compatibleCandidates =
-            new HashMap<>();
+        final Map<IANodeTypeImplCandidate, DANodeTypeImplCandidate> compatibleCandidates = new HashMap<>();
         for (final IANodeTypeImplCandidate iaCandidate : chain.iaCandidates) {
             for (final DANodeTypeImplCandidate daCandidate : chain.daCandidates) {
                 if (iaCandidate.nodeImpl.getName().equals(daCandidate.impl.getName())) {
@@ -318,8 +317,7 @@ public class BPELScopeBuilder {
     private static void filterIADACandidatesRelations(final OperationChain chain) {
         if (chain.provCandidates.size() != chain.iaCandidates.size()) {
             final List<IANodeTypeImplCandidate> iaCandidatesToRemove = new ArrayList<>();
-            final Set<OperationNodeTypeImplCandidate> provCandidatesWithMatch =
-                new HashSet<>();
+            final Set<OperationNodeTypeImplCandidate> provCandidatesWithMatch = new HashSet<>();
             for (final IANodeTypeImplCandidate iaCandidate : chain.iaCandidates) {
                 final int iaCandidateSize = iaCandidate.ias.size();
                 OperationNodeTypeImplCandidate match = null;
@@ -374,8 +372,7 @@ public class BPELScopeBuilder {
             // search for ia/da-Candidates where no operation candidate could be
             // found
             final List<IANodeTypeImplCandidate> iaCandidatesToRemove = new ArrayList<>();
-            final Set<OperationNodeTypeImplCandidate> provCandidatesWithMatch =
-                new HashSet<>();
+            final Set<OperationNodeTypeImplCandidate> provCandidatesWithMatch = new HashSet<>();
             for (final IANodeTypeImplCandidate iaCandidate : chain.iaCandidates) {
                 final int iaCandidateSize = iaCandidate.ias.size();
                 OperationNodeTypeImplCandidate match = null;

@@ -91,7 +91,7 @@ public class ResourceSupport {
      * @return
      */
     public boolean hasLink(final String rel) {
-        return this.getLink(rel) != null;
+        return getLink(rel) != null;
     }
 
     /**
@@ -137,7 +137,7 @@ public class ResourceSupport {
     }
 
 
-    private static class LinksSerializer extends JsonSerializer<List<Link>> {
+    public static class LinksSerializer extends JsonSerializer<List<Link>> {
 
         @Override
         public void serialize(final List<Link> links, final JsonGenerator json,
@@ -154,7 +154,8 @@ public class ResourceSupport {
         }
     }
 
-    private static class LinkSerializer extends JsonSerializer<Link> {
+
+    public static class LinkSerializer extends JsonSerializer<Link> {
 
         @Override
         public void serialize(final Link link, final JsonGenerator json,

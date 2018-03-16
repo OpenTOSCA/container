@@ -133,7 +133,6 @@ public class BPELPlan extends AbstractPlan {
 
     public Map<String, String> namespaceMap = new HashMap<>();
 
-
     public void setTOSCAInterfaceName(final String name) {
         this.toscaInterfaceName = name;
     }
@@ -154,7 +153,7 @@ public class BPELPlan extends AbstractPlan {
         if (this.toscaOperationName != null) {
             return this.toscaOperationName;
         } else {
-            return this.getBpelMainSequenceReceiveElement().getAttribute("operation");
+            return getBpelMainSequenceReceiveElement().getAttribute("operation");
         }
     }
 

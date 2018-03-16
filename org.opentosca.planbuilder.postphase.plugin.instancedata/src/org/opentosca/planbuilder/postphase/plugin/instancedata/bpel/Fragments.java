@@ -83,7 +83,7 @@ public class Fragments {
      */
     public Node createRESTDeleteOnURLBPELVarAsNode(final String bpelVarName,
                                                    final String responseVarName) throws IOException, SAXException {
-        final String templateString = this.createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
+        final String templateString = createRESTDeleteOnURLBPELVarAsString(bpelVarName, responseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -256,8 +256,8 @@ public class Fragments {
                                                                 final String responseVariableName) throws IOException,
                                                                                                    SAXException {
         final String templateString =
-            this.generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId,
-                                                           responseVariableName);
+            generateBPEL4RESTLightServiceInstancePOST(instanceDataAPIUrlVariableName, csarId, serviceTemplateId,
+                                                      responseVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -284,7 +284,7 @@ public class Fragments {
                                                           final String serviceInstanceURLVarName) throws IOException,
                                                                                                   SAXException {
         final String templateString =
-            this.generateServiceInstanceURLVarAssign(serviceInstanceResponseVarName, serviceInstanceURLVarName);
+            generateServiceInstanceURLVarAssign(serviceInstanceResponseVarName, serviceInstanceURLVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -294,7 +294,7 @@ public class Fragments {
     public Node generateNodeInstancesQueryGETasNode(final String instanceDataUrlVarName, final String responseVarName,
                                                     final QName nodeType) throws IOException, SAXException {
         final String templateString =
-            this.generateNodeInstancePropertiesGET(instanceDataUrlVarName, responseVarName, nodeType);
+            generateNodeInstancePropertiesGET(instanceDataUrlVarName, responseVarName, nodeType);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -316,8 +316,7 @@ public class Fragments {
     public Node generateInstancePropertiesGETAsNode(final String instanceUrlVarName,
                                                     final String bpel4RestLightResponseVarName) throws SAXException,
                                                                                                 IOException {
-        final String templateString =
-            this.generateInstancePropertiesGET(instanceUrlVarName, bpel4RestLightResponseVarName);
+        final String templateString = generateInstancePropertiesGET(instanceUrlVarName, bpel4RestLightResponseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -340,7 +339,7 @@ public class Fragments {
                                                                         final String nodeInstanceResponseVarName) throws IOException,
                                                                                                                   SAXException {
         final String templateString =
-            this.generateAssignFromNodeInstanceResonseToStringVar(stringVarName, nodeInstanceResponseVarName);
+            generateAssignFromNodeInstanceResonseToStringVar(stringVarName, nodeInstanceResponseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -384,8 +383,8 @@ public class Fragments {
                                                                       final int nodeInstanceIndex) throws IOException,
                                                                                                    SAXException {
         final String templateString =
-            this.generateServiceInstanceRequestToStringVarAssign(stringVarName, serviceInstanceResponseVarName,
-                                                                 nodeInstanceIndex);
+            generateServiceInstanceRequestToStringVarAssign(stringVarName, serviceInstanceResponseVarName,
+                                                            nodeInstanceIndex);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -407,7 +406,7 @@ public class Fragments {
 
     public Node generateBPEL4RESTLightGETAsNode(final String serviceInstanceUrlVarName,
                                                 final String responseVarName) throws IOException, SAXException {
-        final String templateString = this.generateBPEL4RESTLightGET(serviceInstanceUrlVarName, responseVarName);
+        final String templateString = generateBPEL4RESTLightGET(serviceInstanceUrlVarName, responseVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -432,7 +431,7 @@ public class Fragments {
                                                                      final String stringVariableName) throws IOException,
                                                                                                       SAXException {
         final String templateString =
-            this.generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName, stringVariableName);
+            generateAssignFromInputMessageToStringVariable(inputMessageElementLocalName, stringVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -463,8 +462,8 @@ public class Fragments {
                                                             final String nodeInstancePropertyNamespace) throws IOException,
                                                                                                         SAXException {
         final String templateString =
-            this.generateCopyFromStringVarToAnyTypeVar(propertyVarName, nodeInstancePropertyRequestVarName,
-                                                       nodeInstancePropertyLocalName, nodeInstancePropertyNamespace);
+            generateCopyFromStringVarToAnyTypeVar(propertyVarName, nodeInstancePropertyRequestVarName,
+                                                  nodeInstancePropertyLocalName, nodeInstancePropertyNamespace);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -486,9 +485,9 @@ public class Fragments {
         for (final String propertyVarName : propertyVarToDomMapping.keySet()) {
             final Node propertyNode = propertyVarToDomMapping.get(propertyVarName);
             Node copyNode =
-                this.generateCopyFromStringVarToAnyTypeVarAsNode(propertyVarName, nodeInstancePropertyRequestVarName,
-                                                                 propertyNode.getLocalName(),
-                                                                 propertyNode.getNamespaceURI());
+                generateCopyFromStringVarToAnyTypeVarAsNode(propertyVarName, nodeInstancePropertyRequestVarName,
+                                                            propertyNode.getLocalName(),
+                                                            propertyNode.getNamespaceURI());
 
             copyNode = doc.importNode(copyNode, true);
             assignNode.appendChild(copyNode);
@@ -513,7 +512,7 @@ public class Fragments {
     public Node generateInstancesBPEL4RESTLightPUTAsNode(final String requestVarName,
                                                          final String instanceURLVarName) throws IOException,
                                                                                           SAXException {
-        final String templateString = this.generateInstancesBPEL4RESTLightPUT(requestVarName, instanceURLVarName);
+        final String templateString = generateInstancesBPEL4RESTLightPUT(requestVarName, instanceURLVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);

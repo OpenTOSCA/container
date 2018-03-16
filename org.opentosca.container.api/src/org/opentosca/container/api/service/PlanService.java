@@ -41,6 +41,7 @@ import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.model.TBoolean;
 import org.opentosca.container.core.tosca.model.TPlan;
+import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +53,17 @@ public class PlanService {
 
     private static final PlanTypes[] ALL_PLAN_TYPES = PlanTypes.values();
 
-    // this service is used to retrieve a reference to IToscaReferenceMapper
+    // To retrieve a reference to IToscaReferenceMapper
     private IToscaEngineService engineService;
 
     private IToscaReferenceMapper referenceMapper;
 
     private IOpenToscaControlService controlService;
 
+    private DeploymentTestService deploymentTestService;
+
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
+
 
     public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
         logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
@@ -78,7 +82,9 @@ public class PlanService {
     }
 
     public TPlan getPlan(final String name, final CSARID id) {
-        final List<TPlan> plans = this.getPlansByType(id, ALL_PLAN_TYPES);
+
+        final List<TPlan> plans = getPlansByType(id, ALL_PLAN_TYPES);
+
         for (final TPlan plan : plans) {
             if (plan.getId() != null && plan.getId().equalsIgnoreCase(name)) {
                 return plan;
@@ -97,8 +103,15 @@ public class PlanService {
         dto.setInputParameters(parameters);
 
         try {
-            return this.controlService.invokePlanInvocation(csarId, serviceTemplate, serviceTemplateInstanceId,
-                                                            PlanDTO.Converter.convert(dto));
+            final String correlationId =
+                this.controlService.invokePlanInvocation(csarId, serviceTemplate, serviceTemplateInstanceId,
+                                                         PlanDTO.Converter.convert(dto));
+            if (PlanTypes.isPlanTypeURI(plan.getPlanType()).equals(PlanTypes.BUILD)
+                && Boolean.parseBoolean(Settings.OPENTOSCA_DEPLOYMENT_TESTS)) {
+                logger.debug("Plan \"{}\" is a build plan, so we schedule deployment tests...", plan.getName());
+                this.deploymentTestService.runAfterPlan(csarId, correlationId);
+            }
+            return correlationId;
         }
         catch (final UnsupportedEncodingException e) {
             throw new ServerErrorException(500, e);
@@ -170,19 +183,6 @@ public class PlanService {
         return pi;
     }
 
-    /* Service Injection */
-    /********************/
-    public void setEngineService(final IToscaEngineService engineService) {
-        this.engineService = engineService;
-        // We cannot inject an instance of {@link IToscaReferenceMapper} since
-        // it is manually created in our default implementation of {@link
-        // IToscaEngineService}
-        this.referenceMapper = this.engineService.getToscaReferenceMapper();
-    }
-
-    public void setControlService(final IOpenToscaControlService controlService) {
-        this.controlService = controlService;
-    }
 
     /* API Operations Helper Methods */
     /*********************************/
@@ -190,6 +190,7 @@ public class PlanService {
 
     /* Plan Templates */
     /******************/
+
     public Response getPlans(final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                              final PlanTypes... planTypes) {
 
@@ -200,6 +201,10 @@ public class PlanService {
         final PlanListDTO list = new PlanListDTO();
         buildPlans.stream().forEach(p -> {
             final PlanDTO plan = new PlanDTO(p);
+
+            plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).path("instances")
+                                                        .build()))
+                         .rel("instances").build());
             plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).build()))
                          .rel("self").build());
             list.add(plan);
@@ -255,12 +260,14 @@ public class PlanService {
          * Add parameter "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
          */
         if (serviceTemplateInstanceId != null) {
-            String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
+
+            String url = Settings.CONTAINER_INSTANCEDATA_API + serviceTemplateInstanceId;
             url = url.replace("{csarid}", csarId.getFileName());
             url = url.replace("{servicetemplateid}",
                               UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
             final URI uri = UriUtil.encode(URI.create(url));
             final TParameter param = new TParameter();
+
             param.setName("OpenTOSCAContainerAPIServiceInstanceURL");
             param.setRequired(TBoolean.fromValue("yes"));
             param.setType("String");
@@ -333,8 +340,9 @@ public class PlanService {
                                     final CSARID csarId, final QName serviceTemplate,
                                     final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
         if (pi.getServiceTemplateInstance() != null) {
@@ -358,8 +366,9 @@ public class PlanService {
     public Response getPlanInstanceState(final String plan, final String instance, final UriInfo uriInfo,
                                          final CSARID csarId, final QName serviceTemplate,
                                          final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
 
         return Response.ok(pi.getState().toString()).build();
     }
@@ -367,9 +376,9 @@ public class PlanService {
     public Response changePlanInstanceState(final String newState, final String plan, final String instance,
                                             final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                                             final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
 
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
         try {
             final PlanInstanceState parsedState = PlanInstanceState.valueOf(newState);
             pi.setState(parsedState);
@@ -389,8 +398,10 @@ public class PlanService {
     public Response getPlanInstanceLogs(final String plan, final String instance, final UriInfo uriInfo,
                                         final CSARID csarId, final QName serviceTemplate,
                                         final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
-        final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                         serviceTemplateInstanceId, planTypes);
+
+        final PlanInstance pi =
+            resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
+
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
         dto.add(UriUtil.generateSelfLink(uriInfo));
@@ -406,8 +417,8 @@ public class PlanService {
 
 
         if (entry != null && entry.length() > 0) {
-            final PlanInstance pi = this.resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
-                                                             serviceTemplateInstanceId, planTypes);
+            final PlanInstance pi = resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate,
+                                                        serviceTemplateInstanceId, planTypes);
             final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
             pi.addEvent(event);
             this.planInstanceRepository.update(pi);
@@ -421,4 +432,19 @@ public class PlanService {
         }
     }
 
+    public void setEngineService(final IToscaEngineService engineService) {
+        this.engineService = engineService;
+        // FIXME: We cannot inject an instance of {@link IToscaReferenceMapper} since
+        // it is manually created in our default implementation of {@link
+        // IToscaEngineService}
+        this.referenceMapper = this.engineService.getToscaReferenceMapper();
+    }
+
+    public void setControlService(final IOpenToscaControlService controlService) {
+        this.controlService = controlService;
+    }
+
+    public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
+        this.deploymentTestService = deploymentTestService;
+    }
 }

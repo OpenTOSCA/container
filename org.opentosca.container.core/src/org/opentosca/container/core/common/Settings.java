@@ -24,6 +24,9 @@ public class Settings {
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
+    public final static String OPENTOSCA_DEPLOYMENT_TESTS =
+        System.getProperty("org.opentosca.deployment.tests", "false");
+
     // TODO: Use public static final variables instead, as in
     // StaticTOSCANamespaces. The problems with the current approach is: (i)
     // Full-text search to find usage instead of Java Reference Search. (ii) It

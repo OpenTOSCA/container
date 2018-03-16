@@ -94,7 +94,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 
 
     public ToscaReferenceMapper() {
-        this.setup();
+        setup();
     }
 
     /**
@@ -107,7 +107,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
 
         this.LOG.debug("Delete the content of \"" + csarID + "\".");
 
-        this.setup();
+        setup();
         this.referenceMap.remove(csarID);
         this.documentMap.remove(csarID);
         this.mapCSARIDToDefinitions.remove(csarID);
@@ -126,7 +126,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
         this.serviceTemplatePropertiesContent.remove(csarID);
         this.serviceTemplatePropertyMappings.remove(csarID);
 
-        if (this.containsCSARData(csarID)) {
+        if (containsCSARData(csarID)) {
             return false;
         }
         return true;
@@ -154,7 +154,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public boolean containsCSARData(final CSARID csarID) {
-        this.setup();
+        setup();
 
         boolean found = false;
 
@@ -206,8 +206,8 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public boolean containsReferenceInsideCSAR(final CSARID csarID, final QName reference) {
-        this.setup();
-        if (this.containsCSARData(csarID)) {
+        setup();
+        if (containsCSARData(csarID)) {
             if (this.referenceMap.get(csarID).containsKey(reference)) {
                 return true;
             }
@@ -242,7 +242,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public List<QName> getDefinitionIDsOfCSAR(final CSARID csarID) {
-        this.setup();
+        setup();
 
         final List<QName> listOfIDs = new ArrayList<>();
 
@@ -266,7 +266,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public List<TDefinitions> getDefinitionsOfCSAR(final CSARID csarID) {
-        this.setup();
+        setup();
         if (this.mapCSARIDToDefinitions.containsKey(csarID)) {
             return this.mapCSARIDToDefinitions.get(csarID);
         } else {
@@ -282,7 +282,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     @Override
     @Deprecated
     public Document getDOMDocumentForReference(final CSARID csarID, final QName reference) {
-        this.setup();
+        setup();
         if (this.documentMap.containsKey(csarID)) {
 
             // The passed ID of a CSAR is found.
@@ -318,7 +318,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public Object getReferenceAsNode(final CSARID csarID, final QName nodeID) {
-        this.setup();
+        setup();
 
         this.LOG.debug("Lookup for the node \"" + nodeID + "\" inside of the CSAR \"" + csarID + "\".");
 
@@ -345,7 +345,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public Object getJAXBReference(final CSARID csarID, final QName nodeID) {
-        this.setup();
+        setup();
 
         this.LOG.debug("Lookup for the node \"" + nodeID + "\" inside of the CSAR \"" + csarID + "\".");
 
@@ -435,7 +435,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public List<QName> getServiceTemplateIDsContainedInCSAR(final CSARID csarID) {
-        this.setup();
+        setup();
         return this.mapCSARIDToServiceTemplateIDs.get(csarID);
     }
 
@@ -456,7 +456,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void printStoredData() {
-        this.setup();
+        setup();
         String string = "";
         final String ls = System.getProperty("line.separator");
 
@@ -562,6 +562,12 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
                     }
                     catch (final JAXBException e) {
                         e.printStackTrace();
+
+                        // FIXME: (miwurster; 2018-03-08) Not sure if we can ignore this, but we get an exception here
+                        // if TPolicy is tried to be
+                        // serialized. Anyhow, such exceptions are not handled, so I assume the stack trace print is not
+                        // necessary.
+                        // e.printStackTrace();
                     }
                     builder.append(ls);
                     // builder.append(" name=\"" + pol.getName() +
@@ -631,8 +637,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void storeDefinitions(final CSARID csarID, final TDefinitions definitions) {
-
-        this.setup();
+        setup();
         if (csarID != null && definitions != null) {
 
             final QName reference = new QName(definitions.getTargetNamespace(), definitions.getId());
@@ -670,8 +675,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void storeDocument(final CSARID csarID, final QName documentID, final Document doc) {
-
-        this.setup();
+        setup();
 
         if (csarID == null) {
             this.LOG.error("The CSARID is null!");
@@ -769,7 +773,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void storeReference(final CSARID csarID, final QName nodeID, final Node node) {
-        this.setup();
+        setup();
 
         MapQNameNode csarMap;
 
@@ -800,7 +804,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void storeServiceTemplateIDForCSARID(final QName serviceTemplateID, final CSARID csarID) {
-        this.setup();
+        setup();
         if (serviceTemplateID != null && csarID != null) {
             if (!this.mapCSARIDToServiceTemplateIDs.containsKey(csarID)) {
                 this.mapCSARIDToServiceTemplateIDs.put(csarID, new ArrayList<QName>());

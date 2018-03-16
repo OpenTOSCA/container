@@ -33,8 +33,7 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
 
     private TTopologyTemplate topologyTemplate = null;
     private final List<AbstractNodeTemplate> nodeTemplates = new ArrayList<>();
-    private final List<AbstractRelationshipTemplate> relationshipTemplates =
-        new ArrayList<>();
+    private final List<AbstractRelationshipTemplate> relationshipTemplates = new ArrayList<>();
     private DefinitionsImpl definitions = null;
 
 
@@ -47,8 +46,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions) {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
-        this.setUpTemplates();
-        this.setUpRelations();
+        setUpTemplates();
+        setUpRelations();
     }
 
     /**
@@ -56,8 +55,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
      * TopologyTemplate
      */
     private void setUpRelations() {
-        this.setUpRelationshipTemplates();
-        this.setUpNodeTemplates();
+        setUpRelationshipTemplates();
+        setUpNodeTemplates();
     }
 
     /**

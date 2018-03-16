@@ -45,7 +45,7 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         context.addStringValueToPlanRequest(inputFieldName);
 
         // fetch nodeInstanceVar
-        final String nodeInstanceVarName = this.findInstanceVar(context, nodeTemplate.getId(), true);
+        final String nodeInstanceVarName = findInstanceVar(context, nodeTemplate.getId(), true);
 
         // add assign from input to nodeInstanceVar
         try {

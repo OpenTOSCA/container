@@ -44,7 +44,7 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                           final List<String> selectionStrategies) {
         // fetch instance variables
-        final String nodeTemplateInstanceVar = this.findInstanceVar(context, nodeTemplate.getId(), true);
+        final String nodeTemplateInstanceVar = findInstanceVar(context, nodeTemplate.getId(), true);
         String serviceInstanceIDVar = null;
         try {
             serviceInstanceIDVar =

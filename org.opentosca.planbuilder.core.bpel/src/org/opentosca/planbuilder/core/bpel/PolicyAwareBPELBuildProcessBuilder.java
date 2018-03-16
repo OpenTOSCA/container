@@ -66,6 +66,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
     // serviceTemplate
     private final PropertyMappingsToOutputInitializer propertyOutputInitializer;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
+
     private ServiceInstanceVariablesHandler serviceInstanceInitializer;
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
@@ -74,7 +75,9 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
     private final List<String> opNames = new ArrayList<>();
 
     private BPELPlanHandler planHandler;
+
     private NodeInstanceVariablesHandler instanceInit;
+
 
 
     private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
@@ -89,6 +92,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
             this.instanceInit = new NodeInstanceVariablesHandler(this.planHandler);
+
         }
         catch (final ParserConfigurationException e) {
             PolicyAwareBPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
@@ -192,9 +196,10 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 
                 this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
 
-                this.runPlugins(newBuildPlan, propMap);
+                runPlugins(newBuildPlan, propMap);
 
                 this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
+
 
                 this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
                                                                               newBuildPlan.getBpelMainFlowElement(),
@@ -205,7 +210,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 
                 this.finalizer.finalize(newBuildPlan);
                 PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
+                PolicyAwareBPELBuildProcessBuilder.LOG.debug(getStringFromDoc(newBuildPlan.getBpelDocument()));
                 return newBuildPlan;
             }
         }
@@ -235,7 +240,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
             if (!serviceTemplate.hasBuildPlan()) {
                 PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                                                              serviceTemplateId.toString());
-                final BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
 
                 if (newBuildPlan != null) {
                     PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan "
@@ -303,7 +308,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                     }
                 } else {
                     // policy aware handling
-                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = this.findPolicyAwareTypePlugin(nodeTemplate);
+                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = findPolicyAwareTypePlugin(nodeTemplate);
                     if (policyPlugin == null) {
                         PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
                                                                      nodeTemplate.getId());
@@ -391,7 +396,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 // Note: if a generic plugin fails during execution the
                 // TemplateBuildPlan is broken here!
                 // TODO implement fallback
-                if (!this.canGenericPluginHandle(relationshipTemplate)) {
+                if (!canGenericPluginHandle(relationshipTemplate)) {
                     PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains",
                                                                  relationshipTemplate.getId());
                     final OperationChain sourceChain =
@@ -417,7 +422,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 } else {
                     PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
                                                                 relationshipTemplate.getId());
-                    handled = this.handleWithTypePlugin(context, relationshipTemplate);
+                    handled = handleWithTypePlugin(context, relationshipTemplate);
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {

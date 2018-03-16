@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 
 import org.oasis_open.docs.tosca.ns._2011._12.TPolicyType;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicyType;
+import org.opentosca.planbuilder.model.tosca.AbstractProperties;
 
 /**
  * @author kalmankepes
@@ -43,14 +44,20 @@ public class AbstractPolicyTypeImpl extends AbstractPolicyType {
     }
 
     @Override
-    public QName getID() {
+    public QName getId() {
         String namespace;
-        if (this.getTargetNamespace() != null && !this.getTargetNamespace().equals("")) {
-            namespace = this.getTargetNamespace();
+        if (getTargetNamespace() != null && !getTargetNamespace().equals("")) {
+            namespace = getTargetNamespace();
         } else {
             namespace = this.defs.getTargetNamespace();
         }
-        return new QName(namespace, this.getName());
+        return new QName(namespace, getName());
+    }
+
+    @Override
+    public AbstractProperties getProperties() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -82,8 +82,8 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         logMessageTempStringVarName =
             context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getName();
 
-        final String logMessageReqVarName = this.createLogRequestMsgVar(context);
-        final String planInstanceURLVar = this.findPlanInstanceURLVar(context);
+        final String logMessageReqVarName = createLogRequestMsgVar(context);
+        final String planInstanceURLVar = findPlanInstanceURLVar(context);
 
         try {
 
@@ -252,7 +252,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             isNodeTemplate = false;
         }
 
-        final String interfaceName = this.findInterfaceForOperation(context, operation);
+        final String interfaceName = findInterfaceForOperation(context, operation);
         final String operationName = operation.getName();
 
         // fetch the input parameters of the operation and check whether their
@@ -269,19 +269,19 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             // if this param is ambigious, search for the alternatives to match against
             if (Utils.isSupportedVirtualMachineIPProperty(para.getName())) {
                 for (final String propAlt : Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                    propWrapper = this.findVar(context, propAlt);
+                    propWrapper = findVar(context, propAlt);
                     if (propWrapper != null) {
                         break;
                     }
                 }
             } else {
-                propWrapper = this.findVar(context, para.getName());
+                propWrapper = findVar(context, para.getName());
             }
             internalExternalPropsInput.put(para.getName(), propWrapper);
         }
 
         for (final AbstractParameter para : operation.getOutputParameters()) {
-            final Variable propWrapper = this.findVar(context, para.getName());
+            final Variable propWrapper = findVar(context, para.getName());
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }
 
@@ -374,7 +374,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             return false;
         }
 
-        this.appendLOGActivity(context, operation.getName());
+        appendLOGActivity(context, operation.getName());
 
         // invoke service invoker
         // add invoke
@@ -587,7 +587,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             return false;
         }
 
-        this.appendLOGActivity(context, operationName);
+        appendLOGActivity(context, operationName);
         // invoke service invoker
         // add invoke
         try {
@@ -709,7 +709,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         final Variable ubuntuFilePathVar =
             templateContext.createGlobalStringVariable(ubuntuFilePathVarName, ubuntuFilePath);
         // the folder which has to be created on the ubuntu vm
-        final String ubuntuFolderPathScript = "sleep 1 && mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
+        final String ubuntuFolderPathScript = "sleep 1 && mkdir -p " + fileReferenceToFolder(ubuntuFilePath);
         final String containerAPIAbsoluteURIXPathQuery =
             this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
         final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
@@ -721,10 +721,9 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             templateContext.createGlobalStringVariable(containerAPIAbsoluteURIVarName, "");
 
         try {
-            Node assignNode =
-                this.loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
-                                                                   containerAPIAbsoluteURIXPathQuery,
-                                                                   containerAPIAbsoluteURIVar.getName());
+            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
+                                                                            containerAPIAbsoluteURIXPathQuery,
+                                                                            containerAPIAbsoluteURIVar.getName());
             assignNode = templateContext.importNode(assignNode);
 
             if (appendToPrePhase) {
@@ -836,7 +835,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                                                               final String stringVarName) throws IOException,
                                                                                           SAXException {
         final String templateString =
-            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+            loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);

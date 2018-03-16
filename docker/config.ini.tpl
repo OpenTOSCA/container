@@ -19,5 +19,6 @@ org.opentosca.container.engine.plan.plugin.bpelwso2.password=admin
 org.opentosca.container.engine.plan.plugin.bpelwso2.url=https\://{{ .Env.ENGINE_PLAN_HOSTNAME }}\:9443
 org.opentosca.container.engine.plan.plugin.bpelwso2.services.url=http\://{{ .Env.ENGINE_PLAN_HOSTNAME }}\:9763/services
 org.opentosca.container.connector.winery.url=http\://{{ .Env.CONTAINER_REPOSITORY_HOSTNAME }}\:8080/winery
-org.opentosca.container.hostname={{ .Env.CONTAINER_HOSTNAME }}
+org.opentosca.container.hostname={{ .Env.PUBLIC_HOSTNAME }}
 org.opentosca.container.port=1337
+org.opentosca.deployment.tests={{ .Env.CONTAINER_DEPLOYMENT_TESTS }}

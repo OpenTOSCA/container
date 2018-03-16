@@ -226,9 +226,9 @@ public class Handler {
     }
 
     public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        final boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
+        final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
-        final String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+        final String serviceInstanceVarName = getServiceInstanceVarName(context);
         if (serviceInstanceVarName == null) {
             return false;
         }
@@ -238,14 +238,14 @@ public class Handler {
          */
 
         // create variable for all responses
-        final String restCallResponseVarName = this.createRESTResponseVar(context);
+        final String restCallResponseVarName = createRESTResponseVar(context);
 
         if (restCallResponseVarName == null) {
             return false;
         }
 
         // create state variable inside scope
-        final String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
+        final String stateVarName = createStateVar(context, context.getNodeTemplate().getId());
 
         if (stateVarName == null) {
             return false;
@@ -253,11 +253,11 @@ public class Handler {
 
         String nodeInstanceURLVarName = "";
 
-        if (this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
+        if (findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
             // generate String var for nodeInstance URL
-            nodeInstanceURLVarName = this.createInstanceURLVar(context, context.getNodeTemplate().getId());
+            nodeInstanceURLVarName = createInstanceURLVar(context, context.getNodeTemplate().getId());
         } else {
-            nodeInstanceURLVarName = this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
+            nodeInstanceURLVarName = findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
         }
 
         if (nodeInstanceURLVarName == null) {
@@ -276,7 +276,7 @@ public class Handler {
         // fetch all assigns that assign an invoke async operation request
 
         final Element provisioningPhaseElement = context.getProvisioningPhaseElement();
-        final List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
+        final List<Element> assignContentElements = fetchInvokerCallAssigns(provisioningPhaseElement);
 
         // for each assign element we fetch the operation name, determine the
         // pre and post states, and append the pre state before the found assign
@@ -284,7 +284,7 @@ public class Handler {
         for (final Element assignContentElement : assignContentElements) {
 
             // fetch operationName from literal contents
-            final String operationName = this.fetchOperationName(assignContentElement);
+            final String operationName = fetchOperationName(assignContentElement);
             // determine pre and post state for operation
             final String preState = InstanceStates.getOperationPreState(operationName);
             final String postState = InstanceStates.getOperationPostState(operationName);
@@ -347,12 +347,11 @@ public class Handler {
                         assignContentElement.getParentNode().getParentNode().getParentNode().getParentNode();
 
                     // fetch the variable name which is used as request body
-                    final String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
+                    final String reqVarName = fetchRequestVarNameFromInvokerAssign(assignContentElement);
 
                     // from the assign element search for the receive element
                     // that is witing for the response
-                    final Element invokerReceiveElement =
-                        this.fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
+                    final Element invokerReceiveElement = fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
 
                     // insert assign after the receive
                     assignNode = invokerReceiveElement.getParentNode()
@@ -406,7 +405,7 @@ public class Handler {
             // and send
             // first build a mapping from property variable names to dom element
             final Map<String, Node> propertyVarNameToDOMMapping =
-                this.buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
+                buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
             try {
                 // then generate an assign to have code that writes the runtime
                 // values into the instance data db.
@@ -443,7 +442,6 @@ public class Handler {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -456,19 +454,19 @@ public class Handler {
      * @return true iff appending all BPEL code was successful
      */
     public boolean handleBuild(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-        final boolean hasProps = this.checkProperties(nodeTemplate.getProperties());
+        final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
-        final String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+        final String serviceInstanceVarName = getServiceInstanceVarName(context);
         if (serviceInstanceVarName == null) {
             return false;
         }
 
-        final String serviceInstanceIDVarName = this.getServiceInstanceIDVarName(context);
+        final String serviceInstanceIDVarName = getServiceInstanceIDVarName(context);
         if (serviceInstanceIDVarName == null) {
             return false;
         }
 
-        final String instanceDataAPIVarName = this.getServiceTemplateURLVar(context);
+        final String instanceDataAPIVarName = getServiceTemplateURLVar(context);
         if (instanceDataAPIVarName == null) {
             return false;
         }
@@ -478,14 +476,14 @@ public class Handler {
          */
 
         // create variable for all responses
-        final String restCallResponseVarName = this.createRESTResponseVar(context);
+        final String restCallResponseVarName = createRESTResponseVar(context);
 
         if (restCallResponseVarName == null) {
             return false;
         }
 
         // create state variable inside scope
-        final String stateVarName = this.createStateVar(context, context.getNodeTemplate().getId());
+        final String stateVarName = createStateVar(context, context.getNodeTemplate().getId());
 
         if (stateVarName == null) {
             return false;
@@ -518,11 +516,11 @@ public class Handler {
 
         String nodeInstanceURLVarName = "";
 
-        if (this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
+        if (findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
             // generate String var for nodeInstance URL
-            nodeInstanceURLVarName = this.createInstanceURLVar(context, context.getNodeTemplate().getId());
+            nodeInstanceURLVarName = createInstanceURLVar(context, context.getNodeTemplate().getId());
         } else {
-            nodeInstanceURLVarName = this.findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
+            nodeInstanceURLVarName = findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
         }
 
         if (nodeInstanceURLVarName == null) {
@@ -531,10 +529,10 @@ public class Handler {
 
         String nodeInstanceIDVarName = "";
 
-        if (this.findInstanceIDVar(context, context.getNodeTemplate().getId(), true) == null) {
-            nodeInstanceIDVarName = this.createInstanceIDVar(context, context.getNodeTemplate().getId());
+        if (findInstanceIDVar(context, context.getNodeTemplate().getId(), true) == null) {
+            nodeInstanceIDVarName = createInstanceIDVar(context, context.getNodeTemplate().getId());
         } else {
-            nodeInstanceIDVarName = this.findInstanceIDVar(context, context.getNodeTemplate().getId(), true);
+            nodeInstanceIDVarName = findInstanceIDVar(context, context.getNodeTemplate().getId(), true);
         }
 
         if (nodeInstanceIDVarName == null) {
@@ -600,7 +598,7 @@ public class Handler {
         // fetch all assigns that assign an invoke async operation request
 
         final Element provisioningPhaseElement = context.getProvisioningPhaseElement();
-        final List<Element> assignContentElements = this.fetchInvokerCallAssigns(provisioningPhaseElement);
+        final List<Element> assignContentElements = fetchInvokerCallAssigns(provisioningPhaseElement);
 
         final List<String> operationNames = new ArrayList<>();
 
@@ -610,7 +608,7 @@ public class Handler {
         for (final Element assignContentElement : assignContentElements) {
 
             // fetch operationName from literal contents
-            final String operationName = this.fetchOperationName(assignContentElement);
+            final String operationName = fetchOperationName(assignContentElement);
             operationNames.add(operationName);
             // determine pre and post state for operation
             final String preState = InstanceStates.getOperationPreState(operationName);
@@ -674,12 +672,11 @@ public class Handler {
                         assignContentElement.getParentNode().getParentNode().getParentNode().getParentNode();
 
                     // fetch the variable name which is used as request body
-                    final String reqVarName = this.fetchRequestVarNameFromInvokerAssign(assignContentElement);
+                    final String reqVarName = fetchRequestVarNameFromInvokerAssign(assignContentElement);
 
                     // from the assign element search for the receive element
                     // that is witing for the response
-                    final Element invokerReceiveElement =
-                        this.fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
+                    final Element invokerReceiveElement = fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
 
                     // insert assign after the receive
                     assignNode = invokerReceiveElement.getParentNode()
@@ -771,7 +768,7 @@ public class Handler {
             // and send
             // first build a mapping from property variable names to dom element
             final Map<String, Node> propertyVarNameToDOMMapping =
-                this.buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
+                buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
             try {
                 // then generate an assign to have code that writes the runtime
                 // values into the instance data db.
@@ -813,12 +810,12 @@ public class Handler {
 
     public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
 
-        final String serviceInstanceVarName = this.getServiceInstanceVarName(context);
+        final String serviceInstanceVarName = getServiceInstanceVarName(context);
         if (serviceInstanceVarName == null) {
             return false;
         }
 
-        final String serviceTemplateUrlVarName = this.getServiceTemplateURLVar(context);
+        final String serviceTemplateUrlVarName = getServiceTemplateURLVar(context);
         if (serviceTemplateUrlVarName == null) {
             return false;
         }
@@ -828,14 +825,14 @@ public class Handler {
          */
 
         // create variable for all responses
-        final String restCallResponseVarName = this.createRESTResponseVar(context);
+        final String restCallResponseVarName = createRESTResponseVar(context);
 
         if (restCallResponseVarName == null) {
             return false;
         }
 
         // create state variable inside scope
-        final String stateVarName = this.createStateVar(context, context.getRelationshipTemplate().getId());
+        final String stateVarName = createStateVar(context, context.getRelationshipTemplate().getId());
 
         if (stateVarName == null) {
             return false;
@@ -849,9 +846,10 @@ public class Handler {
         Element injectionPreElement = null;
         Element injectionPostElement = null;
         final String sourceInstanceVarName =
-            this.findInstanceIDVar(context, context.getRelationshipTemplate().getSource().getId(), true);
+            findInstanceIDVar(context, context.getRelationshipTemplate().getSource().getId(), true);
         final String targetInstanceVarName =
-            this.findInstanceIDVar(context, context.getRelationshipTemplate().getTarget().getId(), true);
+            findInstanceIDVar(context, context.getRelationshipTemplate().getTarget().getId(), true);
+
 
         if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
                       .contains(ModelUtils.TOSCABASETYPE_CONNECTSTO)) {
@@ -920,13 +918,11 @@ public class Handler {
 
         // generate String var for relationInstance URL
         String relationInstanceURLVarName = "";
-
-        if (this.findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+        if (findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false) == null) {
             // generate String var for nodeInstance URL
-            relationInstanceURLVarName = this.createInstanceURLVar(context, context.getRelationshipTemplate().getId());
+            relationInstanceURLVarName = createInstanceURLVar(context, context.getRelationshipTemplate().getId());
         } else {
-            relationInstanceURLVarName =
-                this.findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false);
+            relationInstanceURLVarName = findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false);
         }
 
         if (relationInstanceURLVarName == null) {
@@ -935,17 +931,17 @@ public class Handler {
 
         String relationInstanceIDVarName = "";
 
-        if (this.findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+        if (findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false) == null) {
             // generate String var for nodeInstance URL
-            relationInstanceIDVarName = this.createInstanceIDVar(context, context.getRelationshipTemplate().getId());
+            relationInstanceIDVarName = createInstanceIDVar(context, context.getRelationshipTemplate().getId());
         } else {
-            relationInstanceIDVarName =
-                this.findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false);
+            relationInstanceIDVarName = findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false);
         }
 
         if (relationInstanceIDVarName == null) {
             return false;
         }
+
 
         try {
             // save relationInstance url from response
@@ -1027,7 +1023,7 @@ public class Handler {
         }
 
         // needs property update only if the relation has properties
-        if (this.checkProperties(relationshipTemplate.getProperties())) {
+        if (checkProperties(relationshipTemplate.getProperties())) {
             // make a GET on the nodeInstance properties
 
             try {
@@ -1052,7 +1048,7 @@ public class Handler {
             // and send
             // first build a mapping from property variable names to dom element
             final Map<String, Node> propertyVarNameToDOMMapping =
-                this.buildMappingsFromVarNameToDomElement(context, relationshipTemplate.getProperties());
+                buildMappingsFromVarNameToDomElement(context, relationshipTemplate.getProperties());
             try {
                 // then generate an assign to have code that writes the runtime
                 // values into the instance data db.
@@ -1113,9 +1109,9 @@ public class Handler {
     private String fetchRequestVarNameFromInvokerAssign(final Element assignContentElement) {
         String reqVarName = null;
 
-        final Node fromNode = this.fetchFromNode(assignContentElement);
+        final Node fromNode = fetchFromNode(assignContentElement);
 
-        final Node toNode = this.fetchNextNamedNodeRecursively(fromNode, "to");
+        final Node toNode = fetchNextNamedNodeRecursively(fromNode, "to");
 
         reqVarName = toNode.getAttributes().getNamedItem("variable").getTextContent();
 
@@ -1256,7 +1252,7 @@ public class Handler {
 
         // find runScript method
 
-        final AbstractNodeTemplate node = this.findRunScriptNode(nodeTemplate);
+        final AbstractNodeTemplate node = findRunScriptNode(nodeTemplate);
 
         if (node == null) {
             return false;
@@ -1265,10 +1261,10 @@ public class Handler {
         final Map<AbstractParameter, Variable> inputParams = new HashMap<>();
 
         final String cmdStringName = "checkPasswordScript_" + nodeTemplate.getId() + "_" + System.currentTimeMillis();
-        final String cmdStringVal = this.createPlaceHolderPwCheckCmdString(pwVariables);
+        final String cmdStringVal = createPlaceHolderPwCheckCmdString(pwVariables);
         final Variable cmdVar = context.createGlobalStringVariable(cmdStringName, cmdStringVal);
 
-        final String xPathReplacementCmd = this.createPlaceholderReplaceingXPath(cmdVar.getName(), pwVariables);
+        final String xPathReplacementCmd = createPlaceholderReplaceingXPath(cmdVar.getName(), pwVariables);
 
         try {
             Node assignPlaceholder =

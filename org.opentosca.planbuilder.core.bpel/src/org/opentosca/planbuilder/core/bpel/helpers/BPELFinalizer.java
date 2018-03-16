@@ -65,16 +65,15 @@ public class BPELFinalizer {
         final List<BPELScopeActivity> topologicalOrder = new ArrayList<>();
 
         // init marks
-        final Map<BPELScopeActivity, TopologicalSortMarking> markings =
-            new HashMap<>();
+        final Map<BPELScopeActivity, TopologicalSortMarking> markings = new HashMap<>();
 
         for (final BPELScopeActivity template : templateBuildPlans) {
             markings.put(template, new TopologicalSortMarking());
         }
 
-        while (this.hasUnmarkedNode(markings)) {
-            final BPELScopeActivity templateBuildPlan = this.getUnmarkedNode(markings);
-            this.visitTopologicalOrdering(templateBuildPlan, markings, topologicalOrder);
+        while (hasUnmarkedNode(markings)) {
+            final BPELScopeActivity templateBuildPlan = getUnmarkedNode(markings);
+            visitTopologicalOrdering(templateBuildPlan, markings, topologicalOrder);
         }
 
         return topologicalOrder;
@@ -130,7 +129,7 @@ public class BPELFinalizer {
 
         // set reply to address with ws-addressing
         try {
-            Node addressingCopy = this.generateWSAddressingOutputAssign();
+            Node addressingCopy = generateWSAddressingOutputAssign();
             addressingCopy = buildPlan.getBpelDocument().importNode(addressingCopy, true);
             buildPlan.getBpelMainSequenceOutputAssignElement().appendChild(addressingCopy);
         }
@@ -149,7 +148,7 @@ public class BPELFinalizer {
             buildPlan.setBpelExtensionsElement(null);
         }
 
-        this.makeSequential(buildPlan);
+        makeSequential(buildPlan);
 
         for (final BPELScopeActivity templateBuildPlan : buildPlan.getTemplateBuildPlans()) {
             // check if any phase of this templatebuildplan has no child
@@ -294,7 +293,7 @@ public class BPELFinalizer {
                                 buildPlan.getBpelProcessElement().getAttribute("name"));
         final List<BPELScopeActivity> templateBuildPlans = buildPlan.getTemplateBuildPlans();
 
-        final List<BPELScopeActivity> sequentialOrder = this.calcTopologicalOrdering(templateBuildPlans);
+        final List<BPELScopeActivity> sequentialOrder = calcTopologicalOrdering(templateBuildPlans);
 
         Collections.reverse(sequentialOrder);
 
@@ -341,7 +340,7 @@ public class BPELFinalizer {
         if (!markings.get(templateBuildPlan).permMark && !markings.get(templateBuildPlan).tempMark) {
             markings.get(templateBuildPlan).tempMark = true;
             for (final BPELScopeActivity successor : this.scopeHandler.getSuccessors(templateBuildPlan)) {
-                this.visitTopologicalOrdering(successor, markings, topologicalOrder);
+                visitTopologicalOrdering(successor, markings, topologicalOrder);
             }
             markings.get(templateBuildPlan).permMark = true;
             markings.get(templateBuildPlan).tempMark = false;

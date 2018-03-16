@@ -147,7 +147,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         // install packages
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages...");
 
-                        this.installPackages(artifactType, headers);
+                        installPackages(artifactType, headers);
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Packages installed.");
 
@@ -167,6 +167,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                             fileSource =
                                 Settings.CONTAINER_API + "/csars/" + csarID.getFileName() + "/content/" + artifactRef;
 
+
                             targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
 
                             targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
@@ -174,10 +175,10 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                             final String createDirCommand = "sleep 1 && mkdir -p " + targetFileFolderPath;
 
                             // create directory before uploading file
-                            this.runScript(createDirCommand, headers);
+                            runScript(createDirCommand, headers);
 
                             // upload file
-                            this.transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
+                            transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
                         }
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Files uploaded.");
@@ -189,8 +190,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         final String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
 
                         String artifactTypeSpecificCommand =
-                            this.createArtifcatTypeSpecificCommandString(csarID, artifactType, artifactTemplateID,
-                                                                         params);
+                            createArtifcatTypeSpecificCommandString(csarID, artifactType, artifactTemplateID, params);
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Replacing further generic placeholder...");
 
@@ -210,18 +210,18 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP,
                                                                 "sudo -E "
-                                                                    + this.createDANamePathMapEnvVar(csarID,
-                                                                                                     serviceTemplateID,
-                                                                                                     nodeTypeID,
-                                                                                                     nodeTemplateID));
+                                                                    + createDANamePathMapEnvVar(csarID,
+                                                                                                serviceTemplateID,
+                                                                                                nodeTypeID,
+                                                                                                nodeTemplateID));
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER,
-                                                                this.createParamsString(params));
+                                                                createParamsString(params));
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}",
                                                                        artifactType, artifactTypeSpecificCommand);
 
-                        this.runScript(artifactTypeSpecificCommand, headers);
+                        runScript(artifactTypeSpecificCommand, headers);
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Scripts finished.");
 
@@ -384,7 +384,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
             headers.put(MBHeader.OPERATIONNAME_STRING.toString(),
                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE);
 
-            this.invokeManagementBusEngine(inputParamsMap, headers);
+            invokeManagementBusEngine(inputParamsMap, headers);
         } else {
             ManagementBusPluginRemoteServiceImpl.LOG.debug("ArtifactType: {} needs no packages to install.",
                                                            requiredPackages, artifactType);
@@ -424,7 +424,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
             }
         }
 
-        this.invokeManagementBusEngine(inputParamsMap, headers);
+        invokeManagementBusEngine(inputParamsMap, headers);
 
     }
 
@@ -455,7 +455,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
             }
         }
 
-        this.invokeManagementBusEngine(inputParamsMap, headers);
+        invokeManagementBusEngine(inputParamsMap, headers);
     }
 
     /**

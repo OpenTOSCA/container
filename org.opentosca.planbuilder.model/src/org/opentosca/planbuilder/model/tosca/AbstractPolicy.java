@@ -15,8 +15,12 @@ public abstract class AbstractPolicy {
 
     public abstract String getName();
 
+    public abstract AbstractProperties getProperties();
+
+
     public abstract AbstractPolicyType getType();
 
-    public abstract AbstractProperties getProperties();
+    public abstract AbstractPolicyTemplate getTemplate();
+
 
 }

@@ -16,9 +16,6 @@ public final class EntityManagerProvider {
 
     public static final String DATABASE_FILE = new File(Consts.DBDIR, "opentosca").getAbsolutePath();
     public static final String DATABASE_PROPERTIES = ";AUTO_SERVER=TRUE";
-
-
-
     public static final String JDBC_URL = "jdbc:h2:file:" + DATABASE_FILE + DATABASE_PROPERTIES;
 
     public static final String PERSISTENCE_UNIT = "default";

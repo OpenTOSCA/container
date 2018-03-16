@@ -32,6 +32,9 @@ public interface IPlanInvocationEngine {
     public void invokePlan(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan,
                            String correlationID) throws UnsupportedEncodingException;
 
+    public String invokePlan(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID,
+                             TPlanDTO plan) throws UnsupportedEncodingException;
+
     public void correctCorrelationToServiceTemplateInstanceIdMapping(CSARID csarID, QName serviceTemplateId,
                                                                      String corrId, int correctSTInstanceId);
 

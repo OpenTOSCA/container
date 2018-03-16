@@ -257,7 +257,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         // return errors;
         // }
 
-        if (!this.undeployPlans(csarID)) {
+        if (!undeployPlans(csarID)) {
             this.LOG.warn("It was not possible to undeploy all plans of the CSAR \"" + csarID + ".");
             errors.add("Could not undeploy all plans.");
         }
