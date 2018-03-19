@@ -261,7 +261,7 @@ public class PlanService {
          */
         if (serviceTemplateInstanceId != null) {
 
-            String url = Settings.CONTAINER_INSTANCEDATA_API + serviceTemplateInstanceId;
+            String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
             url = url.replace("{csarid}", csarId.getFileName());
             url = url.replace("{servicetemplateid}",
                               UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
