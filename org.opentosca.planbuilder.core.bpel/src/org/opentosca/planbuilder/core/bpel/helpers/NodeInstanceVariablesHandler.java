@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class NodeInstanceInitializer {
+public class NodeInstanceVariablesHandler {
 
     private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
     private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
@@ -41,7 +41,7 @@ public class NodeInstanceInitializer {
 
     private final BPELProcessFragments bpelFragments;
 
-    public NodeInstanceInitializer(final BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
+    public NodeInstanceVariablesHandler(final BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
         this.bpelTemplateScopeHandler = new BPELScopeHandler();
         this.bpelFragments = new BPELProcessFragments();
         this.bpelProcessHandler = bpelProcessHandler;
@@ -90,11 +90,11 @@ public class NodeInstanceInitializer {
      * NodeInstanceID bpel variable
      *
      * @param templatePlan a templatePlan with set variable with name NodeInstanceID
-     * @param serviceInstanceIdVarName the name of the variable holding the url to the serviceInstance
+     * @param serviceTemplateUrlVarName the name of the variable holding the url to the serviceTemplate
      * @param instanceDataUrlVarName the name of the variable holding the url to the instanceDataAPI
      * @return
      */
-    public boolean addInstanceFindLogic(final BPELScopeActivity templatePlan, final String serviceInstanceIdVarName,
+    public boolean addInstanceFindLogic(final BPELScopeActivity templatePlan, final String serviceTemplateUrlVarName,
                                         final String instanceDataUrlVarName, final String query) {
         // add XML Schema Namespace for the logic
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
@@ -107,7 +107,7 @@ public class NodeInstanceInitializer {
         // find nodeInstance with query at instanceDataAPI
         try {
             Node nodeInstanceGETNode =
-                this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(serviceInstanceIdVarName,
+                this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(serviceTemplateUrlVarName,
                                                                                    instanceDataAPIResponseVarName,
                                                                                    templatePlan.getNodeTemplate()
                                                                                                .getId(),
@@ -192,9 +192,12 @@ public class NodeInstanceInitializer {
     public boolean addNodeInstanceFindLogic(final BPELPlan plan, final String queryForNodeInstances) {
         boolean check = true;
 
+        final String serviceTemplateUrlVarName =
+            ServiceInstanceVariablesHandler.findServiceTemplateUrlVariableName(this.bpelProcessHandler, plan);
+
         for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null) {
-                check &= this.addInstanceFindLogic(templatePlan, ServiceInstanceVarKeyword, InstanceDataAPIUrlKeyword,
+                check &= this.addInstanceFindLogic(templatePlan, serviceTemplateUrlVarName, InstanceDataAPIUrlKeyword,
                                                    queryForNodeInstances);
             }
         }
@@ -382,7 +385,7 @@ public class NodeInstanceInitializer {
         final String responseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
         final String counterVarName = "counterVariable" + System.currentTimeMillis();
 
-        context.addVariable(responseVarName, VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix));
+        context.addGlobalVariable(responseVarName, VariableType.TYPE, new QName(xsdNamespace, "anyType", xsdPrefix));
 
         final Variable counterVariable = context.createGlobalStringVariable(counterVarName, "0");
 
@@ -397,22 +400,20 @@ public class NodeInstanceInitializer {
         try {
 
             Node getNodeInstancesREST =
-                this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(new ServiceInstanceInitializer().getServiceInstanceVariableName(context.getMainVariableNames()),
+                this.bpelFragments.createRESTExtensionGETForNodeInstanceDataAsNode(ServiceInstanceVariablesHandler.getServiceTemplateURLVariableName(context.getMainVariableNames()),
                                                                                    responseVarName,
                                                                                    nodeTemplate.getId(), query);
             getNodeInstancesREST = context.importNode(getNodeInstancesREST);
             templateMainSequeceNode.appendChild(getNodeInstancesREST);
 
-            Node assignCounter = this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countInstances"
-                + System.currentTimeMillis(), "count($" + responseVarName + "//*[local-name()='Reference' and @*[local-name()='title']  != 'Self'])", counterVariable.getName());
+            Node assignCounter =
+                this.bpelFragments.createAssignVarToVarWithXpathQueryAsNode("assignInstanceCount_"
+                    + nodeTemplate.getId() + "_" + context.getIdForNames(), responseVarName, counterVariable.getName(),
+                                                                            "count(//*[local-name()='NodeTemplateInstance'])");
             assignCounter = context.importNode(assignCounter);
             templateMainSequeceNode.appendChild(assignCounter);
         }
         catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

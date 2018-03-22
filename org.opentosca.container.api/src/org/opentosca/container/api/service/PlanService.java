@@ -82,7 +82,9 @@ public class PlanService {
     }
 
     public TPlan getPlan(final String name, final CSARID id) {
+
         final List<TPlan> plans = getPlansByType(id, ALL_PLAN_TYPES);
+
         for (final TPlan plan : plans) {
             if (plan.getId() != null && plan.getId().equalsIgnoreCase(name)) {
                 return plan;
@@ -181,6 +183,14 @@ public class PlanService {
         return pi;
     }
 
+
+    /* API Operations Helper Methods */
+    /*********************************/
+    /*********************************/
+
+    /* Plan Templates */
+    /******************/
+
     public Response getPlans(final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                              final PlanTypes... planTypes) {
 
@@ -191,6 +201,7 @@ public class PlanService {
         final PlanListDTO list = new PlanListDTO();
         buildPlans.stream().forEach(p -> {
             final PlanDTO plan = new PlanDTO(p);
+
             plan.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(plan.getId()).path("instances")
                                                         .build()))
                          .rel("instances").build());
@@ -249,13 +260,15 @@ public class PlanService {
          * Add parameter "OpenTOSCAContainerAPIServiceInstanceID" as a callback for the plan engine
          */
         if (serviceTemplateInstanceId != null) {
-            String url = Settings.CONTAINER_INSTANCEDATA_API + serviceTemplateInstanceId;
+
+            String url = Settings.CONTAINER_INSTANCEDATA_API + "/" + serviceTemplateInstanceId;
             url = url.replace("{csarid}", csarId.getFileName());
             url = url.replace("{servicetemplateid}",
                               UriComponent.encode(serviceTemplate.toString(), UriComponent.Type.PATH_SEGMENT));
             final URI uri = UriUtil.encode(URI.create(url));
             final TParameter param = new TParameter();
-            param.setName("OpenTOSCAContainerAPIServiceInstanceID");
+
+            param.setName("OpenTOSCAContainerAPIServiceInstanceURL");
             param.setRequired(TBoolean.fromValue("yes"));
             param.setType("String");
             param.setValue(uri.toString());
@@ -269,6 +282,8 @@ public class PlanService {
         return Response.created(location).build();
     }
 
+    /* Plan Instances */
+    /*****************/
     public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
                                      final QName serviceTemplate, final Long serviceTemplateInstanceId,
                                      final PlanTypes... planTypes) {
@@ -325,6 +340,7 @@ public class PlanService {
                                     final CSARID csarId, final QName serviceTemplate,
                                     final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
+
         final PlanInstance pi =
             resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
@@ -350,6 +366,7 @@ public class PlanService {
     public Response getPlanInstanceState(final String plan, final String instance, final UriInfo uriInfo,
                                          final CSARID csarId, final QName serviceTemplate,
                                          final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+
         final PlanInstance pi =
             resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
 
@@ -359,9 +376,9 @@ public class PlanService {
     public Response changePlanInstanceState(final String newState, final String plan, final String instance,
                                             final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                                             final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+
         final PlanInstance pi =
             resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
-
         try {
             final PlanInstanceState parsedState = PlanInstanceState.valueOf(newState);
             pi.setState(parsedState);
@@ -381,8 +398,10 @@ public class PlanService {
     public Response getPlanInstanceLogs(final String plan, final String instance, final UriInfo uriInfo,
                                         final CSARID csarId, final QName serviceTemplate,
                                         final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
+
         final PlanInstance pi =
             resolvePlanInstance(plan, instance, uriInfo, csarId, serviceTemplate, serviceTemplateInstanceId, planTypes);
+
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
         dto.add(UriUtil.generateSelfLink(uriInfo));

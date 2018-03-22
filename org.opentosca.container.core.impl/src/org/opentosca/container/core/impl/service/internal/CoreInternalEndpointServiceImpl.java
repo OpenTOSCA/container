@@ -175,7 +175,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                     continue;
                 }
             } else if (wsdlEndpoint.getPortType() != null) {
-                // at this point the given endpoint is null, if wsdlEndpoint is
+                // at this point the given endpoint is null, if wsdlEndpoint
+                // is
                 // != null -> not the same endpoint
                 continue;
             }

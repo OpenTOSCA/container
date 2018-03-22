@@ -446,7 +446,8 @@ public class LoginWithRememberMeCookie implements org.apache.axis2.databinding.A
                 }
 
                 if (reader.isStartElement()) {
-                    // A start element we are not expecting indicates a trailing invalid property
+                    // A start element we are not expecting indicates a trailing invalid
+                    // property
                     throw new org.apache.axis2.databinding.ADBException(
                         "Unexpected subelement " + reader.getLocalName());
                 }

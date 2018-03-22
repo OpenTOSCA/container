@@ -91,7 +91,7 @@ public class ResourceSupport {
      * @return
      */
     public boolean hasLink(final String rel) {
-        return this.getLink(rel) != null;
+        return getLink(rel) != null;
     }
 
     /**
@@ -153,6 +153,7 @@ public class ResourceSupport {
             json.writeEndObject();
         }
     }
+
 
     public static class LinkSerializer extends JsonSerializer<Link> {
 

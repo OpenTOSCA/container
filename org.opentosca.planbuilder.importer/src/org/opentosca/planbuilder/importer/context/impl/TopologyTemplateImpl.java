@@ -46,8 +46,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
     public TopologyTemplateImpl(final TTopologyTemplate topologyTemplate, final DefinitionsImpl definitions) {
         this.topologyTemplate = topologyTemplate;
         this.definitions = definitions;
-        this.setUpTemplates();
-        this.setUpRelations();
+        setUpTemplates();
+        setUpRelations();
     }
 
     /**
@@ -55,8 +55,8 @@ public class TopologyTemplateImpl extends AbstractTopologyTemplate {
      * TopologyTemplate
      */
     private void setUpRelations() {
-        this.setUpRelationshipTemplates();
-        this.setUpNodeTemplates();
+        setUpRelationshipTemplates();
+        setUpNodeTemplates();
     }
 
     /**

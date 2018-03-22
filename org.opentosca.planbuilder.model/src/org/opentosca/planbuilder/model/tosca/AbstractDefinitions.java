@@ -96,7 +96,7 @@ public abstract class AbstractDefinitions {
      * @return an AbstractRelationshipType, if nothing was found null
      */
     public AbstractRelationshipType getRelationshipType(final QName relationshipTypeId) {
-        for (final AbstractRelationshipType relationshipType : this.getRelationshipTypes()) {
+        for (final AbstractRelationshipType relationshipType : getRelationshipTypes()) {
             // info: at this moment i have no idea why it doesn't work using the
             // QName.equals() method..
             if (relationshipType.getId().equals(relationshipTypeId)) {
@@ -114,7 +114,7 @@ public abstract class AbstractDefinitions {
      * @return an AbstractNodeType, if nothing was found null
      */
     public AbstractNodeType getNodeType(final QName nodeTypeId) {
-        for (final AbstractNodeType nodeType : this.getNodeTypes()) {
+        for (final AbstractNodeType nodeType : getNodeTypes()) {
             if (nodeType.getId().equals(nodeTypeId)) {
                 return nodeType;
             }
@@ -130,12 +130,12 @@ public abstract class AbstractDefinitions {
      * @return an AbstractArtifactTemplate, if nothing was found null
      */
     public AbstractArtifactTemplate getArtifactTemplate(final QName qname) {
-        for (final AbstractArtifactTemplate template : this.getArtifactTemplates()) {
+        for (final AbstractArtifactTemplate template : getArtifactTemplates()) {
             if (template.getId().equals(qname.getLocalPart())) {
                 return template;
             }
         }
-        for (final AbstractDefinitions def : this.getImportedDefinitions()) {
+        for (final AbstractDefinitions def : getImportedDefinitions()) {
             if (def.getArtifactTemplate(qname) != null) {
                 return def.getArtifactTemplate(qname);
             }

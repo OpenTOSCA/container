@@ -91,6 +91,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
         headers.put("endpoint", endpoint.replace("?wsdl", ""));
 
+
         Document document = null;
 
         ManagementBusPluginSoapHttpServiceImpl.LOG.info("Creating invocation message.");
@@ -167,6 +168,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
                                 if (op.getOutput() == null && hastOutputParams) {
                                     messagingPattern = this.CALLBACK;
+
                                     final String callbackAddress = AsyncRoute.PUBLIC_CALLBACKADDRESS;
 
                                     String messageId = message.getMessageId();
@@ -213,17 +215,15 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                 ManagementBusPluginSoapHttpServiceImpl.LOG.error("No invokable operation found. Invocation aborted!");
                 return null;
             }
-
             document = mapToDoc(rootElementNamespaceURI, rootElementName, paramsMap);
-
         }
 
         if (params instanceof Document) {
 
             document = (Document) params;
 
-            messagingPattern = determineMP(message, operationName, hastOutputParams, endpoint);
 
+            messagingPattern = determineMP(message, operationName, hastOutputParams, endpoint);
         }
 
         if (messagingPattern == null) {

@@ -36,6 +36,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
     @XmlElement(name = "CsarId")
     private String csarId;
 
+
     @XmlElement(name = "ServiceTemplateInstanceId")
     private Long serviceTemplateInstanceId;
 
@@ -102,8 +103,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.nodeTemplateType = nodeTemplateType;
     }
 
-
-
     public Long getServiceTemplateInstanceId() {
         return this.serviceTemplateInstanceId;
     }
@@ -111,8 +110,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
     public void setServiceTemplateInstanceId(final Long serviceTemplateInstanceId) {
         this.serviceTemplateInstanceId = serviceTemplateInstanceId;
     }
-
-
 
     public static final class Converter {
 
@@ -127,7 +124,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
             dto.setServiceTemplateId(object.getServiceTemplateInstance().getTemplateId().toString());
             dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
             dto.setCsarId(object.getServiceTemplateInstance().getCsarId().toString());
-
             return dto;
         }
     }

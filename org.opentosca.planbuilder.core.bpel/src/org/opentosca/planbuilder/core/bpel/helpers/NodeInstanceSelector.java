@@ -33,13 +33,13 @@ public class NodeInstanceSelector {
 
     private BPELProcessFragments bpelFragments;
     private BPELPlanHandler bpelProcessHandler;
-    private ServiceInstanceInitializer serviceInstanceInitializer;
+    private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 
     public NodeInstanceSelector() {
         try {
             this.bpelFragments = new BPELProcessFragments();
             this.bpelProcessHandler = new BPELPlanHandler();
-            this.serviceInstanceInitializer = new ServiceInstanceInitializer();
+            this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
         }
         catch (final ParserConfigurationException e) {
             // TODO Auto-generated catch block
@@ -52,8 +52,8 @@ public class NodeInstanceSelector {
         final Set<AbstractNodeTemplate> processedNodes = new HashSet<>();
 
         // create node and relation instances response variables
-        final String nodeInstancesListResponseVarName = this.createRESTResponseVar(plan);
-        final String relationInstancesListResponseVarName = this.createRESTResponseVar(plan);
+        final String nodeInstancesListResponseVarName = createRESTResponseVar(plan);
+        final String relationInstancesListResponseVarName = createRESTResponseVar(plan);
 
         // create count variables for node and relation instances
         final String nodeInstancesCountVarName = "nodeInstancesCountVar" + System.currentTimeMillis();
@@ -93,7 +93,7 @@ public class NodeInstanceSelector {
                 Node countRelationInstancesAssign =
                     this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countRelationInstanceCount_"
                         + relationshipTemplate.getId() + "_" + System.currentTimeMillis(),
-                                                                                       this.createReferenceCountingXPathQuery(relationInstancesListResponseVarName),
+                                                                                       createReferenceCountingXPathQuery(relationInstancesListResponseVarName),
                                                                                        relationInstancesCountVarName);
                 countRelationInstancesAssign = plan.getBpelDocument().importNode(countRelationInstancesAssign, true);
                 plan.getBpelMainSequenceElement().appendChild(countRelationInstancesAssign);
@@ -131,7 +131,7 @@ public class NodeInstanceSelector {
                     Node countNodeInstancesAssign =
                         this.bpelFragments.createAssignXpathQueryToStringVarFragmentAsNode("countNodeInstanceCount_"
                             + nodeTemplate.getId() + "_" + System.currentTimeMillis(),
-                                                                                           this.createReferenceCountingXPathQuery(nodeInstancesListResponseVarName),
+                                                                                           createReferenceCountingXPathQuery(nodeInstancesListResponseVarName),
                                                                                            nodeInstancesCountVarName);
                     countNodeInstancesAssign = plan.getBpelDocument().importNode(countNodeInstancesAssign, true);
                     plan.getBpelMainSequenceElement().appendChild(countNodeInstancesAssign);
@@ -168,15 +168,14 @@ public class NodeInstanceSelector {
      */
     public void addNodeInstanceUpdate(final Set<AbstractNodeTemplate> nodes, final BPELPlan plan,
                                       final PropertyMap propMap) {
-        final String instanceDataAPIResponseVarName = this.createRESTResponseVar(plan);
+        final String instanceDataAPIResponseVarName = createRESTResponseVar(plan);
 
         for (final AbstractNodeTemplate nodeTemplate : nodes) {
 
             String nodeInstanceIDVarName = null;
             try {
-                nodeInstanceIDVarName =
-                    new NodeInstanceInitializer(this.bpelProcessHandler).findInstanceIdVarName(plan,
-                                                                                               nodeTemplate.getId());
+                nodeInstanceIDVarName = new NodeInstanceVariablesHandler(
+                    this.bpelProcessHandler).findInstanceIdVarName(plan, nodeTemplate.getId());
             }
             catch (final ParserConfigurationException e) {
                 // TODO Auto-generated catch block

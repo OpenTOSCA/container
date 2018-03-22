@@ -130,14 +130,14 @@ public class ScalingPlanDefinition {
         this.nodeTemplatesRecursiveSelection = new ArrayList<>();
         this.relationshipTemplatesRecursiveSelection = new ArrayList<>();
 
-        this.init();
+        init();
 
-        this.borderCrossingRelations = this.calculateBorderCrossingRelations();
+        this.borderCrossingRelations = calculateBorderCrossingRelations();
     }
 
     private void init() {
 
-        this.isValid();
+        isValid();
 
         // calculate recursive nodes
         for (final AbstractNodeTemplate nodeTemplate : this.selectionStrategy2BorderNodes) {
@@ -161,8 +161,7 @@ public class ScalingPlanDefinition {
         final Set<AbstractRelationshipTemplate> borderCrossingRelations = new HashSet<>();
 
         for (final AbstractRelationshipTemplate relationshipTemplate : this.relationshipTemplates) {
-            final AbstractNodeTemplate nodeStratSelection =
-                this.crossesBorder(relationshipTemplate, this.nodeTemplates);
+            final AbstractNodeTemplate nodeStratSelection = crossesBorder(relationshipTemplate, this.nodeTemplates);
             if (nodeStratSelection != null && this.selectionStrategy2BorderNodes.contains(nodeStratSelection)) {
                 borderCrossingRelations.add(relationshipTemplate);
             }
@@ -170,7 +169,7 @@ public class ScalingPlanDefinition {
 
         for (final AbstractNodeTemplate nodeTemplate : this.nodeTemplates) {
             final List<AbstractRelationshipTemplate> relations =
-                this.getBorderCrossingRelations(nodeTemplate, this.nodeTemplates);
+                getBorderCrossingRelations(nodeTemplate, this.nodeTemplates);
             borderCrossingRelations.addAll(relations);
         }
         return borderCrossingRelations;
@@ -180,10 +179,10 @@ public class ScalingPlanDefinition {
         // check if all nodes at the border are attached with a selection
         // strategy
         /* calculate all border crossing relations */
-        final Set<AbstractRelationshipTemplate> borderCrossingRelations = this.calculateBorderCrossingRelations();
+        final Set<AbstractRelationshipTemplate> borderCrossingRelations = calculateBorderCrossingRelations();
 
         for (final AbstractRelationshipTemplate relation : borderCrossingRelations) {
-            final AbstractNodeTemplate nodeStratSelection = this.crossesBorder(relation, this.nodeTemplates);
+            final AbstractNodeTemplate nodeStratSelection = crossesBorder(relation, this.nodeTemplates);
             if (nodeStratSelection == null) {
                 // these edges MUST be connected to a strategically selected
                 // node
@@ -203,13 +202,13 @@ public class ScalingPlanDefinition {
         final List<AbstractRelationshipTemplate> borderCrossingRelations = new ArrayList<>();
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-            if (this.crossesBorder(relation, nodesToScale) != null) {
+            if (crossesBorder(relation, nodesToScale) != null) {
                 borderCrossingRelations.add(relation);
             }
         }
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getIngoingRelations()) {
-            if (this.crossesBorder(relation, nodesToScale) != null) {
+            if (crossesBorder(relation, nodesToScale) != null) {
                 borderCrossingRelations.add(relation);
             }
         }

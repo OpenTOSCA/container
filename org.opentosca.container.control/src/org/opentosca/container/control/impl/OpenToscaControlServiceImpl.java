@@ -215,12 +215,16 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         this.LOG.info("Invoke Plan Invocation!");
 
         final String correlationID =
-            OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID, serviceTemplateId, csarInstanceID,
-                                                                        plan);
+            OpenToscaControlServiceImpl.planInvocationEngine.createCorrelationId(csarID, serviceTemplateId,
+                                                                                 csarInstanceID, plan);
+
         if (null != correlationID) {
             this.LOG.info("The Plan Invocation was successfull!!!");
+            OpenToscaControlServiceImpl.planInvocationEngine.invokePlan(csarID, serviceTemplateId, csarInstanceID, plan,
+                                                                        correlationID);
         } else {
             this.LOG.error("The Plan Invocation was not successfull!!!");
+            return null;
         }
 
         return correlationID;
@@ -253,7 +257,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         // return errors;
         // }
 
-        if (!this.undeployPlans(csarID)) {
+        if (!undeployPlans(csarID)) {
             this.LOG.warn("It was not possible to undeploy all plans of the CSAR \"" + csarID + ".");
             errors.add("Could not undeploy all plans.");
         }
@@ -344,7 +348,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
                         listOfUndeployedPlans.add(plan);
                     }
                 }
-
 
             }
         }

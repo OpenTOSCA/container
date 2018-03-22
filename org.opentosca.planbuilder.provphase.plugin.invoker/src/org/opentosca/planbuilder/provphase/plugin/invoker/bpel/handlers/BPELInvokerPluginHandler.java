@@ -39,8 +39,11 @@ import org.xml.sax.SAXException;
 public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanContext> {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPluginHandler.class);
-    private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
+    private static final String PlanInstanceURLVarKeyword = "OpenTOSCAContainerAPIPlanInstanceURL";
+    private static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
+
     private ResourceHandler resHandler;
+    private BPELProcessFragments bpelFrags;
     private DocumentBuilderFactory docFactory;
 
     private DocumentBuilder docBuilder;
@@ -48,6 +51,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
     public BPELInvokerPluginHandler() {
         try {
             this.resHandler = new ResourceHandler();
+            this.bpelFrags = new BPELProcessFragments();
             this.docFactory = DocumentBuilderFactory.newInstance();
             this.docFactory.setNamespaceAware(true);
             this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -58,42 +62,38 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
     }
 
     private void appendLOGActivity(final BPELPlanContext context, final String operation) {
-        String logMessageVarName = null;
+        String logMessageTempStringVarName = null;
         String logMessageContent = null;
         if (context.getNodeTemplate() != null) {
-            logMessageVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId() + "_" + operation + "_"
-                + System.currentTimeMillis();
-            logMessageContent = "<log>Executing operation " + operation + " of NodeTemplate "
-                + context.getNodeTemplate().getId() + "</log>";
+            logMessageTempStringVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId() + "_" + operation
+                + "_" + System.currentTimeMillis();
+            logMessageContent =
+                "Executing operation " + operation + " of NodeTemplate " + context.getNodeTemplate().getId();
         } else {
-            logMessageVarName = "instanceDataLogMsg_" + context.getRelationshipTemplate().getId()
+            logMessageTempStringVarName = "instanceDataLogMsg_" + context.getRelationshipTemplate().getId()
                 + (operation != null ? "_" + operation : "") + "_" + System.currentTimeMillis();
-            logMessageContent = "<log>Executing " + (operation != null ? "operation " + operation + " of " : "")
-                + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "</log>";
+            logMessageContent = "Executing " + (operation != null ? "operation " + operation + " of " : "")
+                + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "";
         }
 
-        // create variable
-        logMessageVarName = context.createGlobalStringVariable(logMessageVarName, logMessageContent).getName();
-        final Variable correlationIdVar = context.generateVariableWithRandomValue();
-        String serviceInstanceURLVar = null;
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceVarKeyword)) {
-                serviceInstanceURLVar = varName;
-            }
-        }
+
+
+        // create variables
+        logMessageTempStringVarName =
+            context.createGlobalStringVariable(logMessageTempStringVarName, logMessageContent).getName();
+
+        final String logMessageReqVarName = createLogRequestMsgVar(context);
+        final String planInstanceURLVar = findPlanInstanceURLVar(context);
 
         try {
-            Node assignInputToVar =
-                new BPELProcessFragments().generateAssignFromInputMessageToStringVariableAsNode("CorrelationID",
-                                                                                                correlationIdVar.getName());
+
+
             Node logPOSTNode =
-                new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(serviceInstanceURLVar,
-                                                                                          logMessageVarName,
-                                                                                          correlationIdVar.getName());
-            assignInputToVar = context.importNode(assignInputToVar);
+                new BPELProcessFragments().createBPEL4RESTLightPlanInstanceLOGsPOSTAsNode(planInstanceURLVar,
+                                                                                          logMessageTempStringVarName,
+                                                                                          logMessageReqVarName);
             logPOSTNode = context.importNode(logPOSTNode);
 
-            context.getProvisioningPhaseElement().appendChild(assignInputToVar);
             context.getProvisioningPhaseElement().appendChild(logPOSTNode);
 
         }
@@ -111,17 +111,33 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         }
     }
 
-    /**
-     * Returns an XPath Query which contructs a valid String, to GET a File from the openTOSCA API
-     *
-     * @param artifactPath a path inside an ArtifactTemplate
-     * @return a String containing an XPath query
-     */
-    public String createXPathQueryForURLRemoteFilePath(final String artifactPath) {
-        LOG.debug("Generating XPATH Query for ArtifactPath: " + artifactPath);
-        final String filePath =
-            "string(concat($input.payload//*[local-name()='csarEntrypoint']/text(),'/Content/" + artifactPath + "'))";
-        return filePath;
+    private String findPlanInstanceURLVar(final BPELPlanContext context) {
+        String planInstanceURLVar = null;
+        for (final String varName : context.getMainVariableNames()) {
+            if (varName.contains(BPELInvokerPluginHandler.PlanInstanceURLVarKeyword)) {
+                planInstanceURLVar = varName;
+            }
+        }
+        return planInstanceURLVar;
+    }
+
+    private String createLogRequestMsgVar(final BPELPlanContext context) {
+        final String logMsgReqVarName = "logMessage" + context.getIdForNames();
+
+        try {
+            final File opentoscaApiSchemaFile = this.bpelFrags.getOpenTOSCAAPISchemaFile();
+            QName logMsgRequestQName = this.bpelFrags.getOpenToscaApiLogMsgReqElementQName();
+            context.registerType(logMsgRequestQName, opentoscaApiSchemaFile);
+            logMsgRequestQName = context.importQName(logMsgRequestQName);
+
+            context.addGlobalVariable(logMsgReqVarName, BPELPlan.VariableType.ELEMENT, logMsgRequestQName);
+        }
+        catch (final IOException e3) {
+            // TODO Auto-generated catch block
+            e3.printStackTrace();
+        }
+
+        return logMsgReqVarName;
     }
 
     /**
@@ -236,7 +252,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             isNodeTemplate = false;
         }
 
-        final String interfaceName = this.findInterfaceForOperation(context, operation);
+        final String interfaceName = findInterfaceForOperation(context, operation);
         final String operationName = operation.getName();
 
         // fetch the input parameters of the operation and check whether their
@@ -253,19 +269,19 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             // if this param is ambigious, search for the alternatives to match against
             if (Utils.isSupportedVirtualMachineIPProperty(para.getName())) {
                 for (final String propAlt : Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                    propWrapper = this.findVar(context, propAlt);
+                    propWrapper = findVar(context, propAlt);
                     if (propWrapper != null) {
                         break;
                     }
                 }
             } else {
-                propWrapper = this.findVar(context, para.getName());
+                propWrapper = findVar(context, para.getName());
             }
             internalExternalPropsInput.put(para.getName(), propWrapper);
         }
 
         for (final AbstractParameter para : operation.getOutputParameters()) {
-            final Variable propWrapper = this.findVar(context, para.getName());
+            final Variable propWrapper = findVar(context, para.getName());
             internalExternalPropsOutput.put(para.getName(), propWrapper);
         }
 
@@ -288,7 +304,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         String serviceInstanceIdVarName = null;
 
         for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains("OpenTOSCAContainerAPIServiceInstanceID")) {
+            if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceURLVarKeyword)) {
                 serviceInstanceIdVarName = varName;
             }
         }
@@ -358,7 +374,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             return false;
         }
 
-        this.appendLOGActivity(context, operation.getName());
+        appendLOGActivity(context, operation.getName());
 
         // invoke service invoker
         // add invoke
@@ -503,7 +519,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         String serviceInstanceIdVarName = null;
 
         for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains("OpenTOSCAContainerAPIServiceInstanceID")) {
+            if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceURLVarKeyword)) {
                 serviceInstanceIdVarName = varName;
             }
         }
@@ -571,7 +587,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             return false;
         }
 
-        this.appendLOGActivity(context, operationName);
+        appendLOGActivity(context, operationName);
         // invoke service invoker
         // add invoke
         try {
@@ -693,8 +709,9 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         final Variable ubuntuFilePathVar =
             templateContext.createGlobalStringVariable(ubuntuFilePathVarName, ubuntuFilePath);
         // the folder which has to be created on the ubuntu vm
-        final String ubuntuFolderPathScript = "sleep 5 && mkdir -p " + this.fileReferenceToFolder(ubuntuFilePath);
-        final String containerAPIAbsoluteURIXPathQuery = this.createXPathQueryForURLRemoteFilePath(ref.getReference());
+        final String ubuntuFolderPathScript = "sleep 1 && mkdir -p " + fileReferenceToFolder(ubuntuFilePath);
+        final String containerAPIAbsoluteURIXPathQuery =
+            this.bpelFrags.createXPathQueryForURLRemoteFilePath(ref.getReference());
         final String containerAPIAbsoluteURIVarName = "containerApiFileURL" + templateContext.getIdForNames();
         /*
          * create a string variable with a complete URL to the file we want to upload
@@ -704,10 +721,9 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             templateContext.createGlobalStringVariable(containerAPIAbsoluteURIVarName, "");
 
         try {
-            Node assignNode =
-                this.loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
-                                                                   containerAPIAbsoluteURIXPathQuery,
-                                                                   containerAPIAbsoluteURIVar.getName());
+            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode("assign" + templateContext.getIdForNames(),
+                                                                            containerAPIAbsoluteURIXPathQuery,
+                                                                            containerAPIAbsoluteURIVar.getName());
             assignNode = templateContext.importNode(assignNode);
 
             if (appendToPrePhase) {
@@ -819,7 +835,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                                                               final String stringVarName) throws IOException,
                                                                                           SAXException {
         final String templateString =
-            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+            loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);

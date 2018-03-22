@@ -8,7 +8,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.selection.plugin.input.core.SelectionInputPlugin;
 import org.w3c.dom.Node;
@@ -45,7 +45,7 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         context.addStringValueToPlanRequest(inputFieldName);
 
         // fetch nodeInstanceVar
-        final String nodeInstanceVarName = this.findInstanceVar(context, nodeTemplate.getId(), true);
+        final String nodeInstanceVarName = findInstanceVar(context, nodeTemplate.getId(), true);
 
         // add assign from input to nodeInstanceVar
         try {
@@ -60,7 +60,7 @@ public class BPELSelectionInputPlugin extends SelectionInputPlugin<BPELPlanConte
         }
 
         try {
-            new NodeInstanceInitializer(
+            new NodeInstanceVariablesHandler(
                 new BPELPlanHandler()).addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
         }
         catch (final ParserConfigurationException e) {

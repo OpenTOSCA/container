@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.model.plan.bpel;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +49,7 @@ public class BPELPlan extends AbstractPlan {
      *
      */
     public enum VariableType {
-        MESSAGE, TYPE
+        MESSAGE, TYPE, ELEMENT
     }
 
     /**
@@ -130,6 +131,7 @@ public class BPELPlan extends AbstractPlan {
     private String toscaInterfaceName = null;
     private String toscaOperationName = null;
 
+    public Map<String, String> namespaceMap = new HashMap<>();
 
     public void setTOSCAInterfaceName(final String name) {
         this.toscaInterfaceName = name;
@@ -151,7 +153,7 @@ public class BPELPlan extends AbstractPlan {
         if (this.toscaOperationName != null) {
             return this.toscaOperationName;
         } else {
-            return this.getBpelMainSequenceReceiveElement().getAttribute("operation");
+            return getBpelMainSequenceReceiveElement().getAttribute("operation");
         }
     }
 

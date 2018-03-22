@@ -29,7 +29,9 @@ import org.opentosca.bus.application.model.exception.ApplicationBusInternalExcep
  */
 public class Route extends RouteBuilder {
 
+
     private static final String HOST = "http://localhost";
+
     private static final String PORT = "8083";
     private static final String BASE_ENDPOINT = Route.HOST + ":" + Route.PORT;
 
@@ -59,6 +61,7 @@ public class Route extends RouteBuilder {
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
         // handle exceptions
+
         this.onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
             .process(exceptionProcessor);
 
@@ -67,6 +70,7 @@ public class Route extends RouteBuilder {
             .process(invocationRequestProcessor).to(Route.TO_APP_BUS_ENDPOINT).choice()
             .when(property(Exchange.EXCEPTION_CAUGHT).isNull()).process(invocationResponseProcessor).removeHeaders("*")
             .otherwise().process(exceptionProcessor);
+
 
         // isFinished route
         this.from("restlet:" + Route.BASE_ENDPOINT + Route.POLL_ENDPOINT + "?restletMethods=get")

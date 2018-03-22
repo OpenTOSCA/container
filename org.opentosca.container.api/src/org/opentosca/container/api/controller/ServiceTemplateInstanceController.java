@@ -69,6 +69,7 @@ public class ServiceTemplateInstanceController {
 
     private final PlanService planService;
 
+
     private final CsarService csarService;
 
     private final DeploymentTestService deploymentTestService;
@@ -108,7 +109,7 @@ public class ServiceTemplateInstanceController {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Creates a new service template instance that corresponds to an existing build plan instance identified with a correlation id. The instance will be in the INITIAL state and will contain initial set of properties retrieved from the boundary definitions of the corresponding service template.",
                   response = Response.class)
@@ -142,6 +143,11 @@ public class ServiceTemplateInstanceController {
 
             return Response.serverError().build();
         }
+        catch (final NotFoundException e) {
+            logger.debug("Didn't find PlanInstances with given correlationId: {}", e.getMessage());
+            return Response.status(Status.BAD_REQUEST).entity("Didn't find PlanInstances with given correlationId")
+                           .build();
+        }
     }
 
     @GET
@@ -151,6 +157,7 @@ public class ServiceTemplateInstanceController {
     public Response getServiceTemplateInstance(@ApiParam("service template instance id") @PathParam("id") final Long id) {
 
         final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
+
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
 
         // Build plan: Determine plan instance that created this service
@@ -223,7 +230,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Path("/{id}/properties")
-    @Produces(MediaType.APPLICATION_XML)
+    @Produces({MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get the set of properties of a service template instance identified by its id.",
                   response = Document.class)
     public Response getServiceTemplateInstanceProperties(@ApiParam("service template instance id") @PathParam("id") final Long id) {
@@ -238,7 +245,7 @@ public class ServiceTemplateInstanceController {
 
     @PUT
     @Path("/{id}/properties")
-    @Consumes(MediaType.APPLICATION_XML)
+    @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @ApiOperation(value = "Changes the set of properties of a service template instance identified by its id.",
                   response = Response.class)

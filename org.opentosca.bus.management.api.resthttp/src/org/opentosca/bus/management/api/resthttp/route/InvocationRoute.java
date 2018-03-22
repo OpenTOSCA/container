@@ -26,7 +26,9 @@ import org.opentosca.bus.management.header.MBHeader;
  */
 public class InvocationRoute extends RouteBuilder {
 
+
     private static final String HOST = "http://localhost";
+
     private static final String PORT = "8086";
     static final String BASE_ENDPOINT = HOST + ":" + PORT;
 
@@ -54,6 +56,7 @@ public class InvocationRoute extends RouteBuilder {
                                                         header(MBHeader.PLANID_QNAME.toString()).isNotNull());
         // Checks if invoking a Plan
         final Predicate INVOKE_PLAN = header(MBHeader.PLANID_QNAME.toString()).isNotNull();
+
 
         final InvocationRequestProcessor invocationRequestProcessor = new InvocationRequestProcessor();
         final InvocationResponseProcessor invocationResponseProcessor = new InvocationResponseProcessor();

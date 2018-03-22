@@ -15,6 +15,10 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
  */
 public interface IPlanInvocationEngine {
 
+
+    public String createCorrelationId(final CSARID csarID, final QName serviceTemplateId,
+                                      long serviceTemplateInstanceID, final TPlanDTO givenPlan);
+
     /**
      * Invoke a PublicPlan for a CSAR. If this PublicPlan is of Type OTHERMANAGEMENT or TERMINATION, the
      * information about the CSARInstance is stored inside the PublicPlan.
@@ -25,6 +29,9 @@ public interface IPlanInvocationEngine {
      * @return boolean about success
      * @throws UnsupportedEncodingException
      */
+    public void invokePlan(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID, TPlanDTO plan,
+                           String correlationID) throws UnsupportedEncodingException;
+
     public String invokePlan(CSARID csarID, QName serviceTemplateId, long serviceTemplateInstanceID,
                              TPlanDTO plan) throws UnsupportedEncodingException;
 

@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpel:extensionActivity xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
-    <!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName, $sourceInstanceIdVarName, $targetInstanceIdVarName  -->
-	<bpel4RestLight:POST
-		uri="$bpelvar[$serviceInstanceURLVar]/RelationshipTemplates/$relationshipTemplateId/Instances?sourceInstanceId=$bpelvar[$sourceInstanceIdVarName]&amp;targetInstanceId=$bpelvar[$targetInstanceIdVarName]"
-		accept="application/xml" response="$ResponseVarName"></bpel4RestLight:POST>
-</bpel:extensionActivity>
+<bpel:scope xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable">
+	<bpel:sequence>
+		<bpel:assign>
+			<bpel:copy>
+				<bpel:from>
+					<bpel:literal>
+						<api:CreateRelationshipTemplateInstanceRequest
+							xmlns:api="http://opentosca.org/api" source-instance-id="asd"
+							target-instance-id="asd" />
+					</bpel:literal>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName" />
+			</bpel:copy>
+			<bpel:copy>
+				<bpel:from variable="$sourceInstanceIdVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string($$sourceInstanceIdVarName)]]></bpel:query>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='source-instance-id']]]></bpel:query>
+				</bpel:to>
+			</bpel:copy>
+			<bpel:copy>
+				<bpel:from variable="$targetInstanceIdVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string($$targetInstanceIdVarName)]]></bpel:query>
+				</bpel:from>
+				<bpel:to variable="$RequestVarName">
+					<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[$$RequestVarName/@*[local-name()='target-instance-id']]]></bpel:query>
+				</bpel:to>
+			</bpel:copy>
+		</bpel:assign>
+		<bpel:extensionActivity
+			xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+			xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
+			<!-- $serviceInstanceURLVar, $relationshipTemplateId, $ResponseVarName, 
+				$sourceInstanceIdVarName, $targetInstanceIdVarName -->
+			<bpel4RestLight:POST
+				uri="$bpelvar[$serviceInstanceURLVar]/relationshiptemplates/$relationshipTemplateId/instances"
+				accept="application/xml" contenttype="application/xml" request="$RequestVarName"
+				response="$ResponseVarName"></bpel4RestLight:POST>
+		</bpel:extensionActivity>
+	</bpel:sequence>
+</bpel:scope>

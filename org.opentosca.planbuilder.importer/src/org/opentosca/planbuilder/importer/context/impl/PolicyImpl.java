@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class PolicyImpl extends AbstractPolicy {
 
-    private static Logger logger = LoggerFactory.getLogger(PolicyImpl.class);
+    private final static Logger LOG = LoggerFactory.getLogger(PolicyImpl.class);
 
     private final TPolicy policy;
     private final DefinitionsImpl defs;
@@ -20,6 +20,11 @@ public class PolicyImpl extends AbstractPolicy {
         this.defs = definitions;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.opentosca.planbuilder.model.tosca.AbstractPolicy#getName()
+     */
     @Override
     public String getName() {
         return this.policy.getName();
@@ -28,10 +33,10 @@ public class PolicyImpl extends AbstractPolicy {
     @Override
     public AbstractPolicyType getType() {
         if (this.policy == null) {
-            logger.debug("Internal policy is null");
+            LOG.debug("Internal policy is null");
         }
         if (this.policy.getPolicyType() == null) {
-            logger.debug("Internal policyType is null");
+            LOG.debug("Internal policyType is null");
         }
         for (final AbstractPolicyType policyType : this.defs.getAllPolicyTypes()) {
             if (policyType.getId().equals(this.policy.getPolicyType())) {
@@ -45,10 +50,10 @@ public class PolicyImpl extends AbstractPolicy {
     @Override
     public AbstractPolicyTemplate getTemplate() {
         if (this.policy == null) {
-            logger.debug("Internal policy is null");
+            LOG.debug("Internal policy is null");
         }
         if (this.policy.getPolicyRef() == null) {
-            logger.debug("Internal policyRef is null");
+            LOG.debug("Internal policyRef is null");
         }
         for (final AbstractPolicyTemplate policyTemplate : this.defs.getAllPolicyTemplates()) {
             if (policyTemplate.getId().equals(this.policy.getPolicyRef().getLocalPart())) {

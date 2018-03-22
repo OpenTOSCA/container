@@ -79,14 +79,14 @@ public class PropertyMappingsToOutputInitializer {
                 this.internalArray[0][0] = serviceTemplatePropertyLocalName;
                 this.internalArray[0][1] = templateId;
                 this.internalArray[0][2] = templatePropertyLocalName;
-                this.increaseArraySize();
+                increaseArraySize();
             } else {
                 this.internalArray[this.internalArray.length - 1][0] = serviceTemplatePropertyLocalName;
                 this.internalArray[this.internalArray.length - 1][1] = templateId;
                 this.internalArray[this.internalArray.length - 1][2] = templatePropertyLocalName;
-                this.increaseArraySize();
+                increaseArraySize();
             }
-            this.printInternalArray();
+            printInternalArray();
         }
 
         private void printInternalArray() {
@@ -218,12 +218,12 @@ public class PropertyMappingsToOutputInitializer {
             return;
         }
 
-        final ServiceTemplatePropertyToPropertyMapping mapping = this.getMappings(buildPlanServiceTemplate, propMap);
+        final ServiceTemplatePropertyToPropertyMapping mapping = getMappings(buildPlanServiceTemplate, propMap);
         if (mapping == null) {
             PropertyMappingsToOutputInitializer.LOG.warn("Couldn't generate mapping, BuildPlan Output may be empty");
             return;
         }
-        this.initializeAssignOutput(buildPlan, propMap, mapping);
+        initializeAssignOutput(buildPlan, propMap, mapping);
 
     }
 
@@ -257,11 +257,11 @@ public class PropertyMappingsToOutputInitializer {
                 // add to outputmessage
                 buildPlanHandler.addStringElementToPlanResponse(serviceTemplatePropertyName, buildPlan);
 
-                if (this.isConcatQuery(templatePropertyName)) {
-                    processHandler.addCopyStringToOutputAssign(this.generateCopyFromQueryToOutputAsString(templatePropertyName,
-                                                                                                          "//*[local-name()='"
-                                                                                                              + serviceTemplatePropertyName
-                                                                                                              + "']"),
+                if (isConcatQuery(templatePropertyName)) {
+                    processHandler.addCopyStringToOutputAssign(generateCopyFromQueryToOutputAsString(templatePropertyName,
+                                                                                                     "//*[local-name()='"
+                                                                                                         + serviceTemplatePropertyName
+                                                                                                         + "']"),
                                                                buildPlan);
                 } else {
                     final String templateId = mapping.getTemplateId(serviceTemplatePropertyName);
@@ -409,23 +409,23 @@ public class PropertyMappingsToOutputInitializer {
 
             // this will be a localName in the output
             final String serviceTemplatePropLocalName =
-                this.getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef());
+                getTemplatePropertyLocalName(propElement, propertyMapping.getServiceTemplatePropertyRef());
 
             String templatePropLocalName = null;
             boolean isConcatQuery = false;
-            if (this.isConcatQuery(targetPropertyRef)) {
+            if (isConcatQuery(targetPropertyRef)) {
                 isConcatQuery = true;
-                templatePropLocalName = this.injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap);
+                templatePropLocalName = injectBPELVariables(propertyMapping.getTargetPropertyRef(), propMap);
 
             } else {
                 Element templateElement = null;
 
-                if (this.getNodeTemplate(buildPlanServiceTemplate, templateId) != null) {
+                if (getNodeTemplate(buildPlanServiceTemplate, templateId) != null) {
                     templateElement =
-                        this.getNodeTemplate(buildPlanServiceTemplate, templateId).getProperties().getDOMElement();
-                } else if (this.getRelationshipTemplate(buildPlanServiceTemplate, templateId) != null) {
-                    templateElement = this.getRelationshipTemplate(buildPlanServiceTemplate, templateId).getProperties()
-                                          .getDOMElement();
+                        getNodeTemplate(buildPlanServiceTemplate, templateId).getProperties().getDOMElement();
+                } else if (getRelationshipTemplate(buildPlanServiceTemplate, templateId) != null) {
+                    templateElement =
+                        getRelationshipTemplate(buildPlanServiceTemplate, templateId).getProperties().getDOMElement();
                 }
 
                 if (templateElement == null) {
@@ -440,7 +440,7 @@ public class PropertyMappingsToOutputInitializer {
                                                               templateElement.getLocalName());
 
                 templatePropLocalName =
-                    this.getTemplatePropertyLocalName(templateElement, propertyMapping.getTargetPropertyRef());
+                    getTemplatePropertyLocalName(templateElement, propertyMapping.getTargetPropertyRef());
             }
 
             if (templatePropLocalName == null) {
@@ -582,10 +582,10 @@ public class PropertyMappingsToOutputInitializer {
 
         final String functionContent =
             testQuery.substring(functionOpeningBracket + 1, testQuery.lastIndexOf(")")).trim();
-        final List<String> functionParts = this.seperateIntoStringsAndQueries(functionContent);
+        final List<String> functionParts = seperateIntoStringsAndQueries(functionContent);
 
         for (final String part : functionParts) {
-            if (!this.isStringPart(part) | this.isQueryPart(part, topologyTemplateElement, nodeTemplates) == null) {
+            if (!isStringPart(part) | isQueryPart(part, topologyTemplateElement, nodeTemplates) == null) {
                 return false;
             }
         }
@@ -608,14 +608,14 @@ public class PropertyMappingsToOutputInitializer {
                 return null;
             }
 
-            final String foundNodeTemplateName = this.getNodeTemplateNameWithWalk(propertyNode);
+            final String foundNodeTemplateName = getNodeTemplateNameWithWalk(propertyNode);
             if (foundNodeTemplateName != null) {
                 for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
                     if (nodeTemplate.getName().equals(foundNodeTemplateName)) {
-                        if (this.getListOfChildLocalNames(nodeTemplate.getProperties().getDOMElement())
-                                .contains(this.getLocalNameWithoutPrefi((Element) propertyNode))) {
+                        if (getListOfChildLocalNames(nodeTemplate.getProperties()
+                                                                 .getDOMElement()).contains(getLocalNameWithoutPrefi((Element) propertyNode))) {
                             final Map<AbstractNodeTemplate, String> result = new HashMap<>();
-                            result.put(nodeTemplate, this.getLocalNameWithoutPrefi((Element) propertyNode));
+                            result.put(nodeTemplate, getLocalNameWithoutPrefi((Element) propertyNode));
                             return result;
                         }
                     }

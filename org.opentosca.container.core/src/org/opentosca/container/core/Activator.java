@@ -56,7 +56,7 @@ public class Activator implements BundleActivator {
         // /////////////////// URLS ///////////////////
 
         // URI of the ContainerAPI
-        Settings.setSetting("containerUri", Settings.CONTAINER_API);
+        Settings.setSetting("containerUri", Settings.CONTAINER_API_LEGACY);
 
         // URI of the DataInstanceAPI
         Settings.setSetting("datainstanceUri", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"

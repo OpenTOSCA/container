@@ -28,6 +28,7 @@ public class GetResultRoute extends RouteBuilder {
         final GetResultProcessor getResultProcessor = new GetResultProcessor();
         final ExceptionProcessor exceptionProcessor = new ExceptionProcessor();
 
+
         // handle exceptions
         onException(Exception.class).handled(true).setBody(property(Exchange.EXCEPTION_CAUGHT))
                                     .process(exceptionProcessor);

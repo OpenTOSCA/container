@@ -28,6 +28,7 @@ public class DirectoryController {
 
     private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
 
+
     private final AbstractDirectory directory;
 
 
@@ -73,6 +74,7 @@ public class DirectoryController {
             }
         }
         logger.warn("Path '{}' does not exist in directory '{}'", path, this.directory.getPath());
+
         throw new NotFoundException(
             String.format("Path '%s' does not exist in directory '%s'", path, this.directory.getPath()));
     }

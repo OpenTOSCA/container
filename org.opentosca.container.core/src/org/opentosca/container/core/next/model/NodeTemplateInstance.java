@@ -67,7 +67,6 @@ public class NodeTemplateInstance extends PersistenceObject {
     @JsonIgnore
     private List<DeploymentTestResult> deploymentTestResults = Lists.newArrayList();
 
-
     public NodeTemplateInstance() {}
 
 

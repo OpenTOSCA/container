@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpel:assign xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" validate="no" name="$assignName">
     <bpel:copy>
-        <!-- $stringVarName, $RelationInstanceResponseVarName -->
-        <bpel:from variable="$RelationInstanceResponseVarName"><bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0" xmlns:pp="http://opentosca.org/api/pp" xmlns:xlink="http://www.w3.org/1999/xlink"><![CDATA[string(//*[local-name()='link' and @xlink:type='simple']/@xlink:href)]]></bpel:query></bpel:from>
-        <bpel:to variable="$stringVarName"></bpel:to>
-    </bpel:copy>
+		<!-- $stringVarName, $RelationInstanceResponseVarName, relationInstanceIDVar-->
+		<bpel:from variable="$RelationInstanceResponseVarName">
+			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(//*[local-name()='url']/text())]]></bpel:query>
+		</bpel:from>
+		<bpel:to variable="$stringVarName"></bpel:to>
+	</bpel:copy>
+	<bpel:copy>		
+		<bpel:from variable="$RelationInstanceResponseVarName">
+			<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath2.0"><![CDATA[string(codepoints-to-string(reverse(string-to-codepoints(substring-before(codepoints-to-string(reverse(string-to-codepoints($$stringVarName))), '/')))))]]></bpel:query>
+		</bpel:from>
+		<bpel:to variable="$relationInstanceIDVar"></bpel:to>
+	</bpel:copy>
 </bpel:assign>

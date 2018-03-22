@@ -35,6 +35,5 @@ public class IsFinishedRoute extends RouteBuilder {
         from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.POLL_ENDPOINT
             + "?restletMethods=get").process(isFinishedRequestProcessor).process(isFinishedProcessor)
                                     .process(isFinishedResponseProcessor).removeHeaders("*");
-
     }
 }

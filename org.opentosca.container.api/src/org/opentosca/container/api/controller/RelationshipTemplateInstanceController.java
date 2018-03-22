@@ -89,7 +89,7 @@ public class RelationshipTemplateInstanceController {
     }
 
     @POST
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Creates a new relationship template instance that connects two given node template instances",
                   response = Response.class)

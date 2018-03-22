@@ -39,6 +39,7 @@ import org.opentosca.container.core.common.Settings;
  */
 public class Route extends RouteBuilder {
 
+
     public final static String PUBLIC_ENDPOINT = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":8081/invoker";
     private final static String ENDPOINT = "http://0.0.0.0:8081/invoker";
     public final static QName PORT = new QName("http://siserver.org/wsdl", "InvokePort");
@@ -87,6 +88,7 @@ public class Route extends RouteBuilder {
 
         this.from(INVOKE_ENDPOINT).unmarshal(requestJaxb).process(requestProcessor).choice().when(INVOKE_IA)
             .to(MANAGEMENT_BUS_IA).when(INVOKE_PLAN).to(MANAGEMENT_BUS_PLAN).end();
+
         this.from("direct-vm:" + Activator.apiID).process(responseProcessor).marshal(responseJaxb).choice().when(ASYNC)
             .recipientList(this.simple(CALLBACK_ENDPOINT)).end();
     }

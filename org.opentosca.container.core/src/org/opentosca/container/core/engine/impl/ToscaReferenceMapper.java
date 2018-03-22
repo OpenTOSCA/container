@@ -561,6 +561,8 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
                         builder.append(" --> " + writer.toString().replaceAll("\\n|\\r", ""));
                     }
                     catch (final JAXBException e) {
+                        e.printStackTrace();
+
                         // FIXME: (miwurster; 2018-03-08) Not sure if we can ignore this, but we get an exception here
                         // if TPolicy is tried to be
                         // serialized. Anyhow, such exceptions are not handled, so I assume the stack trace print is not
@@ -635,7 +637,6 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void storeDefinitions(final CSARID csarID, final TDefinitions definitions) {
-
         setup();
         if (csarID != null && definitions != null) {
 
@@ -674,7 +675,6 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public void storeDocument(final CSARID csarID, final QName documentID, final Document doc) {
-
         setup();
 
         if (csarID == null) {
@@ -1290,11 +1290,9 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
     @Override
     public List<PropertyMappings> getServiceTemplateBoundsPropertyMappings(final CSARID csarID) {
         final List<PropertyMappings> ret = new ArrayList<>();
-
         for (final QName st : this.serviceTemplatePropertyMappings.get(csarID).keySet()) {
             ret.add(this.serviceTemplatePropertyMappings.get(csarID).get(st));
         }
-
         return ret;
     }
 

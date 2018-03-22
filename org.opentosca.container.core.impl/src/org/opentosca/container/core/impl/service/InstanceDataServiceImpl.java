@@ -795,6 +795,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
 
         this.niDAO.setProperties(nodeInstances.get(0), properties);
 
+
         updateServiceInstanceProperties(nodeInstances.get(0).getServiceInstance());
         return;
 
@@ -899,7 +900,6 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                     generatePropertyValueFromConcatQuery(mapping.getTargetPropertyRef(),
                                                          getNodeInstances(null, null, null,
                                                                           serviceInstance.getServiceInstanceID()));
-
                 serviceTemplatePropertyElements.get(0).setTextContent(propertyValue);
 
             } else {
@@ -910,7 +910,6 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                     getNodeInstanceFromMappingObject(serviceInstance, mapping.getTargetObjectRef());
 
                 if (nodeInstance == null) {
-                    // skip it, the mapping is invalid
                     continue;
                 }
 

@@ -187,8 +187,8 @@ public class RelationInstance {
     @PostPersist
     public void setRelationInstanceID() {
         try {
-            this.relationInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.serviceInstance.getCSAR_ID()
-                + "/ServiceTemplates/"
+            this.relationInstanceID = new URI(Settings.CONTAINER_API_LEGACY + "/CSARs/"
+                + this.serviceInstance.getCSAR_ID() + "/ServiceTemplates/"
                 + URLEncoder.encode(URLEncoder.encode(this.serviceInstance.getServiceTemplateID().toString(), "UTF-8"),
                                     "UTF-8")
                 + "/Instances/" + this.serviceInstance.getDBId() + "/RelationshipTemplates/"

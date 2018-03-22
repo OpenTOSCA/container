@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertiesDTO extends ResourceSupport {
 
-
     @XmlElement(name = "XmlFragment")
     private String xmlFragment;
 
@@ -40,7 +39,6 @@ public class PropertiesDTO extends ResourceSupport {
     public void setXmlFragment(final String xmlFragment) {
         this.xmlFragment = xmlFragment;
     }
-
 
     public List<TPropertyMapping> getPropertyMappings() {
         return this.propertyMappings;

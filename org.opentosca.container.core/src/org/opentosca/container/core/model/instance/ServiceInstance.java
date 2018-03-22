@@ -119,7 +119,7 @@ public class ServiceInstance {
         this.csarID = csarID;
         // needed to persist the object
         this.csarID_DB = csarID.getFileName();
-        this.setServiceTemplateID(serviceTemplateID);
+        setServiceTemplateID(serviceTemplateID);
         this.serviceTemplateName = serviceTemplateName;
 
         this.created = new Date();
@@ -139,7 +139,7 @@ public class ServiceInstance {
     }
 
     public QName getToscaID() {
-        return this.getServiceTemplateID();
+        return getServiceTemplateID();
     }
 
     public Date getCreated() {
@@ -167,9 +167,10 @@ public class ServiceInstance {
             // old: serviceInstanceID = new URI(Settings.CONTAINER_API +
             // IdConverter.serviceInstancePath + id);
             // http://localhost:1337/containerapi/CSARs/BPMNLAMPStack.csar/ServiceTemplates/%257Bhttp%253A%252F%252Fopentosca.org%252FBPMN%257DBPMNLAMPStack/Instances/1/
-            this.serviceInstanceID = new URI(Settings.CONTAINER_API + "/CSARs/" + this.csarID + "/ServiceTemplates/"
-                + URLEncoder.encode(URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8"), "UTF-8")
-                + "/Instances/" + this.id);
+            this.serviceInstanceID =
+                new URI(Settings.CONTAINER_API_LEGACY + "/CSARs/" + this.csarID + "/ServiceTemplates/"
+                    + URLEncoder.encode(URLEncoder.encode(this.serviceTemplateID.toString(), "UTF-8"), "UTF-8")
+                    + "/Instances/" + this.id);
             this.csarID = new CSARID(this.csarID_DB);
         }
         catch (final URISyntaxException e) {
@@ -199,7 +200,7 @@ public class ServiceInstance {
     @Override
     public String toString() {
         return "id:" + this.id + " created:" + this.created + " sID:" + this.serviceInstanceID + " templateID: "
-            + this.getToscaID().toString() + " template name: " + this.serviceTemplateName;
+            + getToscaID().toString() + " template name: " + this.serviceTemplateName;
     }
 
     /*
@@ -260,11 +261,11 @@ public class ServiceInstance {
         } else if (!this.serviceInstanceID.equals(other.serviceInstanceID)) {
             return false;
         }
-        if (this.getServiceTemplateID() == null) {
+        if (getServiceTemplateID() == null) {
             if (other.getServiceTemplateID() != null) {
                 return false;
             }
-        } else if (!this.getServiceTemplateID().equals(other.getServiceTemplateID())) {
+        } else if (!getServiceTemplateID().equals(other.getServiceTemplateID())) {
             return false;
         }
         if (this.serviceTemplateName == null) {

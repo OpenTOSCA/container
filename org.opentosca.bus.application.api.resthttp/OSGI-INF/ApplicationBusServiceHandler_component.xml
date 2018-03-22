@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.application.api.resthttp.servicehandler.ApplicationBusServiceHandler">
-   <implementation class="org.opentosca.bus.application.api.resthttp.servicehandler.ApplicationBusServiceHandler"/>
-   <reference bind="bindApplicationBusService" cardinality="1..1" interface="org.opentosca.bus.application.service.IApplicationBusService" name="IApplicationBusService" policy="static" unbind="unbindApplicationBusService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
+	name="org.opentosca.bus.application.api.resthttp.servicehandler.ApplicationBusServiceHandler">
+	<implementation
+		class="org.opentosca.bus.application.api.resthttp.servicehandler.ApplicationBusServiceHandler" />
+	<reference bind="bindApplicationBusService" cardinality="1..1"
+		interface="org.opentosca.bus.application.service.IApplicationBusService"
+		name="IApplicationBusService" policy="static" unbind="unbindApplicationBusService" />
 </scr:component>

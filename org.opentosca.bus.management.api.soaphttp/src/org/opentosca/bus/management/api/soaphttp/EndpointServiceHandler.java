@@ -39,6 +39,7 @@ public class EndpointServiceHandler {
             URI uri = null;
             try {
                 uri = new URI(Route.PUBLIC_ENDPOINT);
+
             }
             catch (final URISyntaxException e) {
                 // TODO Auto-generated catch block

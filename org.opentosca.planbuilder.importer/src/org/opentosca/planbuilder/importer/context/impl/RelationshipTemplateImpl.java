@@ -161,7 +161,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
      */
     @Override
     public AbstractRelationshipType getRelationshipType() {
-        return this.searchRelationshipType(this.getType());
+        return searchRelationshipType(getType());
     }
 
     /**
@@ -194,7 +194,7 @@ public class RelationshipTemplateImpl extends AbstractRelationshipTemplate {
     public List<AbstractRelationshipTypeImplementation> getImplementations() {
         final List<AbstractRelationshipTypeImplementation> impls = new ArrayList<>();
 
-        for (final AbstractRelationshipTypeImplementation impl : this.findRelationshipTypeImpls(this.definitions)) {
+        for (final AbstractRelationshipTypeImplementation impl : findRelationshipTypeImpls(this.definitions)) {
             if (impl.getRelationshipType().getId().equals(this.relationshipTemplate.getType())) {
                 impls.add(impl);
             }

@@ -30,7 +30,7 @@ public class CSARIDToInstanceToCorrelation {
 
         int highest = 0;
 
-        for (final ServiceTemplateInstanceID id : this.getInstanceMap(csarID).keySet()) {
+        for (final ServiceTemplateInstanceID id : getInstanceMap(csarID).keySet()) {
             if (highest < id.getInstanceID()) {
                 highest = id.getInstanceID();
             }
@@ -39,7 +39,7 @@ public class CSARIDToInstanceToCorrelation {
         final ServiceTemplateInstanceID instance =
             new ServiceTemplateInstanceID(csarID, serviceTemplateId, highest + 1);
 
-        this.getInstanceMap(csarID).put(instance, new ArrayList<String>());
+        getInstanceMap(csarID).put(instance, new ArrayList<String>());
 
         return instance;
     }
@@ -54,7 +54,7 @@ public class CSARIDToInstanceToCorrelation {
     public void storeNewCorrelationForInstance(final CSARID csarID, final ServiceTemplateInstanceID instanceID,
                                                final String correlationID) {
 
-        final List<String> list = this.getCorrelationList(csarID, instanceID);
+        final List<String> list = getCorrelationList(csarID, instanceID);
         if (null != list) {
             list.add(correlationID);
         }
@@ -64,7 +64,7 @@ public class CSARIDToInstanceToCorrelation {
 
         final List<ServiceTemplateInstanceID> returnList = new ArrayList<>();
 
-        for (final ServiceTemplateInstanceID id : this.getInstanceMap(csarID).keySet()) {
+        for (final ServiceTemplateInstanceID id : getInstanceMap(csarID).keySet()) {
             returnList.add(id);
         }
 
@@ -92,7 +92,7 @@ public class CSARIDToInstanceToCorrelation {
      * @return the map
      */
     public List<String> getCorrelationList(final CSARID csarID, final ServiceTemplateInstanceID instanceID) {
-        if (null == this.getInstanceMap(csarID)) {
+        if (null == getInstanceMap(csarID)) {
             this.storageMap.put(csarID, new HashMap<ServiceTemplateInstanceID, List<String>>());
             this.storageMap.get(csarID).put(instanceID, new ArrayList<String>());
         }
@@ -110,7 +110,7 @@ public class CSARIDToInstanceToCorrelation {
             builder.append("CSAR \"" + csarID + "\":" + ls + "   ");
             for (final ServiceTemplateInstanceID instanceID : this.storageMap.get(csarID).keySet()) {
                 builder.append("InstanceID \"" + instanceID + "\" with correlations: ");
-                for (final String correlation : this.getCorrelationList(csarID, instanceID)) {
+                for (final String correlation : getCorrelationList(csarID, instanceID)) {
                     builder.append(correlation + ", ");
                 }
                 builder.append(ls);

@@ -19,13 +19,12 @@ import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.CorrelationIDInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
-import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceInitializer;
+import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwarePostPhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwarePrePhasePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwareTypePlugin;
@@ -67,7 +66,8 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
     // serviceTemplate
     private final PropertyMappingsToOutputInitializer propertyOutputInitializer;
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
-    private ServiceInstanceInitializer serviceInstanceInitializer;
+
+    private ServiceInstanceVariablesHandler serviceInstanceInitializer;
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
@@ -75,9 +75,10 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
     private final List<String> opNames = new ArrayList<>();
 
     private BPELPlanHandler planHandler;
-    private NodeInstanceInitializer instanceInit;
 
-    private final CorrelationIDInitializer idInit = new CorrelationIDInitializer();
+    private NodeInstanceVariablesHandler instanceInit;
+
+
 
     private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
 
@@ -89,8 +90,9 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
     public PolicyAwareBPELBuildProcessBuilder() {
         try {
             this.planHandler = new BPELPlanHandler();
-            this.serviceInstanceInitializer = new ServiceInstanceInitializer();
-            this.instanceInit = new NodeInstanceInitializer(this.planHandler);
+            this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
+            this.instanceInit = new NodeInstanceVariablesHandler(this.planHandler);
+
         }
         catch (final ParserConfigurationException e) {
             PolicyAwareBPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
@@ -194,9 +196,10 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 
                 this.emptyPropInit.initializeEmptyPropertiesAsInputParam(newBuildPlan, propMap);
 
-                this.runPlugins(newBuildPlan, propMap);
+                runPlugins(newBuildPlan, propMap);
 
-                this.idInit.addCorrellationID(newBuildPlan);
+                this.serviceInstanceInitializer.addCorrellationID(newBuildPlan);
+
 
                 this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
                                                                               newBuildPlan.getBpelMainFlowElement(),
@@ -207,7 +210,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 
                 this.finalizer.finalize(newBuildPlan);
                 PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");
-                PolicyAwareBPELBuildProcessBuilder.LOG.debug(this.getStringFromDoc(newBuildPlan.getBpelDocument()));
+                PolicyAwareBPELBuildProcessBuilder.LOG.debug(getStringFromDoc(newBuildPlan.getBpelDocument()));
                 return newBuildPlan;
             }
         }
@@ -237,7 +240,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
             if (!serviceTemplate.hasBuildPlan()) {
                 PolicyAwareBPELBuildProcessBuilder.LOG.debug("ServiceTemplate {} has no BuildPlan, generating BuildPlan",
                                                              serviceTemplateId.toString());
-                final BPELPlan newBuildPlan = this.buildPlan(csarName, definitions, serviceTemplateId);
+                final BPELPlan newBuildPlan = buildPlan(csarName, definitions, serviceTemplateId);
 
                 if (newBuildPlan != null) {
                     PolicyAwareBPELBuildProcessBuilder.LOG.debug("Created BuildPlan "
@@ -305,7 +308,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                     }
                 } else {
                     // policy aware handling
-                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = this.findPolicyAwareTypePlugin(nodeTemplate);
+                    final IPlanBuilderPolicyAwareTypePlugin policyPlugin = findPolicyAwareTypePlugin(nodeTemplate);
                     if (policyPlugin == null) {
                         PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling NodeTemplate {} with ProvisioningChain",
                                                                      nodeTemplate.getId());
@@ -393,7 +396,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 // Note: if a generic plugin fails during execution the
                 // TemplateBuildPlan is broken here!
                 // TODO implement fallback
-                if (!this.canGenericPluginHandle(relationshipTemplate)) {
+                if (!canGenericPluginHandle(relationshipTemplate)) {
                     PolicyAwareBPELBuildProcessBuilder.LOG.debug("Handling RelationshipTemplate {} with ProvisioningChains",
                                                                  relationshipTemplate.getId());
                     final OperationChain sourceChain =
@@ -419,7 +422,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 } else {
                     PolicyAwareBPELBuildProcessBuilder.LOG.info("Handling RelationshipTemplate {} with generic plugin",
                                                                 relationshipTemplate.getId());
-                    handled = this.handleWithTypePlugin(context, relationshipTemplate);
+                    handled = handleWithTypePlugin(context, relationshipTemplate);
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {

@@ -49,13 +49,13 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
             // here we create recursive selection activities and connect everything
             final Collection<List<AbstractRelationshipTemplate>> paths = new HashSet<>();
 
-            this.findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
+            findOutgoingInfrastructurePaths(paths, stratNodeTemplate);
 
             if (paths.isEmpty()) {
                 for (final AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
                     abstractScaleOutPlan.getLinks().add(new Link(activity,
-                        this.findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                              relation, "PROVISIONING")));
+                        findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()), relation,
+                                                         "PROVISIONING")));
                 }
             }
 
@@ -87,16 +87,16 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
                         | relationshipTemplate.getTarget().equals(stratNodeTemplate)) {
 
                         AbstractActivity provRelationActivity =
-                            this.findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                                  relationshipTemplate, "PROVISIONING");
+                            findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
+                                                             relationshipTemplate, "PROVISIONING");
                         if (provRelationActivity == null) {
                             provRelationActivity = new ARelationshipTemplateActivity(
                                 relationshipTemplate + "provisioning_acvtivity", "PROVISIONING", relationshipTemplate);
                         }
 
                         final AbstractActivity recursiveRelationActivity =
-                            this.findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                                  path.get(path.size() - 1), "RECURSIVESELECTION");
+                            findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
+                                                             path.get(path.size() - 1), "RECURSIVESELECTION");
 
                         abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, provRelationActivity));
                     }
@@ -130,7 +130,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
             }
 
             pathToAdd.add(infrastructureEdge);
-            this.findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget());
+            findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget());
         }
 
     }

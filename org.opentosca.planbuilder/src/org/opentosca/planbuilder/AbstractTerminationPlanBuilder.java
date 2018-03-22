@@ -28,8 +28,8 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractPlanBuilder
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-
         final Map<AbstractNodeTemplate, AbstractActivity> mapping = new HashMap<>();
+
 
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 

@@ -17,7 +17,6 @@ public class OptionsRoute extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-
         // options route
         // from("restlet:" + InvocationRoute.BASE_ENDPOINT + InvocationRoute.INVOKE_ENDPOINT
         // + "?restletMethods=options");

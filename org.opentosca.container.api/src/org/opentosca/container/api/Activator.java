@@ -27,6 +27,7 @@ import org.opentosca.container.api.config.CorsFilter;
 import org.opentosca.container.api.config.JAXBContextProvider;
 import org.opentosca.container.api.config.ObjectMapperProvider;
 import org.opentosca.container.api.config.PlainTextMessageBodyWriter;
+import org.opentosca.container.api.config.URI2XMLMessageBodyWriter;
 import org.opentosca.container.api.controller.RootController;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -63,12 +64,14 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
         this.services.add(bundleContext.registerService(RootController.class, new RootController(), null));
 
         // Jersey Configuration
-        this.configurator(bundleContext);
+        configurator(bundleContext);
 
         this.services.add(bundleContext.registerService(ApplicationConfiguration.class, this, null));
         this.services.add(bundleContext.registerService(CorsFilter.class, new CorsFilter(), null));
         this.services.add(bundleContext.registerService(PlainTextMessageBodyWriter.class,
                                                         new PlainTextMessageBodyWriter(), null));
+        this.services.add(bundleContext.registerService(URI2XMLMessageBodyWriter.class, new URI2XMLMessageBodyWriter(),
+                                                        null));
         this.services.add(bundleContext.registerService(ObjectMapperProvider.class, new ObjectMapperProvider(), null));
         this.services.add(bundleContext.registerService(JacksonFeature.class, new JacksonFeature(), null));
         this.services.add(bundleContext.registerService(MultiPartFeature.class, new MultiPartFeature(), null));

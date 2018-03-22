@@ -30,10 +30,8 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
                                            final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-
         final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
         final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
-
         generatePOGActivitesAndLinks(activities, links, nodeMapping, nodeTemplates, relationMapping,
                                      relationshipTemplates);
 
@@ -65,7 +63,6 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 
         final Collection<AbstractActivity> activities = new ArrayList<>();
         final Set<Link> links = new HashSet<>();
-
         final Map<AbstractNodeTemplate, AbstractActivity> nodeMapping = new HashMap<>();
         final Map<AbstractRelationshipTemplate, AbstractActivity> relationMapping = new HashMap<>();
 

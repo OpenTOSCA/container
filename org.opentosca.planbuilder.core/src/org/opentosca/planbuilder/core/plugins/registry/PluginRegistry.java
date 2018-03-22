@@ -178,7 +178,6 @@ public class PluginRegistry {
      */
     public List<IScalingPlanBuilderSelectionPlugin<?>> getSelectionPlugins() {
         final List<IScalingPlanBuilderSelectionPlugin<?>> plugins = new ArrayList<>();
-
         final BundleContext ctx = getCtx();
 
         try {
@@ -203,7 +202,6 @@ public class PluginRegistry {
 
     public List<IPlanBuilderPolicyAwareTypePlugin<?>> getPolicyAwareTypePlugins() {
         final List<IPlanBuilderPolicyAwareTypePlugin<?>> plugins = new ArrayList<>();
-
         final BundleContext ctx = getCtx();
 
         try {

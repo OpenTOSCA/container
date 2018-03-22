@@ -19,33 +19,35 @@ public class InstanceStates {
          * INITIAL, CREATING, CREATED, CONFIGURING, CONFIGURED, STARTING, STARTED, STOPPING, STOPPED,
          * DELETING, DELETED, ERROR
          */
+        // left side = operation name
+        // right side = pre/post state of operation
 
         // lifecycle
-        operationPreStates.put("install", "creating");
-        operationPreStates.put("uninstall", "deleting");
-        operationPreStates.put("configure", "configuring");
-        operationPreStates.put("start", "starting");
-        operationPreStates.put("stop", "stopping");
+        operationPreStates.put("install", "CREATING");
+        operationPreStates.put("uninstall", "DELETING");
+        operationPreStates.put("configure", "CONFIGURING");
+        operationPreStates.put("start", "STARTING");
+        operationPreStates.put("stop", "STOPPING");
 
-        operationPostStates.put("install", "created");
-        operationPostStates.put("uninstall", "initial");
-        operationPostStates.put("configure", "configured");
-        operationPostStates.put("start", "started");
-        operationPostStates.put("stop", "stopped");
+        operationPostStates.put("install", "CREATED");
+        operationPostStates.put("uninstall", "INITIAL");
+        operationPostStates.put("configure", "CONFIGURED");
+        operationPostStates.put("start", "STARTED");
+        operationPostStates.put("stop", "STOPPED");
 
         // VM's
-        operationPreStates.put("createVM", "starting");
-        operationPreStates.put("waitForAvailability", "starting");
+        operationPreStates.put("createVM", "STARTING");
+        operationPreStates.put("waitForAvailability", "STARTING");
 
-        operationPostStates.put("createVM", "configured");
-        operationPostStates.put("waitForAvailability", "started");
+        operationPostStates.put("createVM", "CONFIGURED");
+        operationPostStates.put("waitForAvailability", "STARTED");
 
         // Docker
-        operationPreStates.put("startContainer", "starting");
-        operationPostStates.put("startContainer", "started");
+        operationPreStates.put("startContainer", "STARTING");
+        operationPostStates.put("startContainer", "STARTED");
 
-        operationPreStates.put("removeContainer", "deleting");
-        operationPostStates.put("removeContainer", "deleted");
+        operationPreStates.put("removeContainer", "DELETING");
+        operationPostStates.put("removeContainer", "DELETED");
     }
 
     public static String getOperationPreState(final String operationName) {
@@ -79,32 +81,32 @@ public class InstanceStates {
              */
             // given state is unstable
             switch (state) {
-                case "creating":
-                    return "created";
-                case "deleting":
-                    return "deleted";
-                case "configuring":
-                    return "configured";
-                case "starting":
-                    return "started";
-                case "stopping":
-                    return "stopped";
-                case "pending":
-                    return "started";
+                case "CREATING":
+                    return "CREATED";
+                case "DELETING":
+                    return "DELETED";
+                case "CONFIGURING":
+                    return "CONFIGURED";
+                case "STARTING":
+                    return "STARTED";
+                case "STOPPING":
+                    return "STOPPED";
+                case "PENDING":
+                    return "STARTED";
             }
         } else if (operationPostStates.containsValue(state)) {
             // given state is stable
             switch (state) {
-                case "initial":
-                    return "created";
-                case "created":
-                    return "configured";
-                case "configured":
-                    return "started";
-                case "started":
-                    return "started";
-                case "stopped":
-                    return "stopped";
+                case "INITIAL":
+                    return "CREATED";
+                case "CREATED":
+                    return "CONFIGURED";
+                case "CONFIGURED":
+                    return "STARTED";
+                case "STARTED":
+                    return "STARTED";
+                case "STOPPED":
+                    return "STOPPED";
             }
         }
 

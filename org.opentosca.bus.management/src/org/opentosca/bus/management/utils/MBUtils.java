@@ -205,7 +205,6 @@ public class MBUtils {
                 if (osIAInterface == null
                     || osIAInterface.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM)
                     || osIAInterface.equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER)) {
-                  
                     return osIAName;
 
                 }

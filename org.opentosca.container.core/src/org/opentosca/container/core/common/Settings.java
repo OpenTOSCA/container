@@ -13,17 +13,21 @@ public class Settings {
 
     public final static String OPENTOSCA_PUBLIC_IP = System.getProperty("org.opentosca.container.engine.ia.publicip");
 
-    public final static String CONTAINER_API =
+    public final static String CONTAINER_API_LEGACY =
         "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/containerapi";
-    public final static String CONTAINER_INSTANCEDATA_API =
+    public final static String CONTAINER_API =
+        "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT;
+    public final static String CONTAINER_INSTANCEDATA_LEGACY_API =
         "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT
             + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
+    public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+        + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
+
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
     public final static String OPENTOSCA_DEPLOYMENT_TESTS =
         System.getProperty("org.opentosca.deployment.tests", "false");
-
 
     // TODO: Use public static final variables instead, as in
     // StaticTOSCANamespaces. The problems with the current approach is: (i)

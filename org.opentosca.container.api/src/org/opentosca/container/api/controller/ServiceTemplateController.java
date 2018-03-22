@@ -56,6 +56,7 @@ public class ServiceTemplateController {
     private DeploymentTestService deploymentTestService;
 
 
+
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets all service templates of a CSAR", response = ServiceTemplateDTO.class,

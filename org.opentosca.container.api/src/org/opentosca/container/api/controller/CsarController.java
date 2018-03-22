@@ -93,6 +93,7 @@ public class CsarController {
     }
 
     @GET
+
     @Path("/{csar}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets a given CSAR", response = CsarDTO.class)
@@ -105,6 +106,7 @@ public class CsarController {
 
         // Absolute URLs for icon and image
         final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
+
         if (csar.getIconUrl() != null) {
             final String iconUrl =
                 MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
@@ -131,6 +133,7 @@ public class CsarController {
 
         return Response.ok(csar).build();
     }
+
 
     @Path("/{csar}/content")
     public DirectoryController getContent(@ApiParam("CSAR id") @PathParam("csar") final String id) {
@@ -191,6 +194,7 @@ public class CsarController {
 
         try {
             final URL url = new URL(request.getUrl());
+
             return handleCsarUpload(filename, url.openStream());
         }
         catch (final Exception e) {
@@ -293,7 +297,6 @@ public class CsarController {
     @Path("/{csar}")
     @ApiOperation(value = "Deletes a CSAR file", response = Response.class)
     public Response delete(@ApiParam("CSAR id") @PathParam("csar") final String id) {
-
         final CSARContent csarContent = this.csarService.findById(id);
 
         logger.info("Deleting CSAR \"{}\"", id);

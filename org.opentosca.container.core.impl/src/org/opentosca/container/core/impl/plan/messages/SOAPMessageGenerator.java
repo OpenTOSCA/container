@@ -86,20 +86,20 @@ public class SOAPMessageGenerator implements EventHandler {
                     // para.setValue(csarID);
                 } else if (para.getName().equalsIgnoreCase("containerApiAddress")) {
                     this.LOG.debug("Found containerApiAddress Element! Put in containerApiAddress \""
-                        + Settings.CONTAINER_API + "\".");
+                        + Settings.CONTAINER_API_LEGACY + "\".");
                     final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-                    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API);
+                    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API_LEGACY);
                     // para.setValue(Settings.CONTAINER_API);
                 } else if (para.getName().equalsIgnoreCase("instanceDataAPIUrl")) {
                     this.LOG.debug("Found instanceDataAPIUrl Element! Put in instanceDataAPIUrl \""
-                        + Settings.CONTAINER_INSTANCEDATA_API + "\".");
+                        + Settings.CONTAINER_INSTANCEDATA_LEGACY_API + "\".");
                     final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-                    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_INSTANCEDATA_API);
+                    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_INSTANCEDATA_LEGACY_API);
                 } else if (para.getName().equalsIgnoreCase("csarEntrypoint")) {
-                    this.LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \"" + Settings.CONTAINER_API
-                        + "/" + csarID + "\".");
+                    this.LOG.debug("Found csarEntrypoint Element! Put in instanceDataAPIUrl \""
+                        + Settings.CONTAINER_API_LEGACY + "/" + csarID + "\".");
                     final Name elementName = envelope.createName(para.getName(), "tosca", messageNS);
-                    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API + "/" + csarID);
+                    payload.addChildElement(elementName).addTextNode(Settings.CONTAINER_API_LEGACY + "/" + csarID);
                 } else {
                     this.LOG.debug("Found element \"" + para.getName() + "\"! Put in \"" + para.getValue() + "\".");
                     final Name elementName = envelope.createName(para.getName(), "tns", messageNS);

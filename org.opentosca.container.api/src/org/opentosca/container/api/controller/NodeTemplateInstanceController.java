@@ -2,6 +2,7 @@ package org.opentosca.container.api.controller;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -11,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -63,7 +65,7 @@ public class NodeTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceDTO.class,
                   responseContainer = "List")
-    public Response getNodeTemplateInstances() {
+    public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states) {
         final QName nodeTemplateQName =
             new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
         final Collection<NodeTemplateInstance> nodeInstances =
@@ -73,6 +75,10 @@ public class NodeTemplateInstanceController {
         final NodeTemplateInstanceListDTO list = new NodeTemplateInstanceListDTO();
 
         for (final NodeTemplateInstance i : nodeInstances) {
+            if (states != null && !states.isEmpty() && !states.contains(i.getState())) {
+                // skip this node instance, as it not has the proper state
+                continue;
+            }
             final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(i);
             dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
 
@@ -86,7 +92,7 @@ public class NodeTemplateInstanceController {
 
     @POST
     @Consumes({MediaType.TEXT_PLAIN})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Creates a new node template instance that belongs to a specific service template instance",
                   response = Response.class)
     @ApiResponses({@ApiResponse(code = 400,
@@ -195,7 +201,7 @@ public class NodeTemplateInstanceController {
     @PUT
     @Path("/{id}/properties")
     @Consumes({MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.",
                   response = Response.class)
     @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),

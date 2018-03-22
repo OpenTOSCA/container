@@ -109,8 +109,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
 
                 // update inputParams with instance data
-                inputParams = this.updateInputParams(inputParams, csarID, serviceTemplateID, nodeTypeID, nodeTemplateID,
-                                                     neededInterface, neededOperation, serviceInstanceID);
+                inputParams = updateInputParams(inputParams, csarID, serviceTemplateID, nodeTypeID, nodeTemplateID,
+                                                neededInterface, neededOperation, serviceInstanceID);
                 message.setBody(inputParams);
 
             } else {
@@ -138,8 +138,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 for (final String implementationArtifactName : implementationArtifactNames) {
 
                     // Check if needed interface/operation is provided
-                    if (this.isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null, null,
-                                         implementationArtifactName, neededOperation, neededInterface)) {
+                    if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null, null,
+                                    implementationArtifactName, neededOperation, neededInterface)) {
 
                         final QName artifactTemplateID =
                             ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(csarID,
@@ -153,7 +153,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                                                 implementationArtifactName)
                                                              .toString();
 
-                        invocationType = this.isSupported(artifactType, csarID, artifactTemplateID);
+                        invocationType = isSupported(artifactType, csarID, artifactTemplateID);
 
                         if (invocationType != null) {
                             ManagementBusServiceImpl.LOG.debug("InvocationType found: {} ", invocationType);
@@ -175,12 +175,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                 // if endpoint has placeholder, replace it with
                                 // a matching property value
+
                                 if (endpoint.toString().contains("/PLACEHOLDER_")
                                     && endpoint.toString().contains("_PLACEHOLDER/")) {
 
-                                    endpoint =
-                                        this.replacePlaceholderWithInstanceData(endpoint, csarID, serviceTemplateID,
-                                                                                nodeTemplateID, serviceInstanceID);
+                                    endpoint = replacePlaceholderWithInstanceData(endpoint, csarID, serviceTemplateID,
+                                                                                  nodeTemplateID, serviceInstanceID);
                                 }
 
                                 ManagementBusServiceImpl.LOG.debug("Endpoint: " + endpoint.toString());
@@ -260,8 +260,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 for (final String implementationArtifactName : implementationArtifactNames) {
 
                     // Check if needed interface/operation is provided
-                    if (this.isCorrectIA(csarID, null, null, relationshipTypeID, relationshipTypeImplementationID,
-                                         implementationArtifactName, neededOperation, neededInterface)) {
+                    if (isCorrectIA(csarID, null, null, relationshipTypeID, relationshipTypeImplementationID,
+                                    implementationArtifactName, neededOperation, neededInterface)) {
 
                         final QName artifactTemplateID =
                             ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
@@ -275,7 +275,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                                                         implementationArtifactName)
                                                              .toString();
 
-                        invocationType = this.isSupported(artifactType, csarID, artifactTemplateID);
+                        invocationType = isSupported(artifactType, csarID, artifactTemplateID);
 
                         if (invocationType != null) {
                             ManagementBusServiceImpl.LOG.debug("InvocationType found: {} ", invocationType);
@@ -349,13 +349,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (wasFound) {
 
-            exchange = this.callMatchingPlugin(exchange, invocationType);
+            exchange = callMatchingPlugin(exchange, invocationType);
 
         } else {
             ManagementBusServiceImpl.LOG.warn("No invokable implementation artifact found that provides required interface/operation");
         }
 
-        this.handleResponse(exchange);
+        handleResponse(exchange);
     }
 
     @Override
@@ -392,7 +392,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // Assumption. Should be checked with ToscaEngine
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
 
-            exchange = this.callMatchingPlugin(exchange, "REST");
+            exchange = callMatchingPlugin(exchange, "REST");
 
         } else if (WSDLendpoint != null) {
             final URI endpoint = WSDLendpoint.getURI();
@@ -402,13 +402,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // Assumption. Should be checked with ToscaEngine
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
 
-            exchange = this.callMatchingPlugin(exchange, "SOAP/HTTP");
+            exchange = callMatchingPlugin(exchange, "SOAP/HTTP");
         } else {
             ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invoking aborted!",
                                               planID, csarID);
         }
 
-        this.handleResponse(exchange);
+        handleResponse(exchange);
     }
 
     /**
@@ -573,7 +573,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             // Second check if a invocation-type is specified in
             // TOSCA definition
-            final String invocationType = this.getInvocationType(properties);
+            final String invocationType = getInvocationType(properties);
 
             if (invocationType != null) {
 
@@ -605,7 +605,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                 final Node propNode = list.item(i);
 
-                if (this.containsInvocationType(propNode)) {
+                if (containsInvocationType(propNode)) {
                     final String invocationType = propNode.getTextContent().trim();
                     return invocationType;
                 }
@@ -661,7 +661,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
         final List<String> expectedParams =
-            this.getExpectedInputParams(csarID, nodeTypeID, neededInterface, neededOperation);
+            getExpectedInputParams(csarID, nodeTypeID, neededInterface, neededOperation);
 
         ManagementBusServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
                                            expectedParams.size(), expectedParams.toString());
@@ -704,41 +704,41 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                         if (supportedIPPropertyNames.contains(expectedParam)) {
                             ManagementBusServiceImpl.LOG.debug("Supported IP-Property found.");
-                            prop = this.getSupportedProperty(supportedIPPropertyNames, propertiesMap);
+                            prop = getSupportedProperty(supportedIPPropertyNames, propertiesMap);
 
                             if (prop != null) {
-                                this.putOnlyIfNotSet(inputParams, expectedParam, prop);
+                                putOnlyIfNotSet(inputParams, expectedParam, prop);
                             }
 
                         } else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
                             ManagementBusServiceImpl.LOG.debug("Supported InstanceID-Property found.");
-                            prop = this.getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
+                            prop = getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
 
                             if (prop != null) {
-                                this.putOnlyIfNotSet(inputParams, expectedParam, prop);
+                                putOnlyIfNotSet(inputParams, expectedParam, prop);
                             }
 
                         } else if (supportedPasswordPropertyNames.contains(expectedParam)) {
                             ManagementBusServiceImpl.LOG.debug("Supported Password-Property found.");
-                            prop = this.getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
+                            prop = getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
 
                             if (prop != null) {
-                                this.putOnlyIfNotSet(inputParams, expectedParam, prop);
+                                putOnlyIfNotSet(inputParams, expectedParam, prop);
                             }
 
                         } else if (supportedUsernamePropertyNames.contains(expectedParam)) {
                             ManagementBusServiceImpl.LOG.debug("Supported Username-Property found.");
-                            prop = this.getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
+                            prop = getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
 
                             if (prop != null) {
-                                this.putOnlyIfNotSet(inputParams, expectedParam, prop);
+                                putOnlyIfNotSet(inputParams, expectedParam, prop);
                             }
 
                         } else {
 
                             for (final String propName : propertiesMap.keySet()) {
                                 if (expectedParam.equals(propName)) {
-                                    this.putOnlyIfNotSet(inputParams, expectedParam, propertiesMap.get(propName));
+                                    putOnlyIfNotSet(inputParams, expectedParam, propertiesMap.get(propName));
                                 }
                             }
 
