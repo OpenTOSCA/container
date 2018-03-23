@@ -248,7 +248,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                                                                                                        serviceTemplateID, nodeTypeID, nodeTemplateID));
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER,
-                                                                createParamsString(params));
+                                                                createParamsString(params, publicIP));
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}",
                                                                        artifactType, artifactTypeSpecificCommand);
@@ -630,7 +630,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
      * @return whitespace separated String with parameter keys and values
      */
     @SuppressWarnings("unchecked")
-    private String createParamsString(final Object params) {
+    private String createParamsString(final Object params, final String publicIP) {
         HashMap<String, String> paramsMap = new HashMap<>();
 
         if (params instanceof HashMap) {
@@ -642,7 +642,15 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
         String paramsString = "";
         for (final Entry<String, String> param : paramsMap.entrySet()) {
-            paramsString += param.getKey() + "=" + param.getValue() + " ";
+            // Replace http://container:1337 by the real IP address of the OpenTOSCA container. The
+            // container placeholder occurs in the docker setup but can´t be used when the remote
+            // service is invoked on a device outside of the docker daemon where the container resides.
+            if (param.getValue().startsWith("http://container:1337")) {
+                final String replacedValue = param.getValue().replaceFirst("container", publicIP);
+                paramsString += param.getKey() + "=" + replacedValue + " ";
+            } else {
+                paramsString += param.getKey() + "=" + param.getValue() + " ";
+            }
         }
 
         return paramsString;
