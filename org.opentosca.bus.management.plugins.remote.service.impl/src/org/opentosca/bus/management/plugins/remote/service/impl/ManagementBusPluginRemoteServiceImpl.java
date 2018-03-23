@@ -649,7 +649,14 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                 final String replacedValue = param.getValue().replaceFirst("container", publicIP);
                 paramsString += param.getKey() + "=" + replacedValue + " ";
             } else {
-                paramsString += param.getKey() + "=" + param.getValue() + " ";
+                // Also replace localhost in case the OpenTOSCA container was started without IP.
+                if (param.getValue().startsWith("http://localhost:1337")) {
+                    final String replacedValue = param.getValue().replaceFirst("localhost", publicIP);
+                    paramsString += param.getKey() + "=" + replacedValue + " ";
+                } else {
+
+                    paramsString += param.getKey() + "=" + param.getValue() + " ";
+                }
             }
         }
 
