@@ -84,7 +84,7 @@ public class RequestProcessor implements Processor {
         }
 
         // add header with public IP of engine-ia for the raspbian pull IA
-        exchange.getIn().setHeader("OPENTOSCA_PUBLIC_IP", Settings.OPENTOSCA_PUBLIC_IP);
+        exchange.getIn().setHeader(MBHeader.OPENTOSCA_PUBLIC_IP.toString(), Settings.OPENTOSCA_PUBLIC_IP);
 
         if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
 
