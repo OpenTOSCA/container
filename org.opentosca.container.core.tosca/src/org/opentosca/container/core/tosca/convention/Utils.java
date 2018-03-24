@@ -137,6 +137,16 @@ public class Utils {
             return true;
         }
 
+        // code for openwhisk
+        if (nodeType.equals(Types.openWhiskNodeType)) {
+            return true;
+        }
+
+        // hack for infrastructure node
+        if (nodeType.equals(Types.managementInfrastructureNodeType)) {
+            return true;
+        }
+
         // code for raspbian and stuff
         if (nodeType.equals(Types.raspbianJessieOSNodeType)) {
             return true;

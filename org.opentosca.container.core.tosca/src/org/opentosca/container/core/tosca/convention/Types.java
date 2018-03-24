@@ -24,6 +24,11 @@ public class Types {
 
     public final static QName amazonEc2NodeType = new QName("http://opentosca.org/NodeTypes", "AmazonEC2");
 
+    // serverless nodeTypes
+    public final static QName openWhiskNodeType = new QName("http://opentosca.org/nodetypes", "OpenWhisk_Serverless");
+    public final static QName managementInfrastructureNodeType =
+        new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure");
+
     // docker nodeTypes
     public final static QName dockerEngineNodeType = new QName("http://opentosca.org/nodetypes", "DockerEngine");
 
