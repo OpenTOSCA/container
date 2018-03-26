@@ -647,15 +647,15 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
             // service is invoked on a device outside of the docker daemon where the container resides.
             if (param.getValue().startsWith("http://container:1337")) {
                 final String replacedValue = param.getValue().replaceFirst("container", publicIP);
-                paramsString += param.getKey() + "=" + replacedValue + " ";
+                paramsString += param.getKey() + "='" + replacedValue + "' ";
             } else {
                 // Also replace localhost in case the OpenTOSCA container was started without IP.
                 if (param.getValue().startsWith("http://localhost:1337")) {
                     final String replacedValue = param.getValue().replaceFirst("localhost", publicIP);
-                    paramsString += param.getKey() + "=" + replacedValue + " ";
+                    paramsString += param.getKey() + "='" + replacedValue + "' ";
                 } else {
 
-                    paramsString += param.getKey() + "=" + param.getValue() + " ";
+                    paramsString += param.getKey() + "='" + param.getValue() + "' ";
                 }
             }
         }
