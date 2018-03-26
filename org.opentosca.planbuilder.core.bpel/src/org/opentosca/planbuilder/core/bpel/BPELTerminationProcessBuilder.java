@@ -145,14 +145,13 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 this.serviceInstanceVarsHandler.addManagementPlanServiceInstanceVarHandlingFromInput(newTerminationPlan);
                 this.serviceInstanceVarsHandler.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 
+                // fetch all nodeinstances that are running
                 this.nodeInstanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
                                                                       "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
                 this.nodeInstanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
                                                                                             propMap);
 
-                // TODO Create a for loop over the three sequences inside the
-                // flow to iterate for the instance count deleting one instance
-                // at a time
+          
 
                 final List<BPELScopeActivity> changedActivities = runPlugins(newTerminationPlan, propMap);
 
@@ -164,6 +163,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
                 this.finalizer.finalize(newTerminationPlan);
 
+                // add for each loop over found node instances to terminate each running instance
                 for (final BPELScopeActivity activ : changedActivities) {
                     if (activ.getNodeTemplate() != null) {
                         final BPELPlanContext context =
@@ -172,14 +172,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                                                                                "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
                     }
                 }
-                // TODO we need to wrap the pre-, prov- and post-phase sequences
-                // into a forEach activity that iterates over all nodeInstances
-                // of a given nodeTemplate. This allows us to generate code for
-                // a single nodeInstance which can then be used for all
-                // nodeInstances by using the same code on each instance
-
-                // add logic at the end of the process to DELETE the
-                // serviceInstance with the instanceDataAPI
+      
 
 
 
