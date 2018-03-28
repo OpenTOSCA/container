@@ -92,8 +92,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
         ManagementBusPluginRemoteServiceImpl.LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
         ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
-        final String publicIP = message.getHeader(MBHeader.OPENTOSCA_PUBLIC_IP.toString(), String.class);
-        ManagementBusPluginRemoteServiceImpl.LOG.debug("OPENTOSCA_PUBLIC_IP: {}", publicIP);
+        final String engineIAPublicIP = message.getHeader(MBHeader.ENGINE_IA_PUBLIC_IP.toString(), String.class);
+        ManagementBusPluginRemoteServiceImpl.LOG.debug("ENGINE_IA_PUBLIC_IP: {}", engineIAPublicIP);
 
         if (nodeTemplateID == null && relationshipTemplateID != null) {
 
@@ -177,7 +177,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         headers.put(MBHeader.INTERFACENAME_STRING.toString(),
                                     MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
                         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
-                        headers.put(MBHeader.OPENTOSCA_PUBLIC_IP.toString(), publicIP);
+                        headers.put(MBHeader.ENGINE_IA_PUBLIC_IP.toString(), engineIAPublicIP);
 
                         // install packages
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages...");
@@ -248,7 +248,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                                                                                                        serviceTemplateID, nodeTypeID, nodeTemplateID));
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER,
-                                                                createParamsString(params, publicIP));
+                                                                createParamsString(params));
 
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Final command for ArtifactType {} : {}",
                                                                        artifactType, artifactTypeSpecificCommand);
@@ -630,7 +630,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
      * @return whitespace separated String with parameter keys and values
      */
     @SuppressWarnings("unchecked")
-    private String createParamsString(final Object params, final String publicIP) {
+    private String createParamsString(final Object params) {
         HashMap<String, String> paramsMap = new HashMap<>();
 
         if (params instanceof HashMap) {
@@ -642,22 +642,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
         String paramsString = "";
         for (final Entry<String, String> param : paramsMap.entrySet()) {
-            // Replace http://container:1337 by the real IP address of the OpenTOSCA container. The
-            // container placeholder occurs in the docker setup but can´t be used when the remote
-            // service is invoked on a device outside of the docker daemon where the container resides.
-            if (param.getValue().startsWith("http://container:1337")) {
-                final String replacedValue = param.getValue().replaceFirst("container", publicIP);
-                paramsString += param.getKey() + "='" + replacedValue + "' ";
-            } else {
-                // Also replace localhost in case the OpenTOSCA container was started without IP.
-                if (param.getValue().startsWith("http://localhost:1337")) {
-                    final String replacedValue = param.getValue().replaceFirst("localhost", publicIP);
-                    paramsString += param.getKey() + "='" + replacedValue + "' ";
-                } else {
-
-                    paramsString += param.getKey() + "='" + param.getValue() + "' ";
-                }
-            }
+            paramsString += param.getKey() + "='" + param.getValue() + "' ";
         }
 
         return paramsString;
