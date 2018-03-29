@@ -27,16 +27,18 @@ public class Activator implements BundleActivator {
                     bundleContext.getBundle().getVersion());
         context = bundleContext;
 
-        final String url = context.getProperty("org.opentosca.container.engine.plan.plugin.bpelwso2.url");
+        final String hostname = context.getProperty("org.opentosca.container.engine.plan.hostname");
+        final String port = context.getProperty("org.opentosca.container.engine.plan.port");
 
-        if (url != null) {
+        if (hostname != null && port != null) {
+            final String url = "https://" + hostname + ":" + port;
             Settings.setSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.url", url);
         }
 
-        final String servicesUrl =
-            context.getProperty("org.opentosca.container.engine.plan.plugin.bpelwso2.services.url");
+        final String servicesPort = context.getProperty("org.opentosca.container.engine.plan.services.port");
 
-        if (servicesUrl != null) {
+        if (hostname != null && servicesPort != null) {
+            final String servicesUrl = "http://" + hostname + ":" + servicesPort + "/services";
             Settings.setSetting("org.opentosca.container.engine.plan.plugin.bpelwso2.services.url", servicesUrl);
         }
 

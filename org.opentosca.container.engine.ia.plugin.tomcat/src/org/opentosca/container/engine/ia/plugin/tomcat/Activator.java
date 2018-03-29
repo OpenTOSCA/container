@@ -38,9 +38,11 @@ public class Activator implements BundleActivator {
             Settings.setSetting("org.opentosca.container.engine.ia.plugin.tomcat.password", password);
         }
 
-        final String url = context.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url");
+        final String hostname = context.getProperty("org.opentosca.container.engine.ia.hostname");
+        final String port = context.getProperty("org.opentosca.container.engine.ia.port");
 
-        if (password != null) {
+        if (hostname != null && port != null) {
+            final String url = "http://" + hostname + ":" + port;
             Settings.setSetting("org.opentosca.container.engine.ia.plugin.tomcat.url", url);
         }
     }
