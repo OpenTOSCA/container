@@ -4,7 +4,6 @@
 <product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentoscacontainer" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
-      <win32>/org.opentosca.container.product/config.ini</win32>
    </configIni>
 
    <launcherArgs>
@@ -39,6 +38,7 @@
 
    <features>
       <feature id="org.opentosca.container.feature" version="2.0.0.qualifier"/>
+      <feature id="winery" version="2.0.0"/>
    </features>
 
    <configurations>
@@ -171,6 +171,8 @@
       <plugin id="org.eclipse.winery.model.tosca.yaml" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.winery.repository" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.winery.repository.configuration" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.winery.yaml.common" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.winery.yaml.converter" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.bundles.repackaged.jersey-guava" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.ext.entityfiltering" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.media.jersey-media-json-jackson" autoStart="true" startLevel="0" />

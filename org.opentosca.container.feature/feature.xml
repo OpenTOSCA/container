@@ -16,6 +16,10 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="winery"
+         version="0.0.0"/>
+
    <plugin
          id="ch.qos.logback.classic"
          download-size="0"
