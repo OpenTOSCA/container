@@ -2,6 +2,7 @@ package org.opentosca.container.api.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -45,7 +46,6 @@ import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 
 public class PlanService {
 
@@ -67,7 +67,7 @@ public class PlanService {
 
     public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
         logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
-        final List<TPlan> plans = Lists.newArrayList();
+        final List<TPlan> plans = new ArrayList<>();
         final Map<PlanTypes, LinkedHashMap<QName, TPlan>> plansOfCsar = this.referenceMapper.getCSARIDToPlans(id);
         for (final PlanTypes planType : planTypes) {
             final LinkedHashMap<QName, TPlan> plansOfType = plansOfCsar.get(planType);
@@ -297,13 +297,13 @@ public class PlanService {
 
         final Collection<ServiceTemplateInstance> serviceInstances;
         if (serviceTemplateInstanceId != null) {
-            serviceInstances = Lists.newArrayList();
+            serviceInstances = new ArrayList<>();
             serviceInstances.add(repo.find(serviceTemplateInstanceId).get());
         } else {
             serviceInstances = repo.findByCsarId(csarId);
         }
 
-        final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
+        final List<PlanInstanceDTO> planInstances = new ArrayList<>();
         for (final ServiceTemplateInstance sti : serviceInstances) {
             final List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(p -> {
                 final PlanTypes currType = PlanTypes.isPlanTypeURI(p.getType().toString());

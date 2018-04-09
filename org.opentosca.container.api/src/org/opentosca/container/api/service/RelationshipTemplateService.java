@@ -1,5 +1,6 @@
 package org.opentosca.container.api.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.NotFoundException;
@@ -12,8 +13,6 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import com.google.common.collect.Lists;
 
 // TODO it is assumed that the name of the node template is the same as its id.
 /**
@@ -43,7 +42,7 @@ public class RelationshipTemplateService {
         final List<String> relationshipTemplateIds =
             this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(csarContent.getCSARID(),
                                                                               QName.valueOf(serviceTemplateQName));
-        final List<RelationshipTemplateDTO> relationshipTemplates = Lists.newArrayList();
+        final List<RelationshipTemplateDTO> relationshipTemplates = new ArrayList<>();
         RelationshipTemplateDTO currentRelationshipTemplate;
 
         for (final String id : relationshipTemplateIds) {

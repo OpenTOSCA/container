@@ -1,6 +1,8 @@
 package org.opentosca.container.core.next.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,8 +26,6 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = NodeTemplateInstance.TABLE_NAME)
@@ -42,17 +42,17 @@ public class NodeTemplateInstance extends PersistenceObject {
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "nodeTemplateInstance", cascade = {CascadeType.ALL})
     @JsonIgnore
-    private Set<NodeTemplateInstanceProperty> properties = Sets.newHashSet();
+    private Set<NodeTemplateInstanceProperty> properties = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
     private ServiceTemplateInstance serviceTemplateInstance;
 
     @OneToMany(mappedBy = "target")
-    private Collection<RelationshipTemplateInstance> incomingRelations = Lists.newArrayList();
+    private Collection<RelationshipTemplateInstance> incomingRelations = new ArrayList<>();
 
     @OneToMany(mappedBy = "source")
-    private Collection<RelationshipTemplateInstance> outgoingRelations = Lists.newArrayList();
+    private Collection<RelationshipTemplateInstance> outgoingRelations = new ArrayList<>();
 
     @Convert("QNameConverter")
     @Column(name = "TEMPLATE_ID", nullable = false)
@@ -65,7 +65,7 @@ public class NodeTemplateInstance extends PersistenceObject {
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "nodeTemplateInstance", fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<DeploymentTestResult> deploymentTestResults = Lists.newArrayList();
+    private List<DeploymentTestResult> deploymentTestResults = new ArrayList<>();
 
     public NodeTemplateInstance() {}
 

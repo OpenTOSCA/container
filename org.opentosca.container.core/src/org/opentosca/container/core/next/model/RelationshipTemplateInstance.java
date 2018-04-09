@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.model;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -17,8 +18,6 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.persistence.annotations.Convert;
 
-import com.google.common.collect.Sets;
-
 @Entity
 @Table(name = RelationshipTemplateInstance.TABLE_NAME)
 public class RelationshipTemplateInstance extends PersistenceObject {
@@ -33,7 +32,7 @@ public class RelationshipTemplateInstance extends PersistenceObject {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "relationshipTemplateInstance", cascade = {CascadeType.ALL})
-    private Set<RelationshipTemplateInstanceProperty> properties = Sets.newHashSet();
+    private Set<RelationshipTemplateInstanceProperty> properties = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "SOURCE_ID")

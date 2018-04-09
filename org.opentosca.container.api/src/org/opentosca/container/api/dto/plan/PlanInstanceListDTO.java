@@ -1,5 +1,6 @@
 package org.opentosca.container.api.dto.plan;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.opentosca.container.api.dto.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "PlanInstanceResources")
 public class PlanInstanceListDTO extends ResourceSupport {
@@ -19,7 +19,7 @@ public class PlanInstanceListDTO extends ResourceSupport {
     @JsonProperty
     @XmlElement(name = "PlanInstance")
     @XmlElementWrapper(name = "PlanInstances")
-    private final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
+    private final List<PlanInstanceDTO> planInstances = new ArrayList<>();
 
 
     public void add(final PlanInstanceDTO... planInstances) {

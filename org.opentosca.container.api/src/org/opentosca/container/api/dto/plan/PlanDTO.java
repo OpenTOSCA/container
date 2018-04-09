@@ -1,6 +1,7 @@
 package org.opentosca.container.api.dto.plan;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -18,7 +19,6 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.core.tosca.model.TPlan;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "Plan")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -39,11 +39,11 @@ public class PlanDTO extends ResourceSupport {
 
     @XmlElement(name = "InputParameter")
     @XmlElementWrapper(name = "InputParameters")
-    private List<TParameter> inputParameters = Lists.newArrayList();
+    private List<TParameter> inputParameters = new ArrayList<>();
 
     @XmlElement(name = "OutputParameter")
     @XmlElementWrapper(name = "OutputParameters")
-    private List<TParameter> outputParameters = Lists.newArrayList();
+    private List<TParameter> outputParameters = new ArrayList<>();
 
     @XmlElement(name = "PlanModelReference")
     private String planModelReference;

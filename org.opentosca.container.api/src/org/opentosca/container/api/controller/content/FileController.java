@@ -1,6 +1,7 @@
 package org.opentosca.container.api.controller.content;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,8 +15,6 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -27,7 +26,7 @@ public class FileController {
     private final AbstractFile file;
 
 
-    private static final Map<String, MediaType> IMAGE_TYPES = Maps.newHashMap();
+    private static final Map<String, MediaType> IMAGE_TYPES = new HashMap<>();
 
     static {
         IMAGE_TYPES.put("png", MediaType.valueOf("image/png"));

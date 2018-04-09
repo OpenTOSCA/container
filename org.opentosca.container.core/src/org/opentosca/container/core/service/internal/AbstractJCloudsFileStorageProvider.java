@@ -9,6 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.jclouds.ContextBuilder;
 import org.jclouds.apis.ApiMetadata;
@@ -31,7 +35,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Module;
 
 /**
@@ -98,8 +101,8 @@ public abstract class AbstractJCloudsFileStorageProvider implements ICoreInterna
      * jclouds modules that should be loaded beside the default modules during initialization of the
      * storage provider.
      */
-    ImmutableSet<Module> modules =
-        new ImmutableSet.Builder<Module>().add(this.slf4jLoggingModule).addAll(this.getJCloudsModules()).build();
+    Set<Module> modules = Collections.unmodifiableSet(Stream.concat(Stream.of(this.slf4jLoggingModule), 
+                              StreamSupport.stream(this.getJCloudsModules().spliterator(), false)).collect(Collectors.toSet()));
 
 
     /**

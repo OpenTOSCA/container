@@ -3,6 +3,7 @@ package org.opentosca.container.api.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -30,7 +31,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 
 public class CsarService {
 
@@ -50,7 +50,7 @@ public class CsarService {
      */
     public Set<CSARContent> findAll() {
         logger.debug("Requesting all CSARs...");
-        final Set<CSARContent> csarSet = Sets.newHashSet();
+        final Set<CSARContent> csarSet = new HashSet<>();
         for (final CSARID id : this.fileService.getCSARIDs()) {
             try {
                 csarSet.add(this.findById(id));

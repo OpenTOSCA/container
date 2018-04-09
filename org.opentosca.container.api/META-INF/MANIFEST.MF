@@ -6,11 +6,11 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.container.api.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.eclipsesource.jaxrs.publisher;version="5.3.1",
- com.fasterxml.jackson.annotation;version="2.5.0",
- com.fasterxml.jackson.core;version="2.5.0",
- com.fasterxml.jackson.databind;version="2.5.0",
- com.fasterxml.jackson.databind.annotation;version="2.5.0",
- com.fasterxml.jackson.databind.module;version="2.5.0",
+ com.fasterxml.jackson.annotation,
+ com.fasterxml.jackson.core,
+ com.fasterxml.jackson.databind,
+ com.fasterxml.jackson.databind.annotation,
+ com.fasterxml.jackson.databind.module,
  com.google.common.collect;version="15.0.0",
  dk.nykredit.jackson.dataformat.hal,
  dk.nykredit.jackson.dataformat.hal.annotation,

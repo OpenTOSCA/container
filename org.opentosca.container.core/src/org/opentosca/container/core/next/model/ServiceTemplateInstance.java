@@ -1,6 +1,8 @@
 package org.opentosca.container.core.next.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,8 +24,6 @@ import org.opentosca.container.core.next.xml.PropertyParser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = ServiceTemplateInstance.TABLE_NAME)
@@ -38,10 +38,10 @@ public class ServiceTemplateInstance extends PersistenceObject {
     private ServiceTemplateInstanceState state;
 
     @OneToMany(mappedBy = "serviceTemplateInstance")
-    private Collection<PlanInstance> planInstances = Lists.newArrayList();
+    private Collection<PlanInstance> planInstances = new ArrayList<>();
 
     @OneToMany(mappedBy = "serviceTemplateInstance")
-    private Collection<NodeTemplateInstance> nodeTemplateInstances = Lists.newArrayList();
+    private Collection<NodeTemplateInstance> nodeTemplateInstances = new ArrayList<>();
 
     @Convert("CSARIDConverter")
     @Column(name = "CSAR_ID", nullable = false)
@@ -54,12 +54,12 @@ public class ServiceTemplateInstance extends PersistenceObject {
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "serviceTemplateInstance", cascade = {CascadeType.ALL})
     @JsonIgnore
-    private Set<ServiceTemplateInstanceProperty> properties = Sets.newHashSet();
+    private Set<ServiceTemplateInstanceProperty> properties = new HashSet<>();
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "serviceTemplateInstance")
     @JsonIgnore
-    private List<DeploymentTest> deploymentTests = Lists.newArrayList();
+    private List<DeploymentTest> deploymentTests = new ArrayList<>();
 
 
     public ServiceTemplateInstance() {

@@ -3,7 +3,9 @@ package org.opentosca.container.core.impl.service;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,8 +55,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * The InstanceDataService.<br>
@@ -101,7 +101,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
             final Optional<ServiceTemplateInstance> sti = this.serviceRepository.find(DaoUtil.toLong(id));
             if (sti.isPresent()) {
                 logger.info("Single Result: {}", sti);
-                return Lists.newArrayList(Converters.convert(sti.get()));
+                return Collections.singletonList(Converters.convert(sti.get()));
             } else {
                 logger.info("NOT FOUND");
             }
@@ -134,7 +134,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
                 this.serviceRepository.find(DaoUtil.toLong(serviceTemplateInstanceID));
             if (sti.isPresent()) {
                 logger.info("Single Result: {}", sti);
-                return Lists.newArrayList(Converters.convert(sti.get()));
+                return Collections.singletonList(Converters.convert(sti.get()));
             } else {
                 logger.info("NOT FOUND");
             }
@@ -251,7 +251,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
             final Optional<NodeTemplateInstance> nti = this.nodeRepository.find(DaoUtil.toLong(id));
             if (nti.isPresent()) {
                 logger.info("Single Result: {}", nti);
-                return Lists.newArrayList(Converters.convert(nti.get()));
+                return Collections.singletonList(Converters.convert(nti.get()));
             } else {
                 logger.info("NOT FOUND");
             }
@@ -308,7 +308,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
             final Optional<RelationshipTemplateInstance> nti = this.relationshipRepository.find(DaoUtil.toLong(id));
             if (nti.isPresent()) {
                 logger.info("Single Result: {}", nti);
-                return Lists.newArrayList(Converters.convert(nti.get()));
+                return Collections.singletonList(Converters.convert(nti.get()));
             } else {
                 logger.info("NOT FOUND");
             }
@@ -324,7 +324,7 @@ public class InstanceDataServiceImpl implements IInstanceDataService {
         }
 
         if (serviceInstanceID != null) {
-            final Set<RelationshipTemplateInstance> rels = Sets.newHashSet();
+            final Set<RelationshipTemplateInstance> rels = new HashSet<>();
             Integer id = IdConverter.serviceInstanceUriToID(serviceInstanceID);
             if (id == null) {
                 final String[] segments = serviceInstanceID.getPath().split("/");

@@ -1,6 +1,8 @@
 package org.opentosca.container.core.next.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +20,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @Entity
 @Table(name = DeploymentTest.TABLE_NAME)
@@ -39,7 +39,7 @@ public class DeploymentTest extends PersistenceObject {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "deploymentTest", cascade = {CascadeType.ALL})
-    private List<DeploymentTestResult> deploymentTestResults = Lists.newArrayList();
+    private List<DeploymentTestResult> deploymentTestResults = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
@@ -101,7 +101,7 @@ public class DeploymentTest extends PersistenceObject {
     }
 
     public Map<String, Object> getStatistics() {
-        final Map<String, Object> stats = Maps.newHashMap();
+        final Map<String, Object> stats = new HashMap<>();
         stats.put("total", this.deploymentTestResults.size());
         stats.put("success", countJobsByState(DeploymentTestState.SUCCESS));
         stats.put("failed", countJobsByState(DeploymentTestState.FAILED));

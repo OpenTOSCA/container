@@ -1,5 +1,6 @@
 package org.opentosca.container.api.dto.boundarydefinitions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -12,7 +13,6 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.tosca.model.TPropertyMapping;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Lists;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "Properties")
@@ -25,7 +25,7 @@ public class PropertiesDTO extends ResourceSupport {
 
     @XmlElement(name = "PropertyMapping")
     @XmlElementWrapper(name = "PropertyMappings")
-    private List<TPropertyMapping> propertyMappings = Lists.newArrayList();
+    private List<TPropertyMapping> propertyMappings = new ArrayList<>();
 
 
     public PropertiesDTO() {

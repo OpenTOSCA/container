@@ -1,6 +1,7 @@
 package org.opentosca.container.api.dto.plan;
 
 import java.util.Collection;
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,7 +21,6 @@ import org.opentosca.container.core.next.model.PlanType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "PlanInstance")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -134,11 +134,11 @@ public class PlanInstanceDTO extends ResourceSupport {
             dto.setServiceTemplateInstanceId(object.getServiceTemplateInstance().getId());
             dto.setType(object.getType());
 
-            dto.setLogs(Lists.newArrayList());
-            dto.setOutputs(Lists.newArrayList());
+            dto.setLogs(new ArrayList<>());
+            dto.setOutputs(new ArrayList<>());
 
             dto.setState(object.getState());
-            dto.setInputs(Lists.newArrayList());
+            dto.setInputs(new ArrayList<>());
 
             for (final PlanInstanceInput output : object.getInputs()) {
                 dto.getInputs().add(PlanInstanceInputDTO.Converter.convert(output));

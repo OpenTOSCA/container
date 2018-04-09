@@ -1,6 +1,8 @@
 package org.opentosca.container.core.next.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,8 +21,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.persistence.annotations.Convert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 @Entity
 @Table(name = PlanInstance.TABLE_NAME)
@@ -47,15 +47,15 @@ public class PlanInstance extends PersistenceObject {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-    private List<PlanInstanceEvent> events = Lists.newArrayList();
+    private List<PlanInstanceEvent> events = new ArrayList<>();
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-    private Set<PlanInstanceOutput> outputs = Sets.newHashSet();
+    private Set<PlanInstanceOutput> outputs = new HashSet<>();
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "planInstance", cascade = {CascadeType.ALL})
-    private Set<PlanInstanceInput> inputs = Sets.newHashSet();
+    private Set<PlanInstanceInput> inputs = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
