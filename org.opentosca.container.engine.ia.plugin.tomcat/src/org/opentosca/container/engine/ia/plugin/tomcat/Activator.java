@@ -40,7 +40,7 @@ public class Activator implements BundleActivator {
 
         final String url = context.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url");
 
-        if (password != null) {
+        if (url != null) {
             Settings.setSetting("org.opentosca.container.engine.ia.plugin.tomcat.url", url);
         }
     }

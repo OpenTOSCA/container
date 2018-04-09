@@ -22,6 +22,7 @@
    <windowImages/>
 
    <launcher name="OpenTOSCA">
+      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
@@ -33,6 +34,7 @@
       <solaris include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</solaris>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
+
 
    <plugins>
    </plugins>
@@ -234,13 +236,18 @@
       <plugin id="stax2-api" autoStart="true" startLevel="0" />
       <plugin id="woodstox-core-asl" autoStart="true" startLevel="0" />
       <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8080/winery" />
+      <property name="org.opentosca.container.engine.ia.hostname" value="localhost" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.password" value="admin" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://localhost:8090" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.username" value="admin" />
+      <property name="org.opentosca.container.engine.ia.port" value="8090" />
+      <property name="org.opentosca.container.engine.plan.hostname" value="localhost" />
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.password" value="admin" />
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.services.url" value="http://localhost:9763/services" />
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.url" value="https://localhost:9443" />
       <property name="org.opentosca.container.engine.plan.plugin.bpelwso2.username" value="admin" />
+      <property name="org.opentosca.container.engine.plan.port" value="9443" />
+      <property name="org.opentosca.container.engine.plan.services.port" value="9763" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>
