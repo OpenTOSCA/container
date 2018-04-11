@@ -215,7 +215,7 @@
       <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="0" />
-      <plugin id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.prephase.plugin.fileupload" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="0" />
       <plugin id="org.opentosca.planbuilder.selection.plugin.firstavailable" autoStart="true" startLevel="0" />

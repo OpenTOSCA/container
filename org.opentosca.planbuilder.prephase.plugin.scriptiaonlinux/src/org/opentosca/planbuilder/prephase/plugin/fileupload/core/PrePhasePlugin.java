@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.core;
+package org.opentosca.planbuilder.prephase.plugin.fileupload.core;
 
 import javax.xml.namespace.QName;
 

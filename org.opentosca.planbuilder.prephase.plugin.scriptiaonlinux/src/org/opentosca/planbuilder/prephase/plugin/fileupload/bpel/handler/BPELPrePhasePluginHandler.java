@@ -1,17 +1,16 @@
-package org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.bpel.handler;
+package org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler;
 
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.core.handler.PrePhasePluginHandler;
+import org.opentosca.planbuilder.prephase.plugin.fileupload.core.handler.PrePhasePluginHandler;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,16 +153,16 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
             // }
         }
 
-        // if the variable is null now -> the property isn't set properly
-        if (sshUserVariable == null) {
-            return false;
-        } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, templateContext)) {
-                // the property isn't set in the topology template -> we set it
-                // null here so it will be handled as an external parameter
-                sshUserVariable = null;
-            }
-        }
+        // // if the variable is null now -> the property isn't set properly
+        // if (sshUserVariable == null) {
+        // return false;
+        // } else {
+        // if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, templateContext)) {
+        // // the property isn't set in the topology template -> we set it
+        // // null here so it will be handled as an external parameter
+        // sshUserVariable = null;
+        // }
+        // }
 
         Variable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
@@ -185,59 +184,18 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
             // }
         }
         // if variable null now -> the property isn't set according to schema
-        if (sshKeyVariable == null) {
-            return false;
-        } else {
-            if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, templateContext)) {
-                // see sshUserVariable..
-                sshKeyVariable = null;
-            }
-        }
+        // if (sshKeyVariable == null) {
+        // return false;
+        // } else {
+        // if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, templateContext)) {
+        // // see sshUserVariable..
+        // sshKeyVariable = null;
+        // }
+        // }
 
         // add sshUser and sshKey to the input message of the build plan, if
         // needed
-        if (sshUserVariable == null) {
-            final String cleanName =
-                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
-            switch (cleanName) {
-                case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
-                    LOG.debug("Adding sshUser field to plan input");
-                    templateContext.addStringValueToPlanRequest("sshUser");
-                    break;
-                case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-                    LOG.debug("Adding sshUser field to plan input");
-                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINNAME);
-                    break;
-                case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
-                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANUSER);
-                    break;
-                default:
-                    return false;
 
-            }
-
-        }
-
-        if (sshKeyVariable == null) {
-            LOG.debug("Adding sshKey field to plan input");
-            final String cleanName =
-                serverIpPropWrapper.getName().substring(serverIpPropWrapper.getName().lastIndexOf("_") + 1);
-            switch (cleanName) {
-                case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
-                    LOG.debug("Adding sshKey field to plan input");
-                    templateContext.addStringValueToPlanRequest("sshKey");
-                    break;
-                case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
-                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMLOGINPASSWORD);
-                    break;
-                case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
-                    templateContext.addStringValueToPlanRequest(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANPASSWD);
-                    break;
-                default:
-                    return false;
-
-            }
-        }
 
         // find the ubuntu node and its nodeTemplateId
         final String templateId = nodeTemplate.getId();

@@ -966,7 +966,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux"
+         id="org.opentosca.planbuilder.prephase.plugin.fileupload"
          download-size="0"
          install-size="0"
          version="0.0.0"
