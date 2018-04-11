@@ -9,7 +9,7 @@
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux</artifactId>
+  <artifactId>org.opentosca.planbuilder.prephase.plugin.fileupload</artifactId>
   <packaging>eclipse-plugin</packaging>
 
 </project>

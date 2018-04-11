@@ -758,8 +758,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 // old nodetype properties
                 runScriptRequestInputParams.put("hostname", serverIp);
-                runScriptRequestInputParams.put("sshKey", sshKey);
-                runScriptRequestInputParams.put("sshUser", sshUser);
+                if (sshKey != null) {
+                    runScriptRequestInputParams.put("sshKey", sshKey);
+                }
+                if (sshUser != null) {
+                    runScriptRequestInputParams.put("sshUser", sshUser);
+                }
                 runScriptRequestInputParams.put("script", mkdirScriptVar);
                 this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
                             "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
@@ -769,8 +773,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
                 // new nodetype properties
                 runScriptRequestInputParams.put("VMIP", serverIp);
-                runScriptRequestInputParams.put("VMUserName", sshUser);
-                runScriptRequestInputParams.put("VMPrivateKey", sshKey);
+                if (sshUser != null) {
+                    runScriptRequestInputParams.put("VMUserName", sshUser);
+                }
+                if (sshKey != null) {
+                    runScriptRequestInputParams.put("VMPrivateKey", sshKey);
+                }
                 runScriptRequestInputParams.put("Script", mkdirScriptVar);
                 this.handle(templateContext, templateId, true, "runScript",
                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
@@ -793,8 +801,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         switch (cleanName2) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 transferFileRequestInputParams.put("hostname", serverIp);
-                transferFileRequestInputParams.put("sshUser", sshUser);
-                transferFileRequestInputParams.put("sshKey", sshKey);
+                if (sshUser != null) {
+                    transferFileRequestInputParams.put("sshUser", sshUser);
+                }
+                if (sshKey != null) {
+                    transferFileRequestInputParams.put("sshKey", sshKey);
+                }
                 transferFileRequestInputParams.put("targetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("sourceURLorLocalAbsolutePath", containerAPIAbsoluteURIVar);
                 this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu",
@@ -804,8 +816,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
                 transferFileRequestInputParams.put("VMIP", serverIp);
-                transferFileRequestInputParams.put("VMUserName", sshUser);
-                transferFileRequestInputParams.put("VMPrivateKey", sshKey);
+                if (sshUser != null) {
+                    transferFileRequestInputParams.put("VMUserName", sshUser);
+                }
+                if (sshKey != null) {
+                    transferFileRequestInputParams.put("VMPrivateKey", sshKey);
+                }
                 transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
                 this.handle(templateContext, templateId, true, "transferFile",

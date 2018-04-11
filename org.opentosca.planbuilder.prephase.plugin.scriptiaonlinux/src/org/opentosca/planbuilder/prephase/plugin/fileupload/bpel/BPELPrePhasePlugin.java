@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.bpel;
+package org.opentosca.planbuilder.prephase.plugin.fileupload.bpel;
 
 import javax.xml.namespace.QName;
 
@@ -6,8 +6,8 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.bpel.handler.BPELPrePhasePluginHandler;
-import org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux.core.PrePhasePlugin;
+import org.opentosca.planbuilder.prephase.plugin.fileupload.bpel.handler.BPELPrePhasePluginHandler;
+import org.opentosca.planbuilder.prephase.plugin.fileupload.core.PrePhasePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
