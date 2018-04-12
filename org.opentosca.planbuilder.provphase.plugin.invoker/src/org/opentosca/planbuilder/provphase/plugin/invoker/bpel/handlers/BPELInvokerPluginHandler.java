@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.provphase.plugin.invoker.core.handler.InvokerPluginHandler;
@@ -694,11 +696,46 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                            internalExternalPropsInput, internalExternalPropsOutput, appendToPrePhase);
     }
 
+    private List<String> getRunScriptParams(final AbstractNodeTemplate nodeTemplate) {
+        final List<String> inputParams = new ArrayList<>();
+
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final AbstractOperation op : iface.getOperations()) {
+                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)) {
+                    for (final AbstractParameter param : op.getInputParameters()) {
+                        inputParams.add(param.getName());
+                    }
+                }
+            }
+        }
+
+        return inputParams;
+    }
+
+    private List<String> getTransferFileParams(final AbstractNodeTemplate nodeTemplate) {
+        final List<String> inputParams = new ArrayList<>();
+
+        for (final AbstractInterface iface : nodeTemplate.getType().getInterfaces()) {
+            for (final AbstractOperation op : iface.getOperations()) {
+                if (op.getName().equals(Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)) {
+                    for (final AbstractParameter param : op.getInputParameters()) {
+                        inputParams.add(param.getName());
+                    }
+                }
+            }
+        }
+
+        return inputParams;
+    }
+
     public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
                                                  final BPELPlanContext templateContext, final Variable serverIp,
-                                                 final Variable sshUser, final Variable sshKey, final String templateId,
+                                                 final Variable sshUser, final Variable sshKey,
+                                                 final AbstractNodeTemplate infraTemplate,
                                                  final boolean appendToPrePhase) throws Exception {
         BPELInvokerPluginHandler.LOG.debug("Handling DA " + ref.getReference());
+
+
         /*
          * Contruct all needed data (paths, url, scripts)
          */
@@ -754,33 +791,41 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         // quick and dirty hack to check if we're using old or new properties
         final String cleanName = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
 
+
+        final List<String> runScriptInputParams = getRunScriptParams(infraTemplate);
+
+
         switch (cleanName) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 // old nodetype properties
-                runScriptRequestInputParams.put("hostname", serverIp);
-                if (sshKey != null) {
+                if (serverIp != null && runScriptInputParams.contains("hostname")) {
+                    runScriptRequestInputParams.put("hostname", serverIp);
+                }
+                if (sshKey != null && runScriptInputParams.contains("sshKey")) {
                     runScriptRequestInputParams.put("sshKey", sshKey);
                 }
-                if (sshUser != null) {
+                if (sshUser != null && runScriptInputParams.contains("sshUser")) {
                     runScriptRequestInputParams.put("sshUser", sshUser);
                 }
                 runScriptRequestInputParams.put("script", mkdirScriptVar);
-                this.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
+                this.handle(templateContext, infraTemplate.getId(), true, "runScript", "InterfaceUbuntu",
                             "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
                             appendToPrePhase);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
                 // new nodetype properties
-                runScriptRequestInputParams.put("VMIP", serverIp);
-                if (sshUser != null) {
+                if (serverIp != null && runScriptInputParams.contains("VMIP")) {
+                    runScriptRequestInputParams.put("VMIP", serverIp);
+                }
+                if (sshUser != null && runScriptInputParams.contains("VMUserName")) {
                     runScriptRequestInputParams.put("VMUserName", sshUser);
                 }
-                if (sshKey != null) {
+                if (sshKey != null && runScriptInputParams.contains("VMPrivateKey")) {
                     runScriptRequestInputParams.put("VMPrivateKey", sshKey);
                 }
                 runScriptRequestInputParams.put("Script", mkdirScriptVar);
-                this.handle(templateContext, templateId, true, "runScript",
+                this.handle(templateContext, infraTemplate.getId(), true, "runScript",
                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
                             runScriptRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 
@@ -798,33 +843,39 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         final String cleanName2 = serverIp.getName().substring(serverIp.getName().lastIndexOf("_") + 1);
 
+        final List<String> transferFileInputParams = getTransferFileParams(infraTemplate);
+
         switch (cleanName2) {
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
-                transferFileRequestInputParams.put("hostname", serverIp);
-                if (sshUser != null) {
+                if (serverIp != null && transferFileInputParams.contains("hostname")) {
+                    transferFileRequestInputParams.put("hostname", serverIp);
+                }
+                if (sshUser != null && transferFileInputParams.contains("sshUser")) {
                     transferFileRequestInputParams.put("sshUser", sshUser);
                 }
-                if (sshKey != null) {
+                if (sshKey != null && transferFileInputParams.contains("sshKey")) {
                     transferFileRequestInputParams.put("sshKey", sshKey);
                 }
                 transferFileRequestInputParams.put("targetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("sourceURLorLocalAbsolutePath", containerAPIAbsoluteURIVar);
-                this.handle(templateContext, templateId, true, "transferFile", "InterfaceUbuntu",
+                this.handle(templateContext, infraTemplate.getId(), true, "transferFile", "InterfaceUbuntu",
                             "planCallbackAddress_invoker", transferFileRequestInputParams,
                             new HashMap<String, Variable>(), appendToPrePhase);
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP:
-                transferFileRequestInputParams.put("VMIP", serverIp);
-                if (sshUser != null) {
+                if (serverIp != null && transferFileInputParams.contains("VMIP")) {
+                    transferFileRequestInputParams.put("VMIP", serverIp);
+                }
+                if (sshUser != null && transferFileInputParams.contains("VMUserName")) {
                     transferFileRequestInputParams.put("VMUserName", sshUser);
                 }
-                if (sshKey != null) {
+                if (sshKey != null && transferFileInputParams.contains("VMPrivateKey")) {
                     transferFileRequestInputParams.put("VMPrivateKey", sshKey);
                 }
                 transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
                 transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
-                this.handle(templateContext, templateId, true, "transferFile",
+                this.handle(templateContext, infraTemplate.getId(), true, "transferFile",
                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM, "planCallbackAddress_invoker",
                             transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
 

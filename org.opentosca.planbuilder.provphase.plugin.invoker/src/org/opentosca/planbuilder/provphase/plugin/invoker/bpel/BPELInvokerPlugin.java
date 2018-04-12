@@ -11,6 +11,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
+import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.handlers.BPELInvokerPluginHandler;
@@ -179,16 +180,16 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
      *        the planInput
      * @param sshKey a variable containing the sshKey value, if null the key will be requested from the
      *        planInput
-     * @param templateId the templateId the serverIp belongs to
+     * @param infraTemplate the templateId the serverIp belongs to
      * @return true iff appending all bpel code was successful
      */
     public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
                                                  final BPELPlanContext templateContext, final Variable serverIp,
                                                  final Variable sshUser, final Variable sshKey,
-                                                 final String templateId) {
+                                                 final AbstractNodeTemplate infraTemplate) {
         try {
             return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
-                                                              templateId, true);
+                                                              infraTemplate, true);
         }
         catch (final Exception e) {
             LOG.error("Couldn't load internal files", e);

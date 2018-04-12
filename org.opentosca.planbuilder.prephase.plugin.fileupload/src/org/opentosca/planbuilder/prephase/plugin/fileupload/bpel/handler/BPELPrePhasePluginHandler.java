@@ -88,12 +88,12 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
      * @param context a TemplateContext
      * @param refs the ArtifactReferences to deploy
      * @param artifactName the name of the artifact, where the references originate from
-     * @param nodeTemplate a NodeTemplate which is a InfrastructureNode to deploy the AbstractReferences
-     *        on
+     * @param infraTemplate a NodeTemplate which is a InfrastructureNode to deploy the
+     *        AbstractReferences on
      * @return true iff adding the logic was successful
      */
     private boolean handle(final BPELPlanContext templateContext, final List<AbstractArtifactReference> refs,
-                           final String artifactName, final AbstractNodeTemplate nodeTemplate) {
+                           final String artifactName, final AbstractNodeTemplate infraTemplate) {
 
         LOG.debug("Handling DA upload with");
         String refsString = "";
@@ -102,29 +102,17 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
         }
         LOG.debug("Refs:" + refsString.substring(0, refsString.lastIndexOf(",")));
         LOG.debug("ArtifactName: " + artifactName);
-        LOG.debug("NodeTemplate: " + nodeTemplate.getId() + "(Type: " + nodeTemplate.getType().getId().toString()
+        LOG.debug("NodeTemplate: " + infraTemplate.getId() + "(Type: " + infraTemplate.getType().getId().toString()
             + ")");
 
         // fetch server ip of the vm this artefact will be deployed on
 
         Variable serverIpPropWrapper = null;
         for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-            serverIpPropWrapper = templateContext.getPropertyVariable(nodeTemplate, serverIpName);
+            serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
             if (serverIpPropWrapper != null) {
                 break;
             }
-            // if (serverIpPropWrapper == null) {
-            // serverIpPropWrapper =
-            // templateContext.getPropertyVariable(serverIpName, true);
-            // if (serverIpPropWrapper == null) {
-            // serverIpPropWrapper =
-            // templateContext.getPropertyVariable(serverIpName, false);
-            // }else {
-            // break;
-            // }
-            // } else {
-            // break;
-            // }
         }
 
         if (serverIpPropWrapper == null) {
@@ -135,75 +123,21 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
         // find sshUser and sshKey
         Variable sshUserVariable = null;
         for (final String vmLoginName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginUserNamePropertyNames()) {
-            sshUserVariable = templateContext.getPropertyVariable(nodeTemplate, vmLoginName);
+            sshUserVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginName);
             if (sshUserVariable != null) {
                 break;
             }
-            // if (sshUserVariable == null) {
-            // sshUserVariable =
-            // templateContext.getPropertyVariable(vmLoginName, true);
-            // if (sshUserVariable == null) {
-            // sshUserVariable =
-            // templateContext.getPropertyVariable(vmLoginName, false);
-            // }else {
-            // break;
-            // }
-            // } else {
-            // break;
-            // }
         }
 
-        // // if the variable is null now -> the property isn't set properly
-        // if (sshUserVariable == null) {
-        // return false;
-        // } else {
-        // if (BPELPlanContext.isVariableValueEmpty(sshUserVariable, templateContext)) {
-        // // the property isn't set in the topology template -> we set it
-        // // null here so it will be handled as an external parameter
-        // sshUserVariable = null;
-        // }
-        // }
 
         Variable sshKeyVariable = null;
         for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
-            sshKeyVariable = templateContext.getPropertyVariable(nodeTemplate, vmLoginPassword);
+            sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
             if (sshKeyVariable != null) {
                 break;
             }
-            // if (sshKeyVariable == null) {
-            // sshKeyVariable =
-            // templateContext.getPropertyVariable(vmLoginPassword, true);
-            // if (sshKeyVariable == null) {
-            // sshKeyVariable =
-            // templateContext.getPropertyVariable(vmLoginPassword, false);
-            // }else {
-            // break;
-            // }
-            // } else {
-            // break;
-            // }
         }
-        // if variable null now -> the property isn't set according to schema
-        // if (sshKeyVariable == null) {
-        // return false;
-        // } else {
-        // if (BPELPlanContext.isVariableValueEmpty(sshKeyVariable, templateContext)) {
-        // // see sshUserVariable..
-        // sshKeyVariable = null;
-        // }
-        // }
 
-        // add sshUser and sshKey to the input message of the build plan, if
-        // needed
-
-
-        // find the ubuntu node and its nodeTemplateId
-        final String templateId = nodeTemplate.getId();
-
-        if (templateId.equals("")) {
-            BPELPrePhasePluginHandler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
-            return false;
-        }
 
         // adds field into plan input message to give the plan it's own address
         // for the invoker PortType (callback etc.). This is needed as WSO2 BPS
@@ -219,7 +153,7 @@ public class BPELPrePhasePluginHandler implements PrePhasePluginHandler<BPELPlan
         for (final AbstractArtifactReference ref : refs) {
             // upload da ref and unzip it
             this.invokerPlugin.handleArtifactReferenceUpload(ref, templateContext, serverIpPropWrapper, sshUserVariable,
-                                                             sshKeyVariable, templateId);
+                                                             sshKeyVariable, infraTemplate);
         }
 
         return true;
