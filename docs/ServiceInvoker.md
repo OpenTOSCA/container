@@ -1,8 +1,7 @@
-# Service Invoker (a.k.a. Management Bus)
+# Service Invoker (AKA Management Bus)
 
 <!-- toc -->
 
-- [Introduction](#introduction)
 - [Architecture](#architecture)
 - [Concept](#concept)
 - [Implementation](#implementation)
@@ -17,17 +16,7 @@
 
 <!-- tocstop -->
 
-
-
-## Introduction
-In the current implementation of OpenTOSCA services to manage the cloud application, like plans or implementation artifacts are invoked directly and therefore outside the visibility range of the container, which makes logging and monitoring of the executed invocations impossible.
-Furthermore the invoker does not have a unified interface.
-Thus the invoker is forced to deal with the particularities of different technologies like SOAP and REST.
-Beyond that an additional program is needed to invoke plans.
-
-In the scope of this thesis a concept for a central component, called Service Invocation Interface (or Management Bus), for OpenTOSCA to invoke services specified in TOSCA is formulated, to get rid of these restrictions.
-
-
+> The service invoker abstracts from different technologies such as SOAP and REST
 
 ## Architecture
 Figure 1 shows the architecture of the service invocation interface.
