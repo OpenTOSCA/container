@@ -19,7 +19,7 @@
 
 
 
-# Introduction
+## Introduction
 In the current implementation of OpenTOSCA services to manage the cloud application, like plans or implementation artifacts are invoked directly and therefore outside the visibility range of the container, which makes logging and monitoring of the executed invocations impossible.
 Furthermore the invoker does not have a unified interface.
 Thus the invoker is forced to deal with the particularities of different technologies like SOAP and REST.
@@ -29,7 +29,7 @@ In the scope of this thesis a concept for a central component, called Service In
 
 
 
-# Architecture
+## Architecture
 Figure 1 shows the architecture of the service invocation interface.
 The main component of the service invocation interface is the SI Engine (see [SI Engine](#service-invocation-engine)).
 It forms the central unit of the service invocation interface with its connection to the other  important components within the OpenTOSCA container.
@@ -55,7 +55,7 @@ The contents of this message are passed to the SI engine.
 There further data like the endpoint is acquired and subsequently all information is passed on to a suitable plugin where the invocation is executed.
 The exact processing process is explained in more detail in the following chapter.
 
-# Concept
+## Concept
 
 In this chapter the concept of the service invocation interface and the options of the concept are explained.
 
@@ -375,14 +375,14 @@ Figure 11: Example of a further service invocation API
 
 In the scope of this bachelor thesis implemented components of the service invocation interface will be presented in the following chapter.
 
-# Implementation
+## Implementation
 
 In this chapter the implementation of the service invocation interface and its components is explained. 
 The Enum to specify the headers of the exchange message is presented first.
 Followed by the service invocation API for SOAP and OSGi events.
 Lastly the SI engine is explained with a closer look at the SI plugins and the interface.
 
-## Service Invocation Enum
+### Service Invocation Enum
 
 This section illustrates the SI Enum.
 It is used to pass the parameters required for a implementation artifact or plan in a specified way.
@@ -415,7 +415,7 @@ Only the values of ENDPOINT_URI and if applicable SPECIFICCONTENT_DOCUMENT are s
 ENDPOINT_URI is determined with the endpoint service and specifies the endpoint of an implementation artifact or plan.
 SPECIFICCONTENT_DOCUMENT is determined with the TOSCA engine (if specified in the TOSCA definition) and can contain important information for the plugin, like for example information about the mapping of the parameters (see [Service Invocation REST/HTTP plugin](#service-invocation-resthttp-plugin)).
 
-## Service Invocation SOAP API
+### Service Invocation SOAP API
 
 In this chapter the service invocation SOAP API to invoke the service invocation interface with SOAP messages is explained.
 Also more details on the usage of Camel.
@@ -480,7 +480,7 @@ After the SI engine or respectively a suitable plugin has executed the invocatio
 The reply is read from the body of the exchange message and, if possible, converted into a marshallable object.
 Subsequently the response object is marshalled and sent as SOAP message to the CALLBACK endpoint.
 
-##  Service Invocation OSGi event API
+###  Service Invocation OSGi event API
 
 This chapter presents the implementation of the service invocation OSGi event API.
 Special focus lies on the general functionality of OSGi events and the collaboration with the plan invocation engine.
@@ -538,7 +538,7 @@ Listing 10: Usage of the OSGi event service
 Equivalently the plan invocation engine is subscribes to the list org_opentosca_plans/responsnes, which is used to send the responses messages with the service invocation OSGi event API.
 The sending of an event is done with the method postEvent(Event event) offered by the EventAdmin service.
 
-## Service Invocation Engine 
+### Service Invocation Engine 
 
 In this section the implementation of the SI engine is presented.
 The focus lies on the methods offered by the SI engine and the system to administrate the SI plugins.
@@ -679,7 +679,7 @@ The interface defines two methods.
 The method getType() explained earlier, that retrieves the supported invocation type of a plugin, and the method invoke(Exchange exchange) to transmit the exchange message to the SI plugins.
 The invoke method returns the exchange message, with which it was called, together with the response message of the invoked implementation artifact or plan as return value in the body.
 
-## Service Invocation SOAP/HTTP plugin
+### Service Invocation SOAP/HTTP plugin
 
 This chapter presents an implementation of the SI plugin interface.
 Specifically it presents a SOAP/HTTP plugin, meaning a SI plugin that can invoke implementation artifacts and plans with a SOAP message via HTTP.
@@ -735,7 +735,7 @@ In contrast an In-Out operation (from the TOSCA definition) and an In-Only opera
 
 Figure 14: Presentation of the three MEPs supported by the SOAP/HTTP plugin
 
-## Service Invocation REST/HTTP plugin
+### Service Invocation REST/HTTP plugin
 
 This section explains the implementation of the REST/HTTP plugin.
 Special focus lies on how mapping information of the passed parameters can be specified in the TOSCA definition.
