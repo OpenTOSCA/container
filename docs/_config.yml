@@ -1,2 +1,3 @@
 remote_theme: adr/slate
 anchor: true
+exclude: graphics/pptx

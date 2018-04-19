@@ -1,14 +1,14 @@
 # OpenTOSCA Plan Builder
-Then OpenTOSCA Container (OpenTOSCA Runtime) enables management of TOSCA Topologies either by executing build plans directly or by generated these based on an applicaton topology.
+The OpenTOSCA Container (OpenTOSCA Runtime) enables management of TOSCA Topologies either by executing build plans directly or by generated these based on an application topology.
 The main concept of the (de)provisioning is based on generating the logic that executes the scripts or invokes the web services attached to the Node/Relationship Type Implementations packaged within a CSAR.
 The OpenTOSCA Plan Builder currently supports the generation of Build Plans, Termination Plans, and Scale-Out Plans in the workflow language BPEL 2.0.
 In the following we describe the architecture and concepts to generate these in an abstract manner.
 
-## Overview System Archtecture
+## Overview System Architecture
 The generation of a plan is based on a plugin-based architecture (see Plan Builder Overview below) for different abstraction levels and languages.
 The Plan Builder component is responsible for generating an abstract high-level control flow of a plan, based on the type of plan to be generated (See Section Build Plans, Termination Plans, and Scale-Out Plans) and the Toplogy Template inside a given CSAR archive (See CSAR in Overview figure).
 The abstract control flow is then transformed into a language-dependent Skeleton, such as a BPEL process, which has the same flow of activities but contains placeholders instead.
-After the creation of a skeleton, its placeholders are then replaced by executable code from the appropriate plugins, that either can understand a Node Type or Relationship Type and genreate the needed code (See Type Plugins in Overview figure) or the types implement the expected Lifecycle operations, such as install, start and stop (See Lifecycle Plugins in Overview figure).
+After the creation of a skeleton, its placeholders are then replaced by executable code from the appropriate plugins, that either can understand a Node Type or Relationship Type and generate the needed code (See Type Plugins in Overview figure) or the types implement the expected Lifecycle operations, such as install, start and stop (See Lifecycle Plugins in Overview figure).
 When the creation of code and replacement of placeholder activities is finished, the now executable plan is injected into the original CSAR for further processing and usage.
 
 ![Plan Builder Overview](graphics/overview.png)
@@ -23,7 +23,7 @@ The Plan Builder is able to generate these like described in the following:
 The abstract control flow of a Build Plan contains for each Node Template and Relationship Template an abstract provisioning activity (See Abstract Control Flow).
 The order of these activities is based on the Relationship Template's type between the Node Templates.
 For example, the DBMS is installed after the VM is created, as the DBMS is **hostedOn** on the VM in the topology.
-Another example is that the App and DB is connected after both are startet, because they are connected by a **connectTo** relationship.
+Another example is that the App and DB is connected after both are started, because they are connected by a **connectTo** relationship.
 
 ##### 2. Build Plan Skeleton Generation
 The generated control flow from the previous step is afterwards transformed into code of a particular language, with the constraint that the original control flow is preserved (e.g. by empty `bpel:scope` activities in BPEL).
