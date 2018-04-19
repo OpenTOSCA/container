@@ -148,41 +148,43 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             if (var != null) {
                 param2propertyMapping.put(param, var);
             } else {
-                BPELConnectsToPluginHandler.LOG.error("Matching parameter not found in the relationship template. Searching in the node template stacks.");
-
-                if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
-                    // search for property with exact name
+                // search for prefixed parameters
+                if (param.getName().startsWith("SOURCE_")) {
+                    final String unprefixedParam = param.getName().substring(7);
                     final Variable property =
-                        searchPropertyInStack(templateContext, parametersRootNode, param.getName());
+                        searchPropertyInStack(templateContext, sourceParameterNode, unprefixedParam);
                     if (property != null) {
                         param2propertyMapping.put(param, property);
-                    }
-                } else {
-                    // search for IP property with different names
-                    for (final String paramName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                        final Variable property = searchPropertyInStack(templateContext, parametersRootNode, paramName);
-                        if (property != null) {
-                            param2propertyMapping.put(param, property);
-                            break;
-                        }
                     }
                 }
 
-                // if parameter was not found by the default way, search for prefixed properties
-                if (!param2propertyMapping.containsKey(param)) {
-                    // search prefixed property at the source node
-                    BPELConnectsToPluginHandler.LOG.error("Matching parameter not yet found. Looking for prefixed property at the source.");
-                    Variable property =
-                        searchPropertyInStack(templateContext, sourceParameterNode, "SOURCE_" + param.getName());
+                if (param.getName().startsWith("TARGET_")) {
+                    final String unprefixedParam = param.getName().substring(7);
+                    final Variable property =
+                        searchPropertyInStack(templateContext, targetParameterNode, unprefixedParam);
                     if (property != null) {
                         param2propertyMapping.put(param, property);
-                    } else {
-                        // search prefixed property at the target node
-                        BPELConnectsToPluginHandler.LOG.error("Matching parameter not yet found. Looking for prefixed property at the target.");
-                        property =
-                            searchPropertyInStack(templateContext, targetParameterNode, "TARGET_" + param.getName());
+                    }
+                }
+
+                // search for default parameters at opposite NodeTemplate
+                if (!param2propertyMapping.containsKey(param)) {
+                    if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
+                        // search for property with exact name
+                        final Variable property =
+                            searchPropertyInStack(templateContext, parametersRootNode, param.getName());
                         if (property != null) {
                             param2propertyMapping.put(param, property);
+                        }
+                    } else {
+                        // search for IP property with different names
+                        for (final String paramName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                            final Variable property =
+                                searchPropertyInStack(templateContext, parametersRootNode, paramName);
+                            if (property != null) {
+                                param2propertyMapping.put(param, property);
+                                break;
+                            }
                         }
                     }
                 }
