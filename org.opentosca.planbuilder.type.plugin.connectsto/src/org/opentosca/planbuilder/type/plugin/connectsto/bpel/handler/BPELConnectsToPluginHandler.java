@@ -57,19 +57,19 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
 
     /**
      * Executes the connectTo operation on the given connectToNode NodeTemplate, the parameters for the
-     * operation will be searched starting from the given parametersRootNode Node Template
+     * operation will be searched starting from the opposite NodeTemplate.
      *
-     * E.g.: For a MQTT Client to connect to a MQTT topic it uses the properties from the topology
-     * stack given by the topic itself. These properties are then mapped to the parameters of the MQTT
-     * client connectTo operation.
+     * Additionally it is possible to search properties which start with "SOURCE_" or "TARGET_" on the
+     * source/target NodeTemplate.
      *
      * @param templateContext the context of this operation call
      * @param connectToNode a Node Template with a connectTo operation
-     * @param parametersRootNode a Node Template, which should be used as the starting node for
-     *        parameter search
+     * @param sourceParameterNode the source node template of the connectsTo relationship
+     * @param targetParameterNode the target node template of the connectsTo relationship
      */
     private boolean executeConnectsTo(final BPELPlanContext templateContext, final AbstractNodeTemplate connectToNode,
-                                      final AbstractNodeTemplate parametersRootNode) {
+                                      final AbstractNodeTemplate sourceParameterNode,
+                                      final AbstractNodeTemplate targetParameterNode) {
         // fetch the connectsTo Operation of the source node and it's parameters
         AbstractInterface connectsToIface = null;
         AbstractOperation connectsToOp = null;
@@ -80,7 +80,8 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                     // find properties that match the params on the target nodes' stack or prefixed
                     // properties at the source stack
                     BPELConnectsToPluginHandler.LOG.debug("Found connectTo operation. Searching for matching parameters in the properties.");
-                    param2propertyMapping = findInputParameters(templateContext, op, parametersRootNode, connectToNode);
+                    param2propertyMapping = findInputParameters(templateContext, op, connectToNode, sourceParameterNode,
+                                                                targetParameterNode);
 
                     if (param2propertyMapping.size() != op.getInputParameters().size()) {
                         BPELConnectsToPluginHandler.LOG.debug("Didn't find necessary matchings from parameter to property. Can't initialize connectsTo relationship.");
@@ -118,84 +119,97 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
      *
      * @param templateContext the context of the operation
      * @param connectsToOp the connectTo operation object
-     * @param parametersRootNode the node to which the connection has to be established
      * @param connectToNode the node which tries to establish the connection
+     * @param sourceParameterNode the source node of the relationship
+     * @param targetParameterNode the target node of the relationship
      * @return the Map which contains all found input parameters
      */
     private Map<AbstractParameter, Variable> findInputParameters(final BPELPlanContext templateContext,
                                                                  final AbstractOperation connectsToOp,
-                                                                 final AbstractNodeTemplate parametersRootNode,
-                                                                 final AbstractNodeTemplate connectToNode) {
+                                                                 final AbstractNodeTemplate connectToNode,
+                                                                 final AbstractNodeTemplate sourceParameterNode,
+                                                                 final AbstractNodeTemplate targetParameterNode) {
         final Map<AbstractParameter, Variable> param2propertyMapping = new HashMap<>();
-        for (final AbstractParameter param : connectsToOp.getInputParameters()) {
-            boolean ambiParam = false;
 
+        // search on the opposite side of the connectToNode NodeTemplate for default parameters
+        AbstractNodeTemplate parametersRootNode;
+        if (sourceParameterNode.equals(connectToNode)) {
+            parametersRootNode = targetParameterNode;
+        } else {
+            parametersRootNode = sourceParameterNode;
+        }
+
+        // search the input parameters in the properties
+        for (final AbstractParameter param : connectsToOp.getInputParameters()) {
+            // search parameter in the RelationshipTemplate properties
             final Variable var =
                 templateContext.getPropertyVariable(templateContext.getRelationshipTemplate(), param.getName());
 
             if (var != null) {
                 param2propertyMapping.put(param, var);
-            }
-
-            if (org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
-                ambiParam = true;
-            }
-
-            if (!ambiParam) {
-                AbstractNodeTemplate currentNode = parametersRootNode;
-                while (currentNode != null) {
-                    final Variable property = templateContext.getPropertyVariable(currentNode, param.getName());
-                    if (property != null) {
-                        // found property with matching name
-                        param2propertyMapping.put(param, property);
-                        break;
-                    } else {
-                        currentNode = fetchNodeConnectedWithHostedOn(currentNode);
-                    }
-                }
             } else {
+                BPELConnectsToPluginHandler.LOG.error("Matching parameter not found in the relationship template. Searching in the node template stacks.");
 
-                for (final String paramName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
-                    boolean found = false;
-                    AbstractNodeTemplate currentNode = parametersRootNode;
-                    while (currentNode != null) {
-                        final Variable property = templateContext.getPropertyVariable(currentNode, paramName);
+                if (!org.opentosca.container.core.tosca.convention.Utils.isSupportedVirtualMachineIPProperty(param.getName())) {
+                    // search for property with exact name
+                    final Variable property =
+                        searchPropertyInStack(templateContext, parametersRootNode, param.getName());
+                    if (property != null) {
+                        param2propertyMapping.put(param, property);
+                    }
+                } else {
+                    // search for IP property with different names
+                    for (final String paramName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+                        final Variable property = searchPropertyInStack(templateContext, parametersRootNode, paramName);
                         if (property != null) {
-                            // found property with matching name
                             param2propertyMapping.put(param, property);
-                            found = true;
                             break;
-                        } else {
-                            currentNode = fetchNodeConnectedWithHostedOn(currentNode);
                         }
                     }
-                    if (found) {
-                        break;
-                    }
                 }
-            }
 
-            // look for property at the node type which contains the connectTo operation
-            if (!param2propertyMapping.containsKey(param)) {
-                BPELConnectsToPluginHandler.LOG.error("Matching parameter not yet found. Looking for prefixed property.");
-                AbstractNodeTemplate currentNode = connectToNode;
-                while (currentNode != null) {
-                    Variable property = templateContext.getPropertyVariable(currentNode, "SRC_" + param.getName());
-                    if (property == null) {
-                        property = templateContext.getPropertyVariable(currentNode, "TRG_" + param.getName());
-                    }
+                // if parameter was not found by the default way, search for prefixed properties
+                if (!param2propertyMapping.containsKey(param)) {
+                    // search prefixed property at the source node
+                    BPELConnectsToPluginHandler.LOG.error("Matching parameter not yet found. Looking for prefixed property at the source.");
+                    Variable property =
+                        searchPropertyInStack(templateContext, sourceParameterNode, "SOURCE_" + param.getName());
                     if (property != null) {
-                        // found property with matching prefixed name
                         param2propertyMapping.put(param, property);
-                        break;
                     } else {
-                        currentNode = fetchNodeConnectedWithHostedOn(currentNode);
+                        // search prefixed property at the target node
+                        BPELConnectsToPluginHandler.LOG.error("Matching parameter not yet found. Looking for prefixed property at the target.");
+                        property =
+                            searchPropertyInStack(templateContext, targetParameterNode, "TARGET_" + param.getName());
+                        if (property != null) {
+                            param2propertyMapping.put(param, property);
+                        }
                     }
                 }
             }
         }
-
         return param2propertyMapping;
+    }
+
+    /**
+     * Search for a property with a certain name on the stack of a node template.
+     *
+     * @param templateContext the context of the operation
+     * @param currentNode the node which is part of the stack
+     * @param propName the name of the property
+     * @return the property if found, null otherwise
+     */
+    private Variable searchPropertyInStack(final BPELPlanContext templateContext, AbstractNodeTemplate currentNode,
+                                           final String propName) {
+        while (currentNode != null) {
+            final Variable property = templateContext.getPropertyVariable(currentNode, propName);
+            if (property != null) {
+                return property;
+            } else {
+                currentNode = fetchNodeConnectedWithHostedOn(currentNode);
+            }
+        }
+        return null;
     }
 
     /**
@@ -212,7 +226,6 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                 return relation.getTarget();
             }
         }
-
         return null;
     }
 
@@ -242,7 +255,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
             }
 
             // connectTo
-            executeConnectsTo(templateContext, targetNodeTemplate, sourceNodeTemplate);
+            executeConnectsTo(templateContext, targetNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
             if (hasOperation(targetNodeTemplate, "stop") & hasOperation(targetNodeTemplate, "start")) {
@@ -260,7 +273,8 @@ public class BPELConnectsToPluginHandler implements ConnectsToPluginHandler<BPEL
                                                  null);
             }
 
-            executeConnectsTo(templateContext, sourceNodeTemplate, targetNodeTemplate);
+            // connectTo
+            executeConnectsTo(templateContext, sourceNodeTemplate, sourceNodeTemplate, targetNodeTemplate);
 
             // start the node again
             if (hasOperation(sourceNodeTemplate, "stop") & hasOperation(sourceNodeTemplate, "start")) {
