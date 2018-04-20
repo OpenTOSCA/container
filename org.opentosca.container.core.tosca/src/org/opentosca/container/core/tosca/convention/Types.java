@@ -12,22 +12,30 @@ public class Types {
     // virtual machine nodeTypes (old)
     public final static QName vmNodeType = new QName("http://opentosca.org/types/declarative", "VM");
     public final static QName ubuntuNodeType = new QName("http://opentosca.org/types/declarative", "Ubuntu");
-    public final static QName ubuntu1310ServerNodeType =
-        new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server");
-    public final static QName ubuntu1310ServerVmNodeType =
-        new QName("http://opentosca.org/types/declarative", "Ubuntu-13.10-Server-VM");
+    public final static QName ubuntu1310ServerNodeType = new QName("http://opentosca.org/types/declarative",
+	    "Ubuntu-13.10-Server");
+    public final static QName ubuntu1310ServerVmNodeType = new QName("http://opentosca.org/types/declarative",
+	    "Ubuntu-13.10-Server-VM");
 
     // cloud provider nodeTypes
-    public final static QName openStackLiberty12NodeType =
-        new QName("http://opentosca.org/nodetypes", "OpenStack-Liberty-12");
+    public final static QName openStackLiberty12NodeType = new QName("http://opentosca.org/nodetypes",
+	    "OpenStack-Liberty-12");
     public final static QName vmWareVsphere55NodeType = new QName("http://opentosca.org/nodetypes", "VSphere_5.5");
 
     public final static QName amazonEc2NodeType = new QName("http://opentosca.org/NodeTypes", "AmazonEC2");
 
     // serverless nodeTypes
-    public final static QName openWhiskNodeType = new QName("http://opentosca.org/nodetypes", "OpenWhisk_Serverless");
-    public final static QName managementInfrastructureNodeType =
-        new QName("http://opentosca.org/nodetypes", "TOSCAManagmentInfrastructure");
+    public final static QName serverlessFunctionNodeType = new QName("http://opentosca.org/nodetypes",
+	    "ServerlessFunction");
+    public final static QName httpEventNodeType = new QName("http://opentosca.org/nodetypes", "HTTPEvent");
+    public final static QName timerEventNodeType = new QName("http://opentosca.org/nodetypes", "TimerEvent");
+    public final static QName databaseEventNodeType = new QName("http://opentosca.org/nodetypes", "DatabaseEvent");
+    public final static QName blobstorageEventNodeType = new QName("http://opentosca.org/nodetypes",
+	    "BlobstorageEvent");
+    public final static QName pubsubEventNodeType = new QName("http://opentosca.org/nodetypes", "PubSubEvent");
+    public final static QName openWhiskNodeType = new QName("http://opentosca.org/nodetypes", "OpenWhiskPlatform");
+    public final static QName managementInfrastructureNodeType = new QName("http://opentosca.org/nodetypes",
+	    "TOSCAManagmentInfrastructure");
 
     // docker nodeTypes
     public final static QName dockerEngineNodeType = new QName("http://opentosca.org/nodetypes", "DockerEngine");
@@ -38,11 +46,11 @@ public class Types {
     public final static QName dockerEngineNodeTypeAlt = new QName("http://opentosca.org/NodeTypes", "DockerEngine");
 
     // virtual machine nodeTypes
-    public final static QName ubuntu1404ServerVmNodeType =
-        new QName("http://opentosca.org/nodetypes", "Ubuntu-14.04-VM");
+    public final static QName ubuntu1404ServerVmNodeType = new QName("http://opentosca.org/nodetypes",
+	    "Ubuntu-14.04-VM");
 
-    public final static QName ubuntu1404ServerVmNodeType2 =
-        new QName("http://opentosca.org/NodeTypes", "Ubuntu-14.04-VM");
+    public final static QName ubuntu1404ServerVmNodeType2 = new QName("http://opentosca.org/NodeTypes",
+	    "Ubuntu-14.04-VM");
 
     // raspbian nodeTypes
     public final static QName raspbianJessieOSNodeType = new QName("http://opentosca.org/nodetypes", "RaspbianJessie");
@@ -53,12 +61,12 @@ public class Types {
     // local linux hypervisor nodeType
     public final static QName localHypervisor = new QName("http://opentosca.org/nodetypes", "Libvirt-Qemu-KVM");
     // relationship types
-    public final static QName connectsToRelationType =
-        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
-    public final static QName dependsOnRelationType =
-        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
-    public final static QName deployedOnRelationType =
-        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
-    public final static QName hostedOnRelationType =
-        new QName("http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
+    public final static QName connectsToRelationType = new QName(
+	    "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "ConnectsTo");
+    public final static QName dependsOnRelationType = new QName(
+	    "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DependsOn");
+    public final static QName deployedOnRelationType = new QName(
+	    "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "DeployedOn");
+    public final static QName hostedOnRelationType = new QName(
+	    "http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes", "HostedOn");
 }
