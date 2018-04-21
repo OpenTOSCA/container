@@ -13,6 +13,7 @@ public class Utils {
     private static final List<String> loginPasswordPropertyNames;
     private static final List<String> serverlessFunctionNamePropertyNames;
     private static final List<String> serverlessFunctionRuntimePropertyNames;
+    private static final List<String> serverlessFunctionUrlPropertyNames;
     private static final List<String> EventNamePropertyNames;
     private static final List<String> httpEventCreateHTTPEventPropertyNames;
     private static final List<String> httpEventHTTPMethodPropertyNames;
@@ -53,6 +54,8 @@ public class Utils {
 	Utils.serverlessFunctionNamePropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONNAME);
 	serverlessFunctionRuntimePropertyNames = new ArrayList<>();
 	Utils.serverlessFunctionRuntimePropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RUNTIME);
+	serverlessFunctionUrlPropertyNames = new ArrayList<>();
+	Utils.serverlessFunctionUrlPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONURL);
 	httpEventCreateHTTPEventPropertyNames = new ArrayList<>();
 	Utils.httpEventCreateHTTPEventPropertyNames.add(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CREATEHTTPEVENT);
 	EventNamePropertyNames = new ArrayList<>();
@@ -117,6 +120,10 @@ public class Utils {
 
     public static List<String> getSupportedServerlessFunctionRuntimePropertyNames() {
 	return Utils.serverlessFunctionRuntimePropertyNames;
+    }
+
+    public static List<String> getSupportedServerlessFunctionUrlPropertyNames() {
+	return Utils.serverlessFunctionUrlPropertyNames;
     }
 
     public static List<String> getSupportedEventNamePropertyNames() {

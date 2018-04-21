@@ -51,6 +51,18 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	return null;
     }
 
+    public String getFunctionUrl(final BPELPlanContext context, final AbstractNodeTemplate serverlessNodeTemplate) {
+
+	final String ArtifactTemplate = serverlessNodeTemplate.getDeploymentArtifacts().get(0).getArtifactRef()
+		.getArtifactReferences().get(0).getReference();
+	LOG.debug("Found Serverless Function with following deployment artifact: " + ArtifactTemplate);
+	final String csarName = context.getCSARFileName();
+	// this is a bit hacky rn
+	final String URL = "http://localhost:1337/csars/" + csarName + "/content/" + ArtifactTemplate;
+	LOG.debug("Following is the URL to the DeploymentArtifact of the Serverless Function Node Template: " + URL);
+	return URL;
+    }
+
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
@@ -69,6 +81,8 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 	if (serverlessNodeTemplate.getType().getId().toString().equals(Types.serverlessFunctionNodeType.toString())) {
 	    LOG.debug("Serverless Function Node found, now check for properties");
+
+	    getFunctionUrl(context, serverlessNodeTemplate);
 
 	    Variable functionNamePropWrapper = null;
 
@@ -148,6 +162,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 			.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONNAME, functionNamePropWrapper);
 		createFunctionInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RUNTIME,
 			runtimePropWrapper);
+
 	    }
 	    LOG.debug("Now it should invoke serverless function deployment");
 	    this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,

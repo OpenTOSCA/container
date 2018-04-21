@@ -12,43 +12,42 @@ public class CSARID implements Comparable<CSARID>, Serializable {
 
     protected String fileName;
 
-
-    protected CSARID() {
+    public CSARID() {
 
     }
 
     public CSARID(final String fileName) {
-        this.fileName = fileName;
+	this.fileName = fileName;
     }
 
     public String getFileName() {
-        return this.fileName;
+	return this.fileName;
     }
 
     public void setFileName(final String fileName) {
-        this.fileName = fileName;
+	this.fileName = fileName;
     }
 
     @Override
     public String toString() {
-        return this.getFileName();
+	return getFileName();
     }
 
     @Override
     public int compareTo(final CSARID csarID) {
-        return this.toString().compareTo(csarID.toString());
+	return toString().compareTo(csarID.toString());
     }
 
     @Override
     public boolean equals(final Object id) {
-        if (id instanceof CSARID) {
-            return this.toString().equals(((CSARID) id).toString());
-        }
-        return false;
+	if (id instanceof CSARID) {
+	    return toString().equals(((CSARID) id).toString());
+	}
+	return false;
     }
 
     @Override
     public int hashCode() {
-        return this.toString().hashCode();
+	return toString().hashCode();
     }
 }
