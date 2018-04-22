@@ -12,7 +12,7 @@ public class Interfaces {
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS = "ServerlessInterface";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYFUNCTION = "deployFunction";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYTIMEREVENT = "deployTimerEvent";
-    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYHTTPEVENT = "deployHttpEvent";
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYHTTPEVENT = "deployHTTPEvent";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYDATABASEEVENT = "deployDatabaseEvent";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYBLOBSTORAGEEVENT = "deployBlobstorageEvent";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYPUBSUBEVENT = "deployPubSubEvent";
