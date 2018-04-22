@@ -24,6 +24,7 @@ public class Properties {
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONNAME = "FunctionName";
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_RUNTIME = "Runtime";
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONURL = "FunctionURL";
+    public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONCODE = "FunctionCode";
     // timer event properties
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTNAME = "EventName";
     public static final String OPENTOSCA_DECLARATIVE_PROPERTYNAME_CRON = "CRON";

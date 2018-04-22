@@ -409,11 +409,17 @@ public class Utils {
 	return check;
     }
 
-    public static boolean isSupportedServerlessFunctionOrEventNodeType(final QName nodeType) {
-	if (nodeType.equals(Types.serverlessFunctionNodeType) | nodeType.equals(Types.blobstorageEventNodeType)
-		| nodeType.equals(Types.databaseEventNodeType) | nodeType.equals(Types.httpEventNodeType)
-		| nodeType.equals(Types.pubsubEventNodeType) | nodeType.equals(Types.timerEventNodeType)
-		| nodeType.equals(Types.openWhiskNodeType) | nodeType.equals(Types.managementInfrastructureNodeType)) {
+    public static boolean isSupportedServerlessFunctionNodeType(final QName nodeType) {
+	if (nodeType.equals(Types.serverlessFunctionNodeType)) {
+	    return true;
+	}
+	return false;
+    }
+
+    public static boolean isSupportedServerlessEventNodeType(final QName nodeType) {
+	if (nodeType.equals(Types.blobstorageEventNodeType) | nodeType.equals(Types.databaseEventNodeType)
+		| nodeType.equals(Types.httpEventNodeType) | nodeType.equals(Types.pubsubEventNodeType)
+		| nodeType.equals(Types.timerEventNodeType)) {
 	    return true;
 	}
 	return false;

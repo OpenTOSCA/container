@@ -47,7 +47,8 @@ public abstract class ServerlessPlugin<T extends PlanContext> implements IPlanBu
 	    ServerlessPlugin.LOG.debug("NodeTemplate NodeType id is null");
 	}
 	// this plugin can handle all referenced nodeTypes
-	if (Utils.isSupportedServerlessFunctionOrEventNodeType(nodeTemplate.getType().getId())
+	if (Utils.isSupportedServerlessFunctionNodeType(nodeTemplate.getType().getId())
+		| Utils.isSupportedServerlessEventNodeType(nodeTemplate.getType().getId())
 		| Utils.isSupportedServerlessPlatformNodeType(nodeTemplate.getType().getId())) {
 	    return true;
 	} else {

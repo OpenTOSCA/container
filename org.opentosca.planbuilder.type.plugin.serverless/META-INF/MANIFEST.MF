@@ -5,6 +5,7 @@ Bundle-SymbolicName: org.opentosca.planbuilder.type.plugin.serverless
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
+ org.apache.geronimo.mail.util,
  org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
  org.opentosca.container.core.engine,
  org.opentosca.container.core.model.csar.id,

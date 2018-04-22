@@ -49,7 +49,7 @@ public class BPELServerlessPlugin extends ServerlessPlugin<BPELPlanContext> {
 	BPELServerlessPlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
 	// when serverless function or event node arrives start handling
-	if (Utils.isSupportedServerlessFunctionOrEventNodeType(nodeTemplate.getType().getId())) {
+	if (Utils.isSupportedServerlessFunctionNodeType(nodeTemplate.getType().getId())) {
 	    for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
 		if (Utils.isSupportedServerlessPlatformNodeType(relation.getTarget().getType().getId())) {
 		    if (relation.getTarget().getType().getId().equals(Types.openWhiskNodeType)) {
