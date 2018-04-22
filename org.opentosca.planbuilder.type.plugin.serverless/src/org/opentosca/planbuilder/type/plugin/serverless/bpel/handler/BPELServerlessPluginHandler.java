@@ -84,6 +84,9 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 	    getFunctionUrl(context, serverlessNodeTemplate);
 
+	    final Variable functionUrlVar = context.createGlobalStringVariable("FunctionURL",
+		    getFunctionUrl(context, serverlessNodeTemplate));
+
 	    Variable functionNamePropWrapper = null;
 
 	    for (final String functionName : org.opentosca.container.core.tosca.convention.Utils
@@ -158,10 +161,14 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		} else {
 		    createFunctionInternalExternalPropsInput.put(externalParameter, variable);
 		}
+		createFunctionInternalExternalPropsInput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONURL,
+			functionUrlVar);
 		createFunctionInternalExternalPropsOutput
 			.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONNAME, functionNamePropWrapper);
 		createFunctionInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RUNTIME,
 			runtimePropWrapper);
+		createFunctionInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONURL,
+			functionUrlVar);
 
 	    }
 	    LOG.debug("Now it should invoke serverless function deployment");
