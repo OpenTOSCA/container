@@ -37,6 +37,8 @@ public abstract class ServerlessPlugin<T extends PlanContext> implements IPlanBu
      */
     @Override
     public boolean canHandle(final AbstractNodeTemplate nodeTemplate) {
+
+	LOG.debug("CanHandle of Serverless Plugin is invoked");
 	if (nodeTemplate == null) {
 	    ServerlessPlugin.LOG.debug("NodeTemplate is null");
 	}
