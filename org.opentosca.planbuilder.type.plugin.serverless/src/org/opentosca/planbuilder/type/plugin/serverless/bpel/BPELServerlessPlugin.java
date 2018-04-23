@@ -1,7 +1,6 @@
 
 package org.opentosca.planbuilder.type.plugin.serverless.bpel;
 
-import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -50,18 +49,19 @@ public class BPELServerlessPlugin extends ServerlessPlugin<BPELPlanContext> {
 
 	BPELServerlessPlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
-	// when serverless function or event node arrives start handling
-	if (Utils.isSupportedServerlessFunctionNodeType(nodeTemplate.getType().getId())
-		| Utils.isSupportedServerlessEventNodeType(nodeTemplate.getType().getId())) {
-	    for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
-		if (Utils.isSupportedServerlessPlatformNodeType(relation.getTarget().getType().getId())) {
-		    if (relation.getTarget().getType().getId().equals(Types.openWhiskNodeType)) {
-			return this.handler.handleWithServerlessInterface(templateContext, nodeTemplate);
-		    } else {
-			return this.handler.handle(templateContext, nodeTemplate);
-		    }
+	if (Utils.isSupportedServerlessFunctionNodeType(nodeTemplate.getType().getId())) {
+	    LOG.debug("Serverless Function found!");
+	    for (final AbstractRelationshipTemplate hostedRelation : nodeTemplate.getOutgoingRelations()) {
+		if (Utils.isSupportedServerlessPlatformNodeType(hostedRelation.getTarget().getType().getId())) {
+		    LOG.debug("Serverless Function is hosted on: " + hostedRelation.getTarget().getName());
+		    return this.handler.handleWithServerlessInterface(templateContext, nodeTemplate);
+		} else {
+		    LOG.debug("Serverless Function is hosted on unknown Serverless Platform: "
+			    + hostedRelation.getTarget() + ". Please add it to the Properties Class to get support.");
+		    return this.handler.handle(templateContext, nodeTemplate);
 		}
 	    }
+
 	    return true;
 	}
 	return false;
