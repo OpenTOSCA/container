@@ -9,15 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * <p>
- * This class implements a PlanBuilder Type Plugin for Serverless Platforms in
- * TOSCA. This plugin is able to gather properties of overlying serverless
- * function or event node types which are connected with a hosted on
- * relationship. After that, the properties are mapped onto the input parameters
- * of the respective management operation.
- * </p>
- *
+ * This class checks for supported NodeTemplates of this plugin.
  *
  * @author Tobias Mathony - mathony.tobias@gmail.com
  *

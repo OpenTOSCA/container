@@ -11,21 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * This class implements a PlanBuilder Type Plugin for the ServerlessFunction
- * NodeType. To get an abstracted ServerlessFunction NodeType, the logic to
- * deploy a Serverless Function is implemented in the IA of the respective,
- * underlying ServerlessPlatform NodeType. The ServerlessFunction NodeType is
- * connected with a HostedOn RelationshipType with a ServerlessPlatform
- * NodeType. But the IA of the ServerlessPlatform NodeType needs to access the
- * properties of the ServerlessFunction NodeType, which is not possible in the
- * current PlanBuilder with a HostedOn RelationshipType, as it is only possible
- * to search downwards the graph of the TopologyTemplate.
- *
- * Thus, this plugin helps to get the properties of the source element of a
- * HostedOn RelationshipType and maps it onto the input parameters of the
- * respective management operation of the IA.
- * </p>
+ * This class forwards incoming serverless node templates depending on the node
+ * type to the respective handler method. If a ServerlessFunction NodeTemplate
+ * which is hosted on a supported ServerlessPlatform NodeType is found, the
+ * respective method to handle this NodeTemplate is called.
  *
  *
  * @author Tobias Mathony - mathony.tobias@gmail.com

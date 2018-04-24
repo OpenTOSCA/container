@@ -7,6 +7,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
+ * This class contains the activator for the Serverless Planbuilder Type Plugin.
  *
  * @author Tobias Mathony - mathony.tobias@gmail.com
  *
