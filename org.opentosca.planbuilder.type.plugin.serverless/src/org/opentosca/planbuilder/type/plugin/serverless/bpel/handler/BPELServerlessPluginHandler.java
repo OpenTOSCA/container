@@ -53,7 +53,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
     private final static String[] createBlobstorageEventInstanceExternalInputParams = { "FunctionName", "EventName",
 	    "BucketName", "EventType" };
     private final static String[] createPubSubEventInstanceExternalInputParams = { "FunctionName", "EventName",
-	    "TopicName", "MessageHubUsername", "MessageHubPassword", "KafaAdminUrl", "BrokerArray" };
+	    "TopicName", "MessageHubUsername", "MessageHubPassword", "KafkaAdminUrl", "BrokerArray" };
 
     /*
      * This method downloads the DeploymentArtifact of the ServerlessFunction
