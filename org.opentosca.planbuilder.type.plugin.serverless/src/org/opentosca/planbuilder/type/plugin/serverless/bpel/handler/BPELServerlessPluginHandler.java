@@ -1209,29 +1209,29 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		return true;
 	    }
 
-	    for (final AbstractRelationshipTemplate eventCon : nodeTemplate.getIngoingRelations()) {
-		if (Utils.isSupportedServerlessEventNodeType(eventCon.getSource().getType().getId())) {
-		    if (eventCon.getSource().getType().getId().equals(Types.httpEventNodeType)) {
+	    for (final AbstractRelationshipTemplate eventCon : nodeTemplate.getOutgoingRelations()) {
+		if (Utils.isSupportedServerlessEventNodeType(eventCon.getTarget().getType().getId())) {
+		    if (eventCon.getTarget().getType().getId().equals(Types.httpEventNodeType)) {
 			LOG.debug("HTTP EVENT found!");
 
 			handleHttpEventDeploymentInvocation(context, nodeTemplate, eventCon);
 
-		    } else if (eventCon.getSource().getType().getId().equals(Types.timerEventNodeType)) {
+		    } else if (eventCon.getTarget().getType().getId().equals(Types.timerEventNodeType)) {
 			LOG.debug("Timer EVENT found!");
 
 			handleTimerEventDeploymentInvocation(context, nodeTemplate, eventCon);
 
-		    } else if (eventCon.getSource().getType().getId().equals(Types.databaseEventNodeType)) {
+		    } else if (eventCon.getTarget().getType().getId().equals(Types.databaseEventNodeType)) {
 			LOG.debug("Database Event found!");
 
 			handleDatabaseEventDeploymentInvocation(context, nodeTemplate, eventCon);
 
-		    } else if (eventCon.getSource().getType().getId().equals(Types.blobstorageEventNodeType)) {
+		    } else if (eventCon.getTarget().getType().getId().equals(Types.blobstorageEventNodeType)) {
 			LOG.debug("blobstorage event found!");
 
 			handleBlobstorageEventDeploymentInvocation(context, nodeTemplate, eventCon);
 
-		    } else if (eventCon.getSource().getType().getId().equals(Types.pubsubEventNodeType)) {
+		    } else if (eventCon.getTarget().getType().getId().equals(Types.pubsubEventNodeType)) {
 			LOG.debug("PubSub Event found");
 
 			handlePubSubEventDeploymentInvocation(context, nodeTemplate, eventCon);
