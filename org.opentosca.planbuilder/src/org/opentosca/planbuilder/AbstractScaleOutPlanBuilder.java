@@ -12,6 +12,7 @@ import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -41,8 +42,9 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
         // add instance selection activties by starting for each node strat selection
         // activity
         for (final AbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
-            final AbstractActivity activity = new ANodeTemplateActivity(
-                stratNodeTemplate.getId() + "_strategicselection_activity", "STRATEGICSELECTION", stratNodeTemplate) {};
+            final AbstractActivity activity =
+                new ANodeTemplateActivity(stratNodeTemplate.getId() + "_strategicselection_activity",
+                    ActivityType.STRATEGICSELECTION, stratNodeTemplate) {};
             abstractScaleOutPlan.getActivites().add(activity);
             mapping.put(stratNodeTemplate, activity);
 
@@ -55,7 +57,7 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
                 for (final AbstractRelationshipTemplate relation : stratNodeTemplate.getIngoingRelations()) {
                     abstractScaleOutPlan.getLinks().add(new Link(activity,
                         findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()), relation,
-                                                         "PROVISIONING")));
+                                                         ActivityType.PROVISIONING)));
                 }
             }
 
@@ -63,13 +65,13 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
                 for (final AbstractRelationshipTemplate relationshipTemplate : path) {
                     final AbstractActivity recursiveRelationActivity =
                         new ARelationshipTemplateActivity(relationshipTemplate.getId() + "recursiveselection_activity",
-                            "RECURSIVESELECTION", relationshipTemplate) {};
+                            ActivityType.RECURSIVESELECTION, relationshipTemplate) {};
                     final AbstractActivity recursiveTargetNodeActivity = new ANodeTemplateActivity(
-                        relationshipTemplate.getTarget().getId() + "_recursiveselection_activity", "RECURSIVESELECTION",
-                        relationshipTemplate.getTarget());
+                        relationshipTemplate.getTarget().getId() + "_recursiveselection_activity",
+                        ActivityType.RECURSIVESELECTION, relationshipTemplate.getTarget());
                     final AbstractActivity recursiveSourceNodeActivity = new ANodeTemplateActivity(
-                        relationshipTemplate.getSource().getId() + "_recursiveselection_activity", "RECURSIVESELECTION",
-                        relationshipTemplate.getSource());
+                        relationshipTemplate.getSource().getId() + "_recursiveselection_activity",
+                        ActivityType.RECURSIVESELECTION, relationshipTemplate.getSource());
 
                     abstractScaleOutPlan.getActivites().add(recursiveRelationActivity);
                     abstractScaleOutPlan.getActivites().add(recursiveSourceNodeActivity);
@@ -88,15 +90,17 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
 
                         AbstractActivity provRelationActivity =
                             findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                             relationshipTemplate, "PROVISIONING");
+                                                             relationshipTemplate, ActivityType.PROVISIONING);
                         if (provRelationActivity == null) {
-                            provRelationActivity = new ARelationshipTemplateActivity(
-                                relationshipTemplate + "provisioning_acvtivity", "PROVISIONING", relationshipTemplate);
+                            provRelationActivity =
+                                new ARelationshipTemplateActivity(relationshipTemplate + "provisioning_acvtivity",
+                                    ActivityType.PROVISIONING, relationshipTemplate);
                         }
 
                         final AbstractActivity recursiveRelationActivity =
                             findRelationshipTemplateActivity(new ArrayList<>(abstractScaleOutPlan.getActivites()),
-                                                             path.get(path.size() - 1), "RECURSIVESELECTION");
+                                                             path.get(path.size() - 1),
+                                                             ActivityType.RECURSIVESELECTION);
 
                         abstractScaleOutPlan.getLinks().add(new Link(recursiveRelationActivity, provRelationActivity));
                     }
@@ -133,22 +137,6 @@ public abstract class AbstractScaleOutPlanBuilder extends AbstractPlanBuilder {
             findOutgoingInfrastructurePaths(paths, infrastructureEdge.getTarget());
         }
 
-    }
-
-    private AbstractActivity findRelationshipTemplateActivity(final List<AbstractActivity> activities,
-                                                              final AbstractRelationshipTemplate relationshipTemplate,
-                                                              final String type) {
-        for (final AbstractActivity activity : activities) {
-            if (activity.getType().equals(type)) {
-                if (activity instanceof ARelationshipTemplateActivity) {
-                    if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate()
-                                                                  .equals(relationshipTemplate)) {
-                        return activity;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
 }

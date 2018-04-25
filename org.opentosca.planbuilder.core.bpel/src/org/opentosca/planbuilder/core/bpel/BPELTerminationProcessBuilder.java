@@ -12,7 +12,7 @@ import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
@@ -45,7 +45,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
     // adds serviceInstance Variable and instanceDataAPIUrl to buildPlans
     private ServiceInstanceVariablesHandler serviceInstanceVarsHandler;
     // adds nodeInstanceIDs to each templatePlan
-    private NodeInstanceVariablesHandler nodeInstanceVarsHandler;
+    private NodeRelationInstanceVariablesHandler instanceVarsHandler;
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
@@ -62,7 +62,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceVarsHandler = new ServiceInstanceVariablesHandler();
-            this.nodeInstanceVarsHandler = new NodeInstanceVariablesHandler(this.planHandler);
+            this.instanceVarsHandler = new NodeRelationInstanceVariablesHandler(this.planHandler);
         }
         catch (final ParserConfigurationException e) {
             BPELTerminationProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
@@ -132,6 +132,10 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 // // connect the templates
                 // this.initializeConnectionsInTerminationPlan(newTerminationPlan);
 
+
+                this.instanceVarsHandler.addInstanceURLVarToTemplatePlans(newTerminationPlan);
+                this.instanceVarsHandler.addInstanceIDVarToTemplatePlans(newTerminationPlan);
+
                 final PropertyMap propMap =
                     this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
 
@@ -146,12 +150,11 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 this.serviceInstanceVarsHandler.initPropertyVariablesFromInstanceData(newTerminationPlan, propMap);
 
                 // fetch all nodeinstances that are running
-                this.nodeInstanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
-                                                                      "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
-                this.nodeInstanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan,
-                                                                                            propMap);
+                this.instanceVarsHandler.addNodeInstanceFindLogic(newTerminationPlan,
+                                                                  "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+                this.instanceVarsHandler.addPropertyVariableUpdateBasedOnNodeInstanceID(newTerminationPlan, propMap);
 
-          
+
 
                 final List<BPELScopeActivity> changedActivities = runPlugins(newTerminationPlan, propMap);
 
@@ -168,11 +171,10 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     if (activ.getNodeTemplate() != null) {
                         final BPELPlanContext context =
                             new BPELPlanContext(activ, propMap, newTerminationPlan.getServiceTemplate());
-                        this.nodeInstanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
-                                                                               "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
+                        this.instanceVarsHandler.appendCountInstancesLogic(context, activ.getNodeTemplate(),
+                                                                           "?state=STARTED&amp;state=CREATED&amp;state=CONFIGURED");
                     }
                 }
-      
 
 
 

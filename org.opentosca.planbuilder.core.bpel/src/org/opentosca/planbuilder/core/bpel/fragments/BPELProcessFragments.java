@@ -400,7 +400,7 @@ public class BPELProcessFragments {
         return doc.getFirstChild();
     }
 
-    public String createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(final String serviceInstanceIdVarName,
+    public String createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsString(final String serviceTemplateUrlVarName,
                                                                                           final String relationshipTemplateId,
                                                                                           final String responseVarName,
                                                                                           final String nodeInstanceIdVarName) throws IOException {
@@ -412,7 +412,11 @@ public class BPELProcessFragments {
                          .getResource("BPEL4RESTLightGET_RelationInstances_QueryOnTargetInstance_InstanceDataAPI.xml");
         final File bpelFragmentFile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelFragmentFile);
-        template = template.replace("$serviceInstanceURLVar", serviceInstanceIdVarName);
+
+        // <!-- $ServiceTemplateURLVarKeyword, $relationshipTemplateId, $nodeInstanceIdVarName,
+        // $ResponseVarName-->
+
+        template = template.replace("$ServiceTemplateURLVarKeyword", serviceTemplateUrlVarName);
         template = template.replace("$relationshipTemplateId", relationshipTemplateId);
         template = template.replace("$ResponseVarName", responseVarName);
         template = template.replace("$nodeInstanceIdVarName", nodeInstanceIdVarName);
@@ -463,7 +467,7 @@ public class BPELProcessFragments {
      * Creates a Node containing a BPEL fragment which uses the BPELRESTExtension to fetch the
      * InstanceData from an OpenTOSCA Container instanceDataAPI
      *
-     * @param serviceInstanceUrlVar the name of the variable holding an URL to a serviceInstance
+     * @param serviceTemplateUrlVar the name of the variable holding an URL to a serviceTemplate
      * @param responseVarName the name of the variable holding the response of the request (must be
      *        xsd:anyType)
      * @param templateId the id of the template the instance belongs to
@@ -475,11 +479,11 @@ public class BPELProcessFragments {
      * @throws IOException is thrown when reading internal files fails
      * @throws SAXException is thrown when parsing internal files fails
      */
-    public Node createRESTExtensionGETForNodeInstanceDataAsNode(final String serviceInstanceUrlVar,
+    public Node createRESTExtensionGETForNodeInstanceDataAsNode(final String serviceTemplateUrlVar,
                                                                 final String responseVarName, final String templateId,
                                                                 final String query) throws SAXException, IOException {
         final String templateString =
-            createRESTExtensionGETForNodeInstanceDataAsString(serviceInstanceUrlVar, responseVarName, templateId,
+            createRESTExtensionGETForNodeInstanceDataAsString(serviceTemplateUrlVar, responseVarName, templateId,
                                                               query);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
@@ -491,7 +495,7 @@ public class BPELProcessFragments {
      * Creates a String containing a BPEL fragment which uses the BPELRESTExtension to fetch the
      * InstanceData from an OpenTOSCA Container instanceDataAPI
      *
-     * @param serviceInstanceUrlVar the name of the variable holding an URL to a serviceInstance
+     * @param serviceTemplateUrlVar the name of the variable holding an URL to a serviceTemplate
      * @param responseVarName the name of the variable holding the response of the request (must be
      *        xsd:anyType)
      * @param templateId the id of the template the instance belongs to
@@ -502,7 +506,7 @@ public class BPELProcessFragments {
      * @return a String containing a BPEL Fragment
      * @throws IOException is thrown when reading internal files fails
      */
-    public String createRESTExtensionGETForNodeInstanceDataAsString(final String serviceInstanceUrlVar,
+    public String createRESTExtensionGETForNodeInstanceDataAsString(final String serviceTemplateUrlVar,
                                                                     final String responseVarName,
                                                                     final String templateId,
                                                                     final String query) throws IOException {
@@ -515,7 +519,7 @@ public class BPELProcessFragments {
             FrameworkUtil.getBundle(this.getClass()).getResource("BPEL4RESTLightGET_NodeInstance_InstanceDataAPI.xml");
         final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
         String template = FileUtils.readFileToString(bpelfragmentfile);
-        template = template.replaceAll("\\$InstanceDataURLVar", serviceInstanceUrlVar);
+        template = template.replaceAll("\\$InstanceDataURLVar", serviceTemplateUrlVar);
         template = template.replaceAll("\\$ResponseVarName", responseVarName);
         template = template.replaceAll("\\$templateId", templateId);
 

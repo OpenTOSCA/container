@@ -9,7 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -30,8 +30,18 @@ import org.xml.sax.SAXException;
  */
 public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanContext> {
 
-    private String findInstanceVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
+    private String findInstanceURLVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
         final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
+        for (final String varName : context.getMainVariableNames()) {
+            if (varName.contains(instanceURLVarName)) {
+                return varName;
+            }
+        }
+        return null;
+    }
+
+    private String findInstanceIDVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
+        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceID_" + templateId + "_";
         for (final String varName : context.getMainVariableNames()) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;
@@ -44,18 +54,14 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                           final List<String> selectionStrategies) {
         // fetch instance variables
-        final String nodeTemplateInstanceVar = findInstanceVar(context, nodeTemplate.getId(), true);
-        String serviceInstanceIDVar = null;
-        try {
-            serviceInstanceIDVar =
-                new ServiceInstanceVariablesHandler().getServiceInstanceURLVariableName(context.getMainVariableNames());
-        }
-        catch (final ParserConfigurationException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        final String nodeTemplateInstanceURLVar = findInstanceURLVar(context, nodeTemplate.getId(), true);
+        final String nodeTemplateInstanceIDVar = findInstanceIDVar(context, nodeTemplate.getId(), true);
+        final String serviceTemplateUrlVar =
+            ServiceInstanceVariablesHandler.getServiceTemplateURLVariableName(context.getMainVariableNames());
 
-        if (nodeTemplateInstanceVar == null | serviceInstanceIDVar == null) {
+
+
+        if (nodeTemplateInstanceURLVar == null | serviceTemplateUrlVar == null | nodeTemplateInstanceIDVar == null) {
             return false;
         }
 
@@ -65,25 +71,31 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         context.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
 
         try {
-
-            // TODO SELECT THE FIRST STARTED INSTANCE (use get with query, is already in
-            // fragments)
             Node getNodeInstances =
-                new BPELProcessFragments().createBPEL4RESTLightNodeInstancesGETAsNode(nodeTemplate.getId(),
-                                                                                      serviceInstanceIDVar,
-                                                                                      responseVarName);
+                new BPELProcessFragments().createRESTExtensionGETForNodeInstanceDataAsNode(serviceTemplateUrlVar,
+                                                                                           responseVarName,
+                                                                                           nodeTemplate.getId(), null);
             getNodeInstances = context.importNode(getNodeInstances);
             context.getPrePhaseElement().appendChild(getNodeInstances);
 
-            final String xpath2Query = "$" + responseVarName
-                + "/*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']][1]/@*[local-name()='href']/string()";
+            final String xpath2Query =
+                "//*[local-name()='NodeTemplateInstanceResources']/*[local-name()='NodeTemplateInstances']/*[local-name()='NodeTemplateInstance']/*[1]/*[local-name()='Link']/@*[local-name()='href']/string()";
             Node fetchNodeInstance =
-                new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("selectFirstInstance_"
-                    + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), xpath2Query,
-                                                                                           nodeTemplateInstanceVar);
+                new BPELProcessFragments().createAssignVarToVarWithXpathQueryAsNode("selectFirstInstance_"
+                    + nodeTemplate.getId() + "_FetchSourceNodeInstance_" + System.currentTimeMillis(), responseVarName,
+                                                                                    nodeTemplateInstanceURLVar,
+                                                                                    xpath2Query);;
             fetchNodeInstance = context.importNode(fetchNodeInstance);
             context.getPrePhaseElement().appendChild(fetchNodeInstance);
 
+            final String assignIDFromUrlVarQuery = "tokenize(//*,'/')[last()]";
+            Node assignId =
+                new BPELProcessFragments().createAssignVarToVarWithXpathQueryAsNode("seleftFirstInstanceassignIDFromUrlVar",
+                                                                                    nodeTemplateInstanceURLVar,
+                                                                                    nodeTemplateInstanceIDVar,
+                                                                                    assignIDFromUrlVarQuery);
+            assignId = context.importNode(assignId);
+            context.getPrePhaseElement().appendChild(assignId);
         }
         catch (final IOException e) {
             // TODO Auto-generated catch block
@@ -99,7 +111,8 @@ public class BPELFirstAvailablePlugin extends FirstAvailablePlugin<BPELPlanConte
         }
 
         try {
-            final NodeInstanceVariablesHandler nodeInit = new NodeInstanceVariablesHandler(new BPELPlanHandler());
+            final NodeRelationInstanceVariablesHandler nodeInit =
+                new NodeRelationInstanceVariablesHandler(new BPELPlanHandler());
 
             nodeInit.addPropertyVariableUpdateBasedOnNodeInstanceID(context, nodeTemplate);
         }

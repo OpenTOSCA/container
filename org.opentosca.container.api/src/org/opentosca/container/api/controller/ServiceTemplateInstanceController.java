@@ -193,7 +193,7 @@ public class ServiceTemplateInstanceController {
         final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
 
         return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id,
-            this.planService, PlanTypes.TERMINATION);
+            this.planService, PlanTypes.TERMINATION, PlanTypes.OTHERMANAGEMENT);
     }
 
     @GET

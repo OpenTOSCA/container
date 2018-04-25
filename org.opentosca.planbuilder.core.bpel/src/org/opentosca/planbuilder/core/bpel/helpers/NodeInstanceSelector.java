@@ -174,8 +174,8 @@ public class NodeInstanceSelector {
 
             String nodeInstanceIDVarName = null;
             try {
-                nodeInstanceIDVarName = new NodeInstanceVariablesHandler(
-                    this.bpelProcessHandler).findInstanceIdVarName(plan, nodeTemplate.getId());
+                nodeInstanceIDVarName = new NodeRelationInstanceVariablesHandler(
+                    this.bpelProcessHandler).findInstanceIdVarName(plan, nodeTemplate.getId(), true);
             }
             catch (final ParserConfigurationException e) {
                 // TODO Auto-generated catch block

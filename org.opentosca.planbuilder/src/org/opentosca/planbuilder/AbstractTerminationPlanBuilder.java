@@ -14,6 +14,7 @@ import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -34,15 +35,15 @@ public abstract class AbstractTerminationPlanBuilder extends AbstractPlanBuilder
         final AbstractTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
 
         for (final AbstractNodeTemplate nodeTemplate : topology.getNodeTemplates()) {
-            final ANodeTemplateActivity activity =
-                new ANodeTemplateActivity(nodeTemplate.getId() + "_termination_activity", "TERMINATION", nodeTemplate);
+            final ANodeTemplateActivity activity = new ANodeTemplateActivity(
+                nodeTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, nodeTemplate);
             activities.add(activity);
             mapping.put(nodeTemplate, activity);
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : topology.getRelationshipTemplates()) {
             final ARelationshipTemplateActivity activity = new ARelationshipTemplateActivity(
-                relationshipTemplate.getId() + "_termination_activity", "TERMINATION", relationshipTemplate);
+                relationshipTemplate.getId() + "_termination_activity", ActivityType.TERMINATION, relationshipTemplate);
             activities.add(activity);
 
             final QName baseType = ModelUtils.getRelationshipBaseType(relationshipTemplate);

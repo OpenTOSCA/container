@@ -20,7 +20,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.model.plan.ANodeTemplateActivity;
 import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
@@ -60,7 +60,7 @@ public class BPELPlanHandler {
     private final DocumentBuilderFactory documentBuilderFactory;
     private final DocumentBuilder documentBuilder;
 
-    private final NodeInstanceVariablesHandler instanceInit;
+    private final NodeRelationInstanceVariablesHandler instanceInit;
 
     private final ObjectFactory ddFactory;
 
@@ -78,7 +78,7 @@ public class BPELPlanHandler {
         this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
         this.bpelScopeHandler = new BPELScopeHandler();
         this.ddFactory = new ObjectFactory();
-        this.instanceInit = new NodeInstanceVariablesHandler(this);
+        this.instanceInit = new NodeRelationInstanceVariablesHandler(this);
     }
 
     /**
@@ -1001,8 +1001,6 @@ public class BPELPlanHandler {
         }
 
         plan.setAbstract2BPELMapping(abstract2bpelMap);
-
-        this.instanceInit.addInstanceIDVarToTemplatePlans(plan);
 
         // connect the templates
         initializeConnectionsAsLinkInBPELPlan(plan);

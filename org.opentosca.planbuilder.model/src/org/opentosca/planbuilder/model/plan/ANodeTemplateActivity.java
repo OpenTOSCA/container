@@ -14,7 +14,7 @@ public class ANodeTemplateActivity extends AbstractActivity {
     private final AbstractNodeTemplate nodeTemplate;
 
 
-    public ANodeTemplateActivity(final String id, final String type, final AbstractNodeTemplate nodeTemplate) {
+    public ANodeTemplateActivity(final String id, final ActivityType type, final AbstractNodeTemplate nodeTemplate) {
         super(id, type);
         this.nodeTemplate = nodeTemplate;
     }

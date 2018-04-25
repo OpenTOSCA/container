@@ -11,7 +11,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
@@ -65,7 +65,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     private BPELPlanHandler planHandler;
 
-    private NodeInstanceVariablesHandler instanceInit;
+    private NodeRelationInstanceVariablesHandler instanceInit;
 
 
     private final EmptyPropertyToInputInitializer emptyPropInit = new EmptyPropertyToInputInitializer();
@@ -79,7 +79,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
-            this.instanceInit = new NodeInstanceVariablesHandler(this.planHandler);
+            this.instanceInit = new NodeRelationInstanceVariablesHandler(this.planHandler);
         }
         catch (final ParserConfigurationException e) {
             BPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
@@ -143,6 +143,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 newBuildPlan.setTOSCAOperationname("initiate");
 
                 this.planHandler.initializeBPELSkeleton(newBuildPlan, csarName);
+
+                this.instanceInit.addInstanceURLVarToTemplatePlans(newBuildPlan);
+                this.instanceInit.addInstanceIDVarToTemplatePlans(newBuildPlan);
 
                 // newBuildPlan.setCsarName(csarName);
 

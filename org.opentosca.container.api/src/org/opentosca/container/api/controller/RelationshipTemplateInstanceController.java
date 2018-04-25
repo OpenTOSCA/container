@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
@@ -66,7 +67,7 @@ public class RelationshipTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets all instances of a relationship template",
                   response = RelationshipTemplateInstanceDTO.class, responseContainer = "List")
-    public Response getRelationshipTemplateInstances() {
+    public Response getRelationshipTemplateInstances(@QueryParam(value = "target") final Long targetNodeInstanceId) {
         final QName relationshipTemplateQName =
             new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);
         final Collection<RelationshipTemplateInstance> relationshipInstances =
@@ -77,6 +78,10 @@ public class RelationshipTemplateInstanceController {
         final RelationshipTemplateInstanceListDTO list = new RelationshipTemplateInstanceListDTO();
 
         for (final RelationshipTemplateInstance i : relationshipInstances) {
+            if (targetNodeInstanceId != null && !i.getTarget().getId().equals(targetNodeInstanceId)) {
+                // skip this instance if the target id doesn't match
+                continue;
+            }
             final RelationshipTemplateInstanceDTO dto = RelationshipTemplateInstanceDTO.Converter.convert(i);
             dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
 

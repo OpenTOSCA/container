@@ -8,7 +8,10 @@ import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwareTypePlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
+import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
+import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -131,5 +134,30 @@ public abstract class AbstractPlanBuilder {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns an AbstractActivity from the given list with the reference relationship Template and
+     * activity type
+     *
+     * @param activities a List of Plan activities
+     * @param relationshipTemplate the relationshipTemplate the activity belongs to
+     * @param type the type of the activity
+     * @return an AbstractActivity
+     */
+    protected AbstractActivity findRelationshipTemplateActivity(final List<AbstractActivity> activities,
+                                                                final AbstractRelationshipTemplate relationshipTemplate,
+                                                                final ActivityType type) {
+        for (final AbstractActivity activity : activities) {
+            if (activity.getType().equals(type)) {
+                if (activity instanceof ARelationshipTemplateActivity) {
+                    if (((ARelationshipTemplateActivity) activity).getRelationshipTemplate()
+                                                                  .equals(relationshipTemplate)) {
+                        return activity;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

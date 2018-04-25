@@ -3,9 +3,9 @@ package org.opentosca.planbuilder.model.plan;
 public abstract class AbstractActivity {
 
     private final String id;
-    private final String type;
+    private final ActivityType type;
 
-    public AbstractActivity(final String id, final String type) {
+    public AbstractActivity(final String id, final ActivityType type) {
         this.id = id;
         this.type = type;
     }
@@ -14,7 +14,7 @@ public abstract class AbstractActivity {
         return this.id;
     }
 
-    public String getType() {
+    public ActivityType getType() {
         return this.type;
     }
 

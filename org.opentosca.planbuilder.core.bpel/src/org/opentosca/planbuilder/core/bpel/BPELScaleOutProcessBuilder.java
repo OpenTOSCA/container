@@ -18,7 +18,7 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
@@ -28,6 +28,7 @@ import org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
@@ -59,7 +60,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
     private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 
-    private NodeInstanceVariablesHandler instanceInitializer;
+    private NodeRelationInstanceVariablesHandler instanceInitializer;
 
 
     // class for finalizing build plans (e.g when some template didn't receive
@@ -77,7 +78,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
-            this.instanceInitializer = new NodeInstanceVariablesHandler(this.planHandler);
+            this.instanceInitializer = new NodeRelationInstanceVariablesHandler(this.planHandler);
         }
         catch (final ParserConfigurationException e) {
             BPELScaleOutProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
@@ -90,25 +91,19 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         this.opNames.add("start");
     }
 
-    private boolean addNodeInstanceIdToOutput(final BPELScopeActivity activ) {
-        String inputName = "";
+    private boolean addInstanceIdToOutput(final BPELScopeActivity activ) {
+        String outputName = "";
         if (activ.getNodeTemplate() != null) {
-            inputName = "ProvisionedInstance_" + activ.getNodeTemplate().getId();
+            outputName = "CreatedInstance_" + activ.getNodeTemplate().getId();
         } else {
-            inputName = "ProvisionedInstance_" + activ.getRelationshipTemplate().getId();
+            outputName = "CreatedInstance_" + activ.getRelationshipTemplate().getId();
         }
 
-        this.planHandler.addStringElementToPlanRequest(inputName, activ.getBuildPlan());
+        this.planHandler.addStringElementToPlanResponse(outputName, activ.getBuildPlan());
 
-        try {
-            final String varName = new NodeInstanceVariablesHandler(this.planHandler).findInstanceIdVarName(activ);
-            this.planHandler.assginOutputWithVariableValue(varName, inputName, activ.getBuildPlan());
-        }
-        catch (final ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
-        }
+        final String varName = this.instanceInitializer.findInstanceIdVarName(activ);
+        this.planHandler.assginOutputWithVariableValue(varName, outputName, activ.getBuildPlan());
+
         return true;
     }
 
@@ -117,15 +112,17 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // fetch nodeInstance Variable to store the result at the end
         final BPELPlanContext nodeContext = this.createContext(nodeTemplate, plan, map);
 
-        final String nodeInstanceVarName = findInstanceVar(nodeContext, nodeTemplate.getId(), true);
+        final String nodeInstanceVarName =
+            this.instanceInitializer.findInstanceIdVarName(plan, nodeTemplate.getId(), true);
 
         // find first relationtemplate which is an infrastructure edge
-        final AbstractRelationshipTemplate relationshipTemplate = getFirstInfrastructureRelation(nodeTemplate);
+        final AbstractRelationshipTemplate relationshipTemplate = getFirstOutgoingInfrastructureRelation(nodeTemplate);
         if (relationshipTemplate == null) {
             return;
         }
         final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
-        final String relationInstanceVarName = findInstanceVar(relationContext, relationshipTemplate.getId(), false);
+        final String relationInstanceVarName =
+            this.instanceInitializer.findInstanceIdVarName(plan, relationshipTemplate.getId(), false);
 
         // create response variable
         final QName anyTypeDeclId =
@@ -134,12 +131,22 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             "recursiveSelection_NodeInstance_" + nodeTemplate.getId() + System.currentTimeMillis() + "_Response";
         nodeContext.addVariable(responseVarName, BPELPlan.VariableType.TYPE, anyTypeDeclId);
 
+
+        final String serviceTemplateUrlVarName =
+            ServiceInstanceVariablesHandler.getServiceTemplateURLVariableName(nodeContext.getMainVariableNames());
+
         // fetch relationInstance data
         try {
-            Node fetchRelationInstanceData =
-                new BPELProcessFragments().createRESTDeleteOnURLBPELVarAsNode(relationInstanceVarName, responseVarName);
-            fetchRelationInstanceData = nodeContext.importNode(fetchRelationInstanceData);
-            nodeContext.getPrePhaseElement().appendChild(fetchRelationInstanceData);
+            // createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode
+            Node fetchNodeInstanceData =
+                new BPELProcessFragments().createRESTExtensionGETForNodeInstanceDataAsNode(serviceTemplateUrlVarName,
+                                                                                           responseVarName,
+                                                                                           nodeTemplate.getId(),
+                                                                                           "source=$bpelvar[$"
+                                                                                               + relationInstanceVarName
+                                                                                               + "]");
+            fetchNodeInstanceData = nodeContext.importNode(fetchNodeInstanceData);
+            nodeContext.getPrePhaseElement().appendChild(fetchNodeInstanceData);
         }
         catch (final IOException e1) {
             // TODO Auto-generated catch block
@@ -159,11 +166,12 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // set nodeInstance variable
 
         final String xpathQuery =
-            "//*[local-name()='Reference' and @*[local-name()='title' and string()='SourceInstanceId']]/@*[local-name()='href']/string()";
+            "//*[local-name()='NodeTemplateInstanceResources']/*[local-name()='NodeTemplateInstances']/*[local-name()='NodeTemplateInstance']/*[1]/*[local-name()='Links']/*[local-name()='Link']/@*[local-name()='href']/string()";
         try {
+
             Node queryNodeInstanceUrl =
-                new BPELProcessFragments().createAssignXpathQueryToStringVarFragmentAsNode("recursiveSelection_fetchNodeInstance"
-                    + System.currentTimeMillis(), xpathQuery, nodeInstanceVarName);
+                new BPELProcessFragments().createAssignVarToVarWithXpathQueryAsNode("recursiveSelection_fetchNodeInstance"
+                    + System.currentTimeMillis(), responseVarName, nodeInstanceVarName, xpathQuery);
             queryNodeInstanceUrl = nodeContext.importNode(queryNodeInstanceUrl);
             nodeContext.getPrePhaseElement().appendChild(queryNodeInstanceUrl);
         }
@@ -186,14 +194,17 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         // fetch relationInstance variable of relationship template
         final BPELPlanContext relationContext = this.createContext(relationshipTemplate, plan, map);
         final String relationshipTemplateInstanceVarName =
-            findInstanceVar(relationContext, relationshipTemplate.getId(), false);
+            this.instanceInitializer.findInstanceIdVarName(plan, relationshipTemplate.getId(), false);
 
         // fetch nodeInstance variable of source node template
         final BPELPlanContext nodeContext = this.createContext(relationshipTemplate.getTarget(), plan, map);
         final String nodeTemplateInstanceVarName =
-            findInstanceVar(nodeContext, relationshipTemplate.getTarget().getId(), true);
+            this.instanceInitializer.findInstanceIdVarName(plan, relationshipTemplate.getTarget().getId(), true);
 
         final String serviceInstanceIdVarName = this.serviceInstanceInitializer.getServiceInstanceVariableName(plan);
+
+        final String serviceTemplateUrlVarName =
+            ServiceInstanceVariablesHandler.getServiceTemplateURLVariableName(nodeContext.getMainVariableNames());
 
         // find relationshipTemplate instance that has the node template
         // instance as source
@@ -210,7 +221,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         try {
             Node requestRelationInstance =
-                new BPELProcessFragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceInstanceIdVarName,
+                new BPELProcessFragments().createBPEL4RESTLightRelationInstancesTargetNodeInstanceQueryGETAsNode(serviceTemplateUrlVarName,
                                                                                                                  relationshipTemplate.getId(),
                                                                                                                  responseVarName,
                                                                                                                  nodeTemplateInstanceVarName);
@@ -231,7 +242,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         }
 
         final String xpathQuery =
-            "//*[local-name()='Reference' and @*[local-name()='title' and string()!='Self']]/@*[local-name()='href']/string()";
+            "//*[local-name()='RelationshipTemplateInstanceResources']/*[local-name()='RelationshipTemplateInstances']/*[local-name()='RelationshipTemplateInstance']/[0]/*[local-name()='Links']/*[local-name()='Link']/@*[local-name()='href']/string()";
 
         // set relationInstnace variable of the relationship templates' scope
         try {
@@ -317,6 +328,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
             this.serviceInstanceInitializer.addManagementPlanServiceInstanceVarHandlingFromInput(bpelScaleOutProcess);
 
+
+
+            this.instanceInitializer.addInstanceURLVarToTemplatePlans(bpelScaleOutProcess);
             this.instanceInitializer.addInstanceIDVarToTemplatePlans(bpelScaleOutProcess);
 
             this.serviceInstanceInitializer.addCorrellationID(bpelScaleOutProcess);
@@ -338,6 +352,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             this.runProvisioningLogicGeneration(bpelScaleOutProcess, propMap, scalingPlanDefinition.nodeTemplates,
                                                 scalingPlanDefinition.relationshipTemplates);
 
+
+
             // add generic instance selection
 
             for (final AbstractRelationshipTemplate relationshipTemplate : scalingPlanDefinition.relationshipTemplatesRecursiveSelection) {
@@ -347,8 +363,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                 this.addRecursiveInstanceSelection(bpelScaleOutProcess, propMap, nodeTemplate);
             }
 
-            // TODO add plugin system
-
             for (final AnnotatedAbstractNodeTemplate stratNodeTemplate : scalingPlanDefinition.selectionStrategy2BorderNodes) {
                 final IScalingPlanBuilderSelectionPlugin selectionPlugin = findSelectionPlugin(stratNodeTemplate);
                 if (selectionPlugin != null) {
@@ -356,11 +370,17 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
                         this.planHandler.getTemplateBuildPlanById(stratNodeTemplate.getId(), bpelScaleOutProcess);
                     selectionPlugin.handle(new BPELPlanContext(scope, propMap, serviceTemplate), stratNodeTemplate,
                                            new ArrayList<>(stratNodeTemplate.getAnnotations()));
-                    addNodeInstanceIdToOutput(scope);
+                }
+            }
+
+            for (final AbstractActivity activ : bpelScaleOutProcess.getActivites()) {
+                if (activ.getType().equals(ActivityType.PROVISIONING)) {
+                    addInstanceIdToOutput(bpelScaleOutProcess.getAbstract2BPEL().get(activ));
                 }
             }
 
             this.finalizer.finalize(bpelScaleOutProcess);
+
 
             scalingPlans.add(bpelScaleOutProcess);
 
@@ -539,16 +559,6 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return null;
     }
 
-    private String findInstanceVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
-        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
-    }
-
     private IScalingPlanBuilderSelectionPlugin findSelectionPlugin(final AnnotatedAbstractNodeTemplate stratNodeTemplate) {
 
         for (final IScalingPlanBuilderSelectionPlugin plugin : this.pluginRegistry.getSelectionPlugins()) {
@@ -566,7 +576,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         return Arrays.asList(scalingPlanRelationNamesRawSplit);
     }
 
-    private AbstractRelationshipTemplate getFirstInfrastructureRelation(final AbstractNodeTemplate nodeTemplate) {
+    private AbstractRelationshipTemplate getFirstOutgoingInfrastructureRelation(final AbstractNodeTemplate nodeTemplate) {
         final List<AbstractRelationshipTemplate> relations =
             ModelUtils.getOutgoingRelations(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON);
         relations.addAll(ModelUtils.getOutgoingRelations(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPENDSON));

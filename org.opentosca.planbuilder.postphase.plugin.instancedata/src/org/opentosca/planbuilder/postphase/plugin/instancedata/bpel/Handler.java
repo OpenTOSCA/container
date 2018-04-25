@@ -131,7 +131,7 @@ public class Handler {
         return serviceInstanceVarName;
     }
 
-    private String getServiceInstanceVarName(final BPELPlanContext context) {
+    private String getServiceInstanceURLVarName(final BPELPlanContext context) {
         // check whether main sequence already contains service instance calls
         // to container API
         final List<String> mainVarNames = context.getMainVariableNames();
@@ -217,7 +217,8 @@ public class Handler {
 
     private String findInstanceIDVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
         final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceID_" + templateId + "_";
-        for (final String varName : context.getMainVariableNames()) {
+        final List<String> varNames = context.getMainVariableNames();
+        for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;
             }
@@ -228,7 +229,7 @@ public class Handler {
     public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
-        final String serviceInstanceVarName = getServiceInstanceVarName(context);
+        final String serviceInstanceVarName = getServiceInstanceURLVarName(context);
         if (serviceInstanceVarName == null) {
             return false;
         }
@@ -456,7 +457,7 @@ public class Handler {
     public boolean handleBuild(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
-        final String serviceInstanceVarName = getServiceInstanceVarName(context);
+        final String serviceInstanceVarName = getServiceInstanceURLVarName(context);
         if (serviceInstanceVarName == null) {
             return false;
         }
@@ -810,7 +811,7 @@ public class Handler {
 
     public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
 
-        final String serviceInstanceVarName = getServiceInstanceVarName(context);
+        final String serviceInstanceVarName = getServiceInstanceURLVarName(context);
         if (serviceInstanceVarName == null) {
             return false;
         }

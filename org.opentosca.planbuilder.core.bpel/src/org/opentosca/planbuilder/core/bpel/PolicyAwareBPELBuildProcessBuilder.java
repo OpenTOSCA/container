@@ -20,7 +20,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
 import org.opentosca.planbuilder.core.bpel.helpers.EmptyPropertyToInputInitializer;
-import org.opentosca.planbuilder.core.bpel.helpers.NodeInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.NodeRelationInstanceVariablesHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyMappingsToOutputInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
@@ -76,7 +76,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
 
     private BPELPlanHandler planHandler;
 
-    private NodeInstanceVariablesHandler instanceInit;
+    private NodeRelationInstanceVariablesHandler instanceInit;
 
 
 
@@ -91,7 +91,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
         try {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
-            this.instanceInit = new NodeInstanceVariablesHandler(this.planHandler);
+            this.instanceInit = new NodeRelationInstanceVariablesHandler(this.planHandler);
 
         }
         catch (final ParserConfigurationException e) {

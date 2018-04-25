@@ -29,11 +29,11 @@ import org.xml.sax.SAXException;
  * @author Kálmán Képes - kalman.kepes@iaas.uni-stuttgart.de
  *
  */
-public class NodeInstanceVariablesHandler {
+public class NodeRelationInstanceVariablesHandler {
 
-    private static final String ServiceInstanceVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
     private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
-    private static final String InstanceIDVarKeyword = "InstanceURL";
+    private static final String InstanceURLVarKeyword = "InstanceURL";
+    private static final String InstanceIDVarKeyword = "InstanceID";
 
     private final BPELPlanHandler bpelProcessHandler;
 
@@ -41,7 +41,7 @@ public class NodeInstanceVariablesHandler {
 
     private final BPELProcessFragments bpelFragments;
 
-    public NodeInstanceVariablesHandler(final BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
+    public NodeRelationInstanceVariablesHandler(final BPELPlanHandler bpelProcessHandler) throws ParserConfigurationException {
         this.bpelTemplateScopeHandler = new BPELScopeHandler();
         this.bpelFragments = new BPELProcessFragments();
         this.bpelProcessHandler = bpelProcessHandler;
@@ -144,12 +144,14 @@ public class NodeInstanceVariablesHandler {
         return true;
     }
 
-    /**
-     * Adds a NodeInstanceID Variable to the given TemplatePlan
-     *
-     * @param templatePlan a TemplatePlan
-     * @return true iff adding a NodeInstanceID Var was successful
-     */
+    public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan) {
+        boolean check = true;
+        for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
+            check &= addInstanceIDVarToTemplatePlan(templatePlan);
+        }
+        return check;
+    }
+
     public boolean addInstanceIDVarToTemplatePlan(final BPELScopeActivity templatePlan) {
         final String xsdPrefix = "xsd" + System.currentTimeMillis();
         final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
@@ -167,7 +169,39 @@ public class NodeInstanceVariablesHandler {
             prefix = "relationship";
         }
 
-        final String instanceIdVarName = prefix + "InstanceURL_" + templateId + "_" + System.currentTimeMillis();
+        final String instanceIdVarName =
+            prefix + InstanceIDVarKeyword + "_" + templateId + "_" + System.currentTimeMillis();
+
+        return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
+                                                   new QName(xsdNamespace, "string", xsdPrefix),
+                                                   templatePlan.getBuildPlan());
+    }
+
+    /**
+     * Adds a NodeInstanceID Variable to the given TemplatePlan
+     *
+     * @param templatePlan a TemplatePlan
+     * @return true iff adding a NodeInstanceID Var was successful
+     */
+    public boolean addInstanceURLVarToTemplatePlan(final BPELScopeActivity templatePlan) {
+        final String xsdPrefix = "xsd" + System.currentTimeMillis();
+        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+
+        this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
+
+        String templateId = "";
+        String prefix = "";
+
+        if (templatePlan.getNodeTemplate() != null) {
+            templateId = templatePlan.getNodeTemplate().getId();
+            prefix = "node";
+        } else {
+            templateId = templatePlan.getRelationshipTemplate().getId();
+            prefix = "relationship";
+        }
+
+        final String instanceIdVarName =
+            prefix + InstanceURLVarKeyword + "_" + templateId + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
                                                    new QName(xsdNamespace, "string", xsdPrefix),
@@ -181,10 +215,10 @@ public class NodeInstanceVariablesHandler {
      * @param plan a plan with TemplatePlans
      * @return
      */
-    public boolean addInstanceIDVarToTemplatePlans(final BPELPlan plan) {
+    public boolean addInstanceURLVarToTemplatePlans(final BPELPlan plan) {
         boolean check = true;
         for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
-            check &= this.addInstanceIDVarToTemplatePlan(templatePlan);
+            check &= addInstanceURLVarToTemplatePlan(templatePlan);
         }
         return check;
     }
@@ -197,8 +231,8 @@ public class NodeInstanceVariablesHandler {
 
         for (final BPELScopeActivity templatePlan : plan.getTemplateBuildPlans()) {
             if (templatePlan.getNodeTemplate() != null) {
-                check &= this.addInstanceFindLogic(templatePlan, serviceTemplateUrlVarName, InstanceDataAPIUrlKeyword,
-                                                   queryForNodeInstances);
+                check &= addInstanceFindLogic(templatePlan, serviceTemplateUrlVarName, InstanceDataAPIUrlKeyword,
+                                              queryForNodeInstances);
             }
         }
 
@@ -312,7 +346,7 @@ public class NodeInstanceVariablesHandler {
                                                                   final AbstractNodeTemplate nodeTemplate) {
 
         final String instanceIdVarName =
-            this.findInstanceIdVarName(context.getMainVariableNames(), nodeTemplate.getId());
+            this.findInstanceIdVarName(context.getMainVariableNames(), nodeTemplate.getId(), true);
 
         if (instanceIdVarName == null) {
             return false;
@@ -424,7 +458,7 @@ public class NodeInstanceVariablesHandler {
 
         // count(//*[local-name()='Reference' and @*[local-name()!='Self']])
 
-        final Element forEachElement = this.createForEachActivity(context, counterVariable.getName());
+        final Element forEachElement = createForEachActivity(context, counterVariable.getName());
 
         final Element forEachScopeElement = (Element) forEachElement.getElementsByTagName("scope").item(0);
 
@@ -507,31 +541,34 @@ public class NodeInstanceVariablesHandler {
         return forEachElement;
     }
 
-    public String findInstanceIdVarName(final BPELPlan plan, final String templateId) {
-        return this.findInstanceIdVarName(this.bpelProcessHandler.getMainVariableNames(plan), templateId);
+    public String findInstanceIdVarName(final BPELPlan plan, final String templateId, final boolean isNode) {
+        return this.findInstanceIdVarName(this.bpelProcessHandler.getMainVariableNames(plan), templateId, isNode);
     }
 
     public String findInstanceIdVarName(final BPELScopeActivity templatePlan) {
         String templateId = "";
 
+        boolean isNode = true;
         if (templatePlan.getNodeTemplate() != null) {
             templateId = templatePlan.getNodeTemplate().getId();
         } else {
             templateId = templatePlan.getRelationshipTemplate().getId();
+            isNode = false;
         }
-        return this.findInstanceIdVarName(templatePlan.getBuildPlan(), templateId);
+        return this.findInstanceIdVarName(templatePlan.getBuildPlan(), templateId, isNode);
     }
 
-    public String findInstanceIdVarName(final List<String> varNames, final String templateId) {
+
+    private String findInstanceIdVarName(final List<String> varNames, final String templateId, final boolean isNode) {
+        final String instanceURLVarName =
+            (isNode ? "node" : "relationship") + InstanceURLVarKeyword + "_" + templateId + "_";
         for (final String varName : varNames) {
-            // FIXME weak check
-            if ((varName.startsWith("node" + InstanceIDVarKeyword)
-                | varName.startsWith("relation" + InstanceIDVarKeyword)) & varName.contains(templateId)) {
+            if (varName.contains(instanceURLVarName)) {
                 return varName;
             }
         }
-
         return null;
     }
+
 
 }

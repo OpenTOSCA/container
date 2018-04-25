@@ -15,6 +15,7 @@ import org.opentosca.planbuilder.model.plan.ARelationshipTemplateActivity;
 import org.opentosca.planbuilder.model.plan.AbstractActivity;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
+import org.opentosca.planbuilder.model.plan.ActivityType;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -86,14 +87,15 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
                                                      final Collection<AbstractRelationshipTemplate> relationshipTemplates) {
         for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
             final AbstractActivity activity = new ANodeTemplateActivity(nodeTemplate.getId() + "_provisioning_activity",
-                "PROVISIONING", nodeTemplate);
+                ActivityType.PROVISIONING, nodeTemplate);
             activities.add(activity);
             nodeActivityMapping.put(nodeTemplate, activity);
         }
 
         for (final AbstractRelationshipTemplate relationshipTemplate : relationshipTemplates) {
-            final AbstractActivity activity = new ARelationshipTemplateActivity(
-                relationshipTemplate.getId() + "_provisioning_activity", "PROVISIONING", relationshipTemplate);
+            final AbstractActivity activity =
+                new ARelationshipTemplateActivity(relationshipTemplate.getId() + "_provisioning_activity",
+                    ActivityType.PROVISIONING, relationshipTemplate);
             activities.add(activity);
             relationActivityMapping.put(relationshipTemplate, activity);
         }

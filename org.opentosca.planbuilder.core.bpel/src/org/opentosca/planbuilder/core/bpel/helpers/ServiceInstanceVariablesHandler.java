@@ -62,14 +62,47 @@ public class ServiceInstanceVariablesHandler {
      * @param plan a plan
      */
     public void addManagementPlanServiceInstanceVarHandlingFromInput(final BPELPlan plan) {
-        this.appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.InstanceDataAPIUrlKeyword);
-        this.appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.ServiceInstanceURLVarKeyword);
+        appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.InstanceDataAPIUrlKeyword);
+        appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.ServiceInstanceURLVarKeyword);
 
         this.bpelProcessHandler.addGlobalStringVariable(ServiceTemplateURLVarKeyword, plan);
-        this.addAssignServiceTemplateURLVariable(plan);
+        addAssignServiceTemplateURLVariable(plan);
+
+        this.bpelProcessHandler.addGlobalStringVariable(ServiceInstanceIDVarKeyword, plan);
+        addAssignServiceInstanceIdVarFromServiceInstanceURLVar(plan);
 
         this.bpelProcessHandler.addGlobalStringVariable(PlanInstanceURLVarKeyword, plan);
-        this.addAssignManagementPlanInstanceUrlVariable(plan);
+        addAssignManagementPlanInstanceUrlVariable(plan);
+    }
+
+    private void addAssignServiceInstanceIdVarFromServiceInstanceURLVar(final BPELPlan plan) {
+        final String serviceInstanceURLVarName = findServiceInstanceUrlVariableName(this.bpelProcessHandler, plan);
+        final String serviceInstanceIDVarName = findServiceInstanceIdVarName(this.bpelProcessHandler, plan);
+
+        try {
+            Node assignFragment =
+                this.fragments.createAssignVarToVarWithXpathQueryAsNode("assignServiceInstanceIDFromServiceInstanceURl"
+                    + System.currentTimeMillis(), serviceInstanceURLVarName, serviceInstanceIDVarName,
+                                                                        "tokenize(//*,'/')[last()]");
+            assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
+            appendToInitSequence(assignFragment, plan);
+        }
+        catch (final IOException e) {
+            e.printStackTrace();
+        }
+        catch (final SAXException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    protected static String findServiceInstanceIdVarName(final BPELPlanHandler bpelplanHandler, final BPELPlan plan) {
+        for (final String varName : bpelplanHandler.getMainVariableNames(plan)) {
+            if (varName.contains(ServiceInstanceIDVarKeyword)) {
+                return varName;
+            }
+        }
+        return null;
     }
 
     protected static String findServiceInstanceUrlVariableName(final BPELPlanHandler bpelProcessHandler,
@@ -137,7 +170,7 @@ public class ServiceInstanceVariablesHandler {
                 this.fragments.createAssignXpathQueryToStringVarFragmentAsNode("assignServiceTemplateUrl"
                     + System.currentTimeMillis(), xpath2Query, serviceTemplateUrlVariableName);
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
-            this.appendToInitSequence(assignFragment, plan);
+            appendToInitSequence(assignFragment, plan);
         }
         catch (final IOException e) {
             // TODO Auto-generated catch block
@@ -162,38 +195,7 @@ public class ServiceInstanceVariablesHandler {
             Node assignFragment = this.fragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPlanInstanceUrl"
                 + System.currentTimeMillis(), xpath2Query, planInstanceUrlVarName);
             assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
-            this.appendToInitSequence(assignFragment, plan);
-        }
-        catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (final SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Adds BPEL activities to set the PlanInstanceURL Variable for BuildPlans
-     *
-     * @param plan the BPEL Plan to add the assign to
-     */
-    private void addAssignBuildPlanInstanceURLVariable(final BPELPlan plan) {
-
-        final String planInstanceUrlVarName =
-            ServiceInstanceVariablesHandler.findPlanInstanceUrlVariableName(this.bpelProcessHandler, plan);
-        final String serviceTemplateUrlVarName =
-            ServiceInstanceVariablesHandler.findServiceTemplateUrlVariableName(this.bpelProcessHandler, plan);
-
-        final String xpath2Query = "string(concat($" + serviceTemplateUrlVarName + ", '/buildplans/', '"
-            + plan.getId().substring(plan.getId().lastIndexOf("}") + 1)
-            + "', '/instances/', $input.payload/*[local-name()='CorrelationID']))";
-        try {
-            Node assignFragment = this.fragments.createAssignXpathQueryToStringVarFragmentAsNode("assignPlanInstanceUrl"
-                + System.currentTimeMillis(), xpath2Query, planInstanceUrlVarName);
-            assignFragment = plan.getBpelDocument().importNode(assignFragment, true);
-            this.appendToInitSequence(assignFragment, plan);
+            appendToInitSequence(assignFragment, plan);
         }
         catch (final IOException e) {
             // TODO Auto-generated catch block
@@ -214,9 +216,9 @@ public class ServiceInstanceVariablesHandler {
      */
     public void initializeInstanceDataFromInput(final BPELPlan plan) {
         final String instanceDataAPIVarName =
-            this.appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.InstanceDataAPIUrlKeyword);
-        this.appendServiceInstanceInitCode(plan, instanceDataAPIVarName);
-        this.addAssignOutputWithServiceInstanceId(plan);
+            appendAssignFromInputToVariable(plan, ServiceInstanceVariablesHandler.InstanceDataAPIUrlKeyword);
+        appendServiceInstanceInitCode(plan, instanceDataAPIVarName);
+        addAssignOutputWithServiceInstanceId(plan);
     }
 
     private void addAssignOutputWithServiceInstanceId(final BPELPlan plan) {
@@ -265,7 +267,7 @@ public class ServiceInstanceVariablesHandler {
     }
 
     public String getServiceInstanceVariableName(final BPELPlan plan) {
-        return this.getServiceInstanceURLVariableName(this.bpelProcessHandler.getMainVariableNames(plan));
+        return getServiceInstanceURLVariableName(this.bpelProcessHandler.getMainVariableNames(plan));
     }
 
     public boolean appendSetServiceInstanceState(final BPELPlan plan, final Element insertBeforeElement,
@@ -569,7 +571,7 @@ public class ServiceInstanceVariablesHandler {
                 this.fragments.generateServiceInstanceRequestMessageAssignAsNode("CorrelationID",
                                                                                  restCallRequestVarName);
             assignRestRequestNode = buildPlan.getBpelDocument().importNode(assignRestRequestNode, true);
-            this.appendToInitSequence(assignRestRequestNode, buildPlan);
+            appendToInitSequence(assignRestRequestNode, buildPlan);
         }
         catch (final IOException e1) {
             // TODO Auto-generated catch block
@@ -586,7 +588,7 @@ public class ServiceInstanceVariablesHandler {
                                                                                restCallRequestVarName,
                                                                                restCallResponseVarName);
             serviceInstancePOSTNode = buildPlan.getBpelDocument().importNode(serviceInstancePOSTNode, true);
-            this.appendToInitSequence(serviceInstancePOSTNode, buildPlan);
+            appendToInitSequence(serviceInstancePOSTNode, buildPlan);
         }
         catch (final IOException e) {
             e.printStackTrace();
@@ -640,7 +642,7 @@ public class ServiceInstanceVariablesHandler {
                 this.fragments.generateAssignFromInputMessageToStringVariableAsNode("CorrelationID",
                                                                                     "ServiceInstanceCorrelationID");
             assignCorr = buildPlan.getBpelDocument().importNode(assignCorr, true);
-            this.appendToInitSequence(assignCorr, buildPlan);
+            appendToInitSequence(assignCorr, buildPlan);
         }
         catch (final IOException e1) {
             // TODO Auto-generated catch block
@@ -660,7 +662,7 @@ public class ServiceInstanceVariablesHandler {
                                                                            serviceTemplateUrlVarName, planName,
                                                                            buildPlanUrlVarName);
             serviceInstanceURLAssignNode = buildPlan.getBpelDocument().importNode(serviceInstanceURLAssignNode, true);
-            this.appendToInitSequence(serviceInstanceURLAssignNode, buildPlan);
+            appendToInitSequence(serviceInstanceURLAssignNode, buildPlan);
         }
         catch (final IOException e) {
             // TODO Auto-generated catch block
@@ -710,7 +712,7 @@ public class ServiceInstanceVariablesHandler {
             Node assignNode = this.fragments.generateAssignFromInputMessageToStringVariableAsNode(varName, varName);
 
             assignNode = plan.getBpelDocument().importNode(assignNode, true);
-            this.appendToInitSequence(assignNode, plan);
+            appendToInitSequence(assignNode, plan);
         }
         catch (final IOException e) {
             e.printStackTrace();
@@ -748,7 +750,7 @@ public class ServiceInstanceVariablesHandler {
 
         // add an assign
         try {
-            Node assignNode = this.createAssignFromInputToOutputAsNode(buildPlan.getWsdl().getTargetNamespace());
+            Node assignNode = createAssignFromInputToOutputAsNode(buildPlan.getWsdl().getTargetNamespace());
             assignNode = buildPlan.getBpelDocument().importNode(assignNode, true);
             final Element flowElement = buildPlan.getBpelMainFlowElement();
 
@@ -778,7 +780,7 @@ public class ServiceInstanceVariablesHandler {
 
     public Node createAssignFromInputToOutputAsNode(final String targetNamespace) throws SAXException, IOException {
         final InputSource is = new InputSource();
-        is.setCharacterStream(new StringReader(this.createAssignFromInputToOutput(targetNamespace)));
+        is.setCharacterStream(new StringReader(createAssignFromInputToOutput(targetNamespace)));
         final Document doc = this.docBuilder.parse(is);
         return doc.getFirstChild();
     }

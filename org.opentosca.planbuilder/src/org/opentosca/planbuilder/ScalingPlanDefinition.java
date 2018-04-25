@@ -147,6 +147,8 @@ public class ScalingPlanDefinition {
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPENDSON, sinkNodes);
             ModelUtils.getNodesFromNodeToSink(nodeTemplate, ModelUtils.TOSCABASETYPE_DEPLOYEDON, sinkNodes);
 
+            sinkNodes.remove(nodeTemplate);
+
             final List<AbstractRelationshipTemplate> outgoing =
                 ModelUtils.getOutgoingRelations(nodeTemplate, ModelUtils.TOSCABASETYPE_HOSTEDON,
                                                 ModelUtils.TOSCABASETYPE_DEPENDSON,

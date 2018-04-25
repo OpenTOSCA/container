@@ -26,6 +26,7 @@ import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -65,7 +66,8 @@ public class NodeTemplateInstanceController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceDTO.class,
                   responseContainer = "List")
-    public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states) {
+    public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
+                                             @QueryParam(value = "source") final List<Long> relationIds) {
         final QName nodeTemplateQName =
             new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.nodetemplate);
         final Collection<NodeTemplateInstance> nodeInstances =
@@ -79,6 +81,16 @@ public class NodeTemplateInstanceController {
                 // skip this node instance, as it not has the proper state
                 continue;
             }
+
+            if (relationIds != null && !relationIds.isEmpty()) {
+                for (final RelationshipTemplateInstance relInstance : i.getOutgoingRelations()) {
+                    if (!relationIds.contains(relInstance.getId())) {
+                        // skip this node instance, as it is no source of the given relation
+                        continue;
+                    }
+                }
+            }
+
             final NodeTemplateInstanceDTO dto = NodeTemplateInstanceDTO.Converter.convert(i);
             dto.add(UriUtil.generateSubResourceLink(this.uriInfo, dto.getId().toString(), false, "self"));
 
