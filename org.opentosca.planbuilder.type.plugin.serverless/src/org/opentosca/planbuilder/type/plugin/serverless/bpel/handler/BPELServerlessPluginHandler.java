@@ -43,6 +43,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
     private final BPELInvokerPlugin invokerOpPlugin = new BPELInvokerPlugin();
 
+    // parameter to map
     private final static String[] createFunctionInstanceExternalInputParams = { "FunctionName", "Runtime" };
     private final static String[] createHttpEventInstanceExternalInputParams = { "FunctionName", "EventName", "APIID",
 	    "ResourceID", "FunctionURI", "HTTPMethod", "CreateHTTPEvent", "AuthorizationType" };
@@ -71,13 +72,15 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    // get Filename of the DeploymentArtifact (remove namespace etc.)
 	    final String daName = FunctionURL.substring(FunctionURL.lastIndexOf("/") + 1);
 
-	    // establish a connection and get the DA
 	    HttpURLConnection connection = null;
 
+	    // open the connection
 	    connection = (HttpURLConnection) url.openConnection();
 
+	    // GET as we want to download the DeploymentArtifact
 	    connection.setRequestMethod("GET");
 
+	    // DeploymentArtifact is in a ZIP format (Zip Serverless Function)
 	    connection.setRequestProperty("Content-Type", "application/zip");
 
 	    InputStream is = null;
@@ -93,6 +96,8 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 	    out.close();
 
+	    // for OpenWhisk especially: OpenWhisk deploys zip-packaged functions as a
+	    // base64 encoded string of the file
 	    functionCode = encodeFileToBase64Binary(daName);
 	    LOG.debug("Functioncode is here: " + functionCode);
 
@@ -109,9 +114,11 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
      */
     public String getFunctionUrl(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
+	// get DeploymentArtifact of the serverlessFunction nodeTemplate
 	final String ArtifactTemplate = nodeTemplate.getDeploymentArtifacts().get(0).getArtifactRef()
 		.getArtifactReferences().get(0).getReference();
 	LOG.debug("Found Serverless Function with following deployment artifact: " + ArtifactTemplate);
+	// get CSAR name to build-up the URL to the DeploymentArtifact
 	final String csarName = context.getCSARFileName();
 	// this is a bit hacky
 	final String URL = "http://localhost:1337/csars/" + csarName + "/content/" + ArtifactTemplate;
@@ -189,17 +196,41 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
-
+	// do nothing here when ServerlessFunction nodeType is hosted on an unknown
+	// ServerlessPlatform nodeType
 	return true;
     }
 
+    /*
+     * this method handles the invocation of the deployment of a ServerlessFunction
+     * nodeTemplate
+     *
+     * @param context: the respective BPELPlanContext of the ServiceTemplate
+     *
+     * @param nodeTemplate: the nodeTemplate of the ServerlessFunction nodeType
+     * which should be handled
+     */
     public void handleFunctionDeploymentInvocation(final BPELPlanContext context,
 	    final AbstractNodeTemplate nodeTemplate) {
+
+	// create a global variable for the URL of the DeploymentArtifact to downlaod
+	// the zip-packaged serverless function
 	final Variable functionUrlVar = context.createGlobalStringVariable("FunctionURL",
 		getFunctionUrl(context, nodeTemplate));
 
+	/*
+	 * create a global variable for the Base64 encoded functioncode of the
+	 * zip-packaged serverless function
+	 */
+
 	final Variable functionCodeVar = context.createGlobalStringVariable("FunctionCode",
 		getFunctionCode(getFunctionUrl(context, nodeTemplate)));
+
+	/*
+	 * wrap the properties of a ServerlessFunction nodeTemplate which are later
+	 * mapped onto the input parameters of the management operations of the
+	 * underlying ServerlessPlatform nodeTempalte
+	 */
 
 	Variable functionNamePropWrapper = null;
 
@@ -218,7 +249,6 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (functionNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Serverless Node doesn't have FunctionName property, altough it has the proper NodeType");
-	    // return false;
 	}
 
 	Variable runtimePropWrapper = null;
@@ -237,9 +267,9 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (runtimePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Serverless Node doesn't have Runtime property, altough it has the proper NodeType");
-	    // return false;
 	}
 
+	// add plan callback adress to plan input message
 	LOG.debug("Adding plan callback address field to plan input");
 	context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
@@ -247,14 +277,19 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	LOG.debug("Adding csarEntryPoint field to plan input");
 	context.addStringValueToPlanRequest("csarEntrypoint");
 
+	// create hashmaps for the mapping of the parameters
 	final Map<String, Variable> createFunctionInternalExternalPropsInput = new HashMap<>();
 	final Map<String, Variable> createFunctionInternalExternalPropsOutput = new HashMap<>();
 
+	/*
+	 * iterate over every neccesary parameter to map onto the input parameters of
+	 * the management operations of the underlying ServerlessPlatform nodeTemplate
+	 */
+
 	for (final String externalParameter : BPELServerlessPluginHandler.createFunctionInstanceExternalInputParams) {
-	    // find variable for input param
 
 	    LOG.debug("External parameter to map is: " + externalParameter);
-
+	    // find variable for input param
 	    Variable variable = context.getPropertyVariable(nodeTemplate, externalParameter);
 
 	    if (variable == null) {
@@ -275,10 +310,12 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    } else {
 		createFunctionInternalExternalPropsInput.put(externalParameter, variable);
 	    }
+	    // add function url and function code
 	    createFunctionInternalExternalPropsInput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONURL,
 		    functionUrlVar);
 	    createFunctionInternalExternalPropsInput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONCODE,
 		    functionCodeVar);
+	    // add the found properties of the ServerlessFunction nodeTemplate
 	    createFunctionInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONNAME,
 		    functionNamePropWrapper);
 	    createFunctionInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RUNTIME,
@@ -290,6 +327,10 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 	}
 	LOG.debug("Now it should invoke serverless function deployment");
+	/*
+	 * invoke the operation to deploy a function on the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYFUNCTION,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS, "planCallbackAddress_invoker",
@@ -298,8 +339,24 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
     }
 
+    /*
+     * this method handles the invocation of the deployment of a http event
+     * nodeTemplate
+     *
+     * @param context: the respective BPELPlanContext of the ServiceTemplate
+     *
+     * @param nodeTemplate: the nodeTemplate of the HTTPEvent nodeType which should
+     * be handled
+     */
     public void handleHttpEventDeploymentInvocation(final BPELPlanContext context,
 	    final AbstractNodeTemplate nodeTemplate, final AbstractRelationshipTemplate eventCon) {
+
+	/*
+	 * wrap the properties of a HTTPEvent nodeTemplate which are later mapped onto
+	 * the input parameters of the management operations of the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
+
 	Variable toTriggerFunctionNamePropWrapper = null;
 
 	for (final String functionName : org.opentosca.container.core.tosca.convention.Utils
@@ -322,7 +379,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 			if (toTriggerFunctionNamePropWrapper == null) {
 			    BPELServerlessPluginHandler.LOG.warn("Serverless Function to be triggered is not defined");
-			    // return false;
+
 			}
 
 		    }
@@ -462,6 +519,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		    .warn("HTTP EVENT Node doesn't have FunctionURI property, altough it has the proper NodeType");
 	    // return false;
 	}
+	// add plan callback address to plan input message
 	LOG.debug("Adding plan callback address field to plan input");
 	context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
@@ -472,11 +530,16 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	final Map<String, Variable> createHttpEventInternalExternalPropsInput = new HashMap<>();
 	final Map<String, Variable> createHttpEventInternalExternalPropsOutput = new HashMap<>();
 
+	/*
+	 * iterate over every neccesary parameter to map onto the input parameters of
+	 * the management operations of the underlying ServerlessPlatform nodeTemplate
+	 */
 	for (final String externalParameter : BPELServerlessPluginHandler.createHttpEventInstanceExternalInputParams) {
 
 	    LOG.debug("External parameter to map is: " + externalParameter);
 	    Variable variable = null;
 
+	    // get the name of the serverless function to connect the trigger with
 	    if (!externalParameter.equals("FunctionName")) {
 		variable = context.getPropertyVariable(eventCon.getSource(), externalParameter);
 
@@ -487,6 +550,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		    BPELServerlessPluginHandler.LOG.debug("Found property variable " + externalParameter);
 		}
 	    } else {
+		// handle the other properties
 		variable = context.getPropertyVariable(nodeTemplate, externalParameter);
 		if (variable == null) {
 		    variable = context.getPropertyVariable(externalParameter, true);
@@ -505,6 +569,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    } else {
 		createHttpEventInternalExternalPropsInput.put(externalParameter, variable);
 	    }
+	    // add the found properties of the HttpEvent nodeTemplate
 	    createHttpEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTNAME,
 		    eventNamePropWrapper);
 	    createHttpEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_APIID,
@@ -520,6 +585,10 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    createHttpEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_AUTHTYPE,
 		    authTypePropWrapper);
 	}
+	/*
+	 * invoke the operation to deploy a function on the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYHTTPEVENT,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS, "planCallbackAddress_invoker",
@@ -527,8 +596,23 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	LOG.debug("Invocation of deployment of http event was successful!");
     }
 
+    /*
+     * this method handles the invocation of the deployment of a timer event
+     * nodeTemplate
+     *
+     * @param context: the respective BPELPlanContext of the ServiceTemplate
+     *
+     * @param nodeTemplate: the nodeTemplate of the TimerEvent nodeType which should
+     * be handled
+     */
     public void handleTimerEventDeploymentInvocation(final BPELPlanContext context,
 	    final AbstractNodeTemplate nodeTemplate, final AbstractRelationshipTemplate eventCon) {
+
+	/*
+	 * wrap the properties of a TimerEvent nodeTemplate which are later mapped onto
+	 * the input parameters of the management operations of the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	Variable toTriggerFunctionNamePropWrapper = null;
 
 	for (final String functionName : org.opentosca.container.core.tosca.convention.Utils
@@ -551,7 +635,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 			if (toTriggerFunctionNamePropWrapper == null) {
 			    BPELServerlessPluginHandler.LOG.warn("Serverless Function to be triggered is not defined");
-			    // return false;
+
 			}
 
 		    }
@@ -575,7 +659,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (eventNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Timer EVENT Node doesn't have EventName property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable cronPropWrapper = null;
@@ -593,9 +677,9 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (cronPropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Timer EVENT Node doesn't have CRON property, altough it has the proper NodeType");
-	    // return false;
-	}
 
+	}
+	// add plan callback address field to input message
 	LOG.debug("Adding plan callback address field to plan input");
 	context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
@@ -606,12 +690,16 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	final Map<String, Variable> createTimerEventInternalExternalPropsInput = new HashMap<>();
 	final Map<String, Variable> createTimerEventInternalExternalPropsOutput = new HashMap<>();
 
+	/*
+	 * iterate over every neccesary parameter to map onto the input parameters of
+	 * the management operations of the underlying ServerlessPlatform nodeTemplate
+	 */
 	for (final String externalParameter : BPELServerlessPluginHandler.createTimerEventInstanceExternalInputParams) {
 	    // find variable for input param
 
 	    LOG.debug("External parameter to map is: " + externalParameter);
 	    Variable variable = null;
-
+	    // get the name of the serverless function to connect the trigger with
 	    if (!externalParameter.equals("FunctionName")) {
 		variable = context.getPropertyVariable(eventCon.getSource(), externalParameter);
 
@@ -621,6 +709,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		} else {
 		    BPELServerlessPluginHandler.LOG.debug("Found property variable " + externalParameter);
 		}
+		// handle the other properties
 	    } else {
 		variable = context.getPropertyVariable(nodeTemplate, externalParameter);
 		if (variable == null) {
@@ -639,25 +728,42 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    } else {
 		createTimerEventInternalExternalPropsInput.put(externalParameter, variable);
 	    }
+	    // add the found properties of the TimerEvent nodeTemplate
 	    createTimerEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_FUNCTIONNAME,
 		    toTriggerFunctionNamePropWrapper);
 	    createTimerEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTNAME,
 		    eventNamePropWrapper);
 	    createTimerEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CRON,
 		    cronPropWrapper);
-
 	}
+	/*
+	 * invoke the operation to deploy a function on the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYTIMEREVENT,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS, "planCallbackAddress_invoker",
 		createTimerEventInternalExternalPropsInput, createTimerEventInternalExternalPropsOutput, false);
 	LOG.debug("Invocation of deployment of timer event was successful!");
-	// return true;
     }
 
+    /*
+     * this method handles the invocation of the deployment of a database event
+     * nodeTemplate
+     *
+     * @param context: the respective BPELPlanContext of the ServiceTemplate
+     *
+     * @param nodeTemplate: the nodeTemplate of the DatabaseEvent nodeType which
+     * should be handled
+     */
     public void handleDatabaseEventDeploymentInvocation(final BPELPlanContext context,
 	    final AbstractNodeTemplate nodeTemplate, final AbstractRelationshipTemplate eventCon) {
 
+	/*
+	 * wrap the properties of a DatabaseEvent nodeTemplate which are later mapped
+	 * onto the input parameters of the management operations of the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	Variable toTriggerFunctionNamePropWrapper = null;
 
 	for (final String functionName : org.opentosca.container.core.tosca.convention.Utils
@@ -680,7 +786,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 			if (toTriggerFunctionNamePropWrapper == null) {
 			    BPELServerlessPluginHandler.LOG.warn("Serverless Function to be triggered is not defined");
-			    // return false;
+
 			}
 
 		    }
@@ -704,7 +810,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (eventNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Database EVENT Node doesn't have EventName property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable databaseNamePropWrapper = null;
@@ -723,7 +829,6 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (databaseNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Database EVENT Node doesn't have Databasename property, altough it has the proper NodeType");
-	    // return false;
 	}
 
 	Variable databaseHostPropWrapper = null;
@@ -742,7 +847,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (databaseHostPropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Database EVENT Node doesn't have DatabaseHostURL property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable databaseUserPropWrapper = null;
@@ -761,7 +866,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (databaseUserPropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Database EVENT Node doesn't have Database User property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable databasePwPropWrapper = null;
@@ -780,7 +885,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (databasePwPropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Database EVENT Node doesn't have Database Password property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable typeOfChangePropWrapper = null;
@@ -799,7 +904,6 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (typeOfChangePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Database EVENT Node doesn't have Type of change property, altough it has the proper NodeType");
-	    // return false;
 	}
 
 	Variable startPosPropWrapper = null;
@@ -818,9 +922,9 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (startPosPropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Database EVENT Node doesn't have starting position property, altough it has the proper NodeType");
-	    // return false;
-	}
 
+	}
+	// add plan callback address to plan input message
 	LOG.debug("Adding plan callback address field to plan input");
 	context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
@@ -835,7 +939,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 	    LOG.debug("External parameter to map is: " + externalParameter);
 	    Variable variable = null;
-
+	    // get the name of the serverless function to connect the trigger with
 	    if (!externalParameter.equals("FunctionName")) {
 		variable = context.getPropertyVariable(eventCon.getSource(), externalParameter);
 
@@ -846,6 +950,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		    BPELServerlessPluginHandler.LOG.debug("Found property variable " + externalParameter);
 		}
 	    } else {
+		// handle the other properties
 		variable = context.getPropertyVariable(nodeTemplate, externalParameter);
 		if (variable == null) {
 		    variable = context.getPropertyVariable(externalParameter, true);
@@ -864,6 +969,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    } else {
 		createDatabaseEventInternalExternalPropsInput.put(externalParameter, variable);
 	    }
+	    // add the found properties of the DatabaseEvent nodeTemplate
 	    createDatabaseEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTNAME,
 		    eventNamePropWrapper);
 	    createDatabaseEventInternalExternalPropsOutput
@@ -879,18 +985,34 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    createDatabaseEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_STARTPOS,
 		    startPosPropWrapper);
 	}
+	/*
+	 * invoke the operation to deploy a function on the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYDATABASEEVENT,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS, "planCallbackAddress_invoker",
 		createDatabaseEventInternalExternalPropsInput, createDatabaseEventInternalExternalPropsOutput, false);
 	LOG.debug("Invocation of deployment of databae event was successful!");
-	// return true;
     }
 
+    /*
+     * this method handles the invocation of the deployment of a database event
+     * nodeTemplate
+     *
+     * @param context: the respective BPELPlanContext of the ServiceTemplate
+     *
+     * @param nodeTemplate: the nodeTemplate of the BloblstorageEvent nodeType which
+     * should be handled
+     */
     public void handleBlobstorageEventDeploymentInvocation(final BPELPlanContext context,
 	    final AbstractNodeTemplate nodeTemplate, final AbstractRelationshipTemplate eventCon) {
 
-	handleBlobstorageEventDeploymentInvocation(context, nodeTemplate, eventCon);
+	/*
+	 * wrap the properties of a BloblstorageEvent nodeTemplate which are later
+	 * mapped onto the input parameters of the management operations of the
+	 * underlying ServerlessPlatform nodeTempalte
+	 */
 
 	Variable toTriggerFunctionNamePropWrapper = null;
 
@@ -914,7 +1036,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 			if (toTriggerFunctionNamePropWrapper == null) {
 			    BPELServerlessPluginHandler.LOG.warn("Serverless Function to be triggered is not defined");
-			    // return false;
+
 			}
 
 		    }
@@ -938,7 +1060,6 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (eventNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("Blobstorage EVENT Node doesn't have EventName property, altough it has the proper NodeType");
-	    // return false;
 	}
 
 	Variable bucketNamePropWrapper = null;
@@ -957,7 +1078,6 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (bucketNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Blobstorage EVENT Node doesn't have Bucket Name property, altough it has the proper NodeType");
-	    // return false;
 	}
 
 	Variable eventTypePropWrapper = null;
@@ -976,9 +1096,10 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (eventTypePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "Blobstorage EVENT Node doesn't have event type property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
+	// add plan callback address to plan input message
 	LOG.debug("Adding plan callback address field to plan input");
 	context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
@@ -993,7 +1114,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    // find variable for input param
 	    LOG.debug("External parameter to map is: " + externalParameter);
 	    Variable variable = null;
-
+	    // get the name of the serverless function to connect the trigger with
 	    if (!externalParameter.equals("FunctionName")) {
 		variable = context.getPropertyVariable(eventCon.getSource(), externalParameter);
 
@@ -1004,6 +1125,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		    BPELServerlessPluginHandler.LOG.debug("Found property variable " + externalParameter);
 		}
 	    } else {
+		// handle the other properties
 		variable = context.getPropertyVariable(nodeTemplate, externalParameter);
 		if (variable == null) {
 		    variable = context.getPropertyVariable(externalParameter, true);
@@ -1022,6 +1144,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    } else {
 		createBlobstorageEventInternalExternalPropsInput.put(externalParameter, variable);
 	    }
+	    // add the found properties of the BlobstorageEvent nodeTemplate
 	    createBlobstorageEventInternalExternalPropsOutput
 		    .put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTNAME, eventNamePropWrapper);
 	    createBlobstorageEventInternalExternalPropsOutput
@@ -1029,18 +1152,35 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    createBlobstorageEventInternalExternalPropsOutput
 		    .put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTTYPE, eventTypePropWrapper);
 	}
+	/*
+	 * invoke the operation to deploy a function on the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYBLOBSTORAGEEVENT,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS, "planCallbackAddress_invoker",
 		createBlobstorageEventInternalExternalPropsInput, createBlobstorageEventInternalExternalPropsOutput,
 		false);
 	LOG.debug("Invocation of deployment of blobstorage event was successful!");
-	// return true;
     }
 
+    /*
+     * this method handles the invocation of the deployment of a database event
+     * nodeTemplate
+     *
+     * @param context: the respective BPELPlanContext of the ServiceTemplate
+     *
+     * @param nodeTemplate: the nodeTemplate of the PubSubEvent nodeType which
+     * should be handled
+     */
     public void handlePubSubEventDeploymentInvocation(final BPELPlanContext context,
 	    final AbstractNodeTemplate nodeTemplate, final AbstractRelationshipTemplate eventCon) {
 
+	/*
+	 * wrap the properties of a BloblstorageEvent nodeTemplate which are later
+	 * mapped onto the input parameters of the management operations of the
+	 * underlying ServerlessPlatform nodeTempalte
+	 */
 	Variable toTriggerFunctionNamePropWrapper = null;
 
 	for (final String functionName : org.opentosca.container.core.tosca.convention.Utils
@@ -1063,7 +1203,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 			if (toTriggerFunctionNamePropWrapper == null) {
 			    BPELServerlessPluginHandler.LOG.warn("Serverless Function to be triggered is not defined");
-			    // return false;
+
 			}
 
 		    }
@@ -1087,7 +1227,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (eventNamePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("PubSub EVENT Node doesn't have EventName property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable topicPropWrapper = null;
@@ -1106,7 +1246,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (topicPropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG
 		    .warn("PubSub EVENT Node doesn't have Topic property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
 	Variable messageHubInstancePropWrapper = null;
@@ -1125,9 +1265,10 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	if (messageHubInstancePropWrapper == null) {
 	    BPELServerlessPluginHandler.LOG.warn(
 		    "PubSub EVENT Node doesn't have MessageHub Instance name property, altough it has the proper NodeType");
-	    // return false;
+
 	}
 
+	// add plan callback address to input message
 	LOG.debug("Adding plan callback address field to plan input");
 	context.addStringValueToPlanRequest("planCallbackAddress_invoker");
 
@@ -1142,7 +1283,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 
 	    LOG.debug("External parameter to map is: " + externalParameter);
 	    Variable variable = null;
-
+	    // get the name of the serverless function to connect the trigger with
 	    if (!externalParameter.equals("FunctionName")) {
 		variable = context.getPropertyVariable(eventCon.getSource(), externalParameter);
 
@@ -1153,6 +1294,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 		    BPELServerlessPluginHandler.LOG.debug("Found property variable " + externalParameter);
 		}
 	    } else {
+		// handle other properties
 		variable = context.getPropertyVariable(nodeTemplate, externalParameter);
 		if (variable == null) {
 		    variable = context.getPropertyVariable(externalParameter, true);
@@ -1171,6 +1313,7 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    } else {
 		createPubSubEventInternalExternalPropsInput.put(externalParameter, variable);
 	    }
+	    // add the found properties of the PubSubEvent nodeTemplate
 	    createPubSubEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_EVENTNAME,
 		    eventNamePropWrapper);
 	    createPubSubEventInternalExternalPropsOutput.put(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_TOPIC,
@@ -1178,12 +1321,15 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	    createPubSubEventInternalExternalPropsOutput.put(
 		    Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_MESSAGEHUBINSTANCE, messageHubInstancePropWrapper);
 	}
+	/*
+	 * invoke the operation to deploy a function on the underlying
+	 * ServerlessPlatform nodeTempalte
+	 */
 	this.invokerOpPlugin.handle(context, "OpenWhiskPlatform", true,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS_DEPLOYPUBSUBEVENT,
 		Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_SERVERLESS, "planCallbackAddress_invoker",
 		createPubSubEventInternalExternalPropsInput, createPubSubEventInternalExternalPropsOutput, false);
 	LOG.debug("Invocation of deployment of pubsub event was successful!");
-	// return true;
     }
 
     /*
@@ -1199,43 +1345,48 @@ public class BPELServerlessPluginHandler implements ServerlessPluginHandler<BPEL
 	LOG.debug("Found following Serverless Node " + nodeTemplate.getId() + " of Type "
 		+ nodeTemplate.getType().getId().toString());
 
+	// check if the incoming nodeTemplate is of the type of a ServerlessFunction
 	if (nodeTemplate.getType().getId().toString().equals(Types.serverlessFunctionNodeType.toString())) {
 	    LOG.debug("Serverless Function Node found, now check for properties");
-
+	    // call the method to invoke the deployment of the found serverless function
 	    handleFunctionDeploymentInvocation(context, nodeTemplate);
 
+	    // if the serverless function has no connected events, finish here
 	    if (nodeTemplate.getIngoingRelations() == null) {
 		LOG.debug("Serverless Function is not connected with any event, end here!");
 		return true;
 	    }
-
+	    // check if serverless function is connected to any nodeTemplate
 	    for (final AbstractRelationshipTemplate eventCon : nodeTemplate.getOutgoingRelations()) {
+		// check if the serverless function is connected with a supported event
 		if (Utils.isSupportedServerlessEventNodeType(eventCon.getTarget().getType().getId())) {
+		    // check if it is connected to a http event
 		    if (eventCon.getTarget().getType().getId().equals(Types.httpEventNodeType)) {
 			LOG.debug("HTTP EVENT found!");
-
+			// call the method to invoke the deployment of the found http event
 			handleHttpEventDeploymentInvocation(context, nodeTemplate, eventCon);
-
+			// check if it is connected to a timer event
 		    } else if (eventCon.getTarget().getType().getId().equals(Types.timerEventNodeType)) {
-			LOG.debug("Timer EVENT found!");
-
+			LOG.debug("Timer Event found!");
+			// call the method to invoke the deployment of the found timer event
 			handleTimerEventDeploymentInvocation(context, nodeTemplate, eventCon);
-
+			// check if it is connected to a database event
 		    } else if (eventCon.getTarget().getType().getId().equals(Types.databaseEventNodeType)) {
 			LOG.debug("Database Event found!");
-
+			// call the method to invoke the deployment of the found database event
 			handleDatabaseEventDeploymentInvocation(context, nodeTemplate, eventCon);
 
 		    } else if (eventCon.getTarget().getType().getId().equals(Types.blobstorageEventNodeType)) {
-			LOG.debug("blobstorage event found!");
-
+			LOG.debug("Blobstorage Event found!");
+			// call the method to invoke the deployment of the found blobstorage event
 			handleBlobstorageEventDeploymentInvocation(context, nodeTemplate, eventCon);
-
+			// check if it is connected to a blobstorage event
 		    } else if (eventCon.getTarget().getType().getId().equals(Types.pubsubEventNodeType)) {
 			LOG.debug("PubSub Event found");
-
+			// call the method to invoke the deployment of the found pubsub event
 			handlePubSubEventDeploymentInvocation(context, nodeTemplate, eventCon);
 		    } else {
+			// finish here
 			return true;
 		    }
 		}

@@ -63,7 +63,7 @@ public abstract class ServerlessPlugin<T extends PlanContext> implements IPlanBu
     }
 
     /*
-     * (non-Javadoc)
+     * get the ID of the Serverless Plugin
      *
      * @see org.opentosca.planbuilder.plugins.IPlanBuilderPlugin#getID()
      */

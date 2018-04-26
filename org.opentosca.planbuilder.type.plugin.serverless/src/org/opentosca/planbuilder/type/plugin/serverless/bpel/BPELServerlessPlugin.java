@@ -25,10 +25,12 @@ public class BPELServerlessPlugin extends ServerlessPlugin<BPELPlanContext> {
     private final BPELServerlessPluginHandler handler = new BPELServerlessPluginHandler();
 
     /**
-     * {@inheritDoc}
+     * this method checks the incoming nodeTemplates and invokes the respective
+     * method to handle them.
      */
     @Override
     public boolean handle(final BPELPlanContext templateContext) {
+
 	final AbstractNodeTemplate nodeTemplate = templateContext.getNodeTemplate();
 	if (nodeTemplate == null) {
 	    return false;
@@ -38,15 +40,23 @@ public class BPELServerlessPlugin extends ServerlessPlugin<BPELPlanContext> {
 
 	BPELServerlessPlugin.LOG.debug("Checking if nodeTemplate " + nodeTemplate.getId() + " can be handled");
 
+	// check if the nodeTemplate is of ServerlessFunction nodeType
 	if (Utils.isSupportedServerlessFunctionNodeType(nodeTemplate.getType().getId())) {
 	    LOG.debug("Serverless Function found!");
+	    // get all outgoing relationshipTemplates
 	    for (final AbstractRelationshipTemplate hostedRelation : nodeTemplate.getOutgoingRelations()) {
+		// check if the ServerlessFunction nodeType is hosted on a supported
+		// serverlessPlatform nodeType
 		if (Utils.isSupportedServerlessPlatformNodeType(hostedRelation.getTarget().getType().getId())) {
 		    LOG.debug("Serverless Function is hosted on: " + hostedRelation.getTarget().getName());
+		    // call the handler for a ServerlessFunction nodeTemplate which is hosted on a
+		    // supported ServerlessPlatform nodeTemplate
 		    return this.handler.handleWithServerlessInterface(templateContext, nodeTemplate);
 		} else {
+		    // ServerlessFunction NodeTemplate is hosted on an unknown nodeTemplate
 		    LOG.debug("Serverless Function is hosted on unknown Serverless Platform: "
-			    + hostedRelation.getTarget() + ". Please add it to the Properties Class to get support.");
+			    + hostedRelation.getTarget()
+			    + ". Please add it to the Properties Class and the isSupportedServerlessPlatformNodeType list to get support.");
 		    return this.handler.handle(templateContext, nodeTemplate);
 		}
 	    }

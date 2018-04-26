@@ -5,6 +5,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
 /**
+ * This class is the interface for the BPELServerlessPluginHandler.
  *
  * @author Tobias Mathony - mathony.tobias@gmail.com
  *
