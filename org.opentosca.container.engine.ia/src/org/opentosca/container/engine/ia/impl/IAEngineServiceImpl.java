@@ -100,7 +100,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
         IAEngineServiceImpl.LOG.debug("Deploying NodeType: {} of CSAR: {} ...", nodeTypeID, csarID.getFileName());
 
-        for (final QName nodeTypeHierarchyMember : this.toscaEngineService.getNodeTypeHierachy(csarID, nodeTypeID)) {
+        for (final QName nodeTypeHierarchyMember : this.toscaEngineService.getNodeTypeHierarchy(csarID, nodeTypeID)) {
 
             final List<QName> nodeTypeImplementationIDs =
                 this.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeHierarchyMember);

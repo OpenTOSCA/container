@@ -2,7 +2,7 @@ package org.opentosca.container.core.engine.impl.resolver;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.engine.impl.ToscaEngineServiceImpl;
+import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.model.Definitions;
@@ -30,17 +30,22 @@ public class NodeTypeImplementationResolver extends GenericResolver {
 
     private final CSARID csarID;
 
+    private final ToscaReferenceMapper toscaReferenceMapper;
+
 
     /**
      * Instantiate an object of the Resolver to resolve references inside of NodeTypeImplementations.
      * This constructor sets the ReferenceMapper which searches for references.
      *
      * @param referenceMapper
+     * @param toscaReferenceMapper the toscaReferenceMapper to store information in
      * @param csarID
      */
-    public NodeTypeImplementationResolver(final ReferenceMapper referenceMapper, final CSARID csarID) {
+    public NodeTypeImplementationResolver(final ReferenceMapper referenceMapper,
+                                          ToscaReferenceMapper toscaReferenceMapper, final CSARID csarID) {
         super(referenceMapper);
         this.csarID = csarID;
+        this.toscaReferenceMapper = toscaReferenceMapper;
     }
 
     /**
@@ -72,8 +77,8 @@ public class NodeTypeImplementationResolver extends GenericResolver {
                     + nodeTypeImplementation.getName() + "\".");
 
                 // is the NodeType known
-                if (!ToscaEngineServiceImpl.toscaReferenceMapper.containsReferenceInsideCSAR(this.csarID,
-                                                                                             nodeTypeImplementation.getNodeType())) {
+                if (!toscaReferenceMapper.containsReferenceInsideCSAR(this.csarID,
+                                                                      nodeTypeImplementation.getNodeType())) {
                     this.LOG.error("The NodeTypeImplementation \"" + targetNamespace + ":"
                         + nodeTypeImplementation.getName() + "\" refers to the NodeType \""
                         + nodeTypeImplementation.getNodeType() + "\" which was not found.");

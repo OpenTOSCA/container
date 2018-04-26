@@ -1,5 +1,6 @@
 package org.opentosca.container.core.engine.impl.consolidation;
 
+import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +15,13 @@ public class DefinitionsConsolidation {
 
     private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
 
-    private final ExportedInterfacesConsolidation exportedInterfacesConsolidation =
-        new ExportedInterfacesConsolidation();
-    private final PolicyConsolidation policyConsolidation = new PolicyConsolidation();
+    private final ExportedInterfacesConsolidation exportedInterfacesConsolidation;
+    private final PolicyConsolidation policyConsolidation;
+
+    public DefinitionsConsolidation(ToscaReferenceMapper referenceMapper) {
+        exportedInterfacesConsolidation = new ExportedInterfacesConsolidation(referenceMapper);
+        policyConsolidation = new PolicyConsolidation(referenceMapper);
+    }
 
 
     /**

@@ -19,7 +19,7 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.impl.PathResolver;
 import org.opentosca.container.core.engine.impl.ServiceHandler;
-import org.opentosca.container.core.engine.impl.ToscaEngineServiceImpl;
+import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -50,26 +50,20 @@ public class DefinitionsResolver {
     private CSARContent csarContent = null;
 
     // list documents which are processed
-    private LinkedList<Document> listOfTOSCA = null;
-    private LinkedList<Definitions> listOfTOSCADefinitions = null;
-    private LinkedList<Document> listOfXML = null;
-    private LinkedList<Document> listOfWSDL = null;
-    private Map<String, List<Document>> mapOfNSToDocuments = null;
+    private LinkedList<Document> listOfTOSCA = new LinkedList<>();
+    private LinkedList<Definitions> listOfTOSCADefinitions = new LinkedList<>();
+    private LinkedList<Document> listOfXML = new LinkedList<>();
+    private LinkedList<Document> listOfWSDL = new LinkedList<>();
+    private Map<String, List<Document>> mapOfNSToDocuments = new HashMap<>();
 
     // list of TOSCA documents which imports are not processed
-    private LinkedList<AbstractFile> listOfNewlyImportedDocuments = null;
-    private Set<AbstractFile> alreadyImportedDocuments = null;
+    private LinkedList<AbstractFile> listOfNewlyImportedDocuments = new LinkedList<>();
+    private Set<AbstractFile> alreadyImportedDocuments = new HashSet<>();
 
-
-    private void init() {
-        this.csarContent = null;
-        this.listOfTOSCA = new LinkedList<>();
-        this.listOfTOSCADefinitions = new LinkedList<>();
-        this.listOfXML = new LinkedList<>();
-        this.listOfWSDL = new LinkedList<>();
-        this.mapOfNSToDocuments = new HashMap<>();
-        this.listOfNewlyImportedDocuments = new LinkedList<>();
-        this.alreadyImportedDocuments = new HashSet<>();
+    private final ToscaReferenceMapper toscaReferenceMapper;
+    
+    public DefinitionsResolver(ToscaReferenceMapper referenceMapper) {
+        this.toscaReferenceMapper = referenceMapper;
     }
 
     /**
@@ -83,8 +77,6 @@ public class DefinitionsResolver {
 
         this.LOG.info("Start resolving of the CSAR \"" + csarID.getFileName() + "\".");
 
-        this.init();
-
         // first of all search all documents
         boolean errorOccured = !this.resolveImports(csarID);
         if (errorOccured) {
@@ -92,19 +84,19 @@ public class DefinitionsResolver {
             return false;
         }
 
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeListOfWSDLForCSAR(csarID, this.listOfWSDL);
+        this.toscaReferenceMapper.storeListOfWSDLForCSAR(csarID, this.listOfWSDL);
 
         // if no error occurred, start the resolving of references
         this.LOG.info("All import elements are resolvable, now starting the resolving.");
 
         // initialize all needed resolver
-        final ReferenceMapper referenceMapper = new ReferenceMapper(csarID, this.mapOfNSToDocuments);
+        final ReferenceMapper referenceMapper = new ReferenceMapper(csarID, this.mapOfNSToDocuments, toscaReferenceMapper);
         final ExtensionsResolver extensionResolver = new ExtensionsResolver(referenceMapper);
         final TypesResolver typesResolver = new TypesResolver(referenceMapper);
-        final ServiceTemplateResolver serviceTemplateResolver = new ServiceTemplateResolver(referenceMapper);
+        final ServiceTemplateResolver serviceTemplateResolver = new ServiceTemplateResolver(referenceMapper, toscaReferenceMapper);
         final NodeTypeResolver nodeTypeResolver = new NodeTypeResolver(referenceMapper);
         final NodeTypeImplementationResolver nodeTypeImplementationResolver =
-            new NodeTypeImplementationResolver(referenceMapper, csarID);
+            new NodeTypeImplementationResolver(referenceMapper, toscaReferenceMapper, csarID);
         final CapabilityTypeResolver capabilityTypeResolver = new CapabilityTypeResolver(referenceMapper);
         final RequirementTypeResolver requirementTypeResolver = new RequirementTypeResolver(referenceMapper);
         final RelationshipTypeResolver relationshipTypeResolver = new RelationshipTypeResolver(referenceMapper);
@@ -118,23 +110,23 @@ public class DefinitionsResolver {
         // resolve each Definitions content
         for (final Definitions definitionsToResolve : this.listOfTOSCADefinitions) {
 
-            ToscaEngineServiceImpl.toscaReferenceMapper.storeDefinitions(csarID, definitionsToResolve);
+            this.toscaReferenceMapper.storeDefinitions(csarID, definitionsToResolve);
             this.LOG.info("Start to resolve the Definitions \"{" + definitionsToResolve.getTargetNamespace() + "}"
                 + definitionsToResolve.getId() + "\".");
 
-            errorOccured = errorOccured || extensionResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || typesResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || serviceTemplateResolver.resolve(definitionsToResolve, csarID);
-            errorOccured = errorOccured || nodeTypeResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || nodeTypeImplementationResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || relationshipTypeResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || relationshipTypeImplementationResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || requirementTypeResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || capabilityTypeResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || artifactTypeResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || artifactTemplateResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || policyTypeResolver.resolve(definitionsToResolve);
-            errorOccured = errorOccured || policyTemplateResolver.resolve(definitionsToResolve);
+            errorOccured |= extensionResolver.resolve(definitionsToResolve);
+            errorOccured |= typesResolver.resolve(definitionsToResolve);
+            errorOccured |= serviceTemplateResolver.resolve(definitionsToResolve, csarID);
+            errorOccured |= nodeTypeResolver.resolve(definitionsToResolve);
+            errorOccured |= nodeTypeImplementationResolver.resolve(definitionsToResolve);
+            errorOccured |= relationshipTypeResolver.resolve(definitionsToResolve);
+            errorOccured |= relationshipTypeImplementationResolver.resolve(definitionsToResolve);
+            errorOccured |= requirementTypeResolver.resolve(definitionsToResolve);
+            errorOccured |= capabilityTypeResolver.resolve(definitionsToResolve);
+            errorOccured |= artifactTypeResolver.resolve(definitionsToResolve);
+            errorOccured |= artifactTemplateResolver.resolve(definitionsToResolve);
+            errorOccured |= policyTypeResolver.resolve(definitionsToResolve);
+            errorOccured |= policyTemplateResolver.resolve(definitionsToResolve);
 
         }
 
@@ -143,7 +135,7 @@ public class DefinitionsResolver {
         if (errorOccured) {
             this.LOG.error("Resolving of the CSAR \"" + csarID.getFileName() + "\" was not successfull!");
             this.LOG.debug("Deleting stored references.");
-            ToscaEngineServiceImpl.toscaReferenceMapper.clearCSARContent(csarID);
+            this.toscaReferenceMapper.clearCSARContent(csarID);
             return false;
         }
 
@@ -254,7 +246,7 @@ public class DefinitionsResolver {
 
                 final QName defID = new QName(def.getTargetNamespace(), def.getId());
                 final String loc = file.getPath();
-                ToscaEngineServiceImpl.toscaReferenceMapper.storeDefinitionsLocation(csarID, defID, loc);
+                toscaReferenceMapper.storeDefinitionsLocation(csarID, defID, loc);
 
                 // resolve the imports of the TOSCA
                 for (final TImport imp : def.getImport()) {
@@ -265,16 +257,6 @@ public class DefinitionsResolver {
                         this.LOG.error("One import has no or an empty location attribute.");
                         return false;
                     }
-
-                    // try {
-                    // location = URLDecoder.decode(location, "UTF-8");
-                    // } catch (UnsupportedEncodingException e1) {
-                    // this.LOG.error("The decoding of the location attribute of
-                    // an import failed: {}",
-                    // e1.getLocalizedMessage());
-                    // e1.printStackTrace();
-                    // continue;
-                    // }
 
                     final String location =
                         PathResolver.resolveRelativePath(file.getPath(), oldLocation, this.csarContent);

@@ -32,9 +32,6 @@ import org.w3c.dom.NodeList;
  * @author endrescn@fachschaft.informatik.uni-stuttgart.de
  */
 public class ExportedInterfacesConsolidation {
-
-    ToscaReferenceMapper toscaReferenceMapper = ToscaEngineServiceImpl.toscaReferenceMapper;
-
     /**
      * NamespaceContext
      */
@@ -74,9 +71,11 @@ public class ExportedInterfacesConsolidation {
     };
 
     private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
+    private final ToscaReferenceMapper toscaReferenceMapper;
 
-
-    public ExportedInterfacesConsolidation() {
+    
+    public ExportedInterfacesConsolidation(ToscaReferenceMapper referenceMapper) {
+        this.toscaReferenceMapper = referenceMapper;
         this.xpath.setNamespaceContext(this.nscontext);
     }
 

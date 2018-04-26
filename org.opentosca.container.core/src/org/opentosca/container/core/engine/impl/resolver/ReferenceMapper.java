@@ -13,7 +13,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.engine.impl.ServiceHandler;
-import org.opentosca.container.core.engine.impl.ToscaEngineServiceImpl;
+import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.engine.impl.resolver.data.ReferenceResultWrapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -82,6 +82,7 @@ public class ReferenceMapper {
             return null;
         }
     };
+    private final ToscaReferenceMapper toscaReferenceMapper;
 
 
     /**
@@ -90,11 +91,14 @@ public class ReferenceMapper {
      * @param csarID The identification of the CSAR.
      * @param mapOfNSToDocuments the data structure containing the DOM Documents in which an instance of
      *        this ReferenceMapper searches.
+     * @param toscaReferenceMapper the toscaReferenceMapper to use for storage
      */
-    public ReferenceMapper(final CSARID csarID, final Map<String, List<Document>> mapOfNSToDocuments) {
+    public ReferenceMapper(final CSARID csarID, final Map<String, List<Document>> mapOfNSToDocuments,
+                           ToscaReferenceMapper toscaReferenceMapper) {
         this.csarID = csarID;
         this.mapOfNSToDocuments = mapOfNSToDocuments;
         this.xpath.setNamespaceContext(this.nsContext);
+        this.toscaReferenceMapper = toscaReferenceMapper;
     }
 
     /**
@@ -106,7 +110,7 @@ public class ReferenceMapper {
      */
     public void storeJAXBObjectIntoToscaReferenceMapper(final QName reference, final Object objectToStore) {
         final Node node = ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(objectToStore);
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeReference(this.csarID, reference, node);
+        toscaReferenceMapper.storeReference(this.csarID, reference, node);
     }
 
     /**
@@ -119,7 +123,7 @@ public class ReferenceMapper {
      * @param nodeToStore Node to store.
      */
     private void storeNodeIntoReferenceMapper(final QName nodeReference, final Node nodeToStore) {
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeReference(this.csarID, nodeReference, nodeToStore);
+        toscaReferenceMapper.storeReference(this.csarID, nodeReference, nodeToStore);
     }
 
     /**
@@ -132,7 +136,7 @@ public class ReferenceMapper {
      * @param documentToStore Document to store.
      */
     protected void storeDocumentIntoReferenceMapper(final QName nodeReference, final Document documentToStore) {
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeDocument(this.csarID, nodeReference, documentToStore);
+        toscaReferenceMapper.storeDocument(this.csarID, nodeReference, documentToStore);
     }
 
     /**
@@ -144,7 +148,7 @@ public class ReferenceMapper {
      */
     protected void storeExportedInterface(final CSARID csarID, final QName serviceTemplateID,
                                           final TExportedInterface iface) {
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeExportedInterface(csarID, serviceTemplateID, iface);
+        toscaReferenceMapper.storeExportedInterface(csarID, serviceTemplateID, iface);
     }
 
     /**
@@ -721,24 +725,19 @@ public class ReferenceMapper {
 
     public void storeRelationshipTemplateIDForServiceTemplateAndCSAR(final CSARID csarID, final QName serviceTemplateId,
                                                                      final String id) {
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeRelationshipTemplateIDForServiceTemplateAndCSAR(csarID,
-                                                                                                         serviceTemplateId,
-                                                                                                         id);
+        toscaReferenceMapper.storeRelationshipTemplateIDForServiceTemplateAndCSAR(csarID, serviceTemplateId, id);
     }
 
     public void storeNodeTemplateIDForServiceTemplateAndCSAR(final CSARID csarID, final QName serviceTemplateID,
                                                              final String id) {
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeNodeTemplateIDForServiceTemplateAndCSAR(csarID,
-                                                                                                 serviceTemplateID, id);
+        toscaReferenceMapper.storeNodeTemplateIDForServiceTemplateAndCSAR(csarID, serviceTemplateID, id);
     }
 
     public void storeServiceTemplateBoundsProperties(final CSARID csarID, final QName serviceTemplateID,
                                                      final String propertiesContent,
                                                      final PropertyMappings propertyMappings) {
-        ToscaEngineServiceImpl.toscaReferenceMapper.storeServiceTemplateBoundsPropertiesInformation(csarID,
-                                                                                                    serviceTemplateID,
-                                                                                                    propertiesContent,
-                                                                                                    propertyMappings);
+        toscaReferenceMapper.storeServiceTemplateBoundsPropertiesInformation(csarID, serviceTemplateID,
+                                                                             propertiesContent, propertyMappings);
     }
 }
 

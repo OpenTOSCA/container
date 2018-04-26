@@ -3,7 +3,7 @@ package org.opentosca.container.core.engine.impl.resolver;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.ServiceHandler;
-import org.opentosca.container.core.engine.impl.ToscaEngineServiceImpl;
+import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.model.Definitions;
@@ -40,6 +40,7 @@ import org.w3c.dom.Document;
 public class ServiceTemplateResolver extends GenericResolver {
 
     private final Logger LOG = LoggerFactory.getLogger(ServiceTemplateResolver.class);
+    private final ToscaReferenceMapper toscaReferenceMapper;
 
 
     /**
@@ -47,9 +48,11 @@ public class ServiceTemplateResolver extends GenericResolver {
      * constructor sets the ReferenceMapper which searches for references.
      *
      * @param referenceMapper
+     * @param toscaReferenceMapper the toscaReferenceMapper used to store ServiceTemplateIds
      */
-    public ServiceTemplateResolver(final ReferenceMapper referenceMapper) {
+    public ServiceTemplateResolver(final ReferenceMapper referenceMapper, ToscaReferenceMapper toscaReferenceMapper) {
         super(referenceMapper);
+        this.toscaReferenceMapper = toscaReferenceMapper;
     }
 
     /**
@@ -84,7 +87,7 @@ public class ServiceTemplateResolver extends GenericResolver {
                 this.LOG.debug("Resolve the ServiceTemplate \"" + serviceTemplateID + "\".");
 
                 // store the ServiceTemplate
-                ToscaEngineServiceImpl.toscaReferenceMapper.storeServiceTemplateIDForCSARID(serviceTemplateID, csarID);
+                toscaReferenceMapper.storeServiceTemplateIDForCSARID(serviceTemplateID, csarID);
                 this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(serviceTemplateID, serviceTemplate);
 
                 // resolve the SubstitutableNodeType
@@ -350,11 +353,9 @@ public class ServiceTemplateResolver extends GenericResolver {
         for (final TPlan plan : plans.getPlan()) {
             final QName id = new QName(serviceTemplateID.getNamespaceURI(), plan.getId());
             this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(id, plan);
-            ToscaEngineServiceImpl.toscaReferenceMapper.storePlanIDForCSARAndServiceTemplate(csarID, serviceTemplateID,
-                                                                                             id);
-            ToscaEngineServiceImpl.toscaReferenceMapper.storeContainingDefinitionsID(csarID, id, definitionsID);
-            ToscaEngineServiceImpl.toscaReferenceMapper.storeNamespaceOfPlan(csarID, plan.getId(),
-                                                                             serviceTemplateID.getNamespaceURI());
+            toscaReferenceMapper.storePlanIDForCSARAndServiceTemplate(csarID, serviceTemplateID, id);
+            toscaReferenceMapper.storeContainingDefinitionsID(csarID, id, definitionsID);
+            toscaReferenceMapper.storeNamespaceOfPlan(csarID, plan.getId(), serviceTemplateID.getNamespaceURI());
         }
 
         return false;

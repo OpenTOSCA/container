@@ -355,17 +355,7 @@ public class CSARContent implements IBrowseable {
         final AbstractDirectory definitionsDir = this.getDirectory(this.CSAR_DEFINITIONS_DIR_REL_PATH);
 
         if (definitionsDir != null) {
-
             toscasInDefinitionsDir = definitionsDir.getFilesRecursively();
-
-            // for (AbstractFile fileInDefinitionDir :
-            // definitionsDir.getFilesRecursively()) {
-            // if (this.hasFileExtension(fileInDefinitionDir.getPath(),
-            // this.TOSCA_FILE_EXTENSIONS)) {
-            // toscasInDefinitionsDir.add(fileInDefinitionDir);
-            // }
-            // }
-
         } else {
             CSARContent.LOG.warn("Directory \"{}\" was not found in CSAR \"{}\".", this.CSAR_DEFINITIONS_DIR_REL_PATH,
                                  this.csarID);
@@ -373,27 +363,9 @@ public class CSARContent implements IBrowseable {
 
         CSARContent.LOG.debug("{} TOSCA files were found in directory \"{}\" of CSAR \"{}\".",
                               toscasInDefinitionsDir.size(), this.CSAR_DEFINITIONS_DIR_REL_PATH, this.csarID);
-
         return toscasInDefinitionsDir;
-
     }
-
-    // /**
-    // * @param file
-    // * @param extensions of a file.
-    // * @return {@code true}, if file {@code file} has any of the file
-    // extensions
-    // * {@code extensions}, otherwise {@code false}.
-    // */
-    // private boolean hasFileExtension(String file, String... extensions) {
-    // for (String extension : extensions) {
-    // if (file.toLowerCase().endsWith("." + extension)) {
-    // return true;
-    // }
-    // }
-    // return false;
-    // }
-
+    
     /**
      * @return Root TOSCA file of this CSAR as {@code AbstractFile}.<br />
      *         If no root TOSCA path is specified in the TOSCA meta file (attribute "Entry-Definitions")

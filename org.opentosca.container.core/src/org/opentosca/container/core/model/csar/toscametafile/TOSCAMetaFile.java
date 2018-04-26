@@ -71,10 +71,10 @@ public class TOSCAMetaFile implements Serializable {
     public String getMimeType(final String name) {
         Objects.requireNonNull(name, "Name must not be null");
         for (final Map<String, String> map : this.getFileBlocks()) {
-            final String storedName = map.get("Name");
+            final String storedName = map.get(TOSCAMetaFileAttributes.NAME);
             if (name.equals(storedName)) {
                 // first hit, check whether content-type is stored
-                final String contentType = map.get("Content-Type");
+                final String contentType = map.get(TOSCAMetaFileAttributes.CONTENT_TYPE);
                 if (contentType != null) {
                     // hit - return the found content type
                     return contentType;

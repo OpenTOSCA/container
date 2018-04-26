@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.engine.impl.ToscaEngineServiceImpl;
 import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
@@ -17,9 +16,12 @@ import org.slf4j.LoggerFactory;
 
 public class PolicyConsolidation {
 
-    private final Logger LOG = LoggerFactory.getLogger(ExportedInterfacesConsolidation.class);
-
-    private final ToscaReferenceMapper toscaReferenceMapper = ToscaEngineServiceImpl.toscaReferenceMapper;
+    private final Logger LOG = LoggerFactory.getLogger(PolicyConsolidation.class);
+    private final ToscaReferenceMapper toscaReferenceMapper;
+    
+    public PolicyConsolidation(ToscaReferenceMapper referenceMapper) {
+        this.toscaReferenceMapper = referenceMapper;
+    }
 
 
     /**

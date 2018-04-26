@@ -68,15 +68,6 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
      */
     private final String TOSCA_META_FILE_REL_PATH = Settings.getSetting("toscaMetaFileRelPath");
 
-
-    // /**
-    // * File extension of a CSAR.
-    // *
-    // * @see org.opentosca.settings.Settings
-    // */
-    // private final String CSAR_EXTENSION =
-    // Settings.getSetting("csarExtension");
-
     @Override
     public CSARID storeCSAR(final Path csarFile) throws UserException, SystemException {
 

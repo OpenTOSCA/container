@@ -55,7 +55,7 @@ public interface IToscaEngineService {
      * @param nodeType the QName of a Node Type
      * @return a List of QNames denoting all Node Types inside the type hierarchy of the given Node Type
      */
-    public List<QName> getNodeTypeHierachy(CSARID csarID, QName nodeType);
+    public List<QName> getNodeTypeHierarchy(CSARID csarID, QName nodeType);
 
     /**
      * This method searches inside of certain ServiceTemplate of a CSAR for referenced NodeTypes. It

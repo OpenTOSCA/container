@@ -67,19 +67,17 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
                                                                                DeploymentProcessState.TOSCAPROCESSING_ACTIVE);
 
-        // start the resolving and store the state according to success
         if (OpenToscaControlServiceImpl.toscaEngine.resolveDefinitions(csarID)) {
             this.LOG.info("Processing of the Definitions completed.");
             OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
                                                                                    DeploymentProcessState.TOSCA_PROCESSED);
+            return true;
         } else {
             this.LOG.error("Processing of the Definitions failed!");
             OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
                                                                                    DeploymentProcessState.STORED);
             return false;
         }
-
-        return true;
     }
 
     /**
