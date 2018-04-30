@@ -48,6 +48,14 @@ public class Utils {
         return Utils.loginPasswordPropertyNames;
     }
 
+    public static boolean isSupportedSSHUserPropery(final String name) {
+        return getSupportedVirtualMachineLoginUserNamePropertyNames().contains(name);
+    }
+
+    public static boolean isSupportedSSHKeyProperty(final String name) {
+        return getSupportedVirtualMachineLoginPasswordPropertyNames().contains(name);
+    }
+
     /**
      * Checks whether the given property name represents a special case property: the ip property of an
      * virtual machine

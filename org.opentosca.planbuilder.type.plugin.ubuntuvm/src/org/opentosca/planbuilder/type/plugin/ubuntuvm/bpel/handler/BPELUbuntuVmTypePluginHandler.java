@@ -15,6 +15,7 @@ import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -407,7 +408,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         this.invokerOpPlugin.handle(context, ubuntuNodeTemplate.getId(), true, "start", "InterfaceUbuntu",
                                     "planCallbackAddress_invoker", startRequestInputParams,
-                                    new HashMap<String, Variable>(), false);
+                                    new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
@@ -645,7 +646,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                                     "planCallbackAddress_invoker", createEC2InternalExternalPropsInput,
-                                    createEC2InternalExternalPropsOutput, false);
+                                    createEC2InternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -665,7 +666,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                     "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
-                                    false);
+                                    BPELScopePhaseType.PROVISIONING);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
             if (policy.getType().getId().equals(UbuntuVmTypePlugin.onlyModeledPortsPolicyType)) {
@@ -736,7 +737,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                     "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
-                                    false);
+                                    BPELScopePhaseType.PROVISIONING);
     }
 
     private List<Variable> fetchModeledPortsOfInfrastructure(final BPELPlanContext context,
@@ -935,7 +936,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                                     "planCallbackAddress_invoker", createDEInternalExternalPropsInput,
-                                    createDEInternalExternalPropsOutput, false);
+                                    createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -954,7 +955,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                     "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
-                                    false);
+                                    BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
@@ -1176,7 +1177,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER_CREATEVM,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_CLOUDPROVIDER,
                                     "planCallbackAddress_invoker", createEC2InternalExternalPropsInput,
-                                    createEC2InternalExternalPropsOutput, false);
+                                    createEC2InternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         /*
          * Check whether the SSH port is open on the VM. Doing this here removes the necessity for the other
@@ -1195,7 +1196,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_WAITFORAVAIL,
                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                     "planCallbackAddress_invoker", startRequestInputParams, startRequestOutputParams,
-                                    false);
+                                    BPELScopePhaseType.PROVISIONING);
 
         return true;
     }

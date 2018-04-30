@@ -26,6 +26,7 @@ import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -850,7 +851,7 @@ public class BPELPlanContext implements PlanContext {
                                     final String operationName,
                                     final Map<AbstractParameter, Variable> param2propertyMapping,
                                     final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                                    final boolean appendToPrePhase) {
+                                    final BPELScopePhaseType phase) {
         final OperationChain chain = BPELScopeBuilder.createOperationCall(nodeTemplate, interfaceName, operationName);
         if (chain == null) {
             return false;
@@ -882,10 +883,10 @@ public class BPELPlanContext implements PlanContext {
             chain.executeOperationProvisioning(context, opNames);
         } else {
             if (param2propertyOutputMapping == null) {
-                chain.executeOperationProvisioning(context, opNames, param2propertyMapping, appendToPrePhase);
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping, phase);
             } else {
                 chain.executeOperationProvisioning(context, opNames, param2propertyMapping, param2propertyOutputMapping,
-                                                   appendToPrePhase);
+                                                   phase);
             }
         }
 

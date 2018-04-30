@@ -40,6 +40,10 @@ public class BPELScopeActivity {
     private AbstractNodeTemplate nodeTemplate = null;
     private AbstractRelationshipTemplate relationshipTemplate = null;
 
+    public static enum BPELScopePhaseType {
+        PRE, PROVISIONING, POST
+    }
+
 
     /**
      * Returns the DOM Document this TemplateBuildPlan is declared

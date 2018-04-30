@@ -266,13 +266,18 @@ public class ModelUtils {
      *
      * @param nodeTemplate AbstractNodeTemplate from where the search for Infrstructure Nodes begin
      * @param infrastructureNodes a List of AbstractNodeTemplates which represent Infrastructure Nodes
-     *        of the given NodeTemplate
+     *        of the given NodeTemplate (including itself when applicable as an infrastructure node)
      * @Info the infrastructureNodes List must be empty
      */
     public static void getInfrastructureNodes(final AbstractNodeTemplate nodeTemplate,
                                               final List<AbstractNodeTemplate> infrastructureNodes) {
         ModelUtils.LOG.debug("BaseType of NodeTemplate " + nodeTemplate.getId() + " is "
             + ModelUtils.getNodeBaseType(nodeTemplate));
+
+        if (org.opentosca.container.core.tosca.convention.Utils.isSupportedInfrastructureNodeType(ModelUtils.getNodeBaseType(nodeTemplate))
+            || org.opentosca.container.core.tosca.convention.Utils.isSupportedCloudProviderNodeType(ModelUtils.getNodeBaseType(nodeTemplate))) {
+            infrastructureNodes.add(nodeTemplate);
+        }
 
         for (final AbstractRelationshipTemplate relation : nodeTemplate.getOutgoingRelations()) {
             ModelUtils.LOG.debug("Checking if relation is infrastructure edge, relation: " + relation.getId());

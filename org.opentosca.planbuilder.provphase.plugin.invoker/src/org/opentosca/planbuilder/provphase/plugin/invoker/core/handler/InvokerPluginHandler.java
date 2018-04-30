@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 
@@ -16,6 +17,6 @@ public interface InvokerPluginHandler<T extends PlanContext> {
                           final String operationName, final String interfaceName, final String callbackAddressVarName,
                           final Map<String, Variable> internalExternalPropsInput,
                           final Map<String, Variable> internalExternalPropsOutput,
-                          final boolean appendToPrePhase) throws Exception;
+                          final BPELScopePhaseType appendToPrePhase) throws Exception;
 
 }

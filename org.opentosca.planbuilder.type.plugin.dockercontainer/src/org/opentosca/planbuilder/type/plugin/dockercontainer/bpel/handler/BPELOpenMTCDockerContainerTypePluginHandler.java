@@ -13,6 +13,7 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
@@ -175,8 +176,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
             final AbstractDeploymentArtifact da =
                 BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate);
-            return this.handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar,
-                                     sshPortVar, containerIpVar, containerIdVar, envMappingVar, null, null);
+            return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
+                                containerIpVar, containerIdVar, envMappingVar, null, null);
         }
 
         return false;
@@ -251,7 +252,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             templateContext.getPropertyVariable(protocolAdapterDeviceNodeTemplate, "DeviceID");
 
         final List<AbstractNodeTemplate> dataChannels =
-            this.fetchDataChannels(templateContext, protocolAdapterDeviceNodeTemplate);
+            fetchDataChannels(templateContext, protocolAdapterDeviceNodeTemplate);
 
         if (dataChannels.isEmpty()) {
             LOG.debug("No Data Channels found");
@@ -312,7 +313,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
             if (resourceNames.isEmpty()) {
                 envVarConcatXpathQuery += ")";
             } else {
-                envVarConcatXpathQuery += this.createDeviceMapping(sensorDeviceId, resourceNames) + ")";
+                envVarConcatXpathQuery += createDeviceMapping(sensorDeviceId, resourceNames) + ")";
             }
 
             // assign environment variable mappings
@@ -377,9 +378,8 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
 
             final AbstractDeploymentArtifact da =
                 BPELDockerContainerTypePlugin.fetchFirstDockerContainerDA(nodeTemplate);
-            return this.handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar,
-                                     sshPortVar, containerIpVar, containerIdVar, envMappingVar, linksVar,
-                                     deviceMappingVar);
+            return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
+                                containerIpVar, containerIdVar, envMappingVar, linksVar, deviceMappingVar);
         }
 
         return false;
@@ -454,7 +454,7 @@ public class BPELOpenMTCDockerContainerTypePluginHandler implements
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
                                   "planCallbackAddress_invoker", createDEInternalExternalPropsInput,
-                                  createDEInternalExternalPropsOutput, false);
+                                  createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         return true;
     }

@@ -11,6 +11,7 @@ import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseIAPlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -398,7 +399,7 @@ public class OperationChain {
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
                                                 final Map<AbstractParameter, Variable> param2propertyMapping,
                                                 final Map<AbstractParameter, Variable> param2propertyOutputMapping,
-                                                final boolean appendToPrePhase) {
+                                                final BPELScopePhaseType phase) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
@@ -450,7 +451,7 @@ public class OperationChain {
                     final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
                         (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
-                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, appendToPrePhase)) {
+                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, phase)) {
                             checkCount++;
                         }
                     } else {
@@ -475,7 +476,7 @@ public class OperationChain {
                             }
                         };
                         if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, param2propertyOutputMapping,
-                                               appendToPrePhase)) {
+                                               phase)) {
                             checkCount++;
                         }
                     }
@@ -489,7 +490,7 @@ public class OperationChain {
 
     public boolean executeOperationProvisioning(final BPELPlanContext context, final List<String> operationNames,
                                                 final Map<AbstractParameter, Variable> param2propertyMapping,
-                                                final boolean appendToPrePhase) {
+                                                final BPELScopePhaseType phase) {
         int checkCount = 0;
         if (!this.provCandidates.isEmpty()) {
             final OperationNodeTypeImplCandidate provCandidate = this.provCandidates.get(0);
@@ -522,7 +523,7 @@ public class OperationChain {
                     final IPlanBuilderProvPhaseParamOperationPlugin paramPlugin =
                         (IPlanBuilderProvPhaseParamOperationPlugin) plugin;
                     if (!(op instanceof InterfaceDummy)) {
-                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, appendToPrePhase)) {
+                        if (paramPlugin.handle(context, op, ia, param2propertyMapping, phase)) {
                             checkCount++;
                         }
                     } else {
@@ -546,7 +547,7 @@ public class OperationChain {
                                 return this.iface.getOperation(this.operationName).getInputParameters();
                             }
                         };
-                        if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, appendToPrePhase)) {
+                        if (paramPlugin.handle(context, dummyOp, ia, param2propertyMapping, phase)) {
                             checkCount++;
                         }
                     }

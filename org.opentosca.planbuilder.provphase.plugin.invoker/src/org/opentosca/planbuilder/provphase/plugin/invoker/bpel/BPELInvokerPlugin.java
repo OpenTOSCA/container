@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -50,7 +51,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final boolean appendToPrePhase) {
+                          final BPELScopePhaseType phase) {
         String templateId = "";
         boolean isNodeTemplate = false;
         if (context.getNodeTemplate() != null) {
@@ -68,7 +69,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       null, inputParams, new HashMap<String, Variable>(), appendToPrePhase);
+                                       null, inputParams, new HashMap<String, Variable>(), phase);
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -97,7 +98,8 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       null, inputParams, new HashMap<String, Variable>(), false);
+                                       null, inputParams, new HashMap<String, Variable>(),
+                                       BPELScopePhaseType.PROVISIONING);
         }
         catch (final Exception e) {
             e.printStackTrace();
@@ -123,11 +125,11 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
     public boolean handle(final BPELPlanContext context, final String templateId, final boolean isNodeTemplate,
                           final String operationName, final String interfaceName, final String callbackAddressVarName,
                           final Map<String, Variable> internalExternalPropsInput,
-                          final Map<String, Variable> internalExternalPropsOutput, final boolean appendToPrePhase) {
+                          final Map<String, Variable> internalExternalPropsOutput, final BPELScopePhaseType phase) {
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operationName, interfaceName,
                                        callbackAddressVarName, internalExternalPropsInput, internalExternalPropsOutput,
-                                       appendToPrePhase);
+                                       phase);
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -157,7 +159,8 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
                           final Map<String, Variable> internalExternalPropsOutput) {
         try {
             return this.handler.handle(context, operationName, interfaceName, callbackAddressVarName,
-                                       internalExternalPropsInput, internalExternalPropsOutput, false);
+                                       internalExternalPropsInput, internalExternalPropsOutput,
+                                       BPELScopePhaseType.PROVISIONING);
         }
         catch (final Exception e) {
             BPELInvokerPlugin.LOG.error("Couldn't append logic to provphase of Template: "
@@ -186,10 +189,11 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
     public boolean handleArtifactReferenceUpload(final AbstractArtifactReference ref,
                                                  final BPELPlanContext templateContext, final Variable serverIp,
                                                  final Variable sshUser, final Variable sshKey,
-                                                 final AbstractNodeTemplate infraTemplate) {
+                                                 final AbstractNodeTemplate infraTemplate,
+                                                 final BPELScopePhaseType phase) {
         try {
             return this.handler.handleArtifactReferenceUpload(ref, templateContext, serverIp, sshUser, sshKey,
-                                                              infraTemplate, true);
+                                                              infraTemplate, phase);
         }
         catch (final Exception e) {
             LOG.error("Couldn't load internal files", e);
@@ -223,7 +227,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, templateId, isNodeTemplate, operation.getName(), ia.getInterfaceName(),
-                                       null, inputParams, outputParams, false);
+                                       null, inputParams, outputParams, BPELScopePhaseType.PROVISIONING);
         }
         catch (final IOException e) {
             e.printStackTrace();
@@ -236,7 +240,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
                           final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final boolean appendToPrePhase) {
+                          final BPELScopePhaseType phase) {
         final Map<String, Variable> inputParams = new HashMap<>();
         final Map<String, Variable> outputParams = new HashMap<>();
 
@@ -249,7 +253,7 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
 
         try {
             return this.handler.handle(context, operation.getName(), ia.getInterfaceName(), null, inputParams,
-                                       outputParams, appendToPrePhase);
+                                       outputParams, phase);
         }
         catch (final Exception e) {
             // TODO Auto-generated catch block

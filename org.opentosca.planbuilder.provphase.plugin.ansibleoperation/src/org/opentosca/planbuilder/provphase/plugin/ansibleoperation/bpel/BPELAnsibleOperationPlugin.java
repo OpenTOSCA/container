@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
@@ -45,7 +46,7 @@ public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanC
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
-                          final boolean appendToPrePhase) {
+                          final BPELScopePhaseType phase) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -64,7 +65,7 @@ public class BPELAnsibleOperationPlugin extends AnsibleOperationPlugin<BPELPlanC
                           final AbstractImplementationArtifact ia,
                           final Map<AbstractParameter, Variable> param2propertyMapping,
                           final Map<AbstractParameter, Variable> param2PropertyOutputMapping,
-                          final boolean appendToPrePhase) {
+                          final BPELScopePhaseType phase) {
         // TODO Auto-generated method stub
         return false;
     }

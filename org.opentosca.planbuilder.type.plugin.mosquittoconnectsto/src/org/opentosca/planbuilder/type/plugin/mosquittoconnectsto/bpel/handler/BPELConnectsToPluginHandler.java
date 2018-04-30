@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
@@ -142,8 +143,10 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         // create bpel assign with created query
         try {
             // create assign and append
-            Node assignNode = this.loadAssignXpathQueryToStringVarFragmentAsNode("assignValuesToAddConnection"
-                + System.currentTimeMillis(), xpathQuery, bashCommandVariable.getName());
+            Node assignNode = loadAssignXpathQueryToStringVarFragmentAsNode(
+                                                                            "assignValuesToAddConnection"
+                                                                                + System.currentTimeMillis(),
+                                                                            xpathQuery, bashCommandVariable.getName());
             assignNode = templateContext.importNode(assignNode);
             templateContext.getProvisioningPhaseElement().appendChild(assignNode);
         }
@@ -179,7 +182,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
         this.invokerPlugin.handle(templateContext, ubuntuTemplateId, true, "runScript",
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                   "planCallbackAddress_invoker", runScriptRequestInputParams,
-                                  new HashMap<String, Variable>(), false);
+                                  new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
 
         return true;
     }
@@ -199,7 +202,7 @@ public class BPELConnectsToPluginHandler implements ConnectsToTypePluginHandler<
                                                               final String stringVarName) throws IOException,
                                                                                           SAXException {
         final String templateString =
-            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+            loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);

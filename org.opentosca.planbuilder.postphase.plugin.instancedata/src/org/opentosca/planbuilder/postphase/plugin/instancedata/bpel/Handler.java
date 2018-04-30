@@ -20,6 +20,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
@@ -598,6 +599,7 @@ public class Handler {
 
         // fetch all assigns that assign an invoke async operation request
 
+
         final Element provisioningPhaseElement = context.getProvisioningPhaseElement();
         final List<Element> assignContentElements = fetchInvokerCallAssigns(provisioningPhaseElement);
 
@@ -679,6 +681,10 @@ public class Handler {
                     // that is witing for the response
                     final Element invokerReceiveElement = fetchInvokerReceive((Element) bpelAssignNode, reqVarName);
 
+                    // insertAfterUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName,
+                    // restCallResponseVarName,
+                    // invokerReceiveElement);
+
                     // insert assign after the receive
                     assignNode = invokerReceiveElement.getParentNode()
                                                       .insertBefore(assignNode, invokerReceiveElement.getNextSibling());
@@ -690,7 +696,12 @@ public class Handler {
                     extActiv = context.importNode(extActiv);
 
                     // insert REST call after the assign
-                    invokerReceiveElement.getParentNode().insertBefore(extActiv, assignNode.getNextSibling());
+                    final Element afterElement =
+                        (Element) invokerReceiveElement.getParentNode().insertBefore(extActiv,
+                                                                                     assignNode.getNextSibling());
+
+                    appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
+                                           afterElement.getParentNode());
 
                 }
                 catch (final IOException e2) {
@@ -744,67 +755,77 @@ public class Handler {
             }
         }
 
+
+
         // needs property update only if the node has properties
         if (hasProps) {
+            final Element postPhaseElement = context.getPostPhaseElement();
             // make a GET on the nodeInstance properties
+            appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
+                                   postPhaseElement);
+        }
+        return true;
+    }
 
-            try {
-                // fetch properties
-                Node nodeInstancePropsGETNode =
-                    this.fragments.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
-                nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
-                context.getPostPhaseElement().appendChild(nodeInstancePropsGETNode);
-            }
-            catch (final SAXException e1) {
-                e1.printStackTrace();
-                return false;
-            }
-            catch (final IOException e1) {
-                e1.printStackTrace();
-                return false;
-            }
+    public boolean appendUpdateProperties(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
+                                          final String nodeInstanceURLVarName, final String restCallResponseVarName,
+                                          final Node appendAsChildElement) {
+        try {
+            // fetch properties
+            Node nodeInstancePropsGETNode =
+                this.fragments.generateInstancePropertiesGETAsNode(nodeInstanceURLVarName, restCallResponseVarName);
+            nodeInstancePropsGETNode = context.importNode(nodeInstancePropsGETNode);
+            appendAsChildElement.appendChild(nodeInstancePropsGETNode);
+        }
+        catch (final SAXException e1) {
+            e1.printStackTrace();
+            return false;
+        }
+        catch (final IOException e1) {
+            e1.printStackTrace();
+            return false;
+        }
 
-            // assign the values from the property variables into REST/HTTP
-            // Request
-            // and send
-            // first build a mapping from property variable names to dom element
-            final Map<String, Node> propertyVarNameToDOMMapping =
-                buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
-            try {
-                // then generate an assign to have code that writes the runtime
-                // values into the instance data db.
-                // we use the restCallResponseVarName from the GET before, as it
-                // has
-                // proper format
-                Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
-                                                                                           propertyVarNameToDOMMapping);
-                assignNode = context.importNode(assignNode);
-                context.getPostPhaseElement().appendChild(assignNode);
-            }
-            catch (final SAXException e) {
-                e.printStackTrace();
-                return false;
-            }
-            catch (final IOException e) {
-                e.printStackTrace();
-                return false;
-            }
+        // assign the values from the property variables into REST/HTTP
+        // Request
+        // and send
+        // first build a mapping from property variable names to dom element
+        final Map<String, Node> propertyVarNameToDOMMapping =
+            buildMappingsFromVarNameToDomElement(context, nodeTemplate.getProperties());
+        try {
+            // then generate an assign to have code that writes the runtime
+            // values into the instance data db.
+            // we use the restCallResponseVarName from the GET before, as it
+            // has
+            // proper format
+            Node assignNode = this.fragments.generateAssignFromPropertyVarToDomMapping(restCallResponseVarName,
+                                                                                       propertyVarNameToDOMMapping);
+            assignNode = context.importNode(assignNode);
+            appendAsChildElement.appendChild(assignNode);
+        }
+        catch (final SAXException e) {
+            e.printStackTrace();
+            return false;
+        }
+        catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        }
 
-            // generate BPEL4RESTLight PUT request to update the instance data
-            try {
-                Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
-                                                                                                nodeInstanceURLVarName);
-                bpel4restPUTNode = context.importNode(bpel4restPUTNode);
-                context.getPostPhaseElement().appendChild(bpel4restPUTNode);
-            }
-            catch (final IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-            catch (final SAXException e) {
-                e.printStackTrace();
-                return false;
-            }
+        // generate BPEL4RESTLight PUT request to update the instance data
+        try {
+            Node bpel4restPUTNode = this.fragments.generateInstancesBPEL4RESTLightPUTAsNode(restCallResponseVarName,
+                                                                                            nodeInstanceURLVarName);
+            bpel4restPUTNode = context.importNode(bpel4restPUTNode);
+            appendAsChildElement.appendChild(bpel4restPUTNode);
+        }
+        catch (final IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        catch (final SAXException e) {
+            e.printStackTrace();
+            return false;
         }
         return true;
     }
@@ -1334,7 +1355,7 @@ public class Handler {
         // generate call to method
         context.executeOperation(node, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT, inputParams,
-                                 outputParams, true);
+                                 outputParams, BPELScopePhaseType.PRE);
 
         // check result and eventually throw error
 

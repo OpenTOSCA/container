@@ -65,10 +65,10 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
             this.properties = new PropertiesImpl(this.nodeTemplate.getProperties().getAny());
         }
 
-        this.setUpCapabilities();
-        this.setUpRequirements();
-        this.setUpDeploymentArtifacts();
-        this.setUpPolicies();
+        setUpCapabilities();
+        setUpRequirements();
+        setUpDeploymentArtifacts();
+        setUpPolicies();
     }
 
     private void setUpPolicies() {
@@ -88,6 +88,10 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
                                                                        .getDeploymentArtifact()) {
                 this.das.add(new DeploymentArtifactImpl(artifact, this.definitions));
             }
+        }
+
+        for (final AbstractNodeTypeImplementation nodeTypeImpl : findNodeTypeImpls(this.definitions)) {
+            this.das.addAll(nodeTypeImpl.getDeploymentArtifacts());
         }
     }
 
@@ -207,7 +211,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
     public List<AbstractNodeTypeImplementation> getImplementations() {
         final List<AbstractNodeTypeImplementation> impls = new ArrayList<>();
 
-        final List<AbstractNodeTypeImplementation> foundImpls = this.findNodeTypeImpls(this.definitions);
+        final List<AbstractNodeTypeImplementation> foundImpls = findNodeTypeImpls(this.definitions);
 
         for (final AbstractNodeTypeImplementation impl : foundImpls) {
 

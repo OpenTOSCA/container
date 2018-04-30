@@ -19,6 +19,7 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -93,7 +94,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         // unzip
         runShScriptString += " && unzip " + ansibleZipFileName;
 
-        final String playbookPath = this.getAnsiblePlaybookFilePath(templateContext);
+        final String playbookPath = getAnsiblePlaybookFilePath(templateContext);
 
         if (playbookPath == null) {
 
@@ -159,7 +160,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 runScriptRequestInputParams.put("script", runShScriptStringVar);
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript", "InterfaceUbuntu",
                                           "planCallbackAddress_invoker", runScriptRequestInputParams,
-                                          new HashMap<String, Variable>(), false);
+                                          new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
 
                 break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP:
@@ -171,7 +172,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                 this.invokerPlugin.handle(templateContext, templateId, true, "runScript",
                                           Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
                                           "planCallbackAddress_invoker", runScriptRequestInputParams,
-                                          new HashMap<String, Variable>(), false);
+                                          new HashMap<String, Variable>(), BPELScopePhaseType.PROVISIONING);
                 break;
             default:
                 return false;
@@ -244,7 +245,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                           final AbstractImplementationArtifact ia) {
 
         LOG.debug("Handling Ansible Playbook IA operation: " + operation.getName());
-        final AbstractArtifactReference ansibleRef = this.fetchAnsiblePlaybookRefFromIA(ia);
+        final AbstractArtifactReference ansibleRef = fetchAnsiblePlaybookRefFromIA(ia);
         if (ansibleRef == null) {
             return false;
         }
@@ -258,7 +259,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         nodes.add(templateContext.getNodeTemplate());
 
         // find the ubuntu node and its nodeTemplateId
-        final AbstractNodeTemplate infrastructureNodeTemplate = this.findInfrastructureNode(nodes);
+        final AbstractNodeTemplate infrastructureNodeTemplate = findInfrastructureNode(nodes);
 
         if (infrastructureNodeTemplate == null) {
             BPELAnsibleOperationPluginHandler.LOG.warn("Couldn't determine NodeTemplateId of Ubuntu Node");
@@ -385,8 +386,8 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         final Variable runShScriptStringVar =
             this.appendBPELAssignOperationShScript(templateContext, operation, ansibleRef, ia);
 
-        return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-                                        sshUserVariable, sshKeyVariable, serverIpPropWrapper);
+        return appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
+                                   sshUserVariable, sshKeyVariable, serverIpPropWrapper);
     }
 
     @Override
@@ -399,13 +400,13 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
         }
 
         final AbstractNodeTemplate infrastructureNodeTemplate =
-            this.findInfrastructureNode(templateContext.getInfrastructureNodes());
+            findInfrastructureNode(templateContext.getInfrastructureNodes());
         if (infrastructureNodeTemplate == null) {
             return false;
         }
 
         Variable runShScriptStringVar = null;
-        final AbstractArtifactReference scriptRef = this.fetchAnsiblePlaybookRefFromIA(ia);
+        final AbstractArtifactReference scriptRef = fetchAnsiblePlaybookRefFromIA(ia);
         if (scriptRef == null) {
             return false;
         }
@@ -436,13 +437,13 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
             }
         }
 
-        if (this.isNull(runShScriptStringVar, ipStringVariable, userStringVariable, passwdStringVariable)) {
+        if (isNull(runShScriptStringVar, ipStringVariable, userStringVariable, passwdStringVariable)) {
             // if either of the variables is null -> abort
             return false;
         }
 
-        return this.appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
-                                        userStringVariable, passwdStringVariable, ipStringVariable);
+        return appendExecuteScript(templateContext, infrastructureNodeTemplate.getId(), runShScriptStringVar,
+                                   userStringVariable, passwdStringVariable, ipStringVariable);
     }
 
     private boolean isNull(final Variable... vars) {
@@ -469,7 +470,7 @@ public class BPELAnsibleOperationPluginHandler implements AnsibleOperationPlugin
                                                               final String stringVarName) throws IOException,
                                                                                           SAXException {
         final String templateString =
-            this.loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
+            loadAssignXpathQueryToStringVarFragmentAsString(assignName, xpath2Query, stringVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
