@@ -132,9 +132,9 @@ public class PropertyVariableInitializer {
     public void initializePropertiesAsVariables(final PropertyMap map, final BPELScopeActivity templatePlan) {
         if (templatePlan.getRelationshipTemplate() != null) {
             // template corresponds to a relationshiptemplate
-            this.initPropsAsVarsInRelationship(map, templatePlan);
+            initPropsAsVarsInRelationship(map, templatePlan);
         } else {
-            this.initPropsAsVarsInNode(map, templatePlan);
+            initPropsAsVarsInNode(map, templatePlan);
         }
     }
 
@@ -156,8 +156,8 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName =
-                    relationshipTemplate.getId() + "_" + propertyElement.getChildNodes().item(i).getLocalName();
+                final String propVarName = relationshipTemplate.getId().replace(".", "_") + "_"
+                    + propertyElement.getChildNodes().item(i).getLocalName();
                 map.addPropertyMapping(relationshipTemplate.getId(), propName, "prop_" + propVarName);
                 // String value =
                 // propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
@@ -202,8 +202,8 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName =
-                    nodeTemplate.getId() + "_" + propertyElement.getChildNodes().item(i).getLocalName();
+                final String propVarName = nodeTemplate.getId().replace(".", "_") + "_"
+                    + propertyElement.getChildNodes().item(i).getLocalName();
 
                 // TODO that "prop_" is a huge hack cause official only the
                 // buildplanhandler knows about the "prop_" piece

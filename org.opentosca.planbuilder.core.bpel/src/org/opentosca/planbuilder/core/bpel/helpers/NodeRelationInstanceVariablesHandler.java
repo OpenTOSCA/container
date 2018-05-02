@@ -170,7 +170,7 @@ public class NodeRelationInstanceVariablesHandler {
         }
 
         final String instanceIdVarName =
-            prefix + InstanceIDVarKeyword + "_" + templateId + "_" + System.currentTimeMillis();
+            prefix + InstanceIDVarKeyword + "_" + templateId.replace(".", "_") + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
                                                    new QName(xsdNamespace, "string", xsdPrefix),
@@ -201,7 +201,7 @@ public class NodeRelationInstanceVariablesHandler {
         }
 
         final String instanceIdVarName =
-            prefix + InstanceURLVarKeyword + "_" + templateId + "_" + System.currentTimeMillis();
+            prefix + InstanceURLVarKeyword + "_" + templateId.replace(".", "_") + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
                                                    new QName(xsdNamespace, "string", xsdPrefix),
@@ -561,7 +561,7 @@ public class NodeRelationInstanceVariablesHandler {
 
     private String findInstanceIdVarName(final List<String> varNames, final String templateId, final boolean isNode) {
         final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + InstanceURLVarKeyword + "_" + templateId + "_";
+            (isNode ? "node" : "relationship") + InstanceURLVarKeyword + "_" + templateId.replace(".", "_") + "_";
         for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;

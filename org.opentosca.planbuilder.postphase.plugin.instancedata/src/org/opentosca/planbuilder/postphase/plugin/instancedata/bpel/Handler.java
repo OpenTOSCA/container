@@ -50,10 +50,6 @@ public class Handler {
     private Fragments fragments;
     private BPELProcessFragments bpelFrags;
 
-    private static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
-    private static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
-    private static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
-    private static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
     private final XPathFactory xPathfactory = XPathFactory.newInstance();
 
     public Handler() {
@@ -65,99 +61,6 @@ public class Handler {
         catch (final ParserConfigurationException e) {
             e.printStackTrace();
         }
-    }
-
-    private String getInstanceDataAPIURL(final BPELPlanContext context) {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = context.getMainVariableNames();
-
-        String instanceDataUrlVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-
-            if (varName.contains(Handler.InstanceDataAPIUrlKeyword)) {
-                instanceDataUrlVarName = varName;
-            }
-        }
-
-        // if at least one is null we need to init the whole
-
-        if (instanceDataUrlVarName == null) {
-            return null;
-        }
-
-        return instanceDataUrlVarName;
-    }
-
-    private String getServiceTemplateURLVar(final BPELPlanContext context) {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = context.getMainVariableNames();
-
-        String instanceDataUrlVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-
-            if (varName.contains(Handler.ServiceTemplateURLVarKeyword)) {
-                instanceDataUrlVarName = varName;
-            }
-        }
-
-        // if at least one is null we need to init the whole
-
-        if (instanceDataUrlVarName == null) {
-            return null;
-        }
-
-        return instanceDataUrlVarName;
-    }
-
-    private String getServiceInstanceIDVarName(final BPELPlanContext context) {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = context.getMainVariableNames();
-        String serviceInstanceVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-            if (varName.contains(Handler.ServiceInstanceIDVarKeyword)) {
-                serviceInstanceVarName = varName;
-            }
-
-        }
-
-        if (serviceInstanceVarName == null) {
-            return null;
-        }
-        return serviceInstanceVarName;
-    }
-
-    private String getServiceInstanceURLVarName(final BPELPlanContext context) {
-        // check whether main sequence already contains service instance calls
-        // to container API
-        final List<String> mainVarNames = context.getMainVariableNames();
-        String serviceInstanceVarName = null;
-        String instanceDataUrlVarName = null;
-        for (final String varName : mainVarNames) {
-            // pretty lame but should work
-            if (varName.contains(Handler.ServiceInstanceURLVarKeyword)) {
-                serviceInstanceVarName = varName;
-            }
-            if (varName.contains(Handler.InstanceDataAPIUrlKeyword)) {
-                instanceDataUrlVarName = varName;
-            }
-        }
-
-        // if at least one is null we need to init the whole
-
-        if (instanceDataUrlVarName == null) {
-            return null;
-        }
-
-        if (serviceInstanceVarName == null) {
-            return null;
-        }
-        return serviceInstanceVarName;
     }
 
     private String createRESTResponseVar(final BPELPlanContext context) {
@@ -172,7 +75,7 @@ public class Handler {
 
     private String createStateVar(final BPELPlanContext context, final String templateId) {
         // create state variable inside scope
-        final String stateVarName = templateId + "_state_" + context.getIdForNames();
+        final String stateVarName = templateId.replace(".", "_") + "_state_" + context.getIdForNames();
         final QName stringTypeDeclId =
             context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
         if (!context.addGlobalVariable(stateVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
@@ -182,19 +85,10 @@ public class Handler {
         return stateVarName;
     }
 
-    private String findInstanceURLVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
-        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_";
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
-    }
 
-    private String createInstanceURLVar(final BPELPlanContext context, final String templateId) {
+    public String createInstanceURLVar(final BPELPlanContext context, final String templateId) {
         final String instanceURLVarName = (context.getRelationshipTemplate() == null ? "node" : "relationship")
-            + "InstanceURL_" + templateId + "_" + context.getIdForNames();
+            + "InstanceURL_" + templateId.replace(".", "_") + "_" + context.getIdForNames();
         final QName stringTypeDeclId =
             context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
         if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
@@ -204,9 +98,9 @@ public class Handler {
         return instanceURLVarName;
     }
 
-    private String createInstanceIDVar(final BPELPlanContext context, final String templateId) {
+    public String createInstanceIDVar(final BPELPlanContext context, final String templateId) {
         final String instanceURLVarName = (context.getRelationshipTemplate() == null ? "node" : "relationship")
-            + "InstanceID_" + templateId + "_" + context.getIdForNames();
+            + "InstanceID_" + templateId.replace(".", "_") + "_" + context.getIdForNames();
         final QName stringTypeDeclId =
             context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
         if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
@@ -214,23 +108,12 @@ public class Handler {
         }
 
         return instanceURLVarName;
-    }
-
-    private String findInstanceIDVar(final BPELPlanContext context, final String templateId, final boolean isNode) {
-        final String instanceURLVarName = (isNode ? "node" : "relationship") + "InstanceID_" + templateId + "_";
-        final List<String> varNames = context.getMainVariableNames();
-        for (final String varName : varNames) {
-            if (varName.contains(instanceURLVarName)) {
-                return varName;
-            }
-        }
-        return null;
     }
 
     public boolean handleTerminate(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
-        final String serviceInstanceVarName = getServiceInstanceURLVarName(context);
+        final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
         if (serviceInstanceVarName == null) {
             return false;
         }
@@ -255,11 +138,11 @@ public class Handler {
 
         String nodeInstanceURLVarName = "";
 
-        if (findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
+        if (context.findInstanceURLVar(context.getNodeTemplate().getId(), true) == null) {
             // generate String var for nodeInstance URL
             nodeInstanceURLVarName = createInstanceURLVar(context, context.getNodeTemplate().getId());
         } else {
-            nodeInstanceURLVarName = findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
+            nodeInstanceURLVarName = context.findInstanceURLVar(context.getNodeTemplate().getId(), true);
         }
 
         if (nodeInstanceURLVarName == null) {
@@ -458,17 +341,17 @@ public class Handler {
     public boolean handleBuild(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final boolean hasProps = checkProperties(nodeTemplate.getProperties());
 
-        final String serviceInstanceVarName = getServiceInstanceURLVarName(context);
+        final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
         if (serviceInstanceVarName == null) {
             return false;
         }
 
-        final String serviceInstanceIDVarName = getServiceInstanceIDVarName(context);
+        final String serviceInstanceIDVarName = context.getServiceInstanceIDVarName();
         if (serviceInstanceIDVarName == null) {
             return false;
         }
 
-        final String instanceDataAPIVarName = getServiceTemplateURLVar(context);
+        final String instanceDataAPIVarName = context.getServiceTemplateURLVar();
         if (instanceDataAPIVarName == null) {
             return false;
         }
@@ -518,11 +401,11 @@ public class Handler {
 
         String nodeInstanceURLVarName = "";
 
-        if (findInstanceURLVar(context, context.getNodeTemplate().getId(), true) == null) {
+        if (context.findInstanceURLVar(context.getNodeTemplate().getId(), true) == null) {
             // generate String var for nodeInstance URL
             nodeInstanceURLVarName = createInstanceURLVar(context, context.getNodeTemplate().getId());
         } else {
-            nodeInstanceURLVarName = findInstanceURLVar(context, context.getNodeTemplate().getId(), true);
+            nodeInstanceURLVarName = context.findInstanceURLVar(context.getNodeTemplate().getId(), true);
         }
 
         if (nodeInstanceURLVarName == null) {
@@ -531,10 +414,10 @@ public class Handler {
 
         String nodeInstanceIDVarName = "";
 
-        if (findInstanceIDVar(context, context.getNodeTemplate().getId(), true) == null) {
+        if (context.findInstanceIDVar(context.getNodeTemplate().getId(), true) == null) {
             nodeInstanceIDVarName = createInstanceIDVar(context, context.getNodeTemplate().getId());
         } else {
-            nodeInstanceIDVarName = findInstanceIDVar(context, context.getNodeTemplate().getId(), true);
+            nodeInstanceIDVarName = context.findInstanceIDVar(context.getNodeTemplate().getId(), true);
         }
 
         if (nodeInstanceIDVarName == null) {
@@ -832,12 +715,12 @@ public class Handler {
 
     public boolean handle(final BPELPlanContext context, final AbstractRelationshipTemplate relationshipTemplate) {
 
-        final String serviceInstanceVarName = getServiceInstanceURLVarName(context);
+        final String serviceInstanceVarName = context.getServiceInstanceURLVarName();
         if (serviceInstanceVarName == null) {
             return false;
         }
 
-        final String serviceTemplateUrlVarName = getServiceTemplateURLVar(context);
+        final String serviceTemplateUrlVarName = context.getServiceTemplateURLVar();
         if (serviceTemplateUrlVarName == null) {
             return false;
         }
@@ -868,9 +751,9 @@ public class Handler {
         Element injectionPreElement = null;
         Element injectionPostElement = null;
         final String sourceInstanceVarName =
-            findInstanceIDVar(context, context.getRelationshipTemplate().getSource().getId(), true);
+            context.findInstanceIDVar(context.getRelationshipTemplate().getSource().getId(), true);
         final String targetInstanceVarName =
-            findInstanceIDVar(context, context.getRelationshipTemplate().getTarget().getId(), true);
+            context.findInstanceIDVar(context.getRelationshipTemplate().getTarget().getId(), true);
 
 
         if (ModelUtils.getRelationshipTypeHierarchy(context.getRelationshipTemplate().getRelationshipType())
@@ -940,11 +823,11 @@ public class Handler {
 
         // generate String var for relationInstance URL
         String relationInstanceURLVarName = "";
-        if (findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+        if (context.findInstanceURLVar(context.getRelationshipTemplate().getId(), false) == null) {
             // generate String var for nodeInstance URL
             relationInstanceURLVarName = createInstanceURLVar(context, context.getRelationshipTemplate().getId());
         } else {
-            relationInstanceURLVarName = findInstanceURLVar(context, context.getRelationshipTemplate().getId(), false);
+            relationInstanceURLVarName = context.findInstanceURLVar(context.getRelationshipTemplate().getId(), false);
         }
 
         if (relationInstanceURLVarName == null) {
@@ -953,11 +836,11 @@ public class Handler {
 
         String relationInstanceIDVarName = "";
 
-        if (findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false) == null) {
+        if (context.findInstanceIDVar(context.getRelationshipTemplate().getId(), false) == null) {
             // generate String var for nodeInstance URL
             relationInstanceIDVarName = createInstanceIDVar(context, context.getRelationshipTemplate().getId());
         } else {
-            relationInstanceIDVarName = findInstanceIDVar(context, context.getRelationshipTemplate().getId(), false);
+            relationInstanceIDVarName = context.findInstanceIDVar(context.getRelationshipTemplate().getId(), false);
         }
 
         if (relationInstanceIDVarName == null) {

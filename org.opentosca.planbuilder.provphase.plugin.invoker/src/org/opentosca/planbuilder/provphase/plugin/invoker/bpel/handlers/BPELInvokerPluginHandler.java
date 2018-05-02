@@ -70,8 +70,8 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         String logMessageTempStringVarName = null;
         String logMessageContent = null;
         if (context.getNodeTemplate() != null) {
-            logMessageTempStringVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId() + "_" + operation
-                + "_" + System.currentTimeMillis();
+            logMessageTempStringVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId().replace(".", "_")
+                + "_" + operation + "_" + System.currentTimeMillis();
             logMessageContent =
                 "Executing operation " + operation + " of NodeTemplate " + context.getNodeTemplate().getId();
         } else {

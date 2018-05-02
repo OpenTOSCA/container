@@ -70,6 +70,11 @@ public class BPELPlanContext implements PlanContext {
 
     private final String planNamespace = "ba.example";
 
+    public static final String ServiceInstanceURLVarKeyword = "OpenTOSCAContainerAPIServiceInstanceURL";
+    public static final String ServiceInstanceIDVarKeyword = "OpenTOSCAContainerAPIServiceInstanceID";
+    public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
+    public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
+
     public List<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
         final List<String> propertyNames = new ArrayList<>();
         final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
@@ -128,6 +133,99 @@ public class BPELPlanContext implements PlanContext {
     public static boolean isVariableValueEmpty(final Variable variable, final BPELPlanContext context) {
         final String content = BPELPlanContext.getVariableContent(variable, context);
         return content == null || content.isEmpty();
+    }
+
+    public String getServiceTemplateURLVar() {
+        // check whether main sequence already contains service instance calls
+        // to container API
+        final List<String> mainVarNames = getMainVariableNames();
+
+        String instanceDataUrlVarName = null;
+        for (final String varName : mainVarNames) {
+            // pretty lame but should work
+
+            if (varName.contains(ServiceTemplateURLVarKeyword)) {
+                instanceDataUrlVarName = varName;
+            }
+        }
+
+        // if at least one is null we need to init the whole
+
+        if (instanceDataUrlVarName == null) {
+            return null;
+        }
+
+        return instanceDataUrlVarName;
+    }
+
+    public String getServiceInstanceIDVarName() {
+        // check whether main sequence already contains service instance calls
+        // to container API
+        final List<String> mainVarNames = getMainVariableNames();
+        String serviceInstanceVarName = null;
+        for (final String varName : mainVarNames) {
+            // pretty lame but should work
+            if (varName.contains(ServiceInstanceIDVarKeyword)) {
+                serviceInstanceVarName = varName;
+            }
+
+        }
+
+        if (serviceInstanceVarName == null) {
+            return null;
+        }
+        return serviceInstanceVarName;
+    }
+
+    public String getServiceInstanceURLVarName() {
+        // check whether main sequence already contains service instance calls
+        // to container API
+        final List<String> mainVarNames = getMainVariableNames();
+        String serviceInstanceVarName = null;
+        String instanceDataUrlVarName = null;
+        for (final String varName : mainVarNames) {
+            // pretty lame but should work
+            if (varName.contains(ServiceInstanceURLVarKeyword)) {
+                serviceInstanceVarName = varName;
+            }
+            if (varName.contains(InstanceDataAPIUrlKeyword)) {
+                instanceDataUrlVarName = varName;
+            }
+        }
+
+        // if at least one is null we need to init the whole
+
+        if (instanceDataUrlVarName == null) {
+            return null;
+        }
+
+        if (serviceInstanceVarName == null) {
+            return null;
+        }
+        return serviceInstanceVarName;
+    }
+
+    public String findInstanceURLVar(final String templateId, final boolean isNode) {
+        final String instanceURLVarName =
+            (isNode ? "node" : "relationship") + "InstanceURL_" + templateId.replace(".", "_") + "_";
+        for (final String varName : getMainVariableNames()) {
+            if (varName.contains(instanceURLVarName)) {
+                return varName;
+            }
+        }
+        return null;
+    }
+
+    public String findInstanceIDVar(final String templateId, final boolean isNode) {
+        final String instanceURLVarName =
+            (isNode ? "node" : "relationship") + "InstanceID_" + templateId.replace(".", "_") + "_";
+        final List<String> varNames = getMainVariableNames();
+        for (final String varName : varNames) {
+            if (varName.contains(instanceURLVarName)) {
+                return varName;
+            }
+        }
+        return null;
     }
 
     /**
