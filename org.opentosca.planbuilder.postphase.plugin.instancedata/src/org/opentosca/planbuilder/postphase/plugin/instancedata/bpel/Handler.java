@@ -583,8 +583,10 @@ public class Handler {
                         (Element) invokerReceiveElement.getParentNode().insertBefore(extActiv,
                                                                                      assignNode.getNextSibling());
 
-                    appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
-                                           afterElement.getParentNode());
+                    if (hasProps) {
+                        appendUpdateProperties(context, nodeTemplate, nodeInstanceURLVarName, restCallResponseVarName,
+                                               afterElement.getParentNode());
+                    }
 
                 }
                 catch (final IOException e2) {
