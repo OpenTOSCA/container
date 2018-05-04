@@ -37,10 +37,10 @@ import org.w3c.dom.NodeList;
  *
  *
  *
- * The Plugin gets needed information from the ManagementBus and is responsible to handle "remote IAs".
- * Remote IAs are IAs such as scripts that needs to be executed on the host machine. Therefore this
- * plugin also is responsible for the uploading of the files and the installation of required packages
- * on the target machine (if specified).
+ * The Plugin gets needed information from the ManagementBus and is responsible to handle "remote
+ * IAs". Remote IAs are IAs such as scripts that needs to be executed on the host machine. Therefore
+ * this plugin also is responsible for the uploading of the files and the installation of required
+ * packages on the target machine (if specified).
  *
  *
  *
@@ -99,7 +99,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
             final boolean isBoundToSourceNode =
                 ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, relationshipTypeID,
-                                                                                             interfaceName, operationName);
+                                                                                             interfaceName,
+                                                                                             operationName);
 
             if (isBoundToSourceNode) {
                 nodeTemplateID =
@@ -119,7 +120,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
         final List<String> outputParameters = new LinkedList<>();
         final boolean hasOutputParams =
             ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID, nodeTypeID,
-                                                                                           interfaceName, operationName);
+                                                                                           interfaceName,
+                                                                                           operationName);
         if (hasOutputParams) {
             final Node outputParametersNode =
                 ServiceHandler.toscaEngineService.getOutputParametersOfANodeTypeOperation(csarID, nodeTypeID,
@@ -244,8 +246,12 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                                                                 fileNameWithoutE);
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP,
-                                                                "sudo -E " + createDANamePathMapEnvVar(csarID,
-                                                                                                       serviceTemplateID, nodeTypeID, nodeTemplateID));
+                                                                "sudo -E "
+                                                                    + createDANamePathMapEnvVar(csarID,
+                                                                                                serviceTemplateID,
+                                                                                                nodeTypeID,
+                                                                                                nodeTemplateID)
+                                                                    + " CSAR='" + csarID + "' ");
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER,
                                                                 createParamsString(params));
@@ -397,7 +403,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
             for (final String daName : daNames) {
                 final QName daArtifactTemplate =
                     ServiceHandler.toscaEngineService.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                        nodeTypeImpl, daName);
+                                                                                                                        nodeTypeImpl,
+                                                                                                                        daName);
 
                 daArtifactReferences =
                     ServiceHandler.toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID,
@@ -556,8 +563,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
     /**
      *
-     * Creates ArtifactType specific commands that should be executed on the target machine. Commands
-     * to be executed are defined in the corresponding *.xml file.
+     * Creates ArtifactType specific commands that should be executed on the target machine. Commands to
+     * be executed are defined in the corresponding *.xml file.
      *
      * @param csarID
      * @param artifactType
