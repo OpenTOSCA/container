@@ -17,6 +17,7 @@ import org.w3c.dom.NodeList;
 
 public abstract class ModelUtil {
 
+    // FIXME move onto IToscaEngineService? Only makes sense in 
     public static boolean hasOpenRequirements(final CSARID csarId,
                                               final IToscaEngineService service) throws UserException, SystemException {
         final QName serviceTemplateId = service.getServiceTemplatesInCSAR(csarId).get(0);
