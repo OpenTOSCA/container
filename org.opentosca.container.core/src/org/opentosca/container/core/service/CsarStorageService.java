@@ -9,7 +9,8 @@ import javax.ws.rs.NotFoundException;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 
 public interface CsarStorageService {
 
@@ -18,17 +19,17 @@ public interface CsarStorageService {
      * 
      * @return Set of {@link CSARContent} objects
      */
-    public Set<CSARContent> findAll();
+    public Set<Csar> findAll();
 
     /**
-     * Loads the data of the CSAR associated with the given {@link CSARID} from storage.
+     * Loads the data of the CSAR associated with the given {@link CsarId} from storage.
      * 
-     * @param id The unique {@link CSARID} of the CSAR to retrieve.
+     * @param id The unique {@link CsarId} of the CSAR to retrieve.
      * @return A {@link CSARContent} instance representing the CSAR identified by the ID.
      * 
      * @throws NotFoundException in case the CSARID was unknown.
      */
-    public CSARContent findById(CSARID id) throws NotFoundException;
+    public Csar findById(CsarId id) throws NotFoundException;
 
     /**
      * Temporarily stores all information in the given {@link InputStream} as a temporary file with the
@@ -57,7 +58,7 @@ public interface CsarStorageService {
      * </ol>
      * 
      * @param csarLocation The location of the CSAR file
-     * @return a {@link CSARID} to uniquely identify the CSAR that has been stored
+     * @return a {@link CsarId} to uniquely identify the CSAR that has been stored
      * 
      * @throws SystemException if unpacking the CSAR failed, access to a directory was denied while
      *         getting files and directories in unpack directory or if an error occurred during storing
@@ -67,22 +68,22 @@ public interface CsarStorageService {
      *         already stored or it's content is invalid, e.g. contains no TOSCA file or has an invalid
      *         TOSCA meta file.
      */
-    public CSARID storeCSAR(Path csarLocation) throws UserException, SystemException;
+    public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException;
 
 
     /**
      * <p>
-     * Deletes the CSAR belonging to the given {@link CSARID} from storage. That includes deleting it's
+     * Deletes the CSAR belonging to the given {@link CsarId} from storage. That includes deleting it's
      * metadata from the database.
      * <p>
      * If an error occurs during the deletion of files, the metadata stays in the database. Warning:
      * this is a process that can not be compensated. As such errors can leave the CSAR in an
      * inconsistent state.
      * 
-     * @param csarId The {@link CSARID} identifying the CSAR to delete.
+     * @param csarId The {@link CsarId} identifying the CSAR to delete.
      * @throws UserException if the identified CSAR was not found.
      *
      * @throws SystemException if an error occurred during deleting files.
      */
-    public void deleteCSAR(CSARID csarId) throws UserException, SystemException;
+    public void deleteCSAR(CsarId csarId) throws UserException, SystemException;
 }

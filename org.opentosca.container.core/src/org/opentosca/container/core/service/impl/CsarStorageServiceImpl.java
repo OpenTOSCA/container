@@ -1,16 +1,10 @@
 package org.opentosca.container.core.service.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.rmi.ServerError;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,15 +12,12 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.winery.repository.backend.IRepository;
-import org.eclipse.winery.repository.backend.RepositoryFactory;
-import org.eclipse.winery.repository.configuration.FileBasedRepositoryConfiguration;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-//import org.opentosca.container.core.impl.service.internal.file.csar.CSARMetaDataJPAStore;
-import org.opentosca.container.core.model.csar.CSARContent;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.next.utils.Consts;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreFileService;
@@ -44,16 +35,12 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting("org.opentosca.csar.basepath"));
 
     @Override
-    public Set<CSARContent> findAll() {
+    public Set<Csar> findAll() {
         LOGGER.debug("Requesting all CSARs");
-        final Set<CSARContent> csars = new HashSet<>();
+        final Set<Csar> csars = new HashSet<>();
         try {
             for (Path csarId : Files.newDirectoryStream(CSAR_BASE_PATH, Files::isDirectory)) {
-                Path csarPath = CSAR_BASE_PATH.resolve(csarId.getFileName());
-                // IRepository repository = RepositoryFactory.getRepository(new
-                // FileBasedRepositoryConfiguration(csarPath));
-                // FIXME fucking CSARContent basically needs to die!?
-                csars.add(new CSARContent());
+                csars.add(new CsarImpl(new CsarId(csarId)));
             }
         }
         catch (IOException e) {
@@ -64,13 +51,12 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public CSARContent findById(CSARID id) throws NotFoundException {
-        Path assumedPath = CSAR_BASE_PATH.resolve(id.getFileName());
-        if (Files.exists(assumedPath)) {
-            return new CSARContent(); // FIXME pass path here
+    public Csar findById(CsarId id) throws NotFoundException {
+        if (Files.exists(id.getSaveLocation())) {
+            return new CsarImpl(id); // FIXME pass path here
         }
-        LOGGER.info("CSAR '{}' could not be found", id.getFileName());
-        throw new NotFoundException(String.format("CSAR '%s' could not be found", id.getFileName()));
+        LOGGER.info("CSAR '{}' could not be found", id.toString());
+        throw new NotFoundException(String.format("CSAR '%s' could not be found", id.toString()));
     }
 
     @Override
@@ -87,14 +73,14 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public CSARID storeCSAR(Path csarLocation) throws UserException, SystemException {
+    public CsarId storeCSAR(Path csarLocation) throws UserException, SystemException {
          // delegate to CoreService for now:
-        return CORE_FILE_SERVICE.storeCSAR(csarLocation);
+        return new CsarId(CORE_FILE_SERVICE.storeCSAR(csarLocation));
     }
 
     @Override
-    public void deleteCSAR(CSARID csarId) throws SystemException, UserException {
-        CORE_FILE_SERVICE.deleteCSAR(csarId);
+    public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
+        CORE_FILE_SERVICE.deleteCSAR(csarId.toOldCsarId());
     }
 
 }
