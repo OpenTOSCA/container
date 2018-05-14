@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,20 +42,6 @@ public abstract class AbstractBuildPlanBuilder extends AbstractPlanBuilder {
 
             };
         return plan;
-    }
-
-    private void cleanLooseEdges(final Map<AbstractActivity, AbstractActivity> links) {
-        final List<AbstractActivity> keysToRemove = new ArrayList<>();
-
-        for (final AbstractActivity key : links.keySet()) {
-            if (key == null) {
-                keysToRemove.add(key);
-            } else if (links.get(key) == null) {
-                keysToRemove.add(key);
-            }
-        }
-
-        keysToRemove.forEach(key -> links.remove(key));
     }
 
     public static AbstractPlan generatePOG(final String id, final AbstractDefinitions definitions,
