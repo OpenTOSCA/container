@@ -251,7 +251,9 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                                                                                                 serviceTemplateID,
                                                                                                 nodeTypeID,
                                                                                                 nodeTemplateID)
-                                                                    + " CSAR='" + csarID + "' ");
+                                                                    + " CSAR='" + csarID + "' NodeInstanceID='"
+                                                                    + nodeInstanceID + "' ServiceInstanceID='"
+                                                                    + serviceInstanceID + "' ");
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER,
                                                                 createParamsString(params));
