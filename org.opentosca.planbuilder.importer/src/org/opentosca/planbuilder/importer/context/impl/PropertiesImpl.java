@@ -29,6 +29,10 @@ public class PropertiesImpl extends AbstractProperties {
      * @param properties an Object of class ElementNSImpl
      */
     public PropertiesImpl(final Object properties) {
+        if (properties == null) {
+            throw new RuntimeException("Properties may not be null!");
+        }
+
         this.props = properties;
         if (properties.getClass().getName().equals("com.sun.org.apache.xerces.internal.dom.ElementNSImpl")) {
             this.isDOM = true;

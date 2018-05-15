@@ -225,12 +225,12 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     private boolean isRunning(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
         final Variable state = context.getPropertyVariable(nodeTemplate, "State");
-        if (BPELPlanContext.getVariableContent(state, context).equals("Running")) {
-            return true;
-        } else {
-            return false;
+        if (state != null) {
+            if (BPELPlanContext.getVariableContent(state, context).equals("Running")) {
+                return true;
+            }
         }
-
+        return false;
     }
 
     /**

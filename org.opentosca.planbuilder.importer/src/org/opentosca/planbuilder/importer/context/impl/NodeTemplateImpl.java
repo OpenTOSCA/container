@@ -61,7 +61,7 @@ public class NodeTemplateImpl extends AbstractNodeTemplate {
         this.capabilities = new ArrayList<>();
         this.das = new ArrayList<>();
         this.policies = new ArrayList<>();
-        if (this.nodeTemplate.getProperties() != null) {
+        if (this.nodeTemplate.getProperties() != null && this.nodeTemplate.getProperties().getAny() != null) {
             this.properties = new PropertiesImpl(this.nodeTemplate.getProperties().getAny());
         }
 
