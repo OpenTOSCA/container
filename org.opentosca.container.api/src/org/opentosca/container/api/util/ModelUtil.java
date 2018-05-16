@@ -3,11 +3,17 @@ package org.opentosca.container.api.util;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public abstract class ModelUtil {
 
@@ -37,6 +43,32 @@ public abstract class ModelUtil {
 
         }
         return false;
+    }
+
+    public static Element fetchFirstChildElement(final Document doc, final String childElementLocalName) {
+        final NodeList childe = doc.getDocumentElement().getElementsByTagName(childElementLocalName);
+        for (int i = 0; i < childe.getLength(); i++) {
+            if (childe.item(i) instanceof Element) {
+                return (Element) childe.item(i);
+            }
+        }
+        return null;
+    }
+
+    public static Document createDocumentFromElement(final Element element) {
+        try {
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            dbf.setIgnoringComments(true);
+            final Document doc = dbf.newDocumentBuilder().newDocument();
+            final Node importedNode = doc.importNode(element, true);
+            doc.appendChild(importedNode);
+            return doc;
+        }
+        catch (final ParserConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.dto.NodeTemplateInstanceDTO;
 import org.opentosca.container.api.dto.NodeTemplateInstanceListDTO;
 import org.opentosca.container.api.service.InstanceService;
+import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
@@ -30,6 +31,7 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -210,6 +212,25 @@ public class NodeTemplateInstanceController {
         }
     }
 
+    @GET
+    @Path("/{id}/properties/{propname}")
+    @Produces({MediaType.APPLICATION_XML})
+    @ApiOperation(value = "Get a single property of a node template instance identified by its id and the name of the property.",
+                  response = Document.class)
+    public Response getNodeTemplateInstanceProperty(@ApiParam("id of the node template instance") @PathParam("id") final Long id,
+                                                    @ApiParam("name of the node template instance property") @PathParam("propname") final String propertyName) {
+        final Document properties =
+            this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+
+        if (properties == null && ModelUtil.fetchFirstChildElement(properties, propertyName) == null) {
+            return Response.noContent().build();
+        } else {
+            return Response.ok(ModelUtil.createDocumentFromElement(ModelUtil.fetchFirstChildElement(properties,
+                                                                                                    propertyName)))
+                           .build();
+        }
+    }
+
     @PUT
     @Path("/{id}/properties")
     @Consumes({MediaType.APPLICATION_XML})
@@ -226,6 +247,41 @@ public class NodeTemplateInstanceController {
         try {
             this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
                                                                    request);
+        }
+        catch (final IllegalArgumentException e) { // this handles a null request too
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+        catch (final ReflectiveOperationException e) {
+            return Response.serverError().build();
+        }
+
+        return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
+    }
+
+    @PUT
+    @Path("/{id}/properties/{propname}")
+    @Consumes({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.",
+                  response = Response.class)
+    @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),
+                   @ApiResponse(code = 404, message = "Not Found - The node template instance cannot be found"),
+                   @ApiResponse(code = 200, message = "Successful Operation - A URI to the properties resource")})
+    public Response updateNodeTemplateInstanceProperty(@ApiParam("id of the node template instance") @PathParam("id") final Long id,
+                                                       @ApiParam("name of the node template instance property") @PathParam("propname") final String propertyName,
+                                                       @ApiParam(required = true,
+                                                                 value = "an xml representation of the set of properties") final Document request) {
+
+        try {
+            final Document properties =
+                this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
+
+            final Element propElement = ModelUtil.fetchFirstChildElement(properties, propertyName);
+
+            propElement.setTextContent(request.getDocumentElement().getTextContent());
+
+            this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
+                                                                   properties);
         }
         catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
