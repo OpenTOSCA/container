@@ -147,7 +147,6 @@
     <module>org.opentosca.container.api.legacy</module>
     <module>org.opentosca.container.api</module>
     <module>org.opentosca.planbuilder</module>
-    <module>org.opentosca.planbuilder.core</module>
     <module>org.opentosca.planbuilder.core.bpel</module>
     <module>org.opentosca.planbuilder.csarhandler</module>
     <module>org.opentosca.planbuilder.export</module>

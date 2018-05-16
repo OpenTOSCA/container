@@ -1,10 +1,10 @@
-package org.opentosca.planbuilder.core.plugins;
+package org.opentosca.planbuilder.plugins;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>

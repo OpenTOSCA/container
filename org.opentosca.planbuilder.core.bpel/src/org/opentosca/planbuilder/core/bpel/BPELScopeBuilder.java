@@ -8,11 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.opentosca.planbuilder.core.bpel.helpers.TOSCAManagementInfrastructureNodeTemplate;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.registry.PluginRegistry;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
@@ -22,6 +17,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTypeImplementation;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.registry.PluginRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

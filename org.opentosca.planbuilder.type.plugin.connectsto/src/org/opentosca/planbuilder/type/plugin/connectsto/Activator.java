@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.connectsto;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.BPELConnectsToPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -100,7 +100,7 @@ public class Exporter extends AbstractExporter {
             }
         }
 
-        return this.exportBPEL(bpelPlans, csarId);
+        return exportBPEL(bpelPlans, csarId);
     }
 
     public File exportBPEL(final List<BPELPlan> plans, final CSARID csarId) {
@@ -119,7 +119,7 @@ public class Exporter extends AbstractExporter {
 
         final String csarName = csarId.getFileName();
 
-        final IFileAccessService service = this.getFileAccessService();
+        final IFileAccessService service = getFileAccessService();
 
         final File tempDir = service.getTemp();
         final File pathToRepackagedCsar = service.getTemp();
@@ -129,8 +129,8 @@ public class Exporter extends AbstractExporter {
             final Set<AbstractFile> files = csarContent.getFilesRecursively();
             final AbstractFile mainDefFile = csarContent.getRootTOSCA();
             final File rootDefFile = mainDefFile.getFile().toFile();
-            final Definitions defs = this.parseDefinitionsFile(rootDefFile);
-            final List<TServiceTemplate> servTemps = this.getServiceTemplates(defs);
+            final Definitions defs = parseDefinitionsFile(rootDefFile);
+            final List<TServiceTemplate> servTemps = getServiceTemplates(defs);
 
             final List<BPELPlan> plansToExport = new ArrayList<>();
 
@@ -160,9 +160,9 @@ public class Exporter extends AbstractExporter {
                 }
 
                 for (final BPELPlan plan : plans) {
-                    if (plan.getServiceTemplate().getQName().equals(this.buildQName(defs, serviceTemplate))) {
+                    if (plan.getServiceTemplate().getQName().equals(buildQName(defs, serviceTemplate))) {
 
-                        final TPlan generatedPlanElement = this.generateTPlanElement(plan);
+                        final TPlan generatedPlanElement = generateTPlanElement(plan);
                         planList.add(generatedPlanElement);
                         plansToExport.add(plan);
 
@@ -242,7 +242,7 @@ public class Exporter extends AbstractExporter {
 
             // write plans
             for (final BPELPlan plan : plansToExport) {
-                final File planPath = new File(tempDir, this.generateRelativePlanPath(plan));
+                final File planPath = new File(tempDir, generateRelativePlanPath(plan));
                 Exporter.LOG.debug(planPath.toString());
                 planPath.getParentFile().mkdirs();
                 planPath.createNewFile();
@@ -264,15 +264,14 @@ public class Exporter extends AbstractExporter {
                     for (final ApplicationOption option : appDesc.getOptions().getOption()) {
                         for (final BPELPlan plan : plansToExport) {
                             if (option.getPlanServiceName()
-                                      .equals(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor())
-                                                  .getLocalPart())) {
+                                      .equals(getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart())) {
                                 if (!new File(selfServiceDir, option.getPlanInputMessageUrl()).exists()) {
                                     // the planinput file is defined in the xml,
                                     // but
                                     // no file exists in the csar -> write one
                                     final File planInputFile =
                                         new File(selfServiceDir, option.getPlanInputMessageUrl());
-                                    this.writePlanInputMessageInstance(plan, planInputFile);
+                                    writePlanInputMessageInstance(plan, planInputFile);
                                     exportedPlans.add(plan);
                                 }
                             }
@@ -287,8 +286,8 @@ public class Exporter extends AbstractExporter {
                                 continue;
                             }
 
-                            final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
-                            this.writePlanInputMessageInstance(plan, new File(selfServiceDir,
+                            final ApplicationOption option = createApplicationOption(plan, optionCounter);
+                            writePlanInputMessageInstance(plan, new File(selfServiceDir,
                                 "plan.input.default." + optionCounter + ".xml"));
 
                             appDesc.getOptions().getOption().add(option);
@@ -304,8 +303,8 @@ public class Exporter extends AbstractExporter {
                     final Application.Options options = new Application.Options();
 
                     for (final BPELPlan plan : plansToExport) {
-                        final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
-                        this.writePlanInputMessageInstance(plan, new File(selfServiceDir,
+                        final ApplicationOption option = createApplicationOption(plan, optionCounter);
+                        writePlanInputMessageInstance(plan, new File(selfServiceDir,
                             "plan.input.default." + optionCounter + ".xml"));
                         optionCounter++;
                         options.getOption().add(option);
@@ -330,8 +329,8 @@ public class Exporter extends AbstractExporter {
                     final Application.Options options = new Application.Options();
 
                     for (final BPELPlan plan : plansToExport) {
-                        final ApplicationOption option = this.createApplicationOption(plan, optionCounter);
-                        this.writePlanInputMessageInstance(plan, new File(selfServiceDir,
+                        final ApplicationOption option = createApplicationOption(plan, optionCounter);
+                        writePlanInputMessageInstance(plan, new File(selfServiceDir,
                             "plan.input.default." + optionCounter + ".xml"));
                         optionCounter++;
                         options.getOption().add(option);
@@ -376,7 +375,7 @@ public class Exporter extends AbstractExporter {
         }
         option.setId(String.valueOf(optionCounter));
         option.setIconUrl("");
-        option.setPlanServiceName(this.getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
+        option.setPlanServiceName(getBuildPlanServiceName(plan.getDeploymentDeskriptor()).getLocalPart());
         option.setPlanInputMessageUrl("plan.input.default." + optionCounter + ".xml");
         return option;
     }
@@ -465,7 +464,7 @@ public class Exporter extends AbstractExporter {
         final List<TParameter> inputParamsList = inputParams.getInputParameter();
         final List<TParameter> outputParamsList = outputParams.getOutputParameter();
 
-        ref.setReference(this.generateRelativePlanPath(generatedPlan));
+        ref.setReference(generateRelativePlanPath(generatedPlan));
         plan.setPlanModelReference(ref);
 
         for (final String paramName : generatedPlan.getWsdl().getInputMessageLocalNames()) {
@@ -535,8 +534,8 @@ public class Exporter extends AbstractExporter {
         final List<String> inputParamNames = buildPlan.getWsdl().getInputMessageLocalNames();
 
         final VinothekKnownParameters paramMappings = new VinothekKnownParameters();
-        final String soapMessagePrefix = this.createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);
-        final String soapMessageSuffix = this.createSuffixPartOfSoapMessage(requestMessageLocalName);
+        final String soapMessagePrefix = createPrefixPartOfSoapMessage(messageNs, requestMessageLocalName);
+        final String soapMessageSuffix = createSuffixPartOfSoapMessage(requestMessageLocalName);
 
         String soapMessage = soapMessagePrefix;
         for (final String inputParamName : inputParamNames) {

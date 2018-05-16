@@ -1,13 +1,13 @@
-package org.opentosca.planbuilder.core.plugins;
+package org.opentosca.planbuilder.plugins;
 
 import java.util.Map;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.context.Variable;
 
 /**
  *

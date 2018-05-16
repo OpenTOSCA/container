@@ -3,12 +3,12 @@ package org.opentosca.planbuilder.core.bpel;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
 
 /**
  * <p>

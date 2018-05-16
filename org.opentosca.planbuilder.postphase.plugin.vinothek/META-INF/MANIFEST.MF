@@ -16,6 +16,5 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.planbuilder;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
  org.opentosca.planbuilder.csarhandler;bundle-version="1.0.0",
- org.opentosca.planbuilder.core;bundle-version="2.0.0",
  org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0"
 Bundle-Activator: org.opentosca.planbuilder.postphase.plugin.vinothek.Activator

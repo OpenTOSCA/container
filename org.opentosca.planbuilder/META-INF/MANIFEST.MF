@@ -15,8 +15,11 @@ Import-Package: javax.wsdl;version="1.6.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .
-Export-Package: org.opentosca.planbuilder
+Export-Package: org.opentosca.planbuilder,
+ org.opentosca.planbuilder.plugins,
+ org.opentosca.planbuilder.plugins.context,
+ org.opentosca.planbuilder.plugins.registry
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.core;bundle-version="2.0.0"
+ org.opentosca.planbuilder.model;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.opentosca.planbuilder.plugins.activator.Activator

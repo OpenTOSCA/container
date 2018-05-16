@@ -1,8 +1,8 @@
 package org.opentosca.planbuilder.postphase.plugin.instancedata.core.handler;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 public interface InstanceDataHandler<T extends PlanContext> {
     public boolean handle(T context, AbstractRelationshipTemplate relationshipTemplate);

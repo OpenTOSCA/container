@@ -1,9 +1,9 @@
-package org.opentosca.planbuilder.core.plugins;
+package org.opentosca.planbuilder.plugins;
 
 import java.util.List;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 public interface IScalingPlanBuilderSelectionPlugin<T extends PlanContext> extends IPlanBuilderPlugin {
 

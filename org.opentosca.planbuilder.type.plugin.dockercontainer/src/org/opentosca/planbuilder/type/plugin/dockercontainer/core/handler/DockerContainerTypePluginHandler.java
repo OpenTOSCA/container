@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.dockercontainer.core.handler;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>

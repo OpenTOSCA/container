@@ -6,8 +6,8 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Node;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;

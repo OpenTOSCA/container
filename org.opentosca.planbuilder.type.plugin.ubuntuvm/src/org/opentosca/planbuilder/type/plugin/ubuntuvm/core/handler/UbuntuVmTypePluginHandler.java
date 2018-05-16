@@ -1,7 +1,7 @@
 package org.opentosca.planbuilder.type.plugin.ubuntuvm.core.handler;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>

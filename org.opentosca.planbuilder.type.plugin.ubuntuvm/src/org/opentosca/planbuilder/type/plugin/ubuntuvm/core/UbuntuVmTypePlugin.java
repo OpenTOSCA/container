@@ -4,12 +4,12 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.container.core.tosca.convention.Utils;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPolicyAwareTypePlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicy;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPolicyAwareTypePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

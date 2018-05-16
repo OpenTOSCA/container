@@ -1,12 +1,12 @@
 package org.opentosca.planbuilder.type.plugin.connectsto.core;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * Copyright 2016 IAAS University of Stuttgart <br>

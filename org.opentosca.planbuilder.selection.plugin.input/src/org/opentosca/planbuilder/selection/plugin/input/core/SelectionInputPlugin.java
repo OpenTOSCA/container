@@ -2,8 +2,8 @@ package org.opentosca.planbuilder.selection.plugin.input.core;
 
 import java.util.List;
 
-import org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 
 /**

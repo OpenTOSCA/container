@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.postphase.plugin.monitoring;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPostPhasePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPostPhasePlugin;
 import org.opentosca.planbuilder.postphase.plugin.monitoring.bpel.impl.BPELMonitoringPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

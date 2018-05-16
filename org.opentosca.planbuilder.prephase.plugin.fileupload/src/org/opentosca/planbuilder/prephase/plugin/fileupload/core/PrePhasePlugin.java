@@ -2,13 +2,13 @@ package org.opentosca.planbuilder.prephase.plugin.fileupload.core;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -12,7 +12,6 @@ Bundle-ClassPath: .,
  META-INF/resources/
 Require-Bundle: org.opentosca.planbuilder;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.core,
  org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0"
 Export-Package: org.opentosca.planbuilder.postphase.plugin.instancedata.core
 Bundle-Activator: org.opentosca.planbuilder.postphase.plugin.instancedata.Activator

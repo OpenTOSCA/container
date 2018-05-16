@@ -1,9 +1,9 @@
 package org.opentosca.planbuilder.prephase.plugin.fileupload.core.handler;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>

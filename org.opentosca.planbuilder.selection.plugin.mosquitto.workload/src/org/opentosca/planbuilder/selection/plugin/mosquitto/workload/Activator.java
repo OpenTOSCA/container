@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.selection.plugin.mosquitto.workload;
 
-import org.opentosca.planbuilder.core.plugins.IScalingPlanBuilderSelectionPlugin;
+import org.opentosca.planbuilder.plugins.IScalingPlanBuilderSelectionPlugin;
 import org.opentosca.planbuilder.selection.plugin.mosquitto.workload.bpel.BPELMosquittoSelectionPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.core.handler;
 
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * Copyright 2016 IAAS University of Stuttgart <br>

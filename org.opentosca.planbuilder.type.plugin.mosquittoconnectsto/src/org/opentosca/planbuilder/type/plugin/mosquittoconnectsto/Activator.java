@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.mosquittoconnectsto;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.type.plugin.mosquittoconnectsto.bpel.BPELConnectsToTypePlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -17,7 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
+import org.opentosca.planbuilder.plugins.context.Variable;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public class ResourceHandler {
      */
     public Node generateAddressingCopyAsNode(final String partnerLinkName,
                                              final String requestVariableName) throws IOException, SAXException {
-        final String addressingCopyString = this.generateAddressingCopy(partnerLinkName, requestVariableName);
+        final String addressingCopyString = generateAddressingCopy(partnerLinkName, requestVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -137,7 +137,7 @@ public class ResourceHandler {
      * @throws SAXException is thrown when parsing internal data to DOM fails
      */
     public Node generateAddressingInitAsNode(final String requestVariableName) throws IOException, SAXException {
-        final String addressingCopyString = this.generateAddressingInit(requestVariableName);
+        final String addressingCopyString = generateAddressingInit(requestVariableName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -149,8 +149,8 @@ public class ResourceHandler {
                                                            final String invokerParamName) throws IOException,
                                                                                           SAXException {
         final String addressingCopyString =
-            this.generateCopyFromExternalParamToInvokerString(requestVarName, requestVarPartName, paramName,
-                                                              invokerParamName);
+            generateCopyFromExternalParamToInvokerString(requestVarName, requestVarPartName, paramName,
+                                                         invokerParamName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -212,8 +212,8 @@ public class ResourceHandler {
                                                           final String invokerParamName) throws SAXException,
                                                                                          IOException {
         final String addressingCopyString =
-            this.generateEPRMyRoleCopyToInvokerParamAsString(partnerLinkName, invokerRequestVarName,
-                                                             invokerRequestVarPartName, invokerParamName);
+            generateEPRMyRoleCopyToInvokerParamAsString(partnerLinkName, invokerRequestVarName,
+                                                        invokerRequestVarPartName, invokerParamName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -263,7 +263,7 @@ public class ResourceHandler {
     public Node generateInvokeAsNode(final String invokeName, final String partnerLinkName, final String operationName,
                                      final QName portType, final String inputVarName) throws SAXException, IOException {
         final String invokeString =
-            this.generateInvokeAsString(invokeName, partnerLinkName, operationName, portType, inputVarName);
+            generateInvokeAsString(invokeName, partnerLinkName, operationName, portType, inputVarName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(invokeString));
         final Document doc = this.docBuilder.parse(is);
@@ -290,6 +290,7 @@ public class ResourceHandler {
 
     public String generateInvokerRequestMessageInitAssignTemplate(final String csarName, final QName serviceTemplateId,
                                                                   final String serviceInstanceIdVarName,
+                                                                  final String nodeInstanceIdVarName,
                                                                   final String operationName, final String messageId,
                                                                   final String requestVarName,
                                                                   final String requestVarPartName, final String iface,
@@ -311,6 +312,7 @@ public class ResourceHandler {
         // first the easy ones
         assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
         assignTemplateString = assignTemplateString.replace("{serviceInstanceID}", "");
+        assignTemplateString = assignTemplateString.replace("{nodeInstanceID}", "");
         assignTemplateString = assignTemplateString.replace("{serviceTemplateNS}", serviceTemplateId.getNamespaceURI());
         assignTemplateString =
             assignTemplateString.replace("{serviceTemplateLocalName}", serviceTemplateId.getLocalPart());
@@ -336,7 +338,7 @@ public class ResourceHandler {
         assignTemplateString = assignTemplateString.replace("{templateID}", templateString);
 
         assignTemplateString =
-            assignTemplateString.replace("{paramsMap}", this.generateServiceInvokerParamsMap(internalExternalProps));
+            assignTemplateString.replace("{paramsMap}", generateServiceInvokerParamsMap(internalExternalProps));
 
         // add copy elements to the assign according to the given map of
         // parameters
@@ -344,17 +346,14 @@ public class ResourceHandler {
             if (internalExternalProps.get(propertyName) == null) {
                 // parameter is external, fetch value from plan input message
                 String copyString =
-                    this.generateServiceInvokerExternalParamCopyString(requestVarName, requestVarPartName,
-                                                                       propertyName);
+                    generateServiceInvokerExternalParamCopyString(requestVarName, requestVarPartName, propertyName);
                 copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
             } else {
                 // parameter is internal, fetch value from bpel variable
                 String copyString =
-                    this.generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName)
-                                                                                            .getName(),
-                                                                       requestVarName, requestVarPartName,
-                                                                       propertyName);
+                    generateServiceInvokerInternalParamCopyString(internalExternalProps.get(propertyName).getName(),
+                                                                  requestVarName, requestVarPartName, propertyName);
                 copyString = copyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                 assignTemplateString = assignTemplateString.replace("{copies}", copyString + "{copies}");
             }
@@ -362,9 +361,14 @@ public class ResourceHandler {
 
         // assign serviceInstanceID
         String serviceInstanceCopyString =
-            this.generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName, requestVarPartName);
+            generateServiceInstanceIDCopy(serviceInstanceIdVarName, requestVarName, requestVarPartName);
         serviceInstanceCopyString = serviceInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
         assignTemplateString = assignTemplateString.replace("{copies}", serviceInstanceCopyString + "{copies}");
+
+        String nodeInstanceCopyString =
+            generateNodeInstanceIdCopy(nodeInstanceIdVarName, requestVarName, requestVarPartName);
+        nodeInstanceCopyString = nodeInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+        assignTemplateString = assignTemplateString.replace("{copies}", nodeInstanceCopyString + "{copies}");
 
         assignTemplateString = assignTemplateString.replace("{copies}", "");
 
@@ -378,6 +382,7 @@ public class ResourceHandler {
     public Node generateInvokerRequestMessageInitAssignTemplateAsNode(final String csarName,
                                                                       final QName serviceTemplateId,
                                                                       final String serviceInstanceIdVarName,
+                                                                      final String nodeInstanceIdVarName,
                                                                       final String operationName,
                                                                       final String messageId,
                                                                       final String requestVarName,
@@ -387,10 +392,10 @@ public class ResourceHandler {
                                                                       final Map<String, Variable> internalExternalProps) throws IOException,
                                                                                                                          SAXException {
         final String templateString =
-            this.generateInvokerRequestMessageInitAssignTemplate(csarName, serviceTemplateId, serviceInstanceIdVarName,
-                                                                 operationName, messageId, requestVarName,
-                                                                 requestVarPartName, iface, isNodeTemplate, templateId,
-                                                                 internalExternalProps);
+            generateInvokerRequestMessageInitAssignTemplate(csarName, serviceTemplateId, serviceInstanceIdVarName,
+                                                            nodeInstanceIdVarName, operationName, messageId,
+                                                            requestVarName, requestVarPartName, iface, isNodeTemplate,
+                                                            templateId, internalExternalProps);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -435,7 +440,7 @@ public class ResourceHandler {
     public Node generateMessageIdInitAsNode(final String requestVariableName, final String requestVariabelPartName,
                                             final String messageIdPrefix) throws IOException, SAXException {
         final String addressingCopyString =
-            this.generateMessageIdInit(requestVariableName, requestVariabelPartName, messageIdPrefix);
+            generateMessageIdInit(requestVariableName, requestVariabelPartName, messageIdPrefix);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -495,7 +500,7 @@ public class ResourceHandler {
                                           final String requestVarPartName,
                                           final String paramName) throws IOException, SAXException {
         final String addressingCopyString =
-            this.generateReplyToCopy(partnerLinkName, requestVarName, requestVarPartName, paramName);
+            generateReplyToCopy(partnerLinkName, requestVarName, requestVarPartName, paramName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(addressingCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -519,8 +524,8 @@ public class ResourceHandler {
                                              final QName MessageDeclId, final String planOutputMsgName,
                                              final String planOutputMsgPartName) throws SAXException, IOException {
         final String templateString =
-            this.generateResponseAssignAsString(variableName, part, paramPropertyMappings, assignName, MessageDeclId,
-                                                planOutputMsgName, planOutputMsgPartName);
+            generateResponseAssignAsString(variableName, part, paramPropertyMappings, assignName, MessageDeclId,
+                                           planOutputMsgName, planOutputMsgPartName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(templateString));
         final Document doc = this.docBuilder.parse(is);
@@ -602,7 +607,7 @@ public class ResourceHandler {
     public Node generateServiceInstanceCopyAsNode(final String bpelVarName, final String requestVarName,
                                                   final String requestVarPartName) throws IOException, SAXException {
         final String serviceInstanceCopyString =
-            this.generateServiceInstanceIDCopy(bpelVarName, requestVarName, requestVarPartName);
+            generateServiceInstanceIDCopy(bpelVarName, requestVarName, requestVarPartName);
         final InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(serviceInstanceCopyString));
         final Document doc = this.docBuilder.parse(is);
@@ -632,6 +637,31 @@ public class ResourceHandler {
 
         return serviceInstanceCopyString;
     }
+
+    public String generateNodeInstanceIdCopy(final String bpelVarName, final String requestVarName,
+                                             final String requestVarPartName) throws IOException {
+        final URL url =
+            FrameworkUtil.getBundle(this.getClass()).getBundleContext().getBundle().getResource("nodeInstanceCopy.xml");
+        final File serviceInstanceCopy = new File(FileLocator.toFileURL(url).getPath());
+        String serviceInstanceCopyString = FileUtils.readFileToString(serviceInstanceCopy);
+
+        serviceInstanceCopyString = serviceInstanceCopyString.replace("{bpelVarName}", bpelVarName);
+        serviceInstanceCopyString = serviceInstanceCopyString.replace("{requestVarName}", requestVarName);
+        serviceInstanceCopyString = serviceInstanceCopyString.replace("{requestVarPartName}", requestVarPartName);
+
+        return serviceInstanceCopyString;
+    }
+
+    public Node generateNodeInstanceIdCopyAsNode(final String bpelVarName, final String requestVarName,
+                                                 final String requestVarPartName) throws IOException, SAXException {
+        final String nodeInstanceCopyString =
+            generateNodeInstanceIdCopy(bpelVarName, requestVarName, requestVarPartName);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(nodeInstanceCopyString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
+    }
+
 
     private String generateServiceInvokerExternalParamCopyString(final String requestVarName,
                                                                  final String requestVarPartName,
@@ -711,7 +741,7 @@ public class ResourceHandler {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("invoker.wsdl");
         final File wsdlFile = new File(FileLocator.toFileURL(url).getPath());
 
-        final File tempFile = this.createNewTempFile(wsdlFile, id);
+        final File tempFile = createNewTempFile(wsdlFile, id);
 
         final String fileName = invokerXsdFile.getName();
 
@@ -723,7 +753,7 @@ public class ResourceHandler {
     public File getServiceInvokerXSDFile(final int id) throws IOException {
         final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("invoker.xsd");
         final File xsdFile = new File(FileLocator.toFileURL(url).getPath());
-        final File tempFile = this.createNewTempFile(xsdFile, id);
+        final File tempFile = createNewTempFile(xsdFile, id);
         return tempFile;
 
     }

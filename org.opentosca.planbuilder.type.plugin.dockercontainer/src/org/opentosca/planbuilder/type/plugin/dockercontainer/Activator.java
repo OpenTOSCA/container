@@ -1,6 +1,6 @@
 package org.opentosca.planbuilder.type.plugin.dockercontainer;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELDockerContainerTypePlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.BPELOpenMTCDockerContainerTypePlugin;
 import org.osgi.framework.BundleActivator;

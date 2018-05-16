@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.opentosca.planbuilder.core.plugins.activator;
+package org.opentosca.planbuilder.plugins.activator;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

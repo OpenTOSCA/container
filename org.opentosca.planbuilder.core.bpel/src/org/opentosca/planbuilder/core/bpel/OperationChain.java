@@ -6,11 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseDAPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderPrePhaseIAPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
@@ -18,6 +13,11 @@ import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseDAPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderPrePhaseIAPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.plugins.context.Variable;
 
 /**
  * <p>

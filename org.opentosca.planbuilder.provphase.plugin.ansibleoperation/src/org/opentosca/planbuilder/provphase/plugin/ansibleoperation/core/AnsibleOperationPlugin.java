@@ -2,9 +2,9 @@ package org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseOperationPlugin;
+import org.opentosca.planbuilder.plugins.IPlanBuilderProvPhaseParamOperationPlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 
 /**
  * <p>

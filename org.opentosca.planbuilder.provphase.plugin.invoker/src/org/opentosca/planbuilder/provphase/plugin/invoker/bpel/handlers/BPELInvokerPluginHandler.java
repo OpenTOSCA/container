@@ -21,7 +21,6 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
-import org.opentosca.planbuilder.core.plugins.context.Variable;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -30,6 +29,7 @@ import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractOperation;
 import org.opentosca.planbuilder.model.tosca.AbstractParameter;
+import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.core.handler.InvokerPluginHandler;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -306,15 +306,15 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         // fetch serviceInstanceId
 
-        String serviceInstanceIdVarName = null;
-
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceURLVarKeyword)) {
-                serviceInstanceIdVarName = varName;
-            }
-        }
+        final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
 
         if (serviceInstanceIdVarName == null) {
+            return false;
+        }
+
+        final String nodeInstanceUrlVarName = context.findInstanceURLVar(templateId, isNodeTemplate);
+
+        if (nodeInstanceUrlVarName == null) {
             return false;
         }
 
@@ -323,6 +323,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             Node assignNode =
                 this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
                                                                                       serviceInstanceIdVarName,
+                                                                                      nodeInstanceUrlVarName,
                                                                                       operationName,
                                                                                       String.valueOf(System.currentTimeMillis()),
                                                                                       requestVariableName,
@@ -521,17 +522,18 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         // fetch serviceInstanceId
 
-        String serviceInstanceIdVarName = null;
-
-        for (final String varName : context.getMainVariableNames()) {
-            if (varName.contains(BPELInvokerPluginHandler.ServiceInstanceURLVarKeyword)) {
-                serviceInstanceIdVarName = varName;
-            }
-        }
+        final String serviceInstanceIdVarName = context.getServiceInstanceURLVarName();
 
         if (serviceInstanceIdVarName == null) {
             return false;
         }
+
+        final String nodeInstanceUrlVarName = context.findInstanceURLVar(templateId, isNodeTemplate);
+
+        if (nodeInstanceUrlVarName == null) {
+            return false;
+        }
+
 
         // add request message assign to prov phase scope
         try {
@@ -539,6 +541,7 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                 this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
                                                                                       context.getServiceTemplateId(),
                                                                                       serviceInstanceIdVarName,
+                                                                                      nodeInstanceUrlVarName,
                                                                                       operationName,
                                                                                       String.valueOf(System.currentTimeMillis()),
                                                                                       requestVariableName,

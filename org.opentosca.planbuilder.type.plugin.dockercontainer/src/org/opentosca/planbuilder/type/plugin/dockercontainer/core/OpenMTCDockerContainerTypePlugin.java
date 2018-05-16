@@ -4,10 +4,10 @@
 package org.opentosca.planbuilder.type.plugin.dockercontainer.core;
 
 import org.opentosca.container.core.tosca.convention.Types;
-import org.opentosca.planbuilder.core.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
  *
  */
 public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> implements
-                                                      org.opentosca.planbuilder.core.plugins.IPlanBuilderTypePlugin<T> {
+                                                      org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin<T> {
     private static final String ID = "OpenTOSCA PlanBuilder Type Plugin OpenMTC DockerContainer";
 
     public static AbstractNodeTemplate findConnectedBackend(final AbstractNodeTemplate gatewayNodeTemplate) {
