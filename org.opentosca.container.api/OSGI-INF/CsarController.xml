@@ -4,7 +4,8 @@
    <reference bind="setCsarService" cardinality="1..1" interface="org.opentosca.container.api.service.CsarService" name="CsarService" policy="static"/>
    <reference bind="setFileService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreFileService" name="ICoreFileService" policy="static"/>
    <reference bind="setEngineService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static"/>
-   <reference bind="setControlService" cardinality="1..1" interface="org.opentosca.container.control.IOpenToscaControlService" name="IOpenToscaControlService" policy="static"/>  
+   <reference bind="setControlService" cardinality="1..1" interface="org.opentosca.container.control.IOpenToscaControlService" name="IOpenToscaControlService" policy="static"/>
+   <reference bind="setSituationService" cardinality="1..1" interface="org.opentosca.situations.service.ISituationRegistrationService" name="ISituationRegistrationService" policy="static"/>  
    <service>
       <provide interface="org.opentosca.container.api.controller.CsarController"/>
    </service>

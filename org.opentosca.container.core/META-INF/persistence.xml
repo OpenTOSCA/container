@@ -21,6 +21,10 @@
     
     <class>org.opentosca.container.core.next.model.DeploymentTest</class>
     <class>org.opentosca.container.core.next.model.DeploymentTestResult</class>
+    
+    <class>org.opentosca.container.core.next.model.Situation</class>
+    <class>org.opentosca.container.core.next.model.SituationTrigger</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.core.model.csar.CSARContent</class>
