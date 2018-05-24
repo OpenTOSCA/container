@@ -247,7 +247,17 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
         for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate());
-            if (templatePlan.getNodeTemplate() != null && !isRunning(context, templatePlan.getNodeTemplate())) {
+            if (templatePlan.getNodeTemplate() != null) {
+                if (isRunning(context, templatePlan.getNodeTemplate())) {
+                    BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
+                        + templatePlan.getNodeTemplate().getId() + "  beacuse state=running is set.");
+                    for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
+                        if (postPhasePlugin.canHandle(templatePlan.getNodeTemplate())) {
+                            postPhasePlugin.handle(context, templatePlan.getNodeTemplate());
+                        }
+                    }
+                    continue;
+                }
                 // handling nodetemplate
                 final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
                 BPELBuildProcessBuilder.LOG.debug("Trying to handle NodeTemplate " + nodeTemplate.getId());
@@ -274,14 +284,12 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                                                      nodeTemplate.getId());
                     plugin.handle(context);
                 }
-
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandle(nodeTemplate)) {
-                        postPhasePlugin.handle(context, nodeTemplate);
+                    if (postPhasePlugin.canHandle(templatePlan.getNodeTemplate())) {
+                        postPhasePlugin.handle(context, templatePlan.getNodeTemplate());
                     }
                 }
-
-            } else {
+            } else if (templatePlan.getRelationshipTemplate() != null) {
                 // handling relationshiptemplate
                 final AbstractRelationshipTemplate relationshipTemplate = templatePlan.getRelationshipTemplate();
 
@@ -318,11 +326,14 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 }
 
                 for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    if (postPhasePlugin.canHandle(relationshipTemplate)) {
-                        postPhasePlugin.handle(context, relationshipTemplate);
+                    if (postPhasePlugin.canHandle(templatePlan.getRelationshipTemplate())) {
+                        postPhasePlugin.handle(context, templatePlan.getRelationshipTemplate());
                     }
                 }
             }
+
+
+
         }
     }
 
