@@ -7,11 +7,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
-@XmlRootElement(name = "Situations")
-public class SituationListDTO {
+@XmlRootElement(name = "SituationResources")
+public class SituationListDTO extends ResourceSupport {
 
 
     @JsonProperty

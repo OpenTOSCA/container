@@ -30,7 +30,7 @@ public class SituationTriggerInstance extends PersistenceObject {
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTriggerInstance", cascade = {CascadeType.ALL})
-    private Set<Property> outputs = Sets.newHashSet();
+    private Set<SituationTriggerInstanceProperty> outputs = Sets.newHashSet();
 
     public SituationTrigger getSituationTrigger() {
         return this.situationTrigger;
@@ -48,11 +48,11 @@ public class SituationTriggerInstance extends PersistenceObject {
         this.active = active;
     }
 
-    public Set<Property> getOutputs() {
+    public Set<SituationTriggerInstanceProperty> getOutputs() {
         return this.outputs;
     }
 
-    public void setOutputs(final Set<Property> outputs) {
+    public void setOutputs(final Set<SituationTriggerInstanceProperty> outputs) {
         this.outputs = outputs;
     }
 

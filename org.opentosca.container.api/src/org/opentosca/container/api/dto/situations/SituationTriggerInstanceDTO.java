@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -14,7 +15,7 @@ import com.google.common.collect.Maps;
 
 @XmlRootElement(name = "SituationTriggerInstance")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SituationTriggerInstanceDTO {
+public class SituationTriggerInstanceDTO extends ResourceSupport {
 
     @XmlAttribute(name = "id")
     private Long id;

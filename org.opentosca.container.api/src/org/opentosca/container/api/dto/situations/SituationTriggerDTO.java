@@ -2,39 +2,48 @@ package org.opentosca.container.api.dto.situations;
 
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.opentosca.container.api.dto.PropertyDTO;
+import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.SituationTrigger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Sets;
 
 @XmlRootElement(name = "SituationTrigger")
+@XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SituationTriggerDTO {
+public class SituationTriggerDTO extends ResourceSupport {
 
     @XmlAttribute(name = "id")
     private Long id;
 
+    @XmlElement(name = "SituationId")
     private Long situationId;
 
+    @XmlElement(name = "onActivation")
     private boolean onActivation;
 
+    @XmlElement(name = "ServiceInstanceId")
     private Long serviceInstanceId;
 
+    @XmlElement(name = "NodeInstanceId", required = false)
     private Long nodeInstanceId;
 
+    @XmlElement(name = "InterfaceName")
     private String interfaceName;
 
+    @XmlElement(name = "OperationName")
     private String operationName;
 
     @XmlElement(name = "InputParameter")
     @XmlElementWrapper(name = "InputParameters")
-    private Collection<PropertyDTO> inputParams;
+    private Collection<SituationTriggerInputDTO> inputParams;
 
 
     public Long getId() {
@@ -45,7 +54,6 @@ public class SituationTriggerDTO {
         this.id = id;
     }
 
-    @XmlElement(name = "SituationId")
     public Long getSituationId() {
         return this.situationId;
     }
@@ -54,7 +62,6 @@ public class SituationTriggerDTO {
         this.situationId = situationId;
     }
 
-    @XmlElement(name = "onActivation")
     public boolean isOnActivation() {
         return this.onActivation;
     }
@@ -63,7 +70,6 @@ public class SituationTriggerDTO {
         this.onActivation = onActivation;
     }
 
-    @XmlElement(name = "ServiceInstanceId")
     public Long getServiceInstanceId() {
         return this.serviceInstanceId;
     }
@@ -72,7 +78,6 @@ public class SituationTriggerDTO {
         this.serviceInstanceId = serviceInstanceId;
     }
 
-    @XmlElement(name = "NodeInstanceId")
     public Long getNodeInstanceId() {
         return this.nodeInstanceId;
     }
@@ -81,7 +86,6 @@ public class SituationTriggerDTO {
         this.nodeInstanceId = nodeInstanceId;
     }
 
-    @XmlElement(name = "InterfaceName")
     public String getInterfaceName() {
         return this.interfaceName;
     }
@@ -90,7 +94,6 @@ public class SituationTriggerDTO {
         this.interfaceName = interfaceName;
     }
 
-    @XmlElement(name = "OperationName")
     public String getOperationName() {
         return this.operationName;
     }
@@ -99,11 +102,11 @@ public class SituationTriggerDTO {
         this.operationName = operationName;
     }
 
-    public Collection<PropertyDTO> getInputParams() {
+    public Collection<SituationTriggerInputDTO> getInputParams() {
         return this.inputParams;
     }
 
-    public void setInputParams(final Collection<PropertyDTO> inputParams) {
+    public void setInputParams(final Collection<SituationTriggerInputDTO> inputParams) {
         this.inputParams = inputParams;
     }
 
@@ -119,8 +122,8 @@ public class SituationTriggerDTO {
             }
             dto.setInterfaceName(object.getInterfaceName());
             dto.setOperationName(object.getOperationName());
-            final Collection<PropertyDTO> inputs = Sets.newHashSet();
-            object.getInputs().forEach(x -> inputs.add(PropertyDTO.Converter.convert(x)));
+            final Collection<SituationTriggerInputDTO> inputs = Sets.newHashSet();
+            object.getInputs().forEach(x -> inputs.add(SituationTriggerInputDTO.Converter.convert(x)));
             dto.setInputParams(inputs);
 
             return dto;

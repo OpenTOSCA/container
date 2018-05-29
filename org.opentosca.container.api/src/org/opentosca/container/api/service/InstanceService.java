@@ -29,6 +29,7 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 import org.opentosca.container.core.next.model.SituationTriggerInstance;
+import org.opentosca.container.core.next.model.SituationTriggerProperty;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
@@ -599,14 +600,12 @@ public class InstanceService {
     }
 
     /* Situations */
-    public Situation createNewSituation(final boolean isActive, final String thingId, final String situationTemplateId,
-                                        final ServiceTemplateInstance serviceInstance) {
+    public Situation createNewSituation(final String thingId, final String situationTemplateId) {
         final Situation newInstance = new Situation();
 
         newInstance.setSituationTemplateId(situationTemplateId);
         newInstance.setThingId(thingId);
-        newInstance.setServiceInstance(serviceInstance);
-        newInstance.setActive(isActive);
+        newInstance.setActive(false);
 
         this.sitRepo.add(newInstance);
 
@@ -640,7 +639,7 @@ public class InstanceService {
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
                                                       final String interfaceName, final String operationName,
-                                                      final Set<Property> inputs) {
+                                                      final Set<SituationTriggerProperty> inputs) {
         final SituationTrigger newInstance = new SituationTrigger();
 
         newInstance.setSituation(situation);

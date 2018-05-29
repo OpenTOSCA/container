@@ -2,15 +2,19 @@ package org.opentosca.container.api.dto.situations;
 
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.next.model.Situation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Sets;
 
 /**
  * Presents an active situation recognition. When a situation occurs it is called active in this
@@ -22,21 +26,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @XmlRootElement(name = "Situation")
+@XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SituationDTO {
+public class SituationDTO extends ResourceSupport {
 
-    @XmlAttribute
+    @XmlAttribute(name = "id", required = false)
     private Long id;
 
+    @XmlElement(name = "ThingId")
     private String thingId;
 
+    @XmlElement(name = "SituationTemplateId")
     private String situationTemplateId;
 
+    @XmlElement(name = "Active", required = false)
     private boolean active;
 
-    private Long serviceInstanceId;
-
-    private Collection<Long> situationTriggerIds;
+    @JsonProperty
+    @XmlElement(name = "SituationTrigger", required = false)
+    @XmlElementWrapper(name = "SituationTriggers", required = false)
+    private Collection<SituationTriggerDTO> situationTriggers;
 
     public Long getId() {
         return this.id;
@@ -46,7 +55,6 @@ public class SituationDTO {
         this.id = id;
     }
 
-    @XmlElement(name = "ThingId")
     public String getThingId() {
         return this.thingId;
     }
@@ -55,7 +63,6 @@ public class SituationDTO {
         this.thingId = thingId;
     }
 
-    @XmlElement(name = "SituationTemplateId")
     public String getSituationTemplateId() {
         return this.situationTemplateId;
     }
@@ -64,7 +71,6 @@ public class SituationDTO {
         this.situationTemplateId = situationTemplateId;
     }
 
-    @XmlElement(name = "Active")
     public boolean getActive() {
         return this.active;
     }
@@ -73,24 +79,12 @@ public class SituationDTO {
         this.active = active;
     }
 
-    @XmlElement(name = "ServiceInstanceId")
-    public Long getServiceInstanceId() {
-        return this.serviceInstanceId;
+    public Collection<SituationTriggerDTO> getSituationTriggers() {
+        return this.situationTriggers;
     }
 
-    public void setServiceInstanceId(final Long serviceInstanceId) {
-        this.serviceInstanceId = this.id;
-    }
-
-    @JsonProperty
-    @XmlElement(name = "SituationTriggerId")
-    @XmlElementWrapper(name = "SituationTriggerIds")
-    public Collection<Long> getSituationTriggerIds() {
-        return this.situationTriggerIds;
-    }
-
-    public void setSituationTriggerIds(final Collection<Long> situationTriggerIds) {
-        this.situationTriggerIds = situationTriggerIds;
+    public void setSituationTriggers(final Collection<SituationTriggerDTO> situationTriggers) {
+        this.situationTriggers = situationTriggers;
     }
 
     public static final class Converter {
@@ -100,7 +94,11 @@ public class SituationDTO {
 
             dto.setId(object.getId());
             dto.setSituationTemplateId(object.getSituationTemplateId());
-            dto.setSituationTriggerIds(object.getSituationTriggerIds());
+
+            final Collection<SituationTriggerDTO> sitTrigDtos = Sets.newHashSet();
+            object.getSituationTriggers().forEach(x -> sitTrigDtos.add(SituationTriggerDTO.Converter.convert(x)));
+
+            dto.setSituationTriggers(sitTrigDtos);
             dto.setThingId(object.getThingId());
 
             return dto;

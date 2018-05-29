@@ -24,7 +24,9 @@
     
     <class>org.opentosca.container.core.next.model.Situation</class>
     <class>org.opentosca.container.core.next.model.SituationTrigger</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerProperty</class>
     <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerInstanceProperty</class>
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.core.model.csar.CSARContent</class>
