@@ -32,6 +32,10 @@ public class BPELInvokerPlugin extends InvokerPlugin<BPELPlanContext> {
     private final static Logger LOG = LoggerFactory.getLogger(BPELInvokerPlugin.class);
     private final BPELInvokerPluginHandler handler = new BPELInvokerPluginHandler();
 
+    public void addLogActivity(final BPELPlanContext context, final String message, final BPELPlanContext.Phase phase) {
+        this.handler.appendLOGMessageActivity(context, message, phase);
+    }
+
     @Override
     public boolean handle(final BPELPlanContext context, final AbstractOperation operation,
                           final AbstractImplementationArtifact ia) {

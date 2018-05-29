@@ -54,6 +54,10 @@ import org.w3c.dom.NodeList;
  */
 public class BPELPlanContext implements PlanContext {
 
+    public enum Phase {
+        PRE, PROV, POST
+    }
+
     private final static Logger LOG = LoggerFactory.getLogger(BPELPlanContext.class);
 
     private static final String BPEL_PLAN_CONTEXT = "BPEL Plan Context";
@@ -1335,13 +1339,7 @@ public class BPELPlanContext implements PlanContext {
      * @return a List of AbstractRelationshipTemplate
      */
     public List<AbstractRelationshipTemplate> getRelationshipTemplates() {
-        for (final AbstractServiceTemplate serviceTemplate : this.templateBuildPlan.getBuildPlan().getDefinitions()
-                                                                                   .getServiceTemplates()) {
-            if (serviceTemplate.getQName().equals(this.serviceTemplate)) {
-                return serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
-            }
-        }
-        return null;
+        return this.serviceTemplate.getTopologyTemplate().getRelationshipTemplates();
     }
 
     /**
