@@ -138,7 +138,7 @@ ___
 New Projects that should be belonging to the Container or the RAP UI must be created as Eclipse Plug-in Project (OSGI Bundle)
 
 1. In Eclipse go to "**New**" then "**Other...**" in the File menu.
-2. Select in the list "**Plug.in Project**" and click on "**Next**".
+2. Select in the list "**Plug-in Project**" and click on "**Next**".
 3. Define as "project name" a name that begins with "**org.opentosca**" (it's our project namespace),
    e.g. "**org.opentosca.core.file.service.impl**" (Fig. 4). At "**Target Platform**" select the radio button
    "**an OSGi framework**" and in the associated drop down list "**standard**" (Fig. 4). Click on "**Next**".
