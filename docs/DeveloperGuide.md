@@ -20,7 +20,7 @@
   * [Set Container Target Platform](#set-container-target-platform)
 - [How to](#how-to)
   * [Create an Eclipse Plug-in project](#create-an-eclipse-plug-in-project)
-  * [Create/provide a declarative service](#createprovide-a-declarative-service)
+  * [Create/provide a declarative service](#create-provide-a-declarative-service)
   * [Consume / use a declarative service](#consume--use-a-declarative-service)
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
