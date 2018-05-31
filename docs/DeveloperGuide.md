@@ -209,30 +209,31 @@ Fig. 6 shows the correct project structure of the Core File Service used as exam
 
 A service can be only consumed in a plug-in project.
 
-1. Open the bundle manifest "**META-INF/MANIFEST.MF**" (relative to project root) of the plug-in
+1. Create new "Plug-in Project" called "**org.opentosca.core.file.service.consumer**"
+2. Open the bundle manifest "**META-INF/MANIFEST.MF**" (relative to project root) of the plug-in
    project that should consume a service.
-2. In the appearing Eclipse bundle manifest editor go to the tab "**Dependencies**"
-3. At "**Imported Packages**" click on "**Add...**", select the package that includes the interface of the needed service an click on "**OK**".
+3. In the appearing Eclipse bundle manifest editor go to the tab "**Dependencies**"
+4. At "**Imported Packages**" click on "**Add...**", select the package that includes the interface of the needed service an click on "**OK**".
    Save the manifest.
-4. Right click in the root of the project and choose in the appearing context menu "**New**" then "**Folder**"
-5. Define as name of the new folder "**OSGI-INF**".
-6. Right click on the "**OSGI-INF**" folder and choose in the context menu "**New**" then "**Other...**"
-7. Open "**Plug-in development**" and select "**Component Definition**". Click on "**Next**"
-8. Define as "File name" the name of the class that needs the service with the ending "**_component**",
+5. Right click in the root of the project and choose in the appearing context menu "**New**" then "**Folder**"
+6. Define as name of the new folder "**OSGI-INF**".
+7. Right click on the "**OSGI-INF**" folder and choose in the context menu "**New**" then "**Other...**"
+8. Open "**Plug-in development**" and select "**Component Definition**". Click on "**Next**"
+9. Define as "File name" the name of the class that needs the service with the ending "**_component**",
    e.g. "**MyClass_component.xml**"
-9. Define in "**Class**" the fully qualified name of the class that needs the service,
+10. Define in "**Class**" the fully qualified name of the class that needs the service,
    e.g. "**org.opentosca.util.myservice.impl.MyServiceImpl**" and in "**Name**" the same as in "**Class**".
    Finally click on "**Finish**" to creat the component XML-
-10. The created component XML should be automatically openend in the Eclipse component editor.
+11. The created component XML should be automatically openend in the Eclipse component editor.
     If not, manually double click on the file.
-11. In the component editor go to the tab "**Services**" and click at "**Referenced Services**" on "**Add...**"
-12. In the appearing window type in the interface class name of the needed service, e.g. "**ICoreFileService**"
+12. In the component editor go to the tab "**Services**" and click at "**Referenced Services**" on "**Add...**"
+13. In the appearing window type in the interface class name of the needed service, e.g. "**ICoreFileService**"
     and click on "**OK**".
-13. Select the new entry in the "**Referenced services**" list and click on "**Edit...**"
-14. Define at "**Bind**" a name for the method that binds the service and at "**Unbind**" a name for the
+14. Select the new entry in the "**Referenced services**" list and click on "**Edit...**"
+15. Define at "**Bind**" a name for the method that binds the service and at "**Unbind**" a name for the
 	method that unbinds the service, e.g. "**bindCoreFileService**" and "**unbindCoreFileService**".
 	Click on "**OK**" and save the manifest.
-15. Create the service variable (e.g. "**coreFileService**") and the bind and unbind methods in the class
+16. Create the service variable (e.g. "**coreFileService**") and the bind and unbind methods in the class
 	that needs the service as shown in Lst. 1
 
 
