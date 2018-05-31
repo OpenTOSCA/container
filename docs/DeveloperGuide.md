@@ -163,7 +163,7 @@ _Interface project:_
    The project name should be "**org.opentosca.<Component>.<Function>.service**", e.g.
    "**org.opentosca.core.file.service**"
 2. In a project "**org.opentosca.core.file.service**" every class should be in a package "**org.opentosca.core.file.service**"
-   Thus, create a first package wirh the name of the project.
+   Thus, create a first package with the name of the project.
 3. Create in this package the interface class "**I<Component><Function>Service**", e.g."ICoreFileService".
    In this interface you can define the methods the service should provide.
 4. Open the bundle manifest "**META-INF/MANIFEST.MF**" (relative to project root).
