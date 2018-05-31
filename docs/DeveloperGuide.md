@@ -118,10 +118,10 @@ The following table shows the folder structure of the projects:
 
 An Eclipse Target Platform contains libraries (OSGI bundles) that can be used/ are available in Eclipse
 plug-in projects. The OpenTOSCA Target Platform is contained in the project
-"**org.opentosca.targetplatform.container**".
+"**target-definition**".
 
-1.open the file "OpenToscaTargetplatform.target" in the project
-  "**org.opentosca.targetplatform.container**".
+1.open the file "target-definition.target" in the project
+  "**target-definition**".
 2.In the appearing Target Platform Editor click on "**Set as Target Platform**" in the top right corner 
   (FIG. 3)
 3.After building the workspace there should be no errors left.
