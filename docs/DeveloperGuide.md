@@ -180,8 +180,7 @@ _Implementation project:_
 3. In the appearing Eclipse bundle manifest editor go to the tab "**Dependencies**"
 4. At "**Imported Packages**" click on "**Add...**", select the package in the interface project that includes
    the interface class and click on "OK". Save the manifest.
-5. In a project "**org.opentosca.core.file.servie.impl**" every class shoul be in a package "**org.opentosca.core.file.service.impl**"
-   Thus, create a first package with the name of the project.
+5. In the project “org.opentosca.core.file.servie.impl” every class should be in the package “org.opentosca.core.file.service.impl” Thus, create a package with the name of the project.
 6. Create in this package the implementation class "**<Component><Function>ServiceImpl**", e.g. "CoreFileServiceImpl"
 7. Right click on the project root and choose in the appearing context menu "**New**" then "**Folder**".
 8. Define as name of the new folder "**OSGI-INF**".
