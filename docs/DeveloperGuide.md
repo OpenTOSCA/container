@@ -159,7 +159,7 @@ implementation for a database or Amazon S3) Interface and implementations should
 
 _Interface project:_
 
-1. Create the project that contains the interface as plug-in project like it's described in 4.1.
+1. Create a project that contains the interface as plug-in project like it's described in 4.1.
    The project name should be "**org.opentosca.<Component>.<Function>.service**", e.g.
    "**org.opentosca.core.file.service**"
 2. In a project "**org.opentosca.core.file.service**" every class should be in a package "**org.opentosca.core.file.service**"
@@ -174,7 +174,7 @@ Define the packages as exported makes the included interface class available for
 
 _Implementation project:_
 
-1. Create the project that contains the implementation as plug in project like it's described in 4.1.
+1. Create a project that contains the implementation as plug in project like it's described in 4.1.
    The project name should be "**org.openttosca.core.file.service.impl**" (Fig.4)
 2. Open the bundle manifest "**META.INF/MANIFEST.MF**" (relative to project root)
 3. In the appearing Eclipse bundle manifest editor go to the tab "**Dependencies**"
