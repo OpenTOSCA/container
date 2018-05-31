@@ -373,7 +373,7 @@ org.opentosca.ui.admin project and select "**Run As**" and then "**Run on Server
 
 ![Run As Link](graphics/EclipseRunAsLink.png)
 
-Then choose the existing Tomcat v7.0 server and click on "**Finish**".
+Then choose the existing Tomcat v8.5 server and click on "**Finish**".
 
 ![Run As Accept](graphics/EclipseRunAsAccept.png)
 
