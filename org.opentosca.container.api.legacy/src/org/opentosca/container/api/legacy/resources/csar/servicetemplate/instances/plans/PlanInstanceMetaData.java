@@ -16,59 +16,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PlanInstanceMetaData {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(PlanInstanceMetaData.class);
 
-	private final CSARID csarID;
-	private final QName serviceTemplateID;
-	private final int serviceTemplateInstanceId;
-	private final String correlationID;
+    private static final Logger LOG = LoggerFactory.getLogger(PlanInstanceMetaData.class);
 
-	private UriInfo uriInfo;
+    private final CSARID csarID;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
+    private final String correlationID;
+
+    private UriInfo uriInfo;
 
 
-	public PlanInstanceMetaData(final CSARID csarID, final QName serviceTemplateID, final int serviceTemplateInstanceId, final String correlationID) {
-		this.csarID = csarID;
-		this.serviceTemplateID = serviceTemplateID;
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-		this.correlationID = correlationID;
-	}
+    public PlanInstanceMetaData(final CSARID csarID, final QName serviceTemplateID, final int serviceTemplateInstanceId,
+                                final String correlationID) {
+        this.csarID = csarID;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+        this.correlationID = correlationID;
+    }
 
-	/**
-	 * Produces the xml which lists the CorrelationIDs of the active
-	 * PublicPlans.
-	 *
-	 * @param uriInfo
-	 * @return The response with the legal PublicPlanTypes.
-	 */
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getReferences().getXMLString()).build();
-	}
+    /**
+     * Produces the xml which lists the CorrelationIDs of the active PublicPlans.
+     *
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getXMLString()).build();
+    }
 
-	/**
-	 * Produces the JSON which lists the links to the History and the active
-	 * plans.
-	 *
-	 * @param uriInfo
-	 * @return The response with the legal PublicPlanTypes.
-	 */
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getReferences().getJSONString()).build();
-	}
+    /**
+     * Produces the JSON which lists the links to the History and the active plans.
+     *
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getJSONString()).build();
+    }
 
-	public References getReferences() {
+    public References getReferences() {
 
-		final References refs = new References();
+        final References refs = new References();
 
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		return refs;
-	}
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        return refs;
+    }
 
 }

@@ -18,44 +18,44 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 @XmlRootElement
 public class PlanGenerationState {
 
-	public enum PlanGenerationStates {
-		INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT
-	}
+    public enum PlanGenerationStates {
+        INITIALIZED, CSARDOWNLOADING, CSARDOWNLOADFAILED, CSARDOWNLOADED, PLANGENERATING, PLANGENERATIONFAILED, PLANGENERATED, PLANSENDING, PLANSENDINGFAILED, PLANSENT, OPTIONSENDING, OPTIONSENDINGFAILED, OPTIONSENT
+    }
 
 
-	@XmlElement
-	public String currentMessage = "Task is initializing";
-	
-	@XmlElement
-	private final URL csarUrl;
+    @XmlElement
+    public String currentMessage = "Task is initializing";
 
-	private final CSARID csarId = null;
+    @XmlElement
+    private final URL csarUrl;
 
-	@XmlElement
-	private final URL planPostUrl;
+    private final CSARID csarId = null;
 
-	private final File planTmpFile = null;
+    @XmlElement
+    private final URL planPostUrl;
 
-	@XmlElement
-	public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
+    private final File planTmpFile = null;
+
+    @XmlElement
+    public PlanGenerationStates currentState = PlanGenerationStates.INITIALIZED;
 
 
-	public PlanGenerationState() {
-		this.csarUrl = null;
-		this.planPostUrl = null;
-	}
+    public PlanGenerationState() {
+        this.csarUrl = null;
+        this.planPostUrl = null;
+    }
 
-	public PlanGenerationState(final URL csarUrl, final URL planPostUrl) {
-		this.csarUrl = csarUrl;
-		this.planPostUrl = planPostUrl;
-	}
+    public PlanGenerationState(final URL csarUrl, final URL planPostUrl) {
+        this.csarUrl = csarUrl;
+        this.planPostUrl = planPostUrl;
+    }
 
-	public URL getCsarUrl() {
-		return this.csarUrl;
-	}
+    public URL getCsarUrl() {
+        return this.csarUrl;
+    }
 
-	public URL getPostUrl() {
-		return this.planPostUrl;
-	}
+    public URL getPostUrl() {
+        return this.planPostUrl;
+    }
 
 }

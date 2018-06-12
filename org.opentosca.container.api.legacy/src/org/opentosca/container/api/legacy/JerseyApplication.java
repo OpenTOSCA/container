@@ -26,64 +26,64 @@ import org.opentosca.container.api.legacy.resources.storageproviders.StorageProv
  */
 public class JerseyApplication extends Application {
 
-	// @Override
-	// public Set<Object> getSingletons() {
-	// Set<Object> singletons = new HashSet<Object>();
-	// singletons.add(new ContainerResponseFilter() {
-	//
-	//
-	// @Override
-	// public void filter(ContainerRequestContext arg0, ContainerResponseContext
-	// arg1) throws IOException {
-	// arg1.getHeaders().putSingle("Access-Control-Allow-Origin", "*");
-	// arg1.getHeaders().putSingle("Access-Control-Allow-Credentials", "true");
-	// arg1.getHeaders().putSingle("Access-Control-Allow-Methods", "GET, POST,
-	// DELETE, PUT, OPTIONS, HEAD");
-	// arg1.getHeaders().putSingle("Access-Control-Allow-Headers",
-	// "Content-Type, Accept, X-Requested-With");
-	//
-	// return arg1;
-	// }
-	// });
-	// return singletons;
-	// };
+    // @Override
+    // public Set<Object> getSingletons() {
+    // Set<Object> singletons = new HashSet<Object>();
+    // singletons.add(new ContainerResponseFilter() {
+    //
+    //
+    // @Override
+    // public void filter(ContainerRequestContext arg0, ContainerResponseContext
+    // arg1) throws IOException {
+    // arg1.getHeaders().putSingle("Access-Control-Allow-Origin", "*");
+    // arg1.getHeaders().putSingle("Access-Control-Allow-Credentials", "true");
+    // arg1.getHeaders().putSingle("Access-Control-Allow-Methods", "GET, POST,
+    // DELETE, PUT, OPTIONS, HEAD");
+    // arg1.getHeaders().putSingle("Access-Control-Allow-Headers",
+    // "Content-Type, Accept, X-Requested-With");
+    //
+    // return arg1;
+    // }
+    // });
+    // return singletons;
+    // };
 
-	@Override
-	public Set<Class<?>> getClasses() {
+    @Override
+    public Set<Class<?>> getClasses() {
 
-		final Set<Class<?>> s = new HashSet<>();
+        final Set<Class<?>> s = new HashSet<>();
 
-		// add all root resources
-		s.add(RootResource.class);
-		s.add(CSARControl.class);
-		s.add(CSARsResource.class);
-		s.add(AllCredentialsResource.class);
-		s.add(StorageProvidersResource.class);
-		s.add(InstanceDataRoot.class);
-		s.add(PortabilityRoot.class);
+        // add all root resources
+        s.add(RootResource.class);
+        s.add(CSARControl.class);
+        s.add(CSARsResource.class);
+        s.add(AllCredentialsResource.class);
+        s.add(StorageProvidersResource.class);
+        s.add(InstanceDataRoot.class);
+        s.add(PortabilityRoot.class);
 
-		s.add(SmartServicesResource.class);
+        s.add(SmartServicesResource.class);
 
-		s.add(org.opentosca.planbuilder.service.resources.RootResource.class);
+        s.add(org.opentosca.planbuilder.service.resources.RootResource.class);
 
-		s.add(MarketplaceRootResource.class);
+        s.add(MarketplaceRootResource.class);
 
-		s.add(PackagerResource.class);
-		
-		// add all exception mappers
-		s.add(SystemExceptionMapper.class);
-		s.add(UserExceptionMapper.class);
-		s.add(NotFoundExceptionMapper.class);
+        s.add(PackagerResource.class);
 
-		// add json mapper, no functionality yet, needs additional dependencies
-		// s.add(JSONMapper.class);
+        // add all exception mappers
+        s.add(SystemExceptionMapper.class);
+        s.add(UserExceptionMapper.class);
+        s.add(NotFoundExceptionMapper.class);
 
-		s.add(MultiPartFeature.class);
-		
-		return s;
-	}
+        // add json mapper, no functionality yet, needs additional dependencies
+        // s.add(JSONMapper.class);
+
+        s.add(MultiPartFeature.class);
+
+        return s;
+    }
 
 
-	public class JSONMapper {
-	}
+    public class JSONMapper {
+    }
 }

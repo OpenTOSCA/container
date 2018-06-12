@@ -43,284 +43,308 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class WineryConnector {
 
-	final private static Logger LOG = LoggerFactory.getLogger(WineryConnector.class);
-
-	private DefaultHttpClient client = new DefaultHttpClient();;
-	String wineryPath;
-
-
-	public WineryConnector() {
-		this.wineryPath = Settings.getSetting("org.opentosca.container.connector.winery.url");
-		if (!this.wineryPath.endsWith("/")) {
-			this.wineryPath = this.wineryPath + "/";
-		}
-	}
-
-	public boolean isWineryRepositoryAvailable() {
-
-		HttpGet get = new HttpGet();
-		get.setHeader("Accept", "application/json");
-
-		try {
-			get.setURI(new URI(this.wineryPath + "servicetemplates"));
-			HttpResponse resp = this.client.execute(get);
-
-			EntityUtils.consume(resp.getEntity());
-			if (resp.getStatusLine().getStatusCode() < 400) {
-				return true;
-			}
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return false;
-	}
-
-	public String getWineryPath() {
-		return this.wineryPath;
-	}
-
-	public URI getServiceTemplateURI(QName serviceTemplateId) {
-		try {
-			return new URI(this.wineryPath + "servicetemplates/" + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/" + serviceTemplateId.getLocalPart());
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public QName uploadCSAR(File file) throws URISyntaxException, IOException {
-		MultipartEntity entity = new MultipartEntity();
-
-		ContentBody fileBody = new FileBody(file);
-		ContentBody overwriteBody = new StringBody("true");
-
-		FormBodyPart filePart = new FormBodyPart("file", fileBody);
-		FormBodyPart overwritePart = new FormBodyPart("overwrite", overwriteBody);
-		entity.addPart(filePart);
-		entity.addPart(overwritePart);
-
-		HttpPost wineryPost = new HttpPost();
-
-		wineryPost.setURI(new URI(this.wineryPath));
-		wineryPost.setEntity(entity);
-		HttpResponse wineryResp = this.client.execute(wineryPost);
-		// create QName of the created serviceTemplate resource
-		String location = this.getHeaderValue(wineryResp, "Location");
-
-		if(location == null){
-			return null;
-		}
-
-		if (location.endsWith("/")) {
-			location = location.substring(0, location.length() - 1);
-		}
-
-		String localPart = this.getLastPathFragment(location);
-		String namespaceDblEnc = this.getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
-		String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
-
-		return new QName(namespace, localPart);
-	}
-
-	public QName createServiceTemplateFromXaaSPackage(File file, QName artifactType, Set<QName> nodeTypes, QName infrastructureNodeType, Map<String, String> tags) throws URISyntaxException, IOException {
-		MultipartEntity entity = new MultipartEntity();
-
-		// file
-		ContentBody fileBody = new FileBody(file);
-		FormBodyPart filePart = new FormBodyPart("file", fileBody);
-		entity.addPart(filePart);
-
-		// artefactType
-		ContentBody artefactTypeBody = new StringBody(artifactType.toString());
-		FormBodyPart artefactTypePart = new FormBodyPart("artefactType", artefactTypeBody);
-		entity.addPart(artefactTypePart);
-
-		// nodeTypes
-		if (!nodeTypes.isEmpty()) {
-			String nodeTypesAsString = "";
-			for (QName nodeType : nodeTypes) {
-				nodeTypesAsString += nodeType.toString() + ",";
-			}
-
-			ContentBody nodeTypesBody = new StringBody(nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1));
-			FormBodyPart nodeTypesPart = new FormBodyPart("nodeTypes", nodeTypesBody);
-			entity.addPart(nodeTypesPart);
-		}
-
-		// infrastructureNodeType
-		if (infrastructureNodeType != null) {
-			ContentBody infrastructureNodeTypeBody = new StringBody(infrastructureNodeType.toString());
-			FormBodyPart infrastructureNodeTypePart = new FormBodyPart("infrastructureNodeType", infrastructureNodeTypeBody);
-			entity.addPart(infrastructureNodeTypePart);
-		}
-
-		// tags
-		if (!tags.isEmpty()) {
-			String tagsString = "";
-			for (String key : tags.keySet()) {
-				if (tags.get(key) == null) {
-					tagsString += key + ",";
-				} else {
-					tagsString += key + ":" + tags.get(key) + ",";
-				}
-			}
-
-			ContentBody tagsBody = new StringBody(tagsString.substring(0, tagsString.length() - 1));
-			FormBodyPart tagsPart = new FormBodyPart("tags", tagsBody);
-			entity.addPart(tagsPart);
-		}
-
-		// POST to XaaSPackager
-		HttpPost xaasPOST = new HttpPost();
-		xaasPOST.setURI(new URI(this.wineryPath + "servicetemplates/"));
-		xaasPOST.setEntity(entity);
-		HttpResponse xaasResp = this.client.execute(xaasPOST);
-
-		// create QName of the created serviceTemplate resource
-		String location = this.getHeaderValue(xaasResp, "Location");
-
-		if (location.endsWith("/")) {
-			location = location.substring(0, location.length() - 1);
-		}
-
-		String localPart = this.getLastPathFragment(location);
-		String namespaceDblEnc = this.getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
-		String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
-
-		return new QName(namespace, localPart);
-	}
-
-	private String getLastPathFragment(String url) {
-		if (url.endsWith("/")) {
-			return this.getLastPathFragment(url.subSequence(0, url.length() - 1).toString());
-		} else {
-
-			return url.substring(url.lastIndexOf("/") + 1);
-		}
-	}
-
-	private String getHeaderValue(HttpResponse response, String headerName) {
-
-		for (Header header : response.getAllHeaders()) {
-			if (header.getName().equals(headerName)) {
-				return header.getValue();
-			}
-		}
-
-		return null;
-	}
-
-	public List<QName> getServiceTemplates(List<String> tags) {
-		List<QName> qnames = new ArrayList<QName>();
-		ObjectMapper mapper = new ObjectMapper();
-
-		for (QName serviceTemplateId : this.getServiceTemplates()) {
-			WineryConnector.LOG.debug("Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate " + serviceTemplateId);
-			try {
-
-				HttpGet serviceTemplateTagsGET = new HttpGet();
-				serviceTemplateTagsGET.setHeader("Accept", "application/json");
-
-				serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/" + URLEncoder.encode(URLEncoder.encode((serviceTemplateId.getNamespaceURI()))) + "/" + serviceTemplateId.getLocalPart() + "/tags"));
-				HttpResponse serviceTemplateTagsGETResp = this.client.execute(serviceTemplateTagsGET);
-				String tagsJsonResponse = EntityUtils.toString(serviceTemplateTagsGETResp.getEntity());
-
-				JsonNode tagsJsonNode = mapper.readTree(tagsJsonResponse);
-
-				int matched = 0;
-
-				if (tagsJsonNode.isArray()) {
-
-					for (Iterator<JsonNode> iter = tagsJsonNode.elements(); iter.hasNext();) {
-						JsonNode key = iter.next();
-
-						HttpGet serviceTemplateTagGET = new HttpGet();
-						serviceTemplateTagGET.setHeader("Accept", "application/json");
-						serviceTemplateTagGET.setURI(new URI(serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
-						HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
-						String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
-
-						JsonNode tagJsonNode = mapper.readTree(tagJsonResponse);
-
-						if (tagJsonNode.isObject() && tagJsonNode.has("name")) {
-							if (tags.contains(tagJsonNode.get("name").textValue())) {
-								matched++;
-
-							}
-						} else {
-							continue;
-						}
-
-					}
-				} else {
-					continue;
-				}
-
-				if (matched == tags.size()) {
-					qnames.add(serviceTemplateId);
-				}
-
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-
-		return qnames;
-
-	}
-
-	public List<QName> getServiceTemplates() {
-		List<QName> qnames = new ArrayList<QName>();
-
-		try {
-
-			HttpGet get = new HttpGet();
-			get.setHeader("Accept", "application/json");
-			get.setURI(new URI(this.wineryPath + "servicetemplates"));
-			HttpResponse resp = this.client.execute(get);
-			String jsonResponse = EntityUtils.toString(resp.getEntity());
-
-			ObjectMapper mapper = new ObjectMapper();
-
-			ArrayList<Object> obj = mapper.readValue(jsonResponse, ArrayList.class);
-
-			for (Object jsonObj : obj) {
-				LinkedHashMap<String, String> hashMap = (LinkedHashMap<String, String>) jsonObj;
-
-				String id = hashMap.get("id");
-				String namespace = hashMap.get("namespace");
-
-				qnames.add(new QName(namespace, id));
-			}
-
-		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		return qnames;
-	}
+    final private static Logger LOG = LoggerFactory.getLogger(WineryConnector.class);
+
+    private final DefaultHttpClient client = new DefaultHttpClient();;
+    String wineryPath;
+
+
+    public WineryConnector() {
+        this.wineryPath = Settings.getSetting("org.opentosca.container.connector.winery.url");
+        LOG.debug("Initialized Winery Connector for endpoint " + this.wineryPath);
+        if (!this.wineryPath.endsWith("/")) {
+            this.wineryPath = this.wineryPath + "/";
+        }
+    }
+
+    public boolean isWineryRepositoryAvailable() {
+
+        final HttpGet get = new HttpGet();
+        get.setHeader("Accept", "application/json");
+        try {
+            final URI serviceTemplatesUri = new URI(this.wineryPath + "servicetemplates");
+            LOG.debug("Checking if winery is available at " + serviceTemplatesUri.toString());
+            get.setURI(serviceTemplatesUri);
+            final HttpResponse resp = this.client.execute(get);
+
+            EntityUtils.consume(resp.getEntity());
+            if (resp.getStatusLine().getStatusCode() < 400) {
+                return true;
+            }
+        }
+        catch (final URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public String getWineryPath() {
+        return this.wineryPath;
+    }
+
+    public URI getServiceTemplateURI(final QName serviceTemplateId) {
+        try {
+            LOG.debug("Trying to fetch URI to Service Template" + serviceTemplateId.toString());
+            return new URI(this.wineryPath + "servicetemplates/"
+                + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/"
+                + serviceTemplateId.getLocalPart());
+        }
+        catch (final URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public QName uploadCSAR(final File file) throws URISyntaxException, IOException {
+        final MultipartEntity entity = new MultipartEntity();
+
+        final ContentBody fileBody = new FileBody(file);
+        final ContentBody overwriteBody = new StringBody("false");
+
+        final FormBodyPart filePart = new FormBodyPart("file", fileBody);
+        final FormBodyPart overwritePart = new FormBodyPart("overwrite", overwriteBody);
+        entity.addPart(filePart);
+        entity.addPart(overwritePart);
+
+        final HttpPost wineryPost = new HttpPost();
+
+        wineryPost.setURI(new URI(this.wineryPath));
+        wineryPost.setEntity(entity);
+        final HttpResponse wineryResp = this.client.execute(wineryPost);
+        // create QName of the created serviceTemplate resource
+        String location = this.getHeaderValue(wineryResp, "Location");
+
+        if (location == null) {
+            return null;
+        }
+
+        if (location.endsWith("/")) {
+            location = location.substring(0, location.length() - 1);
+        }
+
+        final String localPart = this.getLastPathFragment(location);
+        final String namespaceDblEnc = this.getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
+        final String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
+
+        return new QName(namespace, localPart);
+    }
+
+    public QName createServiceTemplateFromXaaSPackage(final File file, final QName artifactType,
+                                                      final Set<QName> nodeTypes, final QName infrastructureNodeType,
+                                                      final Map<String, String> tags) throws URISyntaxException,
+                                                                                      IOException {
+        final MultipartEntity entity = new MultipartEntity();
+
+        // file
+        final ContentBody fileBody = new FileBody(file);
+        final FormBodyPart filePart = new FormBodyPart("file", fileBody);
+        entity.addPart(filePart);
+
+        // artefactType
+        final ContentBody artefactTypeBody = new StringBody(artifactType.toString());
+        final FormBodyPart artefactTypePart = new FormBodyPart("artefactType", artefactTypeBody);
+        entity.addPart(artefactTypePart);
+
+        // nodeTypes
+        if (!nodeTypes.isEmpty()) {
+            String nodeTypesAsString = "";
+            for (final QName nodeType : nodeTypes) {
+                nodeTypesAsString += nodeType.toString() + ",";
+            }
+
+            final ContentBody nodeTypesBody =
+                new StringBody(nodeTypesAsString.substring(0, nodeTypesAsString.length() - 1));
+            final FormBodyPart nodeTypesPart = new FormBodyPart("nodeTypes", nodeTypesBody);
+            entity.addPart(nodeTypesPart);
+        }
+
+        // infrastructureNodeType
+        if (infrastructureNodeType != null) {
+            final ContentBody infrastructureNodeTypeBody = new StringBody(infrastructureNodeType.toString());
+            final FormBodyPart infrastructureNodeTypePart =
+                new FormBodyPart("infrastructureNodeType", infrastructureNodeTypeBody);
+            entity.addPart(infrastructureNodeTypePart);
+        }
+
+        // tags
+        if (!tags.isEmpty()) {
+            String tagsString = "";
+            for (final String key : tags.keySet()) {
+                if (tags.get(key) == null) {
+                    tagsString += key + ",";
+                } else {
+                    tagsString += key + ":" + tags.get(key) + ",";
+                }
+            }
+
+            final ContentBody tagsBody = new StringBody(tagsString.substring(0, tagsString.length() - 1));
+            final FormBodyPart tagsPart = new FormBodyPart("tags", tagsBody);
+            entity.addPart(tagsPart);
+        }
+
+        // POST to XaaSPackager
+        final HttpPost xaasPOST = new HttpPost();
+        xaasPOST.setURI(new URI(this.wineryPath + "servicetemplates/"));
+        xaasPOST.setEntity(entity);
+        final HttpResponse xaasResp = this.client.execute(xaasPOST);
+
+        // create QName of the created serviceTemplate resource
+        String location = this.getHeaderValue(xaasResp, "Location");
+
+        if (location.endsWith("/")) {
+            location = location.substring(0, location.length() - 1);
+        }
+
+        final String localPart = this.getLastPathFragment(location);
+        final String namespaceDblEnc = this.getLastPathFragment(location.substring(0, location.lastIndexOf("/")));
+        final String namespace = URLDecoder.decode(URLDecoder.decode(namespaceDblEnc));
+
+        return new QName(namespace, localPart);
+    }
+
+    private String getLastPathFragment(final String url) {
+        if (url.endsWith("/")) {
+            return this.getLastPathFragment(url.subSequence(0, url.length() - 1).toString());
+        } else {
+
+            return url.substring(url.lastIndexOf("/") + 1);
+        }
+    }
+
+    private String getHeaderValue(final HttpResponse response, final String headerName) {
+
+        for (final Header header : response.getAllHeaders()) {
+            if (header.getName().equals(headerName)) {
+                return header.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    public List<QName> getServiceTemplates(final List<String> tags) {
+        final List<QName> qnames = new ArrayList<>();
+        final ObjectMapper mapper = new ObjectMapper();
+
+        for (final QName serviceTemplateId : this.getServiceTemplates()) {
+            WineryConnector.LOG.debug("Querying Winery Repository at " + this.wineryPath + " for ServiceTemplate "
+                + serviceTemplateId);
+            try {
+
+                final HttpGet serviceTemplateTagsGET = new HttpGet();
+                serviceTemplateTagsGET.setHeader("Accept", "application/json");
+
+                serviceTemplateTagsGET.setURI(new URI(this.wineryPath + "servicetemplates/"
+                    + URLEncoder.encode(URLEncoder.encode(serviceTemplateId.getNamespaceURI())) + "/"
+                    + serviceTemplateId.getLocalPart() + "/tags"));
+                final HttpResponse serviceTemplateTagsGETResp = this.client.execute(serviceTemplateTagsGET);
+                final String tagsJsonResponse = EntityUtils.toString(serviceTemplateTagsGETResp.getEntity());
+
+                final JsonNode tagsJsonNode = mapper.readTree(tagsJsonResponse);
+
+                int matched = 0;
+
+                if (tagsJsonNode.isArray()) {
+
+                    for (final Iterator<JsonNode> iter = tagsJsonNode.elements(); iter.hasNext();) {
+                        final JsonNode key = iter.next();
+
+                        final HttpGet serviceTemplateTagGET = new HttpGet();
+                        serviceTemplateTagGET.setHeader("Accept", "application/json");
+                        serviceTemplateTagGET.setURI(new URI(
+                            serviceTemplateTagsGET.getURI().toString() + "/" + key.textValue()));
+                        final HttpResponse serviceTemplateTagGETResp = this.client.execute(serviceTemplateTagGET);
+                        final String tagJsonResponse = EntityUtils.toString(serviceTemplateTagGETResp.getEntity());
+
+                        final JsonNode tagJsonNode = mapper.readTree(tagJsonResponse);
+
+                        if (tagJsonNode.isObject() && tagJsonNode.has("name")) {
+                            if (tags.contains(tagJsonNode.get("name").textValue())) {
+                                matched++;
+
+                            }
+                        } else {
+                            continue;
+                        }
+
+                    }
+                } else {
+                    continue;
+                }
+
+                if (matched == tags.size()) {
+                    qnames.add(serviceTemplateId);
+                }
+
+            }
+            catch (final URISyntaxException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (final ClientProtocolException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (final IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+
+        return qnames;
+
+    }
+
+    public List<QName> getServiceTemplates() {
+        final List<QName> qnames = new ArrayList<>();
+
+        try {
+
+            final HttpGet get = new HttpGet();
+            get.setHeader("Accept", "application/json");
+            get.setURI(new URI(this.wineryPath + "servicetemplates"));
+            final HttpResponse resp = this.client.execute(get);
+            final String jsonResponse = EntityUtils.toString(resp.getEntity());
+
+            final ObjectMapper mapper = new ObjectMapper();
+
+            final ArrayList<Object> obj = mapper.readValue(jsonResponse, ArrayList.class);
+
+            for (final Object jsonObj : obj) {
+                final LinkedHashMap<String, String> hashMap = (LinkedHashMap<String, String>) jsonObj;
+
+                final String id = hashMap.get("id");
+                final String namespace = hashMap.get("namespace");
+
+                qnames.add(new QName(namespace, id));
+            }
+
+        }
+        catch (final ClientProtocolException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (final IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (final URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        return qnames;
+    }
 
 }

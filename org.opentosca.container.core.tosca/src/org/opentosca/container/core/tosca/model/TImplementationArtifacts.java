@@ -22,11 +22,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tImplementationArtifacts complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tImplementationArtifacts">
  *   &lt;complexContent>
@@ -46,72 +45,70 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tImplementationArtifacts", propOrder = {"implementationArtifact"})
 public class TImplementationArtifacts {
-	
-	@XmlElement(name = "ImplementationArtifact", required = true)
-	protected List<TImplementationArtifacts.ImplementationArtifact> implementationArtifact;
-	
-	
-	/**
-	 * Gets the value of the implementationArtifact property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the implementationArtifact property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getImplementationArtifact().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link TImplementationArtifacts.ImplementationArtifact }
-	 * 
-	 * 
-	 */
-	public List<TImplementationArtifacts.ImplementationArtifact> getImplementationArtifact() {
-		if (this.implementationArtifact == null) {
-			this.implementationArtifact = new ArrayList<TImplementationArtifacts.ImplementationArtifact>();
-		}
-		return this.implementationArtifact;
-	}
-	
-	
-	/**
-	 * <p>
-	 * Java class for anonymous complex type.
-	 * 
-	 * <p>
-	 * The following schema fragment specifies the expected content contained
-	 * within this class.
-	 * 
-	 * <pre>
-	 * &lt;complexType>
-	 *   &lt;complexContent>
-	 *     &lt;extension base="{http://docs.oasis-open.org/tosca/ns/2011/12}tImplementationArtifact">
-	 *       &lt;anyAttribute processContents='lax' namespace='##other'/>
-	 *     &lt;/extension>
-	 *   &lt;/complexContent>
-	 * &lt;/complexType>
-	 * </pre>
-	 * 
-	 * 
-	 */
-	@XmlAccessorType(XmlAccessType.FIELD)
-	@XmlType(name = "")
-	public static class ImplementationArtifact extends TImplementationArtifact {
-		
-	}
-	
+
+    @XmlElement(name = "ImplementationArtifact", required = true)
+    protected List<TImplementationArtifacts.ImplementationArtifact> implementationArtifact;
+
+
+    /**
+     * Gets the value of the implementationArtifact property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any
+     * modification you make to the returned list will be present inside the JAXB object. This is why
+     * there is not a <CODE>set</CODE> method for the implementationArtifact property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getImplementationArtifact().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link TImplementationArtifacts.ImplementationArtifact }
+     *
+     *
+     */
+    public List<TImplementationArtifacts.ImplementationArtifact> getImplementationArtifact() {
+        if (this.implementationArtifact == null) {
+            this.implementationArtifact = new ArrayList<>();
+        }
+        return this.implementationArtifact;
+    }
+
+
+    /**
+     * <p>
+     * Java class for anonymous complex type.
+     *
+     * <p>
+     * The following schema fragment specifies the expected content contained within this class.
+     *
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;extension base="{http://docs.oasis-open.org/tosca/ns/2011/12}tImplementationArtifact">
+     *       &lt;anyAttribute processContents='lax' namespace='##other'/>
+     *     &lt;/extension>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
+     *
+     *
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "")
+    public static class ImplementationArtifact extends TImplementationArtifact {
+
+    }
+
 }

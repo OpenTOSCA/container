@@ -20,262 +20,272 @@ import org.slf4j.LoggerFactory;
 
 public class ZipManager {
 
-	// Singleton Pattern
-	private static final ZipManager INSTANCE = new ZipManager();
+    // Singleton Pattern
+    private static final ZipManager INSTANCE = new ZipManager();
 
 
-	private ZipManager() {
-	}
+    private ZipManager() {}
 
-	public static ZipManager getInstance() {
-		return ZipManager.INSTANCE;
-	}
+    public static ZipManager getInstance() {
+        return ZipManager.INSTANCE;
+    }
 
-	private List<File> getUnzippedFiles(final List<File> files) {
+    private List<File> getUnzippedFiles(final List<File> files) {
 
-		return files;
-	}
-
-
-	// Buffer for zipping/unzipping
-	private final static int BUFFER = 16384;
-
-	private final static Logger LOG = LoggerFactory.getLogger(ZipManager.class);
+        return files;
+    }
 
 
-	/**
-	 * Creates a new ZIP archive containing the contents of the specified
-	 * directory.<br>
-	 * Existing archives with the same name will be overwritten automatically.
-	 *
-	 * @param directory - Absolute path to the folder which contents should be
-	 *            zipped, including sub folders.
-	 * @param archive - Absolute path to ZIP archive.
-	 */
-	public File zip(final File directory, final File archive) {
+    // Buffer for zipping/unzipping
+    private final static int BUFFER = 16384;
 
-		try {
-			ZipManager.LOG.info("Zipping {} ...", directory.getPath());
-			final FileOutputStream dest = new FileOutputStream(archive);
-			final ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(dest));
+    private final static Logger LOG = LoggerFactory.getLogger(ZipManager.class);
 
-			ZipManager.zipDir(directory.getAbsolutePath(), directory, zos, archive.getAbsolutePath());
 
-			zos.flush();
-			zos.close();
-			ZipManager.LOG.info("Zipping completed.");
+    /**
+     * Creates a new ZIP archive containing the contents of the specified directory.<br>
+     * Existing archives with the same name will be overwritten automatically.
+     *
+     * @param directory - Absolute path to the folder which contents should be zipped, including sub
+     *        folders.
+     * @param archive - Absolute path to ZIP archive.
+     */
+    public File zip(final File directory, final File archive) {
 
-		} catch (final FileNotFoundException e) {
-			ZipManager.LOG.error("Error", e);
-			return null;
-		} catch (final IOException e) {
-			ZipManager.LOG.error("Error", e);
-			return null;
-		}
-		return archive;
+        try {
+            ZipManager.LOG.info("Zipping {} ...", directory.getPath());
+            final FileOutputStream dest = new FileOutputStream(archive);
+            final ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(dest));
 
-	}
+            ZipManager.zipDir(directory.getAbsolutePath(), directory, zos, archive.getAbsolutePath());
 
-	/**
-	 * Private helper class to recursively zip a folder and its contents.
-	 *
-	 * @param currentDir Current working directory.
-	 * @param dirToZip Root directory that should be zipped.
-	 * @param zos Already opened Output Stream.
-	 * @param bCompress Whether to use <i>ZipOutputStream.DEFLATED</i> or
-	 *            <i>ZipOutputStream.STORED</i>.
-	 */
-	private static void zipDir(final String currentDir, final File dirToZip, final ZipOutputStream zos, final String archive) throws FileNotFoundException, IOException {
+            zos.flush();
+            zos.close();
+            ZipManager.LOG.info("Zipping completed.");
 
-		zos.setMethod(ZipOutputStream.DEFLATED);
+        }
+        catch (final FileNotFoundException e) {
+            ZipManager.LOG.error("Error", e);
+            return null;
+        }
+        catch (final IOException e) {
+            ZipManager.LOG.error("Error", e);
+            return null;
+        }
+        return archive;
 
-		final byte data[] = new byte[ZipManager.BUFFER];
-		final File archiveFile = new File(archive);
+    }
 
-		// Switch to current directory and fetch its entries
-		final File cDir = new File(currentDir);
-		final String[] dirList = cDir.list();
+    /**
+     * Private helper class to recursively zip a folder and its contents.
+     *
+     * @param currentDir Current working directory.
+     * @param dirToZip Root directory that should be zipped.
+     * @param zos Already opened Output Stream.
+     * @param bCompress Whether to use <i>ZipOutputStream.DEFLATED</i> or <i>ZipOutputStream.STORED</i>.
+     */
+    private static void zipDir(final String currentDir, final File dirToZip, final ZipOutputStream zos,
+                               final String archive) throws FileNotFoundException, IOException {
 
-		final int length = dirList.length;
+        zos.setMethod(ZipOutputStream.DEFLATED);
 
-		if (length == 0) {
-			ZipManager.LOG.debug("ZIP: - It's a empty directory. Adding...");
-			final String relPath = cDir.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1, cDir.getCanonicalPath().length());
-			final ZipEntry entry = new ZipEntry(relPath + "/");
-			zos.putNextEntry(entry);
-		}
+        final byte data[] = new byte[ZipManager.BUFFER];
+        final File archiveFile = new File(archive);
 
-		// Loop through entries
-		for (int i = 0; i < length; i++) {
+        // Switch to current directory and fetch its entries
+        final File cDir = new File(currentDir);
+        final String[] dirList = cDir.list();
 
-			ZipManager.LOG.debug("ZIP: Processing entry: '" + dirList[i] + "'");
-			final File f = new File(cDir, dirList[i]);
+        final int length = dirList.length;
 
-			// Skip created archive if it's in the same directory
-			if (archiveFile.getAbsolutePath().equals(f.getAbsolutePath())) {
-				ZipManager.LOG.debug("ZIP: - Created archive found. Skipping...");
-				continue;
-			}
+        if (length == 0) {
+            ZipManager.LOG.debug("ZIP: - It's a empty directory. Adding...");
+            final String relPath = cDir.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1,
+                                                                     cDir.getCanonicalPath().length());
+            final ZipEntry entry = new ZipEntry(relPath + "/");
+            zos.putNextEntry(entry);
+        }
 
-			// Go through a sub directory recursively with new cDir
-			if (f.isDirectory()) {
-				ZipManager.LOG.debug("ZIP: - Directory found. Going into directory...");
-				ZipManager.zipDir(f.getCanonicalPath(), dirToZip, zos, archive);
-				continue;
-			}
+        // Loop through entries
+        for (int i = 0; i < length; i++) {
 
-			// Generate relative path
-			final String relPath = f.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1, f.getCanonicalPath().length());
-			final ZipEntry entry = new ZipEntry(relPath);
+            ZipManager.LOG.debug("ZIP: Processing entry: '" + dirList[i] + "'");
+            final File f = new File(cDir, dirList[i]);
 
-			// Open input streams and write entry to zip
-			final FileInputStream fis = new FileInputStream(f.getCanonicalPath());
-			final BufferedInputStream origin = new BufferedInputStream(fis, ZipManager.BUFFER);
-			zos.putNextEntry(entry);
-			ZipManager.LOG.debug("ZIP: - Adding file... ");
-			int count;
+            // Skip created archive if it's in the same directory
+            if (archiveFile.getAbsolutePath().equals(f.getAbsolutePath())) {
+                ZipManager.LOG.debug("ZIP: - Created archive found. Skipping...");
+                continue;
+            }
 
-			while ((count = origin.read(data, 0, ZipManager.BUFFER)) != -1) {
-				zos.write(data, 0, count);
-			}
+            // Go through a sub directory recursively with new cDir
+            if (f.isDirectory()) {
+                ZipManager.LOG.debug("ZIP: - Directory found. Going into directory...");
+                ZipManager.zipDir(f.getCanonicalPath(), dirToZip, zos, archive);
+                continue;
+            }
 
-			ZipManager.LOG.debug("ZIP: File added!");
-			origin.close();
+            // Generate relative path
+            final String relPath =
+                f.getCanonicalPath().substring(dirToZip.getCanonicalPath().length() + 1, f.getCanonicalPath().length());
+            final ZipEntry entry = new ZipEntry(relPath);
 
-		}
-	}
+            // Open input streams and write entry to zip
+            final FileInputStream fis = new FileInputStream(f.getCanonicalPath());
+            final BufferedInputStream origin = new BufferedInputStream(fis, ZipManager.BUFFER);
+            zos.putNextEntry(entry);
+            ZipManager.LOG.debug("ZIP: - Adding file... ");
+            int count;
 
-	/**
-	 * Unzips an archive to specified location.
-	 *
-	 * @param file Location of ZIP archive.
-	 * @param toTarget Directory where contents of ZIP archive should be placed.
-	 * @return
-	 */
-	public List<File> unzip(final File file, final File toTarget) {
+            while ((count = origin.read(data, 0, ZipManager.BUFFER)) != -1) {
+                zos.write(data, 0, count);
+            }
 
-		final List<File> contents = new ArrayList<>();
-		FileInputStream fis = null;
-		BufferedInputStream bis = null;
-		ZipInputStream zis = null;
-		ZipFile zipFile = null;
+            ZipManager.LOG.debug("ZIP: File added!");
+            origin.close();
 
-		try {
-			ZipManager.LOG.info("Unzipping {} ...", file.getPath());
-			// Open input streams
-			fis = new FileInputStream(file);
-			bis = new BufferedInputStream(fis);
-			zis = new ZipInputStream(bis);
+        }
+    }
 
-			ZipEntry entry = zis.getNextEntry();
+    /**
+     * Unzips an archive to specified location.
+     *
+     * @param file Location of ZIP archive.
+     * @param toTarget Directory where contents of ZIP archive should be placed.
+     * @return
+     */
+    public List<File> unzip(final File file, final File toTarget) {
 
-			String entryTarget = "";
-			// ZipFile zipFile;
-			int zipSize;
-			int entryIndex = 0;
+        final List<File> contents = new ArrayList<>();
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        ZipInputStream zis = null;
+        ZipFile zipFile = null;
 
-			zipFile = new ZipFile(file);
-			zipSize = zipFile.size();
+        try {
+            ZipManager.LOG.info("Unzipping {} ...", file.getPath());
+            // Open input streams
+            fis = new FileInputStream(file);
+            bis = new BufferedInputStream(fis);
+            zis = new ZipInputStream(bis);
 
-			ZipManager.LOG.debug("UNZIP: Initialization complete.");
+            ZipEntry entry = zis.getNextEntry();
 
-			// If targetDirectory doesn't exist, create it now.
-			if (!toTarget.exists()) {
-				toTarget.mkdirs();
-				ZipManager.LOG.debug("UNZIP: Directory created: {}", toTarget.getName());
-			}
+            String entryTarget = "";
+            // ZipFile zipFile;
+            int zipSize;
+            int entryIndex = 0;
 
-			// Go through the archive entry by entry
-			while (entry != null) {
-				entryIndex++;
-				final String name = entry.getName();
-				entryTarget = toTarget.getPath() + File.separator + name;
-				ZipManager.LOG.debug("UNZIP: Processing entry " + entryIndex + File.separator + zipSize + ": " + name);
+            zipFile = new ZipFile(file);
+            zipSize = zipFile.size();
 
-				if (entry.isDirectory()) {
-					ZipManager.LOG.debug("UNZIP: - Creating directory... ");
-					new File(entryTarget).mkdirs();
-					ZipManager.LOG.debug("UNZIP: - Directory created!");
+            ZipManager.LOG.debug("UNZIP: Initialization complete.");
 
-				} else {
+            // If targetDirectory doesn't exist, create it now.
+            if (!toTarget.exists()) {
+                toTarget.mkdirs();
+                ZipManager.LOG.debug("UNZIP: Directory created: {}", toTarget.getName());
+            }
 
-					int count;
-					final byte data[] = new byte[ZipManager.BUFFER];
+            // Go through the archive entry by entry
+            while (entry != null) {
+                entryIndex++;
+                final String name = entry.getName();
+                entryTarget = toTarget.getPath() + File.separator + name;
+                ZipManager.LOG.debug("UNZIP: Processing entry " + entryIndex + File.separator + zipSize + ": " + name);
 
-					final File entryTargetFile = new File(entryTarget);
+                if (entry.isDirectory()) {
+                    ZipManager.LOG.debug("UNZIP: - Creating directory... ");
+                    new File(entryTarget).mkdirs();
+                    ZipManager.LOG.debug("UNZIP: - Directory created!");
 
-					contents.add(entryTargetFile);
+                } else {
 
-					final File parent = entryTargetFile.getParentFile();
-					if (parent != null) {
-						parent.mkdirs();
-					}
+                    int count;
+                    final byte data[] = new byte[ZipManager.BUFFER];
 
-					final FileOutputStream fos = new FileOutputStream(entryTargetFile);
-					final BufferedOutputStream dest = new BufferedOutputStream(fos, ZipManager.BUFFER);
-					// ZipManager.LOG.debug("UNZIP: - Decompressing file... ");
+                    final File entryTargetFile = new File(entryTarget);
 
-					while ((count = zis.read(data, 0, ZipManager.BUFFER)) != -1) {
-						dest.write(data, 0, count);
-					}
-					// dest.flush();
-					dest.close();
-					fos.close();
+                    contents.add(entryTargetFile);
 
-					// ZipManager.LOG.debug("UNZIP: - File decompressed!");
-					entryTarget = "";
-				}
+                    final File parent = entryTargetFile.getParentFile();
+                    if (parent != null) {
+                        parent.mkdirs();
+                    }
 
-				entry = zis.getNextEntry();
+                    final FileOutputStream fos = new FileOutputStream(entryTargetFile);
+                    final BufferedOutputStream dest = new BufferedOutputStream(fos, ZipManager.BUFFER);
+                    // ZipManager.LOG.debug("UNZIP: - Decompressing file... ");
 
-			}
+                    while ((count = zis.read(data, 0, ZipManager.BUFFER)) != -1) {
+                        dest.write(data, 0, count);
+                    }
+                    // dest.flush();
+                    dest.close();
+                    fos.close();
 
-			// zis.close();
-			// zipFile.close();
-			ZipManager.LOG.info("Unzipping completed!");
+                    // ZipManager.LOG.debug("UNZIP: - File decompressed!");
+                    entryTarget = "";
+                }
 
-		} catch (final FileNotFoundException e) {
-			ZipManager.LOG.error("Error", e);
-			return null;
-		} catch (final ZipException e) {
-			ZipManager.LOG.error("Error", e);
-			return null;
-		} catch (final IOException e) {
-			ZipManager.LOG.error("Error", e);
-			return null;
-		} finally {
-			if (zipFile != null) {
-				try {
-					zipFile.close();
-				} catch (final IOException e) {
-					ZipManager.LOG.error("", e);
-				}
-			}
+                entry = zis.getNextEntry();
 
-			if (zis != null) {
-				try {
-					zis.close();
-				} catch (final IOException e) {
-					ZipManager.LOG.error("", e);
-				}
-			}
-			if (bis != null) {
-				try {
-					bis.close();
-				} catch (final IOException e) {
-					ZipManager.LOG.error("", e);
-				}
-			}
-			if (fis != null) {
-				try {
-					fis.close();
-				} catch (final IOException e) {
-					ZipManager.LOG.error("", e);
-				}
-			}
+            }
 
-		}
+            // zis.close();
+            // zipFile.close();
+            ZipManager.LOG.info("Unzipping completed!");
 
-		return this.getUnzippedFiles(contents);
-	}
+        }
+        catch (final FileNotFoundException e) {
+            ZipManager.LOG.error("Error", e);
+            return null;
+        }
+        catch (final ZipException e) {
+            ZipManager.LOG.error("Error", e);
+            return null;
+        }
+        catch (final IOException e) {
+            ZipManager.LOG.error("Error", e);
+            return null;
+        }
+        finally {
+            if (zipFile != null) {
+                try {
+                    zipFile.close();
+                }
+                catch (final IOException e) {
+                    ZipManager.LOG.error("", e);
+                }
+            }
+
+            if (zis != null) {
+                try {
+                    zis.close();
+                }
+                catch (final IOException e) {
+                    ZipManager.LOG.error("", e);
+                }
+            }
+            if (bis != null) {
+                try {
+                    bis.close();
+                }
+                catch (final IOException e) {
+                    ZipManager.LOG.error("", e);
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                }
+                catch (final IOException e) {
+                    ZipManager.LOG.error("", e);
+                }
+            }
+
+        }
+
+        return this.getUnzippedFiles(contents);
+    }
 }

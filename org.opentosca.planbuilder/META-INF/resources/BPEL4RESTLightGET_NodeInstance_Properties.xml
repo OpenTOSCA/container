@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpel:extensionActivity xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
-    <!-- $urlVarName, $ResponseVarName  -->
-	<bpel4RestLight:GET
-		uri="$bpelvar[$urlVarName]/Properties"
-		accept="application/xml" response="$ResponseVarName"></bpel4RestLight:GET>
-</bpel:extensionActivity>

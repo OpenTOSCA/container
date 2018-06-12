@@ -13,79 +13,82 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
-	
-	private static Logger logger = LoggerFactory.getLogger(Activator.class);
-	
-	private static BundleContext context;
+
+    private static Logger logger = LoggerFactory.getLogger(Activator.class);
+
+    private static BundleContext context;
 
 
-	static BundleContext getContext() {
-		return context;
-	}
+    static BundleContext getContext() {
+        return context;
+    }
 
-	@Override
-	public void start(final BundleContext bundleContext) throws Exception {
-		logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
-		context = bundleContext;
-		
-		
-		logger.info("org.opentosca.container.hostname={}", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-		logger.info("org.opentosca.container.port={}", Settings.OPENTOSCA_CONTAINER_PORT);
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
+        logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+                    bundleContext.getBundle().getVersion());
+        context = bundleContext;
 
-		// /////////////////// PATHS ///////////////////
 
-		// contains data of OpenTOSCA that should be stored permanently
-		String openTOSCAPath = "";
-		if (System.getProperty("openTOSCAPath") == null) {
-			openTOSCAPath = System.getProperty("java.io.tmpdir") + File.separator + "opentosca";
-		} else {
-			openTOSCAPath = System.getProperty("openTOSCAPath") + File.separator + "opentosca";
-		}
+        logger.info("org.opentosca.container.hostname={}", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+        logger.info("org.opentosca.container.port={}", Settings.OPENTOSCA_CONTAINER_PORT);
 
-		// contains data of OpenTOSCA that should be stored temporarily
-		Settings.setSetting("temp", openTOSCAPath + File.separator + "Temp");
+        // /////////////////// PATHS ///////////////////
 
-		// Derby database location
-		Settings.setSetting("databaseLocation", openTOSCAPath + File.separator + "DB");
+        // contains data of OpenTOSCA that should be stored permanently
+        String openTOSCAPath = "";
+        if (System.getProperty("openTOSCAPath") == null) {
+            openTOSCAPath = System.getProperty("java.io.tmpdir") + File.separator + "opentosca";
+        } else {
+            openTOSCAPath = System.getProperty("openTOSCAPath") + File.separator + "opentosca";
+        }
 
-		// relative path where CSARs will be stored locally; used by the
-		// Filesystem storage provider
-		Settings.setSetting("csarStorePath", openTOSCAPath + File.separator + "CSARs");
+        // contains data of OpenTOSCA that should be stored temporarily
+        Settings.setSetting("temp", openTOSCAPath + File.separator + "Temp");
 
-		// /////////////////// URLS ///////////////////
+        // Derby database location
+        Settings.setSetting("databaseLocation", openTOSCAPath + File.separator + "DB");
 
-		// URI of the ContainerAPI
-		Settings.setSetting("containerUri", Settings.CONTAINER_API);
+        // relative path where CSARs will be stored locally; used by the
+        // Filesystem storage provider
+        Settings.setSetting("csarStorePath", openTOSCAPath + File.separator + "CSARs");
 
-		// URI of the DataInstanceAPI
-		Settings.setSetting("datainstanceUri", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_CONTAINER_PORT + "/datainstance");
+        // /////////////////// URLS ///////////////////
 
-		// /////////////////// CSAR ///////////////////
+        // URI of the ContainerAPI
+        Settings.setSetting("containerUri", Settings.CONTAINER_API_LEGACY);
 
-		// extension of a CSAR file
-		Settings.setSetting("csarExtension", "csar");
+        // URI of the DataInstanceAPI
+        Settings.setSetting("datainstanceUri", "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+            + Settings.OPENTOSCA_CONTAINER_PORT + "/datainstance");
 
-		// relative path of IMPORTS directory in a CSAR file
-		Settings.setSetting("csarImportsRelPath", "IMPORTS");
+        // /////////////////// CSAR ///////////////////
 
-		// relative path of Definitions directory in a CSAR file
-		Settings.setSetting("csarDefinitionsRelPath", "Definitions");
+        // extension of a CSAR file
+        Settings.setSetting("csarExtension", "csar");
 
-		// relative path where the TOSCA meta file is located in a CSAR file
-		Settings.setSetting("toscaMetaFileRelPath", "TOSCA-Metadata" + File.separator + "TOSCA.meta");
+        // relative path of IMPORTS directory in a CSAR file
+        Settings.setSetting("csarImportsRelPath", "IMPORTS");
 
-		// possible file extensions of a TOSCA file, separated by character ";"
-		Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
+        // relative path of Definitions directory in a CSAR file
+        Settings.setSetting("csarDefinitionsRelPath", "Definitions");
 
-		// /////////////////// OTHERS ///////////////////
+        // relative path where the TOSCA meta file is located in a CSAR file
+        Settings.setSetting("toscaMetaFileRelPath", "TOSCA-Metadata" + File.separator + "TOSCA.meta");
 
-		// Container Capabilities
-		Settings.setSetting("containerCapabilities", Settings.containerCapabilities);
-	}
+        // possible file extensions of a TOSCA file, separated by character ";"
+        Settings.setSetting("toscaFileExtensions", "xml;tosca;ste");
 
-	@Override
-	public void stop(final BundleContext bundleContext) throws Exception {
-		logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(), bundleContext.getBundle().getVersion());
-		Activator.context = null;
-	}
+        // /////////////////// OTHERS ///////////////////
+
+        // Container Capabilities
+        Settings.setSetting("containerCapabilities", Settings.containerCapabilities);
+    }
+
+    @Override
+    public void stop(final BundleContext bundleContext) throws Exception {
+        logger.info("Stopping bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
+                    bundleContext.getBundle().getVersion());
+        Activator.context = null;
+    }
 }

@@ -12,13 +12,16 @@ LABEL maintainer "Johannes Wettinger <jowettinger@gmail.com>, Michael Wurster <m
 
 ARG DOCKERIZE_VERSION=v0.3.0
 
-ENV CONTAINER_HOSTNAME localhost
+ENV PUBLIC_HOSTNAME localhost
 ENV CONTAINER_REPOSITORY_HOSTNAME localhost
 ENV ENGINE_PLAN_HOSTNAME localhost
 ENV ENGINE_IA_HOSTNAME localhost
-ENV ENGINE_PLAN ODE
-ENV ENGINE_PLAN_ROOT_URL http://localhost:9763/ode
-ENV ENGINE_PLAN_SERVICES_URL http://localhost:9763/ode/processes
+ENV ENGINE_PLAN BPS
+ENV ENGINE_PLAN_ROOT_URL https://localhost:9443/
+ENV ENGINE_PLAN_SERVICES_URL http://localhost:9763/services
+ENV ENGINE_PLAN_USER_NAME admin
+ENV ENGINE_PLAN_PWD admin
+ENV CONTAINER_DEPLOYMENT_TESTS false
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \

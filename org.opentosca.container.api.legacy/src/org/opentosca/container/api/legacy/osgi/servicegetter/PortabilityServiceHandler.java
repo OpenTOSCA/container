@@ -9,29 +9,29 @@ import org.slf4j.LoggerFactory;
  * <br />
  * Copyright 2013 IAAS University of Stuttgart <br />
  * <br />
- * 
+ *
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
 public class PortabilityServiceHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(PortabilityServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(PortabilityServiceHandler.class);
 
-	private static IPortabilityService portabilityService;
-	
-	
-	public static IPortabilityService getPortabilityService() {
-		return PortabilityServiceHandler.portabilityService;
-	}
+    private static IPortabilityService portabilityService;
 
-	public void bindPortabilityService(final IPortabilityService portabilityService) {
-		PortabilityServiceHandler.LOG.debug("ContainerApi: Bind IPortabilityService");
-		PortabilityServiceHandler.portabilityService = portabilityService;
-	}
 
-	public void unbindPortabilityService(final IPortabilityService portabilityService) {
-		PortabilityServiceHandler.LOG.debug("ContainerApi: Unbind IPortabilityService");
-		PortabilityServiceHandler.portabilityService = null;
-	}
+    public static IPortabilityService getPortabilityService() {
+        return PortabilityServiceHandler.portabilityService;
+    }
+
+    public void bindPortabilityService(final IPortabilityService portabilityService) {
+        PortabilityServiceHandler.LOG.debug("ContainerApi: Bind IPortabilityService");
+        PortabilityServiceHandler.portabilityService = portabilityService;
+    }
+
+    public void unbindPortabilityService(final IPortabilityService portabilityService) {
+        PortabilityServiceHandler.LOG.debug("ContainerApi: Unbind IPortabilityService");
+        PortabilityServiceHandler.portabilityService = null;
+    }
 
 }

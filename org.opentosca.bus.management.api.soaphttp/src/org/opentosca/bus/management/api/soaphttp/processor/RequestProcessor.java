@@ -1,6 +1,7 @@
 package org.opentosca.bus.management.api.soaphttp.processor;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,8 +10,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.headers.Header;
 import org.opentosca.bus.management.api.soaphttp.Activator;
@@ -21,11 +24,18 @@ import org.opentosca.bus.management.api.soaphttp.model.InvokePlan;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMap;
 import org.opentosca.bus.management.api.soaphttp.model.ParamsMapItemType;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.engine.ResolvedArtifacts;
+import org.opentosca.container.core.engine.ResolvedArtifacts.ResolvedDeploymentArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.google.gson.Gson;
 
 /**
  * Request-Processor of the Management Bus-SOAP/HTTP-API.<br>
@@ -34,10 +44,9 @@ import org.w3c.dom.Element;
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
  *
- * This processor processes the incoming requests of the Management
- * Bus-SOAP/HTTP-API. It transforms the incoming unmarshalled SOAP message into
- * a from the Management Bus understandable camel exchange message. The
- * MBHeader-Enum is used here to define the headers of the exchange message.
+ * This processor processes the incoming requests of the Management Bus-SOAP/HTTP-API. It transforms
+ * the incoming unmarshalled SOAP message into a from the Management Bus understandable camel exchange
+ * message. The MBHeader-Enum is used here to define the headers of the exchange message.
  *
  * @see MBHeader
  *
@@ -47,203 +56,242 @@ import org.w3c.dom.Element;
  */
 public class RequestProcessor implements Processor {
 
-	final private static Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
+    final private static Logger LOG = LoggerFactory.getLogger(RequestProcessor.class);
+
+
+    @Override
+    public void process(final Exchange exchange) throws Exception {
+
+        ParamsMap paramsMap = null;
+        Doc doc = null;
+        String csarIDString = null;
+        String serviceInstanceID = null;
+        String callbackAddress = null;
+        String messageID = null;
+        String interfaceName = null;
+        String operationName = null;
 
+        // copy SOAP headers in camel exchange object
+        RequestProcessor.LOG.debug("copy SOAP headers in camel exchange object");
+        @SuppressWarnings("unchecked")
+        final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
+        Element elementx;
+        if (soapHeaders != null) {
+            for (final SoapHeader header : soapHeaders) {
+                elementx = (Element) header.getObject();
+                exchange.getIn().setHeader(elementx.getLocalName(), elementx.getTextContent());
+            }
+        }
 
-	@Override
-	public void process(final Exchange exchange) throws Exception {
+        // add header with public IP of engine-ia for the raspbian pull IA
+        exchange.getIn().setHeader(MBHeader.ENGINE_IA_PUBLIC_IP.toString(), Settings.ENGINE_IA_PUBLIC_IP);
 
-		ParamsMap paramsMap = null;
-		Doc doc = null;
-		String csarIDString = null;
-		String serviceInstanceID = null;
-		String callbackAddress = null;
-		String messageID = null;
-		String interfaceName = null;
-		String operationName = null;
+        if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
 
-		// copy SOAP headers in camel exchange object
-		RequestProcessor.LOG.debug("copy SOAP headers in camel exchange object");
-		@SuppressWarnings("unchecked")
-		final List<SoapHeader> soapHeaders = (List<SoapHeader>) exchange.getIn().getHeader(Header.HEADER_LIST);
-		Element elementx;
-		if (soapHeaders != null) {
-			for (final SoapHeader header : soapHeaders) {
-				elementx = (Element) header.getObject();
-				exchange.getIn().setHeader(elementx.getLocalName(), elementx.getTextContent());
-			}
-		}
+            RequestProcessor.LOG.debug("Processing async operation invocation");
 
-		if (exchange.getIn().getBody() instanceof InvokeOperationAsync) {
+            final InvokeOperationAsync invokeIaRequest = (InvokeOperationAsync) exchange.getIn().getBody();
 
-			RequestProcessor.LOG.debug("Processing async operation invocation");
+            csarIDString = invokeIaRequest.getCsarID();
 
-			final InvokeOperationAsync invokeIaRequest = (InvokeOperationAsync) exchange.getIn().getBody();
+            serviceInstanceID = invokeIaRequest.getServiceInstanceID();
 
-			csarIDString = invokeIaRequest.getCsarID();
+            final String nodeInstanceID = invokeIaRequest.getNodeInstanceID();
+            exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
 
-			serviceInstanceID = invokeIaRequest.getServiceInstanceID();
+            final String serviceTemplateIDNamespaceURI = invokeIaRequest.getServiceTemplateIDNamespaceURI();
+            final String serviceTemplateIDLocalPart = invokeIaRequest.getServiceTemplateIDLocalPart();
 
-			final String nodeInstanceID = invokeIaRequest.getNodeInstanceID();
-			exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
+            final QName serviceTemplateID = new QName(serviceTemplateIDNamespaceURI, serviceTemplateIDLocalPart);
 
-			final String serviceTemplateIDNamespaceURI = invokeIaRequest.getServiceTemplateIDNamespaceURI();
-			final String serviceTemplateIDLocalPart = invokeIaRequest.getServiceTemplateIDLocalPart();
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
 
-			final QName serviceTemplateID = new QName(serviceTemplateIDNamespaceURI, serviceTemplateIDLocalPart);
+            final String nodeTemplateID = invokeIaRequest.getNodeTemplateID();
+            exchange.getIn().setHeader(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplateID);
 
-			exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            final String relationshipTemplateID = invokeIaRequest.getRelationshipTemplateID();
+            exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
 
-			final String nodeTemplateID = invokeIaRequest.getNodeTemplateID();
-			exchange.getIn().setHeader(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplateID);
+            // Support new Deployment Artifact Header
+            final Message message = exchange.getIn();
 
-			final String relationshipTemplateID = invokeIaRequest.getRelationshipTemplateID();
-			exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
+            final ServiceReference<?> servRef =
+                Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
+            final IToscaEngineService toscaEngineService =
+                (IToscaEngineService) Activator.bundleContext.getService(servRef);
+            final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
+            final ResolvedArtifacts resolvedArtifacts =
+                toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
+            final List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+            final URL serviceInstanceIDUrl = new URL(serviceInstanceID);
+            final HashMap<QName, HashMap<String, String>> DAs = new HashMap<>();
+            for (final ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
+                LOG.info("DA name:" + resolvedDeploymentArtifact.getName());
+                final QName DAname = resolvedDeploymentArtifact.getType();
+                final HashMap<String, String> DAfiles = new HashMap<>();
+                DAs.put(DAname, DAfiles);
+                for (final String s : resolvedDeploymentArtifact.getReferences()) {
+                    LOG.info("DA getReferences:" + s);
+                    final String url = serviceInstanceIDUrl.getProtocol() + "://" + serviceInstanceIDUrl.getHost() + ":"
+                        + serviceInstanceIDUrl.getPort() + "/csars/" + csarIDString + "/content/";
+                    final String urlWithDa = url + s;
 
-			interfaceName = invokeIaRequest.getInterfaceName();
+                    LOG.info(urlWithDa);
+                    DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
 
-			if ((interfaceName != null) && !(interfaceName.equals("?") || interfaceName.isEmpty())) {
-				exchange.getIn().setHeader(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
-			}
+                }
+            }
+            final Gson gson = new Gson();
+            exchange.getIn().setHeader(MBHeader.DEPLOYMENT_ARTIFACTS.name(), gson.toJson(DAs));
+            LOG.info("serviceInstanceID:" + serviceInstanceID);
+            LOG.info("OPENTOSCA_CONTAINER_HOSTNAME:" + Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            LOG.info("OPENTOSCA_CONTAINER_PORT:" + Settings.OPENTOSCA_CONTAINER_PORT);
+            LOG.info("serviceTemplateIDNamespaceURI:" + serviceTemplateIDNamespaceURI);
 
-			operationName = invokeIaRequest.getOperationName();
+            interfaceName = invokeIaRequest.getInterfaceName();
 
-			callbackAddress = invokeIaRequest.getReplyTo();
+            if (interfaceName != null && !(interfaceName.equals("?") || interfaceName.isEmpty())) {
+                exchange.getIn().setHeader(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
+            }
 
-			messageID = invokeIaRequest.getMessageID();
+            operationName = invokeIaRequest.getOperationName();
 
-			paramsMap = invokeIaRequest.getParams();
+            callbackAddress = invokeIaRequest.getReplyTo();
 
-			doc = invokeIaRequest.getDoc();
+            messageID = invokeIaRequest.getMessageID();
 
-			if ((callbackAddress != null) && !(callbackAddress.isEmpty() || callbackAddress.equals("?"))) {
-				exchange.getIn().setHeader("ReplyTo", callbackAddress);
-			}
+            paramsMap = invokeIaRequest.getParams();
 
-			if ((messageID != null) && !(messageID.isEmpty() || messageID.equals("?"))) {
-				exchange.getIn().setHeader("MessageID", messageID);
-			}
+            doc = invokeIaRequest.getDoc();
 
-			exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
+            if (callbackAddress != null && !(callbackAddress.isEmpty() || callbackAddress.equals("?"))) {
+                exchange.getIn().setHeader("ReplyTo", callbackAddress);
+            }
 
-		}
+            if (messageID != null && !(messageID.isEmpty() || messageID.equals("?"))) {
+                exchange.getIn().setHeader("MessageID", messageID);
+            }
 
-		if (exchange.getIn().getBody() instanceof InvokeOperationSync) {
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
 
-			RequestProcessor.LOG.debug("Processing sync operation invocation");
+        }
 
-			final InvokeOperationSync invokeIaRequest = (InvokeOperationSync) exchange.getIn().getBody();
+        if (exchange.getIn().getBody() instanceof InvokeOperationSync) {
 
-			csarIDString = invokeIaRequest.getCsarID();
+            RequestProcessor.LOG.debug("Processing sync operation invocation");
 
-			serviceInstanceID = invokeIaRequest.getServiceInstanceID();
+            final InvokeOperationSync invokeIaRequest = (InvokeOperationSync) exchange.getIn().getBody();
 
-			final String nodeInstanceID = invokeIaRequest.getNodeInstanceID();
-			exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
+            csarIDString = invokeIaRequest.getCsarID();
 
-			final String serviceTemplateIDNamespaceURI = invokeIaRequest.getServiceTemplateIDNamespaceURI();
-			final String serviceTemplateIDLocalPart = invokeIaRequest.getServiceTemplateIDLocalPart();
+            serviceInstanceID = invokeIaRequest.getServiceInstanceID();
 
-			final QName serviceTemplateID = new QName(serviceTemplateIDNamespaceURI, serviceTemplateIDLocalPart);
+            final String nodeInstanceID = invokeIaRequest.getNodeInstanceID();
+            exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
 
-			exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
+            final String serviceTemplateIDNamespaceURI = invokeIaRequest.getServiceTemplateIDNamespaceURI();
+            final String serviceTemplateIDLocalPart = invokeIaRequest.getServiceTemplateIDLocalPart();
 
-			final String nodeTemplateID = invokeIaRequest.getNodeTemplateID();
-			exchange.getIn().setHeader(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplateID);
+            final QName serviceTemplateID = new QName(serviceTemplateIDNamespaceURI, serviceTemplateIDLocalPart);
 
-			final String relationshipTemplateID = invokeIaRequest.getRelationshipTemplateID();
-			exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
+            exchange.getIn().setHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), serviceTemplateID);
 
-			interfaceName = invokeIaRequest.getInterfaceName();
+            final String nodeTemplateID = invokeIaRequest.getNodeTemplateID();
+            exchange.getIn().setHeader(MBHeader.NODETEMPLATEID_STRING.toString(), nodeTemplateID);
 
-			if ((interfaceName != null) && !(interfaceName.equals("?") || interfaceName.isEmpty())) {
-				exchange.getIn().setHeader(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
-			}
+            final String relationshipTemplateID = invokeIaRequest.getRelationshipTemplateID();
+            exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
 
-			operationName = invokeIaRequest.getOperationName();
+            interfaceName = invokeIaRequest.getInterfaceName();
 
-			paramsMap = invokeIaRequest.getParams();
+            if (interfaceName != null && !(interfaceName.equals("?") || interfaceName.isEmpty())) {
+                exchange.getIn().setHeader(MBHeader.INTERFACENAME_STRING.toString(), interfaceName);
+            }
 
-			doc = invokeIaRequest.getDoc();
+            operationName = invokeIaRequest.getOperationName();
 
-			exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
+            paramsMap = invokeIaRequest.getParams();
 
-		}
+            doc = invokeIaRequest.getDoc();
 
-		if (exchange.getIn().getBody() instanceof InvokePlan) {
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokeIA");
 
-			RequestProcessor.LOG.debug("Processing plan invocation");
+        }
 
-			final InvokePlan invokePlanRequest = (InvokePlan) exchange.getIn().getBody();
+        if (exchange.getIn().getBody() instanceof InvokePlan) {
 
-			csarIDString = invokePlanRequest.getCsarID();
+            RequestProcessor.LOG.debug("Processing plan invocation");
 
-			serviceInstanceID = invokePlanRequest.getServiceInstanceID();
+            final InvokePlan invokePlanRequest = (InvokePlan) exchange.getIn().getBody();
 
-			final String planIDNamespaceURI = invokePlanRequest.getPlanIDNamespaceURI();
-			final String planIDLocalPart = invokePlanRequest.getPlanIDLocalPart();
+            csarIDString = invokePlanRequest.getCsarID();
 
-			final QName planID = new QName(planIDNamespaceURI, planIDLocalPart);
-			exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
+            serviceInstanceID = invokePlanRequest.getServiceInstanceID();
 
-			operationName = invokePlanRequest.getOperationName();
+            final String planIDNamespaceURI = invokePlanRequest.getPlanIDNamespaceURI();
+            final String planIDLocalPart = invokePlanRequest.getPlanIDLocalPart();
 
-			callbackAddress = invokePlanRequest.getReplyTo();
+            final QName planID = new QName(planIDNamespaceURI, planIDLocalPart);
+            exchange.getIn().setHeader(MBHeader.PLANID_QNAME.toString(), planID);
 
-			messageID = invokePlanRequest.getMessageID();
+            operationName = invokePlanRequest.getOperationName();
 
-			paramsMap = invokePlanRequest.getParams();
+            callbackAddress = invokePlanRequest.getReplyTo();
 
-			doc = invokePlanRequest.getDoc();
+            messageID = invokePlanRequest.getMessageID();
 
-			if ((callbackAddress != null) && !(callbackAddress.isEmpty() || callbackAddress.equals("?"))) {
-				exchange.getIn().setHeader("ReplyTo", callbackAddress);
-			}
+            paramsMap = invokePlanRequest.getParams();
 
-			if ((messageID != null) && !(messageID.isEmpty() || messageID.equals("?"))) {
-				exchange.getIn().setHeader("MessageID", messageID);
-			}
+            doc = invokePlanRequest.getDoc();
 
-			exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
-		}
+            if (callbackAddress != null && !(callbackAddress.isEmpty() || callbackAddress.equals("?"))) {
+                exchange.getIn().setHeader("ReplyTo", callbackAddress);
+            }
 
-		final CSARID csarID = new CSARID(csarIDString);
+            if (messageID != null && !(messageID.isEmpty() || messageID.equals("?"))) {
+                exchange.getIn().setHeader("MessageID", messageID);
+            }
 
-		if (serviceInstanceID != null) {
-			final URI serviceInstanceURI = new URI(serviceInstanceID);
-			exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-		}
+            exchange.getIn().setHeader(CxfConstants.OPERATION_NAME, "invokePlan");
+        }
 
-		exchange.getIn().setHeader(MBHeader.CSARID.toString(), csarID);
-		exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
-		exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
+        final CSARID csarID = new CSARID(csarIDString);
 
-		if (paramsMap != null) {
-			// put key-value params into camel exchange body as hashmap
-			final HashMap<String, String> params = new HashMap<>();
+        if (serviceInstanceID != null) {
+            final URI serviceInstanceURI = new URI(serviceInstanceID);
+            exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
+        }
 
-			for (final ParamsMapItemType param : paramsMap.getParam()) {
-				params.put(param.getKey(), param.getValue());
-			}
-			exchange.getIn().setBody(params);
+        exchange.getIn().setHeader(MBHeader.CSARID.toString(), csarID);
+        exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
+        exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
 
-		}
+        if (paramsMap != null) {
+            // put key-value params into camel exchange body as hashmap
+            final HashMap<String, String> params = new HashMap<>();
 
-		else if ((doc != null) && (doc.getAny() != null)) {
-			final DocumentBuilderFactory dFact = DocumentBuilderFactory.newInstance();
-			final DocumentBuilder build = dFact.newDocumentBuilder();
-			final Document document = build.newDocument();
+            for (final ParamsMapItemType param : paramsMap.getParam()) {
+                params.put(param.getKey(), param.getValue());
+            }
+            exchange.getIn().setBody(params);
 
-			final Element element = doc.getAny();
+        }
 
-			document.adoptNode(element);
-			document.appendChild(element);
+        else if (doc != null && doc.getAny() != null) {
+            final DocumentBuilderFactory dFact = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder build = dFact.newDocumentBuilder();
+            final Document document = build.newDocument();
 
-			exchange.getIn().setBody(document);
+            final Element element = doc.getAny();
 
-		} else {
-			exchange.getIn().setBody(null);
-		}
+            document.adoptNode(element);
+            document.appendChild(element);
 
-	}
+            exchange.getIn().setBody(document);
+
+        } else {
+            exchange.getIn().setBody(null);
+        }
+
+    }
 }

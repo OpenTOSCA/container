@@ -15,63 +15,63 @@ import org.slf4j.LoggerFactory;
 /**
  * Activator of the Application Bus.<br>
  * <br>
- * 
- * The activator is needed to add and start the camel routes. The bundleID is
- * used for generating the routing endpoint of the Application Bus.
- * 
- * 
- * 
+ *
+ * The activator is needed to add and start the camel routes. The bundleID is used for generating
+ * the routing endpoint of the Application Bus.
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Activator implements BundleActivator {
 
-	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-	private static DefaultCamelContext camelContext;
+    private static DefaultCamelContext camelContext;
 
-	private static String bundleID;
+    private static String bundleID;
 
-	static String getBundleID() {
-		return bundleID;
-	}
+    static String getBundleID() {
+        return bundleID;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.
-	 * BundleContext)
-	 */
-	public void start(BundleContext bundleContext) throws Exception {
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework. BundleContext)
+     */
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
 
-		// get bundle name, used as routing endpoint
-		bundleID = bundleContext.getBundle().getSymbolicName();
+        // get bundle name, used as routing endpoint
+        bundleID = bundleContext.getBundle().getSymbolicName();
 
-		OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-		camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
+        camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
 
-		// register routes
-		camelContext.addRoutes(new MainRoute());
-		camelContext.addRoutes(new InvokeOperationRoute());
-		camelContext.addRoutes(new IsFinishedRoute());
-		camelContext.addRoutes(new GetResultRoute());
+        // register routes
+        camelContext.addRoutes(new MainRoute());
+        camelContext.addRoutes(new InvokeOperationRoute());
+        camelContext.addRoutes(new IsFinishedRoute());
+        camelContext.addRoutes(new GetResultRoute());
 
-		// start camel context
-		camelContext.start();
+        // start camel context
+        camelContext.start();
 
-		Activator.LOG.info("Application Bus started.");
-	}
+        Activator.LOG.info("Application Bus started.");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext bundleContext) throws Exception {
-		camelContext = null;
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void stop(final BundleContext bundleContext) throws Exception {
+        camelContext = null;
 
-		Activator.LOG.info("Application Bus stopped.");
-	}
+        Activator.LOG.info("Application Bus stopped.");
+    }
 
 }

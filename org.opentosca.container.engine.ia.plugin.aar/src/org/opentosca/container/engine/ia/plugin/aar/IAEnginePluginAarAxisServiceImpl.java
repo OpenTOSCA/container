@@ -43,438 +43,457 @@ import org.w3c.dom.NodeList;
 /**
  * IAEnginePlugin for deploying/undeploying a AAR-File on/from Axis2.
  *
- * This plugin gets a {@link TImplementationArtifact} from the IAEngine,
- * searches for an any-element like
- * <tt>{@literal <}namespace:Path{@literal >}...
- * {@literal <}/namespace:Path{@literal >}</tt>, that identifies the file that
- * should be deployed, gets the file from the CoreFileService and tries to
- * deploy it via the IHTTPService. In case of ImplementationArtifacts with an
- * any-element like <tt>{@literal <}namespace:ServiceEndpoint{@literal >}...
- * {@literal <}/namespace:ServiceEndpoint{@literal >}</tt> (particularly used
- * with WSDL IAs) the plugin also adds the content of the any-element to the
- * previously generated endpoint.
+ * This plugin gets a {@link TImplementationArtifact} from the IAEngine, searches for an any-element
+ * like <tt>{@literal <}namespace:Path{@literal >}...
+ * {@literal <}/namespace:Path{@literal >}</tt>, that identifies the file that should be deployed,
+ * gets the file from the CoreFileService and tries to deploy it via the IHTTPService. In case of
+ * ImplementationArtifacts with an any-element like
+ * <tt>{@literal <}namespace:ServiceEndpoint{@literal >}...
+ * {@literal <}/namespace:ServiceEndpoint{@literal >}</tt> (particularly used with WSDL IAs) the
+ * plugin also adds the content of the any-element to the previously generated endpoint.
  *
  * The undeployment process works similar.
  *
  * @see IHTTPService
  *
- * @TODO Since Axis2 uses the Service-Name of the WebService (defined in
- *       services.xml within the archive) as endpoint and not the name of the
- *       AAR-File, this causes problems if File-Name and Service-Name are not
- *       equal.
+ * @TODO Since Axis2 uses the Service-Name of the WebService (defined in services.xml within the
+ *       archive) as endpoint and not the name of the AAR-File, this causes problems if File-Name
+ *       and Service-Name are not equal.
  *
- * @TODO Fix problems that occur when a THOR contains AAR-Files with same
- *       Service-Name but different functions, as Axis2 differs Services based
- *       on their Service-Names and not their File-Names.
+ * @TODO Fix problems that occur when a THOR contains AAR-Files with same Service-Name but different
+ *       functions, as Axis2 differs Services based on their Service-Names and not their File-Names.
  *
  * @TODO Fix endpoint handling at all.
  */
 public class IAEnginePluginAarAxisServiceImpl implements IIAEnginePluginService {
 
-	// Hardcoded location of Axis2, username & password. Defined in
-	// messages.properties.
-	static private final String USERNAME = Messages.AarAxisIAEnginePlugin_axisUsername;
-	static private final String PASSWORD = Messages.AarAxisIAEnginePlugin_axisPassword;
-	static private final String URL = Messages.AarAxisIAEnginePlugin_url;
-	static final private String TYPES = Messages.AarAxisIAEnginePlugin_types;
-	static final private String CAPABILITIES = Messages.AarAxisIAEnginePlugin_capabilities;
+    // Hardcoded location of Axis2, username & password. Defined in
+    // messages.properties.
+    static private final String USERNAME = Messages.AarAxisIAEnginePlugin_axisUsername;
+    static private final String PASSWORD = Messages.AarAxisIAEnginePlugin_axisPassword;
+    static private final String URL = Messages.AarAxisIAEnginePlugin_url;
+    static final private String TYPES = Messages.AarAxisIAEnginePlugin_types;
+    static final private String CAPABILITIES = Messages.AarAxisIAEnginePlugin_capabilities;
 
-	static final private Logger LOG = LoggerFactory.getLogger(IAEnginePluginAarAxisServiceImpl.class);
+    static final private Logger LOG = LoggerFactory.getLogger(IAEnginePluginAarAxisServiceImpl.class);
 
-	private IHTTPService httpService;
+    private IHTTPService httpService;
 
 
-	@Override
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @TODO: Change to deployImplementationArtifact(QName artifactType,
-	 *        Document artifactContent, Document properties, List
-	 *        <PropertyConstraints> propertyConstraints, List<IFile> files, List
-	 *        <URI> requiredFeatures) when IFile is created!
-	 */
-	public URI deployImplementationArtifact(final CSARID csarID, final QName nodeTypeImplementationID, final QName artifactType, final Document artifactContent, final Document properties, final List<TPropertyConstraint> propertyConstraints, final List<AbstractArtifact> artifacts, final List<String> requiredFeatures) {
-		
-		String endpoint = null;
-		String endpointSuffix = null;
-		Path aarFile = null;
+    @Override
+    /**
+     * {@inheritDoc}
+     *
+     * @TODO: Change to deployImplementationArtifact(QName artifactType, Document artifactContent,
+     *        Document properties, List <PropertyConstraints> propertyConstraints, List<IFile> files,
+     *        List <URI> requiredFeatures) when IFile is created!
+     */
+    public URI deployImplementationArtifact(final CSARID csarID, final QName nodeTypeImplementationID,
+                                            final QName artifactType, final Document artifactContent,
+                                            final Document properties,
+                                            final List<TPropertyConstraint> propertyConstraints,
+                                            final List<AbstractArtifact> artifacts,
+                                            final List<String> requiredFeatures) {
 
-		IAEnginePluginAarAxisServiceImpl.LOG.info("Searching for a deployable AAR-File...");
+        String endpoint = null;
+        String endpointSuffix = null;
+        Path aarFile = null;
 
-		aarFile = this.getAar(artifacts);
+        IAEnginePluginAarAxisServiceImpl.LOG.info("Searching for a deployable AAR-File...");
 
-		// Check if a AAR-File was found.
-		if (aarFile != null) {
-			endpoint = this.deploy(aarFile);
+        aarFile = this.getAar(artifacts);
 
-			// Checks if a endpoint was set.
-			if (endpoint != null) {
-				
-				endpointSuffix = this.getEndpointSuffix(properties);
+        // Check if a AAR-File was found.
+        if (aarFile != null) {
+            endpoint = this.deploy(aarFile);
 
-				// Create final endpoint.
-				endpoint = endpoint.concat(endpointSuffix);
-				IAEnginePluginAarAxisServiceImpl.LOG.info("Complete endpoint of IA {}: {}", aarFile.getFileName(), endpoint);
-			}
+            // Checks if a endpoint was set.
+            if (endpoint != null) {
 
-		} else {
-			IAEnginePluginAarAxisServiceImpl.LOG.warn("No deployable AAR-File found.");
-		}
+                endpointSuffix = this.getEndpointSuffix(properties);
 
-		return this.getURI(endpoint);
-	}
+                // Create final endpoint.
+                endpoint = endpoint.concat(endpointSuffix);
+                IAEnginePluginAarAxisServiceImpl.LOG.info("Complete endpoint of IA {}: {}", aarFile.getFileName(),
+                                                          endpoint);
+            }
 
-	/**
-	 * Deploys a AAR-File on Axis2. Axis2 takes the Service-Name within the
-	 * AAR-File as path.
-	 *
-	 * @param aarFile AAR-File that should be deployed.
-	 * @return if deploying was successful. If <tt>null</tt> is returned,
-	 *         deploying wasn't successful. Otherwise the endpoint will be
-	 *         returned.
-	 */
-	private String deploy(final Path aarFile) {
-		
-		String endpoint = null;
-		String fileName = null;
+        } else {
+            IAEnginePluginAarAxisServiceImpl.LOG.warn("No deployable AAR-File found.");
+        }
 
-		if (this.isRunning()) {
-			
-			final String filePath = aarFile.toString();
-			fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1, filePath.lastIndexOf("."));
+        return this.getURI(endpoint);
+    }
 
-			try {
-				
-				IAEnginePluginAarAxisServiceImpl.LOG.debug("URI of file {}.aar: {}", fileName, filePath);
+    /**
+     * Deploys a AAR-File on Axis2. Axis2 takes the Service-Name within the AAR-File as path.
+     *
+     * @param aarFile AAR-File that should be deployed.
+     * @return if deploying was successful. If <tt>null</tt> is returned, deploying wasn't successful.
+     *         Otherwise the endpoint will be returned.
+     */
+    private String deploy(final Path aarFile) {
 
-				IAEnginePluginAarAxisServiceImpl.LOG.info("Deploying {} ...", fileName);
+        String endpoint = null;
+        String fileName = null;
 
-				// Create POST request with needed cookies and AAR-File for
-				// deployment.
-				final List<Cookie> cookies = this.getCookies();
-				final MultipartEntity uploadEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-				uploadEntity.addPart("filename", new FileBody(aarFile.toFile()));
-				final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/upload";
-				final HttpResponse response = this.httpService.Post(url, uploadEntity, cookies);
+        if (this.isRunning()) {
 
-				IAEnginePluginAarAxisServiceImpl.LOG.debug("Axis2 uploadresponse: " + response.getStatusLine().toString());
-				IAEnginePluginAarAxisServiceImpl.LOG.info("Deploying finished.");
-				IAEnginePluginAarAxisServiceImpl.LOG.info("Checking if {} was deployed successfully...", fileName);
+            final String filePath = aarFile.toString();
+            fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1, filePath.lastIndexOf("."));
 
-				if (this.isDeployed(fileName)) {
-					
-					IAEnginePluginAarAxisServiceImpl.LOG.info("{} was deployed successfully.", fileName);
+            try {
 
-					endpoint = IAEnginePluginAarAxisServiceImpl.URL + "/services/" + fileName;
+                IAEnginePluginAarAxisServiceImpl.LOG.debug("URI of file {}.aar: {}", fileName, filePath);
 
-					IAEnginePluginAarAxisServiceImpl.LOG.debug("Endpoint of {} : {}", fileName, endpoint);
+                IAEnginePluginAarAxisServiceImpl.LOG.info("Deploying {} ...", fileName);
 
-				} else {
-					IAEnginePluginAarAxisServiceImpl.LOG.warn("{} wasn't deployed successfully", fileName);
-				}
+                // Create POST request with needed cookies and AAR-File for
+                // deployment.
+                final List<Cookie> cookies = this.getCookies();
+                final MultipartEntity uploadEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                uploadEntity.addPart("filename", new FileBody(aarFile.toFile()));
+                final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/upload";
+                final HttpResponse response = this.httpService.Post(url, uploadEntity, cookies);
 
-			} catch (final UnsupportedEncodingException e) {
-				IAEnginePluginAarAxisServiceImpl.LOG.error("UnsupportedEncodingException occured: ", e);
-			} catch (final ClientProtocolException e) {
-				IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured: ", e);
-			} catch (final IOException e) {
-				IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured: ", e);
-			}
+                IAEnginePluginAarAxisServiceImpl.LOG.debug("Axis2 uploadresponse: "
+                    + response.getStatusLine().toString());
+                IAEnginePluginAarAxisServiceImpl.LOG.info("Deploying finished.");
+                IAEnginePluginAarAxisServiceImpl.LOG.info("Checking if {} was deployed successfully...", fileName);
 
-		} else {
-			IAEnginePluginAarAxisServiceImpl.LOG.warn("Axis2 isn't running or can't be accessed! Can't deploy {}!", fileName);
+                if (this.isDeployed(fileName)) {
 
-		}
-		return endpoint;
-	}
+                    IAEnginePluginAarAxisServiceImpl.LOG.info("{} was deployed successfully.", fileName);
 
-	/**
-	 * Checks if the artifact contains a AAR-File and returns it if so.
-	 *
-	 * @param files to check.
-	 * @return AAR-File if available. Otherwise <tt>null</tt>.
-	 */
-	private Path getAar(final List<AbstractArtifact> artifacts) {
-		
-		// Check if there are artifacts
-		if (artifacts != null) {
-			// Check if artifacts contains a AAR-File.
-			for (final AbstractArtifact artifact : artifacts) {
-				final Set<AbstractFile> files = artifact.getFilesRecursively();
-				for (final AbstractFile file : files) {
-					if (this.isADeployableAar(file)) {
-						
-						IAEnginePluginAarAxisServiceImpl.LOG.info("Deployable AAR-File with name {} found.", file.getName());
+                    endpoint = IAEnginePluginAarAxisServiceImpl.URL + "/services/" + fileName;
 
-						try {
-							return file.getFile();
-						} catch (final SystemException exc) {
-							IAEnginePluginAarAxisServiceImpl.LOG.warn("An System Exception occured.", exc);
-						}
+                    IAEnginePluginAarAxisServiceImpl.LOG.debug("Endpoint of {} : {}", fileName, endpoint);
 
-						return null;
+                } else {
+                    IAEnginePluginAarAxisServiceImpl.LOG.warn("{} wasn't deployed successfully", fileName);
+                }
 
-					}
-				}
-			}
-		}
-		return null;
-	}
+            }
+            catch (final UnsupportedEncodingException e) {
+                IAEnginePluginAarAxisServiceImpl.LOG.error("UnsupportedEncodingException occured: ", e);
+            }
+            catch (final ClientProtocolException e) {
+                IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured: ", e);
+            }
+            catch (final IOException e) {
+                IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured: ", e);
+            }
 
-	/**
-	 *
-	 * @param file to check.
-	 * @return if file is a AAR-File that can be deployed.
-	 */
-	private boolean isADeployableAar(final AbstractFile file) {
-		
-		if (file.getName().toLowerCase().endsWith(".aar")) {
-			return true;
-		} else {
-			IAEnginePluginAarAxisServiceImpl.LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.", file.getName());
-		}
+        } else {
+            IAEnginePluginAarAxisServiceImpl.LOG.warn("Axis2 isn't running or can't be accessed! Can't deploy {}!",
+                                                      fileName);
 
-		return false;
-	}
+        }
+        return endpoint;
+    }
 
-	/**
-	 * Checks if a endpointSuffix was specified in the Tosca.xml and returns it
-	 * if so.
-	 *
-	 * @param properties to check for endpoint information.
-	 * @return endpointSuffix if specified. Otherwise <tt>""</tt>.
-	 */
-	private String getEndpointSuffix(final Document properties) {
-		
-		String endpointSuffix = "";
+    /**
+     * Checks if the artifact contains a AAR-File and returns it if so.
+     *
+     * @param files to check.
+     * @return AAR-File if available. Otherwise <tt>null</tt>.
+     */
+    private Path getAar(final List<AbstractArtifact> artifacts) {
 
-		// Checks if there are specified properties at all.
-		if (properties != null) {
-			
-			final NodeList list = properties.getFirstChild().getChildNodes();
+        // Check if there are artifacts
+        if (artifacts != null) {
+            // Check if artifacts contains a AAR-File.
+            for (final AbstractArtifact artifact : artifacts) {
+                final Set<AbstractFile> files = artifact.getFilesRecursively();
+                for (final AbstractFile file : files) {
+                    if (this.isADeployableAar(file)) {
 
-			for (int i = 0; i < list.getLength(); i++) {
-				
-				final Node propNode = list.item(i);
+                        IAEnginePluginAarAxisServiceImpl.LOG.info("Deployable AAR-File with name {} found.",
+                                                                  file.getName());
 
-				if (this.containsEndpointSuffix(propNode)) {
-					endpointSuffix = this.getNodeContent(propNode);
-					IAEnginePluginAarAxisServiceImpl.LOG.info("ServiceEndpointSuffix found: {}", endpointSuffix);
-					return endpointSuffix;
-				}
-			}
-		}
-		return endpointSuffix;
-	}
+                        try {
+                            return file.getFile();
+                        }
+                        catch (final SystemException exc) {
+                            IAEnginePluginAarAxisServiceImpl.LOG.warn("An System Exception occured.", exc);
+                        }
 
-	/**
-	 * Checks if the Node contains endpoint information, that will be used to
-	 * generate the complete endpoint. Endpoint information has to be specified
-	 * with <tt>{@literal <}namespace:ServiceEndpoint{@literal >}...
-	 * {@literal <}/namespace:ServiceEndpoint{@literal >}</tt>.
-	 *
-	 * @param currentNode to check.
-	 * @return if currentNode contains endpoint information.
-	 */
-	private boolean containsEndpointSuffix(final Node currentNode) {
-		final String localName = currentNode.getLocalName();
-		IAEnginePluginAarAxisServiceImpl.LOG.debug(localName);
-		if (localName != null) {
-			return localName.equals("ServiceEndpoint");
-		}
-		return false;
-	}
+                        return null;
 
-	// /**
-	// * @param filePath where to get the File-Name from.
-	// * @return Name of the file.
-	// */
-	// private String getFileName(String filePath) {
-	// String fileName = filePath.substring(filePath.lastIndexOf('/') + 1,
-	// filePath.lastIndexOf("."));
-	// return fileName;
-	// }
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * @param currentNode where to get the content from.
-	 * @return Content of currentNode as String.
-	 */
-	private String getNodeContent(final Node currentNode) {
-		final String nodeContent = currentNode.getTextContent().trim();
-		return nodeContent;
-	}
+    /**
+     *
+     * @param file to check.
+     * @return if file is a AAR-File that can be deployed.
+     */
+    private boolean isADeployableAar(final AbstractFile file) {
 
-	/**
-	 * @param endpoint to create URI from.
-	 * @return URI of endpoint.
-	 */
-	private URI getURI(final String endpoint) {
-		URI endpointURI = null;
-		if (endpoint != null) {
-			try {
-				endpointURI = new URI(endpoint);
-			} catch (final URISyntaxException e) {
-				IAEnginePluginAarAxisServiceImpl.LOG.error("URISyntaxException occurred while creating endpoint URI: {} ", endpoint, e);
-			}
-		}
-		return endpointURI;
-	}
+        if (file.getName().toLowerCase().endsWith(".aar")) {
+            return true;
+        } else {
+            IAEnginePluginAarAxisServiceImpl.LOG.warn("Although the plugin-type and the IA-type are matching, the file {} can't be un-/deployed from this plugin.",
+                                                      file.getName());
+        }
 
-	/**
-	 *
-	 * @return if Axis2 is running.
-	 */
-	private boolean isRunning() {
-		
-		boolean isRunning = false;
-		IAEnginePluginAarAxisServiceImpl.LOG.info("Checking if Axis2 is running and can be accessed...");
+        return false;
+    }
 
-		try {
-			final HttpResponse response = this.httpService.Head(IAEnginePluginAarAxisServiceImpl.URL);
+    /**
+     * Checks if a endpointSuffix was specified in the Tosca.xml and returns it if so.
+     *
+     * @param properties to check for endpoint information.
+     * @return endpointSuffix if specified. Otherwise <tt>""</tt>.
+     */
+    private String getEndpointSuffix(final Document properties) {
 
-			if (response.getStatusLine().toString().contains("200 OK")) {
-				isRunning = true;
+        String endpointSuffix = "";
 
-				IAEnginePluginAarAxisServiceImpl.LOG.info("Axis2 is running and can be accessed!");
-			}
-		} catch (final ClientProtocolException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured:", e);
-		} catch (final IOException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured:", e);
-		}
-		return isRunning;
-	}
+        // Checks if there are specified properties at all.
+        if (properties != null) {
 
-	/**
-	 * Handles the cookies needed for login to Axis2.
-	 *
-	 * @return cookies needed for accessing Axis2.
-	 */
-	private List<Cookie> getCookies() {
-		
-		final List<NameValuePair> nvps = new ArrayList<>(2);
-		nvps.add(new BasicNameValuePair("userName", IAEnginePluginAarAxisServiceImpl.USERNAME));
-		nvps.add(new BasicNameValuePair("password", IAEnginePluginAarAxisServiceImpl.PASSWORD));
+            final NodeList list = properties.getFirstChild().getChildNodes();
 
-		List<Cookie> cookies = null;
+            for (int i = 0; i < list.getLength(); i++) {
 
-		try {
-			final HttpEntity loginEntity = new UrlEncodedFormEntity(nvps);
-			final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/login";
-			cookies = this.httpService.PostCookies(url, loginEntity);
+                final Node propNode = list.item(i);
 
-		} catch (final ClientProtocolException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured: ", e);
-		} catch (final IOException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured: ", e);
-		}
+                if (this.containsEndpointSuffix(propNode)) {
+                    endpointSuffix = this.getNodeContent(propNode);
+                    IAEnginePluginAarAxisServiceImpl.LOG.info("ServiceEndpointSuffix found: {}", endpointSuffix);
+                    return endpointSuffix;
+                }
+            }
+        }
+        return endpointSuffix;
+    }
 
-		return cookies;
-	}
+    /**
+     * Checks if the Node contains endpoint information, that will be used to generate the complete
+     * endpoint. Endpoint information has to be specified with
+     * <tt>{@literal <}namespace:ServiceEndpoint{@literal >}...
+     * {@literal <}/namespace:ServiceEndpoint{@literal >}</tt>.
+     *
+     * @param currentNode to check.
+     * @return if currentNode contains endpoint information.
+     */
+    private boolean containsEndpointSuffix(final Node currentNode) {
+        final String localName = currentNode.getLocalName();
+        IAEnginePluginAarAxisServiceImpl.LOG.debug(localName);
+        if (localName != null) {
+            return localName.equals("ServiceEndpoint");
+        }
+        return false;
+    }
 
-	/**
-	 * Checks if a WebService with given name is deployed and running.
-	 *
-	 * @param fileName of WebService to check.
-	 * @return if WebService is deployed and running.
-	 *
-	 */
-	private boolean isDeployed(final String fileName) {
-		
-		boolean isDeployed = false;
+    // /**
+    // * @param filePath where to get the File-Name from.
+    // * @return Name of the file.
+    // */
+    // private String getFileName(String filePath) {
+    // String fileName = filePath.substring(filePath.lastIndexOf('/') + 1,
+    // filePath.lastIndexOf("."));
+    // return fileName;
+    // }
 
-		try {
-			// "Needed" for checking if WS was un/deployed successfully because
-			// Axis2 needs a moment to update WSs.
-			Thread.sleep(10000);
+    /**
+     * @param currentNode where to get the content from.
+     * @return Content of currentNode as String.
+     */
+    private String getNodeContent(final Node currentNode) {
+        final String nodeContent = currentNode.getTextContent().trim();
+        return nodeContent;
+    }
 
-			final List<Cookie> cookies = this.getCookies();
-			final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/ListSingleService?serviceName=" + fileName;
-			final HttpResponse response = this.httpService.Get(url, cookies);
+    /**
+     * @param endpoint to create URI from.
+     * @return URI of endpoint.
+     */
+    private URI getURI(final String endpoint) {
+        URI endpointURI = null;
+        if (endpoint != null) {
+            try {
+                endpointURI = new URI(endpoint);
+            }
+            catch (final URISyntaxException e) {
+                IAEnginePluginAarAxisServiceImpl.LOG.error("URISyntaxException occurred while creating endpoint URI: {} ",
+                                                           endpoint, e);
+            }
+        }
+        return endpointURI;
+    }
 
-			final HttpEntity entity = response.getEntity();
-			final InputStream is = entity.getContent();
-			final BufferedReader br = new BufferedReader(new InputStreamReader(is));
+    /**
+     *
+     * @return if Axis2 is running.
+     */
+    private boolean isRunning() {
 
-			String str;
-			// Parse html if WebService is marked as "Active" to check if iit is
-			// running.
-			while ((str = br.readLine()) != null) {
-				if (str.contains("<i><font color=\"blue\">Service Status : Active</font></i><br>")) {
-					isDeployed = true;
-				}
-				if (str.contains("<font color=\"red\">") && !str.contains("No services found in this location")) {
-					IAEnginePluginAarAxisServiceImpl.LOG.warn("The WebService {} has deployment faults: {}", fileName, str);
-				}
-			}
+        boolean isRunning = false;
+        IAEnginePluginAarAxisServiceImpl.LOG.info("Checking if Axis2 is running and can be accessed...");
 
-		} catch (final ClientProtocolException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured:", e);
-		} catch (final IOException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured:", e);
-		} catch (final InterruptedException e) {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("InterruptedException occured:", e);
-		}
+        try {
+            final HttpResponse response = this.httpService.Head(IAEnginePluginAarAxisServiceImpl.URL);
 
-		return isDeployed;
-	}
+            if (response.getStatusLine().toString().contains("200 OK")) {
+                isRunning = true;
 
-	@Override
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<String> getSupportedTypes() {
-		IAEnginePluginAarAxisServiceImpl.LOG.debug("Getting Types: {}.", IAEnginePluginAarAxisServiceImpl.TYPES);
-		final List<String> types = new ArrayList<>();
+                IAEnginePluginAarAxisServiceImpl.LOG.info("Axis2 is running and can be accessed!");
+            }
+        }
+        catch (final ClientProtocolException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured:", e);
+        }
+        catch (final IOException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured:", e);
+        }
+        return isRunning;
+    }
 
-		for (final String type : IAEnginePluginAarAxisServiceImpl.TYPES.split("[,;]")) {
-			types.add(type.trim());
-		}
-		return types;
-	}
+    /**
+     * Handles the cookies needed for login to Axis2.
+     *
+     * @return cookies needed for accessing Axis2.
+     */
+    private List<Cookie> getCookies() {
 
-	@Override
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<String> getCapabilties() {
-		IAEnginePluginAarAxisServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.", IAEnginePluginAarAxisServiceImpl.CAPABILITIES);
-		final List<String> capabilities = new ArrayList<>();
+        final List<NameValuePair> nvps = new ArrayList<>(2);
+        nvps.add(new BasicNameValuePair("userName", IAEnginePluginAarAxisServiceImpl.USERNAME));
+        nvps.add(new BasicNameValuePair("password", IAEnginePluginAarAxisServiceImpl.PASSWORD));
 
-		for (final String capability : IAEnginePluginAarAxisServiceImpl.CAPABILITIES.split("[,;]")) {
-			capabilities.add(capability.trim());
-		}
-		return capabilities;
-	}
+        List<Cookie> cookies = null;
 
-	/**
-	 * Register IHTTPService.
-	 *
-	 * @param service - A IHTTPService to register.
-	 */
-	public void bindHTTPService(final IHTTPService httpService) {
-		if (httpService != null) {
-			this.httpService = httpService;
-			IAEnginePluginAarAxisServiceImpl.LOG.debug("Register IHTTPService: {} registered.", httpService.toString());
-		} else {
-			IAEnginePluginAarAxisServiceImpl.LOG.error("Register IHTTPService: Supplied parameter is null!");
-		}
-	}
+        try {
+            final HttpEntity loginEntity = new UrlEncodedFormEntity(nvps);
+            final String url = IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/login";
+            cookies = this.httpService.PostCookies(url, loginEntity);
 
-	/**
-	 * Unregister IHTTPService.
-	 *
-	 * @param service - A IHTTPService to unregister.
-	 */
-	public void unbindHTTPService(final IHTTPService httpService) {
-		this.httpService = null;
-		IAEnginePluginAarAxisServiceImpl.LOG.debug("Unregister IHTTPService: {} unregistered.", httpService.toString());
-	}
+        }
+        catch (final ClientProtocolException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured: ", e);
+        }
+        catch (final IOException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured: ", e);
+        }
 
-	@Override
-	public boolean undeployImplementationArtifact(final String iaName, final QName nodeTypeImpl, final CSARID csarID, final URI path) {
-		// TODO
-		return false;
-	}
+        return cookies;
+    }
+
+    /**
+     * Checks if a WebService with given name is deployed and running.
+     *
+     * @param fileName of WebService to check.
+     * @return if WebService is deployed and running.
+     *
+     */
+    private boolean isDeployed(final String fileName) {
+
+        boolean isDeployed = false;
+
+        try {
+            // "Needed" for checking if WS was un/deployed successfully because
+            // Axis2 needs a moment to update WSs.
+            Thread.sleep(10000);
+
+            final List<Cookie> cookies = this.getCookies();
+            final String url =
+                IAEnginePluginAarAxisServiceImpl.URL + "/axis2-admin/ListSingleService?serviceName=" + fileName;
+            final HttpResponse response = this.httpService.Get(url, cookies);
+
+            final HttpEntity entity = response.getEntity();
+            final InputStream is = entity.getContent();
+            final BufferedReader br = new BufferedReader(new InputStreamReader(is));
+
+            String str;
+            // Parse html if WebService is marked as "Active" to check if iit is
+            // running.
+            while ((str = br.readLine()) != null) {
+                if (str.contains("<i><font color=\"blue\">Service Status : Active</font></i><br>")) {
+                    isDeployed = true;
+                }
+                if (str.contains("<font color=\"red\">") && !str.contains("No services found in this location")) {
+                    IAEnginePluginAarAxisServiceImpl.LOG.warn("The WebService {} has deployment faults: {}", fileName,
+                                                              str);
+                }
+            }
+
+        }
+        catch (final ClientProtocolException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("ClientProtocolException occured:", e);
+        }
+        catch (final IOException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("IOException occured:", e);
+        }
+        catch (final InterruptedException e) {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("InterruptedException occured:", e);
+        }
+
+        return isDeployed;
+    }
+
+    @Override
+    /**
+     * {@inheritDoc}
+     */
+    public List<String> getSupportedTypes() {
+        IAEnginePluginAarAxisServiceImpl.LOG.debug("Getting Types: {}.", IAEnginePluginAarAxisServiceImpl.TYPES);
+        final List<String> types = new ArrayList<>();
+
+        for (final String type : IAEnginePluginAarAxisServiceImpl.TYPES.split("[,;]")) {
+            types.add(type.trim());
+        }
+        return types;
+    }
+
+    @Override
+    /**
+     * {@inheritDoc}
+     */
+    public List<String> getCapabilties() {
+        IAEnginePluginAarAxisServiceImpl.LOG.debug("Getting Plugin-Capabilities: {}.",
+                                                   IAEnginePluginAarAxisServiceImpl.CAPABILITIES);
+        final List<String> capabilities = new ArrayList<>();
+
+        for (final String capability : IAEnginePluginAarAxisServiceImpl.CAPABILITIES.split("[,;]")) {
+            capabilities.add(capability.trim());
+        }
+        return capabilities;
+    }
+
+    /**
+     * Register IHTTPService.
+     *
+     * @param service - A IHTTPService to register.
+     */
+    public void bindHTTPService(final IHTTPService httpService) {
+        if (httpService != null) {
+            this.httpService = httpService;
+            IAEnginePluginAarAxisServiceImpl.LOG.debug("Register IHTTPService: {} registered.", httpService.toString());
+        } else {
+            IAEnginePluginAarAxisServiceImpl.LOG.error("Register IHTTPService: Supplied parameter is null!");
+        }
+    }
+
+    /**
+     * Unregister IHTTPService.
+     *
+     * @param service - A IHTTPService to unregister.
+     */
+    public void unbindHTTPService(final IHTTPService httpService) {
+        this.httpService = null;
+        IAEnginePluginAarAxisServiceImpl.LOG.debug("Unregister IHTTPService: {} unregistered.", httpService.toString());
+    }
+
+    @Override
+    public boolean undeployImplementationArtifact(final String iaName, final QName nodeTypeImpl, final CSARID csarID,
+                                                  final URI path) {
+        // TODO
+        return false;
+    }
 
 }

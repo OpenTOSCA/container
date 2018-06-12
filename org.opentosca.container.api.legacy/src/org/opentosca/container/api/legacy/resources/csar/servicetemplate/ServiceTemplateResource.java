@@ -31,60 +31,65 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceTemplateResource {
 
-	private final Logger log = LoggerFactory.getLogger(ServiceTemplateResource.class);
-	private final CSARContent csarContent;
-	private final QName serviceTemplateID;
-	private UriInfo uriInfo;
-	
-	
-	public ServiceTemplateResource(final CSARContent csarContent, final String serviceTemplateID) {
-		
-		this.csarContent = csarContent;
-		final String namespace = serviceTemplateID.substring(1, serviceTemplateID.indexOf("}"));
-		final String localName = serviceTemplateID.substring(serviceTemplateID.indexOf("}") + 1);
-		this.serviceTemplateID = new QName(namespace, localName);
-		this.log.info("{} created: \"{}\":\"{}\"; out of \"{}\"", this.getClass(), this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart(), serviceTemplateID);
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getXMLString()).build();
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs().getJSONString()).build();
-	}
-	
-	public References getRefs() throws UnsupportedEncodingException {
-		
-		if (this.csarContent == null) {
-			return null;
-		}
-		
-		final References refs = new References();
-		
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "BoundaryDefinitions"), XLinkConstants.SIMPLE, "BoundaryDefinitions"));
-		refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Instances"), XLinkConstants.SIMPLE, "Instances"));
-		
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
-		return refs;
-	}
-	
-	@Path("BoundaryDefinitions")
-	public BoundsResource getBoundaryDefs() {
-		return new BoundsResource(this.csarContent.getCSARID(), this.serviceTemplateID);
-	}
-	
-	@Path("Instances")
-	public ServiceTemplateInstancesResource getInstances() {
-		this.log.debug("Create ST instances list resource for {}", this.serviceTemplateID);
-		return new ServiceTemplateInstancesResource(this.csarContent.getCSARID(), this.serviceTemplateID);
-	}
+    private final Logger log = LoggerFactory.getLogger(ServiceTemplateResource.class);
+    private final CSARContent csarContent;
+    private final QName serviceTemplateID;
+    private UriInfo uriInfo;
+
+
+    public ServiceTemplateResource(final CSARContent csarContent, final String serviceTemplateID) {
+
+        this.csarContent = csarContent;
+        final String namespace = serviceTemplateID.substring(1, serviceTemplateID.indexOf("}"));
+        final String localName = serviceTemplateID.substring(serviceTemplateID.indexOf("}") + 1);
+        this.serviceTemplateID = new QName(namespace, localName);
+        this.log.info("{} created: \"{}\":\"{}\"; out of \"{}\"", this.getClass(),
+                      this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart(),
+                      serviceTemplateID);
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs().getJSONString()).build();
+    }
+
+    public References getRefs() throws UnsupportedEncodingException {
+
+        if (this.csarContent == null) {
+            return null;
+        }
+
+        final References refs = new References();
+
+        refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "BoundaryDefinitions"),
+            XLinkConstants.SIMPLE, "BoundaryDefinitions"));
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(this.uriInfo, "Instances"), XLinkConstants.SIMPLE, "Instances"));
+
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        return refs;
+    }
+
+    @Path("BoundaryDefinitions")
+    public BoundsResource getBoundaryDefs() {
+        return new BoundsResource(this.csarContent.getCSARID(), this.serviceTemplateID);
+    }
+
+    @Path("Instances")
+    public ServiceTemplateInstancesResource getInstances() {
+        this.log.debug("Create ST instances list resource for {}", this.serviceTemplateID);
+        return new ServiceTemplateInstancesResource(this.csarContent.getCSARID(), this.serviceTemplateID);
+    }
 }

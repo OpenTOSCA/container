@@ -28,61 +28,60 @@ import org.opentosca.container.core.model.deployment.process.DeploymentProcessSt
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DeploymentProcessJaxb {
 
-	@XmlAttribute(name = "DeploymentState")
-	private DeploymentProcessState deploymentState;
-	@XmlElement(name = "ProcessId")
-	private CSARID processID;
-	@XmlElement(name = "Operations")
-	private Set<OperationJaxb> operations;
+    @XmlAttribute(name = "DeploymentState")
+    private DeploymentProcessState deploymentState;
+    @XmlElement(name = "ProcessId")
+    private CSARID processID;
+    @XmlElement(name = "Operations")
+    private Set<OperationJaxb> operations;
 
 
-	public DeploymentProcessJaxb() {
-	}
+    public DeploymentProcessJaxb() {}
 
-	/**
-	 * @return the deploymentState
-	 */
-	public DeploymentProcessState getDeploymentState() {
-		return this.deploymentState;
-	}
+    /**
+     * @return the deploymentState
+     */
+    public DeploymentProcessState getDeploymentState() {
+        return this.deploymentState;
+    }
 
-	/**
-	 * @param deploymentState the deploymentState to set
-	 */
-	public void setDeploymentState(final DeploymentProcessState deploymentState) {
-		this.deploymentState = deploymentState;
-	}
+    /**
+     * @param deploymentState the deploymentState to set
+     */
+    public void setDeploymentState(final DeploymentProcessState deploymentState) {
+        this.deploymentState = deploymentState;
+    }
 
-	/**
-	 * @return the CSAR ID
-	 */
-	public CSARID getProcessID() {
-		return this.processID;
-	}
+    /**
+     * @return the CSAR ID
+     */
+    public CSARID getProcessID() {
+        return this.processID;
+    }
 
-	/**
-	 * @param csarID to set
-	 */
-	public void setProcessID(final CSARID csarID) {
-		this.processID = csarID;
-	}
+    /**
+     * @param csarID to set
+     */
+    public void setProcessID(final CSARID csarID) {
+        this.processID = csarID;
+    }
 
-	/**
-	 * @return the operations
-	 */
-	public Set<OperationJaxb> getOperations() {
-		if (this.operations == null) {
-			return new HashSet<>();
-		} else {
-			return this.operations;
-		}
-	}
+    /**
+     * @return the operations
+     */
+    public Set<OperationJaxb> getOperations() {
+        if (this.operations == null) {
+            return new HashSet<>();
+        } else {
+            return this.operations;
+        }
+    }
 
-	/**
-	 * @param operations the operations to set
-	 */
-	public void setOperations(final Set<OperationJaxb> operations) {
-		this.operations = operations;
-	}
+    /**
+     * @param operations the operations to set
+     */
+    public void setOperations(final Set<OperationJaxb> operations) {
+        this.operations = operations;
+    }
 
 }

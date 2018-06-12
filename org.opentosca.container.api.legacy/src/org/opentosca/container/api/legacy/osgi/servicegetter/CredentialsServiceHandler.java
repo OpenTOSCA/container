@@ -15,23 +15,23 @@ import org.slf4j.LoggerFactory;
  */
 public class CredentialsServiceHandler {
 
-	final private static Logger LOG = LoggerFactory.getLogger(CredentialsServiceHandler.class);
+    final private static Logger LOG = LoggerFactory.getLogger(CredentialsServiceHandler.class);
 
-	private static ICoreCredentialsService credentialsService;
+    private static ICoreCredentialsService credentialsService;
 
 
-	public static ICoreCredentialsService getCredentialsService() {
-		return CredentialsServiceHandler.credentialsService;
-	}
+    public static ICoreCredentialsService getCredentialsService() {
+        return CredentialsServiceHandler.credentialsService;
+    }
 
-	public void bindCoreCredentialsService(final ICoreCredentialsService credentialsService) {
-		CredentialsServiceHandler.LOG.debug("ContainerApi: Bind ICoreCredentialsService");
-		CredentialsServiceHandler.credentialsService = credentialsService;
-	}
+    public void bindCoreCredentialsService(final ICoreCredentialsService credentialsService) {
+        CredentialsServiceHandler.LOG.debug("ContainerApi: Bind ICoreCredentialsService");
+        CredentialsServiceHandler.credentialsService = credentialsService;
+    }
 
-	public void unbindCoreCredentialsService(final ICoreCredentialsService credentialsService) {
-		CredentialsServiceHandler.LOG.debug("ContainerApi: Unbind ICoreCredentialsService");
-		CredentialsServiceHandler.credentialsService = null;
-	}
+    public void unbindCoreCredentialsService(final ICoreCredentialsService credentialsService) {
+        CredentialsServiceHandler.LOG.debug("ContainerApi: Unbind ICoreCredentialsService");
+        CredentialsServiceHandler.credentialsService = null;
+    }
 
 }

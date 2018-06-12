@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.opentosca.planbuilder.service;
 
@@ -14,26 +14,26 @@ import org.opentosca.planbuilder.service.resources.TaskResource;
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * <p>
  * Main entry class for the PlanBuilder Service
  * </p>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
  *
  */
 public class PlanBuilderService extends Application {
-	
-	@Override
-	public Set<Class<?>> getClasses() {
-		
-		Set<Class<?>> s = new HashSet<Class<?>>();
-		
-		// add root resource
-		s.add(RootResource.class);
-		s.add(TaskResource.class);
-		
-		return s;
-	}
-	
+
+    @Override
+    public Set<Class<?>> getClasses() {
+
+        final Set<Class<?>> s = new HashSet<>();
+
+        // add root resource
+        s.add(RootResource.class);
+        s.add(TaskResource.class);
+
+        return s;
+    }
+
 }

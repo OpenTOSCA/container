@@ -5,27 +5,21 @@ Bundle-SymbolicName: org.opentosca.planbuilder
 Bundle-Version: 2.0.0.qualifier
 Test-Suite: org.opentosca.planbuilder.test.PlanBuilderTestSuite
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
- javax.wsdl;version="1.6.0",
+Import-Package: javax.wsdl;version="1.6.0",
  javax.wsdl.factory;version="1.6.0",
  javax.wsdl.xml;version="1.6.0",
  org.apache.commons.io;version="2.2.0",
  org.apache.ode.activityrecovery,
  org.apache.ode.schemas.dd._2007._03,
+ org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
-Bundle-ClassPath: .,
- META-INF/resources/
+Bundle-ClassPath: .
 Export-Package: org.opentosca.planbuilder,
- org.opentosca.planbuilder.bpel,
- org.opentosca.planbuilder.bpel.fragments,
- org.opentosca.planbuilder.bpel.handlers,
- org.opentosca.planbuilder.bpel.helpers,
  org.opentosca.planbuilder.plugins,
  org.opentosca.planbuilder.plugins.context,
- org.opentosca.planbuilder.plugins.registry,
- org.opentosca.planbuilder.utils
+ org.opentosca.planbuilder.plugins.registry
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0"
-Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.opentosca.planbuilder.plugins.activator.Activator

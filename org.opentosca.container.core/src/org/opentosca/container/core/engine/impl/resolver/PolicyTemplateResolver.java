@@ -9,40 +9,43 @@ import org.opentosca.container.core.tosca.model.TPolicyTemplate;
 
 public class PolicyTemplateResolver extends GenericResolver {
 
-	public PolicyTemplateResolver(final ReferenceMapper referenceMapper) {
-		super(referenceMapper);
-	}
+    public PolicyTemplateResolver(final ReferenceMapper referenceMapper) {
+        super(referenceMapper);
+    }
 
-	/**
-	 * 
-	 * @param definitions
-	 * @return true if an error occurred, false if not
-	 */
-	public boolean resolve(final Definitions definitions) {
+    /**
+     *
+     * @param definitions
+     * @return true if an error occurred, false if not
+     */
+    public boolean resolve(final Definitions definitions) {
 
-		boolean errorOccurred = false;
+        boolean errorOccurred = false;
 
-		for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+        for (final TExtensibleElements element : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
 
-			// PolicyTemplate
-			if (element instanceof TPolicyTemplate) {
+            // PolicyTemplate
+            if (element instanceof TPolicyTemplate) {
 
-				final TPolicyTemplate policyTemplate = (TPolicyTemplate) element;
-				this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(definitions.getTargetNamespace(), policyTemplate.getId()), policyTemplate);
+                final TPolicyTemplate policyTemplate = (TPolicyTemplate) element;
+                this.referenceMapper.storeJAXBObjectIntoToscaReferenceMapper(new QName(definitions.getTargetNamespace(),
+                    policyTemplate.getId()), policyTemplate);
 
-				// resolve the PolicyType
-				if ((policyTemplate.getType() != null)) {
-					errorOccurred = errorOccurred || !this.referenceMapper.searchToscaElementByQNameWithName(policyTemplate.getType(), ElementNamesEnum.POLICYTYPE);
-				}
+                // resolve the PolicyType
+                if (policyTemplate.getType() != null) {
+                    errorOccurred = errorOccurred
+                        || !this.referenceMapper.searchToscaElementByQNameWithName(policyTemplate.getType(),
+                                                                                   ElementNamesEnum.POLICYTYPE);
+                }
 
-				// Properties
-				// nothing to do here
+                // Properties
+                // nothing to do here
 
-				// PropertyConstraints
-				// nothing to do here
+                // PropertyConstraints
+                // nothing to do here
 
-			}
-		}
-		return errorOccurred;
-	}
+            }
+        }
+        return errorOccurred;
+    }
 }

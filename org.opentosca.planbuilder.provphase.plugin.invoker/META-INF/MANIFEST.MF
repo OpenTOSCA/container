@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: OpenTOSCA ProvPhase Plugin for the ServiceInvoker
+Bundle-Name: OpenTOSCA Core ProvPhase Plugin for the ServiceInvoker
 Bundle-SymbolicName: org.opentosca.planbuilder.provphase.plugin.invoker
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -10,9 +10,11 @@ Import-Package: org.apache.commons.io;version="2.2.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .,
  META-INF/resources/
-Export-Package: org.opentosca.planbuilder.provphase.plugin.invoker
-Bundle-Activator: org.opentosca.planbuilder.provphase.plugin.invoker.Activator
+Export-Package: org.opentosca.planbuilder.provphase.plugin.invoker.core,
+ org.opentosca.planbuilder.provphase.plugin.invoker.bpel
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.planbuilder;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.importer
+ org.opentosca.planbuilder.importer,
+ org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0"
+Bundle-Activator: org.opentosca.planbuilder.provphase.plugin.invoker.Activator

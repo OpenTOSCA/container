@@ -1,16 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Selection Plugin First Available
+Bundle-Name: Selection Core Plugin First Available
 Bundle-SymbolicName: org.opentosca.planbuilder.selection.plugin.mosquitto.workload
 Bundle-Version: 2.0.0.qualifier
-Bundle-Activator: org.opentosca.planbuilder.selection.plugin.mosquitto.workload.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
  org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
- org.opentosca.planbuilder.utils,
+ org.opentosca.planbuilder.plugins,
+ org.opentosca.planbuilder.plugins.context,
  org.osgi.framework;version="1.3.0"
-Bundle-ClassPath: .,
- META-INF/resources/
-Require-Bundle: org.opentosca.planbuilder;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0"
-Export-Package: org.opentosca.planbuilder.selection.plugin.mosquitto.workload
+Bundle-ClassPath: .
+Require-Bundle: org.opentosca.planbuilder.model;bundle-version="1.0.0",
+ org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0"
+Export-Package: org.opentosca.planbuilder.selection.plugin.mosquitto.workload.core
+Bundle-Activator: org.opentosca.planbuilder.selection.plugin.mosquitto.workload.Activator

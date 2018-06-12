@@ -25,36 +25,39 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Activator implements BundleActivator {
-	
-	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
-	
-	public static String apiID;
-	
-	
-	@Override
-	public void start(final BundleContext bundleContext) throws Exception {
-		
-		Activator.apiID = bundleContext.getBundle().getSymbolicName();
-		
-		// Set relayHeaders to false to drop all SOAP headers
-		final CxfHeaderFilterStrategy headerStrategy = new CxfHeaderFilterStrategy();
-		headerStrategy.setRelayHeaders(false);
-		
-		bundleContext.registerService(CxfHeaderFilterStrategy.class, headerStrategy, null);
-		
-		final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
 
-		final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
-		camelContext.addRoutes(new Route());
-		camelContext.start();
-		
-		Activator.LOG.info("SI-SOAP/HTTP-Management Bus-API started!");
-	}
-	
-	@Override
-	public void stop(final BundleContext arg0) throws Exception {
-		
-		Activator.LOG.info("SI-SOAP/HTTP-Management Bus-API stopped!");
-	}
-	
+    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+
+    public static String apiID;
+
+    public static BundleContext bundleContext;
+
+
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
+
+        Activator.apiID = bundleContext.getBundle().getSymbolicName();
+
+        // Set relayHeaders to false to drop all SOAP headers
+        final CxfHeaderFilterStrategy headerStrategy = new CxfHeaderFilterStrategy();
+        headerStrategy.setRelayHeaders(false);
+
+        bundleContext.registerService(CxfHeaderFilterStrategy.class, headerStrategy, null);
+
+        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
+
+        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        camelContext.addRoutes(new Route());
+        camelContext.start();
+
+        Activator.bundleContext = bundleContext;
+        Activator.LOG.info("SI-SOAP/HTTP-Management Bus-API started!");
+    }
+
+    @Override
+    public void stop(final BundleContext arg0) throws Exception {
+
+        Activator.LOG.info("SI-SOAP/HTTP-Management Bus-API stopped!");
+    }
+
 }

@@ -2,6 +2,6 @@
 <bpel:extensionActivity xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
     <!-- $RequestVarName,$instanceURLVar  -->
 	<bpel4RestLight:PUT
-		uri="$bpelvar[$instanceURLVar]/Properties"
+		uri="$bpelvar[$instanceURLVar]/properties"
 		accept="application/xml" request="$RequestVarName"></bpel4RestLight:PUT>
 </bpel:extensionActivity>

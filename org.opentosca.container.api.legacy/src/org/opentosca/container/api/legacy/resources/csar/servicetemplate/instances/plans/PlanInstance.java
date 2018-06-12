@@ -21,103 +21,100 @@ import org.slf4j.LoggerFactory;
 
 public class PlanInstance {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PlanInstance.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PlanInstance.class);
 
-  private final CSARID csarID;
-  private final QName serviceTemplateID;
-  private final int serviceTemplateInstanceId;
-  private final String correlationID;
-  private UriInfo uriInfo;
+    private final CSARID csarID;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
+    private final String correlationID;
+    private UriInfo uriInfo;
 
 
-  public PlanInstance(final CSARID csarID, final QName serviceTemplateID,
-      final int serviceTemplateInstanceId, final String correlationID) {
-    this.csarID = csarID;
-    this.serviceTemplateID = serviceTemplateID;
-    this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-    this.correlationID = correlationID;
-  }
+    public PlanInstance(final CSARID csarID, final QName serviceTemplateID, final int serviceTemplateInstanceId,
+                        final String correlationID) {
+        this.csarID = csarID;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+        this.correlationID = correlationID;
+    }
 
-  /**
-   * Produces the xml which lists the CorrelationIDs of the active PublicPlans.
-   *
-   * @param uriInfo
-   * @return The response with the legal PublicPlanTypes.
-   */
-  @GET
-  @Produces(ResourceConstants.LINKED_XML)
-  public Response getReferencesXML(@Context final UriInfo uriInfo) {
-    this.uriInfo = uriInfo;
-    return Response.ok(this.getReferences().getXMLString()).build();
-  }
+    /**
+     * Produces the xml which lists the CorrelationIDs of the active PublicPlans.
+     *
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getXMLString()).build();
+    }
 
-  /**
-   * Produces the JSON which lists the links to the History and the active plans.
-   *
-   * @param uriInfo
-   * @return The response with the legal PublicPlanTypes.
-   */
-  @GET
-  @Produces(ResourceConstants.LINKED_JSON)
-  public Response getReferencesJSON(@Context final UriInfo uriInfo) {
-    this.uriInfo = uriInfo;
-    return Response.ok(this.getReferences().getJSONString()).build();
-  }
+    /**
+     * Produces the JSON which lists the links to the History and the active plans.
+     *
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getJSONString()).build();
+    }
 
-  public References getReferences() {
+    public References getReferences() {
 
-    LOG.debug("return plan instance of corr {}", this.correlationID);
+        LOG.debug("return plan instance of corr {}", this.correlationID);
 
-    final References refs = new References();
+        final References refs = new References();
 
-    refs.getReference().add(
-        new Reference(Utilities.buildURI(this.uriInfo, "Logs"), XLinkConstants.SIMPLE, "Logs"));
-    refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "MetaData"),
-        XLinkConstants.SIMPLE, "MetaData"));
-    // if ((null !=
-    // CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(this.csarID)) &&
-    // CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(this.csarID).contains(this.correlationID))
-    // {
-    refs.getReference().add(
-        new Reference(Utilities.buildURI(this.uriInfo, "Output"), XLinkConstants.SIMPLE, "Output"));
-    // }
-    refs.getReference().add(
-        new Reference(Utilities.buildURI(this.uriInfo, "State"), XLinkConstants.SIMPLE, "State"));
+        refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, "Logs"), XLinkConstants.SIMPLE, "Logs"));
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(this.uriInfo, "MetaData"), XLinkConstants.SIMPLE, "MetaData"));
+        // if ((null !=
+        // CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(this.csarID)) &&
+        // CSARInstanceManagementHandler.csarInstanceManagement.getFinishedCorrelations(this.csarID).contains(this.correlationID))
+        // {
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(this.uriInfo, "Output"), XLinkConstants.SIMPLE, "Output"));
+        // }
+        refs.getReference()
+            .add(new Reference(Utilities.buildURI(this.uriInfo, "State"), XLinkConstants.SIMPLE, "State"));
 
-    // selflink
-    refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(),
-        XLinkConstants.SIMPLE, XLinkConstants.SELF));
-    return refs;
-  }
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        return refs;
+    }
 
-  @Path("State")
-  @Produces(ResourceConstants.TOSCA_JSON)
-  public PlanInstanceState getPlanState(@Context final UriInfo uriInfo) throws URISyntaxException {
-    return new PlanInstanceState(this.csarID, this.serviceTemplateID,
-        this.serviceTemplateInstanceId, this.correlationID);
-  }
+    @Path("State")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public PlanInstanceState getPlanState(@Context final UriInfo uriInfo) throws URISyntaxException {
+        return new PlanInstanceState(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            this.correlationID);
+    }
 
-  @Path("Output")
-  @Produces(ResourceConstants.TOSCA_JSON)
-  public PlanInstanceOutput getPlanOutput(@Context final UriInfo uriInfo)
-      throws URISyntaxException {
-    return new PlanInstanceOutput(this.csarID, this.serviceTemplateID,
-        this.serviceTemplateInstanceId, this.correlationID);
-  }
+    @Path("Output")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public PlanInstanceOutput getPlanOutput(@Context final UriInfo uriInfo) throws URISyntaxException {
+        return new PlanInstanceOutput(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            this.correlationID);
+    }
 
-  @Path("Logs")
-  @Produces(ResourceConstants.TOSCA_JSON)
-  public PlanInstanceLogs getPlanLogs(@Context final UriInfo uriInfo) throws URISyntaxException {
-    return new PlanInstanceLogs(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId,
-        this.correlationID);
-  }
+    @Path("Logs")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public PlanInstanceLogs getPlanLogs(@Context final UriInfo uriInfo) throws URISyntaxException {
+        return new PlanInstanceLogs(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            this.correlationID);
+    }
 
-  @Path("MetaData")
-  @Produces(ResourceConstants.TOSCA_JSON)
-  public PlanInstanceMetaData getPlanMetaData(@Context final UriInfo uriInfo)
-      throws URISyntaxException {
-    return new PlanInstanceMetaData(this.csarID, this.serviceTemplateID,
-        this.serviceTemplateInstanceId, this.correlationID);
-  }
+    @Path("MetaData")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public PlanInstanceMetaData getPlanMetaData(@Context final UriInfo uriInfo) throws URISyntaxException {
+        return new PlanInstanceMetaData(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            this.correlationID);
+    }
 
 }

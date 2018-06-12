@@ -62,326 +62,327 @@ import com.google.gson.JsonParser;
  */
 public class ServiceTemplateInstancesResource {
 
-  private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstancesResource.class);
-  private final CSARID csarId;
-  private final QName serviceTemplateID;
+    private final Logger log = LoggerFactory.getLogger(ServiceTemplateInstancesResource.class);
+    private final CSARID csarId;
+    private final QName serviceTemplateID;
 
-  public ServiceTemplateInstancesResource(final CSARID csarid, final QName serviceTemplateID) {
-    this.csarId = csarid;
-    this.serviceTemplateID = serviceTemplateID;
-    this.log.debug("Created \"{}\":\"{}\";", serviceTemplateID.getNamespaceURI(),
-        serviceTemplateID.getLocalPart());
-  }
+    public ServiceTemplateInstancesResource(final CSARID csarid, final QName serviceTemplateID) {
+        this.csarId = csarid;
+        this.serviceTemplateID = serviceTemplateID;
+        this.log.debug("Created \"{}\":\"{}\";", serviceTemplateID.getNamespaceURI(), serviceTemplateID.getLocalPart());
+    }
 
-  @GET
-  @Produces(ResourceConstants.LINKED_XML)
-  public Response doGetXML(@Context final UriInfo uriInfo,
-      @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response doGetXML(@Context final UriInfo uriInfo,
+                             @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
 
-    final References refs = this.getRefs(uriInfo, buildPlanCorrId);
+        final References refs = this.getRefs(uriInfo, buildPlanCorrId);
 
-    return Response.ok(refs.getXMLString()).build();
-  }
+        return Response.ok(refs.getXMLString()).build();
+    }
 
-  @GET
-  @Produces(ResourceConstants.LINKED_JSON)
-  public Response doGetJSON(@Context final UriInfo uriInfo,
-      @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response doGetJSON(@Context final UriInfo uriInfo,
+                              @QueryParam("BuildPlanCorrelationId") final String buildPlanCorrId) {
 
-    final References refs = this.getRefs(uriInfo, buildPlanCorrId);
+        final References refs = this.getRefs(uriInfo, buildPlanCorrId);
 
-    return Response.ok(refs.getJSONString()).build();
-  }
+        return Response.ok(refs.getJSONString()).build();
+    }
 
-  public References getRefs(final UriInfo uriInfo, final String buildPlanCorrId) {
+    public References getRefs(final UriInfo uriInfo, final String buildPlanCorrId) {
 
-    // URI serviceInstanceIdURI = null;
-    // QName serviceTemplateIDQName = null;
-    // try {
-    // if (serviceInstanceID != null) {
-    // serviceInstanceIdURI = new URI(serviceInstanceID);
-    // if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
-    // throw new Exception("Error converting serviceInstanceID: invalid
-    // format!");
-    // }
-    // }
-    // if (serviceTemplateID != null) {
-    // serviceTemplateIDQName = QName.valueOf(serviceTemplateID);
-    // }
-    // } catch (Exception e1) {
-    // throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due
-    // to bad variable content: " + e1.getMessage());
-    // }
+        // URI serviceInstanceIdURI = null;
+        // QName serviceTemplateIDQName = null;
+        // try {
+        // if (serviceInstanceID != null) {
+        // serviceInstanceIdURI = new URI(serviceInstanceID);
+        // if (!IdConverter.isValidServiceInstanceID(serviceInstanceIdURI)) {
+        // throw new Exception("Error converting serviceInstanceID: invalid
+        // format!");
+        // }
+        // }
+        // if (serviceTemplateID != null) {
+        // serviceTemplateIDQName = QName.valueOf(serviceTemplateID);
+        // }
+        // } catch (Exception e1) {
+        // throw new GenericRestException(Status.BAD_REQUEST, "Bad Request due
+        // to bad variable content: " + e1.getMessage());
+        // }
 
-    // try {
+        // try {
 
-    final References refs = new References();
+        final References refs = new References();
 
-    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
-    final List<ServiceInstance> serviceInstances =
-        service.getServiceInstancesWithDetails(this.csarId, this.serviceTemplateID, null);
+        final List<ServiceInstance> serviceInstances =
+            service.getServiceInstancesWithDetails(this.csarId, this.serviceTemplateID, null);
 
-    // get all instance ids
-    if ((null == buildPlanCorrId) || buildPlanCorrId.isEmpty()) {
+        // get all instance ids
+        if (null == buildPlanCorrId || buildPlanCorrId.isEmpty()) {
 
-      // List<ServiceInstance> serviceInstances =
-      // service.getServiceInstances(serviceInstanceIdURI,
-      // serviceTemplateName, serviceTemplateIDQName);
-      this.log.debug("Returning all known Service Template instance IDs ({}).",
-          serviceInstances.size());
+            // List<ServiceInstance> serviceInstances =
+            // service.getServiceInstances(serviceInstanceIdURI,
+            // serviceTemplateName, serviceTemplateIDQName);
+            this.log.debug("Returning all known Service Template instance IDs ({}).", serviceInstances.size());
 
-      for (final ServiceInstance serviceInstance : serviceInstances) {
+            for (final ServiceInstance serviceInstance : serviceInstances) {
 
-        this.log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"",
-            serviceInstance.getServiceTemplateID().getNamespaceURI(),
-            serviceInstance.getServiceTemplateID().getLocalPart(),
-            this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart());
-        if (serviceInstance.getServiceTemplateID().equals(this.serviceTemplateID)) {
+                this.log.debug("ST ID of service \"{}\":\"{}\" vs. path \"{}\":\"{}\"",
+                               serviceInstance.getServiceTemplateID().getNamespaceURI(),
+                               serviceInstance.getServiceTemplateID().getLocalPart(),
+                               this.serviceTemplateID.getNamespaceURI(), this.serviceTemplateID.getLocalPart());
+                if (serviceInstance.getServiceTemplateID().equals(this.serviceTemplateID)) {
 
-          final int instanceId = serviceInstance.getDBId();
-          refs.getReference().add(new Reference(serviceInstance.getServiceInstanceID().toString(),
-              XLinkConstants.SIMPLE, Integer.toString(instanceId)));
+                    final int instanceId = serviceInstance.getDBId();
+                    refs.getReference().add(new Reference(serviceInstance.getServiceInstanceID().toString(),
+                        XLinkConstants.SIMPLE, Integer.toString(instanceId)));
+                }
+                // URI urlToServiceInstance =
+                // LinkBuilder.linkToServiceInstance(uriInfo,
+                // serviceInstance.getDBId());
+                //
+                // // build simpleXLink with the internalID as LinkText
+                // // TODO: is the id the correct linkText?
+                // links.add(new SimpleXLink(urlToServiceInstance,
+                // serviceInstance.getDBId() + ""));
+            }
         }
-        // URI urlToServiceInstance =
-        // LinkBuilder.linkToServiceInstance(uriInfo,
-        // serviceInstance.getDBId());
-        //
-        // // build simpleXLink with the internalID as LinkText
-        // // TODO: is the id the correct linkText?
-        // links.add(new SimpleXLink(urlToServiceInstance,
-        // serviceInstance.getDBId() + ""));
-      }
-    }
-    // get instance id of plan correlation only
-    else {
-      PlanInstanceRepository repo = new PlanInstanceRepository();
-      PlanInstance pi = repo.findByCorrelationId(buildPlanCorrId);
+        // get instance id of plan correlation only
+        else {
+            final PlanInstanceRepository repo = new PlanInstanceRepository();
+            final PlanInstance pi = repo.findByCorrelationId(buildPlanCorrId);
 
-      ServiceTemplateInstance sti = pi.getServiceTemplateInstance();
+            final ServiceTemplateInstance sti = pi.getServiceTemplateInstance();
 
-      ServiceInstance si = Converters.convert(sti);
+            final ServiceInstance si = Converters.convert(sti);
 
-      // final int instanceId = BuildCorrelationToInstanceMapping.instance
-      // .getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
-      // for (ServiceInstance serviceInstance : serviceInstances) {
-      // if (serviceInstance.getDBId() == instanceId) {
-      refs.getReference().add(new Reference(si.getServiceInstanceID().toString(),
-          XLinkConstants.SIMPLE, Integer.toString(si.getDBId())));
-      // }
-      // }
-      this.log.debug("Returning only the Service Template instance ID for correlation {} ({}).",
-          buildPlanCorrId, si.getServiceInstanceID());
+            // final int instanceId = BuildCorrelationToInstanceMapping.instance
+            // .getServiceTemplateInstanceIdForBuildPlanCorrelation(buildPlanCorrId);
+            // for (ServiceInstance serviceInstance : serviceInstances) {
+            // if (serviceInstance.getDBId() == instanceId) {
+            refs.getReference().add(new Reference(si.getServiceInstanceID().toString(), XLinkConstants.SIMPLE,
+                Integer.toString(si.getDBId())));
+            // }
+            // }
+            this.log.debug("Returning only the Service Template instance ID for correlation {} ({}).", buildPlanCorrId,
+                           si.getServiceInstanceID());
 
-      // URI urlToServiceInstance =
-      // LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
-      //
-      // // build simpleXLink with the internalID as LinkText
-      // // TODO: is the id the correct linkText?
-      // links.add(new SimpleXLink(urlToServiceInstance, instanceId +
-      // ""));
+            // URI urlToServiceInstance =
+            // LinkBuilder.linkToServiceInstance(uriInfo, instanceId);
+            //
+            // // build simpleXLink with the internalID as LinkText
+            // // TODO: is the id the correct linkText?
+            // links.add(new SimpleXLink(urlToServiceInstance, instanceId +
+            // ""));
 
-    }
-
-    // selflink
-    refs.getReference().add(new Reference(uriInfo.getAbsolutePath().toString(),
-        XLinkConstants.SIMPLE, XLinkConstants.SELF));
-
-    // ServiceInstanceList sil = new
-    // ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
-    return refs;
-    // } catch (Exception e) {
-    // throw new GenericRestException(Status.INTERNAL_SERVER_ERROR,
-    // e.getMessage());
-    // }
-
-  }
-
-  @POST
-  @Consumes(MediaType.APPLICATION_XML)
-  @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-  public Response createServiceInstance(@Context final UriInfo uriInfo, final String xml) {
-
-    this.log.debug("Create a instance of CSAR = \"{}\" Service Template = \"{}\"", this.csarId,
-        this.serviceTemplateID);
-
-    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-    try {
-
-      final ServiceInstance createdServiceInstance =
-          service.createServiceInstance(this.csarId, this.serviceTemplateID);
-
-      // create xlink with the link to the newly created serviceInstance,
-      // the link text is the internal serviceInstanceID
-
-      final String corr = xml.substring(xml.indexOf(">") + 1, xml.indexOf("</"));
-
-      final int serviceTemplateInstanceId = createdServiceInstance.getDBId();
-      final String instanceURL = createdServiceInstance.getServiceInstanceID().toString();
-      // this.log.debug(corr + " : " + corr + " - " + instanceURL);
-      this.log.debug("serviceTemplateInstanceId={}", serviceTemplateInstanceId);
-      this.log.debug("instanceURL={}", instanceURL);
-      this.log.debug("correlationId={}", corr);
-
-      // correlate true Service Template instance id with temporary one
-      // BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr,
-      // serviceTemplateInstanceId);
-      // PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(
-      // this.csarId, this.serviceTemplateID, corr, serviceTemplateInstanceId);
-
-      // Link the service template instance with the plan instance
-      PlanInstanceRepository repository = new PlanInstanceRepository();
-      PlanInstance pi = repository.findByCorrelationId(corr);
-      if (pi != null) {
-        ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-        Optional<ServiceTemplateInstance> sti = repo.find(Long.valueOf(serviceTemplateInstanceId));
-        if (!sti.isPresent()) {
-          throw new BadRequestException("Service Template Instance could not be found");
         }
-        pi.setServiceTemplateInstance(sti.get());
-        repository.update(pi);
-      } else {
-        log.error("Could not find plan instance with correlation id {}", corr);
-      }
 
-      // final String redirectUrl = uriInfo.getAbsolutePath().toString();
-      final SimpleXLink response = new SimpleXLink(Utilities.encode(
-          uriInfo.getAbsolutePathBuilder().path(String.valueOf(serviceTemplateInstanceId)).build()),
-          "simple");
-      this.log.debug("Returning following link: " + response.getHref());
-      return Response.ok(response).build();
-    } catch (final Exception e) {
-      e.printStackTrace();
-      throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        // selflink
+        refs.getReference()
+            .add(new Reference(uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        // ServiceInstanceList sil = new
+        // ServiceInstanceList(LinkBuilder.selfLink(uriInfo), links);
+        return refs;
+        // } catch (Exception e) {
+        // throw new GenericRestException(Status.INTERNAL_SERVER_ERROR,
+        // e.getMessage());
+        // }
+
     }
 
-  }
+    @POST
+    @Consumes(MediaType.APPLICATION_XML)
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public Response createServiceInstance(@Context final UriInfo uriInfo, final String xml) {
 
-  @Path("{" + Constants.ServiceInstanceListResource_getServiceInstance_PARAM + "}")
-  public Object getServiceInstance(
-      @PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) final int id) {
-    final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
-    ExistenceChecker.checkServiceInstanceWithException(id, service);
-    return new ServiceTemplateInstanceResource(this.csarId, this.serviceTemplateID, id);
-  }
+        this.log.debug("Create a instance of CSAR = \"{}\" Service Template = \"{}\"", this.csarId,
+                       this.serviceTemplateID);
 
-  /**
-   * POST for BUILD plans which have no CSAR-Instance-ID yet.
-   *
-   * @param planElement the BUILD PublicPlan
-   * @return Response
-   * @throws URISyntaxException
-   * @throws UnsupportedEncodingException
-   */
-  @POST
-  @Consumes(ResourceConstants.TEXT_PLAIN)
-  @Produces(ResourceConstants.APPLICATION_JSON)
-  public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo, final String json)
-      throws URISyntaxException, UnsupportedEncodingException {
-    final String url = this.postManagementPlanJSON(uriInfo, json);
-    final JsonObject ret = new JsonObject();
-    ret.addProperty("PlanURL", url);
-    return Response.created(new URI(url)).entity(ret.toString()).build();
-  }
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        try {
 
-  /**
-   * POST for BUILD plans which have no CSAR-Instance-ID yet.
-   *
-   * @param planElement the BUILD PublicPlan
-   * @return Response
-   * @throws URISyntaxException
-   * @throws UnsupportedEncodingException
-   */
-  @POST
-  @Consumes(ResourceConstants.TEXT_PLAIN)
-  @Produces(ResourceConstants.TOSCA_XML)
-  public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo, final String json)
-      throws URISyntaxException, UnsupportedEncodingException {
+            final ServiceInstance createdServiceInstance =
+                service.createServiceInstance(this.csarId, this.serviceTemplateID);
 
-    final String url = this.postManagementPlanJSON(uriInfo, json);
-    // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
-    return Response.created(new URI(url)).build();
-  }
+            // create xlink with the link to the newly created serviceInstance,
+            // the link text is the internal serviceInstanceID
 
-  /**
-   * POST for BUILD plans which have no CSAR-Instance-ID yet.
-   *
-   * @param planElement the BUILD PublicPlan
-   * @return Response
-   * @throws UnsupportedEncodingException
-   */
-  private String postManagementPlanJSON(final UriInfo uriInfo, final String json)
-      throws UnsupportedEncodingException {
+            final String corr = xml.substring(xml.indexOf(">") + 1, xml.indexOf("</"));
 
-    this.log
-        .debug("Received a build plan for CSAR " + this.csarId + "\npassed entity:\n   " + json);
+            final int serviceTemplateInstanceId = createdServiceInstance.getDBId();
+            final String instanceURL = createdServiceInstance.getServiceInstanceID().toString();
+            // this.log.debug(corr + " : " + corr + " - " + instanceURL);
+            this.log.debug("serviceTemplateInstanceId={}", serviceTemplateInstanceId);
+            this.log.debug("instanceURL={}", instanceURL);
+            this.log.debug("correlationId={}", corr);
 
-    final JsonParser parser = new JsonParser();
-    final JsonObject object = parser.parse(json).getAsJsonObject();
+            // correlate true Service Template instance id with temporary one
+            // BuildCorrelationToInstanceMapping.instance.correlateCorrelationIdToServiceTemplateInstanceId(corr,
+            // serviceTemplateInstanceId);
+            // PlanInvocationEngineHandler.planInvocationEngine.correctCorrelationToServiceTemplateInstanceIdMapping(
+            // this.csarId, this.serviceTemplateID, corr, serviceTemplateInstanceId);
 
-    this.log.debug(object.toString());
+            // Link the service template instance with the plan instance
+            final PlanInstanceRepository repository = new PlanInstanceRepository();
+            final PlanInstance pi = repository.findByCorrelationId(corr);
+            if (pi != null) {
+                final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+                final Optional<ServiceTemplateInstance> sti = repo.find(Long.valueOf(serviceTemplateInstanceId));
+                if (!sti.isPresent()) {
+                    throw new BadRequestException("Service Template Instance could not be found");
+                }
+                pi.setServiceTemplateInstance(sti.get());
+                repository.update(pi);
+            } else {
+                this.log.error("Could not find plan instance with correlation id {}", corr);
+            }
 
-    this.log.trace(JSONUtils.withoutQuotationMarks(object.get("ID").toString()));
+            // final String redirectUrl = uriInfo.getAbsolutePath().toString();
+            final SimpleXLink response = new SimpleXLink(
+                Utilities.encode(uriInfo.getAbsolutePathBuilder().path(String.valueOf(serviceTemplateInstanceId))
+                                        .build()),
+                "simple");
+            this.log.debug("Returning following link: " + response.getHref());
+            return Response.ok(response).build();
+        }
+        catch (final Exception e) {
+            e.printStackTrace();
+            throw new GenericRestException(Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
 
-    final TPlanDTO plan = new TPlanDTO();
-
-    plan.setId(new QName(JSONUtils.withoutQuotationMarks(object.get("ID").toString())));
-    plan.setName(JSONUtils.withoutQuotationMarks(object.get("Name").toString()));
-    plan.setPlanType(JSONUtils.withoutQuotationMarks(object.get("PlanType").toString()));
-    plan.setPlanLanguage(JSONUtils.withoutQuotationMarks(object.get("PlanLanguage").toString()));
-
-    JsonArray array = object.get("InputParameters").getAsJsonArray();
-    Iterator<JsonElement> iterator = array.iterator();
-    while (iterator.hasNext()) {
-      final TParameterDTO para = new TParameterDTO();
-      final JsonObject tmp = iterator.next().getAsJsonObject();
-      para.setName(JSONUtils.withoutQuotationMarks(
-          tmp.get("InputParameter").getAsJsonObject().get("Name").toString()));
-      para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(
-          tmp.get("InputParameter").getAsJsonObject().get("Required").toString())));
-      para.setType(JSONUtils.withoutQuotationMarks(
-          tmp.get("InputParameter").getAsJsonObject().get("Type").toString()));
-      // if a parameter value is not set, just add "" as value
-      if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
-        para.setValue(JSONUtils.withoutQuotationMarks(
-            tmp.get("InputParameter").getAsJsonObject().get("Value").toString()));
-      } else {
-        para.setValue("");
-      }
-      plan.getInputParameters().getInputParameter().add(para);
-    }
-    array = object.get("OutputParameters").getAsJsonArray();
-    iterator = array.iterator();
-    while (iterator.hasNext()) {
-      final TParameterDTO para = new TParameterDTO();
-      final JsonObject tmp = iterator.next().getAsJsonObject();
-      para.setName(JSONUtils.withoutQuotationMarks(
-          tmp.get("OutputParameter").getAsJsonObject().get("Name").toString()));
-      para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(
-          tmp.get("OutputParameter").getAsJsonObject().get("Required").toString())));
-      para.setType(JSONUtils.withoutQuotationMarks(
-          tmp.get("OutputParameter").getAsJsonObject().get("Type").toString()));
-      plan.getOutputParameters().getOutputParameter().add(para);
     }
 
-    final String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
-        .getNamespaceOfPlan(this.csarId, plan.getId().getLocalPart());
-    plan.setId(new QName(namespace, plan.getId().getLocalPart()));
+    @Path("{" + Constants.ServiceInstanceListResource_getServiceInstance_PARAM + "}")
+    public Object getServiceInstance(@PathParam(Constants.ServiceInstanceListResource_getServiceInstance_PARAM) final int id) {
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        ExistenceChecker.checkServiceInstanceWithException(id, service);
+        return new ServiceTemplateInstanceResource(this.csarId, this.serviceTemplateID, id);
+    }
 
-    this.log.debug("Post of the Plan " + plan.getId());
+    /**
+     * POST for BUILD plans which have no CSAR-Instance-ID yet.
+     *
+     * @param planElement the BUILD PublicPlan
+     * @return Response
+     * @throws URISyntaxException
+     * @throws UnsupportedEncodingException
+     */
+    @POST
+    @Consumes(ResourceConstants.TEXT_PLAIN)
+    @Produces(ResourceConstants.APPLICATION_JSON)
+    public Response postBUILDJSONReturnJSON(@Context final UriInfo uriInfo,
+                                            final String json) throws URISyntaxException, UnsupportedEncodingException {
+        final String url = this.postManagementPlanJSON(uriInfo, json);
+        final JsonObject ret = new JsonObject();
+        ret.addProperty("PlanURL", url);
+        return Response.created(new URI(url)).entity(ret.toString()).build();
+    }
 
-    final String correlationID = IOpenToscaControlServiceHandler.getOpenToscaControlService()
-        .invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
+    /**
+     * POST for BUILD plans which have no CSAR-Instance-ID yet.
+     *
+     * @param planElement the BUILD PublicPlan
+     * @return Response
+     * @throws URISyntaxException
+     * @throws UnsupportedEncodingException
+     */
+    @POST
+    @Consumes(ResourceConstants.TEXT_PLAIN)
+    @Produces(ResourceConstants.TOSCA_XML)
+    public Response postBUILDJSONReturnXML(@Context final UriInfo uriInfo,
+                                           final String json) throws URISyntaxException, UnsupportedEncodingException {
 
-    this.log.debug("Return correlation ID of running plan: " + correlationID);
+        final String url = this.postManagementPlanJSON(uriInfo, json);
+        // return Response.ok(postManagementPlanJSON(uriInfo, json)).build();
+        return Response.created(new URI(url)).build();
+    }
 
-    final URI url = uriInfo.getBaseUriBuilder().path("/CSARs/").path(this.csarId.getFileName())
-        .path("/ServiceTemplates/")
-        .path(Utilities.UrlDoubleEncode(this.serviceTemplateID.toString())).path("/Instances")
-        .queryParam("BuildPlanCorrelationId", correlationID).build();
+    /**
+     * POST for BUILD plans which have no CSAR-Instance-ID yet.
+     *
+     * @param planElement the BUILD PublicPlan
+     * @return Response
+     * @throws UnsupportedEncodingException
+     */
+    private String postManagementPlanJSON(final UriInfo uriInfo,
+                                          final String json) throws UnsupportedEncodingException {
 
-    this.log.debug("Callback URL is {}", url);
+        this.log.debug("Received a build plan for CSAR " + this.csarId + "\npassed entity:\n   " + json);
 
-    return url.toString();
-  }
+        final JsonParser parser = new JsonParser();
+        final JsonObject object = parser.parse(json).getAsJsonObject();
+
+        this.log.debug(object.toString());
+
+        this.log.trace(JSONUtils.withoutQuotationMarks(object.get("ID").toString()));
+
+        final TPlanDTO plan = new TPlanDTO();
+
+        plan.setId(new QName(JSONUtils.withoutQuotationMarks(object.get("ID").toString())));
+        plan.setName(JSONUtils.withoutQuotationMarks(object.get("Name").toString()));
+        plan.setPlanType(JSONUtils.withoutQuotationMarks(object.get("PlanType").toString()));
+        plan.setPlanLanguage(JSONUtils.withoutQuotationMarks(object.get("PlanLanguage").toString()));
+
+        JsonArray array = object.get("InputParameters").getAsJsonArray();
+        Iterator<JsonElement> iterator = array.iterator();
+        while (iterator.hasNext()) {
+            final TParameterDTO para = new TParameterDTO();
+            final JsonObject tmp = iterator.next().getAsJsonObject();
+            para.setName(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Name")
+                                                            .toString()));
+            para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter")
+                                                                                   .getAsJsonObject().get("Required")
+                                                                                   .toString())));
+            para.setType(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Type")
+                                                            .toString()));
+            // if a parameter value is not set, just add "" as value
+            if (null != tmp.get("InputParameter").getAsJsonObject().get("Value")) {
+                para.setValue(JSONUtils.withoutQuotationMarks(tmp.get("InputParameter").getAsJsonObject().get("Value")
+                                                                 .toString()));
+            } else {
+                para.setValue("");
+            }
+            plan.getInputParameters().getInputParameter().add(para);
+        }
+        array = object.get("OutputParameters").getAsJsonArray();
+        iterator = array.iterator();
+        while (iterator.hasNext()) {
+            final TParameterDTO para = new TParameterDTO();
+            final JsonObject tmp = iterator.next().getAsJsonObject();
+            para.setName(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Name")
+                                                            .toString()));
+            para.setRequired(TBoolean.fromValue(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter")
+                                                                                   .getAsJsonObject().get("Required")
+                                                                                   .toString())));
+            para.setType(JSONUtils.withoutQuotationMarks(tmp.get("OutputParameter").getAsJsonObject().get("Type")
+                                                            .toString()));
+            plan.getOutputParameters().getOutputParameter().add(para);
+        }
+
+        final String namespace = ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
+                                                    .getNamespaceOfPlan(this.csarId, plan.getId().getLocalPart());
+        plan.setId(new QName(namespace, plan.getId().getLocalPart()));
+
+        this.log.debug("Post of the Plan " + plan.getId());
+
+        final String correlationID =
+            IOpenToscaControlServiceHandler.getOpenToscaControlService()
+                                           .invokePlanInvocation(this.csarId, this.serviceTemplateID, -1, plan);
+
+        this.log.debug("Return correlation ID of running plan: " + correlationID);
+
+        final URI url =
+            uriInfo.getBaseUriBuilder().path("/CSARs/").path(this.csarId.getFileName()).path("/ServiceTemplates/")
+                   .path(Utilities.UrlDoubleEncode(this.serviceTemplateID.toString())).path("/Instances")
+                   .queryParam("BuildPlanCorrelationId", correlationID).build();
+
+        this.log.debug("Callback URL is {}", url);
+
+        return url.toString();
+    }
 }

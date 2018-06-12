@@ -20,11 +20,10 @@ import javax.xml.namespace.QName;
 /**
  * <p>
  * Java class for tPolicy complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tPolicy">
  *   &lt;complexContent>
@@ -37,79 +36,79 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tPolicy")
 public class TPolicy extends TExtensibleElements {
-	
-	@XmlAttribute(name = "name")
-	protected String name;
-	@XmlAttribute(name = "policyType", required = true)
-	protected QName policyType;
-	@XmlAttribute(name = "policyRef")
-	protected QName policyRef;
-	
-	
-	/**
-	 * Gets the value of the name property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getName() {
-		return this.name;
-	}
-	
-	/**
-	 * Sets the value of the name property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setName(String value) {
-		this.name = value;
-	}
-	
-	/**
-	 * Gets the value of the policyType property.
-	 * 
-	 * @return possible object is {@link QName }
-	 * 
-	 */
-	public QName getPolicyType() {
-		return this.policyType;
-	}
-	
-	/**
-	 * Sets the value of the policyType property.
-	 * 
-	 * @param value allowed object is {@link QName }
-	 * 
-	 */
-	public void setPolicyType(QName value) {
-		this.policyType = value;
-	}
-	
-	/**
-	 * Gets the value of the policyRef property.
-	 * 
-	 * @return possible object is {@link QName }
-	 * 
-	 */
-	public QName getPolicyRef() {
-		return this.policyRef;
-	}
-	
-	/**
-	 * Sets the value of the policyRef property.
-	 * 
-	 * @param value allowed object is {@link QName }
-	 * 
-	 */
-	public void setPolicyRef(QName value) {
-		this.policyRef = value;
-	}
-	
+
+    @XmlAttribute(name = "name")
+    protected String name;
+    @XmlAttribute(name = "policyType", required = true)
+    protected QName policyType;
+    @XmlAttribute(name = "policyRef")
+    protected QName policyRef;
+
+
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setName(final String value) {
+        this.name = value;
+    }
+
+    /**
+     * Gets the value of the policyType property.
+     *
+     * @return possible object is {@link QName }
+     *
+     */
+    public QName getPolicyType() {
+        return this.policyType;
+    }
+
+    /**
+     * Sets the value of the policyType property.
+     *
+     * @param value allowed object is {@link QName }
+     *
+     */
+    public void setPolicyType(final QName value) {
+        this.policyType = value;
+    }
+
+    /**
+     * Gets the value of the policyRef property.
+     *
+     * @return possible object is {@link QName }
+     *
+     */
+    public QName getPolicyRef() {
+        return this.policyRef;
+    }
+
+    /**
+     * Sets the value of the policyRef property.
+     *
+     * @param value allowed object is {@link QName }
+     *
+     */
+    public void setPolicyRef(final QName value) {
+        this.policyRef = value;
+    }
+
 }

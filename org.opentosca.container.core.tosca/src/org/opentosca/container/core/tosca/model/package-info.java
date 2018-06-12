@@ -9,6 +9,7 @@
 // TOSCA version: TOSCA-v1.0-cs02.xsd
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://docs.oasis-open.org/tosca/ns/2011/12", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://docs.oasis-open.org/tosca/ns/2011/12",
+                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.opentosca.container.core.tosca.model;
 

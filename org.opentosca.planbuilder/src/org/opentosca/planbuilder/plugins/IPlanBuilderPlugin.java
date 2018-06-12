@@ -6,16 +6,16 @@ package org.opentosca.planbuilder.plugins;
  * </p>
  * Copyright 2013 IAAS University of Stuttgart <br>
  * <br>
- * 
+ *
  * @author Kalman Kepes - kepeskn@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public interface IPlanBuilderPlugin {
-	
-	/**
-	 * Returns the Id of the Plugin
-	 * 
-	 * @return a String used to identify this Plugin
-	 */
-	public String getID();
+
+    /**
+     * Returns the Id of the Plugin
+     *
+     * @return a String used to identify this Plugin
+     */
+    public String getID();
 }

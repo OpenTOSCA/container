@@ -12,35 +12,35 @@ import org.slf4j.LoggerFactory;
 /**
  * Activator of the SOAP/HTTP-Application Bus-API.<br>
  * <br>
- * 
+ *
  * The activator is needed to add and start the camel routes.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- * 
+ *
  */
 public class Activator implements BundleActivator {
 
-	final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
+    final private static Logger LOG = LoggerFactory.getLogger(Activator.class);
 
-	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+    @Override
+    public void start(final BundleContext bundleContext) throws Exception {
 
-		OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
-		DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
+        final OsgiServiceRegistry reg = new OsgiServiceRegistry(bundleContext);
+        final DefaultCamelContext camelContext = new OsgiDefaultCamelContext(bundleContext, reg);
 
-		camelContext.addRoutes(new Route());
+        camelContext.addRoutes(new Route());
 
-		camelContext.start();
+        camelContext.start();
 
-		Activator.LOG.info("Application Bus SOAP API started!");
-	}
+        Activator.LOG.info("Application Bus SOAP API started!");
+    }
 
-	@Override
-	public void stop(BundleContext arg0) throws Exception {
+    @Override
+    public void stop(final BundleContext arg0) throws Exception {
 
-		Activator.LOG.info("Application Bus SOAP API stopped!");
-	}
+        Activator.LOG.info("Application Bus SOAP API stopped!");
+    }
 
 }

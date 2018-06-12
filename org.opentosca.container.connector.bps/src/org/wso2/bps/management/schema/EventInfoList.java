@@ -2,525 +2,535 @@
 /**
  * EventInfoList.java
  *
- * This file was auto-generated from WSDL
- * by the Apache Axis2 version: SNAPSHOT  Built on : Nov 10, 2010 (06:34:21 UTC)
+ * This file was auto-generated from WSDL by the Apache Axis2 version: SNAPSHOT Built on : Nov 10,
+ * 2010 (06:34:21 UTC)
  */
 
-            
-                package org.wso2.bps.management.schema;
-            
 
-            /**
-            *  EventInfoList bean class
-            */
-        
-        public  class EventInfoList
-        implements org.apache.axis2.databinding.ADBBean{
-        /* This type was generated from the piece of schema that had
-                name = EventInfoList
-                Namespace URI = http://wso2.org/bps/management/schema
-                Namespace Prefix = ns1
-                */
-            
-
-                        /**
-                        * field for EventInfo
-                        * This was an Array!
-                        */
-
-                        
-                                    protected org.wso2.bps.management.schema.EventInfo[] localEventInfo ;
-                                
-                           /*  This tracker boolean wil be used to detect whether the user called the set method
-                          *   for this attribute. It will be used to determine whether to include this field
-                           *   in the serialized XML
-                           */
-                           protected boolean localEventInfoTracker = false ;
-                           
-
-                           /**
-                           * Auto generated getter method
-                           * @return org.wso2.bps.management.schema.EventInfo[]
-                           */
-                           public  org.wso2.bps.management.schema.EventInfo[] getEventInfo(){
-                               return localEventInfo;
-                           }
-
-                           
-                        
+package org.wso2.bps.management.schema;
 
 
-                               
-                              /**
-                               * validate the array for EventInfo
-                               */
-                              protected void validateEventInfo(org.wso2.bps.management.schema.EventInfo[] param){
-                             
-                              }
+/**
+ * EventInfoList bean class
+ */
+
+public class EventInfoList implements org.apache.axis2.databinding.ADBBean {
+    /*
+     * This type was generated from the piece of schema that had name = EventInfoList Namespace URI =
+     * http://wso2.org/bps/management/schema Namespace Prefix = ns1
+     */
 
 
-                             /**
-                              * Auto generated setter method
-                              * @param param EventInfo
-                              */
-                              public void setEventInfo(org.wso2.bps.management.schema.EventInfo[] param){
-                              
-                                   validateEventInfo(param);
+    /**
+     *
+     */
+    private static final long serialVersionUID = 6616970150204319089L;
 
-                               localEventInfoTracker = param != null;
-                                      
-                                      this.localEventInfo=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param org.wso2.bps.management.schema.EventInfo
-                             */
-                             public void addEventInfo(org.wso2.bps.management.schema.EventInfo param){
-                                   if (localEventInfo == null){
-                                   localEventInfo = new org.wso2.bps.management.schema.EventInfo[]{};
-                                   }
-
-                            
-                                 //update the setting tracker
-                                localEventInfoTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localEventInfo);
-                               list.add(param);
-                               this.localEventInfo =
-                             (org.wso2.bps.management.schema.EventInfo[])list.toArray(
-                            new org.wso2.bps.management.schema.EventInfo[list.size()]);
-
-                             }
-                             
-
-     
-     
-        /**
-        *
-        * @param parentQName
-        * @param factory
-        * @return org.apache.axiom.om.OMElement
-        */
-       public org.apache.axiom.om.OMElement getOMElement (
-               final javax.xml.namespace.QName parentQName,
-               final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException{
+    /**
+     * field for EventInfo This was an Array!
+     */
 
 
-        
-               org.apache.axiom.om.OMDataSource dataSource =
-                       new org.apache.axis2.databinding.ADBDataSource(this,parentQName);
-               return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(
-               parentQName,factory,dataSource);
-            
-       }
+    protected org.wso2.bps.management.schema.EventInfo[] localEventInfo;
 
-         public void serialize(final javax.xml.namespace.QName parentQName,
-                                       javax.xml.stream.XMLStreamWriter xmlWriter)
-                                throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
-                           serialize(parentQName,xmlWriter,false);
-         }
-
-         public void serialize(final javax.xml.namespace.QName parentQName,
-                               javax.xml.stream.XMLStreamWriter xmlWriter,
-                               boolean serializeType)
-            throws javax.xml.stream.XMLStreamException, org.apache.axis2.databinding.ADBException{
-            
-                
+    /*
+     * This tracker boolean wil be used to detect whether the user called the set method for this
+     * attribute. It will be used to determine whether to include this field in the serialized XML
+     */
+    protected boolean localEventInfoTracker = false;
 
 
-                java.lang.String prefix = null;
-                java.lang.String namespace = null;
-                
+    /**
+     * Auto generated getter method
+     *
+     * @return org.wso2.bps.management.schema.EventInfo[]
+     */
+    public org.wso2.bps.management.schema.EventInfo[] getEventInfo() {
+        return this.localEventInfo;
+    }
 
-                    prefix = parentQName.getPrefix();
-                    namespace = parentQName.getNamespaceURI();
-                    writeStartElement(prefix, namespace, parentQName.getLocalPart(), xmlWriter);
-                
-                  if (serializeType){
-               
 
-                   java.lang.String namespacePrefix = registerPrefix(xmlWriter,"http://wso2.org/bps/management/schema");
-                   if ((namespacePrefix != null) && (namespacePrefix.trim().length() > 0)){
-                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           namespacePrefix+":EventInfoList",
-                           xmlWriter);
-                   } else {
-                       writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","type",
-                           "EventInfoList",
-                           xmlWriter);
-                   }
 
-               
-                   }
-                if (localEventInfoTracker){
-                                       if (localEventInfo!=null){
-                                            for (int i = 0;i < localEventInfo.length;i++){
-                                                if (localEventInfo[i] != null){
-                                                 localEventInfo[i].serialize(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema","event-info"),
-                                                           xmlWriter);
-                                                } else {
-                                                   
-                                                        // we don't have to do any thing since minOccures is zero
-                                                    
-                                                }
+    /**
+     * validate the array for EventInfo
+     */
+    protected void validateEventInfo(final org.wso2.bps.management.schema.EventInfo[] param) {
 
-                                            }
-                                     } else {
-                                        
-                                               throw new org.apache.axis2.databinding.ADBException("event-info cannot be null!!");
-                                        
-                                    }
-                                 }
-                    xmlWriter.writeEndElement();
-               
+    }
 
+
+    /**
+     * Auto generated setter method
+     *
+     * @param param EventInfo
+     */
+    public void setEventInfo(final org.wso2.bps.management.schema.EventInfo[] param) {
+
+        validateEventInfo(param);
+
+        this.localEventInfoTracker = param != null;
+
+        this.localEventInfo = param;
+    }
+
+
+
+    /**
+     * Auto generated add method for the array for convenience
+     *
+     * @param param org.wso2.bps.management.schema.EventInfo
+     */
+    public void addEventInfo(final org.wso2.bps.management.schema.EventInfo param) {
+        if (this.localEventInfo == null) {
+            this.localEventInfo = new org.wso2.bps.management.schema.EventInfo[] {};
         }
 
-        private static java.lang.String generatePrefix(java.lang.String namespace) {
-            if(namespace.equals("http://wso2.org/bps/management/schema")){
-                return "ns1";
-            }
-            return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
-        }
 
-        /**
-         * Utility method to write an element start tag.
-         */
-        private void writeStartElement(java.lang.String prefix, java.lang.String namespace, java.lang.String localPart,
-                                       javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-            java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
-            if (writerPrefix != null) {
-                xmlWriter.writeStartElement(namespace, localPart);
+        // update the setting tracker
+        this.localEventInfoTracker = true;
+
+
+        final java.util.List list = org.apache.axis2.databinding.utils.ConverterUtil.toList(this.localEventInfo);
+        list.add(param);
+        this.localEventInfo =
+            (org.wso2.bps.management.schema.EventInfo[]) list.toArray(new org.wso2.bps.management.schema.EventInfo[list.size()]);
+
+    }
+
+
+
+    /**
+     *
+     * @param parentQName
+     * @param factory
+     * @return org.apache.axiom.om.OMElement
+     */
+    @Override
+    public org.apache.axiom.om.OMElement getOMElement(final javax.xml.namespace.QName parentQName,
+                                                      final org.apache.axiom.om.OMFactory factory) throws org.apache.axis2.databinding.ADBException {
+
+
+
+        final org.apache.axiom.om.OMDataSource dataSource =
+            new org.apache.axis2.databinding.ADBDataSource(this, parentQName);
+        return new org.apache.axiom.om.impl.llom.OMSourcedElementImpl(parentQName, factory, dataSource);
+
+    }
+
+    @Override
+    public void serialize(final javax.xml.namespace.QName parentQName,
+                          final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException,
+                                                                            org.apache.axis2.databinding.ADBException {
+        serialize(parentQName, xmlWriter, false);
+    }
+
+    @Override
+    public void serialize(final javax.xml.namespace.QName parentQName, final javax.xml.stream.XMLStreamWriter xmlWriter,
+                          final boolean serializeType) throws javax.xml.stream.XMLStreamException,
+                                                       org.apache.axis2.databinding.ADBException {
+
+
+
+        java.lang.String prefix = null;
+        java.lang.String namespace = null;
+
+
+        prefix = parentQName.getPrefix();
+        namespace = parentQName.getNamespaceURI();
+        writeStartElement(prefix, namespace, parentQName.getLocalPart(), xmlWriter);
+
+        if (serializeType) {
+
+
+            final java.lang.String namespacePrefix = registerPrefix(xmlWriter, "http://wso2.org/bps/management/schema");
+            if (namespacePrefix != null && namespacePrefix.trim().length() > 0) {
+                writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type",
+                               namespacePrefix + ":EventInfoList", xmlWriter);
             } else {
-                if (namespace.length() == 0) {
-                    prefix = "";
-                } else if (prefix == null) {
-                    prefix = generatePrefix(namespace);
+                writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "type", "EventInfoList", xmlWriter);
+            }
+
+
+        }
+        if (this.localEventInfoTracker) {
+            if (this.localEventInfo != null) {
+                for (final EventInfo element : this.localEventInfo) {
+                    if (element != null) {
+                        element.serialize(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                            "event-info"), xmlWriter);
+                    } else {
+
+                        // we don't have to do any thing since minOccures is zero
+
+                    }
+
                 }
-
-                xmlWriter.writeStartElement(prefix, localPart, namespace);
-                xmlWriter.writeNamespace(prefix, namespace);
-                xmlWriter.setPrefix(prefix, namespace);
-            }
-        }
-        
-        /**
-         * Util method to write an attribute with the ns prefix
-         */
-        private void writeAttribute(java.lang.String prefix,java.lang.String namespace,java.lang.String attName,
-                                    java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
-            if (xmlWriter.getPrefix(namespace) == null) {
-                xmlWriter.writeNamespace(prefix, namespace);
-                xmlWriter.setPrefix(prefix, namespace);
-            }
-            xmlWriter.writeAttribute(namespace,attName,attValue);
-        }
-
-        /**
-         * Util method to write an attribute without the ns prefix
-         */
-        private void writeAttribute(java.lang.String namespace,java.lang.String attName,
-                                    java.lang.String attValue,javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException{
-            if (namespace.equals("")) {
-                xmlWriter.writeAttribute(attName,attValue);
             } else {
-                registerPrefix(xmlWriter, namespace);
-                xmlWriter.writeAttribute(namespace,attName,attValue);
+
+                throw new org.apache.axis2.databinding.ADBException("event-info cannot be null!!");
+
             }
         }
+        xmlWriter.writeEndElement();
 
 
-           /**
-             * Util method to write an attribute without the ns prefix
-             */
-            private void writeQNameAttribute(java.lang.String namespace, java.lang.String attName,
-                                             javax.xml.namespace.QName qname, javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+    }
 
-                java.lang.String attributeNamespace = qname.getNamespaceURI();
-                java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
-                if (attributePrefix == null) {
-                    attributePrefix = registerPrefix(xmlWriter, attributeNamespace);
-                }
-                java.lang.String attributeValue;
-                if (attributePrefix.trim().length() > 0) {
-                    attributeValue = attributePrefix + ":" + qname.getLocalPart();
-                } else {
-                    attributeValue = qname.getLocalPart();
-                }
+    private static java.lang.String generatePrefix(final java.lang.String namespace) {
+        if (namespace.equals("http://wso2.org/bps/management/schema")) {
+            return "ns1";
+        }
+        return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+    }
 
-                if (namespace.equals("")) {
-                    xmlWriter.writeAttribute(attName, attributeValue);
-                } else {
-                    registerPrefix(xmlWriter, namespace);
-                    xmlWriter.writeAttribute(namespace, attName, attributeValue);
-                }
+    /**
+     * Utility method to write an element start tag.
+     */
+    private void writeStartElement(java.lang.String prefix, final java.lang.String namespace,
+                                   final java.lang.String localPart,
+                                   final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+        final java.lang.String writerPrefix = xmlWriter.getPrefix(namespace);
+        if (writerPrefix != null) {
+            xmlWriter.writeStartElement(namespace, localPart);
+        } else {
+            if (namespace.length() == 0) {
+                prefix = "";
+            } else if (prefix == null) {
+                prefix = generatePrefix(namespace);
             }
-        /**
-         *  method to handle Qnames
-         */
 
-        private void writeQName(javax.xml.namespace.QName qname,
-                                javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
-            java.lang.String namespaceURI = qname.getNamespaceURI();
-            if (namespaceURI != null) {
-                java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
-                if (prefix == null) {
-                    prefix = generatePrefix(namespaceURI);
-                    xmlWriter.writeNamespace(prefix, namespaceURI);
-                    xmlWriter.setPrefix(prefix,namespaceURI);
-                }
+            xmlWriter.writeStartElement(prefix, localPart, namespace);
+            xmlWriter.writeNamespace(prefix, namespace);
+            xmlWriter.setPrefix(prefix, namespace);
+        }
+    }
 
-                if (prefix.trim().length() > 0){
-                    xmlWriter.writeCharacters(prefix + ":" + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
-                } else {
-                    // i.e this is the default namespace
-                    xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
-                }
+    /**
+     * Util method to write an attribute with the ns prefix
+     */
+    private void writeAttribute(final java.lang.String prefix, final java.lang.String namespace,
+                                final java.lang.String attName, final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+        if (xmlWriter.getPrefix(namespace) == null) {
+            xmlWriter.writeNamespace(prefix, namespace);
+            xmlWriter.setPrefix(prefix, namespace);
+        }
+        xmlWriter.writeAttribute(namespace, attName, attValue);
+    }
 
+    /**
+     * Util method to write an attribute without the ns prefix
+     */
+    private void writeAttribute(final java.lang.String namespace, final java.lang.String attName,
+                                final java.lang.String attValue,
+                                final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+        if (namespace.equals("")) {
+            xmlWriter.writeAttribute(attName, attValue);
+        } else {
+            registerPrefix(xmlWriter, namespace);
+            xmlWriter.writeAttribute(namespace, attName, attValue);
+        }
+    }
+
+
+    /**
+     * Util method to write an attribute without the ns prefix
+     */
+    private void writeQNameAttribute(final java.lang.String namespace, final java.lang.String attName,
+                                     final javax.xml.namespace.QName qname,
+                                     final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+
+        final java.lang.String attributeNamespace = qname.getNamespaceURI();
+        java.lang.String attributePrefix = xmlWriter.getPrefix(attributeNamespace);
+        if (attributePrefix == null) {
+            attributePrefix = registerPrefix(xmlWriter, attributeNamespace);
+        }
+        java.lang.String attributeValue;
+        if (attributePrefix.trim().length() > 0) {
+            attributeValue = attributePrefix + ":" + qname.getLocalPart();
+        } else {
+            attributeValue = qname.getLocalPart();
+        }
+
+        if (namespace.equals("")) {
+            xmlWriter.writeAttribute(attName, attributeValue);
+        } else {
+            registerPrefix(xmlWriter, namespace);
+            xmlWriter.writeAttribute(namespace, attName, attributeValue);
+        }
+    }
+
+    /**
+     * method to handle Qnames
+     */
+
+    private void writeQName(final javax.xml.namespace.QName qname,
+                            final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+        final java.lang.String namespaceURI = qname.getNamespaceURI();
+        if (namespaceURI != null) {
+            java.lang.String prefix = xmlWriter.getPrefix(namespaceURI);
+            if (prefix == null) {
+                prefix = generatePrefix(namespaceURI);
+                xmlWriter.writeNamespace(prefix, namespaceURI);
+                xmlWriter.setPrefix(prefix, namespaceURI);
+            }
+
+            if (prefix.trim().length() > 0) {
+                xmlWriter.writeCharacters(prefix + ":"
+                    + org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             } else {
+                // i.e this is the default namespace
                 xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
             }
+
+        } else {
+            xmlWriter.writeCharacters(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qname));
         }
+    }
 
-        private void writeQNames(javax.xml.namespace.QName[] qnames,
-                                 javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
+    private void writeQNames(final javax.xml.namespace.QName[] qnames,
+                             final javax.xml.stream.XMLStreamWriter xmlWriter) throws javax.xml.stream.XMLStreamException {
 
-            if (qnames != null) {
-                // we have to store this data until last moment since it is not possible to write any
-                // namespace data after writing the charactor data
-                java.lang.StringBuffer stringToWrite = new java.lang.StringBuffer();
-                java.lang.String namespaceURI = null;
-                java.lang.String prefix = null;
+        if (qnames != null) {
+            // we have to store this data until last moment since it is not possible to write any
+            // namespace data after writing the charactor data
+            final java.lang.StringBuffer stringToWrite = new java.lang.StringBuffer();
+            java.lang.String namespaceURI = null;
+            java.lang.String prefix = null;
 
-                for (int i = 0; i < qnames.length; i++) {
-                    if (i > 0) {
-                        stringToWrite.append(" ");
+            for (int i = 0; i < qnames.length; i++) {
+                if (i > 0) {
+                    stringToWrite.append(" ");
+                }
+                namespaceURI = qnames[i].getNamespaceURI();
+                if (namespaceURI != null) {
+                    prefix = xmlWriter.getPrefix(namespaceURI);
+                    if (prefix == null || prefix.length() == 0) {
+                        prefix = generatePrefix(namespaceURI);
+                        xmlWriter.writeNamespace(prefix, namespaceURI);
+                        xmlWriter.setPrefix(prefix, namespaceURI);
                     }
-                    namespaceURI = qnames[i].getNamespaceURI();
-                    if (namespaceURI != null) {
-                        prefix = xmlWriter.getPrefix(namespaceURI);
-                        if ((prefix == null) || (prefix.length() == 0)) {
-                            prefix = generatePrefix(namespaceURI);
-                            xmlWriter.writeNamespace(prefix, namespaceURI);
-                            xmlWriter.setPrefix(prefix,namespaceURI);
-                        }
 
-                        if (prefix.trim().length() > 0){
-                            stringToWrite.append(prefix).append(":").append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
-                        } else {
-                            stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
-                        }
+                    if (prefix.trim().length() > 0) {
+                        stringToWrite.append(prefix).append(":")
+                                     .append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     } else {
                         stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                     }
+                } else {
+                    stringToWrite.append(org.apache.axis2.databinding.utils.ConverterUtil.convertToString(qnames[i]));
                 }
-                xmlWriter.writeCharacters(stringToWrite.toString());
+            }
+            xmlWriter.writeCharacters(stringToWrite.toString());
+        }
+
+    }
+
+
+    /**
+     * Register a namespace prefix
+     */
+    private java.lang.String registerPrefix(final javax.xml.stream.XMLStreamWriter xmlWriter,
+                                            final java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
+        java.lang.String prefix = xmlWriter.getPrefix(namespace);
+        if (prefix == null) {
+            prefix = generatePrefix(namespace);
+            while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
+                prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+            }
+            xmlWriter.writeNamespace(prefix, namespace);
+            xmlWriter.setPrefix(prefix, namespace);
+        }
+        return prefix;
+    }
+
+
+
+    /**
+     * databinding method to get an XML representation of this object
+     *
+     */
+    @Override
+    public javax.xml.stream.XMLStreamReader getPullParser(final javax.xml.namespace.QName qName) throws org.apache.axis2.databinding.ADBException {
+
+
+
+        final java.util.ArrayList elementList = new java.util.ArrayList();
+        final java.util.ArrayList attribList = new java.util.ArrayList();
+
+        if (this.localEventInfoTracker) {
+            if (this.localEventInfo != null) {
+                for (final EventInfo element : this.localEventInfo) {
+
+                    if (element != null) {
+                        elementList.add(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                            "event-info"));
+                        elementList.add(element);
+                    } else {
+
+                        // nothing to do
+
+                    }
+
+                }
+            } else {
+
+                throw new org.apache.axis2.databinding.ADBException("event-info cannot be null!!");
+
             }
 
         }
 
+        return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(),
+            attribList.toArray());
+
+
+
+    }
+
+
+
+    /**
+     * Factory class that keeps the parse method
+     */
+    public static class Factory {
+
+
 
         /**
-         * Register a namespace prefix
+         * static method to create the object Precondition: If this object is an element, the current or
+         * next start element starts this object and any intervening reader events are ignorable If this
+         * object is not an element, it is a complex type and the reader is at the event just after the
+         * outer start element Postcondition: If this object is an element, the reader is positioned at its
+         * end element If this object is a complex type, the reader is positioned at the end element of its
+         * outer element
          */
-        private java.lang.String registerPrefix(javax.xml.stream.XMLStreamWriter xmlWriter, java.lang.String namespace) throws javax.xml.stream.XMLStreamException {
-            java.lang.String prefix = xmlWriter.getPrefix(namespace);
-            if (prefix == null) {
-                prefix = generatePrefix(namespace);
-                while (xmlWriter.getNamespaceContext().getNamespaceURI(prefix) != null) {
-                    prefix = org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
+        public static EventInfoList parse(final javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception {
+            final EventInfoList object = new EventInfoList();
+
+            final int event;
+            final java.lang.String nillableValue = null;
+            final java.lang.String prefix = "";
+            final java.lang.String namespaceuri = "";
+            try {
+
+                while (!reader.isStartElement() && !reader.isEndElement()) {
+                    reader.next();
                 }
-                xmlWriter.writeNamespace(prefix, namespace);
-                xmlWriter.setPrefix(prefix, namespace);
-            }
-            return prefix;
-        }
 
 
-  
-        /**
-        * databinding method to get an XML representation of this object
-        *
-        */
-        public javax.xml.stream.XMLStreamReader getPullParser(javax.xml.namespace.QName qName)
-                    throws org.apache.axis2.databinding.ADBException{
+                if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
+                    final java.lang.String fullTypeName =
+                        reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance", "type");
+                    if (fullTypeName != null) {
+                        java.lang.String nsPrefix = null;
+                        if (fullTypeName.indexOf(":") > -1) {
+                            nsPrefix = fullTypeName.substring(0, fullTypeName.indexOf(":"));
+                        }
+                        nsPrefix = nsPrefix == null ? "" : nsPrefix;
 
+                        final java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":") + 1);
 
-        
-                 java.util.ArrayList elementList = new java.util.ArrayList();
-                 java.util.ArrayList attribList = new java.util.ArrayList();
-
-                 if (localEventInfoTracker){
-                             if (localEventInfo!=null) {
-                                 for (int i = 0;i < localEventInfo.length;i++){
-
-                                    if (localEventInfo[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
-                                                                          "event-info"));
-                                         elementList.add(localEventInfo[i]);
-                                    } else {
-                                        
-                                                // nothing to do
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        throw new org.apache.axis2.databinding.ADBException("event-info cannot be null!!");
-                                    
-                             }
-
+                        if (!"EventInfoList".equals(type)) {
+                            // find namespace for the prefix
+                            final java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
+                            return (EventInfoList) org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(nsUri,
+                                                                                                                                 type,
+                                                                                                                                 reader);
                         }
 
-                return new org.apache.axis2.databinding.utils.reader.ADBXMLStreamReaderImpl(qName, elementList.toArray(), attribList.toArray());
-            
-            
 
-        }
-
-  
-
-     /**
-      *  Factory class that keeps the parse method
-      */
-    public static class Factory{
-
-        
-        
-
-        /**
-        * static method to create the object
-        * Precondition:  If this object is an element, the current or next start element starts this object and any intervening reader events are ignorable
-        *                If this object is not an element, it is a complex type and the reader is at the event just after the outer start element
-        * Postcondition: If this object is an element, the reader is positioned at its end element
-        *                If this object is a complex type, the reader is positioned at the end element of its outer element
-        */
-        public static EventInfoList parse(javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
-            EventInfoList object =
-                new EventInfoList();
-
-            int event;
-            java.lang.String nillableValue = null;
-            java.lang.String prefix ="";
-            java.lang.String namespaceuri ="";
-            try {
-                
-                while (!reader.isStartElement() && !reader.isEndElement())
-                    reader.next();
-
-                
-                if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","type")!=null){
-                  java.lang.String fullTypeName = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
-                        "type");
-                  if (fullTypeName!=null){
-                    java.lang.String nsPrefix = null;
-                    if (fullTypeName.indexOf(":") > -1){
-                        nsPrefix = fullTypeName.substring(0,fullTypeName.indexOf(":"));
                     }
-                    nsPrefix = nsPrefix==null?"":nsPrefix;
 
-                    java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
-                    
-                            if (!"EventInfoList".equals(type)){
-                                //find namespace for the prefix
-                                java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (EventInfoList)org.wso2.bps.management.wsdl.instancemanagement.ExtensionMapper.getTypeObject(
-                                     nsUri,type,reader);
-                              }
-                        
-
-                  }
-                
 
                 }
 
-                
 
-                
+
                 // Note all attributes that were handled. Used to differ normal attributes
                 // from anyAttributes.
-                java.util.Vector handledAttributes = new java.util.Vector();
-                
+                final java.util.Vector handledAttributes = new java.util.Vector();
 
-                
-                    
+
+
+                reader.next();
+
+                final java.util.ArrayList list1 = new java.util.ArrayList();
+
+
+                while (!reader.isStartElement() && !reader.isEndElement()) {
                     reader.next();
-                
-                        java.util.ArrayList list1 = new java.util.ArrayList();
-                    
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema","event-info").equals(reader.getName())){
-                                
-                                    
-                                    
-                                    // Process the array and step past its final element's end.
-                                    list1.add(org.wso2.bps.management.schema.EventInfo.Factory.parse(reader));
-                                                                
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone1 = false;
-                                                        while(!loopDone1){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone1 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://wso2.org/bps/management/schema","event-info").equals(reader.getName())){
-                                                                    list1.add(org.wso2.bps.management.schema.EventInfo.Factory.parse(reader));
-                                                                        
-                                                                }else{
-                                                                    loopDone1 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setEventInfo((org.wso2.bps.management.schema.EventInfo[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                org.wso2.bps.management.schema.EventInfo.class,
-                                                                list1));
-                                                            
-                              }  // End of if for expected property start element
-                                
-                                    else {
-                                        
-                                    }
-                                  
-                            while (!reader.isStartElement() && !reader.isEndElement())
-                                reader.next();
-                            
-                                if (reader.isStartElement())
-                                // A start element we are not expecting indicates a trailing invalid property
-                                throw new org.apache.axis2.databinding.ADBException("Unexpected subelement " + reader.getLocalName());
-                            
+                }
+
+                if (reader.isStartElement() && new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                    "event-info").equals(reader.getName())) {
 
 
 
-            } catch (javax.xml.stream.XMLStreamException e) {
+                    // Process the array and step past its final element's end.
+                    list1.add(org.wso2.bps.management.schema.EventInfo.Factory.parse(reader));
+
+                    // loop until we find a start element that is not part of this array
+                    boolean loopDone1 = false;
+                    while (!loopDone1) {
+                        // We should be at the end element, but make sure
+                        while (!reader.isEndElement()) {
+                            reader.next();
+                        }
+                        // Step out of this element
+                        reader.next();
+                        // Step to next element event.
+                        while (!reader.isStartElement() && !reader.isEndElement()) {
+                            reader.next();
+                        }
+                        if (reader.isEndElement()) {
+                            // two continuous end elements means we are exiting the xml structure
+                            loopDone1 = true;
+                        } else {
+                            if (new javax.xml.namespace.QName("http://wso2.org/bps/management/schema",
+                                "event-info").equals(reader.getName())) {
+                                list1.add(org.wso2.bps.management.schema.EventInfo.Factory.parse(reader));
+
+                            } else {
+                                loopDone1 = true;
+                            }
+                        }
+                    }
+                    // call the converter utility to convert and set the array
+
+                    object.setEventInfo((org.wso2.bps.management.schema.EventInfo[]) org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(org.wso2.bps.management.schema.EventInfo.class,
+                                                                                                                                                     list1));
+
+                } // End of if for expected property start element
+
+                else {
+
+                }
+
+                while (!reader.isStartElement() && !reader.isEndElement()) {
+                    reader.next();
+                }
+
+                if (reader.isStartElement()) {
+                    // A start element we are not expecting indicates a trailing invalid
+                    // property
+                    throw new org.apache.axis2.databinding.ADBException(
+                        "Unexpected subelement " + reader.getLocalName());
+                }
+
+
+
+            }
+            catch (final javax.xml.stream.XMLStreamException e) {
                 throw new java.lang.Exception(e);
             }
 
             return object;
         }
 
-        }//end of factory class
+    }// end of factory class
 
-        
 
-        }
-           
-    
+
+}
+

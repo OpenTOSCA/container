@@ -24,76 +24,82 @@ import com.google.gson.JsonObject;
  *
  */
 public class ServiceTemplateInstanceStateResource {
-	
-	private final int nodeInstanceID;
-	
-	
-	public ServiceTemplateInstanceStateResource(final int id) {
-		this.nodeInstanceID = id;
-	}
 
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response doGetXML() {
+    private final int nodeInstanceID;
 
-		final String idr = this.getState();
 
-		return Response.ok(idr).build();
-	}
+    public ServiceTemplateInstanceStateResource(final int id) {
+        this.nodeInstanceID = id;
+    }
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response doGetJSON() {
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response doGetXML() {
 
-		final String idr = this.getState();
+        final String idr = this.getState();
 
-		final JsonObject json = new JsonObject();
-		json.addProperty("state", idr);
+        return Response.ok(idr).build();
+    }
 
-		return Response.ok(json.toString()).build();
-	}
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response doGetJSON() {
 
-	public String getState() {
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        final String idr = this.getState();
 
-		try {
-			final String state = service.getServiceInstanceState(IdConverter.serviceInstanceIDtoURI(this.nodeInstanceID));
-			
-			if (state != null) {
-				return state;
-			} else {
-				return null;
-			}
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
-		}
-	}
+        final JsonObject json = new JsonObject();
+        json.addProperty("state", idr);
 
-	@PUT
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_XML)
-	public Response setState(@Context final UriInfo uriInfo, final String state) {
-		final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
+        return Response.ok(json.toString()).build();
+    }
 
-		QName stateQName = null;
-		try {
-			stateQName = QName.valueOf(state);
+    public String getState() {
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
-		} catch (final Exception e1) {
-			throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter state: " + e1.getMessage());
-		}
+        try {
+            final String state =
+                service.getServiceInstanceState(IdConverter.serviceInstanceIDtoURI(this.nodeInstanceID));
 
-		try {
-			service.setServiceInstanceState(IdConverter.serviceInstanceIDtoURI(this.nodeInstanceID), state);
+            if (state != null) {
+                return state;
+            } else {
+                return null;
+            }
+        }
+        catch (final ReferenceNotFoundException e) {
+            throw new GenericRestException(Status.NOT_FOUND,
+                "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
+        }
+    }
 
-			// SimpleXLink xLink = new
-			// SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
-			// nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
-			return Response.ok().build();
-		} catch (final ReferenceNotFoundException e) {
-			throw new GenericRestException(Status.NOT_FOUND, "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
-		}
+    @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_XML)
+    public Response setState(@Context final UriInfo uriInfo, final String state) {
+        final IInstanceDataService service = InstanceDataServiceHandler.getInstanceDataService();
 
-	}
+        QName stateQName = null;
+        try {
+            stateQName = QName.valueOf(state);
+
+        }
+        catch (final Exception e1) {
+            throw new GenericRestException(Status.BAD_REQUEST, "Error converting parameter state: " + e1.getMessage());
+        }
+
+        try {
+            service.setServiceInstanceState(IdConverter.serviceInstanceIDtoURI(this.nodeInstanceID), state);
+
+            // SimpleXLink xLink = new
+            // SimpleXLink(LinkBuilder.linkToNodeInstanceState(uriInfo,
+            // nodeInstanceID), "NodeInstance: " + nodeInstanceID + " State");
+            return Response.ok().build();
+        }
+        catch (final ReferenceNotFoundException e) {
+            throw new GenericRestException(Status.NOT_FOUND,
+                "Specified nodeInstance with id: " + this.nodeInstanceID + " doesn't exist");
+        }
+
+    }
 
 }

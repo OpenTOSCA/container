@@ -16,92 +16,92 @@ import org.w3c.dom.Document;
  */
 public class MapQNameDocument implements Map<QName, Document> {
 
-	private Map<QName, Document> map = new HashMap<>();
-	
-	
-	@Override
-	public void clear() {
+    private Map<QName, Document> map = new HashMap<>();
 
-		this.map.clear();
 
-	}
+    @Override
+    public void clear() {
 
-	@Override
-	public boolean containsKey(final Object key) {
+        this.map.clear();
 
-		return this.map.containsKey(key);
-	}
+    }
 
-	@Override
-	public boolean containsValue(final Object value) {
+    @Override
+    public boolean containsKey(final Object key) {
 
-		return this.map.containsValue(value);
-	}
+        return this.map.containsKey(key);
+    }
 
-	@Override
-	public Set<java.util.Map.Entry<QName, Document>> entrySet() {
+    @Override
+    public boolean containsValue(final Object value) {
 
-		return this.map.entrySet();
-	}
+        return this.map.containsValue(value);
+    }
 
-	@Override
-	public Document get(final Object key) {
+    @Override
+    public Set<java.util.Map.Entry<QName, Document>> entrySet() {
 
-		return this.map.get(key);
-	}
+        return this.map.entrySet();
+    }
 
-	@Override
-	public boolean isEmpty() {
+    @Override
+    public Document get(final Object key) {
 
-		return this.map.isEmpty();
-	}
+        return this.map.get(key);
+    }
 
-	@Override
-	public Set<QName> keySet() {
+    @Override
+    public boolean isEmpty() {
 
-		return this.map.keySet();
-	}
+        return this.map.isEmpty();
+    }
 
-	@Override
-	public Document put(final QName key, final Document value) {
+    @Override
+    public Set<QName> keySet() {
 
-		final Document result = this.map.put(key, value);
-		return result;
-	}
+        return this.map.keySet();
+    }
 
-	@Override
-	public void putAll(final Map<? extends QName, ? extends Document> m) {
+    @Override
+    public Document put(final QName key, final Document value) {
 
-		this.map.putAll(m);
+        final Document result = this.map.put(key, value);
+        return result;
+    }
 
-	}
+    @Override
+    public void putAll(final Map<? extends QName, ? extends Document> m) {
 
-	@Override
-	public Document remove(final Object key) {
+        this.map.putAll(m);
 
-		final Document result = this.map.remove(key);
-		return result;
-	}
+    }
 
-	@Override
-	public int size() {
+    @Override
+    public Document remove(final Object key) {
 
-		return this.map.size();
-	}
+        final Document result = this.map.remove(key);
+        return result;
+    }
 
-	@Override
-	public Collection<Document> values() {
+    @Override
+    public int size() {
 
-		return this.map.values();
-	}
+        return this.map.size();
+    }
 
-	public Map<QName, Document> getMap() {
+    @Override
+    public Collection<Document> values() {
 
-		return this.map;
-	}
+        return this.map.values();
+    }
 
-	public void setMap(final Map<QName, Document> map) {
+    public Map<QName, Document> getMap() {
 
-		this.map = map;
-	}
+        return this.map;
+    }
+
+    public void setMap(final Map<QName, Document> map) {
+
+        this.map = map;
+    }
 }

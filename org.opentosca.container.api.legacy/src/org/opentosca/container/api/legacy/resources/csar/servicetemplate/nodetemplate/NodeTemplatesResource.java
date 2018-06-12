@@ -25,59 +25,71 @@ import org.slf4j.LoggerFactory;
 
 public class NodeTemplatesResource {
 
-	private final Logger log = LoggerFactory.getLogger(NodeTemplatesResource.class);
-	private final CSARID csarId;
-	private final QName serviceTemplateID;
-	private final int serviceTemplateInstanceId;
-	private UriInfo uriInfo;
+    private final Logger log = LoggerFactory.getLogger(NodeTemplatesResource.class);
+    private final CSARID csarId;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
+    private UriInfo uriInfo;
 
 
-	public NodeTemplatesResource(final CSARID csarId, final QName serviceTemplateID, final int serviceTemplateInstanceId) {
-		this.csarId = csarId;
-		this.serviceTemplateID = serviceTemplateID;
-		this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_XML)
-	public Response getReferencesXML(@Context final UriInfo uriInfo, @QueryParam("nodeType") QName nodeType) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs(nodeType).getXMLString()).build();
-	}
-	
-	@GET
-	@Produces(ResourceConstants.LINKED_JSON)
-	public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
-		this.uriInfo = uriInfo;
-		return Response.ok(this.getRefs(null).getJSONString()).build();
-	}
-	
-	public References getRefs(QName nodeType) throws UnsupportedEncodingException {
-		
-		if (this.csarId == null) {
-			return null;
-		}
-		
-		final References refs = new References();
-		
-		for (final String ntID : ToscaServiceHandler.getToscaEngineService().getNodeTemplatesOfServiceTemplate(this.csarId, this.serviceTemplateID)) {
-			
-			if(nodeType != null && ToscaServiceHandler.getToscaEngineService().getNodeTypeOfNodeTemplate(csarId, serviceTemplateID, ntID).equals(nodeType)){				
-				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
-			} else{
-				refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
-			}
-		}
-		
-		// selflink
-		refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
-		
-		return refs;
-	}
+    public NodeTemplatesResource(final CSARID csarId, final QName serviceTemplateID,
+                                 final int serviceTemplateInstanceId) {
+        this.csarId = csarId;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
+    }
 
-	@Path("{PlanIdLocalPart}")
-	@Produces(ResourceConstants.TOSCA_JSON)
-	public NodeTemplateResource getNodeTemplate(@Context final UriInfo uriInfo, @PathParam("PlanIdLocalPart") final String planIdLocalPart) throws URISyntaxException {
-		return new NodeTemplateResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId, planIdLocalPart);
-	}
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo,
+                                     @QueryParam("nodeType") final QName nodeType) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs(nodeType).getXMLString()).build();
+    }
+
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) throws UnsupportedEncodingException {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getRefs(null).getJSONString()).build();
+    }
+
+    public References getRefs(final QName nodeType) throws UnsupportedEncodingException {
+
+        if (this.csarId == null) {
+            return null;
+        }
+
+        final References refs = new References();
+
+        for (final String ntID : ToscaServiceHandler.getToscaEngineService()
+                                                    .getNodeTemplatesOfServiceTemplate(this.csarId,
+                                                                                       this.serviceTemplateID)) {
+
+            if (nodeType != null
+                && ToscaServiceHandler.getToscaEngineService()
+                                      .getNodeTypeOfNodeTemplate(this.csarId, this.serviceTemplateID, ntID)
+                                      .equals(nodeType)) {
+                refs.getReference()
+                    .add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
+            } else {
+                refs.getReference()
+                    .add(new Reference(Utilities.buildURI(this.uriInfo, ntID), XLinkConstants.SIMPLE, ntID));
+            }
+        }
+
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+
+        return refs;
+    }
+
+    @Path("{PlanIdLocalPart}")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public NodeTemplateResource getNodeTemplate(@Context final UriInfo uriInfo,
+                                                @PathParam("PlanIdLocalPart") final String planIdLocalPart) throws URISyntaxException {
+        return new NodeTemplateResource(this.csarId, this.serviceTemplateID, this.serviceTemplateInstanceId,
+            planIdLocalPart);
+    }
 }

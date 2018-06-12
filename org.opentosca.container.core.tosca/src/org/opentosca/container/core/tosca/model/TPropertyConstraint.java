@@ -19,11 +19,10 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * <p>
  * Java class for tPropertyConstraint complex type.
- * 
+ *
  * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
- * 
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="tPropertyConstraint">
  *   &lt;complexContent>
@@ -33,35 +32,35 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tPropertyConstraint")
 public class TPropertyConstraint extends TConstraint {
-	
-	@XmlAttribute(name = "property", required = true)
-	protected String property;
-	
-	
-	/**
-	 * Gets the value of the property property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
-	public String getProperty() {
-		return this.property;
-	}
-	
-	/**
-	 * Sets the value of the property property.
-	 * 
-	 * @param value allowed object is {@link String }
-	 * 
-	 */
-	public void setProperty(String value) {
-		this.property = value;
-	}
-	
+
+    @XmlAttribute(name = "property", required = true)
+    protected String property;
+
+
+    /**
+     * Gets the value of the property property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getProperty() {
+        return this.property;
+    }
+
+    /**
+     * Sets the value of the property property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setProperty(final String value) {
+        this.property = value;
+    }
+
 }

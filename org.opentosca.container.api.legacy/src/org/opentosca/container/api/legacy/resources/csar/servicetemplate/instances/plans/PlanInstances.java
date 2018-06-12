@@ -35,93 +35,89 @@ import org.slf4j.LoggerFactory;
  */
 public class PlanInstances {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PlanInstances.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PlanInstances.class);
 
-  private final CSARID csarID;
-  private final QName serviceTemplateID;
-  private final int serviceTemplateInstanceId;
+    private final CSARID csarID;
+    private final QName serviceTemplateID;
+    private final int serviceTemplateInstanceId;
 
-  UriInfo uriInfo;
+    UriInfo uriInfo;
 
 
-  public PlanInstances(final CSARID csarID, final QName serviceTemplateID,
-      final int serviceTemplateInstanceId) {
-    this.csarID = csarID;
-    this.serviceTemplateID = serviceTemplateID;
-    this.serviceTemplateInstanceId = serviceTemplateInstanceId;
-  }
-
-  /**
-   * Produces the xml which lists the CorrelationIDs of the active PublicPlans.
-   *
-   * @param uriInfo
-   * @return The response with the legal PublicPlanTypes.
-   */
-  @GET
-  @Produces(ResourceConstants.LINKED_XML)
-  public Response getReferencesXML(@Context final UriInfo uriInfo) {
-    this.uriInfo = uriInfo;
-    return Response.ok(this.getReferences().getXMLString()).build();
-  }
-
-  /**
-   * Produces the JSON which lists the links to the History and the active plans.
-   *
-   * @param uriInfo
-   * @return The response with the legal PublicPlanTypes.
-   */
-  @GET
-  @Produces(ResourceConstants.LINKED_JSON)
-  public Response getReferencesJSON(@Context final UriInfo uriInfo) {
-    this.uriInfo = uriInfo;
-    return Response.ok(this.getReferences().getJSONString()).build();
-  }
-
-  public References getReferences() {
-
-    PlanInstances.LOG
-        .debug("Access plan instance list at " + this.uriInfo.getAbsolutePath().toString());
-
-    if (this.csarID == null) {
-      PlanInstances.LOG.debug("The CSAR does not exist.");
-      return null;
+    public PlanInstances(final CSARID csarID, final QName serviceTemplateID, final int serviceTemplateInstanceId) {
+        this.csarID = csarID;
+        this.serviceTemplateID = serviceTemplateID;
+        this.serviceTemplateInstanceId = serviceTemplateInstanceId;
     }
 
-    final References refs = new References();
-
-    final IOpenToscaControlService control =
-        IOpenToscaControlServiceHandler.getOpenToscaControlService();
-
-    ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
-
-    Optional<ServiceTemplateInstance> o = repo.find(Long.valueOf(this.serviceTemplateInstanceId));
-    ServiceTemplateInstance sit = o.get();
-
-    for (final org.opentosca.container.core.next.model.PlanInstance p : sit.getPlanInstances()) {
-      refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, p.getCorrelationId()),
-          XLinkConstants.SIMPLE, p.getCorrelationId()));
+    /**
+     * Produces the xml which lists the CorrelationIDs of the active PublicPlans.
+     *
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_XML)
+    public Response getReferencesXML(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getXMLString()).build();
     }
 
-    // selflink
-    refs.getReference().add(new Reference(this.uriInfo.getAbsolutePath().toString(),
-        XLinkConstants.SIMPLE, XLinkConstants.SELF));
-    return refs;
-  }
+    /**
+     * Produces the JSON which lists the links to the History and the active plans.
+     *
+     * @param uriInfo
+     * @return The response with the legal PublicPlanTypes.
+     */
+    @GET
+    @Produces(ResourceConstants.LINKED_JSON)
+    public Response getReferencesJSON(@Context final UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        return Response.ok(this.getReferences().getJSONString()).build();
+    }
 
-  /**
-   * Returns the plan information from history.
-   *
-   * @param uriInfo
-   * @return Response
-   * @throws URISyntaxException
-   */
-  @Path("{CorrelationID}")
-  @Produces(ResourceConstants.TOSCA_JSON)
-  public PlanInstance getPlanJSON(@Context final UriInfo uriInfo,
-      @PathParam("CorrelationID") final String correlationID) throws URISyntaxException {
-    LOG.debug("get plan of corr {}", correlationID);
-    return new PlanInstance(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId,
-        correlationID);
-  }
+    public References getReferences() {
+
+        PlanInstances.LOG.debug("Access plan instance list at " + this.uriInfo.getAbsolutePath().toString());
+
+        if (this.csarID == null) {
+            PlanInstances.LOG.debug("The CSAR does not exist.");
+            return null;
+        }
+
+        final References refs = new References();
+
+        final IOpenToscaControlService control = IOpenToscaControlServiceHandler.getOpenToscaControlService();
+
+        final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+
+        final Optional<ServiceTemplateInstance> o = repo.find(Long.valueOf(this.serviceTemplateInstanceId));
+        final ServiceTemplateInstance sit = o.get();
+
+        for (final org.opentosca.container.core.next.model.PlanInstance p : sit.getPlanInstances()) {
+            refs.getReference().add(new Reference(Utilities.buildURI(this.uriInfo, p.getCorrelationId()),
+                XLinkConstants.SIMPLE, p.getCorrelationId()));
+        }
+
+        // selflink
+        refs.getReference()
+            .add(new Reference(this.uriInfo.getAbsolutePath().toString(), XLinkConstants.SIMPLE, XLinkConstants.SELF));
+        return refs;
+    }
+
+    /**
+     * Returns the plan information from history.
+     *
+     * @param uriInfo
+     * @return Response
+     * @throws URISyntaxException
+     */
+    @Path("{CorrelationID}")
+    @Produces(ResourceConstants.TOSCA_JSON)
+    public PlanInstance getPlanJSON(@Context final UriInfo uriInfo,
+                                    @PathParam("CorrelationID") final String correlationID) throws URISyntaxException {
+        LOG.debug("get plan of corr {}", correlationID);
+        return new PlanInstance(this.csarID, this.serviceTemplateID, this.serviceTemplateInstanceId, correlationID);
+    }
 
 }

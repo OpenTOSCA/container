@@ -966,7 +966,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.planbuilder.prephase.plugin.scriptiaonlinux"
+         id="org.opentosca.planbuilder.prephase.plugin.fileupload"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -1367,6 +1367,55 @@
 
    <plugin
          id="org.opentosca.planbuilder.selection.plugin.mosquitto.workload"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.core.bpel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.lang3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.jcraft.jsch"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.eclipsesource.jaxrs.swagger-all"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.eclipsesource.jaxrs.provider.swagger"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.deployment.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.opentosca.planbuilder.postphase.plugin.monitoring"
          download-size="0"
          install-size="0"
          version="0.0.0"

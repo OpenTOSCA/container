@@ -21,154 +21,157 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @XmlRootElement(name = "Resources")
 public class ResourceSupport {
-	
-	@JsonSerialize(using = LinksSerializer.class)
-	private final List<Link> links = new ArrayList<>();
-	
-	
-	public ResourceSupport() {
-		
-	}
-	
-	/**
-	 * Returns all {@link Link}s contained in this resource.
-	 *
-	 * @return
-	 */
-	@XmlElement(name = "Link")
-	@XmlElementWrapper(name = "Links")
-	@XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-	@JsonProperty("_links")
-	public List<Link> getLinks() {
-		return this.links;
-	}
 
-	/**
-	 * Adds the given link to the resource.
-	 *
-	 * @param link
-	 */
-	public void add(final Link link) {
-		Objects.requireNonNull(link, "Link must not be null!");
-		this.links.add(link);
-	}
+    @JsonSerialize(using = LinksSerializer.class)
+    private final List<Link> links = new ArrayList<>();
 
-	/**
-	 * Adds all given {@link Link}s to the resource.
-	 *
-	 * @param links
-	 */
-	public void add(final Iterable<Link> links) {
-		Objects.requireNonNull(links, "Given links must not be null!");
-		for (final Link candidate : links) {
-			this.add(candidate);
-		}
-	}
 
-	/**
-	 * Adds all given {@link Link}s to the resource.
-	 *
-	 * @param links must not be {@literal null}.
-	 */
-	public void add(final Link... links) {
-		Objects.requireNonNull(links, "Given links must not be null!");
-		this.add(Arrays.asList(links));
-	}
+    public ResourceSupport() {
 
-	/**
-	 * Returns whether the resource contains {@link Link}s at all.
-	 *
-	 * @return
-	 */
-	public boolean hasLinks() {
-		return !this.links.isEmpty();
-	}
+    }
 
-	/**
-	 * Returns whether the resource contains a {@link Link} with the given rel.
-	 *
-	 * @param rel
-	 * @return
-	 */
-	public boolean hasLink(final String rel) {
-		return this.getLink(rel) != null;
-	}
+    /**
+     * Returns all {@link Link}s contained in this resource.
+     *
+     * @return
+     */
+    @XmlElement(name = "Link")
+    @XmlElementWrapper(name = "Links")
+    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
+    @JsonProperty("_links")
+    public List<Link> getLinks() {
+        return this.links;
+    }
 
-	/**
-	 * Removes all {@link Link}s added to the resource so far.
-	 */
-	public void removeLinks() {
-		this.links.clear();
-	}
+    /**
+     * Adds the given link to the resource.
+     *
+     * @param link
+     */
+    public void add(final Link link) {
+        Objects.requireNonNull(link, "Link must not be null!");
+        this.links.add(link);
+    }
 
-	/**
-	 * Returns the link with the given rel.
-	 *
-	 * @param rel
-	 * @return the link with the given rel or {@literal null} if none found.
-	 */
-	public Link getLink(final String rel) {
-		for (final Link link : this.links) {
-			if (link.getRel().equals(rel)) {
-				return link;
-			}
-		}
-		return null;
-	}
+    /**
+     * Adds all given {@link Link}s to the resource.
+     *
+     * @param links
+     */
+    public void add(final Iterable<Link> links) {
+        Objects.requireNonNull(links, "Given links must not be null!");
+        for (final Link candidate : links) {
+            this.add(candidate);
+        }
+    }
 
-	/**
-	 * Returns all {@link Link}s with the given relation type.
-	 *
-	 * @return the links in a {@link List}
-	 */
-	public List<Link> getLinks(final String rel) {
-		final List<Link> relatedLinks = new ArrayList<>();
-		for (final Link link : this.links) {
-			if (link.getRel().equals(rel)) {
-				relatedLinks.add(link);
-			}
-		}
-		return relatedLinks;
-	}
+    /**
+     * Adds all given {@link Link}s to the resource.
+     *
+     * @param links must not be {@literal null}.
+     */
+    public void add(final Link... links) {
+        Objects.requireNonNull(links, "Given links must not be null!");
+        this.add(Arrays.asList(links));
+    }
 
-	@Override
-	public String toString() {
-		return String.format("links: %s", this.links.toString());
-	}
-	
-	
-	private static class LinksSerializer extends JsonSerializer<List<Link>> {
+    /**
+     * Returns whether the resource contains {@link Link}s at all.
+     *
+     * @return
+     */
+    public boolean hasLinks() {
+        return !this.links.isEmpty();
+    }
 
-		@Override
-		public void serialize(final List<Link> links, final JsonGenerator json, final SerializerProvider provider) throws IOException, JsonProcessingException {
-			if (links.isEmpty()) {
-				return;
-			}
-			final LinkSerializer delegate = new LinkSerializer();
-			json.writeStartObject();
-			for (final Link link : links) {
-				delegate.serialize(link, json, provider);
-			}
-			json.writeEndObject();
-		}
-	}
-	
-	private static class LinkSerializer extends JsonSerializer<Link> {
-		
-		@Override
-		public void serialize(final Link link, final JsonGenerator json, final SerializerProvider provider) throws IOException, JsonProcessingException {
-			if ((link.getUri() == null) || (link.getRel() == null) || link.getRel().isEmpty()) {
-				return;
-			}
-			json.writeObjectFieldStart(link.getRel());
-			json.writeStringField("href", link.getUri().toString());
-			if ((link.getTitle() != null) && !link.getTitle().isEmpty()) {
-				json.writeStringField(Link.TITLE, link.getTitle());
-			}
-			if ((link.getType() != null) && !link.getType().isEmpty()) {
-				json.writeStringField(Link.TYPE, link.getType());
-			}
-			json.writeEndObject();
-		}
-	}
+    /**
+     * Returns whether the resource contains a {@link Link} with the given rel.
+     *
+     * @param rel
+     * @return
+     */
+    public boolean hasLink(final String rel) {
+        return getLink(rel) != null;
+    }
+
+    /**
+     * Removes all {@link Link}s added to the resource so far.
+     */
+    public void removeLinks() {
+        this.links.clear();
+    }
+
+    /**
+     * Returns the link with the given rel.
+     *
+     * @param rel
+     * @return the link with the given rel or {@literal null} if none found.
+     */
+    public Link getLink(final String rel) {
+        for (final Link link : this.links) {
+            if (link.getRel().equals(rel)) {
+                return link;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns all {@link Link}s with the given relation type.
+     *
+     * @return the links in a {@link List}
+     */
+    public List<Link> getLinks(final String rel) {
+        final List<Link> relatedLinks = new ArrayList<>();
+        for (final Link link : this.links) {
+            if (link.getRel().equals(rel)) {
+                relatedLinks.add(link);
+            }
+        }
+        return relatedLinks;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("links: %s", this.links.toString());
+    }
+
+
+    public static class LinksSerializer extends JsonSerializer<List<Link>> {
+
+        @Override
+        public void serialize(final List<Link> links, final JsonGenerator json,
+                              final SerializerProvider provider) throws IOException, JsonProcessingException {
+            if (links.isEmpty()) {
+                return;
+            }
+            final LinkSerializer delegate = new LinkSerializer();
+            json.writeStartObject();
+            for (final Link link : links) {
+                delegate.serialize(link, json, provider);
+            }
+            json.writeEndObject();
+        }
+    }
+
+
+    public static class LinkSerializer extends JsonSerializer<Link> {
+
+        @Override
+        public void serialize(final Link link, final JsonGenerator json,
+                              final SerializerProvider provider) throws IOException, JsonProcessingException {
+            if (link.getUri() == null || link.getRel() == null || link.getRel().isEmpty()) {
+                return;
+            }
+            json.writeObjectFieldStart(link.getRel());
+            json.writeStringField("href", link.getUri().toString());
+            if (link.getTitle() != null && !link.getTitle().isEmpty()) {
+                json.writeStringField(Link.TITLE, link.getTitle());
+            }
+            if (link.getType() != null && !link.getType().isEmpty()) {
+                json.writeStringField(Link.TYPE, link.getType());
+            }
+            json.writeEndObject();
+        }
+    }
 }
