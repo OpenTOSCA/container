@@ -140,7 +140,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
 
                 // instanceDataAPI handling is done solely trough this extension
-                this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+                this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                    newTerminationPlan);
 
                 // initialize instanceData handling, add

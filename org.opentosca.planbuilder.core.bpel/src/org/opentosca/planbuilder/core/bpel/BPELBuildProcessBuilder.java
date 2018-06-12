@@ -151,7 +151,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // newBuildPlan.setCsarName(csarName);
 
 
-                this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+                this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                    newBuildPlan);
 
                 final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
