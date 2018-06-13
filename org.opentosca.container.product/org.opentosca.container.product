@@ -241,11 +241,11 @@
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.url" value="http://localhost:8090" />
       <property name="org.opentosca.container.engine.ia.plugin.tomcat.username" value="admin" />
       <property name="org.opentosca.container.engine.ia.port" value="8090" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.engine" value="BPS" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.password" value="admin" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.services.url" value="http://localhost:9763/services" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.url" value="http://localhost:9443/" />
-      <property name="org.opentosca.container.engine.plan.plugin.bpel.username" value="admin" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.engine" value="ODE" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.password" value="" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.services.url" value="http://localhost:9763/ode/processes" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.url" value="http://localhost:9763/ode" />
+      <property name="org.opentosca.container.engine.plan.plugin.bpel.username" value="" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
    </configurations>
