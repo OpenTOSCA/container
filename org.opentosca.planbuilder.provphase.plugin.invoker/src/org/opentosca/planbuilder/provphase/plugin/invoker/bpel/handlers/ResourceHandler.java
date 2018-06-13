@@ -312,7 +312,13 @@ public class ResourceHandler {
         // first the easy ones
         assignTemplateString = assignTemplateString.replace("{csarName}", csarName);
         assignTemplateString = assignTemplateString.replace("{serviceInstanceID}", "");
-        assignTemplateString = assignTemplateString.replace("{nodeInstanceID}", "");
+
+        if (nodeInstanceIdVarName != null) {
+            assignTemplateString = assignTemplateString.replace("{nodeInstanceID}", "");
+        } else {
+            assignTemplateString =
+                assignTemplateString.replace("<impl:NodeInstanceID>{nodeInstanceID}</impl:NodeInstanceID>", "");
+        }
         assignTemplateString = assignTemplateString.replace("{serviceTemplateNS}", serviceTemplateId.getNamespaceURI());
         assignTemplateString =
             assignTemplateString.replace("{serviceTemplateLocalName}", serviceTemplateId.getLocalPart());
@@ -365,10 +371,12 @@ public class ResourceHandler {
         serviceInstanceCopyString = serviceInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
         assignTemplateString = assignTemplateString.replace("{copies}", serviceInstanceCopyString + "{copies}");
 
-        String nodeInstanceCopyString =
-            generateNodeInstanceIdCopy(nodeInstanceIdVarName, requestVarName, requestVarPartName);
-        nodeInstanceCopyString = nodeInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-        assignTemplateString = assignTemplateString.replace("{copies}", nodeInstanceCopyString + "{copies}");
+        if (nodeInstanceIdVarName != null) {
+            String nodeInstanceCopyString =
+                generateNodeInstanceIdCopy(nodeInstanceIdVarName, requestVarName, requestVarPartName);
+            nodeInstanceCopyString = nodeInstanceCopyString.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+            assignTemplateString = assignTemplateString.replace("{copies}", nodeInstanceCopyString + "{copies}");
+        }
 
         assignTemplateString = assignTemplateString.replace("{copies}", "");
 

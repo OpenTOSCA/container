@@ -21,6 +21,7 @@ import org.opentosca.container.core.tosca.convention.Properties;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
+import org.opentosca.planbuilder.model.plan.AbstractPlan.PlanType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
@@ -64,24 +65,12 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         }
     }
 
-
-
-    private void appendLOGActivity(final BPELPlanContext context, final String operation) {
+    public void appendLOGMessageActivity(final BPELPlanContext context, final String message,
+                                         final BPELPlanContext.Phase phase) {
         String logMessageTempStringVarName = null;
         String logMessageContent = null;
-        if (context.getNodeTemplate() != null) {
-            logMessageTempStringVarName = "instanceDataLogMsg_" + context.getNodeTemplate().getId().replace(".", "_")
-                + "_" + operation + "_" + System.currentTimeMillis();
-            logMessageContent =
-                "Executing operation " + operation + " of NodeTemplate " + context.getNodeTemplate().getId();
-        } else {
-            logMessageTempStringVarName = "instanceDataLogMsg_" + context.getRelationshipTemplate().getId()
-                + (operation != null ? "_" + operation : "") + "_" + System.currentTimeMillis();
-            logMessageContent = "Executing " + (operation != null ? "operation " + operation + " of " : "")
-                + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "";
-        }
-
-
+        logMessageTempStringVarName = "instanceDataLogMsg_" + System.currentTimeMillis();
+        logMessageContent = message;
 
         // create variables
         logMessageTempStringVarName =
@@ -99,7 +88,19 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
                                                                                           logMessageReqVarName);
             logPOSTNode = context.importNode(logPOSTNode);
 
-            context.getProvisioningPhaseElement().appendChild(logPOSTNode);
+            switch (phase) {
+                case PRE:
+                    context.getPrePhaseElement().appendChild(logPOSTNode);
+                    break;
+                case PROV:
+                    context.getProvisioningPhaseElement().appendChild(logPOSTNode);
+                    break;
+                case POST:
+                    context.getPostPhaseElement().appendChild(logPOSTNode);
+                    break;
+
+            }
+
 
         }
         catch (final IOException e) {
@@ -320,17 +321,34 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         // add request message assign to prov phase scope
         try {
-            Node assignNode =
-                this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
-                                                                                      serviceInstanceIdVarName,
-                                                                                      nodeInstanceUrlVarName,
-                                                                                      operationName,
-                                                                                      String.valueOf(System.currentTimeMillis()),
-                                                                                      requestVariableName,
-                                                                                      InputMessagePartName,
-                                                                                      interfaceName, isNodeTemplate,
-                                                                                      templateId,
-                                                                                      internalExternalPropsInput);
+            Node assignNode = null;
+            // TODO FIXME See line 570
+            if (context.getPlanType().equals(PlanType.TERMINATE)) {
+                assignNode =
+                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
+                                                                                          serviceInstanceIdVarName,
+                                                                                          null, operationName,
+                                                                                          String.valueOf(System.currentTimeMillis()),
+                                                                                          requestVariableName,
+                                                                                          InputMessagePartName,
+                                                                                          interfaceName, isNodeTemplate,
+                                                                                          templateId,
+                                                                                          internalExternalPropsInput);
+
+            } else {
+                assignNode =
+                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(csarId, serviceTemplateId,
+                                                                                          serviceInstanceIdVarName,
+                                                                                          nodeInstanceUrlVarName,
+                                                                                          operationName,
+                                                                                          String.valueOf(System.currentTimeMillis()),
+                                                                                          requestVariableName,
+                                                                                          InputMessagePartName,
+                                                                                          interfaceName, isNodeTemplate,
+                                                                                          templateId,
+                                                                                          internalExternalPropsInput);
+            }
+
             assignNode = context.importNode(assignNode);
 
             Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
@@ -380,7 +398,17 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             return false;
         }
 
-        appendLOGActivity(context, operation.getName());
+
+        if (context.getNodeTemplate() != null) {
+
+            appendLOGMessageActivity(context, "Executing operation " + operation + " of NodeTemplate "
+                + context.getNodeTemplate().getId(), BPELPlanContext.Phase.PROV);
+        } else {
+            appendLOGMessageActivity(context,
+                                     "Executing " + (operation != null ? "operation " + operation + " of " : "")
+                                         + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "",
+                                     BPELPlanContext.Phase.PROV);
+        }
 
         // invoke service invoker
         // add invoke
@@ -537,18 +565,43 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
         // add request message assign to prov phase scope
         try {
-            Node assignNode =
-                this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
-                                                                                      context.getServiceTemplateId(),
-                                                                                      serviceInstanceIdVarName,
-                                                                                      nodeInstanceUrlVarName,
-                                                                                      operationName,
-                                                                                      String.valueOf(System.currentTimeMillis()),
-                                                                                      requestVariableName,
-                                                                                      InputMessagePartName,
-                                                                                      interfaceName, isNodeTemplate,
-                                                                                      templateId,
-                                                                                      internalExternalPropsInput);
+            Node assignNode = null;
+            if (context.getPlanType().equals(PlanType.TERMINATE)) {
+                // TODO FIXME, right now the termination plans are able to call operations of node Instances for
+                // that the instanceID can be null at runtime e.g. when removing a DockerContainer the operation
+                // removeContainer of the DockerEngine is called for that the nodeInstanceId is not fetched at the
+                // time
+                // of removal
+                // TIP this issue theoretically happens only with the "container deployment pattern" were a hosting
+                // node has the operations needed to manage a component => different termination handling for such
+                // components is needed
+                assignNode =
+                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
+                                                                                          context.getServiceTemplateId(),
+                                                                                          serviceInstanceIdVarName,
+                                                                                          null, operationName,
+                                                                                          String.valueOf(System.currentTimeMillis()),
+                                                                                          requestVariableName,
+                                                                                          InputMessagePartName,
+                                                                                          interfaceName, isNodeTemplate,
+                                                                                          templateId,
+                                                                                          internalExternalPropsInput);
+
+            } else {
+
+                assignNode =
+                    this.resHandler.generateInvokerRequestMessageInitAssignTemplateAsNode(context.getCSARFileName(),
+                                                                                          context.getServiceTemplateId(),
+                                                                                          serviceInstanceIdVarName,
+                                                                                          nodeInstanceUrlVarName,
+                                                                                          operationName,
+                                                                                          String.valueOf(System.currentTimeMillis()),
+                                                                                          requestVariableName,
+                                                                                          InputMessagePartName,
+                                                                                          interfaceName, isNodeTemplate,
+                                                                                          templateId,
+                                                                                          internalExternalPropsInput);
+            }
             assignNode = context.importNode(assignNode);
 
             Node addressingCopyInit = this.resHandler.generateAddressingInitAsNode(requestVariableName);
@@ -602,7 +655,16 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
             return false;
         }
 
-        appendLOGActivity(context, operationName);
+        if (context.getNodeTemplate() != null) {
+
+            appendLOGMessageActivity(context, "Executing operation " + operationName + " of NodeTemplate "
+                + context.getNodeTemplate().getId(), BPELPlanContext.Phase.PROV);
+        } else {
+            appendLOGMessageActivity(context,
+                                     "Executing " + (operationName != null ? "operation " + operationName + " of " : "")
+                                         + "RelationshipTemplate " + context.getRelationshipTemplate().getId() + "",
+                                     BPELPlanContext.Phase.PROV);
+        }
         // invoke service invoker
         // add invoke
         try {
