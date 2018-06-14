@@ -143,15 +143,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                         final QName artifactTemplateID =
                             ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                    nodeTypeImplementationID,
-                                                                                                                                    implementationArtifactName);
+                                                                                                                                    nodeTypeImplementationID, implementationArtifactName);
                         ManagementBusServiceImpl.LOG.debug("artifactTemplateID: {}", artifactTemplateID.toString());
 
-                        final String artifactType =
-                            ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                nodeTypeImplementationID,
-                                                                                                                                implementationArtifactName)
-                                                             .toString();
+                        final String artifactType = ServiceHandler.toscaEngineService
+                                                                                     .getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                                                        nodeTypeImplementationID,
+                                                                                                                                                        implementationArtifactName)
+                                                                                     .toString();
 
                         invocationType = isSupported(artifactType, csarID, artifactTemplateID);
 
@@ -194,9 +193,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                                   neededOperation);
                                 final boolean hasOutputParams =
                                     ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID,
-                                                                                                                   nodeTypeID,
-                                                                                                                   neededInterface,
-                                                                                                                   neededOperation);
+                                                                                                                   nodeTypeID, neededInterface, neededOperation);
 
                                 if (hasInputParams && !hasOutputParams) {
                                     message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
@@ -206,8 +203,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                 final Document specificContent =
                                     ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                                   nodeTypeImplementationID,
-                                                                                                                                                   implementationArtifactName);
+                                                                                                                                                   nodeTypeImplementationID, implementationArtifactName);
 
                                 if (specificContent != null) {
 
@@ -269,11 +265,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                                                             implementationArtifactName);
                         ManagementBusServiceImpl.LOG.debug("artifactTemplateID: {}", artifactTemplateID.toString());
 
-                        final String artifactType =
-                            ServiceHandler.toscaEngineService.getArtifactTypeOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
-                                                                                                                                        relationshipTypeImplementationID,
-                                                                                                                                        implementationArtifactName)
-                                                             .toString();
+                        final String artifactType = ServiceHandler.toscaEngineService
+                                                                                     .getArtifactTypeOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                                                                                relationshipTypeImplementationID,
+                                                                                                                                                                implementationArtifactName)
+                                                                                     .toString();
 
                         invocationType = isSupported(artifactType, csarID, artifactTemplateID);
 
@@ -634,8 +630,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     /**
      *
-     * Updates the input parameters. If instance data are available the provided input parameters will
-     * be overwritten with them.
+     * Updates the input parameters. If instance data are available the provided input parameters
+     * will be overwritten with them.
      *
      * @param inputParams
      * @param csarID
@@ -679,13 +675,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     MBUtils.getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID.trim(),
                                                       serviceInstanceID);
 
-                ManagementBusServiceImpl.LOG.debug("Found following properties: ");
-
-                for (final String key : propertiesMap.keySet()) {
-                    ManagementBusServiceImpl.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
-                }
-
                 if (propertiesMap != null) {
+
+                    ManagementBusServiceImpl.LOG.debug("Found following properties: ");
+
+                    for (final String key : propertiesMap.keySet()) {
+                        ManagementBusServiceImpl.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
+                    }
 
                     final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
                     final List<String> supportedInstanceIdPropertyNames =
