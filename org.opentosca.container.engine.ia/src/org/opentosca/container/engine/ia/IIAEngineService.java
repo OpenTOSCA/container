@@ -37,13 +37,14 @@ public interface IIAEngineService {
      * <br>
      *
      * This method should be called to deploy Implementation Artifacts.<br>
-     * It will also check if an Implementation Artifact needs to be deployed or if it is sufficient to
-     * store just a new endpoint with updated information.
+     * It will also check if an Implementation Artifact needs to be deployed or if it is sufficient
+     * to store just a new endpoint with updated information.
      *
      * @param serviceTemplateID - ID of the ServiceTemplate to be processed.
      * @param csarID - ID of the CSAR file currently being processed.
-     * @return Name of Implementation Artifacts that where not successfully deployed, <code>empty</code>
-     *         if all Artifacts were deployed or <code>null</code> if TNodeType Object was null.
+     * @return Name of Implementation Artifacts that where not successfully deployed,
+     *         <code>empty</code> if all Artifacts were deployed or <code>null</code> if TNodeType
+     *         Object was null.
      */
     public List<String> deployImplementationArtifacts(CSARID csarID, QName serviceTemplateID);
 
@@ -55,7 +56,8 @@ public interface IIAEngineService {
      *
      *
      * @param csarID - ID of the CSAR file of which the IAs should be undeployed.
-     * @return <code>true</code> if all IAs were undeployed successfully. Otherwise <code>null</code>.
+     * @return <code>true</code> if all IAs were undeployed successfully. Otherwise
+     *         <code>false</code>.
      */
     public boolean undeployImplementationArtifacts(CSARID csarID);
 }
