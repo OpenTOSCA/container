@@ -86,52 +86,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
      * {@inheritDoc}
      */
     @Override
-    public Boolean invokeIADeployment(final CSARID csarID, final QName serviceTemplateID) {
-
-        OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                                                                               DeploymentProcessState.IA_DEPLOYMENT_ACTIVE);
-
-        if (OpenToscaControlServiceImpl.iAEngine != null) {
-
-            // invoke IAEngine
-            this.LOG.info("Invoke the IAEngine for processing the ServiceTemplate \"" + serviceTemplateID
-                + "\" of the CSAR \"" + csarID + "\".");
-
-            final List<String> undeployedIAs =
-                OpenToscaControlServiceImpl.iAEngine.deployImplementationArtifacts(csarID, serviceTemplateID);
-
-            if (undeployedIAs == null) {
-                this.LOG.error("It was not possible to deploy the ServiceTemplate \"" + serviceTemplateID
-                    + "\" of the CSAR \"" + csarID + "\".");
-                OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                                                                                       DeploymentProcessState.TOSCA_PROCESSED);
-                return false;
-            } else if (undeployedIAs.size() > 0) {
-                OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                                                                                       DeploymentProcessState.IAS_DEPLOYED);
-                for (final String undeployedIAName : undeployedIAs) {
-                    this.LOG.error("The ImplementationArtifact \"" + undeployedIAName + "\" was not deployed.");
-                }
-                return true;
-            }
-
-        } else {
-            this.LOG.error("IAEngine is not alive!");
-            OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                                                                                   DeploymentProcessState.TOSCA_PROCESSED);
-            return false;
-        }
-
-        OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
-                                                                               DeploymentProcessState.IAS_DEPLOYED);
-        this.LOG.info("Deployment of the ImplementationArtifacts was successfull.");
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Boolean invokePlanDeployment(final CSARID csarID, final QName serviceTemplateID) {
 
         OpenToscaControlServiceImpl.coreDeploymentTracker.storeDeploymentState(csarID,
