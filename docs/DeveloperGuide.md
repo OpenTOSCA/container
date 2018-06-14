@@ -85,7 +85,7 @@ be done in all workspaces.
 
 1. In Eclipse choose "**Preferences**" in the Window menu.
 2. Go to "**Server**", then "**Runtime Environments**" and click on "**Add...**".
-3. The wizard "**New Server Runtime Environment**" appears. select in the list "**Apache Tomcat v. 7.0**"
+3. The wizard "**New Server Runtime Environment**" appears. select in the list "**Apache Tomcat v8.5**"
    and click on "**Next**".
 4. If you already installed Tomcat define its path at "**Tomcat installation directionary**". 
    Otherwise you can download and install it directly from Eclipse by clicking on "**Download and Install**",
