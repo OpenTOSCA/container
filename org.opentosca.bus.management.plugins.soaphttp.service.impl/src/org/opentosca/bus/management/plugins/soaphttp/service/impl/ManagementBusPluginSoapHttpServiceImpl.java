@@ -70,7 +70,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
         final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
         String endpoint = message.getHeader(MBHeader.ENDPOINT_URI.toString(), String.class);
 
-        final Boolean hastOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
+        final Boolean hasOutputParams = message.getHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), Boolean.class);
         final String csarID = message.getHeader(MBHeader.CSARID.toString(), String.class);
 
         if (!endpoint.endsWith("?wsdl")) {
@@ -166,7 +166,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                             // request-only
                             if (op.getInput() != null) {
 
-                                if (op.getOutput() == null && hastOutputParams) {
+                                if (op.getOutput() == null && hasOutputParams) {
                                     messagingPattern = this.CALLBACK;
 
                                     final String callbackAddress = AsyncRoute.PUBLIC_CALLBACKADDRESS;
@@ -197,7 +197,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
                                                     "http://localhost:9763/services/" + csarID + "InvokerService/");
                                     }
 
-                                } else if (op.getOutput() == null && !hastOutputParams) {
+                                } else if (op.getOutput() == null && !hasOutputParams) {
                                     messagingPattern = this.REQUEST_ONLY;
 
                                 } else {
@@ -223,7 +223,7 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
             document = (Document) params;
 
 
-            messagingPattern = determineMP(message, operationName, hastOutputParams, endpoint);
+            messagingPattern = determineMP(message, operationName, hasOutputParams, endpoint);
         }
 
         if (messagingPattern == null) {
@@ -276,7 +276,6 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
 
                 }
                 catch (final Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
@@ -325,8 +324,8 @@ public class ManagementBusPluginSoapHttpServiceImpl implements IManagementBusPlu
      *
      * @param endpoint of the wsdl to check.
      * @param operationName to check.
-     * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>. If
-     *         operation can't be found <code>null</code> is returned.
+     * @return <code>true</code> if operation returns output params. Otherwise <code>false</code>.
+     *         If operation can't be found <code>null</code> is returned.
      */
     private Boolean hasOutputDefinedInWSDL(final String endpoint, final String operationName) {
 
