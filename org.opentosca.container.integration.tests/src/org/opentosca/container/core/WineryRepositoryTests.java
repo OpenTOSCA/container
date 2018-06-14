@@ -10,7 +10,6 @@ import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.configuration.FileBasedRepositoryConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opentosca.container.core.next.utils.Consts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,7 @@ public class WineryRepositoryTests {
 
     @Test
     public void testTryOut() throws Exception {
-        final Path csarRoot = Paths.get(Consts.TMPDIR, "opentosca", "CSARs");
+        final Path csarRoot = Paths.get(System.getProperty("java.io.tmpdir"), "opentosca", "CSARs");
         // ensures csar-root exists
         Files.createDirectories(csarRoot);
         final DirectoryStream<Path> stream = Files.newDirectoryStream(csarRoot, entry -> Files.isDirectory(entry));

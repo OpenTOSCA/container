@@ -17,8 +17,8 @@ Import-Package: org.apache.camel;version="2.10.4",
  org.apache.cxf.headers;version="2.7.3",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.7.5"
-Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
- org.opentosca.bus.application.model;bundle-version="1.0.0",
- org.opentosca.bus.application.service;bundle-version="1.0.0"
+Require-Bundle: org.opentosca.container.core;bundle-version="2.0.0",
+ org.opentosca.bus.application.model;bundle-version="2.0.0",
+ org.opentosca.bus.application.service;bundle-version="2.0.0"
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy

@@ -4,12 +4,12 @@ Bundle-Name: Context
 Bundle-SymbolicName: org.opentosca.planbuilder.model
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.apache.ode.activityrecovery,
- org.apache.ode.schemas.dd._2007._03,
- org.opentosca.planbuilder.model.plan,
- org.opentosca.planbuilder.model.plan.bpel,
- org.opentosca.planbuilder.model.tosca,
- org.opentosca.planbuilder.model.utils
+Export-Package: org.apache.ode.activityrecovery;version="2.0.0",
+ org.apache.ode.schemas.dd._2007._03;version="2.0.0",
+ org.opentosca.planbuilder.model.plan;version="2.0.0",
+ org.opentosca.planbuilder.model.plan.bpel;version="2.0.0",
+ org.opentosca.planbuilder.model.tosca;version="2.0.0",
+ org.opentosca.planbuilder.model.utils;version="2.0.0"
 Import-Package: org.apache.commons.io;version="2.2.0",
  org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",
  org.opentosca.planbuilder.model.plan.bpel,
@@ -17,4 +17,4 @@ Import-Package: org.apache.commons.io;version="2.2.0",
  org.slf4j;version="1.7.10"
 Bundle-ClassPath: .,
  META-INF/resources/
-Require-Bundle: org.opentosca.container.core.tosca;bundle-version="2.0.0"
+Require-Bundle: org.opentosca.container.core.tosca

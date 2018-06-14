@@ -5,14 +5,22 @@ Bundle-SymbolicName: org.opentosca.container.control
 Bundle-Version: 2.0.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: org.opentosca.container.engine.plan,
+Import-Package: org.opentosca.bus.management.service;version="2.0.0",
+ org.opentosca.container.core.common;version="2.0.0",
+ org.opentosca.container.core.engine;version="2.0.0",
+ org.opentosca.container.core.engine.xml;version="2.0.0",
+ org.opentosca.container.core.model.csar.id;version="2.0.0",
+ org.opentosca.container.core.model.deployment.process;version="2.0.0",
+ org.opentosca.container.core.model.instance;version="2.0.0",
+ org.opentosca.container.core.service;version="2.0.0",
+ org.opentosca.container.core.service.internal;version="2.0.0",
+ org.opentosca.container.core.tosca.extension;version="2.0.0",
+ org.opentosca.container.core.tosca.model;version="2.0.0",
+ org.opentosca.container.engine.ia;version="2.0.0",
+ org.opentosca.container.engine.plan;version="2.0.0",
  org.osgi.framework;version="1.8.0",
  org.osgi.service.event;version="1.2.0",
  org.slf4j;version="1.7.10"
-Export-Package: org.opentosca.container.control
-Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
- org.opentosca.container.core.tosca,
- org.opentosca.container.engine.ia,
- org.opentosca.bus.management.service;bundle-version="1.0.0"
+Export-Package: org.opentosca.container.control;version="2.0.0"
 Bundle-Activator: org.opentosca.container.control.Activator
 Service-Component: OSGI-INF/*

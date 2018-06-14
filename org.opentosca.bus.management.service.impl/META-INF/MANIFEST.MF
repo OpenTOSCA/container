@@ -7,13 +7,20 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.core.osgi;version="2.10.4",
  org.apache.camel.impl;version="2.10.4",
+ org.opentosca.bus.management.header;version="2.0.0",
+ org.opentosca.bus.management.plugins.service;version="2.0.0",
+ org.opentosca.bus.management.service;version="2.0.0",
+ org.opentosca.bus.management.utils;version="2.0.0",
+ org.opentosca.container.core;version="2.0.0",
+ org.opentosca.container.core.engine;version="2.0.0",
+ org.opentosca.container.core.model.csar.id;version="2.0.0",
+ org.opentosca.container.core.model.endpoint;version="2.0.0",
+ org.opentosca.container.core.model.endpoint.wsdl;version="2.0.0",
+ org.opentosca.container.core.service;version="2.0.0",
+ org.opentosca.container.core.tosca;version="2.0.0",
+ org.opentosca.container.core.tosca.convention;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.slf4j;version="1.6.4"
 Bundle-Activator: org.opentosca.bus.management.service.impl.Activator
-Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
- org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.bus.management;bundle-version="1.0.0",
- org.opentosca.bus.management.service;bundle-version="1.0.0",
- org.opentosca.bus.management.plugins.service;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*

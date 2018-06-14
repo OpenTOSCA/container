@@ -18,20 +18,23 @@ Import-Package: javax.servlet;version="2.5.0",
  org.apache.ode.schemas.dd._2007._03,
  org.glassfish.jersey.servlet;version="2.22.2",
  org.json.simple,
+ org.opentosca.container.core.common;version="2.0.0",
+ org.opentosca.container.core.model.csar.id;version="2.0.0",
+ org.opentosca.container.core.service;version="2.0.0",
+ org.opentosca.planbuilder.export;version="2.0.0",
+ org.opentosca.planbuilder.importer;version="2.0.0",
+ org.opentosca.planbuilder.integration.layer;version="2.0.0",
+ org.opentosca.planbuilder.model.plan;version="2.0.0",
+ org.opentosca.planbuilder.model.plan.bpel;version="2.0.0",
+ org.opentosca.planbuilder.model.tosca;version="2.0.0",
  org.osgi.framework;version="1.6.0",
  org.osgi.service.component;version="1.1.0",
  org.osgi.service.http;version="1.2.1",
  org.slf4j;version="1.7.5"
 Bundle-Activator: org.opentosca.planbuilder.service.Activator
 Service-Component: OSGI-INF/*
-Export-Package: org.eclipse.winery.model.selfservice,
- org.opentosca.planbuilder.service,
- org.opentosca.planbuilder.service.model,
- org.opentosca.planbuilder.service.resources
+Export-Package: org.eclipse.winery.model.selfservice;version="2.0.0",
+ org.opentosca.planbuilder.service;version="2.0.0",
+ org.opentosca.planbuilder.service.model;version="2.0.0",
+ org.opentosca.planbuilder.service.resources;version="2.0.0"
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
- org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder.export;bundle-version="1.0.0",
- org.opentosca.planbuilder.importer;bundle-version="1.0.0",
- org.opentosca.planbuilder.integration;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0"

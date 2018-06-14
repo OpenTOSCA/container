@@ -6,13 +6,16 @@ Bundle-Version: 2.0.0.qualifier
 Test-Suite: org.opentosca.planbuilder.importer.test.ContextTestSuite2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.oasis_open.docs.tosca.ns._2011._12,
+ org.opentosca.container.core.common;version="2.0.0",
+ org.opentosca.container.core.model;version="2.0.0",
+ org.opentosca.container.core.model.csar;version="2.0.0",
+ org.opentosca.container.core.model.csar.id;version="2.0.0",
+ org.opentosca.container.core.next.xml;version="2.0.0",
+ org.opentosca.planbuilder.csarhandler;version="2.0.0",
+ org.opentosca.planbuilder.integration.layer;version="2.0.0",
+ org.opentosca.planbuilder.model.plan;version="2.0.0",
+ org.opentosca.planbuilder.model.tosca;version="2.0.0",
  org.slf4j;version="1.6.4"
 Export-Package: org.oasis_open.docs.tosca.ns._2011._12,
- org.opentosca.planbuilder.importer,
- org.opentosca.planbuilder.importer.context.impl
-Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
- org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.csarhandler;bundle-version="1.0.0",
- org.opentosca.planbuilder.integration;bundle-version="1.0.0"
+ org.opentosca.planbuilder.importer;version="2.0.0",
+ org.opentosca.planbuilder.importer.context.impl;version="2.0.0"

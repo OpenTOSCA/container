@@ -13,9 +13,9 @@ Export-Package: org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core
  org.opentosca.planbuilder.provphase.plugin.ansibleoperation.core.handler
 Bundle-ClassPath: .,
  META-INF/resources/
-Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
- org.opentosca.planbuilder;bundle-version="1.0.0",
- org.opentosca.planbuilder.model;bundle-version="1.0.0",
- org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0",
- org.opentosca.planbuilder.provphase.plugin.invoker;bundle-version="2.0.0"
+Require-Bundle: org.opentosca.container.core.tosca,
+ org.opentosca.planbuilder,
+ org.opentosca.planbuilder.model,
+ org.opentosca.planbuilder.core.bpel,
+ org.opentosca.planbuilder.provphase.plugin.invoker
 Bundle-Activator: org.opentosca.planbuilder.provphase.plugin.ansibleoperation.Activator

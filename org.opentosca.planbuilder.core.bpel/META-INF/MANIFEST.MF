@@ -13,12 +13,12 @@ Import-Package: javax.wsdl;version="1.6.0",
  org.apache.commons.io;version="2.2.0",
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.10"
-Export-Package: org.opentosca.planbuilder.core.bpel,
- org.opentosca.planbuilder.core.bpel.handlers,
- org.opentosca.planbuilder.core.bpel.helpers,
- org.opentosca.planbuilder.core.bpel.fragments,
- org.opentosca.planbuilder.core.bpel.context
+Export-Package: org.opentosca.planbuilder.core.bpel;version="2.0.0",
+ org.opentosca.planbuilder.core.bpel.handlers;version="2.0.0",
+ org.opentosca.planbuilder.core.bpel.helpers;version="2.0.0",
+ org.opentosca.planbuilder.core.bpel.fragments;version="2.0.0",
+ org.opentosca.planbuilder.core.bpel.context;version="2.0.0"
 Require-Bundle: org.opentosca.planbuilder.model;bundle-version="2.0.0",
- org.opentosca.planbuilder,
+ org.opentosca.planbuilder;bundle-version="2.0.0",
  org.opentosca.container.core.tosca;bundle-version="2.0.0",
  org.eclipse.core.runtime;bundle-version="3.12.0"
