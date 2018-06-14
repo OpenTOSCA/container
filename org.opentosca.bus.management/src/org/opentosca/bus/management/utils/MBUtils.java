@@ -72,15 +72,9 @@ public class MBUtils {
                     nodeTemplateID =
                         ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
                                                                                    nodeTemplateID,
-                                                                                   Types.deployedOnRelationType);
-
-                    if (nodeTemplateID == null) {
-                        nodeTemplateID =
-                            ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                                       nodeTemplateID,
-                                                                                       Types.dependsOnRelationType);
-                    }
+                                                                                   Types.dependsOnRelationType);
                 }
+
             }
 
             if (nodeTemplateID != null) {
@@ -135,8 +129,8 @@ public class MBUtils {
      *
      * @param csarID the CSAR Id where the referenced Node Type is declared
      * @param nodeType a QName of the Node Type to check
-     * @return a String containing the name of the OS interface, or if the given Node Type is not an OS
-     *         Node Type null
+     * @return a String containing the name of the OS interface, or if the given Node Type is not an
+     *         OS Node Type null
      */
     public static String getInterfaceForOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
         if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
@@ -197,8 +191,7 @@ public class MBUtils {
 
                 final String osIAInterface =
                     ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                     osNodeTypeImpl,
-                                                                                                                     osIAName);
+                                                                                                                     osNodeTypeImpl, osIAName);
 
                 MBUtils.LOG.debug("Interface: {} ", osIAInterface);
 
@@ -306,8 +299,8 @@ public class MBUtils {
      * @param serviceTemplateID
      * @param nodeTemplateID
      * @param serviceInstanceID
-     * @return the in the InstanceService stored properties for the specified parameters or null if it
-     *         can not be found.
+     * @return the in the InstanceService stored properties for the specified parameters or null if
+     *         it can not be found.
      */
     public static HashMap<String, String> getInstanceDataProperties(final CSARID csarID, final QName serviceTemplateID,
                                                                     final String nodeTemplateID,
@@ -330,10 +323,10 @@ public class MBUtils {
 
                 if (serviceInstance.getCSAR_ID().toString().equals(csarID.toString())) {
                     /**
-                     * This is a workaround. The first statement should work, but unfortunately does not (the list is
-                     * null / empty). We were not able to identify the root of the error, in debug mode it seemed to
-                     * work but in "production" mode not. Somehow the lazy loading mechanism of JPA / EclipseLink seems
-                     * to not work properly.
+                     * This is a workaround. The first statement should work, but unfortunately does
+                     * not (the list is null / empty). We were not able to identify the root of the
+                     * error, in debug mode it seemed to work but in "production" mode not. Somehow
+                     * the lazy loading mechanism of JPA / EclipseLink seems to not work properly.
                      */
                     // List<NodeInstance> nodeInstanceList =
                     // serviceInstance.getNodeInstances();
