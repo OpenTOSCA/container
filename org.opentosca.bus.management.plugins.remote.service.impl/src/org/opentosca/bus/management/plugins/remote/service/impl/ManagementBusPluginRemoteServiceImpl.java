@@ -92,15 +92,12 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
         ManagementBusPluginRemoteServiceImpl.LOG.debug("ServiceInstanceID: {}", serviceInstanceID);
         final String nodeInstanceID = message.getHeader(MBHeader.NODEINSTANCEID_STRING.toString(), String.class);
         ManagementBusPluginRemoteServiceImpl.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
-        final String engineIAPublicIP = message.getHeader(MBHeader.ENGINE_IA_PUBLIC_IP.toString(), String.class);
-        ManagementBusPluginRemoteServiceImpl.LOG.debug("ENGINE_IA_PUBLIC_IP: {}", engineIAPublicIP);
 
         if (nodeTemplateID == null && relationshipTemplateID != null) {
 
             final boolean isBoundToSourceNode =
                 ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, relationshipTypeID,
-                                                                                             interfaceName,
-                                                                                             operationName);
+                                                                                             interfaceName, operationName);
 
             if (isBoundToSourceNode) {
                 nodeTemplateID =
@@ -120,8 +117,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
         final List<String> outputParameters = new LinkedList<>();
         final boolean hasOutputParams =
             ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID, nodeTypeID,
-                                                                                           interfaceName,
-                                                                                           operationName);
+                                                                                           interfaceName, operationName);
         if (hasOutputParams) {
             final Node outputParametersNode =
                 ServiceHandler.toscaEngineService.getOutputParametersOfANodeTypeOperation(csarID, nodeTypeID,
@@ -179,7 +175,6 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         headers.put(MBHeader.INTERFACENAME_STRING.toString(),
                                     MBUtils.getInterfaceForOperatingSystemNodeType(csarID, osNodeTypeID));
                         headers.put(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceID);
-                        headers.put(MBHeader.ENGINE_IA_PUBLIC_IP.toString(), engineIAPublicIP);
 
                         // install packages
                         ManagementBusPluginRemoteServiceImpl.LOG.debug("Installing packages...");
@@ -248,9 +243,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP,
                                                                 "sudo -E "
                                                                     + createDANamePathMapEnvVar(csarID,
-                                                                                                serviceTemplateID,
-                                                                                                nodeTypeID,
-                                                                                                nodeTemplateID)
+                                                                                                serviceTemplateID, nodeTypeID, nodeTemplateID)
                                                                     + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                     + nodeInstanceID + "' ServiceInstanceID='"
                                                                     + serviceInstanceID + "' ");
@@ -323,7 +316,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                                                                    ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME,
                                                                    scriptResultString);
 
-                    // split result on line breaks as every parameter is returned in a separate "echo"
+                    // split result on line breaks as every parameter is returned in a separate
+                    // "echo"
                     // command
                     final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
 
@@ -405,8 +399,7 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
             for (final String daName : daNames) {
                 final QName daArtifactTemplate =
                     ServiceHandler.toscaEngineService.getArtifactTemplateOfADeploymentArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                        nodeTypeImpl,
-                                                                                                                        daName);
+                                                                                                                        nodeTypeImpl, daName);
 
                 daArtifactReferences =
                     ServiceHandler.toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID,
@@ -460,8 +453,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
     /**
      *
-     * Installs required and specified packages of the specified ArtifactType. Required packages are in
-     * defined the corresponding *.xml file.
+     * Installs required and specified packages of the specified ArtifactType. Required packages are
+     * in defined the corresponding *.xml file.
      *
      * @param artifactType
      * @param headers
@@ -565,8 +558,8 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
     /**
      *
-     * Creates ArtifactType specific commands that should be executed on the target machine. Commands to
-     * be executed are defined in the corresponding *.xml file.
+     * Creates ArtifactType specific commands that should be executed on the target machine.
+     * Commands to be executed are defined in the corresponding *.xml file.
      *
      * @param csarID
      * @param artifactType
