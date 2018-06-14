@@ -91,13 +91,13 @@ public class CSARsResource {
     @GET
     @Produces(ResourceConstants.LINKED_XML)
     public Response getReferencesXML() {
-        return Response.ok(this.getRefs().getXMLString()).build();
+        return Response.ok(getRefs().getXMLString()).build();
     }
 
     @GET
     @Produces(ResourceConstants.LINKED_JSON)
     public Response getReferencesJSON() {
-        return Response.ok(this.getRefs().getJSONString()).build();
+        return Response.ok(getRefs().getJSONString()).build();
     }
 
     public References getRefs() {
@@ -138,7 +138,7 @@ public class CSARsResource {
             final java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
 
             // try {
-            return this.handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
+            return handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
 
         }
         catch (final java.nio.file.InvalidPathException exc) {
@@ -146,7 +146,7 @@ public class CSARsResource {
             final java.nio.file.Path csarFile = Paths.get(fileLocation.trim());
 
             // try {
-            return this.handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
+            return handleCSAR(csarFile.getFileName().toString(), Files.newInputStream(csarFile));
 
         }
     }
@@ -206,22 +206,19 @@ public class CSARsResource {
         CSARsResource.LOG.debug("File name is \"" + fileName + "\".");
 
         try {
-            return this.handleCSAR(fileName, url.openStream());
+            return handleCSAR(fileName, url.openStream());
         }
         catch (final IOException e) {
             CSARsResource.LOG.error("There was an error while opening the input stream.");
             e.printStackTrace();
         }
         catch (final URISyntaxException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (final UserException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         catch (final SystemException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -230,8 +227,8 @@ public class CSARsResource {
 
     /**
      *
-     * Accepts the InputStream of a CSAR file. After storing and unzipping the CSAR the processing of
-     * TOSCA, IAs and BPEL-Plans is triggered.
+     * Accepts the InputStream of a CSAR file. After storing and unzipping the CSAR the processing
+     * of TOSCA, IAs and BPEL-Plans is triggered.
      *
      * @param uploadedInputStream
      * @param fileDetail
@@ -266,7 +263,7 @@ public class CSARsResource {
 
         final String fileName = fileDetail.getFileName();
 
-        return this.handleCSAR(fileName, uploadedInputStream);
+        return handleCSAR(fileName, uploadedInputStream);
 
     }
 
@@ -299,11 +296,11 @@ public class CSARsResource {
 
     public CSARID storeCSAR(final String fileName, final InputStream uploadedInputStream) {
         try {
-            final File uploadFile = this.storeTemporaryFile(fileName, uploadedInputStream);
+            final File uploadFile = storeTemporaryFile(fileName, uploadedInputStream);
             CSARID csarID = null;
             csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
 
-            csarID = this.startPlanBuilder(csarID);
+            csarID = startPlanBuilder(csarID);
 
             if (csarID != null) {
                 CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
@@ -318,17 +315,12 @@ public class CSARsResource {
 
                     for (final QName serviceTemplate : serviceTemplates) {
 
-                        CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate
+                        CSARsResource.LOG.debug("Invoke Plan Deployment for ServiceTemplate \"" + serviceTemplate
                             + "\" of CSAR \"" + csarID + "\".");
-                        if (!this.control.invokeIADeployment(csarID, serviceTemplate)) {
 
-                            break;
-                        }
+                        final boolean success = this.control.invokePlanDeployment(csarID, serviceTemplate);
 
-                        if (!this.control.invokePlanDeployment(csarID, serviceTemplate)) {
-
-                            break;
-                        }
+                        CSARsResource.LOG.debug("Plan Deployment was successful: {}", success);
 
                     }
                     return csarID;
@@ -355,7 +347,7 @@ public class CSARsResource {
                                final InputStream uploadedInputStream) throws IOException, URISyntaxException,
                                                                       UserException, SystemException {
 
-        final File uploadFile = this.storeTemporaryFile(fileName, uploadedInputStream);
+        final File uploadFile = storeTemporaryFile(fileName, uploadedInputStream);
 
         CSARID csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
 
@@ -393,13 +385,13 @@ public class CSARsResource {
             this.control.deleteCSAR(csarID);
             csarID = this.fileHandler.storeCSAR(uploadFile.toPath());
 
-            csarID = this.startPlanBuilder(csarID);
+            csarID = startPlanBuilder(csarID);
 
             toscaProcessed = false;
 
         }
 
-        this.processTOSCA(csarID, toscaProcessed);
+        processTOSCA(csarID, toscaProcessed);
 
         if (csarID != null) {
             CSARsResource.LOG.info("Storing CSAR file \"{}\" was successful.", csarID.toString());
@@ -456,17 +448,12 @@ public class CSARsResource {
 
             for (final QName serviceTemplate : serviceTemplates) {
 
-                CSARsResource.LOG.debug("Invoke IADeployment for ServiceTemplate \"" + serviceTemplate + "\" of CSAR \""
-                    + csarID + "\".");
-                if (!this.control.invokeIADeployment(csarID, serviceTemplate)) {
+                CSARsResource.LOG.debug("Invoke Plan Deployment for ServiceTemplate \"" + serviceTemplate
+                    + "\" of CSAR \"" + csarID + "\".");
 
-                    break;
-                }
+                final boolean success = this.control.invokePlanDeployment(csarID, serviceTemplate);
 
-                if (!this.control.invokePlanDeployment(csarID, serviceTemplate)) {
-
-                    break;
-                }
+                CSARsResource.LOG.debug("Plan Deployment was successful: {}", success);
 
             }
             return csarID;
@@ -476,12 +463,13 @@ public class CSARsResource {
     }
 
     /**
-     * Checks whether the root tosca definitions file, contains servicetemplates where no build plan is
-     * available. If there is no such plan available the plan builder starts to generate a build plan.
+     * Checks whether the root tosca definitions file, contains servicetemplates where no build plan
+     * is available. If there is no such plan available the plan builder starts to generate a build
+     * plan.
      *
      * @param csarId the CSARID of the definitions to generate build plans for
-     * @return a new CSARID for the repackaged csar if new build plans were generated, the same csarid
-     *         if no build plans were generated, else null
+     * @return a new CSARID for the repackaged csar if new build plans were generated, the same
+     *         csarid if no build plans were generated, else null
      */
     private CSARID startPlanBuilder(final CSARID csarId) {
         final Importer planBuilderImporter = new Importer();
@@ -513,8 +501,8 @@ public class CSARsResource {
     /**
      * Creates a (valid) XML ID (NCName) based on the passed name
      *
-     * Valid NCNames: http://www.w3.org/TR/REC-xml-names/#NT-NCName / http://www.w3.org/TR/xml/#NT-Name
-     * http://www.w3.org/TR/xml/#NT-Name
+     * Valid NCNames: http://www.w3.org/TR/REC-xml-names/#NT-NCName /
+     * http://www.w3.org/TR/xml/#NT-Name http://www.w3.org/TR/xml/#NT-Name
      *
      * @author oliver.kopp@iaas.uni-stuttgart.de license: Apache 2.0 without NOTICE
      *

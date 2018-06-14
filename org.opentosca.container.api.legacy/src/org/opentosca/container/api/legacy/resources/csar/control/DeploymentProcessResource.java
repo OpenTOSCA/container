@@ -97,24 +97,6 @@ public class DeploymentProcessResource {
                     }
                     break;
 
-                // case
-                case INVOKE_IA_DEPL:
-                    DeploymentProcessResource.LOG.info("OPERATION: {}", DeploymentProcessOperation.INVOKE_IA_DEPL);
-
-                    // Dirty hack. Needs some redesign
-                    if (params[1] == null) {
-                        return Response.serverError().build();
-                    } else {
-                        this.serviceTemplateId = QName.valueOf(params[1]);
-                    }
-
-                    if (IOpenToscaControlServiceHandler.getOpenToscaControlService()
-                                                       .invokeIADeployment(csarID, this.serviceTemplateId)) {
-                        return Response.ok().build();
-                    } else {
-                    }
-                    break;
-
                 case INVOKE_PLAN_DEPL:
                     DeploymentProcessResource.LOG.info("OPERATION: {}", DeploymentProcessOperation.INVOKE_PLAN_DEPL);
 
@@ -134,9 +116,9 @@ public class DeploymentProcessResource {
             }
         }
         /**
-         * 424 Method Failure (WebDAV)[13] Indicates the method was not executed on a particular resource
-         * within its scope because some part of the method's execution failed causing the entire method to
-         * be aborted.
+         * 424 Method Failure (WebDAV)[13] Indicates the method was not executed on a particular
+         * resource within its scope because some part of the method's execution failed causing the
+         * entire method to be aborted.
          */
         return Response.status(424).build();
     }
