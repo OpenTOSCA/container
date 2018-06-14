@@ -727,28 +727,28 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.remote.service.impl"
+         id="org.opentosca.bus.management.invocation.plugins.script"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.rest.service.impl"
+         id="org.opentosca.bus.management.invocation.plugins.rest"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.service"
+         id="org.opentosca.bus.management.invocation.plugins"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.bus.management.plugins.soaphttp.service.impl"
+         id="org.opentosca.bus.management.invocation.plugins.soaphttp"
          download-size="0"
          install-size="0"
          version="0.0.0"

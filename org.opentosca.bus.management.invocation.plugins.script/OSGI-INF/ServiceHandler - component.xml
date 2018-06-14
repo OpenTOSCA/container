@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.bus.management.invocation.plugins.script.servicehandler.ServiceHandler">
+   <implementation class="org.opentosca.bus.management.invocation.plugins.script.servicehandler.ServiceHandler"/>
+   <reference bind="bindToscaService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaService"/>
+   <reference bind="bindInstanceDataService" cardinality="1..1" interface="org.opentosca.container.core.service.IInstanceDataService" name="IInstanceDataService" policy="static" unbind="unbindInstanceDataService"/>
+</scr:component>

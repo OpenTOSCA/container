@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
+import org.opentosca.bus.management.invocation.plugins.IManagementBusInvocationPluginService;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.IInstanceDataService;
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceHandler {
 
-    public static Map<String, IManagementBusPluginService> pluginServices =
-        Collections.synchronizedMap(new HashMap<String, IManagementBusPluginService>());
+    public static Map<String, IManagementBusInvocationPluginService> pluginServices =
+        Collections.synchronizedMap(new HashMap<String, IManagementBusInvocationPluginService>());
     public static IInstanceDataService instanceDataService, oldInstanceDataService;
     public static ICoreEndpointService endpointService, oldEndpointService;
     public static IToscaEngineService toscaEngineService, oldToscaEngineService;
@@ -153,7 +153,7 @@ public class ServiceHandler {
      *
      * @param plugin - A MBPluginServices to register.
      */
-    public void bindPluginService(final IManagementBusPluginService plugin) {
+    public void bindPluginService(final IManagementBusInvocationPluginService plugin) {
         if (plugin != null) {
 
             final List<String> types = plugin.getSupportedTypes();
@@ -173,7 +173,7 @@ public class ServiceHandler {
      *
      * @param plugin - A MBPluginServices to unregister.
      */
-    public void unbindPluginService(final IManagementBusPluginService plugin) {
+    public void unbindPluginService(final IManagementBusInvocationPluginService plugin) {
         if (plugin != null) {
 
             final List<String> types = plugin.getSupportedTypes();

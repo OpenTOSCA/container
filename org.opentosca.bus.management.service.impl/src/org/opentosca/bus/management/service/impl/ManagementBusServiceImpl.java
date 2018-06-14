@@ -13,7 +13,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.bus.management.plugins.service.IManagementBusPluginService;
+import org.opentosca.bus.management.invocation.plugins.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.utils.MBUtils;
@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
  * {@literal <}/namespace:InvocationType{@literal >}</tt>. The engine also can update request
  * parameters from stored InstanceData.
  *
- * @see IManagementBusPluginService
+ * @see IManagementBusInvocationPluginService
  * @see IToscaEngineService
  * @see ICoreEndpointService
  *
@@ -422,7 +422,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         ManagementBusServiceImpl.LOG.debug("Available plug-ins: {}", ServiceHandler.pluginServices.toString());
 
-        IManagementBusPluginService plugin;
+        IManagementBusInvocationPluginService plugin;
         synchronized (ServiceHandler.pluginServices) {
             plugin = ServiceHandler.pluginServices.get(invokeType);
         }

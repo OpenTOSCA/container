@@ -14,6 +14,6 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.bus.management;bundle-version="1.0.0",
  org.opentosca.bus.management.service;bundle-version="1.0.0",
- org.opentosca.bus.management.plugins.service;bundle-version="1.0.0"
+ org.opentosca.bus.management.invocation.plugins;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*
