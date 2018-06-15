@@ -54,7 +54,6 @@ public class CoreInternalFileServiceImpl implements ICoreInternalFileService {
 
     private final static Logger LOG = LoggerFactory.getLogger(CoreInternalFileServiceImpl.class);
 
-//    private final StorageProviderManager STORAGE_PROVIDER_MANAGER = new StorageProviderManager();
     private final CSARMetaDataJPAStore JPA_STORE = new CSARMetaDataJPAStore();
 
     private static IFileAccessService fileAccessService = null;

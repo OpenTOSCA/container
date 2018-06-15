@@ -13,6 +13,8 @@ import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO.InputParameters;
 import org.opentosca.container.core.tosca.model.Definitions;
@@ -23,7 +25,6 @@ import org.opentosca.container.core.tosca.model.TNodeTemplate;
 import org.opentosca.container.core.tosca.model.TRelationshipTemplate;
 import org.opentosca.container.core.tosca.model.TServiceTemplate;
 import org.opentosca.container.core.tosca.model.TTopologyTemplate;
-import org.opentosca.planbuilder.csarhandler.CSARHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -35,7 +36,7 @@ public class RulesChecker {
 
     private final static Logger LOG = LoggerFactory.getLogger(RulesChecker.class);
 
-    private final static CSARHandler handler = new CSARHandler();
+    public static ICoreFileService handler;
 
     static boolean check(final CSARID csarID, final QName serviceTemplateID, final InputParameters inputParameters) {
 
@@ -243,7 +244,7 @@ public class RulesChecker {
 
         CSARContent content;
         try {
-            content = RulesChecker.handler.getCSARContentForID(csarID);
+            content = RulesChecker.handler.getCSAR(csarID);
 
             final AbstractDirectory dirWhite = content.getDirectory("Rules/Whitelisting");
             final AbstractDirectory dirBlack = content.getDirectory("Rules/Blacklisting");
@@ -265,7 +266,7 @@ public class RulesChecker {
 
         final List<TServiceTemplate> rulesList = new ArrayList<>();
 
-        final CSARContent content = RulesChecker.handler.getCSARContentForID(csarID);
+        final CSARContent content = RulesChecker.handler.getCSAR(csarID);
         AbstractDirectory dir;
         if (whiteRules) {
             dir = content.getDirectory("Rules/Whitelisting");

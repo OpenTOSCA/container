@@ -7,6 +7,8 @@ package org.opentosca.container.core;
 import java.io.File;
 
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.impl.plan.RulesChecker;
+import org.opentosca.container.core.service.ICoreFileService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -83,6 +85,9 @@ public class Activator implements BundleActivator {
 
         // Container Capabilities
         Settings.setSetting("containerCapabilities", Settings.containerCapabilities);
+        
+        // FIXME FUGLY HACK FOR RulesChecker being a very special snowflake
+        RulesChecker.handler = bundleContext.getService(bundleContext.getServiceReference(ICoreFileService.class));
     }
 
     @Override
