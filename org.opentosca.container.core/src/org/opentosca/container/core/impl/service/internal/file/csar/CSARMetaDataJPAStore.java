@@ -1,7 +1,6 @@
 package org.opentosca.container.core.impl.service.internal.file.csar;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class CSARMetaDataJPAStore {
                                   final Map<Path, String> fileToStorageProviderIDMap,
                                   final TOSCAMetaFile toscaMetaFile) {
 
-        CSARMetaDataJPAStore.LOG.debug("Storing meta data of CSAR \"{}\"...", csarID);
+        LOG.debug("Storing meta data of CSAR \"{}\"...", csarID);
 
         final CSARContent csar = new CSARContent(csarID, directories, fileToStorageProviderIDMap, toscaMetaFile);
 
@@ -75,7 +74,7 @@ public class CSARMetaDataJPAStore {
         // clear the JPA 1st level cache
         this.em.clear();
 
-        CSARMetaDataJPAStore.LOG.debug("Storing meta data of CSAR \"{}\" completed.", csarID);
+        LOG.debug("Storing meta data of CSAR \"{}\" completed.", csarID);
 
     }
 
@@ -85,17 +84,17 @@ public class CSARMetaDataJPAStore {
      */
     public boolean isCSARMetaDataStored(final CSARID csarID) {
 
-        CSARMetaDataJPAStore.LOG.debug("Checking if meta data of CSAR \"{}\" are stored...", csarID);
+        LOG.debug("Checking if meta data of CSAR \"{}\" are stored...", csarID);
         initJPA();
 
         final CSARContent csar = this.em.find(CSARContent.class, csarID);
 
         if (csar == null) {
-            CSARMetaDataJPAStore.LOG.debug("Meta data of CSAR \"{}\" were not found.", csarID);
+            LOG.debug("Meta data of CSAR \"{}\" were not found.", csarID);
             return false;
         }
 
-        CSARMetaDataJPAStore.LOG.debug("Meta data of CSAR \"{}\" were found.", csarID);
+        LOG.debug("Meta data of CSAR \"{}\" were found.", csarID);
         return true;
 
     }
@@ -112,16 +111,16 @@ public class CSARMetaDataJPAStore {
 
         initJPA();
 
-        CSARMetaDataJPAStore.LOG.debug("Retrieving meta data of CSAR \"{}\"...", csarID);
+        LOG.debug("Retrieving meta data of CSAR \"{}\"...", csarID);
 
         final CSARContent csar = this.em.find(CSARContent.class, csarID);
 
         if (csar == null) {
-            CSARMetaDataJPAStore.LOG.debug("Meta data of CSAR \"{}\" were not found.", csarID);
+            LOG.debug("Meta data of CSAR \"{}\" were not found.", csarID);
             throw new NotFoundException();
         }
 
-        CSARMetaDataJPAStore.LOG.debug("Meta data of CSAR \"{}\" were retrieved.", csarID);
+        LOG.debug("Meta data of CSAR \"{}\" were retrieved.", csarID);
 
         return csar;
     }
@@ -131,13 +130,13 @@ public class CSARMetaDataJPAStore {
      */
     public Set<CSARID> getCSARIDsMetaData() {
 
-        CSARMetaDataJPAStore.LOG.trace("Retrieving CSAR IDs of all stored CSARs...");
+        LOG.trace("Retrieving CSAR IDs of all stored CSARs...");
         initJPA();
         final Query getCSARIDsQuery = this.em.createNamedQuery(CSARContent.getCSARIDs);
 
         @SuppressWarnings("unchecked")
         final List<CSARID> csarIDs = getCSARIDsQuery.getResultList();
-        CSARMetaDataJPAStore.LOG.trace("{} CSAR ID(s) was / were found.", csarIDs.size());
+        LOG.trace("{} CSAR ID(s) was / were found.", csarIDs.size());
         return new HashSet<>(csarIDs);
 
     }
@@ -152,7 +151,7 @@ public class CSARMetaDataJPAStore {
 
         initJPA();
 
-        CSARMetaDataJPAStore.LOG.debug("Deleting meta data of CSAR \"{}\"...", csarID);
+        LOG.debug("Deleting meta data of CSAR \"{}\"...", csarID);
 
         final CSARContent csarContent = getCSARMetaData(csarID);
 
@@ -160,7 +159,7 @@ public class CSARMetaDataJPAStore {
         this.em.remove(csarContent);
         this.em.getTransaction().commit();
 
-        CSARMetaDataJPAStore.LOG.debug("Deleting meta data of CSAR \"{}\" completed.", csarID);
+        LOG.debug("Deleting meta data of CSAR \"{}\" completed.", csarID);
 
     }
 
@@ -177,7 +176,7 @@ public class CSARMetaDataJPAStore {
     public void storeFileStorageProviderIDOfCSAR(final CSARID csarID, final Path fileRelToCSARRoot,
                                                  final String storageProviderID) throws UserException {
 
-        CSARMetaDataJPAStore.LOG.debug("Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\"...",
+        LOG.debug("Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\"...",
                                        storageProviderID, fileRelToCSARRoot, csarID);
 
         initJPA();
@@ -202,7 +201,7 @@ public class CSARMetaDataJPAStore {
             this.em.clear();
             // emf.getCache().evict(CSARContent.class, csarID);
 
-            CSARMetaDataJPAStore.LOG.debug("Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\" completed.",
+            LOG.debug("Setting storage provider \"{}\" in meta data of file \"{}\" in CSAR \"{}\" completed.",
                                            storageProviderID, fileRelToCSARRoot, csarID);
 
         } else {
@@ -219,7 +218,7 @@ public class CSARMetaDataJPAStore {
      */
     public Set<Path> getDirectories(final CSARID csarID) throws UserException {
 
-        CSARMetaDataJPAStore.LOG.debug("Retrieving directories meta data of CSAR \"{}\"...", csarID);
+        LOG.debug("Retrieving directories meta data of CSAR \"{}\"...", csarID);
 
         initJPA();
 
@@ -236,7 +235,7 @@ public class CSARMetaDataJPAStore {
         final Set<Path> directories = result.getDirectoriesJpa();
 
         LOG.debug("Directories: {}", directories.size());
-        CSARMetaDataJPAStore.LOG.debug("Retrieving directories meta data of CSAR \"{}\" completed.", csarID);
+        LOG.debug("Retrieving directories meta data of CSAR \"{}\" completed.", csarID);
         return directories;
     }
 }

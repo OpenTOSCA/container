@@ -16,6 +16,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  *
  * @see CSARContent
  */
+@Deprecated
 public interface ICoreInternalFileService {
 
     /**
