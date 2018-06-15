@@ -65,8 +65,8 @@ public class CsarController {
     private UriInfo uriInfo;
 
     private CsarService csarService;
-
-    private ICoreFileService fileService;
+    
+    private CsarStorageService storage;
 
     private IToscaEngineService engineService;
 
@@ -222,7 +222,7 @@ public class CsarController {
         CSARID csarId;
 
         try {
-            csarId = this.fileService.storeCSAR(file.toPath());
+            csarId = this.storage.storeCSAR(file.toPath()).toOldCsarId();
         }
         catch (final Exception e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
@@ -243,7 +243,7 @@ public class CsarController {
                 } else {
                     logger.error("CSAR has open requirments but Winery repository is not available");
                     try {
-                        this.fileService.deleteCSAR(csarId);
+                        this.storage.deleteCSAR(new CsarId(csarId));
                     }
                     catch (final Exception e) {
                         // Ignore
@@ -260,7 +260,7 @@ public class CsarController {
 
         this.controlService.deleteCSAR(csarId);
         try {
-            csarId = this.fileService.storeCSAR(file.toPath());
+            csarId = this.storage.storeCSAR(file.toPath()).toOldCsarId();
         }
         catch (UserException | SystemException e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
@@ -328,8 +328,8 @@ public class CsarController {
         this.csarService = csarService;
     }
 
-    public void setFileService(final ICoreFileService fileService) {
-        this.fileService = fileService;
+    public void setStorageService(final CsarStorageService storageService) {
+        this.storage = storageService;
     }
 
     public void setEngineService(final IToscaEngineService engineService) {

@@ -9,13 +9,11 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.opentosca.container.api.legacy.instancedata.InstanceDataRoot;
 import org.opentosca.container.api.legacy.portability.PortabilityRoot;
 import org.opentosca.container.api.legacy.resources.RootResource;
-import org.opentosca.container.api.legacy.resources.credentials.AllCredentialsResource;
 import org.opentosca.container.api.legacy.resources.csar.CSARsResource;
 import org.opentosca.container.api.legacy.resources.csar.control.CSARControl;
 import org.opentosca.container.api.legacy.resources.marketplace.MarketplaceRootResource;
 import org.opentosca.container.api.legacy.resources.packager.PackagerResource;
 import org.opentosca.container.api.legacy.resources.smartservices.SmartServicesResource;
-import org.opentosca.container.api.legacy.resources.storageproviders.StorageProvidersResource;
 
 /**
  * Copyright 2013 IAAS University of Stuttgart <br>
@@ -57,8 +55,6 @@ public class JerseyApplication extends Application {
         s.add(RootResource.class);
         s.add(CSARControl.class);
         s.add(CSARsResource.class);
-        s.add(AllCredentialsResource.class);
-        s.add(StorageProvidersResource.class);
         s.add(InstanceDataRoot.class);
         s.add(PortabilityRoot.class);
 

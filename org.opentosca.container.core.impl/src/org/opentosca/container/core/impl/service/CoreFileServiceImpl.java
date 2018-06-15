@@ -22,91 +22,6 @@ public class CoreFileServiceImpl implements ICoreFileService {
 
     private ICoreInternalFileService internalFileService;
 
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public Set<String> getReadyStorageProviders() {
-        return this.internalFileService.getReadyStorageProviders();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public boolean isReadyStorageProvider(final String storageProviderID) {
-        return this.internalFileService.isReadyStorageProvider(storageProviderID);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public Set<String> getStorageProviders() {
-        return this.internalFileService.getStorageProviders();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public String getActiveStorageProvider() {
-        return this.internalFileService.getActiveStorageProvider();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public void setActiveStorageProvider(final String storageProviderID) throws UserException {
-        this.internalFileService.setActiveStorageProvider(storageProviderID);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public String getDefaultStorageProvider() {
-        return this.internalFileService.getDefaultStorageProvider();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public String getStorageProviderName(final String storageProviderID) {
-        return this.internalFileService.getStorageProviderName(storageProviderID);
-    }
-
     /**
      * {@inheritDoc}
      *
@@ -153,31 +68,6 @@ public class CoreFileServiceImpl implements ICoreFileService {
     @Override
     public Set<CSARID> getCSARIDs() {
         return this.internalFileService.getCSARIDs();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public void moveCSAR(final CSARID csarID) throws UserException, SystemException {
-        this.internalFileService.moveCSAR(csarID);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <br />
-     * <br />
-     * This currently acts as a proxy.
-     */
-    @Override
-    public void moveFileOrDirectoryOfCSAR(final CSARID csarID, final Path fileOrDirRelToCSARRoot) throws UserException,
-                                                                                                  SystemException {
-        this.internalFileService.moveFileOrDirectoryOfCSAR(csarID, fileOrDirRelToCSARRoot);
     }
 
     /**

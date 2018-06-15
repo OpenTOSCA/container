@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.ws.rs.NotFoundException;
@@ -51,12 +52,12 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     }
 
     @Override
-    public Csar findById(CsarId id) throws NotFoundException {
+    public Csar findById(CsarId id) throws NoSuchElementException {
         if (Files.exists(id.getSaveLocation())) {
             return new CsarImpl(id); // FIXME pass path here
         }
         LOGGER.info("CSAR '{}' could not be found", id.toString());
-        throw new NotFoundException(String.format("CSAR '%s' could not be found", id.toString()));
+        throw new NoSuchElementException(String.format("CSAR '%s' could not be found", id.toString()));
     }
 
     @Override

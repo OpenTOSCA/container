@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CoreFileServiceImpl">
-   <implementation class="org.opentosca.container.core.impl.service.CoreFileServiceImpl"/>
-   <reference bind="bindCoreInternalFileService" cardinality="1..1" interface="org.opentosca.container.core.service.internal.ICoreInternalFileService" name="ICoreInternalFileService" policy="static" unbind="unbindCoreInternalFileService"/>
-   <service>
-      <provide interface="org.opentosca.container.core.service.ICoreFileService"/>
-   </service>
-</scr:component>

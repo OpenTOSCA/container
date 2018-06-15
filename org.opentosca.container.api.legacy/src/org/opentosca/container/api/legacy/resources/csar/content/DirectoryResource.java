@@ -138,49 +138,4 @@ public class DirectoryResource {
 
     }
 
-    /**
-     * Moves this directory of a CSAR to the active / default storage provider if {@code move} is passed
-     * in {@code input} (body of a POST message).
-     *
-     * @param input
-     * @return 200 (OK) - directory was moved successful.<br />
-     *         400 (bad request) - {@code move} was not passed.<br />
-     *         500 (internal server error) - moving directory failed.
-     * @throws SystemException
-     * @throws UserException
-     *
-     *
-     * @see ICoreFileService#moveFileOrDirectoryOfCSAR(CSARID, File)
-     */
-    @POST
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response moveDirectoryOfCSAR(final String input) throws UserException, SystemException {
-
-        if (input.equalsIgnoreCase("move")) {
-
-            // try {
-
-            FileRepositoryServiceHandler.getFileHandler()
-                                        .moveFileOrDirectoryOfCSAR(this.CSAR_ID,
-                                                                   Paths.get(this.CSAR_DIRECTORY.getPath()));
-
-            return Response.ok("Moving directory \"" + this.CSAR_DIRECTORY.getPath() + "\" of CSAR \""
-                + this.CSAR_ID.toString() + "\" was successful.").build();
-
-            // } catch (UserException exc) {
-            // CSARDirectoryResource.LOG.warn("An User Exception occured.",
-            // exc);
-            // } catch (SystemException exc) {
-            // CSARDirectoryResource.LOG.warn("An System Exception occured.",
-            // exc);
-            // }
-            //
-            // return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-
-        }
-
-        return Response.status(Status.BAD_REQUEST).build();
-
-    }
 }

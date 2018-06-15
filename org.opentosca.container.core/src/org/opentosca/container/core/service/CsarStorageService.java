@@ -2,9 +2,9 @@ package org.opentosca.container.core.service;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.ws.rs.NotFoundException;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -29,7 +29,8 @@ public interface CsarStorageService {
      * 
      * @throws NotFoundException in case the CSARID was unknown.
      */
-    public Csar findById(CsarId id) throws NotFoundException;
+    // FIXME was originally a javax.ws.rs.NotFoundException
+    public Csar findById(CsarId id) throws NoSuchElementException;
 
     /**
      * Temporarily stores all information in the given {@link InputStream} as a temporary file with the

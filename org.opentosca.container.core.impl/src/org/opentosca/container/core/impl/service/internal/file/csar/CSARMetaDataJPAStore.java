@@ -214,43 +214,6 @@ public class CSARMetaDataJPAStore {
 
     /**
      * @param csarID of CSAR.
-     * @return Each file of CSAR {@code csarID} relative to CSAR root mapped to the ID of the storage
-     *         provider the file is stored on.
-     * @throws UserException if file to storage provider ID mapping meta data of CSAR {@code csarID}
-     *         were not found.
-     */
-    public Map<Path, String> getFileToStorageProviderIDMap(final CSARID csarID) throws UserException {
-        CSARMetaDataJPAStore.LOG.debug("Retrieving file to storage provider mapping meta data of CSAR \"{}\"...",
-                                       csarID);
-        initJPA();
-        final Query getFileToStorageProviderIDMapQuery =
-            this.em.createNamedQuery(CSARContent.getFileToStorageProviderIDMapByCSARID);
-        getFileToStorageProviderIDMapQuery.setParameter("csarID", csarID);
-
-        @SuppressWarnings("unchecked")
-        final List<Object[]> fileToStorageProviderIDEntries = getFileToStorageProviderIDMapQuery.getResultList();
-
-        if (fileToStorageProviderIDEntries.isEmpty()) {
-            throw new UserException("Meta data of CSAR \"" + csarID + "\" were not found.");
-        }
-
-        final Map<Path, String> fileToStorageProviderIDMap = new HashMap<>();
-
-        for (final Object[] fileToStorageProviderIDEntry : fileToStorageProviderIDEntries) {
-            final Path file = (Path) fileToStorageProviderIDEntry[0];
-            final String storageProviderID = (String) fileToStorageProviderIDEntry[1];
-            fileToStorageProviderIDMap.put(file, storageProviderID);
-        }
-
-        CSARMetaDataJPAStore.LOG.debug("Retrieving file to storage provider mapping meta data of CSAR \"{}\" completed.",
-                                       csarID);
-
-        return fileToStorageProviderIDMap;
-
-    }
-
-    /**
-     * @param csarID of CSAR.
      * @return Directories meta data of CSAR {@code csarID}.
      * @throws UserException if directories meta data of CSAR {@code csarID} were not found.
      */
