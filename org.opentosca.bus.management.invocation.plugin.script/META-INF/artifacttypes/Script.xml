@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacttype name="ScriptArtifact"
+	namespace="http://docs.oasis-open.org/tosca/ns/2011/12/ToscaBaseTypes">
+	<packages>
+	</packages>
+	<commands>
+		<command>chmod +x {TARGET_FILE_PATH}</command>
+		<command>{DA_NAME_PATH_MAP}{INPUT_PARAMETER}{TARGET_FILE_PATH}</command>
+	</commands>
+</artifacttype>

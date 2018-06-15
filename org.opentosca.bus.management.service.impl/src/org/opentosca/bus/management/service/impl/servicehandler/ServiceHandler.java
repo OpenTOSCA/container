@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opentosca.bus.management.invocation.plugins.IManagementBusInvocationPluginService;
+import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.IInstanceDataService;

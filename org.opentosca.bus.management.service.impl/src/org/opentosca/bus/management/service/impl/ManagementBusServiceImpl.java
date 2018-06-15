@@ -13,7 +13,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.bus.management.invocation.plugins.IManagementBusInvocationPluginService;
+import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.utils.MBUtils;
