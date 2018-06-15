@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceHandler {
 
-    public static Map<String, IManagementBusInvocationPluginService> pluginServices =
+    public static Map<String, IManagementBusInvocationPluginService> invocationPluginServices =
         Collections.synchronizedMap(new HashMap<String, IManagementBusInvocationPluginService>());
     public static IInstanceDataService instanceDataService, oldInstanceDataService;
     public static ICoreEndpointService endpointService, oldEndpointService;
@@ -149,48 +150,64 @@ public class ServiceHandler {
     }
 
     /**
-     * Bind MBPluginServices and store them in local HashMap.
+     * Bind Management Bus Invocation Plugin Services and store them in local HashMap.
      *
-     * @param plugin - A MBPluginServices to register.
+     * @param plugin - A Management Bus Invocation Plugin to register.
      */
-    public void bindPluginService(final IManagementBusInvocationPluginService plugin) {
+    public void bindInvocationPluginService(final IManagementBusInvocationPluginService plugin) {
         if (plugin != null) {
 
             final List<String> types = plugin.getSupportedTypes();
 
             for (final String type : types) {
-                ServiceHandler.pluginServices.put(type, plugin);
-                ServiceHandler.LOG.debug("Bound MB-Plugin Service: {} for Type: {}", plugin.toString(), type);
+                ServiceHandler.invocationPluginServices.put(type, plugin);
+                ServiceHandler.LOG.debug("Bound Management Bus Invocation Plugin: {} for Type: {}", plugin.toString(),
+                                         type);
             }
 
         } else {
-            ServiceHandler.LOG.error("Bind MB-Plugin Service: Supplied parameter is null!");
+            ServiceHandler.LOG.error("Bind Management Bus Invocation Plugin: Supplied parameter is null!");
         }
     }
 
     /**
-     * Unbind MBPluginServices and delete them from Map.
+     * Unbind Management Bus Invocation Plugin Services and delete them from Map.
      *
-     * @param plugin - A MBPluginServices to unregister.
+     * @param plugin - A Management Bus Invocation Plugin to unregister.
      */
-    public void unbindPluginService(final IManagementBusInvocationPluginService plugin) {
+    public void unbindInvocationPluginService(final IManagementBusInvocationPluginService plugin) {
         if (plugin != null) {
 
             final List<String> types = plugin.getSupportedTypes();
 
             for (final String type : types) {
-                final Object deletedObject = ServiceHandler.pluginServices.remove(type);
+                final Object deletedObject = ServiceHandler.invocationPluginServices.remove(type);
                 if (deletedObject != null) {
-                    ServiceHandler.LOG.debug("Unbound MB-Plugin Service: {} for Type: {}", plugin.toString(), type);
+                    ServiceHandler.LOG.debug("Unbound Management Bus Invocation Plugin Service: {} for Type: {}",
+                                             plugin.toString(), type);
                 } else {
-                    ServiceHandler.LOG.debug("MB-Plug-in {} could not be unbound, because it is not bound!",
+                    ServiceHandler.LOG.debug("Management Bus Invocation Plugin {} could not be unbound, because it is not bound!",
                                              plugin.toString());
                 }
             }
         }
 
         else {
-            ServiceHandler.LOG.error("Unbind Plugin Service: Supplied parameter is null!");
+            ServiceHandler.LOG.error("Unbind Management Bus Invocation Plugin: Supplied parameter is null!");
         }
+    }
+
+    /**
+     * TODO
+     */
+    public void bindDeploymentPluginService(final IManagementBusDeploymentPluginService plugin) {
+        // TODO
+    }
+
+    /**
+     * TODO
+     */
+    public void unbindDeploymentPluginService(final IManagementBusDeploymentPluginService plugin) {
+        // TODO
     }
 }

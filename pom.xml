@@ -130,6 +130,7 @@
     <module>org.opentosca.bus.management.api.osgievent</module>
     <module>org.opentosca.bus.management.api.resthttp</module>
     <module>org.opentosca.bus.management.api.soaphttp</module>
+    <module>org.opentosca.bus.management.deployment.plugin</module>
     <module>org.opentosca.bus.management.invocation.plugin.script</module>
     <module>org.opentosca.bus.management.invocation.plugin.rest</module>
     <module>org.opentosca.bus.management.invocation.plugin.soaphttp</module>

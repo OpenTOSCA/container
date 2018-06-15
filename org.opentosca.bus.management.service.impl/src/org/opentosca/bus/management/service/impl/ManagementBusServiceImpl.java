@@ -420,11 +420,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         ManagementBusServiceImpl.LOG.debug("Searching a matching SI-Plug-in for InvocationType: {}...", invokeType);
 
-        ManagementBusServiceImpl.LOG.debug("Available plug-ins: {}", ServiceHandler.pluginServices.toString());
+        ManagementBusServiceImpl.LOG.debug("Available invocation plug-ins: {}",
+                                           ServiceHandler.invocationPluginServices.toString());
 
         IManagementBusInvocationPluginService plugin;
-        synchronized (ServiceHandler.pluginServices) {
-            plugin = ServiceHandler.pluginServices.get(invokeType);
+        synchronized (ServiceHandler.invocationPluginServices) {
+            plugin = ServiceHandler.invocationPluginServices.get(invokeType);
         }
 
         if (plugin != null) {
@@ -554,11 +555,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         ManagementBusServiceImpl.LOG.debug("Searching if a plugin supports the type {}", artifactType);
 
-        ManagementBusServiceImpl.LOG.debug("All supported Types: {}", ServiceHandler.pluginServices.toString());
+        ManagementBusServiceImpl.LOG.debug("All supported Types: {}",
+                                           ServiceHandler.invocationPluginServices.toString());
 
         // First check if a plugin is registered that supports the
         // ArtifactType.
-        if (ServiceHandler.pluginServices.containsKey(artifactType)) {
+        if (ServiceHandler.invocationPluginServices.containsKey(artifactType)) {
 
             return artifactType;
 
@@ -573,7 +575,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
             if (invocationType != null) {
 
-                if (ServiceHandler.pluginServices.containsKey(invocationType)) {
+                if (ServiceHandler.invocationPluginServices.containsKey(invocationType)) {
 
                     return invocationType;
 
