@@ -87,4 +87,28 @@ public interface CsarStorageService {
      * @throws SystemException if an error occurred during deleting files.
      */
     public void deleteCSAR(CsarId csarId) throws UserException, SystemException;
+
+    /**
+     * Deletes <b>all</b> CSARs in the storage, including deleting their metadata from the database.
+     * 
+     * @throws SystemException if an error occured during deleting files.
+     */
+    void purgeCsars() throws SystemException;
+
+    /**
+     * Exports a stored CSAR {@code csarID}.<br />
+     * First, it creates a directory structure and copies all files of the CSAR
+     * to a sub directory of a Temporary directory. Finally the content of this directory will be compressed
+     * as a CSAR file. The created CSAR file is located directly in that temporary directory.<br />
+     * <br/>
+     *
+     * Note: At the end or if an error occurred the directory that contains the content of the CSAR file
+     * will be deleted (if necessary).
+     *
+     * @param csarID of CSAR
+     * @return CSAR {@code csarID} as {@link Path} object.
+     * @throws UserException if CSAR {@code csarID} was not found.
+     * @throws SystemException if an error occurred during retrieving files of CSAR or compression.
+     */
+    Path exportCSAR(CsarId csarId) throws UserException, SystemException;
 }
