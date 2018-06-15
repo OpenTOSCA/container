@@ -4,12 +4,16 @@ import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.opentosca.container.core.next.trigger.SituationListener;
+
 @Entity
 @Table(name = Situation.TABLE_NAME)
+@EntityListeners(SituationListener.class)
 public class Situation extends PersistenceObject {
 
     private static final long serialVersionUID = 1065969908430273145L;
