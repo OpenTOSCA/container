@@ -27,9 +27,10 @@ public interface IManagementBusDeploymentPluginService {
      *
      * @param exchange contains all needed information like the NodeTypeImplementation the
      *        ArtifactReferences to the files that have to be deployed and the "ServiceEndpoint"
-     *        property.
+     *        property if it is defined.
      *
-     * @return the result of the deployment process as body of the exchange message.
+     * @return the endpoint of the deployed Implementation Artifact as header field of the exchange
+     *         message or null if the deployment failed.
      *
      */
     public Exchange invokeImplementationArtifactDeployment(Exchange exchange);
@@ -40,7 +41,7 @@ public interface IManagementBusDeploymentPluginService {
      * @param exchange contains all needed information like the NodeTypeImplementation and the path
      *        where the Implementation Artifact was deployed.
      *
-     * @return the result of the undeployment process as body of the exchange message.
+     * @return the result of the undeployment process as part of the exchange message.
      *
      */
     public Exchange invokeImplementationArtifactUndeployment(Exchange exchange);

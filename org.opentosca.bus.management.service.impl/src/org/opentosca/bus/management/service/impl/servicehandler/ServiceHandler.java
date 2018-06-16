@@ -35,6 +35,8 @@ public class ServiceHandler {
 
     public static Map<String, IManagementBusInvocationPluginService> invocationPluginServices =
         Collections.synchronizedMap(new HashMap<String, IManagementBusInvocationPluginService>());
+    public static Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices =
+        Collections.synchronizedMap(new HashMap<String, IManagementBusDeploymentPluginService>());
     public static IInstanceDataService instanceDataService, oldInstanceDataService;
     public static ICoreEndpointService endpointService, oldEndpointService;
     public static IToscaEngineService toscaEngineService, oldToscaEngineService;
@@ -171,7 +173,7 @@ public class ServiceHandler {
     }
 
     /**
-     * Unbind Management Bus Invocation Plugin Services and delete them from Map.
+     * Unbind Management Bus Invocation Plugin Services and delete them from local Map.
      *
      * @param plugin - A Management Bus Invocation Plugin to unregister.
      */
@@ -198,16 +200,50 @@ public class ServiceHandler {
     }
 
     /**
-     * TODO
+     * Bind Management Bus Deployment Plugin Services and store them in local HashMap.
+     *
+     * @param plugin - A Management Bus Deployment Plugin to register.
      */
     public void bindDeploymentPluginService(final IManagementBusDeploymentPluginService plugin) {
-        // TODO
+        if (plugin != null) {
+
+            final List<String> types = plugin.getSupportedTypes();
+
+            for (final String type : types) {
+                ServiceHandler.deploymentPluginServices.put(type, plugin);
+                ServiceHandler.LOG.debug("Bound Management Bus Deployment Plugin: {} for Type: {}", plugin.toString(),
+                                         type);
+            }
+
+        } else {
+            ServiceHandler.LOG.error("Bind Management Bus Deployment Plugin: Supplied parameter is null!");
+        }
     }
 
     /**
-     * TODO
+     * Unbind Management Bus Deployment Plugin Services and delete them from local Map.
+     *
+     * @param plugin - A Management Bus Invocation Plugin to unregister.
      */
     public void unbindDeploymentPluginService(final IManagementBusDeploymentPluginService plugin) {
-        // TODO
+        if (plugin != null) {
+
+            final List<String> types = plugin.getSupportedTypes();
+
+            for (final String type : types) {
+                final Object deletedObject = ServiceHandler.deploymentPluginServices.remove(type);
+                if (deletedObject != null) {
+                    ServiceHandler.LOG.debug("Unbound Management Bus Deployment Plugin Service: {} for Type: {}",
+                                             plugin.toString(), type);
+                } else {
+                    ServiceHandler.LOG.debug("Management Bus Deployment Plugin {} could not be unbound, because it is not bound!",
+                                             plugin.toString());
+                }
+            }
+        }
+
+        else {
+            ServiceHandler.LOG.error("Unbind Management Bus Deployment Plugin: Supplied parameter is null!");
+        }
     }
 }
