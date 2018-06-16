@@ -423,10 +423,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         ManagementBusServiceImpl.LOG.debug("Available invocation plug-ins: {}",
                                            ServiceHandler.invocationPluginServices.toString());
 
-        IManagementBusInvocationPluginService plugin;
-        synchronized (ServiceHandler.invocationPluginServices) {
-            plugin = ServiceHandler.invocationPluginServices.get(invokeType);
-        }
+        final IManagementBusInvocationPluginService plugin = ServiceHandler.invocationPluginServices.get(invokeType);
 
         if (plugin != null) {
             ManagementBusServiceImpl.LOG.debug("Matching SI-Plug-in found: {}. Calling it.", plugin.toString());
@@ -834,7 +831,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
                 }
                 catch (final URISyntaxException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
