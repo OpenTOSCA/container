@@ -18,6 +18,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -169,8 +170,8 @@ public class NodeRelationInstanceVariablesHandler {
             prefix = "relationship";
         }
 
-        final String instanceIdVarName =
-            prefix + InstanceIDVarKeyword + "_" + templateId.replace(".", "_") + "_" + System.currentTimeMillis();
+        final String instanceIdVarName = prefix + InstanceIDVarKeyword + "_" + ModelUtils.makeValidNCName(templateId)
+            + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
                                                    new QName(xsdNamespace, "string", xsdPrefix),
@@ -200,8 +201,8 @@ public class NodeRelationInstanceVariablesHandler {
             prefix = "relationship";
         }
 
-        final String instanceIdVarName =
-            prefix + InstanceURLVarKeyword + "_" + templateId.replace(".", "_") + "_" + System.currentTimeMillis();
+        final String instanceIdVarName = prefix + InstanceURLVarKeyword + "_" + ModelUtils.makeValidNCName(templateId)
+            + "_" + System.currentTimeMillis();
 
         return this.bpelProcessHandler.addVariable(instanceIdVarName, VariableType.TYPE,
                                                    new QName(xsdNamespace, "string", xsdPrefix),
@@ -560,8 +561,8 @@ public class NodeRelationInstanceVariablesHandler {
 
 
     private String findInstanceIdVarName(final List<String> varNames, final String templateId, final boolean isNode) {
-        final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + InstanceURLVarKeyword + "_" + templateId.replace(".", "_") + "_";
+        final String instanceURLVarName = (isNode ? "node" : "relationship") + InstanceURLVarKeyword + "_"
+            + ModelUtils.makeValidNCName(templateId) + "_";
         for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;

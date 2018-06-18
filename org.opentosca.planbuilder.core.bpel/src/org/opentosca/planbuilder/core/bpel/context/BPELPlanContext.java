@@ -211,7 +211,7 @@ public class BPELPlanContext implements PlanContext {
 
     public String findInstanceURLVar(final String templateId, final boolean isNode) {
         final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceURL_" + templateId.replace(".", "_") + "_";
+            (isNode ? "node" : "relationship") + "InstanceURL_" + ModelUtils.makeValidNCName(templateId) + "_";
         for (final String varName : getMainVariableNames()) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;
@@ -222,7 +222,7 @@ public class BPELPlanContext implements PlanContext {
 
     public String findInstanceIDVar(final String templateId, final boolean isNode) {
         final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceID_" + templateId.replace(".", "_") + "_";
+            (isNode ? "node" : "relationship") + "InstanceID_" + ModelUtils.makeValidNCName(templateId) + "_";
         final List<String> varNames = getMainVariableNames();
         for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {
