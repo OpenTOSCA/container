@@ -79,7 +79,7 @@ public class ODEEndpointUpdater {
 
     /**
      * Contructor *
-     * 
+     *
      * @throws WSDLException if no instance of WSDLFactory was found
      */
     public ODEEndpointUpdater(final String servicesRoot, final String engineType) throws WSDLException {
@@ -110,7 +110,7 @@ public class ODEEndpointUpdater {
     public boolean changeEndpoints(final List<File> processFiles, final CSARID csarId) {
         this.csarId = csarId;
 
-        Map<QName, List<File>> unchangedFiles = null;
+        final Map<QName, List<File>> unchangedFiles = new HashMap<>();
         final File deployXml = getDeployXML(processFiles);
 
         if (deployXml == null) {
@@ -145,12 +145,12 @@ public class ODEEndpointUpdater {
                 for (final QName portType : portsInDeployXml) {
                     ODEEndpointUpdater.LOG.debug("Proceeding to update address for portType: {}", portType);
                 }
+                final Map<QName, List<File>> changeMap =
+                    getWSDLtoChange(portsInDeployXml, getAllWSDLFiles(processFiles));
+                unchangedFiles.putAll(this.updateInvokedWSDLAddresses(changeMap));
             } else {
                 ODEEndpointUpdater.LOG.debug("No PortTypes to change were found: No portType in plan is referenced in ServiceTemplate");
-                return true;
             }
-            final Map<QName, List<File>> changeMap = getWSDLtoChange(portsInDeployXml, getAllWSDLFiles(processFiles));
-            unchangedFiles = this.updateInvokedWSDLAddresses(changeMap);
         }
         catch (final JAXBException e) {
             ODEEndpointUpdater.LOG.error("Deploy.xml file in process isn't valid", e);
@@ -559,7 +559,7 @@ public class ODEEndpointUpdater {
          * The WSO2 BPS and Apache ODE are creating addresses by using the Service Name
          * OpenTOSCA_On_VSphere.csarInvokerService
          * location="http://10.0.2.15:9763/services/OpenTOSCA_On_VSphere. csarInvokerService/
-         * 
+         *
          * The only difference is the servicesRoot which is '/services/..' for BPS and '/ode/processes/..'
          * for ODE.
          */
