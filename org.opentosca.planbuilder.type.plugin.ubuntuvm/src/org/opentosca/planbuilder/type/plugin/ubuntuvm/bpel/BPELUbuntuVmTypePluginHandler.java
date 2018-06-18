@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel.handler;
+package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,8 +21,6 @@ import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
-import org.opentosca.planbuilder.type.plugin.ubuntuvm.core.UbuntuVmTypePlugin;
-import org.opentosca.planbuilder.type.plugin.ubuntuvm.core.handler.UbuntuVmTypePluginHandler;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -73,7 +71,8 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         }
 
         // hack because of the openstack migration
-        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)) {
+        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
+            || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
             return "ubuntu-14.04-trusty-server-cloudimg";
         }
 
@@ -567,7 +566,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
             // if we use ubuntu image version etc. from the nodeType not some
             // property/parameter
-            if (externalParameter.equals("VMImageID") && ubuntuAMIIdVar != null) {
+            if (externalParameter.trim().equals("VMImageID") && ubuntuAMIIdVar != null) {
                 createEC2InternalExternalPropsInput.put(externalParameter, ubuntuAMIIdVar);
 
                 continue;

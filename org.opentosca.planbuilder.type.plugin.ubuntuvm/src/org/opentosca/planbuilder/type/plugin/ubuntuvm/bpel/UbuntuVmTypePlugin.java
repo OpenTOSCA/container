@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.type.plugin.ubuntuvm.core;
+package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
 import javax.xml.namespace.QName;
 

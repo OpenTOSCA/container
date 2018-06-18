@@ -1,4 +1,4 @@
-package org.opentosca.planbuilder.type.plugin.ubuntuvm.core.handler;
+package org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel;
 
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.plugins.context.PlanContext;

@@ -5,8 +5,6 @@ import org.opentosca.container.core.tosca.convention.Utils;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel.handler.BPELUbuntuVmTypePluginHandler;
-import org.opentosca.planbuilder.type.plugin.ubuntuvm.core.UbuntuVmTypePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
