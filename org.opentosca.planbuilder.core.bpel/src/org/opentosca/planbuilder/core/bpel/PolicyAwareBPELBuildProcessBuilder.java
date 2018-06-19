@@ -182,7 +182,7 @@ public class PolicyAwareBPELBuildProcessBuilder extends AbstractBuildPlanBuilder
                 // // connect the templates
                 // this.initializeDependenciesInBuildPlan(newBuildPlan);
 
-                this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+                this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                    newBuildPlan);
 
                 final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);

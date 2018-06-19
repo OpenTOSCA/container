@@ -141,7 +141,8 @@ public class Utils {
         }
 
         // code for new namespace http://opentosca.org/NodeTypes
-        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)) {
+        if (nodeType.equals(Types.ubuntu1404ServerVmNodeType) || nodeType.equals(Types.ubuntu1404ServerVmNodeType2)
+            || nodeType.equals(Types.ubuntu1404ServerVmNodeType3)) {
             return true;
         }
 

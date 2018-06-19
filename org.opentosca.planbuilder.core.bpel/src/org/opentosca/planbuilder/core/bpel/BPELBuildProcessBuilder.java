@@ -128,7 +128,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
             if (namespace.equals(serviceTemplateId.getNamespaceURI())
                 && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
-                final String processName = serviceTemplate.getId() + "_buildPlan";
+
+                final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan");
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
                 final AbstractPlan buildPlan =
@@ -151,7 +152,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 // newBuildPlan.setCsarName(csarName);
 
 
-                this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+                this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                    newBuildPlan);
 
                 final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(newBuildPlan);
