@@ -65,7 +65,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
         final Message message = exchange.getIn();
 
-        ManagementBusInvocationPluginScript.LOG.debug("Management Bus Remote Plugin getting information...");
+        ManagementBusInvocationPluginScript.LOG.debug("Management Bus Script Plugin getting information...");
 
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
         ManagementBusInvocationPluginScript.LOG.debug("CsarID: {}", csarID);
@@ -285,10 +285,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     }
 
     /**
-     * Check if the output parameters for this remote service operation are returned in the script
+     * Check if the output parameters for this script service operation are returned in the script
      * result and add them to the result map.
      *
-     * @param resultMap The result map which is returned for the invocation of the remote service
+     * @param resultMap The result map which is returned for the invocation of the script service
      *        operation
      * @param result The returned result of the run script operation
      * @param outputParameters The output parameters that are expected for the operation
@@ -296,7 +296,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
     private void addOutputParametersToResultMap(final Map<String, String> resultMap, final Object result,
                                                 final List<String> outputParameters) {
 
-        ManagementBusPluginRemoteServiceImpl.LOG.debug("Adding output parameters to the response message.");
+        ManagementBusInvocationPluginScript.LOG.debug("Adding output parameters to the response message.");
 
         if (!outputParameters.isEmpty()) {
             // process result as HashMap
@@ -304,19 +304,19 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                 final HashMap<?, ?> resultHashMap = (HashMap<?, ?>) result;
 
                 // get ScriptResult part of the response which contains the parameters
-                if (resultHashMap.containsKey(ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME)) {
+                if (resultHashMap.containsKey(ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME)) {
                     final Object scriptResult =
-                        resultHashMap.get(ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
+                        resultHashMap.get(ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
 
                     if (scriptResult != null) {
                         final String scriptResultString = scriptResult.toString();
 
-                        ManagementBusPluginRemoteServiceImpl.LOG.debug("{}: {}",
-                                                                       ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME,
-                                                                       scriptResultString);
+                        ManagementBusInvocationPluginScript.LOG.debug("{}: {}",
+                                                                      ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME,
+                                                                      scriptResultString);
 
-                        // split result on line breaks as every parameter is returned in a separate "echo"
-                        // command
+                        // split result on line breaks as every parameter is returned in a separate
+                        // "echo" command
                         final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
 
                         // add each parameter that is defined in the operation and passed back
@@ -326,8 +326,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                     final String value =
                                         resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
 
-                                    ManagementBusPluginRemoteServiceImpl.LOG.debug("Adding parameter {} with value: {}",
-                                                                                   outputParameter, value);
+                                    ManagementBusInvocationPluginScript.LOG.debug("Adding parameter {} with value: {}",
+                                                                                  outputParameter, value);
                                     resultMap.put(outputParameter, value);
                                 }
                             }
@@ -335,13 +335,13 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                     }
 
                 } else {
-                    ManagementBusPluginRemoteServiceImpl.LOG.warn("Result contains no result entry '{}'",
-                                                                  ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
+                    ManagementBusInvocationPluginScript.LOG.warn("Result contains no result entry '{}'",
+                                                                 ManagementBusInvocationPluginScript.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
                 }
 
             } else {
-                ManagementBusPluginRemoteServiceImpl.LOG.warn("Result of type {} not supported. The bus should return a HashMap as result class when it is used as input.",
-                                                              result.getClass());
+                ManagementBusInvocationPluginScript.LOG.warn("Result of type {} not supported. The bus should return a HashMap as result class when it is used as input.",
+                                                             result.getClass());
             }
         }
     }
