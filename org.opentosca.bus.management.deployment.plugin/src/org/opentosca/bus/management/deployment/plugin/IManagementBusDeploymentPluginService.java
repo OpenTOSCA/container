@@ -52,4 +52,9 @@ public interface IManagementBusDeploymentPluginService {
      */
     public List<String> getSupportedTypes();
 
+    /**
+     * Returns the provided capabilities of the plug-in.
+     *
+     */
+    public List<String> getCapabilties();
 }

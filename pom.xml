@@ -132,10 +132,11 @@
     <module>org.opentosca.bus.management.api.resthttp</module>
     <module>org.opentosca.bus.management.api.soaphttp</module>
     <module>org.opentosca.bus.management.deployment.plugin</module>
+    <module>org.opentosca.bus.management.deployment.plugin.script</module>
+    <module>org.opentosca.bus.management.invocation.plugin</module>
     <module>org.opentosca.bus.management.invocation.plugin.script</module>
     <module>org.opentosca.bus.management.invocation.plugin.rest</module>
     <module>org.opentosca.bus.management.invocation.plugin.soaphttp</module>
-    <module>org.opentosca.bus.management.invocation.plugin</module>
     <module>org.opentosca.bus.management.service</module>
     <module>org.opentosca.bus.management.service.impl</module>
     <module>org.opentosca.bus.application.api.jsonhttp</module>
