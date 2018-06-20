@@ -1,13 +1,13 @@
 ---
 ---
 
-![OpenTOSCA](graphics/OpenTOSCALogo.jpg)  
+![OpenTOSCA](graphics/OpenTOSCALogo.jpg)
 
-# Developer Guide OpenTOSCA Container  
+# Developer Guide OpenTOSCA Container
 
 ## Table of Contents
 
-<!-- toc -->	
+<!-- toc -->
 
 - [Introduction](#introduction)
 - [Eclipse Installation](#eclipse-installation)
@@ -20,7 +20,7 @@
   * [Set Container Target Platform](#set-container-target-platform)
 - [How to](#how-to)
   * [Create an Eclipse Plug-in project](#create-an-eclipse-plug-in-project)
-  * [Create/provide a declarative service](#create-provide-a-declarative-service)
+  * [Create / provide a declarative service](#create--provide-a-declarative-service)
   * [Consume / use a declarative service](#consume--use-a-declarative-service)
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
@@ -37,22 +37,22 @@
 ## Introduction
 
 This document helps to setup Eclipse to develop the OpenTosca Container and its user interfaces (UIs).
-Thereby, [Section 2](#eclipse-installation) explains the installation of Eclipse, [Section 3](#set-up-eclipse) the setup of eclipse and 
-[Section 4](#how-to) lists various guides regarding selected topics, e.g. how to create a declarative service. 
+Thereby, [Section 2](#eclipse-installation) explains the installation of Eclipse, [Section 3](#set-up-eclipse) the setup of eclipse and
+[Section 4](#how-to) lists various guides regarding selected topics, e.g. how to create a declarative service.
 Some subsections are optional and can be skipped.
 
-This introduction provides an architectural overview of the OpenTosca container including their 
+This introduction provides an architectural overview of the OpenTosca container including their
 package names, which should help to understand the code better. Figure 1 shows an architectural
-overview of the OpenTosca container including the relations of the different components. 
+overview of the OpenTosca container including the relations of the different components.
 Further details can be found in the respective architecture documentation of OpenTOSCA.
 
-![OpenTosca Container Architecture](graphics/ContainerArchitectur.png)  
+![OpenTosca Container Architecture](graphics/ContainerArchitectur.png)
 **Fig.1: OpenTOSCA Container Architecture Overview**
 
-Figure 2 shows the architecture of the OpenTosca Container core which provides different shared 
+Figure 2 shows the architecture of the OpenTosca Container core which provides different shared
 capabilities to the other components of the container.
 
-![OpenTOSCA Container Architecture or Core](graphics/ArchitectureOrCore.png)  
+![OpenTOSCA Container Architecture or Core](graphics/ArchitectureOrCore.png)
 **Fig.2: OpenTOSCA Container Architecture or Core**
 ___
 
@@ -68,7 +68,7 @@ http://www.oracle.com/technetwork/java/javase/downloads/index.html
 ### Eclipse
 
 If not installed already, download and install the most recent "Eclipse IDE for Java EE Developers"
-from http://www.eclipse.org/downloads .  
+from http://www.eclipse.org/downloads .
 Install Eclipse by unpacking the downloaded archieve to a location of your choice.
 
 ***
@@ -87,7 +87,7 @@ be done in all workspaces.
 2. Go to "**Server**", then "**Runtime Environments**" and click on "**Add...**".
 3. The wizard "**New Server Runtime Environment**" appears. select in the list "**Apache Tomcat v8.5**"
    and click on "**Next**".
-4. If you already installed Tomcat define its path at "**Tomcat installation directionary**". 
+4. If you already installed Tomcat define its path at "**Tomcat installation directionary**".
    Otherwise you can download and install it directly from Eclipse by clicking on "**Download and Install**",
    accepting the license agreement and defining an installation directory.
 5. Click on "**Finish**" to add the defined Tomcat installations as a server runtime environment.
@@ -113,7 +113,7 @@ The following table shows the folder structure of the projects:
  4. Choose the location you extracted the code as "**root directory**" and select all projects
     If you want you can exclude the tests (folder container test) or the UIs (folder ui-*)
  5. Click "**Finish**"
- 
+
 ### Set Container Target Platform
 
 An Eclipse Target Platform contains libraries (OSGI bundles) that can be used/ are available in Eclipse
@@ -122,11 +122,11 @@ plug-in projects. The OpenTOSCA Target Platform is contained in the project
 
 1.open the file "target-definition.target" in the project
   "**target-definition**".
-2.In the appearing Target Platform Editor click on "**Set as Target Platform**" in the top right corner 
+2.In the appearing Target Platform Editor click on "**Set as Target Platform**" in the top right corner
   (FIG. 3)
 3.After building the workspace there should be no errors left.
 
-![Target Platform Editor](graphics/TargetPlatformEditor.png)  
+![Target Platform Editor](graphics/TargetPlatformEditor.png)
 Fig.3: Eclipse Target Platform Editor
 
 ___
@@ -143,7 +143,7 @@ New Projects that should be belonging to the Container or the RAP UI must be cre
    e.g. "**org.opentosca.core.file.service.impl**" (Fig. 4). At "**Target Platform**" select the radio button
    "**an OSGi framework**" and in the associated drop down list "**standard**" (Fig. 4). Click on "**Next**".
 
-![Define Details of new Eclipse plug-in](graphics/DefineDetails.png)  
+![Define Details of new Eclipse plug-in](graphics/DefineDetails.png)
 **Fig.4: Define details of new Eclipse plug-in project.**
 
 4. Define at "**Name**" a human readable name of this project/bundle, e.g. "**Core File Service Implementation**"
@@ -152,7 +152,7 @@ New Projects that should be belonging to the Container or the RAP UI must be cre
    Thus, deselect the checkbox "**Generate an activator...**"
 6. Click on "**Finish**" to create the plug in project.
 
-### Create/provide a declarative service
+### Create / provide a declarative service
 
 A OSGi service consists of a interface class and one or more implementation classes (e.g. the Core File Service
 implementation for a database or Amazon S3) Interface and implementations should be in separate projects/bundles.
@@ -188,7 +188,7 @@ _Implementation project:_
 10. Open "**Plug-in development**" and select "**Component Definition**". Click on "**Next**"
 11. Define as "File name" the name of the implementation class with the ending "**_component**", e.g. "**CoreFileServiceImpl_component.xml**" (Fig. 5)
 
-![Create Component Definition](graphics/CreateComponentDefinition.png)  
+![Create Component Definition](graphics/CreateComponentDefinition.png)
 **Fig.5: Create a new Component Definition.**
 
 12. Define in "**Class**" the fully qualified name of the implementation class, e.g. "**org.opentosca.core.file.service.impl.CoreFileServiceImpl**"
@@ -201,8 +201,8 @@ _Implementation project:_
 
 Fig. 6 shows the correct project structure of the Core File Service used as example in this chapter.
 
-![InterfaceImplementationStructure](graphics/InterfaceImplementationStructure.png) 
- 
+![InterfaceImplementationStructure](graphics/InterfaceImplementationStructure.png)
+
 **Fig. 6: Service interface and implementation project structure. The Core File Services provides the methods “getTHOR” and “storeTHOR”. Its component XML resides in the folder “OSGI-INF” in the implementation project.**
 
 ### Consume / use a declarative service
@@ -242,12 +242,12 @@ A service can be only consumed in a plug-in project.
 public class MyServiceImpl{
 
 	private ICoreFileService coreFileService;
-	
+
 	public void process() {
 		File thorFile = new File("E:\\SuperApp.thor");
 		coreFileService.storeTHOR(thorFile);
 	}
-	
+
 	public void bindCoreFileService(ICoreFileService coreFileService){
 		if(coreFileService == null){
 			System.out.println("Can't bind Core File Service.");
@@ -257,7 +257,7 @@ public class MyServiceImpl{
 			System.out.println("Core File Service bound.");
 		}
 	}
-	
+
 	public void unbindCoreFileService(ICoreFileService coreFileService){
 		this.coreFileService = null;
 		System.out.println("Core File Service unbound.");
@@ -287,10 +287,10 @@ Otherwise the JAR file is not a bundle.
 
 If you can't get a bundle directly from the library website you can look in a bundle repository.
 
-Eclipse Orbit Repository http://download.eclipse.org/tools/orbit/downloads  
+Eclipse Orbit Repository http://download.eclipse.org/tools/orbit/downloads
 Spring Repository http://ebr.springsource.com
 
-Also you can look in the directory "**plugins**" in your Eclipse installation 
+Also you can look in the directory "**plugins**" in your Eclipse installation
 (Eclipse is based in OSGi) if the necessary bundle is available.
 
 If you found the bundle you can add it to the Target Platform.
@@ -313,7 +313,7 @@ If you want create a new directory in a Target Platform you must do the followin
    "**${workspace_loc}/org.opentosca.targetplatform.container/MyDir**" (Fig. 7)/
    "**${workspace_loc}/org.opentosca.targetplatform.ui.rap/MyDir**"
 
-![Target Definition File](graphics/TargetDefinitionFile.png)  
+![Target Definition File](graphics/TargetDefinitionFile.png)
 **Fig.7: Directory "MyDir" was added to target definition file.**
 
 6. Save the target definition file.
@@ -382,7 +382,7 @@ locally.
 
 #### 	Run the admin user interface in a dedicated tomcat
 
-Copy the admin.war inside the "webapps" folder of your tomcat installation.  
+Copy the admin.war inside the "webapps" folder of your tomcat installation.
 Then browse to the website like http://127.0.0.1:8080/admin/index.action if the tomcat is installed locally.
 
 
