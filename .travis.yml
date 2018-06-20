@@ -8,18 +8,3 @@ dist: trusty
 
 script:
   - mvn package --fail-at-end
-  - mkdir build
-  - cp org.opentosca.container.product/target/products/*.zip build/
-
-deploy:
-  provider: s3
-  skip_cleanup: true
-  access_key_id: $AWSAccessKeyId
-  secret_access_key: $AWSSecretKey
-  bucket: builds.opentosca.org
-  acl: public_read
-  local_dir: "build/"
-  upload-dir: "container/$TRAVIS_BRANCH"
-  region: eu-central-1
-  on:
-    all_branches: true

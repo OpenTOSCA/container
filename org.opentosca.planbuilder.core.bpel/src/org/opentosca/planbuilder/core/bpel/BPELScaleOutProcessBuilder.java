@@ -304,7 +304,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 
-            final String processName = serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name;
+            final String processName =
+                ModelUtils.makeValidNCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
 
             final AbstractPlan abstractScaleOutPlan = generateSOG(new QName(processNamespace, processName).toString(),
@@ -323,7 +324,7 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
             final PropertyMap propMap = this.propertyInitializer.initializePropertiesAsVariables(bpelScaleOutProcess);
 
             // instanceDataAPI handling is done solely trough this extension
-            this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+            this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                bpelScaleOutProcess);
 
             this.serviceInstanceInitializer.addManagementPlanServiceInstanceVarHandlingFromInput(bpelScaleOutProcess);

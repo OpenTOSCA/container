@@ -1,0 +1,787 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements.  See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership.  The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<definitions
+        name="ProcessAndInstanceManagement"
+        targetNamespace="http://www.apache.org/ode/pmapi"
+        xmlns:tns="http://www.apache.org/ode/pmapi"
+        xmlns:typ="http://www.apache.org/ode/pmapi/types/2006/08/02/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="http://www.apache.org/ode/pmapi/types/2006/08/02/" schemaLocation="pmapi.xsd"/>
+        </xsd:schema>
+        <xsd:schema targetNamespace="http://www.apache.org/ode/pmapi">
+            <xsd:complexType name="aidsType">
+                <xsd:all>
+                    <xsd:element name="aid" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:complexType name="listType">
+                <xsd:all>
+                    <xsd:element name="element" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+            <xsd:element name="ManagementFault" type="xsd:string"/>
+        </xsd:schema>
+    </types>
+
+    <message name="listProcessesInput">
+        <part name="filter" type="xsd:string"/>
+        <part name="orderKeys" type="xsd:string"/>
+    </message>
+    <message name="listProcessesOutput">
+        <part name="process-info-list" type="typ:tProcessInfoList"/>
+    </message>
+    <message name="listProcessesCustomInput">
+        <part name="filter" type="xsd:string"/>
+        <part name="orderKeys" type="xsd:string"/>
+        <part name="customizer" type="xsd:string"/>
+    </message>
+    <message name="listProcessesCustomOutput">
+        <part name="process-info-list" type="typ:tProcessInfoList"/>
+    </message>
+    <message name="listAllProcessesInput"/>
+    <message name="listAllProcessesOutput">
+        <part name="process-info-list" type="typ:tProcessInfoList"/>
+    </message>
+    <message name="getProcessInfoInput">
+        <part name="pid" type="xsd:QName"/>
+    </message>
+    <message name="getProcessInfoOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+    <message name="getProcessInfoCustomInput">
+        <part name="pid" type="xsd:QName"/>
+        <part name="customizer" type="xsd:string"/>
+    </message>
+    <message name="getProcessInfoCustomOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+    <message name="getExtensibilityElementsInput">
+        <part name="pid" type="xsd:QName"/>
+        <part name="aids" type="tns:aidsType"/>
+    </message>
+    <message name="getExtensibilityElementsOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+    <message name="setProcessPropertyNodeInput">
+        <part name="pid" type="xsd:QName"/>
+        <part name="propertyName" type="xsd:QName"/>
+        <part name="propertyValue" type="xsd:anyType"/>
+    </message>
+    <message name="setProcessPropertyNodeOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+    <message name="setProcessPropertyInput">
+        <part name="pid" type="xsd:QName"/>
+        <part name="propertyName" type="xsd:QName"/>
+        <part name="propertyValue" type="xsd:string"/>
+    </message>
+    <message name="setProcessPropertyOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+    <message name="activateInput">
+        <part name="pid" type="xsd:QName"/>
+    </message>
+    <message name="activateOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+    <message name="setRetiredInput">
+        <part name="pid" type="xsd:QName"/>
+        <part name="retired" type="xsd:boolean"/>
+    </message>
+    <message name="setRetiredOutput">
+        <part name="process-info" type="typ:tProcessInfo"/>
+    </message>
+
+    <message name="listInstancesInput">
+        <part name="filter" type="xsd:string"/>
+        <part name="order" type="xsd:string"/>
+        <part name="limit" type="xsd:int"/>
+    </message>
+    <message name="listInstancesOutput">
+        <part name="instance-info-list" type="typ:tInstanceInfoList"/>
+    </message>
+    <message name="listInstancesSummaryInput">
+        <part name="filter" type="xsd:string"/>
+        <part name="order" type="xsd:string"/>
+        <part name="limit" type="xsd:int"/>
+    </message>
+    <message name="listInstancesSummaryOutput">
+        <part name="instance-info-list" type="typ:tInstanceInfoList"/>
+    </message>
+    <message name="queryInstancesInput">
+        <part name="payload" type="xsd:string"/>
+    </message>
+    <message name="queryInstancesOutput">
+        <part name="instance-info-list" type="typ:tInstanceInfoList"/>
+    </message>
+    <message name="listAllInstancesInput"/>
+    <message name="listAllInstancesOutput">
+        <part name="instance-info-list" type="typ:tInstanceInfoList"/>
+    </message>
+    <message name="listAllInstancesWithLimitInput">
+        <part name="payload" type="xsd:int"/>
+    </message>
+    <message name="listAllInstancesWithLimitOutput">
+        <part name="instance-info-list" type="typ:tInstanceInfoList"/>
+    </message>
+    <message name="getInstanceInfoInput">
+        <part name="iid" type="xsd:long"/>
+    </message>
+    <message name="getInstanceInfoOutput">
+        <part name="instance-info" type="typ:tInstanceInfo"/>
+    </message>
+    <message name="getScopeInfoInput">
+        <part name="siid" type="xsd:long"/>
+    </message>
+    <message name="getScopeInfoOutput">
+        <part name="scope-info" type="typ:tScopeInfo"/>
+    </message>
+    <message name="getScopeInfoWithActivityInput">
+        <part name="sid" type="xsd:long"/>
+        <part name="activityInfo" type="xsd:boolean"/>
+    </message>
+    <message name="getScopeInfoWithActivityOutput">
+        <part name="scope-info" type="typ:tScopeInfo"/>
+    </message>
+    <message name="getVariableInfoInput">
+        <part name="sid" type="xsd:string"/>
+        <part name="varName" type="xsd:string"/>
+    </message>
+    <message name="getVariableInfoOutput">
+        <part name="variable-info" type="typ:tVariableInfo"/>
+    </message>
+    <message name="setVariableInput">
+        <part name="sid" type="xsd:string"/>
+        <part name="varName" type="xsd:string"/>
+        <part name="value" type="xsd:anyType"/>
+    </message>
+    <message name="setVariableOutput">
+        <part name="scope-info" type="typ:tVariableInfo"/>
+    </message>
+    <message name="listEventsInput">
+        <part name="instanceFilter" type="xsd:string"/>
+        <part name="eventFilter" type="xsd:string"/>
+        <part name="maxCount" type="xsd:int"/>
+    </message>
+    <message name="listEventsOutput">
+        <part name="bpel-event-list" type="typ:tEventInfoList"/>
+    </message>
+    <message name="getEventTimelineInput">
+        <part name="instanceFilter" type="xsd:string"/>
+        <part name="eventFilter" type="xsd:string"/>
+    </message>
+    <message name="getEventTimelineOutput">
+        <part name="dates" type="tns:listType"/>
+    </message>
+    <message name="suspendInput">
+        <part name="iid" type="xsd:long"/>
+    </message>
+    <message name="suspendOutput">
+        <part name="instance-info" type="typ:tInstanceInfo"/>
+    </message>
+    <message name="resumeInput">
+        <part name="iid" type="xsd:long"/>
+    </message>
+    <message name="resumeOutput">
+        <part name="instance-info" type="typ:tInstanceInfo"/>
+    </message>
+    <message name="terminateInput">
+        <part name="iid" type="xsd:long"/>
+    </message>
+    <message name="terminateOutput">
+        <part name="instance-info" type="typ:tInstanceInfo"/>
+    </message>
+    <message name="faultInput">
+        <part name="iid" type="xsd:long"/>
+    </message>
+    <message name="faultOutput">
+        <part name="instance-info" type="typ:tInstanceInfo"/>
+    </message>
+    <message name="deleteInput">
+        <part name="filter" type="xsd:string"/>
+    </message>
+    <message name="deleteOutput">
+        <part name="list" type="tns:listType"/>
+    </message>
+    <message name="recoverActivityInput">
+        <part name="iid" type="xsd:long"/>
+        <part name="aid" type="xsd:long"/>
+        <part name="action" type="xsd:string"/>
+    </message>
+    <message name="recoverActivityOutput">
+        <part name="instance-info" type="typ:tInstanceInfo"/>
+    </message>
+    <message name="replayInput">
+        <part name="replay" type="typ:Replay"/>
+    </message>
+    <message name="replayOutput">
+        <part name="replayResponse" type="typ:ReplayResponse"/>
+    </message>
+    <message name="getCommunicationInput">
+        <part name="getCommunication" type="typ:GetCommunication"/>
+    </message>
+    <message name="getCommunicationOutput">
+        <part name="getCommunicationResponse" type="typ:GetCommunicationResponse"/>
+    </message>
+    <message name="managementFault">
+        <part name="managementFault" element="tns:ManagementFault"/>
+    </message>
+
+    <portType name="ProcessManagementPortType">
+        <operation name="listProcesses">
+            <input message="tns:listProcessesInput"/>
+            <output message="tns:listProcessesOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="listAllProcesses">
+            <input message="tns:listAllProcessesInput"/>
+            <output message="tns:listAllProcessesOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="listProcessesCustom">
+            <input message="tns:listProcessesCustomInput"/>
+            <output message="tns:listProcessesCustomOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getProcessInfo">
+            <input message="tns:getProcessInfoInput"/>
+            <output message="tns:getProcessInfoOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getProcessInfoCustom">
+            <input message="tns:getProcessInfoCustomInput"/>
+            <output message="tns:getProcessInfoCustomOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="setProcessProperty">
+            <input message="tns:setProcessPropertyInput"/>
+            <output message="tns:setProcessPropertyOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="setProcessPropertyNode">
+            <input message="tns:setProcessPropertyNodeInput"/>
+            <output message="tns:setProcessPropertyNodeOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getExtensibilityElements">
+            <input message="tns:getExtensibilityElementsInput"/>
+            <output message="tns:getExtensibilityElementsOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="activate">
+            <input message="tns:activateInput"/>
+            <output message="tns:activateOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="setRetired">
+            <input message="tns:setRetiredInput"/>
+            <output message="tns:setRetiredOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+    </portType>
+
+    <portType name="InstanceManagementPortType">
+        <operation name="listInstances">
+            <input message="tns:listInstancesInput"/>
+            <output message="tns:listInstancesOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="listInstancesSummary">
+            <input message="tns:listInstancesSummaryInput"/>
+            <output message="tns:listInstancesSummaryOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="queryInstances">
+            <input message="tns:queryInstancesInput"/>
+            <output message="tns:queryInstancesOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="listAllInstances">
+            <input message="tns:listAllInstancesInput"/>
+            <output message="tns:listAllInstancesOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="listAllInstancesWithLimit">
+            <input message="tns:listAllInstancesWithLimitInput"/>
+            <output message="tns:listAllInstancesWithLimitOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getInstanceInfo">
+            <input message="tns:getInstanceInfoInput"/>
+            <output message="tns:getInstanceInfoOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getScopeInfo">
+            <input message="tns:getScopeInfoInput"/>
+            <output message="tns:getScopeInfoOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getScopeInfoWithActivity">
+            <input message="tns:getScopeInfoWithActivityInput"/>
+            <output message="tns:getScopeInfoWithActivityOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getVariableInfo">
+            <input message="tns:getVariableInfoInput"/>
+            <output message="tns:getVariableInfoOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="setVariable">
+            <input message="tns:setVariableInput"/>
+            <output message="tns:setVariableOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="listEvents">
+            <input message="tns:listEventsInput"/>
+            <output message="tns:listEventsOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getEventTimeline">
+            <input message="tns:getEventTimelineInput"/>
+            <output message="tns:getEventTimelineOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="suspend">
+            <input message="tns:suspendInput"/>
+            <output message="tns:suspendOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="resume">
+            <input message="tns:resumeInput"/>
+            <output message="tns:resumeOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="terminate">
+            <input message="tns:terminateInput"/>
+            <output message="tns:terminateOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="fault">
+            <input message="tns:faultInput"/>
+            <output message="tns:faultOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="delete">
+            <input message="tns:deleteInput"/>
+            <output message="tns:deleteOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="recoverActivity">
+            <input message="tns:recoverActivityInput"/>
+            <output message="tns:recoverActivityOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="replay">
+            <input message="tns:replayInput"/>
+            <output message="tns:replayOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+        <operation name="getCommunication">
+            <input message="tns:getCommunicationInput"/>
+            <output message="tns:getCommunicationOutput"/>
+            <fault name="ManagementFault" message="tns:managementFault"/>
+        </operation>
+    </portType>
+
+    <binding name="ProcessManagementBinding" type="tns:ProcessManagementPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="listProcesses">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="listAllProcesses">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="listProcessesCustom">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getProcessInfo">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getProcessInfoCustom">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getExtensibilityElements">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="setProcessProperty">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="setProcessPropertyNode">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="activate">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="setRetired">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+    </binding>
+
+    <binding name="InstanceManagementBinding" type="tns:InstanceManagementPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="listInstances">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="listInstancesSummary">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="queryInstances">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="listAllInstances">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="listAllInstancesWithLimit">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getInstanceInfo">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getScopeInfo">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getScopeInfoWithActivity">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getVariableInfo">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="setVariable">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="listEvents">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getEventTimeline">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="suspend">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="resume">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="terminate">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="fault">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="delete">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="recoverActivity">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="replay">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+        <operation name="getCommunication">
+            <soap:operation soapAction="" style="rpc"/>
+            <input>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </input>
+            <output>
+                <soap:body namespace="http://www.apache.org/ode/pmapi" use="literal"/>
+            </output>
+            <fault name="ManagementFault">
+                <soap:fault name="ManagementFault" use="literal"/>
+             </fault>
+        </operation>
+    </binding>
+
+    <service name="ProcessManagementService">
+        <port name="ProcessManagementPort" binding="tns:ProcessManagementBinding">
+            <soap:address location="http://localhost:8080/ode/processes/ProcessManagement"/>
+        </port>
+    </service>
+    <service name="InstanceManagementService">
+        <port name="InstanceManagementPort" binding="tns:InstanceManagementBinding">
+            <soap:address location="http://localhost:8080/ode/processes/InstanceManagement"/>
+        </port>
+    </service>
+
+</definitions>

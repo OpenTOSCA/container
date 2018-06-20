@@ -16,7 +16,9 @@ ENV PUBLIC_HOSTNAME localhost
 ENV CONTAINER_REPOSITORY_HOSTNAME localhost
 ENV ENGINE_PLAN_HOSTNAME localhost
 ENV ENGINE_IA_HOSTNAME localhost
-ENV CONTAINER_DEPLOYMENT_TESTS false
+ENV ENGINE_PLAN ODE
+ENV ENGINE_PLAN_ROOT_URL http://localhost:9763/ode
+ENV ENGINE_PLAN_SERVICES_URL http://localhost:9763/ode/processes
 
 RUN rm /dev/random && ln -s /dev/urandom /dev/random \
     && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -31,8 +33,10 @@ RUN ln -s /opt/opentosca/container/OpenTOSCA /usr/local/bin/opentosca-container 
     && chmod +x /usr/local/bin/opentosca-container
 
 ADD docker/config.ini.tpl /opt/opentosca/container/config.ini.tpl
+ADD docker/OpenTOSCA.ini.tpl /opt/opentosca/container/OpenTOSCA.ini.tpl
 
 EXPOSE 1337
 
 CMD dockerize -template /opt/opentosca/container/config.ini.tpl:/opt/opentosca/container/configuration/config.ini \
+    -template /opt/opentosca/container/OpenTOSCA.ini.tpl:/opt/opentosca/container/OpenTOSCA.ini \
     /usr/local/bin/opentosca-container
