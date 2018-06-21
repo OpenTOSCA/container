@@ -8,6 +8,7 @@ import java.util.Map;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.IInstanceDataService;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * @see IManagementBusPluginService
  * @see IToscaEngineService
  * @see ICoreEndpointService
+ * @see ICoreCapabilityService
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  *
@@ -40,6 +42,7 @@ public class ServiceHandler {
     public static IInstanceDataService instanceDataService, oldInstanceDataService;
     public static ICoreEndpointService endpointService, oldEndpointService;
     public static IToscaEngineService toscaEngineService, oldToscaEngineService;
+    public static ICoreCapabilityService capabilityService, oldCapabilityService;
 
     private final static Logger LOG = LoggerFactory.getLogger(ServiceHandler.class);
 
@@ -54,7 +57,7 @@ public class ServiceHandler {
             if (ServiceHandler.endpointService == null) {
                 ServiceHandler.endpointService = endpointService;
             } else {
-                ServiceHandler.oldEndpointService = endpointService;
+                ServiceHandler.oldEndpointService = ServiceHandler.endpointService;
                 ServiceHandler.endpointService = endpointService;
             }
 
@@ -90,7 +93,7 @@ public class ServiceHandler {
             if (ServiceHandler.toscaEngineService == null) {
                 ServiceHandler.toscaEngineService = toscaEngineService;
             } else {
-                ServiceHandler.oldToscaEngineService = toscaEngineService;
+                ServiceHandler.oldToscaEngineService = ServiceHandler.toscaEngineService;
                 ServiceHandler.toscaEngineService = toscaEngineService;
             }
 
@@ -125,7 +128,7 @@ public class ServiceHandler {
             if (ServiceHandler.instanceDataService == null) {
                 ServiceHandler.instanceDataService = instanceDataService;
             } else {
-                ServiceHandler.oldInstanceDataService = instanceDataService;
+                ServiceHandler.oldInstanceDataService = ServiceHandler.instanceDataService;
                 ServiceHandler.instanceDataService = instanceDataService;
             }
 
@@ -149,6 +152,42 @@ public class ServiceHandler {
         }
 
         ServiceHandler.LOG.debug("Unbind InstanceDataServiceInterface unbound.");
+    }
+
+    /**
+     * Bind CapabilityService
+     *
+     * @param capabilityService
+     */
+    public void bindCapabilityService(final ICoreCapabilityService capabilityService) {
+        if (capabilityService != null) {
+            if (ServiceHandler.capabilityService == null) {
+                ServiceHandler.capabilityService = capabilityService;
+            } else {
+                ServiceHandler.oldCapabilityService = ServiceHandler.capabilityService;
+                ServiceHandler.capabilityService = capabilityService;
+            }
+
+            ServiceHandler.LOG.debug("Bind ICoreCapabilityService: {} bound.",
+                                     ServiceHandler.capabilityService.toString());
+        } else {
+            ServiceHandler.LOG.error("Bind ICoreCapabilityService: Supplied parameter is null!");
+        }
+    }
+
+    /**
+     * Unbind CapabilityService
+     *
+     * @param capabilityService
+     */
+    public void unbindCapabilityService(ICoreCapabilityService capabilityService) {
+        if (ServiceHandler.oldCapabilityService == null) {
+            capabilityService = null;
+        } else {
+            ServiceHandler.oldCapabilityService = null;
+        }
+
+        ServiceHandler.LOG.debug("Unbind ICoreCapabilityService unbound.");
     }
 
     /**

@@ -71,7 +71,18 @@ public enum MBHeader {
 
     APIID_STRING,
 
+    /**
+     * <b>ARTIFACTTEMPLATEID_QNAME</b> This header field contains a QName that identifies an
+     * ArtifactTemplate.
+     */
     ARTIFACTTEMPLATEID_QNAME,
+
+    /**
+     * <b>ARTIFACTREFERENCES_LIST_URL</b> This header field contains a list of Strings. Each String
+     * represents an ArifactReference that is defined in the TOSCA file of the ArtifactTemplate
+     * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}.
+     */
+    ARTIFACTREFERENCES_LIST_STRING,
 
     DEPLOYMENT_ARTIFACTS,
 

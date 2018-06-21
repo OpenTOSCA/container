@@ -20,6 +20,8 @@ public class Settings {
             + "/containerapi/CSARs/{csarid}/ServiceTemplates/{servicetemplateid}/Instances/";
     public final static String CONTAINER_INSTANCEDATA_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
         + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/servicetemplates/{servicetemplateid}/instances";
+    public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
+        + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
 
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
