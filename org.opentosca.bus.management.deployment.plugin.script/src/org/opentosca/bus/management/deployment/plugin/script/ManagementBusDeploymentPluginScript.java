@@ -1,11 +1,14 @@
 package org.opentosca.bus.management.deployment.plugin.script;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.deployment.plugin.script.util.Messages;
+import org.opentosca.bus.management.header.MBHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +39,22 @@ public class ManagementBusDeploymentPluginScript implements IManagementBusDeploy
 
     @Override
     public Exchange invokeImplementationArtifactDeployment(final Exchange exchange) {
-        // TODO Auto-generated method stub
-        return null;
+        URI endpoint = null;
+        try {
+            // return dummy endpoint for further processing without aborting due to missing endpoint
+            endpoint = new URI("ManagementBusDeploymentPluginScript:ScriptEndpoint");
+        }
+        catch (final URISyntaxException e) {
+            e.printStackTrace();
+        }
+        exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+        return exchange;
     }
 
     @Override
     public Exchange invokeImplementationArtifactUndeployment(final Exchange exchange) {
-        // TODO Auto-generated method stub
-        return null;
+        exchange.getIn().setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), true);
+        return exchange;
     }
 
     @Override

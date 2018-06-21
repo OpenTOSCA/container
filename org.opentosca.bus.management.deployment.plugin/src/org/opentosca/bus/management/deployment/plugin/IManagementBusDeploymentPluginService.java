@@ -3,6 +3,7 @@ package org.opentosca.bus.management.deployment.plugin;
 import java.util.List;
 
 import org.apache.camel.Exchange;
+import org.opentosca.bus.management.header.MBHeader;
 
 /**
  * Interface of the Management Bus Deployment Plug-ins.<br>
@@ -29,8 +30,9 @@ public interface IManagementBusDeploymentPluginService {
      *        ArtifactReferences to the files that have to be deployed and the "ServiceEndpoint"
      *        property if it is defined.
      *
-     * @return the endpoint of the deployed Implementation Artifact as header field of the exchange
-     *         message or null if the deployment failed.
+     * @return the endpoint of the deployed Implementation Artifact as header field
+     *         ({@link MBHeader#ENDPOINT_URI}) of the exchange message or null if the deployment
+     *         failed.
      *
      */
     public Exchange invokeImplementationArtifactDeployment(Exchange exchange);
@@ -41,7 +43,8 @@ public interface IManagementBusDeploymentPluginService {
      * @param exchange contains all needed information like the NodeTypeImplementation and the path
      *        where the Implementation Artifact was deployed.
      *
-     * @return the result of the undeployment process as part of the exchange message.
+     * @return the result of the undeployment process as header field
+     *         ({@link MBHeader#OPERATIONSTATE_BOOLEAN}) of the exchange message.
      *
      */
     public Exchange invokeImplementationArtifactUndeployment(Exchange exchange);
