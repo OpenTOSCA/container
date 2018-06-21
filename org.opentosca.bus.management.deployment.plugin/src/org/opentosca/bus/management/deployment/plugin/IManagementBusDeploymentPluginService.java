@@ -30,8 +30,8 @@ public interface IManagementBusDeploymentPluginService {
      *        ArtifactReferences to the files that have to be deployed and the "ServiceEndpoint"
      *        property if it is defined.
      *
-     * @return the endpoint of the deployed Implementation Artifact as header field
-     *         ({@link MBHeader#ENDPOINT_URI}) of the exchange message or null if the deployment
+     * @return the endpoint of the deployed Implementation Artifact as header field (see
+     *         {@link MBHeader#ENDPOINT_URI}) of the exchange message or null if the deployment
      *         failed.
      *
      */
@@ -43,8 +43,8 @@ public interface IManagementBusDeploymentPluginService {
      * @param exchange contains all needed information like the NodeTypeImplementation and the path
      *        where the Implementation Artifact was deployed.
      *
-     * @return the result of the undeployment process as header field
-     *         ({@link MBHeader#OPERATIONSTATE_BOOLEAN}) of the exchange message.
+     * @return the result of the undeployment process as header field (see
+     *         {@link MBHeader#OPERATIONSTATE_BOOLEAN}) of the exchange message.
      *
      */
     public Exchange invokeImplementationArtifactUndeployment(Exchange exchange);
@@ -52,11 +52,15 @@ public interface IManagementBusDeploymentPluginService {
     /**
      * Returns the supported deployment-types of the plug-in.
      *
+     * @return list of strings each representing one supported deployment type of the plug-in.
+     *
      */
     public List<String> getSupportedTypes();
 
     /**
      * Returns the provided capabilities of the plug-in.
+     *
+     * @return list of strings each representing one capability of the plug-in.
      *
      */
     public List<String> getCapabilties();
