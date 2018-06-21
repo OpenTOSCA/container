@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.opentosca.bus.management.deployment.plugin.tomcat
+Bundle-SymbolicName: org.opentosca.bus.management.deployment.plugin.tomcat
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.camel;version="2.18.3",
+ org.apache.cxf.message;version="3.1.10",
+ org.eclipse.osgi.util;version="1.1.0",
+ org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.6.4"
+Service-Component: OSGI-INF/*
+Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
+ org.opentosca.bus.management.deployment.plugin;bundle-version="1.0.0",
+ org.opentosca.bus.management;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.opentosca.bus.management.deployment.plugin.tomcat.Activator

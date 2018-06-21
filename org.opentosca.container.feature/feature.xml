@@ -739,6 +739,13 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+         
+   <plugin
+         id="org.opentosca.bus.management.deployment.plugin.tomcat"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
    <plugin
          id="org.opentosca.bus.management.invocation.plugin.script"

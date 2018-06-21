@@ -133,6 +133,7 @@
     <module>org.opentosca.bus.management.api.soaphttp</module>
     <module>org.opentosca.bus.management.deployment.plugin</module>
     <module>org.opentosca.bus.management.deployment.plugin.script</module>
+    <module>org.opentosca.bus.management.deployment.plugin.tomcat</module>
     <module>org.opentosca.bus.management.invocation.plugin</module>
     <module>org.opentosca.bus.management.invocation.plugin.script</module>
     <module>org.opentosca.bus.management.invocation.plugin.rest</module>

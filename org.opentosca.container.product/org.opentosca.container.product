@@ -183,6 +183,7 @@
       <plugin id="org.opentosca.bus.management.api.resthttp" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.api.soaphttp" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.deployment.plugin" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.bus.management.deployment.plugin.tomcat" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.deployment.plugin.script" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.invocation.plugin" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.management.invocation.plugin.rest" autoStart="true" startLevel="5" />
