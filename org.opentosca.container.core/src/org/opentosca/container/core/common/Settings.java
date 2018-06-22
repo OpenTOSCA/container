@@ -23,6 +23,13 @@ public class Settings {
     public final static String OPENTOSCA_CONTAINER_CONTENT_API = "http://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":"
         + Settings.OPENTOSCA_CONTAINER_PORT + "/csars/{csarid}/content/{artifactreference}";
 
+    public final static String ENGINE_IA_TOMCAT_URL =
+        System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.url", "http://localhost:8090");
+    public final static String ENGINE_IA_TOMCAT_USERNAME =
+        System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.username", "admin");
+    public final static String ENGINE_IA_TOMCAT_PASSWORD =
+        System.getProperty("org.opentosca.container.engine.ia.plugin.tomcat.password", "admin");
+
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
