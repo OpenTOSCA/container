@@ -18,6 +18,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  *
  */
 public enum MBHeader {
+
     /**
      * <b>CSARID</b> This header field contains an identifier for a CSAR file in OpenTOSCA (see
      * {@link CSARID}).
@@ -32,8 +33,19 @@ public enum MBHeader {
 
     NODETEMPLATEID_STRING,
 
+    /**
+     * <b>NODETYPEIMPLEMENTATIONID_QNAME</b> This header field contains an identifier for a
+     * NodeTypeImplementation. The NodeTypeImplementation implements the NodeType specified by
+     * {@link MBHeader#NODETYPEID_QNAME}.
+     */
+    NODETYPEIMPLEMENTATIONID_QNAME,
+
     RELATIONSHIPTEMPLATEID_STRING,
 
+    /**
+     * <b>NODETYPEID_QNAME</b> This header field contains the QName of the NodeType which is the
+     * type of the NodeTemplate represented by {@link MBHeader#NODETEMPLATEID_STRING}.
+     */
     NODETYPEID_QNAME,
 
     RELATIONSHIPTYPEID_QNAME,
@@ -73,7 +85,8 @@ public enum MBHeader {
 
     /**
      * <b>ARTIFACTTEMPLATEID_QNAME</b> This header field contains a QName that identifies an
-     * ArtifactTemplate.
+     * ArtifactTemplate. The ArtifactTemplate is part of the NodeTypeImplementation that is
+     * specified by {@link MBHeader#NODETYPEIMPLEMENTATIONID_QNAME}.
      */
     ARTIFACTTEMPLATEID_QNAME,
 
@@ -83,6 +96,13 @@ public enum MBHeader {
      * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}.
      */
     ARTIFACTREFERENCES_LIST_STRING,
+
+    /**
+     * <b>ARTIFACTSERVICEENDPOINT_STRING</b> This header field contains the ServiceEndpoint property
+     * of the ArtifactTemplate represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if it is
+     * defined and null otherwise.
+     */
+    ARTIFACTSERVICEENDPOINT_STRING,
 
     DEPLOYMENT_ARTIFACTS,
 
