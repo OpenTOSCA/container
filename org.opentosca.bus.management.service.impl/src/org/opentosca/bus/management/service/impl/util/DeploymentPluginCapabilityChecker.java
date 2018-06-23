@@ -1,4 +1,4 @@
-package org.opentosca.bus.management.service.impl;
+package org.opentosca.bus.management.service.impl.util;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +11,11 @@ import org.opentosca.container.core.model.capability.provider.ProviderType;
 
 /**
  * Analyzes if a given Implementation Artifact is deployable, meaning checking if the required
- * capabilities of the Implementation Artifact are met by the container and/or available plug-ins.
+ * capabilities of the Implementation Artifact are met by the container and/or available plug-ins
+ * (plan + deployment).
+ *
+ * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
+ *
  */
 
 public class DeploymentPluginCapabilityChecker {

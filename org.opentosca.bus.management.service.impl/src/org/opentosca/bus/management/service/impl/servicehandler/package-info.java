@@ -1,11 +1,14 @@
 /**
  * This package contains methods for the binding and unbinding of needed services. This services are
- * {@link org.opentosca.core.endpoint.service.ICoreEndpointService},
- * {@link org.opentosca.instancedata.service.IInstanceDataService},
- * {@link org.opentosca.bus.management.invocation.plugins.IManagementBusPluginService} and
- * {@link org.opentosca.toscaengine.service.IToscaEngineService}.<br />
- * <br />
- * Copyright 2012 IAAS University of Stuttgart <br />
+ * {@link org.opentosca.container.core.service.ICoreCapabilityService},
+ * {@link org.opentosca.container.core.service.ICoreEndpointService},
+ * {@link org.opentosca.container.core.engine.IToscaEngineServic},
+ * {@link org.opentosca.container.core.service.IInstanceDataService},
+ * {@link org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService} and
+ * {@link org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService}.<br
+ * />
+ *
+ * Copyright 2018 IAAS University of Stuttgart <br />
  * <br />
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de

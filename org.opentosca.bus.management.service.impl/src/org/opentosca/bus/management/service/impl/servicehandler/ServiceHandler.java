@@ -18,15 +18,17 @@ import org.slf4j.LoggerFactory;
  * Helper class that handles all needed services for Management Bus.<br>
  * <br>
  *
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
- * In this class the from the ManagementBus needed services are binded an unbinded.
+ * In this class the from the Management Bus needed services are binded an unbinded.
  *
  *
- * @see IManagementBusPluginService
- * @see IToscaEngineService
+ * @see IManagementBusInvocationPluginService
+ * @see IManagementBusDeploymentPluginService
+ * @see IInstanceDataService
  * @see ICoreEndpointService
+ * @see IToscaEngineService
  * @see ICoreCapabilityService
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
