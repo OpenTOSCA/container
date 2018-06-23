@@ -40,8 +40,8 @@ public interface IManagementBusDeploymentPluginService {
     /**
      * Invokes the undeployment of an Implementation Artifact.
      *
-     * @param exchange contains all needed information like the NodeTypeImplementation and the path
-     *        where the Implementation Artifact was deployed.
+     * @param exchange contains all needed information like the endpoint of the deployed
+     *        Implementation Artifact.
      *
      * @return the result of the undeployment process as header field (see
      *         {@link MBHeader#OPERATIONSTATE_BOOLEAN}) of the exchange message.

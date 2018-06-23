@@ -318,7 +318,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                             // call the determined plug-in to deploy the IA
                                             ManagementBusServiceImpl.LOG.debug("Deploying IA...");
-                                            deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
+                                            exchange =
+                                                deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
 
                                             endpointURI =
                                                 message.getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
@@ -504,7 +505,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         if (wasFound) {
             ManagementBusServiceImpl.LOG.warn("Trying to invoke the operation on the deployed implementation artifact.");
             exchange = callMatchingPlugin(exchange, invocationType);
-
         } else {
             ManagementBusServiceImpl.LOG.warn("No invokable implementation artifact found that provides required interface/operation.");
         }
