@@ -889,20 +889,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.opentosca.container.engine.ia.plugin.script"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.opentosca.container.engine.ia.plugin.tomcat"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.opentosca.container.engine.plan"
          download-size="0"
          install-size="0"
