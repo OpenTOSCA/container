@@ -1,6 +1,5 @@
 package org.opentosca.container.api.legacy.osgi.servicegetter;
 
-import org.opentosca.container.api.legacy.Activator;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
@@ -25,14 +24,14 @@ public class ToscaServiceHandler {
     private static IXMLSerializerService xmlSerializerService;
     private static IToscaEngineService toscaEngineService;
 
-
     public static IXMLSerializer getIXMLSerializer() {
-        final BundleContext context = Activator.getContext();
-        final ServiceReference<IXMLSerializerService> service =
-            context.getServiceReference(IXMLSerializerService.class);
-        return context.getService(service).getXmlSerializer();
+        return xmlSerializerService.getXmlSerializer();
     }
-
+    
+    public static IToscaEngineService getToscaEngineService() {
+        return toscaEngineService;
+    }
+    
     public void bindIXMLSerializerService(final IXMLSerializerService fa) {
         ToscaServiceHandler.LOG.debug("ContainerApi: Bind IXMLSerializerService");
         ToscaServiceHandler.xmlSerializerService = fa;
@@ -41,12 +40,6 @@ public class ToscaServiceHandler {
     public void unbindIXMLSerializerService(final IXMLSerializerService fa) {
         ToscaServiceHandler.LOG.debug("ContainerApi: Unbind IXMLSerializerService");
         ToscaServiceHandler.xmlSerializerService = null;
-    }
-
-    public static IToscaEngineService getToscaEngineService() {
-        final BundleContext context = Activator.getContext();
-        final ServiceReference<IToscaEngineService> service = context.getServiceReference(IToscaEngineService.class);
-        return context.getService(service);
     }
 
     public void bindToscaEngineService(final IToscaEngineService fa) {
