@@ -281,7 +281,8 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             }
         }
         catch (final Exception e) {
-            ManagementBusDeploymentPluginTomcat.LOG.error("Error while checking for availability of the Tomcat: {}", e);
+            ManagementBusDeploymentPluginTomcat.LOG.error("Error while checking for availability of the Tomcat: {}",
+                                                          e.getMessage());
         }
 
         return false;
