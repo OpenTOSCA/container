@@ -6,7 +6,10 @@ import java.util.List;
 /**
  * Interface that provides methods to access files stored in this File Access Service.
  */
-// TODO: Why do we need this class? Seems like a test class...
+// FIXME: This is a testclass with some legit usecases splattered across the codebase
+//  it needs to be spliced into the testclass and the class with legit usecases.
+//  For now we deprecated it to replace it with two separate better named classes for the separate purposes. 
+@Deprecated
 public interface IFileAccessService {
 
     /**

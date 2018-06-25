@@ -26,8 +26,9 @@ public class Settings {
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
-    public final static String OPENTOSCA_DEPLOYMENT_TESTS =
-        System.getProperty("org.opentosca.deployment.tests", "false");
+    public final static String OPENTOSCA_DEPLOYMENT_TESTS = System.getProperty("org.opentosca.deployment.tests", "false");
+    
+    public final static String CONTAINER_STORAGE_BASEPATH = "org.opentosca.container.storage.basepath";
 
     // TODO: Use public static final variables instead, as in
     // StaticTOSCANamespaces. The problems with the current approach is: (i)

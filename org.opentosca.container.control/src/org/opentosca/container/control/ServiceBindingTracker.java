@@ -21,7 +21,6 @@ import org.opentosca.container.core.service.IPlanInvocationEngine;
 import org.opentosca.container.core.service.internal.ICoreInternalCapabilityService;
 import org.opentosca.container.core.service.internal.ICoreInternalDeploymentTrackerService;
 import org.opentosca.container.core.service.internal.ICoreInternalEndpointService;
-import org.opentosca.container.core.service.internal.ICoreInternalFileService;
 import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
 import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
@@ -44,7 +43,6 @@ public class ServiceBindingTracker {
     ICoreInternalCapabilityService coreInternalCapabilityService;
     ICoreInternalDeploymentTrackerService coreInternalDeploymentTrackerService;
     ICoreInternalEndpointService coreInternalEndpointService;
-    ICoreInternalFileService coreInternalFileService;
     ICoreInternalModelRepositoryService coreInternalModelRepositoryService;
     ICoreModelRepositoryService coreModelRepositoryService;
     IFileAccessService fileAccessService;
@@ -325,33 +323,6 @@ public class ServiceBindingTracker {
     protected void unbindICoreInternalEndpointService(final ICoreInternalEndpointService service) {
         this.LOG.debug("Unbind of the ICoreInternalEndpointService.");
         this.coreInternalEndpointService = null;
-        this.log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindICoreInternalFileService(final ICoreInternalFileService service) {
-        if (service == null) {
-            this.LOG.error("Service ICoreInternalFileService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICoreInternalFileService.");
-            this.coreInternalFileService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindICoreInternalFileService(final ICoreInternalFileService service) {
-        this.LOG.debug("Unbind of the ICoreInternalFileService.");
-        this.coreInternalFileService = null;
         this.log_offline(service.getClass().getSimpleName());
     }
 

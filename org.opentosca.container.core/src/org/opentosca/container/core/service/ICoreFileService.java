@@ -7,7 +7,6 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.service.internal.ICoreInternalFileService;
 
 /**
  * This interface of the Core File Service defines methods for<br />
@@ -26,6 +25,7 @@ import org.opentosca.container.core.service.internal.ICoreInternalFileService;
  * @author Rene Trefft - rene.trefft@developers.opentosca.org
  *
  */
+@Deprecated
 public interface ICoreFileService {
     /**
      * Stores the CSAR file {@code csarFile}.<br />

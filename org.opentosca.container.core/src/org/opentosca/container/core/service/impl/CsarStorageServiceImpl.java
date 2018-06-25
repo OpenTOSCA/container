@@ -2,6 +2,7 @@ package org.opentosca.container.core.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,12 +11,12 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.core.Response;
-
+import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
+import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
+import org.opentosca.container.core.impl.service.ZipManager;
 import org.opentosca.container.core.impl.service.internal.file.csar.CSARMetaDataJPAStore;
 import org.opentosca.container.core.impl.service.internal.file.csar.CSARUnpacker;
 import org.opentosca.container.core.impl.service.internal.file.csar.CSARValidator;
@@ -25,8 +26,6 @@ import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.csar.toscametafile.TOSCAMetaFile;
-import org.opentosca.container.core.model.csar.toscametafile.TOSCAMetaFileParser;
 import org.opentosca.container.core.next.utils.Consts;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.IFileAccessService;
@@ -44,9 +43,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
      */
     private final String TOSCA_META_FILE_REL_PATH = Settings.getSetting("toscaMetaFileRelPath");
     // FIXME obtain from settings or otherwise
-    private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting("org.opentosca.csar.basepath"));
+    private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
     private static final CSARMetaDataJPAStore JPA_STORE = new CSARMetaDataJPAStore();
-    private static IFileAccessService fileAccessService = null;
     
     @Override
     public Set<Csar> findAll() {
@@ -59,7 +57,9 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         }
         catch (IOException e) {
             LOGGER.error("Error when traversing '{}' for CSARs", CSAR_BASE_PATH);
-            throw new ServerErrorException(Response.serverError().build());
+            // FIXME the service shouldn't know it's called by a webserver!
+//            throw new ServerErrorException(Response.serverError().build());
+            throw new UncheckedIOException(e);
         }
         return csars;
     }
@@ -94,13 +94,12 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 "\"" + csarLocation.toString() + "\" to store is not an absolute path to an existing file.");
         }
 
-        final CsarId csarID = new CsarId(csarLocation);
-
-        if (JPA_STORE.isCSARMetaDataStored(csarID.toOldCsarId())) {
+        // because the csar file is stored with that name
+        final CSARID candidateId = new CSARID(csarLocation.getFileName().toString());
+        if (JPA_STORE.isCSARMetaDataStored(candidateId)) {
             throw new UserException(
-                "CSAR \"" + csarID.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
+                "CSAR \"" + candidateId.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
         }
-
 
         CSARUnpacker csarUnpacker = new CSARUnpacker(csarLocation);
         csarUnpacker.unpackAndVisitUnpackDir();
@@ -108,7 +107,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         Path csarUnpackDir = csarUnpacker.getUnpackDirectory();
         try {
             DirectoryVisitor csarVisitor = csarUnpacker.getFilesAndDirectories();
-            final CSARValidator csarValidator = new CSARValidator(csarID.toOldCsarId(), csarUnpackDir, csarVisitor);
+            final CSARValidator csarValidator = new CSARValidator(candidateId, csarUnpackDir, csarVisitor);
 
             if (!csarValidator.isValid()) {
                 throw new UserException(csarValidator.getErrorMessage());
@@ -128,11 +127,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 final Path directoryRelToCSARRoot = csarUnpackDir.relativize(directoryInCSARUnpackDir);
                 directories.add(directoryRelToCSARRoot);
             }
+            CsarId storedId = new CsarId(csarUnpackDir);
+            JPA_STORE.storeCSARMetaData(storedId.toOldCsarId(), directories, new HashMap<>(), toscaMetaFile);
 
-            JPA_STORE.storeCSARMetaData(csarID.toOldCsarId(), directories, new HashMap<>(), toscaMetaFile);
-
-            LOGGER.debug("Storing CSAR \"{}\" located at \"{}\" successfully completed.", csarID, csarLocation);
-            return csarID;
+            LOGGER.debug("Storing CSAR \"{}\" located at \"{}\" successfully completed.", storedId, csarLocation);
+            return storedId;
         }
         finally {
             // clean up the unpack dir
@@ -177,7 +176,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Exporting CSAR \"{}\"...", csarId);
         final Set<Path> directoriesOfCSAR = JPA_STORE.getDirectories(csarId.toOldCsarId());
 
-        final Path tempDirectory = fileAccessService.getTemp().toPath();
+        final Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
         final Path csarDownloadDirectory = tempDirectory.resolve("content");
 
         try {
@@ -188,7 +187,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             }
 
             final Path csarFile = tempDirectory.resolve(csarId.getSaveLocation().getFileName());
-            fileAccessService.zip(csarDownloadDirectory.toFile(), csarFile.toFile());
+            // FIXME was encapsulated in IFileAccessService. Don't make this a hard dep
+            ZipManager.getInstance().zip(csarDownloadDirectory.toFile(), csarFile.toFile());
             LOGGER.debug("CSAR \"{}\" was successfully exported to \"{}\".", csarId, csarFile);
             return csarFile;
         }
@@ -207,29 +207,4 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             }
         }
     }
-    
-    /**
-     * Binds the File Access Service.
-     *
-     * @param fileAccessService to bind
-     */
-    protected void bindFileAccessService(final IFileAccessService injectedService) {
-        if (injectedService == null) {
-            LOGGER.warn("Can't bind File Access Service.");
-        } else {
-            fileAccessService = injectedService;
-            LOGGER.debug("File Access Service bound.");
-        }
-    }
-
-    /**
-     * Unbinds the File Access Service.
-     *
-     * @param fileAccessService to unbind
-     */
-    protected void unbindFileAccessService(final IFileAccessService removedService) {
-        fileAccessService = null;
-        LOGGER.debug("File Access Service unbound.");
-    }
-
 }

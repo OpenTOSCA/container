@@ -40,9 +40,6 @@ public class CsarService {
 
     private IToscaEngineService engineService;
 
-    private IFileAccessService fileAccessService;
-
-
     /**
      * Loads all available CSARs as {@link CSARContent}
      *
@@ -134,7 +131,7 @@ public class CsarService {
 
     public File storeTemporaryFile(final String filename, final InputStream is) {
 
-        final File tempDirectory = this.fileAccessService.getTemp();
+        final File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
 
         // Make sure the temp directory exists
         tempDirectory.mkdir();
@@ -190,9 +187,5 @@ public class CsarService {
 
     public void setEngineService(final IToscaEngineService engineService) {
         this.engineService = engineService;
-    }
-
-    public void setFileAccessService(final IFileAccessService fileAccessService) {
-        this.fileAccessService = fileAccessService;
     }
 }

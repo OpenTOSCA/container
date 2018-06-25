@@ -44,7 +44,6 @@ import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.service.ICoreFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

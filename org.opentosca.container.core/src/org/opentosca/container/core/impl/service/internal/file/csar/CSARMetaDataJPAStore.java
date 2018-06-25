@@ -10,11 +10,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.opentosca.container.core.common.NotFoundException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.csar.toscametafile.TOSCAMetaFile;
 import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
