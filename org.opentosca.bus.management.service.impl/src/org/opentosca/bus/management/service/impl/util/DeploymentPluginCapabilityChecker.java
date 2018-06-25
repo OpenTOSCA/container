@@ -12,7 +12,11 @@ import org.opentosca.container.core.model.capability.provider.ProviderType;
 /**
  * Analyzes if a given Implementation Artifact is deployable, meaning checking if the required
  * capabilities of the Implementation Artifact are met by the container and/or available plug-ins
- * (plan + deployment).
+ * (plan + deployment).<br>
+ * <br>
+ *
+ * Copyright 2018 IAAS University of Stuttgart <br>
+ * <br>
  *
  * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  *

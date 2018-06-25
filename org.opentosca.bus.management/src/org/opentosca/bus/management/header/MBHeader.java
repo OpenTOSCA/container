@@ -111,5 +111,12 @@ public enum MBHeader {
      * that is called by passing the camel exchange message to a service or plug-in. It is true if
      * the operation was called successful and false otherwise.
      */
-    OPERATIONSTATE_BOOLEAN
+    OPERATIONSTATE_BOOLEAN,
+
+    /**
+     * <b>DEPLOYMENTLOCATION_STRING</b> This header field contains the host name of the OpenTOSCA
+     * container where the ArtifactTemplate identified by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
+     * has to be deployed.
+     */
+    DEPLOYMENTLOCATION_STRING
 }

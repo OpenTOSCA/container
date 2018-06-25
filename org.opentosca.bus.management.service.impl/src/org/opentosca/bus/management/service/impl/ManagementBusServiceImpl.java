@@ -17,6 +17,7 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
+import org.opentosca.bus.management.service.impl.util.DeploymentDistributionDecisionMaker;
 import org.opentosca.bus.management.service.impl.util.DeploymentPluginCapabilityChecker;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
@@ -218,13 +219,20 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     message.setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
                                 }
 
-                                // TODO: Determine whether IA call is remote or local. Use this
-                                // information to check for endpoints and to call the correct
-                                // plug-in.
+                                // host name of the container where the IA has to be deployed
+                                final String deploymentLocation =
+                                    DeploymentDistributionDecisionMaker.getDeploymentLocation(serviceTemplateID,
+                                                                                              nodeTemplateID);
+                                message.setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
+                                ManagementBusServiceImpl.LOG.debug("Host name of responsible OpenTOSCA Container: {}",
+                                                                   deploymentLocation);
+
+                                // TODO: Use deployment location to check for available endpoints
+                                // and to call the correct plug-in.
 
                                 // String that identifies an IA uniquely for synchronization
-                                final String identifier =
-                                    nodeTypeImplementationID.toString() + "/" + implementationArtifactName;
+                                final String identifier = deploymentLocation + "/" + nodeTypeImplementationID.toString()
+                                    + "/" + implementationArtifactName;
 
                                 // Prevent two threads from trying to deploy the same IA
                                 // concurrently and avoid the deletion of an IA after successful
@@ -783,7 +791,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Return an Object which can be used to synchronize all actions related to a certain String
+     * Returns an Object which can be used to synchronize all actions related to a certain String
      * value.
      *
      * @param lockString
