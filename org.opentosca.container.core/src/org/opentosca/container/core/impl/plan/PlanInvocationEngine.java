@@ -8,6 +8,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.client.Client;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.Settings;
@@ -40,10 +44,8 @@ import org.w3c.dom.NodeList;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
 /**
  * The Implementation of the Engine. Also deals with OSGI events for communication with the mock-up
@@ -703,18 +705,17 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
 
             this.LOG.debug("Instance ID: " + planInstanceID);
 
-            // TODO: Migrate to new Jersey version
-            final Client client = Client.create();
-            client.addFilter(new HTTPBasicAuthFilter("demo", "demo"));
+            final Client client = ClientBuilder.newClient();
+            client.register(HttpAuthenticationFeature.basic("demo","demo"));
 
             boolean ended = false;
             String path = pathBase + pathProcessInstance + planInstanceID;
-            WebResource webResource = client.resource(path);
-
-            ClientResponse camundaResponse;
+            
+            WebTarget webResource = client.target(path);
+            Response camundaResponse;
             while (!ended) {
-                camundaResponse = webResource.get(ClientResponse.class);
-                final String resp = camundaResponse.getEntity(String.class);
+                camundaResponse = webResource.request().get();
+                final String resp = camundaResponse.readEntity(String.class);
                 this.LOG.debug("Active process instance response: " + resp);
 
                 try {
@@ -745,15 +746,15 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
                 path = pathBase + pathHistoryVariables;
                 // + "?processInstanceId=" + planInstanceID;
 
-                webResource = client.resource(path);
+                webResource = client.target(path);
                 webResource = webResource.queryParam("processInstanceId", planInstanceID);
                 webResource = webResource.queryParam("activityInstanceIdIn", planInstanceID);
                 // webResource = webResource.queryParam("variableName",
                 // "ApplicationURL");
                 webResource = webResource.queryParam("variableName", param.getName());
-                camundaResponse = webResource.get(ClientResponse.class);
-                final String responseStr = camundaResponse.getEntity(String.class);
-                this.LOG.trace("Query:\n{}", webResource.getURI());
+                camundaResponse = webResource.request().get();
+                final String responseStr = camundaResponse.readEntity(String.class);
+                this.LOG.trace("Query:\n{}", webResource.getUri());
                 this.LOG.trace("History has for variable \"{}\" the value \"{}\"", param.getName(), responseStr);
 
                 final JsonParser parser = new JsonParser();
