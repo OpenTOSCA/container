@@ -38,29 +38,24 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
- * This class implements functionality for deployment of WS-BPEL 2.0 Processes
- * through the
- * {@link org.opentosca.planengine.plugin.service.IPlanEnginePlanRefPluginService}
- * unto a WSO2 Business Process Server or Apache Orchestration Director Engine
- * (ODE).
+ * This class implements functionality for deployment of WS-BPEL 2.0 Processes through the
+ * {@link org.opentosca.planengine.plugin.service.IPlanEnginePlanRefPluginService} unto a WSO2
+ * Business Process Server or Apache Orchestration Director Engine (ODE).
  *
  * The class is the highlevel control of the plugin. It uses the classes
- * {@link org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater}
- * to update BPEL4RESTLight (see:
- * OpenTOSCA/trunk/examples/org.opentosca.bpel4restlight.bpelextension)
+ * {@link org.opentosca.container.engine.plan.plugin.bpel.util.BPELRESTLightUpdater} to update
+ * BPEL4RESTLight (see: OpenTOSCA/trunk/examples/org.opentosca.bpel4restlight.bpelextension)
  * extension activities with up-to-date endpoints. The plugin also uses
- * {@link org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater}
- * to update the bindings inside the used WSDL Descriptions referenced in the
- * BPEL process. The endpoints for the update are retrieved through a service
- * that implements the
+ * {@link org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater} to update the
+ * bindings inside the used WSDL Descriptions referenced in the BPEL process. The endpoints for the
+ * update are retrieved through a service that implements the
  * {@link org.opentosca.core.endpoint.service.ICoreEndpointService} interface.
  *
  * The actual deployment is done on the endpoint which is declared in the
- * {@link org.opentosca.container.engine.plan.plugin.bpel.util.Messages} class.
- * The plugin uses {@link org.opentosca.container.connector.bps.BpsConnector} or
- * {@link org.opentosca.container.connector.ode.OdeConnector} class to deploy
- * the updated plan unto the WSO2 BPS or Apache ODE behind the endpoint,
- * respectively.
+ * {@link org.opentosca.container.engine.plan.plugin.bpel.util.Messages} class. The plugin uses
+ * {@link org.opentosca.container.connector.bps.BpsConnector} or
+ * {@link org.opentosca.container.connector.ode.OdeConnector} class to deploy the updated plan unto
+ * the WSO2 BPS or Apache ODE behind the endpoint, respectively.
  *
  * @see org.opentosca.planengine.plugin.bpelwso2.util.BPELRESTLightUpdates
  * @see org.opentosca.container.engine.plan.plugin.bpel.util.ODEEndpointUpdater
@@ -339,7 +334,8 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
 
             // save endpoint
-            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType, csarId, planId, null, null);
+            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType,
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null);
 
             if (this.endpointService != null) {
                 BpelPlanEnginePlugin.LOG.debug("Store new endpoint!");

@@ -227,8 +227,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                 ManagementBusServiceImpl.LOG.debug("Host name of responsible OpenTOSCA Container: {}",
                                                                    deploymentLocation);
 
-                                // TODO: Use deployment location to check for available endpoints
-                                // and to call the correct plug-in.
+                                // TODO: Use deployment location to call the correct plug-in
+                                // (remote/local).
 
                                 // String that identifies an IA uniquely for synchronization
                                 final String identifier = deploymentLocation + "/" + nodeTypeImplementationID.toString()
@@ -243,8 +243,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     // check whether there are already stored endpoints for this IA
                                     URI endpointURI = null;
                                     final List<WSDLEndpoint> endpoints =
-                                        ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(nodeTypeImplementationID,
-                                                                                                          implementationArtifactName);
+                                        ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(deploymentLocation,
+                                                                                                          nodeTypeImplementationID, implementationArtifactName);
 
                                     // TODO: Change endpoint retrieval. It is possible that the same
                                     // nodeTypeImplementationID and the same
@@ -263,8 +263,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                         final QName portType = getPortTypeQName(csarID, artifactTemplateID);
 
                                         // store new endpoint for the IA
-                                        final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType, csarID,
-                                            null, nodeTypeImplementationID, implementationArtifactName);
+                                        final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType,
+                                            deploymentLocation, csarID, serviceInstanceID, null,
+                                            nodeTypeImplementationID, implementationArtifactName);
                                         ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 
                                         // Invokable implementation artifact that provides
@@ -372,9 +373,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                             getPortTypeQName(csarID, artifactTemplateID);
 
                                                         // store new endpoint for the IA
-                                                        final WSDLEndpoint endpoint =
-                                                            new WSDLEndpoint(endpointURI, portType, csarID, null,
-                                                                nodeTypeImplementationID, implementationArtifactName);
+                                                        final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI,
+                                                            portType, deploymentLocation, csarID, serviceInstanceID,
+                                                            null, nodeTypeImplementationID, implementationArtifactName);
                                                         ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
                                                     }
 
@@ -466,16 +467,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                             // EndpointService needs to be refactored.
                             // Distinction of WSDL &
                             // REST Endpoints is obsolete.
-                            final WSDLEndpoint wsdlEndpoint =
-                                ServiceHandler.endpointService.getWSDLEndpointForIa(csarID,
-                                                                                    relationshipTypeImplementationID,
-                                                                                    implementationArtifactName);
+                            final List<WSDLEndpoint> wsdlEndpoint =
+                                ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                                                  relationshipTypeImplementationID, implementationArtifactName);
 
                             // Check if implementation artifact has a stored
                             // endpoint and thus was deployed
                             if (wsdlEndpoint != null) {
 
-                                final URI endpoint = wsdlEndpoint.getURI();
+                                final URI endpoint = wsdlEndpoint.get(0).getURI();
                                 ManagementBusServiceImpl.LOG.debug("Endpoint: " + endpoint.toString());
 
                                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
@@ -857,6 +857,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         try {
             portType = QName.valueOf(getProperty(csarID, artifactTemplateID, "PortType"));
             ManagementBusServiceImpl.LOG.debug("PortType property: {}", portType.toString());
+            return portType;
         }
         catch (final IllegalArgumentException e) {
             ManagementBusServiceImpl.LOG.debug("PortType property can not be parsed to QName.");

@@ -7,7 +7,6 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
-import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint.restMethod;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.internal.ICoreInternalEndpointService;
@@ -42,15 +41,6 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
         return this.endpointService.getWSDLEndpoints(portType, csarId);
     }
 
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy
-     */
-    public WSDLEndpoint getWSDLEndpoint(final QName portType, final CSARID csarId) {
-        return this.endpointService.getWSDLEndpoint(portType, csarId);
-    }
 
     @Override
     /**
@@ -79,28 +69,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
      *
      * This currently acts as a proxy
      */
-    public RESTEndpoint getRestEndpoint(final URI anyURI, final restMethod method, final CSARID csarId) {
-        return this.endpointService.getRestEndpoint(anyURI, method, csarId);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy
-     */
     public void storeRESTEndpoint(final RESTEndpoint endpoint) {
         this.endpointService.storeRESTEndpoint(endpoint);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy
-     */
-    public boolean endpointExists(final URI uri, final CSARID csarId) {
-        return this.endpointService.endpointExists(uri, csarId);
     }
 
     @Override
@@ -114,18 +84,14 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForIa(final CSARID csarId, final QName nodeTypeImpl, final String iaName) {
-        return this.endpointService.getWSDLEndpointForIa(csarId, nodeTypeImpl, iaName);
-    }
-
-    @Override
     public List<WSDLEndpoint> getWSDLEndpointsForCSARID(final CSARID csarId) {
         return this.endpointService.getWSDLEndpointsForCSARID(csarId);
     }
 
     @Override
-    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final QName nodeTypeImpl, final String iaName) {
-        return this.endpointService.getWSDLEndpointsForNTImplAndIAName(nodeTypeImpl, iaName);
+    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final String managingContainer,
+                                                                 final QName nodeTypeImpl, final String iaName) {
+        return this.endpointService.getWSDLEndpointsForNTImplAndIAName(managingContainer, nodeTypeImpl, iaName);
     }
 
     @Override

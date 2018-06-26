@@ -41,7 +41,7 @@ public class Activator implements BundleActivator {
 
         ArtifactTypesHandler.init(bundleContext);
 
-        Activator.LOG.info("REMOTE-IA-Management Bus-PLUGIN-STARTED");
+        Activator.LOG.info("Script-IA-Management Bus-PLUGIN-STARTED");
     }
 
     /*
@@ -52,7 +52,7 @@ public class Activator implements BundleActivator {
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
         Activator.camelContext = null;
-        Activator.LOG.info("REMOTE-IA-Management Bus-PLUGIN-STOPPED");
+        Activator.LOG.info("Script-IA-Management Bus-PLUGIN-STOPPED");
     }
 
 }

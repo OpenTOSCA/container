@@ -29,6 +29,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.ode.schemas.dd._2007._03.TDeployment;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -101,11 +102,11 @@ public class ODEEndpointUpdater {
     /**
      * Changes the endpoints of all WSDL files used by the given WS-BPEL 2.0 Process
      *
-     * @param processFiles a list of files containing the complete content of a Apache ODE WS-BPEL 2.0
-     *        zip file
+     * @param processFiles a list of files containing the complete content of a Apache ODE WS-BPEL
+     *        2.0 zip file
      * @param csarId the identifier of the CSAR where this process/plan is declared
-     * @return true if every WSDL file used by the process was updated (if needed) with endpoints from
-     *         the openTOSCA Core, else false
+     * @return true if every WSDL file used by the process was updated (if needed) with endpoints
+     *         from the openTOSCA Core, else false
      */
     public boolean changeEndpoints(final List<File> processFiles, final CSARID csarId) {
         this.csarId = csarId;
@@ -191,8 +192,8 @@ public class ODEEndpointUpdater {
      * Returns a file named deploy.xml,if it is in the list of files
      *
      * @param files a list of files
-     * @return a file object of a deploy.xml (can be invalid) file if it was found in the given list,
-     *         else null
+     * @return a file object of a deploy.xml (can be invalid) file if it was found in the given
+     *         list, else null
      */
     private File getDeployXML(final List<File> files) {
         for (final File file : files) {
@@ -206,7 +207,8 @@ public class ODEEndpointUpdater {
     }
 
     /**
-     * Returns a list of QName's which are referenced in the ODE deploy.xml File as invoked service.<br>
+     * Returns a list of QName's which are referenced in the ODE deploy.xml File as invoked
+     * service.<br>
      *
      * @param deployXML a file object of a valid deploy.xml File
      * @return a list of QNames which represent the PortTypes used by the BPEL process to invoke
@@ -251,11 +253,13 @@ public class ODEEndpointUpdater {
                 final QName serviceName = provide.getService().getName();
                 // add only qnames which aren't from the plan itself
 
-                // @hahnml: The plan generator assigns to provided services addresses like http://[IP]:8080
+                // @hahnml: The plan generator assigns to provided services addresses like
+                // http://[IP]:8080
                 // which is fine for WSO2 BPS but won't work for Apache ODE. ODE rejects the
                 // deployment if the service addresses do not follow the following schema:
                 // http://[IP]:[Port]/ode/processes/[ServiceName].
-                // Added an engine type check so that for ODE, also the provided process service ports are added.
+                // Added an engine type check so that for ODE, also the provided process service
+                // ports are added.
                 if (this.engineType.equals(BpelPlanEnginePlugin.BPS_ENGINE)) {
                     if (!serviceName.getNamespaceURI().equals(process.getName().getNamespaceURI())) {
                         ports.add(new QName(serviceName.getNamespaceURI(), provide.getService().getPort()));
@@ -300,8 +304,8 @@ public class ODEEndpointUpdater {
     }
 
     /**
-     * Returns a map with QNames as keys and list of files as values, where the QNames are taken out of
-     * the given list of portTypes and the files from the other given List
+     * Returns a map with QNames as keys and list of files as values, where the QNames are taken out
+     * of the given list of portTypes and the files from the other given List
      *
      * @param ports a list of portType QName's
      * @param wsdlFiles a list of wsdl Files
@@ -353,8 +357,8 @@ public class ODEEndpointUpdater {
      *
      * @param port the Port to check with as QName
      * @param wsdlDef the WSDL Definition to look trough
-     * @return a QName representing the PortType implemented by the given Port if it was found inside
-     *         the WSDL Definition, else null
+     * @return a QName representing the PortType implemented by the given Port if it was found
+     *         inside the WSDL Definition, else null
      */
     private QName getPortTypeFromPort(final QName port, final Definition wsdlDef) {
         for (final Object serviceObj : wsdlDef.getServices().values()) {
@@ -416,8 +420,8 @@ public class ODEEndpointUpdater {
     /**
      * Updates the addresses in the given WSDL files by using endpoints added in the endpoint db
      *
-     * @param map a map containing <QName,List<File>> pairs. A QName here represents a portType that is
-     *        inside the files
+     * @param map a map containing <QName,List<File>> pairs. A QName here represents a portType that
+     *        is inside the files
      * @return returns a map <QName,List<File>> containing all the files which weren't changed
      * @throws WSDLException
      */
@@ -560,8 +564,8 @@ public class ODEEndpointUpdater {
          * OpenTOSCA_On_VSphere.csarInvokerService
          * location="http://10.0.2.15:9763/services/OpenTOSCA_On_VSphere. csarInvokerService/
          *
-         * The only difference is the servicesRoot which is '/services/..' for BPS and '/ode/processes/..'
-         * for ODE.
+         * The only difference is the servicesRoot which is '/services/..' for BPS and
+         * '/ode/processes/..' for ODE.
          */
         String callbackEndpoint = "";
         if (this.servicesRoot.endsWith("/")) {
@@ -571,8 +575,8 @@ public class ODEEndpointUpdater {
         }
 
         try {
-            endpoints.add(new WSDLEndpoint(new URI(callbackEndpoint), port.getBinding().getPortType().getQName(), null,
-                null, null, null));
+            endpoints.add(new WSDLEndpoint(new URI(callbackEndpoint), port.getBinding().getPortType().getQName(),
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, null, null, null, null, null));
         }
         catch (final URISyntaxException e) {
             e.printStackTrace();
@@ -606,7 +610,8 @@ public class ODEEndpointUpdater {
     }
 
     /**
-     * Changes the address in the given ExtensibilityElement to address given in the given WSDLEndpoint
+     * Changes the address in the given ExtensibilityElement to address given in the given
+     * WSDLEndpoint
      *
      * @param element the ExtensibilityElement to change
      * @param endpoint the WSDLEndpoint containing the address

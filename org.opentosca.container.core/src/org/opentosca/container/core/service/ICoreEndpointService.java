@@ -7,7 +7,6 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint;
-import org.opentosca.container.core.model.endpoint.rest.RESTEndpoint.restMethod;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.internal.ICoreInternalEndpointService;
 
@@ -23,11 +22,6 @@ public interface ICoreEndpointService {
     public List<WSDLEndpoint> getWSDLEndpoints(QName portType, CSARID csarId);
 
     /**
-     * @see ICoreInternalEndpointService#getWSDLEndpoint
-     */
-    public WSDLEndpoint getWSDLEndpoint(QName portType, CSARID csarId);
-
-    /**
      * @see ICoreInternalEndpointService#storeWSDLEndpoint
      */
     public void storeWSDLEndpoint(WSDLEndpoint endpoint);
@@ -38,19 +32,9 @@ public interface ICoreEndpointService {
     public List<RESTEndpoint> getRestEndpoints(URI anyURI, CSARID csarId);
 
     /**
-     * @see ICoreInternalEndpointService#getRestEndpoint
-     */
-    public RESTEndpoint getRestEndpoint(URI anyURI, restMethod method, CSARID csarId);
-
-    /**
      * @see ICoreInternalEndpointService#getWSDLEndpointForPlanId
      */
     public WSDLEndpoint getWSDLEndpointForPlanId(CSARID csarId, QName planId);
-
-    /**
-     * @see ICoreInternalEndpointService#getWSDLEndpointForIa
-     */
-    public WSDLEndpoint getWSDLEndpointForIa(CSARID csarId, QName nodeTypeImpl, String iaName);
 
     /**
      * @see ICoreInternalEndpointService#getWSDLEndpointsForCSARID
@@ -60,7 +44,8 @@ public interface ICoreEndpointService {
     /**
      * @see ICoreInternalEndpointService#getWSDLEndpointsForNTImplAndIAName
      */
-    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(QName nodeTypeImpl, String iaName);
+    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String managingContainer, QName nodeTypeImpl,
+                                                                 String iaName);
 
     /**
      * @see ICoreInternalEndpointService#getWSDLEndpoints
@@ -71,11 +56,6 @@ public interface ICoreEndpointService {
      * @see ICoreInternalEndpointService#storeRESTEndpoint
      */
     public void storeRESTEndpoint(RESTEndpoint endpoint);
-
-    /**
-     * @see ICoreInternalEndpointService#endpointExists
-     */
-    public boolean endpointExists(URI uri, CSARID csarId);
 
     /**
      * Removes all Endpoints associated with the given CSARID
