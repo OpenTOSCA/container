@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
  * @author Markus Fischer fischema@studi.informatik.uni-stuttgart.de
  *
  */
+// FIXME directly inject the service into the classes that require it
+@Deprecated
 public class IOpenToscaControlServiceHandler {
 
     final private static Logger LOG = LoggerFactory.getLogger(IOpenToscaControlServiceHandler.class);

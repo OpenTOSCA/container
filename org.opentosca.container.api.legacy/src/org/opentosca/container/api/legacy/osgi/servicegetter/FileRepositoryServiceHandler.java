@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
  * @author Markus Fischer fischema@studi.informatik.uni-stuttgart.de
  *
  */
+// FIXME instead directly inject the ICoreFileService or replace it with newer API
+@Deprecated
 public class FileRepositoryServiceHandler {
 
     final private static Logger LOG = LoggerFactory.getLogger(FileRepositoryServiceHandler.class);

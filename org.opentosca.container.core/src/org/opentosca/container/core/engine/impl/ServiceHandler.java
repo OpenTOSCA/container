@@ -6,6 +6,8 @@ import org.opentosca.container.core.service.IFileAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// FIXME we want to inject the services directly, not depend on some Handler
+@Deprecated
 public class ServiceHandler {
 
     public static ICoreFileService coreFileService = null;
