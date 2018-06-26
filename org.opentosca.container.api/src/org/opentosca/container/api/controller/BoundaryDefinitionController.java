@@ -46,7 +46,7 @@ import io.swagger.annotations.ApiParam;
 @Api("/")
 public class BoundaryDefinitionController {
 
-    private final Logger logger = LoggerFactory.getLogger(CsarController.class);
+    private final Logger logger = LoggerFactory.getLogger(BoundaryDefinitionController.class);
 
     @Context
     private UriInfo uriInfo;
