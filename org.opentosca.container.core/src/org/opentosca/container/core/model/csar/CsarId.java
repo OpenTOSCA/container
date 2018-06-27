@@ -25,7 +25,11 @@ public class CsarId implements Comparable<CsarId> {
         saveLocation = CSAR_BASE_PATH.resolve(storeCSAR.getFileName());
     }
 
-    
+    // seems better, but still somewhat ugly
+    public CsarId(String id) {
+        this(Paths.get(id));
+    }
+
     protected void setSaveLocation(Path saveLocation) {
         this.saveLocation = saveLocation;
     }

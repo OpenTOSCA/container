@@ -27,6 +27,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.selfservice.Application;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
@@ -77,74 +78,73 @@ public class CsarController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets all CSARs", response = CsarDTO.class, responseContainer = "List")
     public Response getCsars() {
-
-        final CsarListDTO list = new CsarListDTO();
-
-        for (final CSARContent csarContent : this.csarService.findAll()) {
-            final String id = csarContent.getCSARID().getFileName();
-            final CsarDTO csar = new CsarDTO();
-            csar.setId(id);
-            csar.setDescription(csarContent.getCSARDescription());
-            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                                              .path(CsarController.class, "getCsar").build(id))
-                         .rel("self").build());
-            list.add(csar);
+        try {
+            final CsarListDTO list = new CsarListDTO();
+            for (final Csar csarContent : this.storage.findAll()) {
+                final String id = csarContent.id().getSaveLocation().toString();
+                final CsarDTO csar = new CsarDTO();
+                csar.setId(id);
+                csar.setDescription(csarContent.description());
+                csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder()
+                                          .path(CsarController.class)
+                                          .path(CsarController.class, "getCsar")
+                                          .build(id))
+                             .rel("self").build());
+                list.add(csar);
+            }
+            list.add(Link.fromResource(CsarController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
+            return Response.ok(list).build();
+        } catch (Exception e) {
+            throw new ServerErrorException(Response.serverError().build());
         }
-
-        list.add(Link.fromResource(CsarController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
-
-        return Response.ok(list).build();
     }
 
     @GET
-
     @Path("/{csar}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets a given CSAR", response = CsarDTO.class)
     public Response getCsar(@ApiParam("CSAR id") @PathParam("csar") final String id) {
-
-        final CSARContent csarContent = this.csarService.findById(id);
-        final Application metadata = this.csarService.getSelfserviceMetadata(csarContent);
-
-        final CsarDTO csar = CsarDTO.Converter.convert(metadata);
-
-        // Absolute URLs for icon and image
-        final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
-
-        if (csar.getIconUrl() != null) {
-            final String iconUrl =
-                MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
-            csar.setIconUrl(iconUrl);
-        }
-        if (csar.getImageUrl() != null) {
-            final String imageUrl =
-                MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
-            csar.setImageUrl(imageUrl);
-        }
-
-        csar.setId(id);
-        if (csar.getName() == null) {
-            csar.setName(id);
-        }
-        csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
-                     .baseUri(this.uriInfo.getBaseUri()).build(id));
-        // Add direct link to service template
-        final Set<String> serviceTemplates = this.csarService.getServiceTemplates(new CSARID(id));
-        if (serviceTemplates.size() == 1) {
-            final String name = serviceTemplates.stream().findFirst().get();
+        try {
+            final Csar csarContent = storage.findById(new CsarId(id));
+            final Application metadata = csarContent.selfserviceMetadata();
+    
+            final CsarDTO csar = CsarDTO.Converter.convert(metadata);
+            // Absolute URLs for icon and image
+            final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
+            if (csar.getIconUrl() != null) {
+                final String iconUrl =
+                    MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
+                csar.setIconUrl(iconUrl);
+            }
+            if (csar.getImageUrl() != null) {
+                final String imageUrl =
+                    MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
+                csar.setImageUrl(imageUrl);
+            }
+    
+            csar.setId(id);
+            if (csar.getName() == null) {
+                csar.setName(id);
+            }
+            csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
+                         .baseUri(this.uriInfo.getBaseUri()).build(id));
+            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+                                              .path(CsarController.class, "getContent").build(id))
+                         .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
+            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
+                                              .path(CsarController.class, "getCsar").build(id))
+                         .rel("self").build());
+    
+            final String name = csarContent.entryServiceTemplate().getName();
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
                                               .path(ServiceTemplateController.class, "getServiceTemplate")
                                               .build(id, UriUtil.encodePathSegment(name)))
                          .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
+            
+            return Response.ok(csar).build();
+        } catch (Exception e) {
+            throw new ServerErrorException(Response.serverError().build());
         }
-        csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                                          .path(CsarController.class, "getContent").build(id))
-                     .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
-        csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
-                                          .path(CsarController.class, "getCsar").build(id))
-                     .rel("self").build());
-
-        return Response.ok(csar).build();
     }
 
 

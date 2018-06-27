@@ -1,9 +1,17 @@
 package org.opentosca.container.core.model.csar;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
@@ -11,6 +19,7 @@ import org.eclipse.winery.common.ids.definitions.NodeTypeId;
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
+import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TArtifactTemplate;
 import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedOperation;
@@ -21,10 +30,14 @@ import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.FileSystemFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CsarImpl implements Csar {
 
-    private static final String RELATIVE_TOSCA_META_FILE = "";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsarImpl.class);
+    
+    private static final String RELATIVE_TOSCA_META_FILE = "TOSCA-Metadata/TOSCA.meta";
 
     private final TOSCAMetaFileParser parser = new TOSCAMetaFileParser();
     
@@ -87,6 +100,21 @@ public class CsarImpl implements Csar {
         throw new NotImplementedException("not yet implemented");
     }
 
+    @Override
+    public Application selfserviceMetadata() {
+        try (final InputStream is = Files.newInputStream(id.getSaveLocation().resolve("SELFSERVICE-Metadata").resolve("data.xml"), StandardOpenOption.READ)) {
+            final JAXBContext jaxbContext = JAXBContext.newInstance(Application.class);
+            final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            return (Application) jaxbUnmarshaller.unmarshal(is);
+        } catch (final IOException e) {
+            LOGGER.error("Could not serialize data.xml from CSAR", e);
+            throw new UncheckedIOException(e);
+        } catch (JAXBException e) {
+            LOGGER.error("Could not parse data.xml from CSAR", e);
+            throw new RuntimeException(e);
+        }
+    }
+    
     @Override
     public List<TNodeType> nodeTypes() {
         return childIdsOfType(NodeTypeId.class)
