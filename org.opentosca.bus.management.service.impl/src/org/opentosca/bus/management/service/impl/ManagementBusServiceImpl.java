@@ -473,7 +473,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                             // Check if implementation artifact has a stored
                             // endpoint and thus was deployed
-                            if (wsdlEndpoint != null) {
+                            if (wsdlEndpoint != null && !wsdlEndpoint.isEmpty()) {
 
                                 final URI endpoint = wsdlEndpoint.get(0).getURI();
                                 ManagementBusServiceImpl.LOG.debug("Endpoint: " + endpoint.toString());
