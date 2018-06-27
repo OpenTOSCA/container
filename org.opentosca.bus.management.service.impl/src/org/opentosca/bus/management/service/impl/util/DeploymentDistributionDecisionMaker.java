@@ -21,6 +21,12 @@ import org.slf4j.LoggerFactory;
  * deployment location.<br>
  * <br>
  *
+ * {@link Settings#OPENTOSCA_COLLABORATION_MODE} and the respective config.ini entry can be used to
+ * control the matching. If the property is <tt>true</tt>, matching is performed. If it is set to
+ * <tt>false</tt>, all IA deployments will be performed locally. Therefore, the performance can be
+ * increased by this setting if distributed IA deployment is not needed.<br>
+ * <br>
+ *
  * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
@@ -35,13 +41,21 @@ public class DeploymentDistributionDecisionMaker {
      * TODO
      */
     public static String getDeploymentLocation(final QName serviceTemplateID, final String nodeTemplateID) {
-        DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplate: {}, ServiceTemplate: {}",
-                                                      nodeTemplateID, serviceTemplateID);
 
-        // TODO: local and remote instance data matching
+        // only perform matching if collaboration mode is turned on
+        if (Settings.OPENTOSCA_COLLABORATION_MODE.equals("true")) {
+            DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplate: {}, ServiceTemplate: {}",
+                                                          nodeTemplateID, serviceTemplateID);
 
-        // default: return host name of local container
-        return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+            // TODO: local and remote instance data matching
+
+            // default: return host name of local container
+            return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+        } else {
+            DeploymentDistributionDecisionMaker.LOG.debug("Distributed IA deployment disabled. Using local deployment.");
+
+            return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+        }
     }
 
 }
