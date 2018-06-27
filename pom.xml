@@ -123,8 +123,6 @@
     <module>org.opentosca.container.engine.plan.plugin.camunda</module>
     <module>org.opentosca.container.portability</module>
     <module>org.opentosca.container.engine.ia</module>
-    <module>org.opentosca.container.engine.ia.plugin.aar</module>
-    <module>org.opentosca.container.engine.ia.plugin.dockercompose</module>
     <module>org.opentosca.bus.management</module>
     <module>org.opentosca.bus.management.api.osgievent</module>
     <module>org.opentosca.bus.management.api.resthttp</module>
