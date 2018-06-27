@@ -16,6 +16,7 @@ Import-Package: javax.servlet;version="2.5.0",
  org.apache.http.entity.mime.content;version="4.2.0",
  org.apache.http.message;version="4.3.3",
  org.apache.ode.schemas.dd._2007._03,
+ org.eclipse.winery.model.selfservice,
  org.glassfish.jersey.servlet;version="2.22.2",
  org.json.simple,
  org.opentosca.container.core.common;version="2.0.0",
@@ -33,8 +34,7 @@ Import-Package: javax.servlet;version="2.5.0",
  org.slf4j;version="1.7.5"
 Bundle-Activator: org.opentosca.planbuilder.service.Activator
 Service-Component: OSGI-INF/*
-Export-Package: org.eclipse.winery.model.selfservice;version="2.0.0",
- org.opentosca.planbuilder.service;version="2.0.0",
+Export-Package: org.opentosca.planbuilder.service;version="2.0.0",
  org.opentosca.planbuilder.service.model;version="2.0.0",
  org.opentosca.planbuilder.service.resources;version="2.0.0"
 Bundle-ActivationPolicy: lazy

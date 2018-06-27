@@ -57,8 +57,6 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         }
         catch (IOException e) {
             LOGGER.error("Error when traversing '{}' for CSARs", CSAR_BASE_PATH);
-            // FIXME the service shouldn't know it's called by a webserver!
-//            throw new ServerErrorException(Response.serverError().build());
             throw new UncheckedIOException(e);
         }
         return csars;
@@ -66,8 +64,9 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public Csar findById(CsarId id) throws NoSuchElementException {
-        if (Files.exists(id.getSaveLocation())) {
-            return new CsarImpl(id); // FIXME pass path here
+        Path expectedPath = CSAR_BASE_PATH.resolve(id.getSaveLocation());
+        if (Files.exists(expectedPath)) {
+            return new CsarImpl(new CsarId(expectedPath));
         }
         LOGGER.info("CSAR '{}' could not be found", id.toString());
         throw new NoSuchElementException(String.format("CSAR '%s' could not be found", id.toString()));

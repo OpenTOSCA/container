@@ -10,7 +10,7 @@ public class CsarId implements Comparable<CsarId> {
 
     // FIXME check whether we can fall back to a String instead of a file as in id.CSARID
 
-    private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting("org.opentosca.csar.basepath"));
+    private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
     
     private Path saveLocation;
     
