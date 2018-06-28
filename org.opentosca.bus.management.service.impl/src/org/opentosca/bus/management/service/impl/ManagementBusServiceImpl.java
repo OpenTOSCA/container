@@ -12,6 +12,7 @@ import javax.xml.namespace.QName;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
+import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
@@ -219,10 +220,19 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     message.setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
                                 }
 
+                                // get the NodeTemplateInstanceID from the nodeInstanceID String
+                                Long nodeTemplateInstanceID = null;
+                                try {
+                                    nodeTemplateInstanceID =
+                                        Long.parseLong(StringUtils.substringAfterLast(nodeInstanceID, "/"));
+                                }
+                                catch (final NumberFormatException e) {
+                                    ManagementBusServiceImpl.LOG.error("Unable to parse NodeTemplateInstanceID");
+                                }
+
                                 // host name of the container where the IA has to be deployed
                                 final String deploymentLocation =
-                                    DeploymentDistributionDecisionMaker.getDeploymentLocation(serviceTemplateID,
-                                                                                              nodeTemplateID);
+                                    DeploymentDistributionDecisionMaker.getDeploymentLocation(nodeTemplateInstanceID);
                                 message.setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
                                 ManagementBusServiceImpl.LOG.debug("Host name of responsible OpenTOSCA Container: {}",
                                                                    deploymentLocation);

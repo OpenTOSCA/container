@@ -295,6 +295,8 @@ public class MBUtils {
     }
 
     /**
+     * TODO: use new model with ServiceTemplateInstance to retrieve properties
+     *
      * @param csarID
      * @param serviceTemplateID
      * @param nodeTemplateID
