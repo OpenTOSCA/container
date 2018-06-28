@@ -52,6 +52,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         final Set<Csar> csars = new HashSet<>();
         try {
             for (Path csarId : Files.newDirectoryStream(CSAR_BASE_PATH, Files::isDirectory)) {
+                // FIXME make CsarId a name and put the path somewhere else
                 csars.add(new CsarImpl(new CsarId(csarId)));
             }
         }
@@ -64,9 +65,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     @Override
     public Csar findById(CsarId id) throws NoSuchElementException {
-        Path expectedPath = CSAR_BASE_PATH.resolve(id.getSaveLocation());
-        if (Files.exists(expectedPath)) {
-            return new CsarImpl(new CsarId(expectedPath));
+        if (Files.exists(id.getSaveLocation())) {
+            return new CsarImpl(id);
         }
         LOGGER.info("CSAR '{}' could not be found", id.toString());
         throw new NoSuchElementException(String.format("CSAR '%s' could not be found", id.toString()));

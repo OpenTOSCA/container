@@ -10,6 +10,7 @@ public class CsarId implements Comparable<CsarId> {
 
     // FIXME check whether we can fall back to a String instead of a file as in id.CSARID
 
+    // FIXME move this out of CsarId
     private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
     
     private Path saveLocation;
@@ -25,15 +26,21 @@ public class CsarId implements Comparable<CsarId> {
         saveLocation = CSAR_BASE_PATH.resolve(storeCSAR.getFileName());
     }
 
+    public String csarName() {
+        return CSAR_BASE_PATH.relativize(saveLocation).toString();
+    }
+    
     // seems better, but still somewhat ugly
     public CsarId(String id) {
-        this(Paths.get(id));
+        this(CSAR_BASE_PATH.resolve(id));
     }
 
+    @Deprecated
     protected void setSaveLocation(Path saveLocation) {
         this.saveLocation = saveLocation;
     }
     
+    @Deprecated
     public Path getSaveLocation() {
         return saveLocation;
     }
@@ -45,6 +52,6 @@ public class CsarId implements Comparable<CsarId> {
     
     @Deprecated
     public CSARID toOldCsarId() {
-        return new CSARID(saveLocation.toString());
+        return new CSARID(saveLocation.getFileName().toString());
     }
 }

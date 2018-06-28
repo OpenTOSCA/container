@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,10 +46,17 @@ public class CsarImpl implements Csar {
     
     private IRepository wineryRepo;
     
+    @Deprecated
     public CsarImpl(CsarId id) {
         this.id = id;
         wineryRepo = RepositoryFactory.getRepository(id.getSaveLocation());
     }
+    
+    public CsarImpl(CsarId id, Path location) {
+        this.id = id;
+        wineryRepo = RepositoryFactory.getRepository(location);
+    }
+    
     
     @Override
     public CsarId id() {

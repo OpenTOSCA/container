@@ -45,6 +45,7 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.slf4j.Logger;
@@ -66,6 +67,7 @@ public class CsarController {
     @Context
     private UriInfo uriInfo;
 
+    // used to generate plans, but not for storage anymore
     private CsarService csarService;
     
     private CsarStorageService storage;
@@ -81,7 +83,7 @@ public class CsarController {
         try {
             final CsarListDTO list = new CsarListDTO();
             for (final Csar csarContent : this.storage.findAll()) {
-                final String id = csarContent.id().getSaveLocation().toString();
+                final String id = csarContent.id().csarName();
                 final CsarDTO csar = new CsarDTO();
                 csar.setId(id);
                 csar.setDescription(csarContent.description());
@@ -150,8 +152,8 @@ public class CsarController {
 
     @Path("/{csar}/content")
     public DirectoryController getContent(@ApiParam("CSAR id") @PathParam("csar") final String id) {
-        final CSARContent csarContent = this.csarService.findById(id);
-        return new DirectoryController(csarContent.getCsarRoot());
+        final Csar csarContent = storage.findById(new CsarId(id));
+        return new DirectoryController(new FileSystemDirectory(csarContent.id().getSaveLocation()));
     }
 
     @POST
@@ -218,12 +220,12 @@ public class CsarController {
 
     private Response handleCsarUpload(final String filename, final InputStream is) {
 
-        final File file = this.csarService.storeTemporaryFile(filename, is);
+        final java.nio.file.Path file = this.storage.storeCSARTemporarily(filename, is);
 
         CSARID csarId;
 
         try {
-            csarId = this.storage.storeCSAR(file.toPath()).toOldCsarId();
+            csarId = this.storage.storeCSAR(file).toOldCsarId();
         }
         catch (final Exception e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
@@ -237,7 +239,7 @@ public class CsarController {
             if (ModelUtil.hasOpenRequirements(csarId, this.engineService)) {
                 final WineryConnector wc = new WineryConnector();
                 if (wc.isWineryRepositoryAvailable()) {
-                    final QName serviceTemplate = wc.uploadCSAR(file);
+                    final QName serviceTemplate = wc.uploadCSAR(file.toFile());
                     this.controlService.deleteCSAR(csarId);
                     return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
                         + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
@@ -261,7 +263,7 @@ public class CsarController {
 
         this.controlService.deleteCSAR(csarId);
         try {
-            csarId = this.storage.storeCSAR(file.toPath()).toOldCsarId();
+            csarId = this.storage.storeCSAR(file).toOldCsarId();
         }
         catch (UserException | SystemException e) {
             logger.error("Failed to store CSAR: {}", e.getMessage(), e);
@@ -311,10 +313,10 @@ public class CsarController {
     @Path("/{csar}")
     @ApiOperation(value = "Deletes a CSAR file", response = Response.class)
     public Response delete(@ApiParam("CSAR id") @PathParam("csar") final String id) {
-        final CSARContent csarContent = this.csarService.findById(id);
+        final Csar csarContent = storage.findById(new CsarId(id));
 
         logger.info("Deleting CSAR \"{}\"", id);
-        final List<String> errors = this.controlService.deleteCSAR(csarContent.getCSARID());
+        final List<String> errors = this.controlService.deleteCSAR(csarContent.id().toOldCsarId());
 
         if (errors.size() > 0) {
             logger.error("Error deleting CSAR");

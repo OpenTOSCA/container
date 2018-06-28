@@ -5,7 +5,6 @@ import java.io.Serializable;
 /**
  * Identification of a CSAR file in OpenTOSCA.
  */
-// TODO: Rename to CsarId
 // FIXME: check whether Serializability is cargo-cult programming
 // TODO: 983 references work with this. We shouldn't break it!
 public class CSARID implements Comparable<CSARID>, Serializable {

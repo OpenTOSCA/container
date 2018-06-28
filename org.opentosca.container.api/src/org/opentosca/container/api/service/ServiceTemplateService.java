@@ -8,7 +8,10 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.controller.ServiceTemplateController;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +22,13 @@ public class ServiceTemplateService {
 
     private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
     private CsarService csarService;
+    private CsarStorageService csarStorage;
     private IToscaEngineService toscaEngineService;
 
     public Set<String> getServiceTemplatesOfCsar(final String csarId) {
-        final CSARContent csarContent = this.csarService.findById(csarId);
-
-        return this.csarService.getServiceTemplates(csarContent.getCSARID());
+        final Csar csarContent = this.csarStorage.findById(new CsarId(csarId));
+        
+        return this.csarService.getServiceTemplates(csarContent.id().toOldCsarId());
     }
 
     public Document getPropertiesOfServicTemplate(final CSARID csarId, final QName serviceTemplateId) {
