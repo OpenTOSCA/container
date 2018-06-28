@@ -104,11 +104,8 @@ public class ServiceTemplateController {
     public BuildPlanController getBuildPlans(@ApiParam("CSAR id") @PathParam("csar") final String csar,
                                              @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
 
-        final CSARID csarId = this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws
-                                                                                                                  // exception
-                                                                                                                  // if
-                                                                                                                  // not!
-
+        // throws exception if no template exists
+        final CSARID csarId = this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId).toOldCsarId();
         return new BuildPlanController(csarId, QName.valueOf(serviceTemplateId), this.planService);
     }
 

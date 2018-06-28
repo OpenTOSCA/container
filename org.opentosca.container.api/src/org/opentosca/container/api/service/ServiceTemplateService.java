@@ -1,18 +1,17 @@
 package org.opentosca.container.api.service;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.api.controller.ServiceTemplateController;
-import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.model.csar.CSARContent;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -20,27 +19,28 @@ import org.w3c.dom.Element;
 
 public class ServiceTemplateService {
 
-    private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
-    private CsarService csarService;
+    private static Logger logger = LoggerFactory.getLogger(ServiceTemplateService.class);
+
     private CsarStorageService csarStorage;
-    private IToscaEngineService toscaEngineService;
 
     public Set<String> getServiceTemplatesOfCsar(final String csarId) {
         final Csar csarContent = this.csarStorage.findById(new CsarId(csarId));
-        
-        return this.csarService.getServiceTemplates(csarContent.id().toOldCsarId());
+        return csarContent.serviceTemplates().stream().map(TServiceTemplate::getId).collect(Collectors.toSet());
     }
 
-    public Document getPropertiesOfServicTemplate(final CSARID csarId, final QName serviceTemplateId) {
+    public Document getPropertiesOfServiceTemplate(final CsarId csarId, final QName serviceTemplateId) {
         logger.debug("Getting ServiceTemplate properties for " + serviceTemplateId + " in " + csarId);
-        final TBoundaryDefinitions boundaryDefs =
-            this.toscaEngineService.getBoundaryDefinitionsOfServiceTemplate(csarId, serviceTemplateId);
-
+        final Csar csarContent = this.csarStorage.findById(csarId);
+        final TBoundaryDefinitions boundaryDefs = csarContent.serviceTemplates().stream()
+            // FIXME that predicate seems problematic
+            .filter(template -> template.getId().equals(serviceTemplateId.toString()))
+            .findFirst()
+            .map(template -> template.getBoundaryDefinitions())
+            .orElseThrow(() -> new NoSuchElementException(String.format("Could not find serviceTemplate with id [%s] on csar [%s]", serviceTemplateId, csarId)));
+        
         if (boundaryDefs != null && boundaryDefs.getProperties() != null) {
-
             logger.debug("Properties found in BoundaryDefinitions for ST {}", serviceTemplateId);
             final Element propertiesElement = (Element) boundaryDefs.getProperties().getAny();
-
             if (null != propertiesElement && null != propertiesElement.getOwnerDocument()) {
                 return propertiesElement.getOwnerDocument();
             } else {
@@ -60,29 +60,23 @@ public class ServiceTemplateService {
      * @throws NotFoundException if either the CSAR is not found or if does not contain the specified
      *         service template.
      */
-    public CSARID checkServiceTemplateExistence(final String csarId,
+    public CsarId checkServiceTemplateExistence(final String csarId,
                                                 final String serviceTemplateQName) throws NotFoundException {
-        final CSARContent csarContent = this.csarService.findById(csarId);// throws exception if not found!
+        final CsarId assumedId = new CsarId(csarId);
+        final Csar csarContent = this.csarStorage.findById(assumedId);// throws exception if not found!
 
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), serviceTemplateQName)) {
+        if (!csarContent.serviceTemplates().stream().anyMatch(template -> template.getId().equals(serviceTemplateQName))) {
             final String msg = "Service template \"" + serviceTemplateQName + "\" could not be found";
             logger.info(msg);
             throw new NotFoundException(msg);
         }
 
-        return csarContent.getCSARID();
+        return assumedId;
     }
 
     /* Service Injection */
     /*********************/
-
-    public void setCsarService(final CsarService csarService) {
-        this.csarService = csarService;
+    public void bindStorage(final CsarStorageService storage) {
+        this.csarStorage = storage;
     }
-
-    public void setToscaEngineService(final IToscaEngineService toscaEngineService) {
-        this.toscaEngineService = toscaEngineService;
-    }
-
-
 }

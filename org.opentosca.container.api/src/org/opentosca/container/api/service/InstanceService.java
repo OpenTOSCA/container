@@ -13,6 +13,7 @@ import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.RelationshipTemplateDTO;
 import org.opentosca.container.api.dto.request.CreateRelationshipTemplateInstanceRequest;
 import org.opentosca.container.core.common.jpa.DocumentConverter;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceProperty;
@@ -179,7 +180,7 @@ public class InstanceService {
                                                                                              InstantiationException,
                                                                                              IllegalAccessException,
                                                                                              IllegalArgumentException {
-        final CSARID csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateQName);
+        final CSARID csar = this.serviceTemplateService.checkServiceTemplateExistence(csarId, serviceTemplateQName).toOldCsarId();
         final PlanInstanceRepository repository = new PlanInstanceRepository();
         PlanInstance pi = null;
 
@@ -231,7 +232,7 @@ public class InstanceService {
                                                                                final QName serviceTemplateQName) {
 
         final Document existingProperties =
-            this.serviceTemplateService.getPropertiesOfServicTemplate(csarId, serviceTemplateQName);
+            this.serviceTemplateService.getPropertiesOfServiceTemplate(new CsarId(csarId), serviceTemplateQName);
 
         if (existingProperties != null) {
             return existingProperties;
