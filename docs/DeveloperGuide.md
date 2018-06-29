@@ -311,7 +311,7 @@ If you want create a new directory in a Target Platform you must do the followin
 5. Define at "**Location**" the path to the new directory in the following way:
    A new directory "MyDir" must be added as
    "**${workspace_loc}/target-definition/MyDir**" (Fig. 7)/
-   "**${workspace_loc}/org.opentosca.targetplatform.ui.rap/MyDir**"
+   "**${workspace_loc}/target-definition.ui.rap/MyDir**"
 
 ![Target Definition File](graphics/TargetDefinitionFile.png)
 **Fig.7: Directory "MyDir" was added to target definition file.**
