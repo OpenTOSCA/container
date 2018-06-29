@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -41,9 +40,7 @@ public class CsarImpl implements Csar {
     private static final String RELATIVE_TOSCA_META_FILE = "TOSCA-Metadata/TOSCA.meta";
 
     private final TOSCAMetaFileParser parser = new TOSCAMetaFileParser();
-    
     private final CsarId id;
-    
     private IRepository wineryRepo;
     
     @Deprecated
@@ -63,22 +60,16 @@ public class CsarImpl implements Csar {
         return id;
     }
 
-    private <T> Stream<T> childIdsOfType(Class<T> clazz) {
-        return wineryRepo.getAllDefinitionsChildIds().stream()
-            .filter(clazz::isInstance)
-            .map(clazz::cast);
-    }
-    
     @Override
     public List<TArtifactTemplate> artifactTemplates() {
-        return childIdsOfType(ArtifactTemplateId.class)
+        return wineryRepo.getAllDefinitionsChildIds(ArtifactTemplateId.class).stream()
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());
     }
 
     @Override
     public List<TServiceTemplate> serviceTemplates() {
-        return  childIdsOfType(ServiceTemplateId.class)
+        return wineryRepo.getAllDefinitionsChildIds(ServiceTemplateId.class).stream()
             .map(wineryRepo::getElement)
             .collect(Collectors.toList());
     }
@@ -125,7 +116,7 @@ public class CsarImpl implements Csar {
     
     @Override
     public List<TNodeType> nodeTypes() {
-        return childIdsOfType(NodeTypeId.class)
+        return wineryRepo.getAllDefinitionsChildIds(NodeTypeId.class).stream()
         .map(wineryRepo::getElement)
         .collect(Collectors.toList());
     }

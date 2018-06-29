@@ -3,16 +3,27 @@ package org.opentosca.container.core.service.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
+
+import javax.ws.rs.core.Response;
 
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
+import org.eclipse.winery.repository.backend.RepositoryFactory;
+import org.eclipse.winery.repository.backend.filebased.FileUtils;
+import org.eclipse.winery.repository.configuration.FileBasedRepositoryConfiguration;
+import org.eclipse.winery.repository.importing.CsarImporter;
+import org.eclipse.winery.repository.importing.ImportMetaInformation;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -35,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class CsarStorageServiceImpl implements CsarStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
-    
+
     /**
      * Relative path to CSAR root of the TOSCA meta file.
      *
@@ -45,7 +56,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     // FIXME obtain from settings or otherwise
     private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
     private static final CSARMetaDataJPAStore JPA_STORE = new CSARMetaDataJPAStore();
-    
+
     @Override
     public Set<Csar> findAll() {
         LOGGER.debug("Requesting all CSARs");
@@ -76,6 +87,10 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     public Path storeCSARTemporarily(String filename, InputStream is) {
         try {
             Path tempLocation = Paths.get(Consts.TMPDIR, filename);
+            if (Files.exists(tempLocation)) {
+                // well ... umm ... let's just delete it, I guess?
+                Files.delete(tempLocation);
+            }
             Files.copy(is, tempLocation);
             return tempLocation;
         }
@@ -93,49 +108,33 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 "\"" + csarLocation.toString() + "\" to store is not an absolute path to an existing file.");
         }
 
-        // because the csar file is stored with that name
-        final CSARID candidateId = new CSARID(csarLocation.getFileName().toString());
-        if (JPA_STORE.isCSARMetaDataStored(candidateId)) {
+        CsarId candidateId = new CsarId(csarLocation.getFileName().toString());
+        Path permanentLocation = CSAR_BASE_PATH.resolve(csarLocation.getFileName());
+        if (Files.exists(permanentLocation)) {
             throw new UserException(
-                "CSAR \"" + candidateId.toString() + "\" is already stored. Overwriting a CSAR is not allowed.");
+                "CSAR \"" + candidateId.csarName() + "\" is already stored. Overwriting a CSAR is not allowed.");
         }
-
-        CSARUnpacker csarUnpacker = new CSARUnpacker(csarLocation);
-        csarUnpacker.unpackAndVisitUnpackDir();
-
-        Path csarUnpackDir = csarUnpacker.getUnpackDirectory();
+        ImportMetaInformation importInfo = null;
         try {
-            DirectoryVisitor csarVisitor = csarUnpacker.getFilesAndDirectories();
-            final CSARValidator csarValidator = new CSARValidator(candidateId, csarUnpackDir, csarVisitor);
+            Files.createDirectory(permanentLocation);
+            // CsarImporter doesn't allow overriding the repository it imports to
+            RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
 
-            if (!csarValidator.isValid()) {
-                throw new UserException(csarValidator.getErrorMessage());
+            CsarImporter importer = new CsarImporter();
+            // do not overwrite existing definitions, use async parsing for speed
+            importInfo = importer.readCSAR(Files.newInputStream(csarLocation), false, true);
+            if (!importInfo.errors.isEmpty()) {
+                FileUtils.forceDelete(permanentLocation);
             }
-
-            final Path toscaMetaFileAbsPath = csarUnpackDir.resolve(this.TOSCA_META_FILE_REL_PATH);
-            final TOSCAMetaFile toscaMetaFile = new TOSCAMetaFileParser().parse(toscaMetaFileAbsPath);
-
-            if (toscaMetaFile == null) {
-                throw new UserException("TOSCA meta file is invalid.");
-            }
-
-            final Set<Path> directoriesInCSARUnpackDir = csarVisitor.getVisitedDirectories();
-            final Set<Path> directories = new HashSet<>();
-
-            for (final Path directoryInCSARUnpackDir : directoriesInCSARUnpackDir) {
-                final Path directoryRelToCSARRoot = csarUnpackDir.relativize(directoryInCSARUnpackDir);
-                directories.add(directoryRelToCSARRoot);
-            }
-            CsarId storedId = new CsarId(csarUnpackDir);
-            JPA_STORE.storeCSARMetaData(storedId.toOldCsarId(), directories, new HashMap<>(), toscaMetaFile);
-
-            LOGGER.debug("Storing CSAR \"{}\" located at \"{}\" successfully completed.", storedId, csarLocation);
-            return storedId;
         }
-        finally {
-            // clean up the unpack dir
-            csarUnpacker.deleteUnpackDir();
+        catch (IOException e) {
+            // roll back the import
+            FileUtils.forceDelete(permanentLocation);
         }
+        if (importInfo == null || !importInfo.errors.isEmpty()) {
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
+        }
+        return candidateId;
     }
 
     @Override
@@ -143,7 +142,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         LOGGER.debug("Deleting CSAR \"{}\"...", csarId);
         JPA_STORE.deleteCSARMetaData(csarId.toOldCsarId());
     }
-    
+
     @Override
     public void purgeCsars() throws SystemException {
 
@@ -168,7 +167,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             LOGGER.debug("No CSARs are currently stored.");
         }
     }
-    
+
 
     @Override
     public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
@@ -200,7 +199,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
                 LOGGER.debug("Deleting CSAR download directory \"{}\"...", csarDownloadDirectory);
                 Files.walkFileTree(csarDownloadDirectory, csarDeleteVisitor);
                 LOGGER.debug("Deleting CSAR download directory \"{}\" completed.", csarDownloadDirectory);
-            } catch (final IOException exc) {
+            }
+            catch (final IOException exc) {
                 throw new SystemException("An IO Exception occured. Deleting CSAR download directory \""
                     + csarDownloadDirectory + "\" failed.", exc);
             }
