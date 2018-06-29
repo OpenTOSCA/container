@@ -1,21 +1,18 @@
 package org.opentosca.bus.management.utils;
 
-import java.io.StringWriter;
-import java.net.URI;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.opentosca.bus.management.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.model.instance.NodeInstance;
-import org.opentosca.container.core.model.instance.ServiceInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
@@ -31,6 +28,10 @@ import org.w3c.dom.traversal.NodeIterator;
 public class MBUtils {
 
     final private static Logger LOG = LoggerFactory.getLogger(MBUtils.class);
+
+    // repository to access NodeTemplateInstance data
+    final private static NodeTemplateInstanceRepository nodeTemplateInstanceRepository =
+        new NodeTemplateInstanceRepository();
 
 
     /**
@@ -208,156 +209,130 @@ public class MBUtils {
     }
 
     /**
-     *
      * Traverses the topology and searches for the specified property. If found, the value from the
      * instance data is returned.
      *
-     * @param property
-     * @param csarID
-     * @param serviceTemplateID
-     * @param nodeTemplateID
-     * @param serviceInstanceID
-     *
-     *
-     * @return instance data value of searched property if found. Otherwise null.
+     * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance where the search should be
+     *        started in downwards direction
+     * @param property the name of the property that is searched
+     * @return instance data value of searched property if found, <tt>null</tt> otherwise.
      */
-    public static String searchProperty(final String property, final CSARID csarID, final QName serviceTemplateID,
-                                        String nodeTemplateID, final URI serviceInstanceID) {
+    public static String searchProperty(final Long nodeTemplateInstanceID, final String property) {
 
-        MBUtils.LOG.debug("Searching the Property: {} in or under the NodeTemplateID: {} ServiceTemplate: {} & CSAR: {} ...",
-                          property, nodeTemplateID, serviceTemplateID, csarID);
+        MBUtils.LOG.debug("Searching the Property: {} in or under the NodeTemplate with instance ID: {} ...", property,
+                          nodeTemplateInstanceID);
 
-        String propertyValue =
-            getInstanceDataPropertyValue(property, csarID, serviceTemplateID, nodeTemplateID, serviceInstanceID);
+        String propertyValue = null;
+        if (nodeTemplateInstanceID != null) {
 
-        while (propertyValue == null && nodeTemplateID != null) {
+            // retrieve NodeTemplateInstance object from which the property search is started
+            final Optional<NodeTemplateInstance> instanceOptional =
+                nodeTemplateInstanceRepository.find(nodeTemplateInstanceID);
+            if (instanceOptional.isPresent()) {
+                NodeTemplateInstance nodeTemplateInstance = instanceOptional.get();
 
-            MBUtils.LOG.debug("{} hasn't the searched property: {}.", nodeTemplateID, property);
-            MBUtils.LOG.debug("Getting the underneath Node for checking if it has the searched property...");
+                // check if property is already defined at this NodeTemplateInstance
+                propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance.getId(), property);
 
-            // try different relationshiptypes with priority on hostedOn
-            nodeTemplateID =
-                ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID,
-                                                                           Types.hostedOnRelationType);
+                // search until property is found or no new NodeTemplateInstance is found
+                boolean moreNodeTemplateInstances = true;
+                while (propertyValue == null && moreNodeTemplateInstances) {
+                    MBUtils.LOG.debug("Property not found at NodeTemplate: {}", nodeTemplateInstance.getTemplateId());
+                    moreNodeTemplateInstances = false;
 
-            if (nodeTemplateID == null) {
-                nodeTemplateID =
-                    ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                               nodeTemplateID,
-                                                                               Types.deployedOnRelationType);
+                    // perform search in downwards direction in the topology
+                    final Collection<RelationshipTemplateInstance> outgoingRelations =
+                        nodeTemplateInstance.getOutgoingRelations();
 
-                if (nodeTemplateID == null) {
-                    nodeTemplateID =
-                        ServiceHandler.toscaEngineService.getRelatedNodeTemplateID(csarID, serviceTemplateID,
-                                                                                   nodeTemplateID,
-                                                                                   Types.dependsOnRelationType);
+                    for (final RelationshipTemplateInstance relation : outgoingRelations) {
+                        final QName relationType = relation.getTemplateType();
+                        MBUtils.LOG.debug("Found outgoing relation of Type: {}", relationType);
+
+                        // only follow relations of kind hostedOn, deployedOn and dependsOn
+                        if (relationType.equals(Types.hostedOnRelationType)
+                            || relationType.equals(Types.deployedOnRelationType)
+                            || relationType.equals(Types.dependsOnRelationType)) {
+
+                            nodeTemplateInstance = relation.getTarget();
+                            moreNodeTemplateInstances = true;
+
+                            MBUtils.LOG.debug("Found new NodeTemplate: {}. Continue property search.",
+                                              nodeTemplateInstance.getTemplateId());
+
+                            // check if new NodeTemplateInstance contains property
+                            propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance.getId(), property);
+                            break;
+                        } else {
+                            MBUtils.LOG.debug("RelationshipType is not valid for property search (e.g. hostedOn).");
+                        }
+                    }
                 }
-            }
 
-            if (nodeTemplateID != null) {
-                MBUtils.LOG.debug("Checking if the Node: {} has the searched property: {}.", nodeTemplateID, property);
-
-                propertyValue = getInstanceDataPropertyValue(property, csarID, serviceTemplateID, nodeTemplateID,
-                                                             serviceInstanceID);
-
+                if (propertyValue != null) {
+                    MBUtils.LOG.debug("Searched property: {} with value: {} found in NodeTemplate: {}.", property,
+                                      propertyValue, nodeTemplateInstance.getTemplateId());
+                } else {
+                    MBUtils.LOG.debug("Searched property: {} not found!", property);
+                }
             } else {
-                MBUtils.LOG.debug("No underneath Node found.");
+                MBUtils.LOG.debug("Unable to find NodeTemplateInstance with ID: {} to start search.",
+                                  nodeTemplateInstanceID);
             }
-        }
-        if (propertyValue != null) {
-            MBUtils.LOG.debug("Searched property: {} with value: {} found in NodeTemplate: {}.", property,
-                              propertyValue, nodeTemplateID);
-
         } else {
-            MBUtils.LOG.debug("Searched property: {} not found!", property);
+            MBUtils.LOG.debug("Given ID is null. Unable to search the property.");
         }
 
         return propertyValue;
     }
 
     /**
-     * @param property
-     * @param csarID
-     * @param serviceTemplateID
-     * @param nodeTemplateID
-     * @param serviceInstanceID
+     * Returns the value of a certain property of a certain NodeTemplateInstance.
      *
-     * @return instance data value of searched property if found. Otherwise null.
+     * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance
+     * @param property the name of the property
+     * @return the value of the property if found, <tt>null</tt> otherwise.
      */
-    public static String getInstanceDataPropertyValue(final String property, final CSARID csarID,
-                                                      final QName serviceTemplateID, final String nodeTemplateID,
-                                                      final URI serviceInstanceID) {
+    public static String getInstanceDataPropertyValue(final Long nodeTemplateInstanceID, final String property) {
 
-        final HashMap<String, String> propertiesMap =
-            getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID, serviceInstanceID);
+        final Map<String, String> propertiesMap = getInstanceDataProperties(nodeTemplateInstanceID);
 
-        return propertiesMap.get(property);
+        if (propertiesMap != null) {
+            return propertiesMap.get(property);
+        } else {
+            return null;
+        }
+
     }
 
     /**
-     * TODO: use new model with ServiceTemplateInstance to retrieve properties
+     * Returns the set of properties of a certain NodeTemplateInstance as Map.
      *
-     * @param csarID
-     * @param serviceTemplateID
-     * @param nodeTemplateID
-     * @param serviceInstanceID
-     * @return the in the InstanceService stored properties for the specified parameters or null if
-     *         it can not be found.
+     * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance
+     * @return the stored properties for the NodeTemplateInstance if the instance is found,
+     *         <tt>null</tt> otherwise.
      */
-    public static HashMap<String, String> getInstanceDataProperties(final CSARID csarID, final QName serviceTemplateID,
-                                                                    final String nodeTemplateID,
-                                                                    final URI serviceInstanceID) {
+    public static Map<String, String> getInstanceDataProperties(final Long nodeTemplateInstanceID) {
 
-        final String serviceTemplateName =
-            ServiceHandler.toscaEngineService.getNameOfReference(csarID, serviceTemplateID);
+        MBUtils.LOG.debug("Trying to get instance data properties for NodeTemplateInstance with ID: {}",
+                          nodeTemplateInstanceID);
 
-        HashMap<String, String> propertiesMap = new HashMap<>();
+        if (nodeTemplateInstanceID != null) {
 
-        if (serviceInstanceID != null) {
+            // retrieve NodeTemplateInstance object from database
+            final Optional<NodeTemplateInstance> instanceOptional =
+                nodeTemplateInstanceRepository.find(nodeTemplateInstanceID);
+            if (instanceOptional.isPresent()) {
+                final NodeTemplateInstance nodeTemplateInstance = instanceOptional.get();
 
-            final List<ServiceInstance> serviceInstanceList =
-                ServiceHandler.instanceDataService.getServiceInstances(serviceInstanceID, serviceTemplateName,
-                                                                       serviceTemplateID);
-
-            final QName nodeTemplateQName = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
-
-            for (final ServiceInstance serviceInstance : serviceInstanceList) {
-
-                if (serviceInstance.getCSAR_ID().toString().equals(csarID.toString())) {
-                    /**
-                     * This is a workaround. The first statement should work, but unfortunately does
-                     * not (the list is null / empty). We were not able to identify the root of the
-                     * error, in debug mode it seemed to work but in "production" mode not. Somehow
-                     * the lazy loading mechanism of JPA / EclipseLink seems to not work properly.
-                     */
-                    // List<NodeInstance> nodeInstanceList =
-                    // serviceInstance.getNodeInstances();
-                    final List<NodeInstance> nodeInstanceList =
-                        ServiceHandler.instanceDataService.getNodeInstances(null, null, null, serviceInstanceID);
-
-                    for (final NodeInstance nodeInstance : nodeInstanceList) {
-
-                        if (nodeInstance.getNodeTemplateID().equals(nodeTemplateQName)) {
-
-                            final Document doc = nodeInstance.getProperties();
-
-                            if (doc != null) {
-                                propertiesMap = docToMap(doc, false);
-                            }
-
-                            return propertiesMap;
-
-                        }
-                    }
-
-                }
-
-                MBUtils.LOG.debug("No InstanceData found for CsarID: " + csarID + ", ServiceTemplateID: "
-                    + serviceTemplateID + ", ServiceTemplateName: " + serviceTemplateName + " and ServiceInstanceID: "
-                    + serviceInstanceID);
+                // get and return properties of the NodeTemplateInstance
+                return nodeTemplateInstance.getPropertiesAsMap();
+            } else {
+                MBUtils.LOG.debug("Unable to find NodeTemplateInstance with ID: {}", nodeTemplateInstanceID);
             }
-
+        } else {
+            MBUtils.LOG.debug("Given ID is null. Unable to retrieve properties.");
         }
+
         return null;
     }
 
@@ -397,22 +372,5 @@ public class MBUtils {
         }
 
         return reponseMap;
-    }
-
-    public static String toString(final Document doc) {
-        try {
-            final StringWriter sw = new StringWriter();
-            final TransformerFactory tf = TransformerFactory.newInstance();
-            final Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.transform(new DOMSource(doc), new StreamResult(sw));
-            return sw.toString();
-        }
-        catch (final Exception e) {
-            throw new RuntimeException("Error converting Document to String: " + e.getMessage(), e);
-        }
     }
 }

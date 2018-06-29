@@ -66,7 +66,7 @@ public class DeploymentDistributionDecisionMaker {
 
             if (nodeTemplateInstanceID != null) {
 
-                DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplate with ID: {}",
+                DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplateInstance with ID: {}",
                                                               nodeTemplateInstanceID);
 
                 // get the NodeTemplateInstance for the ID

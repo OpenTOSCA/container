@@ -119,14 +119,23 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             ManagementBusServiceImpl.LOG.debug("NodeType: {}", nodeTypeID);
             message.setHeader(MBHeader.NODETYPEID_QNAME.toString(), nodeTypeID);
 
+            // get the NodeTemplateInstanceID from the nodeInstanceID String
+            Long nodeTemplateInstanceID = null;
+            try {
+                nodeTemplateInstanceID = Long.parseLong(StringUtils.substringAfterLast(nodeInstanceID, "/"));
+            }
+            catch (final NumberFormatException e) {
+                ManagementBusServiceImpl.LOG.error("Unable to parse NodeTemplateInstanceID");
+            }
+
             // update inputParams with instance data
             if (message.getBody() instanceof HashMap) {
 
                 @SuppressWarnings("unchecked")
                 HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
 
-                inputParams = updateInputParams(inputParams, csarID, serviceTemplateID, nodeTypeID, nodeTemplateID,
-                                                neededInterface, neededOperation, serviceInstanceID);
+                inputParams = updateInputParams(inputParams, csarID, nodeTypeID, nodeTemplateInstanceID,
+                                                neededInterface, neededOperation);
                 message.setBody(inputParams);
 
             } else {
@@ -218,16 +227,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                 if (specificContent != null) {
                                     ManagementBusServiceImpl.LOG.debug("ArtifactSpecificContent specified!");
                                     message.setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
-                                }
-
-                                // get the NodeTemplateInstanceID from the nodeInstanceID String
-                                Long nodeTemplateInstanceID = null;
-                                try {
-                                    nodeTemplateInstanceID =
-                                        Long.parseLong(StringUtils.substringAfterLast(nodeInstanceID, "/"));
-                                }
-                                catch (final NumberFormatException e) {
-                                    ManagementBusServiceImpl.LOG.error("Unable to parse NodeTemplateInstanceID");
                                 }
 
                                 // host name of the container where the IA has to be deployed
@@ -368,10 +367,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                         ManagementBusServiceImpl.LOG.debug("Received endpoint contains placeholders. Service is part of the topology and called without deployment.");
 
                                                         endpointURI =
-                                                            replacePlaceholderWithInstanceData(endpointURI, csarID,
-                                                                                               serviceTemplateID,
-                                                                                               nodeTemplateID,
-                                                                                               serviceInstanceID);
+                                                            replacePlaceholderWithInstanceData(endpointURI,
+                                                                                               nodeTemplateInstanceID);
 
                                                         message.setHeader(MBHeader.ENDPOINT_URI.toString(),
                                                                           endpointURI);
@@ -920,32 +917,23 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     *
      * Updates the input parameters. If instance data are available the provided input parameters
      * will be overwritten with them.
      *
      * @param inputParams
      * @param csarID
-     * @param serviceTemplateID
      * @param nodeTypeID
-     * @param nodeTemplateID
+     * @param nodeTemplateInstanceID
      * @param neededInterface
      * @param neededOperation
-     * @param serviceInstanceID
-     *
-     *
      * @return the updated input parameters.
      */
     private HashMap<String, String> updateInputParams(final HashMap<String, String> inputParams, final CSARID csarID,
-                                                      final QName serviceTemplateID, QName nodeTypeID,
-                                                      final String nodeTemplateID, final String neededInterface,
-                                                      final String neededOperation, final URI serviceInstanceID) {
+                                                      final QName nodeTypeID, final Long nodeTemplateInstanceID,
+                                                      final String neededInterface, final String neededOperation) {
 
         ManagementBusServiceImpl.LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(),
                                            neededOperation, inputParams.toString());
-
-        nodeTypeID =
-            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
 
         final List<String> expectedParams =
             getExpectedInputParams(csarID, nodeTypeID, neededInterface, neededOperation);
@@ -955,16 +943,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         if (!expectedParams.isEmpty()) {
 
-            // Check if instanceID is set and merge input params with
-            // instance data. Priority on instance data.
-            if (serviceInstanceID != null && !serviceInstanceID.toString().equals("?")) {
+            // Check if instance ID is set and merge input params with instance data. Priority on
+            // instance data.
+            if (nodeTemplateInstanceID != null) {
 
-                ManagementBusServiceImpl.LOG.debug("Getting InstanceData from InstanceDataService for ServiceInstanceID: {} ...",
-                                                   serviceInstanceID);
+                ManagementBusServiceImpl.LOG.debug("Getting instance data for NodeTemplateInstance: {} ...",
+                                                   nodeTemplateInstanceID);
 
-                final HashMap<String, String> propertiesMap =
-                    MBUtils.getInstanceDataProperties(csarID, serviceTemplateID, nodeTemplateID.trim(),
-                                                      serviceInstanceID);
+                final Map<String, String> propertiesMap = MBUtils.getInstanceDataProperties(nodeTemplateInstanceID);
 
                 if (propertiesMap != null) {
 
@@ -981,9 +967,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
                     final List<String> supportedUsernamePropertyNames =
                         Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
-
-                    ManagementBusServiceImpl.LOG.debug("The stored properties from InstanceDataService for ServiceInstanceID: {} and NodeTemplateID: {} are: {}",
-                                                       serviceInstanceID, nodeTemplateID, propertiesMap.toString());
 
                     String prop;
                     // Check for property convention
@@ -1037,10 +1020,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                        inputParams.size(), neededOperation, inputParams.toString());
 
                 } else {
-                    ManagementBusServiceImpl.LOG.debug("No stored InstanceData found.");
+                    ManagementBusServiceImpl.LOG.debug("No stored i nstance data found.");
                 }
             } else {
-                ManagementBusServiceImpl.LOG.debug("No InstanceDataID specified.");
+                ManagementBusServiceImpl.LOG.debug("No NodeTemplateInstanceID specified.");
             }
         }
 
@@ -1061,7 +1044,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return convention defined properties.
      */
     private String getSupportedProperty(final List<String> supportedProperties,
-                                        final HashMap<String, String> propertiesMap) {
+                                        final Map<String, String> propertiesMap) {
 
         String prop;
 
@@ -1078,20 +1061,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     *
      * Replaces placeholder with a matching instance data value. Placeholder is defined like
-     * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/".
+     * "/PLACEHOLDER_VMIP_IP_PLACEHOLDER/"
      *
-     * @param endpoint
-     * @param csarID
-     * @param serviceTemplateID
-     * @param nodeTemplateID
-     * @param serviceInstanceID
-     *
-     * @return URI with replaced placeholder.
+     * @param endpoint the endpoint URI containing the placeholder
+     * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance where the endpoint belongs
+     *        to
+     * @return the endpoint URI with replaced placeholder if matching instance data was found, the
+     *         unchanged endpoint URI otherwise
      */
-    private URI replacePlaceholderWithInstanceData(URI endpoint, final CSARID csarID, final QName serviceTemplateID,
-                                                   final String nodeTemplateID, final URI serviceInstanceID) {
+    private URI replacePlaceholderWithInstanceData(URI endpoint, final Long nodeTemplateInstanceID) {
 
         final String placeholderBegin = "/PLACEHOLDER_";
         final String placeholderEnd = "_PLACEHOLDER/";
@@ -1112,8 +1091,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             ManagementBusServiceImpl.LOG.debug("Searching instance data value for property {} ...",
                                                placeholderProperty);
 
-            propertyValue = MBUtils.searchProperty(placeholderProperty, csarID, serviceTemplateID, nodeTemplateID,
-                                                   serviceInstanceID);
+            propertyValue = MBUtils.searchProperty(nodeTemplateInstanceID, placeholderProperty);
 
             if (propertyValue != null) {
                 ManagementBusServiceImpl.LOG.debug("Value for property {} found: {}.", placeholderProperty,
