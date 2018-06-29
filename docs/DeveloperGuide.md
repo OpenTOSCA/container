@@ -116,7 +116,7 @@ The following table shows the folder structure of the projects:
 
 ### Set Container Target Platform
 
-An Eclipse Target Platform contains libraries (OSGI bundles) that can be used/ are available in Eclipse
+An Eclipse Target Platform contains libraries (OSGI bundles) that can be used / are available in Eclipse
 plug-in projects. The OpenTOSCA Target Platform is contained in the project
 "**target-definition**".
 
@@ -276,7 +276,7 @@ In Lst. 1 coreFileService.storeTHOR(thorFile) will be called in method process.
 
 If you need a package of a library (bundle) in a project that belongs to the Container ans it's not already available,
 you must add the bundle to the Target Platform project of the Container
-"**org.opentosca.targetplatform.container**".
+"**target-definition**".
 
 A bundle is a JAR file that contains a bundle manifest at "**META-INF\MANIFEST.MF**".
 Get at first the current version of the library directly from the library website. Check in the downloaded JAR File if it
@@ -295,7 +295,7 @@ Also you can look in the directory "**plugins**" in your Eclipse installation
 
 If you found the bundle you can add it to the Target Platform.
 
-1. Open the project "**org.opentosca.targetplatform.container**" in the package explorer
+1. Open the project "**target-definition**" in the package explorer
 2. Move the bundle JAR file in the desired directory (e.g. "**Apache**") in the project.
 3. Set the container again as it's described in 3.4.
 
@@ -305,12 +305,12 @@ If you want create a new directory in a Target Platform you must do the followin
 
 1. Right click on the Target Platform project and go in the appearing context menu to "**New**" then "**Folder**".
    Choose at "**Folder name**" the desired name of the directory and click on "**Finish**".
-2. Open the file "**OpenToscaTargetPlatform.target**"/"ToscsGui.target" in the projetct.
+2. Open the file "**target-definition.target**"/"ToscsGui.target" in the projetct.
 3. In the appearing Eclipse target definiton editor click at "**Locations**" on "**Add...**"
 4. In the appearing wizard select "**Directory**" and click on "**Next**"
 5. Define at "**Location**" the path to the new directory in the following way:
    A new directory "MyDir" must be added as
-   "**${workspace_loc}/org.opentosca.targetplatform.container/MyDir**" (Fig. 7)/
+   "**${workspace_loc}/target-definition/MyDir**" (Fig. 7)/
    "**${workspace_loc}/org.opentosca.targetplatform.ui.rap/MyDir**"
 
 ![Target Definition File](graphics/TargetDefinitionFile.png)
