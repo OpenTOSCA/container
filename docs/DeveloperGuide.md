@@ -209,7 +209,7 @@ Fig. 6 shows the correct project structure of the Core File Service used as exam
 
 A service can be only consumed in a plug-in project.
 
-1. Create new "Plug-in Project" called "**org.opentosca.core.file.service.consumer**"
+1. Create a new "Plug-in Project" called "**org.opentosca.core.file.service.consumer**"
 2. Open the bundle manifest "**META-INF/MANIFEST.MF**" (relative to project root) of the plug-in
    project that should consume a service.
 3. In the appearing Eclipse bundle manifest editor go to the tab "**Dependencies**"
@@ -232,7 +232,7 @@ A service can be only consumed in a plug-in project.
 14. Select the new entry in the "**Referenced services**" list and click on "**Edit...**"
 15. Define at "**Bind**" a name for the method that binds the service and at "**Unbind**" a name for the
 	method that unbinds the service, e.g. "**bindCoreFileService**" and "**unbindCoreFileService**".
-	Click on "**OK**" and save the manifest.
+	Click on "**OK**" and save the XML.
 16. Create the service variable (e.g. "**coreFileService**") and the bind and unbind methods in the class
 	that needs the service as shown in Lst. 1
 
