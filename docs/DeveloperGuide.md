@@ -278,7 +278,7 @@ If you need a package of a library (bundle) in a project that belongs to the Con
 you must add the bundle to the Target Platform project of the Container
 "**org.opentosca.targetplatform.container**".
 
-A abundle is a JAR file that contains a bundle manifest at "**META-INF\MANIFEST.MF**".
+A bundle is a JAR file that contains a bundle manifest at "**META-INF\MANIFEST.MF**".
 Get at first the current version of the library directly from the library website. Check in the downloaded JAR File if it
 contains the bundle manifest file. Besides, the manifest must include the attribute Bundle-SymbolicName,
 e.g. Bundle-SymbolicName: jcl.over.slf4j
