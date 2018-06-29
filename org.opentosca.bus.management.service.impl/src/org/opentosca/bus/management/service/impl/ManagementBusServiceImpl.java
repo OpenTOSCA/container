@@ -789,11 +789,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 if (ServiceHandler.invocationPluginServices.containsKey(invocationType)) {
 
                     return invocationType;
-
                 }
             }
-
         }
+
         return null;
     }
 
@@ -1020,7 +1019,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                        inputParams.size(), neededOperation, inputParams.toString());
 
                 } else {
-                    ManagementBusServiceImpl.LOG.debug("No stored i nstance data found.");
+                    ManagementBusServiceImpl.LOG.debug("No stored instance data found.");
                 }
             } else {
                 ManagementBusServiceImpl.LOG.debug("No NodeTemplateInstanceID specified.");
@@ -1161,8 +1160,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     }
                 }
             }
-            // found operation and its potential params -> exit loop
-
         }
         return inputParams;
     }
@@ -1196,7 +1193,5 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 ManagementBusServiceImpl.LOG.debug("Invocation was InOnly. No response message will be sent to the caller.");
             }
         }
-
     }
-
 }

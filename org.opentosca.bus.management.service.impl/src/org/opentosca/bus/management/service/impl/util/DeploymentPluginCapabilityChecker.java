@@ -57,7 +57,7 @@ public class DeploymentPluginCapabilityChecker {
     }
 
     /**
-     * Gets container and plan capabilities from the CoreCapabilitiyService.
+     * Returns container and plan capabilities from the CoreCapabilitiyService.
      *
      * @return container and plan capabilities in one merged list.
      */

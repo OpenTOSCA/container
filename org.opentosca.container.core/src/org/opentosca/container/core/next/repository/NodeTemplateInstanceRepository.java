@@ -35,4 +35,21 @@ public class NodeTemplateInstanceRepository extends JpaRepository<NodeTemplateIn
             return q.getResultList();
         }
     }
+
+    public Collection<NodeTemplateInstance> findByTemplateType(final QName templateType) {
+        try (AutoCloseableEntityManager em = EntityManagerProvider.createEntityManager()) {
+            final CriteriaBuilder cb = em.getCriteriaBuilder();
+            // Parameters
+            final ParameterExpression<QName> templateTypeParameter = cb.parameter(QName.class);
+            // Build the Criteria Query
+            final CriteriaQuery<NodeTemplateInstance> cq = cb.createQuery(NodeTemplateInstance.class);
+            final Root<NodeTemplateInstance> sti = cq.from(NodeTemplateInstance.class);
+            cq.select(sti).where(cb.equal(sti.get("templateType"), templateTypeParameter));
+            // Create a TypedQuery
+            final TypedQuery<NodeTemplateInstance> q = em.createQuery(cq);
+            q.setParameter(templateTypeParameter, templateType);
+            // Execute
+            return q.getResultList();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package org.opentosca.bus.management.service.impl.util;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
@@ -7,7 +8,9 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,18 +21,18 @@ import org.slf4j.LoggerFactory;
  * Implementation Artifact.<br>
  * <br>
  *
- * To determine the correct Container, a matching with the instance data of the different available
- * Container instances is performed. Therefore, the infrastructure NodeTemplate of the topology
- * stack of the IA is retrieved. Afterwards the matching of this NodeTemplate with the instance data
- * of the local OpenTOSCA Container is done. If this is not successful, the matching request is
- * distributed to other Container via MQTT. In case there is also no match, the local Container is
- * used as default deployment location.<br>
+ * To determine the responsible OpenTOSCA Container, a matching with the instance data of the
+ * different available Containers is performed. Therefore, the infrastructure NodeTemplateInstance
+ * of the topology stack of the IA is retrieved. Afterwards the matching of this
+ * NodeTemplateInstance with the instance data of the local OpenTOSCA Container is done. If this is
+ * not successful, a matching request is distributed to other Containers via MQTT. In case there is
+ * also no match, the local Container is used as default deployment location.<br>
  * <br>
  *
  * {@link Settings#OPENTOSCA_COLLABORATION_MODE} and the respective config.ini entry can be used to
  * control the matching. If the property is <tt>true</tt>, matching is performed. If it is set to
  * <tt>false</tt>, all IA deployments will be performed locally. Therefore, the performance can be
- * increased by this setting if distributed IA deployment is not needed.<br>
+ * increased by disabling this setting if distributed IA deployment is not needed.<br>
  * <br>
  *
  * Copyright 2018 IAAS University of Stuttgart <br>
@@ -47,9 +50,9 @@ public class DeploymentDistributionDecisionMaker {
         new NodeTemplateInstanceRepository();
 
     /**
-     * Get the deployment location for IAs which are attached to the NodeTemplate that is identified
-     * by the given ID. If the collaboration mode is turned on, this method performs an instance
-     * data matching to determine the deployment location. Therefore, the infrastructure
+     * Get the deployment location for IAs which are attached to the NodeTemplateInstance that is
+     * identified by the given ID. If the collaboration mode is turned on, this method performs an
+     * instance data matching to determine the deployment location. Therefore, the infrastructure
      * NodeTemplateInstance is searched in the topology. Afterwards, its type and properties are
      * matched against local and remote instance data to get the correct deployment location for the
      * IAs. If the matching is not successful, the local OpenTOSCA Container is returned as default
@@ -134,14 +137,61 @@ public class DeploymentDistributionDecisionMaker {
 
     /**
      * Search for the infrastructure NodeTemplateInstance on which the given NodeTemplateInstance is
-     * hosted/deployed/based. Infrastructure NodeTemplates are for example of type
-     * <tt>DockerEngine</tt> or <tt>RaspbianJessie</tt>.
+     * hosted/deployed/based. In the context of instance data matching the infrastructure Node
+     * should always be the Node at the bottom of a stack in the topology. If an OpenTOSCA Container
+     * manages this bottom Node, it can be used to deploy all IAs attached to Nodes that are above
+     * the infrastructure Node in the topology.<br>
+     * <br>
+     *
+     * <b>Caution</b>: To match infrastructure Nodes, they must have properties which clearly
+     * identify a device (e.g. a Raspberry Pi) or a virtual infrastructure (e.g a Docker Engine or a
+     * Cloud Provider). Unfortunately, for Raspberry Pi topologies the bottom Node (RaspberryPI3)
+     * has no such properties. Instead the RaspbianJessie Node which is located above has these
+     * properties. Therefore, the search has to be interrupted for such topologies before the bottom
+     * Node is reached. This is a bit hacky at the moment.
      *
      * @param nodeTemplateInstance the NodeTemplateInstance for which the infrastructure is searched
      * @return the infrastructure NodeTemplateInstance
      */
     private static NodeTemplateInstance searchInfrastructureNode(final NodeTemplateInstance nodeTemplateInstance) {
-        // TODO: search for the infrastructure NodeTemplate
+        DeploymentDistributionDecisionMaker.LOG.debug("Looking for infrastructure NodeTemplate at NodeTemplate {} and below...",
+                                                      nodeTemplateInstance.getTemplateId());
+
+        // terminate search if a RaspbianJessie NodeTemplate is reached
+        if (isRaspbianJessieNodeType(nodeTemplateInstance.getTemplateType())) {
+            DeploymentDistributionDecisionMaker.LOG.debug("RaspbianJessie NodeTemplate found. Terminating search.");
+            return nodeTemplateInstance;
+        } else {
+            final Collection<RelationshipTemplateInstance> outgoingRelationships =
+                nodeTemplateInstance.getOutgoingRelations();
+
+            // terminate search if bottom NodeTemplate is found
+            if (outgoingRelationships.isEmpty()) {
+                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplate {} is the infrastructure NodeTemplate",
+                                                              nodeTemplateInstance.getTemplateId());
+                return nodeTemplateInstance;
+            } else {
+
+                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplate {} is not of type RaspbianJessie and not the bottom NodeTemplate of the topology stack.",
+                                                              nodeTemplateInstance.getTemplateId());
+                for (final RelationshipTemplateInstance relation : outgoingRelationships) {
+                    final QName relationType = relation.getTemplateType();
+                    DeploymentDistributionDecisionMaker.LOG.debug("Found outgoing RelationshipTemplate of type: {}",
+                                                                  relationType);
+
+                    // traverse topology stack downwards
+                    if (relationType.equals(Types.hostedOnRelationType)
+                        || relationType.equals(Types.deployedOnRelationType)
+                        || relationType.equals(Types.dependsOnRelationType)) {
+                        DeploymentDistributionDecisionMaker.LOG.debug("Continue search with the target of the RelationshipTemplate...");
+                        return relation.getTarget();
+                    } else {
+                        DeploymentDistributionDecisionMaker.LOG.debug("RelationshipType is not valid for infrastructure search (e.g. hostedOn).");
+                    }
+                }
+            }
+        }
+
         return nodeTemplateInstance;
     }
 
@@ -153,11 +203,24 @@ public class DeploymentDistributionDecisionMaker {
      * @param infrastructureNodeType the NodeType of the NodeTemplate which has to be matched
      * @param infrastructureProperties the set of properties of the NodeTemplate which has to be
      *        matched
-     * @return <tt>true</tt> if matching NodeTemplateInstance is found, <tt>false</tt> otherwise.
+     * @return <tt>true</tt> if a matching NodeTemplateInstance is found, <tt>false</tt> otherwise.
      */
     private static boolean performInstanceDataMatching(final QName infrastructureNodeType,
                                                        final Map<String, String> infrastructureProperties) {
-        // TODO: perform local matching
+
+        // retrieve all instances with matching type from instance data
+        final Collection<NodeTemplateInstance> typeMatchingInstances =
+            nodeTemplateInstanceRepository.findByTemplateType(infrastructureNodeType);
+
+        for (final NodeTemplateInstance typeMatchingInstance : typeMatchingInstances) {
+            DeploymentDistributionDecisionMaker.LOG.debug("Found NodeTemplateInstance with matching type. ID: {}",
+                                                          typeMatchingInstance.getId());
+
+            // TODO: Only match with special instances which are created to represent managed
+            // infrastructure. Property <State>Infrastructure</State>?
+
+            // TODO: perform property matching --> return true if successful
+        }
 
         // no matching found
         return false;
@@ -169,7 +232,7 @@ public class DeploymentDistributionDecisionMaker {
      * the same values for the properties is found in their instance data. The method sends a
      * request via MQTT to all subscribed OpenTOSCA Container instances. Afterwards, it waits for a
      * reply which contains the host name of the OpenTOSCA Container that found matching instance
-     * data. If it receives a reply in time, it returns the hostname. Otherwise, it returns null.
+     * data. If it receives a reply in time, it returns the host name. Otherwise, it returns null.
      *
      * @param infrastructureNodeType the NodeType of the NodeTemplate which has to be matched
      * @param infrastructureProperties the set of properties of the NodeTemplate which has to be
@@ -181,5 +244,16 @@ public class DeploymentDistributionDecisionMaker {
                                                             final Map<String, String> infrastructureProperties) {
         // TODO: perform remote matching
         return null;
+    }
+
+    /**
+     * Checks whether the given NodeType is of Type RaspbianJessie:
+     * {@link org.opentosca.container.core.tosca.convention.Types#raspbianJessieOSNodeType}
+     *
+     * @param nodeType the NodeType to check
+     * @return <tt>true</tt> if the NodeType is of type RasbianJessie, <tt>false</tt> otherwise.
+     */
+    private static boolean isRaspbianJessieNodeType(final QName nodeType) {
+        return nodeType.equals(Types.raspbianJessieOSNodeType);
     }
 }
