@@ -106,6 +106,20 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String neededOperation = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
         ManagementBusServiceImpl.LOG.debug("Operation: {}", neededOperation);
 
+        // get the ServiceTemplateInstance ID Long from the serviceInstanceID URI
+        Long serviceTemplateInstanceID = null;
+        if (serviceInstanceID != null) {
+            try {
+                serviceTemplateInstanceID =
+                    Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
+                ManagementBusServiceImpl.LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
+            }
+            catch (final NumberFormatException e) {
+                ManagementBusServiceImpl.LOG.warn("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID: {}",
+                                                  nodeInstanceID);
+            }
+        }
+
         boolean wasFound = false;
         String deploymentType = null;
         String invocationType = null;
@@ -119,13 +133,22 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             ManagementBusServiceImpl.LOG.debug("NodeType: {}", nodeTypeID);
             message.setHeader(MBHeader.NODETYPEID_QNAME.toString(), nodeTypeID);
 
-            // get the NodeTemplateInstanceID from the nodeInstanceID String
+            // get the NodeTemplateInstance ID from the nodeInstanceID String or via
+            // serviceTemplateInstanceID
             Long nodeTemplateInstanceID = null;
             try {
                 nodeTemplateInstanceID = Long.parseLong(StringUtils.substringAfterLast(nodeInstanceID, "/"));
             }
-            catch (final NumberFormatException e) {
-                ManagementBusServiceImpl.LOG.error("Unable to parse NodeTemplateInstanceID");
+            catch (final NullPointerException | NumberFormatException e) {
+                ManagementBusServiceImpl.LOG.debug("Unable to parse NodeTemplateInstance ID out of nodeInstanceID: {}",
+                                                   nodeInstanceID);
+
+                // try to get NodeTemplateInstance ID via serviceTemplateInstanceID
+                nodeTemplateInstanceID = MBUtils.getNodeTemplateInstanceID(serviceTemplateInstanceID, nodeTemplateID);
+            }
+
+            if (nodeTemplateInstanceID == null) {
+                ManagementBusServiceImpl.LOG.warn("NodeTemplateInstance ID is null. Updating input parameters, replacing placeholders and deployment distribution decision are not possible without NodeTemplateInstance ID!");
             }
 
             // update inputParams with instance data
@@ -142,21 +165,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 ManagementBusServiceImpl.LOG.warn("There are no input parameters specified.");
             }
 
-            // check whether operation has input and output parameter and set corresponding
-            // header
-            final boolean hasInputParams =
-                ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID,
-                                                                                              neededInterface, neededOperation);
-
+            // check whether operation has output parameters
             final boolean hasOutputParams =
                 ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID, nodeTypeID,
                                                                                                neededInterface, neededOperation);
-
-            if (hasInputParams && !hasOutputParams) {
-                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), false);
-            } else {
-                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-            }
+            message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), hasOutputParams);
 
             ManagementBusServiceImpl.LOG.debug("Getting NodeTypeImplementations of NodeType: {} from CSAR: {}",
                                                nodeTypeID, csarID);
@@ -1117,7 +1130,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     /**
      *
-     * Returns the input parameters that are specified in the TOSCA of the definied operation.
+     * Returns the input parameters that are specified in the TOSCA of the defined operation.
      *
      * @param csarID
      * @param nodeTypeID

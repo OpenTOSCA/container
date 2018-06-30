@@ -127,7 +127,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                         throw e;
                     } else {
                         ManagementBusInvocationPluginSoapHttp.LOG.warn("Problem accessing the wsdl at: {}. Retry... ({}/{})",
-                                                                        endpoint, count, maxTries);
+                                                                       endpoint, count, maxTries);
                         try {
                             Thread.sleep(10000);
                         }
@@ -147,7 +147,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
                     for (final BindingOperation op : bind.getOperations()) {
                         ManagementBusInvocationPluginSoapHttp.LOG.debug("Operation: {} =? {}", op.getName(),
-                                                                         operationName);
+                                                                        operationName);
 
                         if (op.getName().equals(operationName)) {
                             final String portType = bind.getPortType().getName();
@@ -160,7 +160,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
                             rootElementNamespaceURI =
                                 (String) element.getNamespace(rootElementWithPrefix.replace(":" + rootElementName, ""));
                             ManagementBusInvocationPluginSoapHttp.LOG.debug("Root ElementName: {} with NamespaceURI: {}",
-                                                                             rootElementName, rootElementNamespaceURI);
+                                                                            rootElementName, rootElementNamespaceURI);
 
                             // Check if request-response ,callback or
                             // request-only
@@ -283,8 +283,8 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
                 ManagementBusInvocationPluginSoapHttp.LOG.debug("Got Message with ID: {}", messageID);
                 ManagementBusInvocationPluginSoapHttp.LOG.debug("Stored MessageIDs: {}",
-                                                                 ManagementBusInvocationPluginSoapHttp.exchangeMap.keySet()
-                                                                                                                   .toString());
+                                                                ManagementBusInvocationPluginSoapHttp.exchangeMap.keySet()
+                                                                                                                 .toString());
 
                 if (ManagementBusInvocationPluginSoapHttp.exchangeMap.containsKey(messageID)) {
                     ManagementBusInvocationPluginSoapHttp.LOG.debug("MessageID found");
@@ -313,7 +313,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
         }
 
         ManagementBusInvocationPluginSoapHttp.LOG.debug("Returning exchange with MessageID: {}",
-                                                         exchange.getIn().getMessageId());
+                                                        exchange.getIn().getMessageId());
         ManagementBusInvocationPluginSoapHttp.LOG.debug("Returning body: {}", exchange.getIn().getBody().toString());
 
         return exchange;
@@ -359,12 +359,12 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
      *
      * @param message
      * @param operationName
-     * @param hastOutputParams
+     * @param hasOutputParams
      * @param endpoint
      *
      * @return messagingPattern as String.
      */
-    private String determineMP(final Message message, final String operationName, final Boolean hastOutputParams,
+    private String determineMP(final Message message, final String operationName, final Boolean hasOutputParams,
                                final String endpoint) {
 
         // Plan should be invoked
@@ -403,10 +403,10 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
 
             if (hasOutputDefinedInWSDL != null) {
 
-                if (!hasOutputDefinedInWSDL && hastOutputParams) {
+                if (!hasOutputDefinedInWSDL && hasOutputParams) {
                     return this.CALLBACK;
 
-                } else if (!hasOutputDefinedInWSDL && !hastOutputParams) {
+                } else if (!hasOutputDefinedInWSDL && !hasOutputParams) {
                     return this.REQUEST_ONLY;
 
                 } else {
@@ -467,7 +467,7 @@ public class ManagementBusInvocationPluginSoapHttp implements IManagementBusInvo
     @Override
     public List<String> getSupportedTypes() {
         ManagementBusInvocationPluginSoapHttp.LOG.debug("Getting Types: {}.",
-                                                         ManagementBusInvocationPluginSoapHttp.TYPES);
+                                                        ManagementBusInvocationPluginSoapHttp.TYPES);
         final List<String> types = new ArrayList<>();
 
         for (final String type : ManagementBusInvocationPluginSoapHttp.TYPES.split("[,;]")) {

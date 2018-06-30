@@ -12,7 +12,9 @@ import org.opentosca.bus.management.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
@@ -32,6 +34,10 @@ public class MBUtils {
     // repository to access NodeTemplateInstance data
     final private static NodeTemplateInstanceRepository nodeTemplateInstanceRepository =
         new NodeTemplateInstanceRepository();
+
+    // repository to access ServiceTemplateInstance data
+    final private static ServiceTemplateInstanceRepository serviceTemplateInstanceRepository =
+        new ServiceTemplateInstanceRepository();
 
 
     /**
@@ -331,6 +337,49 @@ public class MBUtils {
             }
         } else {
             MBUtils.LOG.debug("Given ID is null. Unable to retrieve properties.");
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieve the NodeTemplateInstance ID of the NodeTemplateInstance which is contained in a
+     * certain ServiceTemplateInstance and has a certain template ID.
+     *
+     * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
+     * @param nodeTemplateID the template ID to identify the correct instance
+     * @return a Long identifying the found NodeTemplateInstance or <tt>null</tt> if no instance was
+     *         found that matches the parameters
+     */
+    public static Long getNodeTemplateInstanceID(final Long serviceTemplateInstanceID, final String nodeTemplateID) {
+        MBUtils.LOG.debug("Trying to retrieve NodeTemplateInstance ID for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
+                          serviceTemplateInstanceID, nodeTemplateID);
+
+        // retrieve ServiceTemplateInstance object from database
+        if (serviceTemplateInstanceID != null) {
+            final Optional<ServiceTemplateInstance> instanceOptional =
+                serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
+            if (instanceOptional.isPresent()) {
+                MBUtils.LOG.debug("Corresponding ServiceTemplateInstance object found...");
+                final ServiceTemplateInstance serviceTemplateInstance = instanceOptional.get();
+
+                final Collection<NodeTemplateInstance> nodeTemplateInstances =
+                    serviceTemplateInstance.getNodeTemplateInstances();
+
+                // search for the NodeTemplateInstance with matching ID
+                for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
+                    if (nodeTemplateInstance.getName().equals(nodeTemplateID)) {
+                        MBUtils.LOG.debug("NodeTemplateInstance has ID: {}", nodeTemplateInstance.getId());
+                        return nodeTemplateInstance.getId();
+                    }
+                }
+
+                MBUtils.LOG.debug("No NodeTemplateInstance with this ID contained in the ServiceTemplateInstance!");
+            } else {
+                MBUtils.LOG.debug("Unable to find ServiceTemplateInstance with ID: {}", serviceTemplateInstanceID);
+            }
+        } else {
+            MBUtils.LOG.debug("Given ServiceTemplateInstance ID is null. Unable to search NodeTemplateInstance.");
         }
 
         return null;
