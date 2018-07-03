@@ -18,6 +18,10 @@ public class DockerContainerTypePluginPluginConstants {
         new QName("http://opentosca.org/artefacttypes", "DockerContainerArtefact");
     public final static QName DOCKER_CONTAINER_ARTEFACTTYPE =
         new QName("http://opentosca.org/artifacttypes", "DockerContainerArtifact");
+
+    public final static QName DOCKER_VOLUME_ARTIFACTTYPE =
+        new QName("http://opentosca.org/artifacttypes", "DockerVolumeArtifact_1-w1-wip1");
+
     public final static QName OPENMTC_BACKEND_SERVICE_NODETYPE = new QName("http://opentosca.org/nodetypes", "OpenMTC");
     public final static QName OPENMTC_GATEWAY_DOCKER_CONTAINER_NODETYPE =
         new QName("http://opentosca.org/nodetypes", "OpenMTCDockerContainerGateway");
