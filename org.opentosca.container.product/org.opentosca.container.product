@@ -170,7 +170,7 @@
       <plugin id="org.glassfish.jersey.ext.entityfiltering" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.media.jersey-media-json-jackson" autoStart="true" startLevel="0" />
       <plugin id="org.h2" autoStart="true" startLevel="2" />
-      <plugin id="org.opentosca.broker.mqtt" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.broker.mqtt" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.bus.application.api.jsonhttp" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.application.api.resthttp" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.bus.application.api.soaphttp" autoStart="true" startLevel="5" />

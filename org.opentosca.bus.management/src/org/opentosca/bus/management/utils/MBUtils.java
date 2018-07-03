@@ -223,136 +223,113 @@ public class MBUtils {
      * @param property the name of the property that is searched
      * @return instance data value of searched property if found, <tt>null</tt> otherwise.
      */
-    public static String searchProperty(final Long nodeTemplateInstanceID, final String property) {
+    public static String searchProperty(NodeTemplateInstance nodeTemplateInstance, final String property) {
 
-        MBUtils.LOG.debug("Searching the Property: {} in or under the NodeTemplate with instance ID: {} ...", property,
-                          nodeTemplateInstanceID);
+        MBUtils.LOG.debug("Searching the Property: {} in or under the NodeTemplateInstance ID: {} ...", property,
+                          nodeTemplateInstance.getId());
 
-        String propertyValue = null;
-        if (nodeTemplateInstanceID != null) {
+        // check if property is already defined at this NodeTemplateInstance
+        String propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance, property);
 
-            // retrieve NodeTemplateInstance object from which the property search is started
-            final Optional<NodeTemplateInstance> instanceOptional =
-                nodeTemplateInstanceRepository.find(nodeTemplateInstanceID);
-            if (instanceOptional.isPresent()) {
-                NodeTemplateInstance nodeTemplateInstance = instanceOptional.get();
+        // search until property is found or no new NodeTemplateInstance is found
+        boolean moreNodeTemplateInstances = true;
+        while (propertyValue == null && moreNodeTemplateInstances) {
+            MBUtils.LOG.debug("Property not found at NodeTemplate: {}", nodeTemplateInstance.getTemplateId());
+            moreNodeTemplateInstances = false;
 
-                // check if property is already defined at this NodeTemplateInstance
-                propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance.getId(), property);
+            // perform search in downwards direction in the topology
+            final Collection<RelationshipTemplateInstance> outgoingRelations =
+                nodeTemplateInstance.getOutgoingRelations();
 
-                // search until property is found or no new NodeTemplateInstance is found
-                boolean moreNodeTemplateInstances = true;
-                while (propertyValue == null && moreNodeTemplateInstances) {
-                    MBUtils.LOG.debug("Property not found at NodeTemplate: {}", nodeTemplateInstance.getTemplateId());
-                    moreNodeTemplateInstances = false;
+            for (final RelationshipTemplateInstance relation : outgoingRelations) {
+                final QName relationType = relation.getTemplateType();
+                MBUtils.LOG.debug("Found outgoing relation of Type: {}", relationType);
 
-                    // perform search in downwards direction in the topology
-                    final Collection<RelationshipTemplateInstance> outgoingRelations =
-                        nodeTemplateInstance.getOutgoingRelations();
+                // only follow relations of kind hostedOn, deployedOn and dependsOn
+                if (relationType.equals(Types.hostedOnRelationType) || relationType.equals(Types.deployedOnRelationType)
+                    || relationType.equals(Types.dependsOnRelationType)) {
 
-                    for (final RelationshipTemplateInstance relation : outgoingRelations) {
-                        final QName relationType = relation.getTemplateType();
-                        MBUtils.LOG.debug("Found outgoing relation of Type: {}", relationType);
+                    nodeTemplateInstance = relation.getTarget();
+                    moreNodeTemplateInstances = true;
 
-                        // only follow relations of kind hostedOn, deployedOn and dependsOn
-                        if (relationType.equals(Types.hostedOnRelationType)
-                            || relationType.equals(Types.deployedOnRelationType)
-                            || relationType.equals(Types.dependsOnRelationType)) {
+                    MBUtils.LOG.debug("Found new NodeTemplate: {}. Continue property search.",
+                                      nodeTemplateInstance.getTemplateId());
 
-                            nodeTemplateInstance = relation.getTarget();
-                            moreNodeTemplateInstances = true;
-
-                            MBUtils.LOG.debug("Found new NodeTemplate: {}. Continue property search.",
-                                              nodeTemplateInstance.getTemplateId());
-
-                            // check if new NodeTemplateInstance contains property
-                            propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance.getId(), property);
-                            break;
-                        } else {
-                            MBUtils.LOG.debug("RelationshipType is not valid for property search (e.g. hostedOn).");
-                        }
-                    }
-                }
-
-                if (propertyValue != null) {
-                    MBUtils.LOG.debug("Searched property: {} with value: {} found in NodeTemplate: {}.", property,
-                                      propertyValue, nodeTemplateInstance.getTemplateId());
+                    // check if new NodeTemplateInstance contains property
+                    propertyValue = getInstanceDataPropertyValue(nodeTemplateInstance, property);
+                    break;
                 } else {
-                    MBUtils.LOG.debug("Searched property: {} not found!", property);
+                    MBUtils.LOG.debug("RelationshipType is not valid for property search (e.g. hostedOn).");
                 }
-            } else {
-                MBUtils.LOG.debug("Unable to find NodeTemplateInstance with ID: {} to start search.",
-                                  nodeTemplateInstanceID);
             }
+        }
+
+        if (propertyValue != null) {
+            MBUtils.LOG.debug("Searched property: {} with value: {} found in NodeTemplate: {}.", property,
+                              propertyValue, nodeTemplateInstance.getTemplateId());
         } else {
-            MBUtils.LOG.debug("Given ID is null. Unable to search the property.");
+            MBUtils.LOG.debug("Searched property: {} not found!", property);
         }
 
         return propertyValue;
+
     }
 
     /**
      * Returns the value of a certain property of a certain NodeTemplateInstance.
      *
-     * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance
+     * @param nodeTemplateInstance the NodeTemplateInstance
      * @param property the name of the property
      * @return the value of the property if found, <tt>null</tt> otherwise.
      */
-    public static String getInstanceDataPropertyValue(final Long nodeTemplateInstanceID, final String property) {
-
-        final Map<String, String> propertiesMap = getInstanceDataProperties(nodeTemplateInstanceID);
+    public static String getInstanceDataPropertyValue(final NodeTemplateInstance nodeTemplateInstance,
+                                                      final String property) {
+        final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
 
         if (propertiesMap != null) {
             return propertiesMap.get(property);
         } else {
             return null;
         }
-
     }
 
     /**
-     * Returns the set of properties of a certain NodeTemplateInstance as Map.
+     * Returns the NodeTemplateInstance object for a certain ID.
      *
      * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance
-     * @return the stored properties for the NodeTemplateInstance if the instance is found,
-     *         <tt>null</tt> otherwise.
+     * @return the NodeTemplateInstance if found, <tt>null</tt> otherwise
      */
-    public static Map<String, String> getInstanceDataProperties(final Long nodeTemplateInstanceID) {
+    public static NodeTemplateInstance getNodeTemplateInstance(final Long nodeTemplateInstanceID) {
+        MBUtils.LOG.debug("Trying to retrieve NodeTemplateInstance with ID: {}", nodeTemplateInstanceID);
 
-        MBUtils.LOG.debug("Trying to get instance data properties for NodeTemplateInstance with ID: {}",
-                          nodeTemplateInstanceID);
-
+        // retrieve ServiceTemplateInstance object from database
         if (nodeTemplateInstanceID != null) {
-
-            // retrieve NodeTemplateInstance object from database
             final Optional<NodeTemplateInstance> instanceOptional =
                 nodeTemplateInstanceRepository.find(nodeTemplateInstanceID);
             if (instanceOptional.isPresent()) {
-                final NodeTemplateInstance nodeTemplateInstance = instanceOptional.get();
-
-                // get and return properties of the NodeTemplateInstance
-                return nodeTemplateInstance.getPropertiesAsMap();
+                return instanceOptional.get();
             } else {
                 MBUtils.LOG.debug("Unable to find NodeTemplateInstance with ID: {}", nodeTemplateInstanceID);
             }
         } else {
-            MBUtils.LOG.debug("Given ID is null. Unable to retrieve properties.");
+            MBUtils.LOG.debug("Given NodeTemplateInstance ID is null. Unable to retrieve NodeTemplateInstance.");
         }
 
         return null;
     }
 
     /**
-     * Retrieve the NodeTemplateInstance ID of the NodeTemplateInstance which is contained in a
-     * certain ServiceTemplateInstance and has a certain template ID.
+     * Retrieve the NodeTemplateInstance which is contained in a certain ServiceTemplateInstance and
+     * has a certain template ID.
      *
      * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
      * @param nodeTemplateID the template ID to identify the correct instance
-     * @return a Long identifying the found NodeTemplateInstance or <tt>null</tt> if no instance was
-     *         found that matches the parameters
+     * @return the found NodeTemplateInstance or <tt>null</tt> if no instance was found that matches
+     *         the parameters
      */
-    public static Long getNodeTemplateInstanceID(final Long serviceTemplateInstanceID, final String nodeTemplateID) {
-        MBUtils.LOG.debug("Trying to retrieve NodeTemplateInstance ID for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
+    public static NodeTemplateInstance getNodeTemplateInstance(final Long serviceTemplateInstanceID,
+                                                               final String nodeTemplateID) {
+        MBUtils.LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
                           serviceTemplateInstanceID, nodeTemplateID);
 
         // retrieve ServiceTemplateInstance object from database
@@ -370,11 +347,11 @@ public class MBUtils {
                 for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
                     if (nodeTemplateInstance.getName().equals(nodeTemplateID)) {
                         MBUtils.LOG.debug("NodeTemplateInstance has ID: {}", nodeTemplateInstance.getId());
-                        return nodeTemplateInstance.getId();
+                        return nodeTemplateInstance;
                     }
                 }
 
-                MBUtils.LOG.debug("No NodeTemplateInstance with this ID contained in the ServiceTemplateInstance!");
+                MBUtils.LOG.debug("No NodeTemplateInstance with this NodeTemplate ID contained in the ServiceTemplateInstance!");
             } else {
                 MBUtils.LOG.debug("Unable to find ServiceTemplateInstance with ID: {}", serviceTemplateInstanceID);
             }
