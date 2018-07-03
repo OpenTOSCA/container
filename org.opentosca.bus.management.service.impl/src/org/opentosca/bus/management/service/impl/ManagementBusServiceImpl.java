@@ -118,6 +118,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 ManagementBusServiceImpl.LOG.warn("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID: {}",
                                                   nodeInstanceID);
             }
+        } else {
+            ManagementBusServiceImpl.LOG.warn("Unable to parse ServiceTemplateInstance ID out of serviceInstanceID because it is null!");
         }
 
         boolean wasFound = false;

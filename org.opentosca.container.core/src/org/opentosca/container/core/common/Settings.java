@@ -39,6 +39,13 @@ public class Settings {
     public final static String OPENTOSCA_COLLABORATION_MODE =
         System.getProperty("org.opentosca.container.collaboration.mode", "false");
 
+    public final static String OPENTOSCA_BROKER_MQTT_PORT =
+        System.getProperty("org.opentosca.container.broker.mqtt.port", "1883");
+    public final static String OPENTOSCA_BROKER_MQTT_USERNAME =
+        System.getProperty("org.opentosca.container.broker.mqtt.username", "admin");
+    public final static String OPENTOSCA_BROKER_MQTT_PASSWORD =
+        System.getProperty("org.opentosca.container.broker.mqtt.password", "admin");
+
     // TODO: Use public static final variables instead, as in
     // StaticTOSCANamespaces. The problems with the current approach is: (i)
     // Full-text search to find usage instead of Java Reference Search. (ii) It

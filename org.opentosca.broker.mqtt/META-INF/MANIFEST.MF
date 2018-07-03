@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.opentosca.broker.mqtt
+Bundle-SymbolicName: org.opentosca.broker.mqtt
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.opentosca.broker.mqtt.Activator
+Import-Package: com.google.common.hash;version="15.0.0",
+ io.moquette.server;version="0.10.0",
+ org.eclipse.core.runtime;version="3.5.0",
+ org.opentosca.container.core.common,
+ org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.5"
