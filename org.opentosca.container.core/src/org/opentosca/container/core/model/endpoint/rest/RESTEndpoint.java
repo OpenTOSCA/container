@@ -87,23 +87,25 @@ public class RESTEndpoint extends GenericEndpoint {
         super();
     }
 
-    public RESTEndpoint(final URI uri, final restMethod method, final String managingContainer, final CSARID csarId,
-                        final URI serviceInstanceID) {
-        super(uri, managingContainer, csarId, serviceInstanceID);
+    public RESTEndpoint(final URI uri, final restMethod method, final String triggeringContainer,
+                        final String managingContainer, final CSARID csarId, final Long serviceInstanceID) {
+        super(uri, triggeringContainer, managingContainer, csarId, serviceInstanceID);
         this.method = method;
         this.path = uri.getPath();
     }
 
     public RESTEndpoint(final String host, final String path, final restMethod method, final String managingContainer,
-                        final CSARID csarId, final URI serviceInstanceID) throws URISyntaxException {
+                        final String triggeringContainer, final CSARID csarId,
+                        final Long serviceInstanceID) throws URISyntaxException {
         // Check if the path starts with a "/", if not we prepend a "/".
-        this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, managingContainer, csarId,
-             serviceInstanceID);
+        this(new URI(host + (path.charAt(0) == '/' ? path : '/' + path)), method, triggeringContainer,
+             managingContainer, csarId, serviceInstanceID);
     }
 
     public RESTEndpoint(final URI uri, final restMethod method, final QName requestPayload, final QName responsePayload,
-                        final String managingContainer, final CSARID csarId, final URI serviceInstanceID) {
-        this(uri, method, managingContainer, csarId, serviceInstanceID);
+                        final String triggeringContainer, final String managingContainer, final CSARID csarId,
+                        final Long serviceInstanceID) {
+        this(uri, method, triggeringContainer, managingContainer, csarId, serviceInstanceID);
         this.requestPayload = requestPayload;
         this.responsePayload = responsePayload;
     }

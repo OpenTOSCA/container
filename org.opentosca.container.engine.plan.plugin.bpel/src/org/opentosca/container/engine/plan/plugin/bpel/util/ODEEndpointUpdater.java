@@ -575,8 +575,9 @@ public class ODEEndpointUpdater {
         }
 
         try {
+            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
             endpoints.add(new WSDLEndpoint(new URI(callbackEndpoint), port.getBinding().getPortType().getQName(),
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME, null, null, null, null, null));
+                localContainer, localContainer, null, null, null, null, null));
         }
         catch (final URISyntaxException e) {
             e.printStackTrace();
@@ -598,7 +599,7 @@ public class ODEEndpointUpdater {
                                          port.getBinding().getPortType().getQName().toString());
             final List<WSDLEndpoint> temp =
                 ODEEndpointUpdater.endpointService.getWSDLEndpoints(port.getBinding().getPortType().getQName(),
-                                                                    this.csarId);
+                                                                    Settings.OPENTOSCA_CONTAINER_HOSTNAME, this.csarId);
             for (final WSDLEndpoint endpoint : temp) {
                 ODEEndpointUpdater.LOG.debug("Found endpoint: {}", endpoint.getURI().toString());
                 endpoints.add(endpoint);

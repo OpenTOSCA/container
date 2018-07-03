@@ -334,8 +334,9 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             BpelPlanEnginePlugin.LOG.info("Deployment of Plan was successfull: {}", tempPlan.getName());
 
             // save endpoint
-            final WSDLEndpoint wsdlEndpoint = new WSDLEndpoint(endpoint, portType,
-                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId, null, planId, null, null);
+            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+            final WSDLEndpoint wsdlEndpoint =
+                new WSDLEndpoint(endpoint, portType, localContainer, localContainer, csarId, null, planId, null, null);
 
             if (this.endpointService != null) {
                 BpelPlanEnginePlugin.LOG.debug("Store new endpoint!");
@@ -432,14 +433,15 @@ public class BpelPlanEnginePlugin implements IPlanEnginePlanRefPluginService {
             if (this.endpointService != null) {
                 BpelPlanEnginePlugin.LOG.debug("Starting to remove endpoint!");
                 // this.endpointService.storeWSDLEndpoint(wsdlEndpoint);
-                endpoint = this.endpointService.getWSDLEndpointForPlanId(csarId, planId);
+                endpoint = this.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarId,
+                                                                         planId);
 
                 if (endpoint == null) {
                     BpelPlanEnginePlugin.LOG.warn("Couldn't remove endpoint for plan {}, because endpoint service didn't find any endpoint associated with the plan to remove",
                                                   planRef.getReference());
                 }
 
-                if (this.endpointService.removeWSDLEndpoint(csarId, endpoint)) {
+                if (this.endpointService.removeWSDLEndpoint(endpoint)) {
                     BpelPlanEnginePlugin.LOG.debug("Removed endpoint {} for plan {}", endpoint.toString(),
                                                    planRef.getReference());
                 }

@@ -185,7 +185,9 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
         final List<WSDLEndpoint> endpoints =
             this.endpointService.getWSDLEndpointsForNTImplAndIAName(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                                                                    nodeTypeImplementationID, implementationArtifactName);
+                                                                    Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                    nodeTypeImplementationID,
+                                                                    implementationArtifactName);
 
         URI serviceURI = null;
 
@@ -210,7 +212,8 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
             // TODO: null for serviceInstanceID is invalid, but this bundle will be deleted
             final WSDLEndpoint endpoint = new WSDLEndpoint(serviceURI, portType, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                csarID, null, null, nodeTypeImplementationID, implementationArtifactName);
+                Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID, null, null, nodeTypeImplementationID,
+                implementationArtifactName);
             this.endpointService.storeWSDLEndpoint(endpoint);
             IAEngineServiceImpl.LOG.info("ImplementationArtifact: {} of NodeTypeImplementation: {} of CSAR: "
                 + csarID.getFileName() + " successfully deployed!", implementationArtifactName,
@@ -284,7 +287,8 @@ public class IAEngineServiceImpl implements IIAEngineService {
         boolean allUndeployed = true;
 
         IAEngineServiceImpl.LOG.debug("Getting all stored endpoints of CSAR: {} ...", csarID.getFileName());
-        final List<WSDLEndpoint> csarEndpoints = this.endpointService.getWSDLEndpointsForCSARID(csarID);
+        final List<WSDLEndpoint> csarEndpoints =
+            this.endpointService.getWSDLEndpointsForCSARID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID);
 
         for (final WSDLEndpoint endpoint : csarEndpoints) {
             final String iaName = endpoint.getIaName();
@@ -296,13 +300,14 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
                 final List<WSDLEndpoint> endpoints =
                     this.endpointService.getWSDLEndpointsForNTImplAndIAName(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                            Settings.OPENTOSCA_CONTAINER_HOSTNAME,
                                                                             nodeTypeImpl, iaName);
 
                 // IA is used in multiple CSARs: just delete db entry, but do
                 // not undeploy IA
                 if (endpoints != null && endpoints.size() > 1) {
 
-                    this.endpointService.removeWSDLEndpoint(csarID, endpoint);
+                    this.endpointService.removeWSDLEndpoint(endpoint);
                     IAEngineServiceImpl.LOG.debug("IA: {} was not undeployed because it is used in other CSARs too. Only its DB entry was removed.",
                                                   iaName);
 
@@ -327,7 +332,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
                             if (wasUndeployed) {
 
-                                this.endpointService.removeWSDLEndpoint(csarID, endpoint);
+                                this.endpointService.removeWSDLEndpoint(endpoint);
                                 IAEngineServiceImpl.LOG.debug("Undeploying of IA: {} was successful!", iaName);
 
                             } else {

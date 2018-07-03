@@ -64,18 +64,17 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     /**
      * {@Inheritdoc}
      */
-    public List<WSDLEndpoint> getWSDLEndpoints(final QName portType, final CSARID csarId) {
+    public List<WSDLEndpoint> getWSDLEndpoints(final QName portType, final String triggeringContainer,
+                                               final CSARID csarId) {
+
         final ArrayList<WSDLEndpoint> results = new ArrayList<>();
 
-        /**
-         * Create Query to retrieve WSDL-Endpoints
-         *
-         * @see WSDLEndpoint#getWSDLEndpointByPortTyp
-         */
-        final Query getWSDLEndpointsQuery = this.em.createNamedQuery(WSDLEndpoint.getWSDLEndpointByPortType);
+        final Query getWSDLEndpointsQuery =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PortType = :portType");
 
         // Set Parameters for the Query
         getWSDLEndpointsQuery.setParameter("portType", portType);
+        getWSDLEndpointsQuery.setParameter("triggeringContainer", triggeringContainer);
         getWSDLEndpointsQuery.setParameter("csarId", csarId);
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
@@ -138,13 +137,16 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
      * @return true, if the Endpoint already exists.
      */
     private boolean existsWSDLEndpoint(final WSDLEndpoint endpoint) {
-        final List<WSDLEndpoint> endpoints = getWSDLEndpointsForCSARID(endpoint.getCSARId());
+        final List<WSDLEndpoint> endpoints =
+            getWSDLEndpointsForCSARID(endpoint.getTriggeringContainer(), endpoint.getCSARId());
 
         for (final WSDLEndpoint wsdlEndpoint : endpoints) {
-            // (serviceURI, portType, csarID, null, nodeTypeImplementationID,
-            // implementationArtifactName);
 
             if (!endpoint.getCSARId().equals(wsdlEndpoint.getCSARId())) {
+                continue;
+            }
+
+            if (!endpoint.getTriggeringContainer().equals(wsdlEndpoint.getTriggeringContainer())) {
                 continue;
             }
 
@@ -167,11 +169,11 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                 continue;
             }
 
-            if (endpoint.getServiceInstanceID() != null) {
-                if (!endpoint.getServiceInstanceID().equals(wsdlEndpoint.getServiceInstanceID())) {
+            if (endpoint.getServiceTemplateInstanceID() != null) {
+                if (!endpoint.getServiceTemplateInstanceID().equals(wsdlEndpoint.getServiceTemplateInstanceID())) {
                     continue;
                 }
-            } else if (wsdlEndpoint.getServiceInstanceID() != null) {
+            } else if (wsdlEndpoint.getServiceTemplateInstanceID() != null) {
                 // see above
                 continue;
             }
@@ -205,7 +207,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     /**
      * {@Inheritdoc}
      */
-    public List<RESTEndpoint> getRestEndpoints(final URI anyURI, final CSARID csarId) {
+    public List<RESTEndpoint> getRestEndpoints(final URI anyURI, final String triggeringContainer,
+                                               final CSARID csarId) {
         final ArrayList<RESTEndpoint> results = new ArrayList<>();
 
         /**
@@ -290,7 +293,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     public void _endpoint_add_dummy_rest(final CommandInterpreter commandInterpreter) {
         try {
             final RESTEndpoint endpoint = new RESTEndpoint(new URI("http://www.balbla.com/xyz"), restMethod.GET, "test",
-                new CSARID("mockup.example.test"), new URI("http://blabla/"));
+                "test", new CSARID("mockup.example.test"), 5L);
             storeRESTEndpoint(endpoint);
         }
         catch (final URISyntaxException e) {
@@ -305,7 +308,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             // URI uri, QName portType, CSARID csarId, URI serviceInstanceID, String planid, QName
             // nodeTypeImplementation, String iaName
             final WSDLEndpoint endpoint = new WSDLEndpoint(new URI("http://blabla/"), new QName("somePort"), "test",
-                new CSARID("mockup.example.test"), new URI("http://blabla/"), new QName("{someNamespace}someplanid"),
+                "test", new CSARID("mockup.example.test"), 5L, new QName("{someNamespace}someplanid"),
                 new QName("{someNamespace}someNodeTypeImplId"), "some ia name");
             storeWSDLEndpoint(endpoint);
         }
@@ -331,11 +334,12 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> queryResults = query.getResultList();
         for (final WSDLEndpoint e : queryResults) {
+            commandInterpreter.println("Triggering Container: " + e.getTriggeringContainer());
             commandInterpreter.println("Managing Container: " + e.getManagingContainer());
             commandInterpreter.println("CSARId: " + e.getCSARId());
             commandInterpreter.println("PortType: " + (e.getPortType() == null ? "" : e.getPortType().toString()));
-            commandInterpreter.println("ServiceInstanceID: "
-                + (e.getServiceInstanceID() == null ? "" : e.getServiceInstanceID().toString()));
+            commandInterpreter.println("ServiceTemplateInstanceID: "
+                + (e.getServiceTemplateInstanceID() == null ? "" : e.getServiceTemplateInstanceID().toString()));
             commandInterpreter.println("PlanId: " + (e.getPlanId() == null ? "" : e.getPlanId().toString()));
             commandInterpreter.println("NodeTypeImpl: "
                 + (e.getNodeTypeImplementation() == null ? "" : e.getNodeTypeImplementation().toString()));
@@ -347,13 +351,15 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     @Override
-    public void removeEndpoints(final CSARID csarId) {
+    public void removeEndpoints(final String triggeringContainer, final CSARID csarId) {
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
         }
 
         // get all rest endpoints for the given csarid
-        final Query queryRestEndpoints = this.em.createQuery("SELECT e FROM RESTEndpoint e where e.csarId = :csarId");
+        final Query queryRestEndpoints =
+            this.em.createQuery("SELECT e FROM RESTEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId");
+        queryRestEndpoints.setParameter("triggeringContainer", triggeringContainer);
         queryRestEndpoints.setParameter("csarId", csarId);
         @SuppressWarnings("unchecked")
         final List<RESTEndpoint> restEndpoints = queryRestEndpoints.getResultList();
@@ -378,10 +384,12 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     @Override
-    public WSDLEndpoint getWSDLEndpointForPlanId(final CSARID csarId, final QName planId) {
+    public WSDLEndpoint getWSDLEndpointForPlanId(final String triggeringContainer, final CSARID csarId,
+                                                 final QName planId) {
         WSDLEndpoint endpoint = null;
         final Query queryWSDLEndpoint =
-            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId and e.PlanId = :planId");
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId= :csarId and e.PlanId = :planId");
+        queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("csarId", csarId);
         queryWSDLEndpoint.setParameter("planId", planId);
 
@@ -397,9 +405,11 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     @Override
-    public List<WSDLEndpoint> getWSDLEndpointsForCSARID(final CSARID csarId) {
+    public List<WSDLEndpoint> getWSDLEndpointsForCSARID(final String triggeringContainer, final CSARID csarId) {
         final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
-        final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId");
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId= :csarId");
+        queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("csarId", csarId);
 
         @SuppressWarnings("unchecked")
@@ -414,11 +424,13 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     // TODO: add method which returns all WSDL endpoints for a ServiceInstanceID
 
     @Override
-    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final String managingContainer,
+    public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final String triggeringContainer,
+                                                                 final String managingContainer,
                                                                  final QName nodeTypeImpl, final String iaName) {
         final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
         final Query queryWSDLEndpoint =
-            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.managingContainer = :managingContainer and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
+        queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("managingContainer", managingContainer);
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
@@ -465,9 +477,10 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     @Override
-    public boolean removeWSDLEndpoint(final CSARID csarId, final WSDLEndpoint endpoint) {
-        // get all wsdlendpoints
-        final List<WSDLEndpoint> endpoints = getWSDLEndpointsForCSARID(csarId);
+    public boolean removeWSDLEndpoint(final WSDLEndpoint endpoint) {
+        // get all wsdl endpoints with related properties
+        final List<WSDLEndpoint> endpoints =
+            getWSDLEndpointsForCSARID(endpoint.getTriggeringContainer(), endpoint.getCSARId());
 
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();

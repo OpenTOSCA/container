@@ -36,6 +36,17 @@ public abstract class GenericEndpoint {
     private URI uri;
 
     /**
+     * The host name of the OpenTOSCA Container where the CSAR identified by
+     * {@link GenericEndpoint#csarId} is deployed. This attribute is needed to clearly identify
+     * CSARs and service instances for collaboration, because otherwise different OpenTOSCA
+     * Containers could use the same IDs for different instances. When no collaboration is used,
+     * this attribute is always the host name of the local Container.
+     */
+    @Basic
+    @Column(name = "triggeringContainer", nullable = false)
+    private String triggeringContainer;
+
+    /**
      * The host name of the OpenTOSCA Container which manages this endpoint. If the endpoint is
      * deployed by the local Container, the field equals the value of
      * {@link org.opentosca.container.core.common.Settings#OPENTOSCA_CONTAINER_HOSTNAME}. If the
@@ -64,23 +75,25 @@ public abstract class GenericEndpoint {
      * set for IA endpoints and it is <tt>null</tt> for Plan endpoints.
      */
     @Basic
-    @Convert("URIConverter")
-    @Column(name = "serviceInstanceID")
-    private URI serviceInstanceID;
+    @Column(name = "serviceTemplateInstanceID")
+    private Long serviceTemplateInstanceID;
 
     /**
      * Constructor
      *
      * @param uri
+     * @param managingContainer
+     * @param managingContainer
      * @param csarId
-     * @param serviceInstanceID
+     * @param serviceTemplateInstanceID
      */
-    public GenericEndpoint(final URI uri, final String managingContainer, final CSARID csarId,
-                           final URI serviceInstanceID) {
+    public GenericEndpoint(final URI uri, final String triggeringContainer, final String managingContainer,
+                           final CSARID csarId, final Long serviceTemplateInstanceID) {
         setURI(uri);
+        setTriggeringContainer(triggeringContainer);
         setManagingContainer(managingContainer);
         setCSARId(csarId);
-        setServiceInstanceID(serviceInstanceID);
+        setServiceTemplateInstanceID(serviceTemplateInstanceID);
     }
 
     public Long getId() {
@@ -111,12 +124,12 @@ public abstract class GenericEndpoint {
         this.csarId = csarId;
     }
 
-    public URI getServiceInstanceID() {
-        return this.serviceInstanceID;
+    public Long getServiceTemplateInstanceID() {
+        return this.serviceTemplateInstanceID;
     }
 
-    public void setServiceInstanceID(final URI serviceInstanceID) {
-        this.serviceInstanceID = serviceInstanceID;
+    public void setServiceTemplateInstanceID(final Long serviceTemplateInstanceID) {
+        this.serviceTemplateInstanceID = serviceTemplateInstanceID;
     }
 
     public String getManagingContainer() {
@@ -125,5 +138,13 @@ public abstract class GenericEndpoint {
 
     public void setManagingContainer(final String managingContainer) {
         this.managingContainer = managingContainer;
+    }
+
+    public String getTriggeringContainer() {
+        return this.triggeringContainer;
+    }
+
+    public void setTriggeringContainer(final String triggeringContainer) {
+        this.triggeringContainer = triggeringContainer;
     }
 }

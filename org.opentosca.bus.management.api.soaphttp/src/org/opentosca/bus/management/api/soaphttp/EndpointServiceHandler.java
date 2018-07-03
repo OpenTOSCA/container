@@ -47,7 +47,8 @@ public class EndpointServiceHandler {
             }
             // Stores the Management Bus endpoint in the endpointDB. "***",
             // cause the MB-endpoint is csar independent.
-            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+            final String localContainer = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+            final WSDLEndpoint endpoint = new WSDLEndpoint(uri, Route.PORTTYPE, localContainer, localContainer,
                 new CSARID("***"), null, null, null, null);
             EndpointServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 

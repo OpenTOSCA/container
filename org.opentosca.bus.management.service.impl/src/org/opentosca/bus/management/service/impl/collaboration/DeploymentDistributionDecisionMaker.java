@@ -75,6 +75,7 @@ public class DeploymentDistributionDecisionMaker {
 
             // check if "managedBy" is already set for the NodeTemplateInstance
             if (false) {
+                // TODO
 
                 // no instance data matching needed, as it was already performed for the
                 // infrastructure NodeTemplateInstance

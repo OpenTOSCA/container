@@ -264,14 +264,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                             // this IA
                                             URI endpointURI = null;
                                             final List<WSDLEndpoint> endpoints =
-                                                ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(deploymentLocation,
-                                                                                                                  nodeTypeImplementationID, implementationArtifactName);
-
-                                            // TODO: Change endpoint retrieval. It is possible that
-                                            // the same nodeTypeImplementationID and the same
-                                            // implementationArtifactName is used by different
-                                            // OpenTOSCA container instances which collaborate. This
-                                            // should be reflected in the endpoints.
+                                                ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                                                                  deploymentLocation,
+                                                                                                                  nodeTypeImplementationID,
+                                                                                                                  implementationArtifactName);
 
                                             if (endpoints != null && endpoints.size() > 0) {
                                                 ManagementBusServiceImpl.LOG.debug("IA is already deployed.");
@@ -285,8 +281,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                                 // store new endpoint for the IA
                                                 final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType,
-                                                    deploymentLocation, csarID, serviceInstanceID, null,
-                                                    nodeTypeImplementationID, implementationArtifactName);
+                                                    Settings.OPENTOSCA_CONTAINER_HOSTNAME, deploymentLocation, csarID,
+                                                    serviceTemplateInstanceID, null, nodeTypeImplementationID,
+                                                    implementationArtifactName);
                                                 ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
 
                                                 // Invokable implementation artifact that provides
@@ -402,10 +399,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                     getPortTypeQName(csarID, artifactTemplateID);
 
                                                                 // store new endpoint for the IA
-                                                                final WSDLEndpoint endpoint = new WSDLEndpoint(
-                                                                    endpointURI, portType, deploymentLocation, csarID,
-                                                                    serviceInstanceID, null, nodeTypeImplementationID,
-                                                                    implementationArtifactName);
+                                                                final WSDLEndpoint endpoint =
+                                                                    new WSDLEndpoint(endpointURI, portType,
+                                                                        Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                        deploymentLocation, csarID,
+                                                                        serviceTemplateInstanceID, null,
+                                                                        nodeTypeImplementationID,
+                                                                        implementationArtifactName);
                                                                 ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
                                                             }
 
@@ -489,7 +489,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         ManagementBusServiceImpl.LOG.debug("Getting Endpoint for Plan {} from CSAR: {}", planID, csarID);
         ServiceHandler.endpointService.printPlanEndpoints();
-        final WSDLEndpoint WSDLendpoint = ServiceHandler.endpointService.getWSDLEndpointForPlanId(csarID, planID);
+        final WSDLEndpoint WSDLendpoint =
+            ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID,
+                                                                    planID);
 
         final String planLanguage = message.getHeader("PlanLanguage", String.class);
         ManagementBusServiceImpl.LOG.debug("plan language is: {}", planLanguage);

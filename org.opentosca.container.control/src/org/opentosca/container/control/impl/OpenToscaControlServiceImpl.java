@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.control.IOpenToscaControlService;
+import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -223,7 +224,8 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
             // TODO: undeploy IAs via Management Bus
             final List<WSDLEndpoint> csarEndpoints =
-                OpenToscaControlServiceImpl.endpointService.getWSDLEndpointsForCSARID(csarID);
+                OpenToscaControlServiceImpl.endpointService.getWSDLEndpointsForCSARID(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                                      csarID);
         }
 
         // Delete operation is legal, thus continue.
@@ -234,7 +236,9 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         }
 
         OpenToscaControlServiceImpl.coreDeploymentTracker.deleteDeploymentState(csarID);
-        OpenToscaControlServiceImpl.endpointService.removeEndpoints(csarID);
+
+        // TODO: delete and remove all endpoints on undeployment (plan + IA)?
+        OpenToscaControlServiceImpl.endpointService.removeEndpoints(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID);
 
         try {
             OpenToscaControlServiceImpl.fileService.deleteCSAR(csarID);
