@@ -8,6 +8,7 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -156,7 +157,7 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName = relationshipTemplate.getId().replace(".", "_") + "_"
+                final String propVarName = ModelUtils.makeValidNCName(relationshipTemplate.getId()) + "_"
                     + propertyElement.getChildNodes().item(i).getLocalName();
                 map.addPropertyMapping(relationshipTemplate.getId(), propName, "prop_" + propVarName);
                 // String value =
@@ -202,7 +203,7 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName = nodeTemplate.getId().replace(".", "_") + "_"
+                final String propVarName = ModelUtils.makeValidNCName(nodeTemplate.getId()) + "_"
                     + propertyElement.getChildNodes().item(i).getLocalName();
 
                 // TODO that "prop_" is a huge hack cause official only the

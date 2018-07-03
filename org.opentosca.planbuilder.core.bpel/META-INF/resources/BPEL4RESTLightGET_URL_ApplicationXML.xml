@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpel:extensionActivity xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
+<bpel:extensionActivity xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:bpel4RestLight="http://www.apache.org/ode/bpel/extensions/bpel4restlight">
     <!-- $ResponseVarName, $urlVar  -->
 	<bpel4RestLight:GET
 		uri="$bpelvar[$urlVar]"

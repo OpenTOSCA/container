@@ -13,8 +13,8 @@ Import-Package: org.apache.commons.io;version="2.2.0",
  org.slf4j;version="1.7.5"
 Bundle-ClassPath: .,
  META-INF/resources/
-Export-Package: org.opentosca.planbuilder.type.plugin.ubuntuvm.core,
- org.opentosca.planbuilder.type.plugin.ubuntuvm.core.handler
+Export-Package: org.opentosca.planbuilder.type.plugin.ubuntuvm,
+ org.opentosca.planbuilder.type.plugin.ubuntuvm.bpel
 Require-Bundle: org.opentosca.container.core.tosca;bundle-version="1.0.0",
  org.opentosca.planbuilder.model;bundle-version="1.0.0",
  org.opentosca.planbuilder.core.bpel;bundle-version="2.0.0",

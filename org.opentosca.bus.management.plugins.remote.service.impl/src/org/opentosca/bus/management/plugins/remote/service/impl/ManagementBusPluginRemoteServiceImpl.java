@@ -307,48 +307,51 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
 
         ManagementBusPluginRemoteServiceImpl.LOG.debug("Adding output parameters to the response message.");
 
-        // process result as HashMap
-        if (result instanceof HashMap<?, ?>) {
-            final HashMap<?, ?> resultHashMap = (HashMap<?, ?>) result;
+        if (!outputParameters.isEmpty()) {
+            // process result as HashMap
+            if (result instanceof HashMap<?, ?>) {
+                final HashMap<?, ?> resultHashMap = (HashMap<?, ?>) result;
 
-            // get ScriptResult part of the response which contains the parameters
-            if (resultHashMap.containsKey(ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME)) {
-                final Object scriptResult =
-                    resultHashMap.get(ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
+                // get ScriptResult part of the response which contains the parameters
+                if (resultHashMap.containsKey(ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME)) {
+                    final Object scriptResult =
+                        resultHashMap.get(ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
 
-                if (scriptResult != null) {
-                    final String scriptResultString = scriptResult.toString();
+                    if (scriptResult != null) {
+                        final String scriptResultString = scriptResult.toString();
 
-                    ManagementBusPluginRemoteServiceImpl.LOG.debug("{}: {}",
-                                                                   ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME,
-                                                                   scriptResultString);
+                        ManagementBusPluginRemoteServiceImpl.LOG.debug("{}: {}",
+                                                                       ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME,
+                                                                       scriptResultString);
 
-                    // split result on line breaks as every parameter is returned in a separate "echo"
-                    // command
-                    final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
+                        // split result on line breaks as every parameter is returned in a separate "echo"
+                        // command
+                        final String[] resultParameters = scriptResultString.split("[\\r\\n]+");
 
-                    // add each parameter that is defined in the operation and passed back
-                    for (final String resultParameter : resultParameters) {
+                        // add each parameter that is defined in the operation and passed back
                         for (final String outputParameter : outputParameters) {
-                            if (resultParameter.startsWith(outputParameter)) {
-                                final String value = resultParameter.substring(resultParameter.indexOf("=") + 1);
+                            for (int i = resultParameters.length - 1; i >= 0; i--) {
+                                if (resultParameters[i].startsWith(outputParameter)) {
+                                    final String value =
+                                        resultParameters[i].substring(resultParameters[i].indexOf("=") + 1);
 
-                                ManagementBusPluginRemoteServiceImpl.LOG.debug("Adding parameter {} with value: {}",
-                                                                               outputParameter, value);
-                                resultMap.put(outputParameter, value);
+                                    ManagementBusPluginRemoteServiceImpl.LOG.debug("Adding parameter {} with value: {}",
+                                                                                   outputParameter, value);
+                                    resultMap.put(outputParameter, value);
+                                }
                             }
                         }
                     }
+
+                } else {
+                    ManagementBusPluginRemoteServiceImpl.LOG.warn("Result contains no result entry '{}'",
+                                                                  ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
                 }
 
             } else {
-                ManagementBusPluginRemoteServiceImpl.LOG.warn("Result contains no result entry '{}'",
-                                                              ManagementBusPluginRemoteServiceImpl.RUN_SCRIPT_OUTPUT_PARAMETER_NAME);
+                ManagementBusPluginRemoteServiceImpl.LOG.warn("Result of type {} not supported. The bus should return a HashMap as result class when it is used as input.",
+                                                              result.getClass());
             }
-
-        } else {
-            ManagementBusPluginRemoteServiceImpl.LOG.warn("Result of type {} not supported. The bus should return a HashMap as result class when it is used as input.",
-                                                          result.getClass());
         }
     }
 

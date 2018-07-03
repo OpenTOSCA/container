@@ -19,7 +19,7 @@
 			</bpel:copy>
 		</bpel:assign>
 		<bpel:extensionActivity
-			xmlns:bpel4RestLight="http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight">
+			xmlns:bpel4RestLight="http://www.apache.org/ode/bpel/extensions/bpel4restlight">
 			<!-- $urlVarName, $requestVar, $correlationId -->
 			<bpel4RestLight:POST uri="$bpelvar[$urlVarName]/logs"
 				request="$requestVar"></bpel4RestLight:POST>

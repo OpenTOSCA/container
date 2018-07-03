@@ -92,7 +92,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
             if (namespace.equals(serviceTemplateId.getNamespaceURI())
                 && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
-                final String processName = serviceTemplate.getId() + "_terminationPlan";
+                final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_terminationPlan");
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 
                 final AbstractPlan newAbstractTerminationPlan =
@@ -140,7 +140,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                     this.propertyInitializer.initializePropertiesAsVariables(newTerminationPlan);
 
                 // instanceDataAPI handling is done solely trough this extension
-                this.planHandler.registerExtension("http://iaas.uni-stuttgart.de/bpel/extensions/bpel4restlight", true,
+                this.planHandler.registerExtension("http://www.apache.org/ode/bpel/extensions/bpel4restlight", true,
                                                    newTerminationPlan);
 
                 // initialize instanceData handling, add

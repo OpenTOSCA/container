@@ -1,6 +1,7 @@
 package org.opentosca.planbuilder.type.plugin.dockercontainer.bpel.handler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,11 @@ import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
+import org.opentosca.planbuilder.model.tosca.AbstractArtifactReference;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
+import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.opentosca.planbuilder.provphase.plugin.invoker.bpel.BPELInvokerPlugin;
 import org.opentosca.planbuilder.type.plugin.dockercontainer.core.DockerContainerTypePlugin;
@@ -38,26 +41,7 @@ import org.xml.sax.SAXException;
 public class BPELDockerContainerTypePluginHandler implements DockerContainerTypePluginHandler<BPELPlanContext> {
     private static final Logger LOG = LoggerFactory.getLogger(BPELDockerContainerTypePluginHandler.class);
 
-    public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
-        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
-            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
-                || da.getArtifactType()
-                     .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
-                return da;
-            }
-        }
 
-        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
-            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
-                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
-                    || da.getArtifactType()
-                         .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
-                    return da;
-                }
-            }
-        }
-        return null;
-    }
 
     private final BPELInvokerPlugin invokerPlugin = new BPELInvokerPlugin();
 
@@ -137,22 +121,136 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         // determine whether we work with an ImageId or a zipped DockerContainer
         final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerImage");
 
+
+
+        /* volume data handling */
+
+        // <ContainerMountPath>/etc/openmtc/certs</ContainerMountPath>
+        // <HostMountFiles>/home/ubuntu/ca-smartorchestra.crt</HostMountFiles>
+
+        final Variable containerMountPath = templateContext.getPropertyVariable(nodeTemplate, "ContainerMountPath");
+
+        Variable remoteVolumeDataVariable = null;
+        Variable hostVolumeDataVariable = null;
+        Variable vmIpVariable = null;
+        Variable vmPrivateKeyVariable = null;
+
+        if (containerMountPath != null && !BPELPlanContext.isVariableValueEmpty(containerMountPath, templateContext)) {
+
+            final List<AbstractDeploymentArtifact> volumeDas = fetchVolumeDeploymentArtifacts(nodeTemplate);
+
+            if (!volumeDas.isEmpty()) {
+                remoteVolumeDataVariable = createRemoteVolumeDataInputVariable(volumeDas, templateContext);
+            }
+
+            hostVolumeDataVariable = templateContext.getPropertyVariable(nodeTemplate, "HostMountFiles");
+
+            if (hostVolumeDataVariable != null
+                && !BPELPlanContext.isVariableValueEmpty(hostVolumeDataVariable, templateContext)) {
+                final AbstractNodeTemplate infraNode = findInfrastructureTemplate(templateContext, dockerEngineNode);
+                vmIpVariable = findVMIP(templateContext, infraNode);
+                vmPrivateKeyVariable = findPrivateKey(templateContext, infraNode);
+            }
+        }
+
+
+
         if (containerImageVar == null || BPELPlanContext.isVariableValueEmpty(containerImageVar, templateContext)) {
             // handle with DA -> construct URL to the DockerImage .zip
 
             final AbstractDeploymentArtifact da = fetchFirstDockerContainerDA(nodeTemplate);
-            handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
-                         containerIpVar, containerIdVar, fetchEnvironmentVariables(templateContext, nodeTemplate), null,
-                         null);
+            return handleWithDA(templateContext, dockerEngineNode, da, portMappingVar, dockerEngineUrlVar, sshPortVar,
+                                containerIpVar, containerIdVar,
+                                fetchEnvironmentVariables(templateContext, nodeTemplate), null, null,
+                                containerMountPath, remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                                vmPrivateKeyVariable);
 
         } else {
             // handle with imageId
             return handleWithImageId(templateContext, dockerEngineNode, containerImageVar, portMappingVar,
                                      dockerEngineUrlVar, sshPortVar, containerIpVar, containerIdVar,
-                                     fetchEnvironmentVariables(templateContext, nodeTemplate));
+                                     fetchEnvironmentVariables(templateContext, nodeTemplate), containerMountPath,
+                                     remoteVolumeDataVariable, hostVolumeDataVariable, vmIpVariable,
+                                     vmPrivateKeyVariable);
+        }
+    }
+
+    private AbstractNodeTemplate findInfrastructureTemplate(final BPELPlanContext context,
+                                                            final AbstractNodeTemplate nodeTemplate) {
+        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+        ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
+
+        for (final AbstractNodeTemplate infraNode : infraNodes) {
+            if (infraNode.getId() != nodeTemplate.getId() & context.getPropertyNames(infraNode).contains("VMIP")) {
+                // fetch the first which is not a dockercontainer
+                return infraNode;
+            }
         }
 
-        return true;
+        return null;
+    }
+
+    private Variable findVMIP(final BPELPlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
+        Variable serverIpPropWrapper = null;
+        for (final String serverIpName : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineIPPropertyNames()) {
+            serverIpPropWrapper = templateContext.getPropertyVariable(infraTemplate, serverIpName);
+            if (serverIpPropWrapper != null) {
+                break;
+            }
+        }
+        return serverIpPropWrapper;
+    }
+
+    private Variable findPrivateKey(final BPELPlanContext templateContext, final AbstractNodeTemplate infraTemplate) {
+        Variable sshKeyVariable = null;
+        for (final String vmLoginPassword : org.opentosca.container.core.tosca.convention.Utils.getSupportedVirtualMachineLoginPasswordPropertyNames()) {
+            sshKeyVariable = templateContext.getPropertyVariable(infraTemplate, vmLoginPassword);
+            if (sshKeyVariable != null) {
+                break;
+            }
+        }
+        return sshKeyVariable;
+    }
+
+    private Variable createRemoteVolumeDataInputVariable(final List<AbstractDeploymentArtifact> das,
+                                                         final BPELPlanContext context) {
+
+
+        final Variable remoteVolumeDataVariable =
+            context.createGlobalStringVariable("remoteVolumeData" + System.currentTimeMillis(), "");
+
+        String remoteVolumeDataVarAssignQuery = "concat(";
+
+        for (final AbstractDeploymentArtifact da : das) {
+            for (final AbstractArtifactReference ref : da.getArtifactRef().getArtifactReferences()) {
+                // $input.payload//*[local-name()='instanceDataAPIUrl']
+                remoteVolumeDataVarAssignQuery +=
+                    "$input.payload//*[local-name()='csarEntrypoint'],'/Content/" + ref.getReference() + ";',";
+            }
+        }
+
+        remoteVolumeDataVarAssignQuery =
+            remoteVolumeDataVarAssignQuery.substring(0, remoteVolumeDataVarAssignQuery.length() - 1);
+        remoteVolumeDataVarAssignQuery += ")";
+
+        try {
+            Node assignContainerEnvNode =
+                this.planBuilderFragments.createAssignXpathQueryToStringVarFragmentAsNode("assignVolumeDataVariable",
+                                                                                          remoteVolumeDataVarAssignQuery,
+                                                                                          remoteVolumeDataVariable.getName());
+            assignContainerEnvNode = context.importNode(assignContainerEnvNode);
+            context.getProvisioningPhaseElement().appendChild(assignContainerEnvNode);
+        }
+        catch (final IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (final SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return remoteVolumeDataVariable;
     }
 
     private Variable fetchEnvironmentVariables(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
@@ -170,9 +268,47 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         for (final String propName : propertyNames) {
             if (propName.startsWith("ENV_")) {
                 final Variable propVar = context.getPropertyVariable(nodeTemplate, propName);
-                foundEnvVar = true;
-                final String envVarName = propName.replaceFirst("ENV_", "");
-                envVarXpathQuery += "'" + envVarName + "=',$" + propVar.getName() + ",';',";
+
+                final String varContent = context.getVariableContent(propVar, context);
+
+                // FIXME brutal hack right now
+                if (varContent.contains("get_property")) {
+                    if (varContent.startsWith("[")) {
+
+                        // fetch static content
+                        final String staticContent = varContent.substring(varContent.lastIndexOf(']') + 1);
+
+                        String dynamicContent = varContent.substring(1);
+                        dynamicContent = dynamicContent.substring(0, dynamicContent.lastIndexOf(']'));
+
+                        final String[] splits = dynamicContent.split(" ");
+                        final String nodeTemplateId = splits[1];
+                        final String propertyName = splits[2];
+
+                        final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
+                        final Variable refProp = context.getPropertyVariable(refNode, propertyName);
+
+                        foundEnvVar = true;
+                        final String envVarName = propName.replaceFirst("ENV_", "");
+                        envVarXpathQuery +=
+                            "'" + envVarName + "=',$" + refProp.getName() + ",'" + staticContent + ";',";
+                    } else {
+                        final String[] splits = varContent.split(" ");
+                        final String nodeTemplateId = splits[1];
+                        final String propertyName = splits[2];
+
+                        final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
+                        final Variable refProp = context.getPropertyVariable(refNode, propertyName);
+                        foundEnvVar = true;
+                        final String envVarName = propName.replaceFirst("ENV_", "");
+                        envVarXpathQuery += "'" + envVarName + "=',$" + refProp.getName() + ",';',";
+
+                    }
+                } else {
+                    foundEnvVar = true;
+                    final String envVarName = propName.replaceFirst("ENV_", "");
+                    envVarXpathQuery += "'" + envVarName + "=',$" + propVar.getName() + ",';',";
+                }
             }
         }
 
@@ -206,12 +342,32 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         return envMappingVar;
     }
 
+    private AbstractNodeTemplate getNode(final String id, final BPELPlanContext ctx) {
+
+        for (final AbstractNodeTemplate nodeTemplate : ctx.getNodeTemplates()) {
+            if (nodeTemplate.getId().equals(id)) {
+                return nodeTemplate;
+            }
+        }
+        return null;
+    }
+
     protected boolean handleWithDA(final BPELPlanContext context, final AbstractNodeTemplate dockerEngineNode,
                                    final AbstractDeploymentArtifact da, final Variable portMappingVar,
                                    final Variable dockerEngineUrlVar, final Variable sshPortVar,
                                    final Variable containerIpVar, final Variable containerIdVar,
                                    final Variable envMappingVar, final Variable linksVar,
-                                   final Variable deviceMappingVar) {
+                                   final Variable deviceMappingVar, final Variable containerMountPath,
+                                   final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
+                                   final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
+
+        /*
+         * Variable remoteVolumeDataVariable = null; Variable hostVolumeDataVariable = null; Variable
+         * vmIpVariable = null; Variable vmPrivateKeyVariable = null;
+         */
+
+
+
         context.addStringValueToPlanRequest("csarEntrypoint");
         final String artifactPathQuery =
             this.planBuilderFragments.createXPathQueryForURLRemoteFilePath(da.getArtifactRef().getArtifactReferences()
@@ -244,6 +400,18 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         createDEInternalExternalPropsInput.put("ImageLocation", dockerContainerFileRefVar);
         createDEInternalExternalPropsInput.put("DockerEngineURL", dockerEngineUrlVar);
         createDEInternalExternalPropsInput.put("ContainerPorts", portMappingVar);
+
+        if (containerMountPath != null) {
+            if (remoteVolumeDataVariable != null) {
+                createDEInternalExternalPropsInput.put("RemoteVolumeData", remoteVolumeDataVariable);
+            }
+            if (hostVolumeDataVariable != null && vmIpVariable != null && vmPrivateKeyVariable != null) {
+                createDEInternalExternalPropsInput.put("HostVolumeData", hostVolumeDataVariable);
+                createDEInternalExternalPropsInput.put("VMIP", vmIpVariable);
+                createDEInternalExternalPropsInput.put("VMPrivateKey", vmPrivateKeyVariable);
+            }
+            createDEInternalExternalPropsInput.put("ContainerMountPath", containerMountPath);
+        }
 
         if (envMappingVar != null) {
             createDEInternalExternalPropsInput.put("ContainerEnv", envMappingVar);
@@ -284,7 +452,10 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                         final Variable containerImageVar, final Variable portMappingVar,
                                         final Variable dockerEngineUrlVar, final Variable sshPortVar,
                                         final Variable containerIpVar, final Variable containerIdVar,
-                                        final Variable envMappingVar) {
+                                        final Variable envMappingVar, final Variable containerMountPath,
+                                        final Variable remoteVolumeDataVariable, final Variable hostVolumeDataVariable,
+                                        final Variable vmIpVariable, final Variable vmPrivateKeyVariable) {
+
 
         // map properties to input and output parameters
         final Map<String, Variable> createDEInternalExternalPropsInput = new HashMap<>();
@@ -311,6 +482,18 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             createDEInternalExternalPropsOutput.put("ContainerID", containerIdVar);
         }
 
+        if (containerMountPath != null) {
+            if (remoteVolumeDataVariable != null) {
+                createDEInternalExternalPropsInput.put("RemoteVolumeData", remoteVolumeDataVariable);
+            }
+            if (hostVolumeDataVariable != null && vmIpVariable != null && vmPrivateKeyVariable != null) {
+                createDEInternalExternalPropsInput.put("HostVolumeData", hostVolumeDataVariable);
+                createDEInternalExternalPropsInput.put("VMIP", vmIpVariable);
+                createDEInternalExternalPropsInput.put("VMPrivateKey", vmPrivateKeyVariable);
+            }
+            createDEInternalExternalPropsInput.put("ContainerMountPath", containerMountPath);
+        }
+
         this.invokerPlugin.handle(context, dockerEngineNode.getId(), true,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_STARTCONTAINER,
                                   Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE,
@@ -318,5 +501,46 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
                                   createDEInternalExternalPropsOutput, BPELScopePhaseType.PROVISIONING);
 
         return true;
+    }
+
+    public static AbstractDeploymentArtifact fetchFirstDockerContainerDA(final AbstractNodeTemplate nodeTemplate) {
+        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
+                || da.getArtifactType()
+                     .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                return da;
+            }
+        }
+
+        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
+            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE)
+                    || da.getArtifactType()
+                         .equals(DockerContainerTypePluginPluginConstants.DOCKER_CONTAINER_ARTEFACTTYPE_OLD)) {
+                    return da;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static List<AbstractDeploymentArtifact> fetchVolumeDeploymentArtifacts(final AbstractNodeTemplate nodeTemplate) {
+        final List<AbstractDeploymentArtifact> das = new ArrayList<>();
+
+        for (final AbstractDeploymentArtifact da : nodeTemplate.getDeploymentArtifacts()) {
+            if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                das.add(da);
+            }
+        }
+
+        for (final AbstractNodeTypeImplementation nodeTypeImpl : nodeTemplate.getImplementations()) {
+            for (final AbstractDeploymentArtifact da : nodeTypeImpl.getDeploymentArtifacts()) {
+                if (da.getArtifactType().equals(DockerContainerTypePluginPluginConstants.DOCKER_VOLUME_ARTIFACTTYPE)) {
+                    das.add(da);
+                }
+            }
+        }
+
+        return das;
     }
 }
