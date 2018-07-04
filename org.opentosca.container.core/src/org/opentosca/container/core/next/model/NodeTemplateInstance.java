@@ -67,6 +67,9 @@ public class NodeTemplateInstance extends PersistenceObject {
     @JsonIgnore
     private List<DeploymentTestResult> deploymentTestResults = Lists.newArrayList();
 
+    @Column(name = "managingContainer")
+    private String managingContainer;
+
     public NodeTemplateInstance() {}
 
 
@@ -101,8 +104,8 @@ public class NodeTemplateInstance extends PersistenceObject {
     }
 
     /*
-     * Currently, the plan writes all properties as one XML document into the database. Therefore, we
-     * parse this XML and return a Map<String, String>.
+     * Currently, the plan writes all properties as one XML document into the database. Therefore,
+     * we parse this XML and return a Map<String, String>.
      */
     @JsonProperty("properties")
     public Map<String, String> getPropertiesAsMap() {
@@ -186,5 +189,13 @@ public class NodeTemplateInstance extends PersistenceObject {
         if (deploymentTestResult.getNodeTemplateInstance() != this) {
             deploymentTestResult.setNodeTemplateInstance(this);
         }
+    }
+
+    public String getManagingContainer() {
+        return this.managingContainer;
+    }
+
+    public void setManagingContainer(final String managingContainer) {
+        this.managingContainer = managingContainer;
     }
 }

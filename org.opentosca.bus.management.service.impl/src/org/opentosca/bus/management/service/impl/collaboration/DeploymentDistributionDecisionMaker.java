@@ -7,7 +7,12 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanInstanceState;
+import org.opentosca.container.core.next.model.PlanType;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
+import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Types;
 import org.slf4j.Logger;
@@ -73,15 +78,21 @@ public class DeploymentDistributionDecisionMaker {
             final NodeTemplateInstance infrastructureNodeTemplateInstance =
                 searchInfrastructureNode(nodeTemplateInstance);
 
-            // check if "managedBy" is already set for the NodeTemplateInstance
-            if (false) {
-                // TODO
+            // check if "managingContainer" is already set for the NodeTemplateInstance
+            if (infrastructureNodeTemplateInstance.getManagingContainer() != null) {
 
                 // no instance data matching needed, as it was already performed for the
                 // infrastructure NodeTemplateInstance
-                DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has set managedBy attribute.");
-                DeploymentDistributionDecisionMaker.LOG.debug("Result of deployment distribution decision: {}", "TODO");
-                return "TODO";
+                final String managingContainer = infrastructureNodeTemplateInstance.getManagingContainer();
+
+                DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has set managingContainer attribute.");
+                DeploymentDistributionDecisionMaker.LOG.debug("Result of deployment distribution decision: {}",
+                                                              managingContainer);
+
+                // current NodeTemplateInstance is managed by the same Container as the
+                // infrastructure instance
+                nodeTemplateInstance.setManagingContainer(managingContainer);
+                return managingContainer;
             } else {
 
                 // instance data matching has to be performed for the NodeTemplateInstance
@@ -105,7 +116,11 @@ public class DeploymentDistributionDecisionMaker {
                 DeploymentDistributionDecisionMaker.LOG.debug("Performing local instance data matching...");
                 if (performInstanceDataMatching(infrastructureNodeType, infrastructureProperties)) {
                     DeploymentDistributionDecisionMaker.LOG.debug("Found matching local instance data. Deployment will be done locally.");
-                    // TODO: set managedBy
+
+                    // infrastructure and current instance are both managed locally
+                    infrastructureNodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    nodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+
                     return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
                 }
 
@@ -116,7 +131,11 @@ public class DeploymentDistributionDecisionMaker {
                 if (remoteLocation != null) {
                     DeploymentDistributionDecisionMaker.LOG.debug("Found matching remote instance data. Deployment will be done on OpenTOSCA Container with host name: {}",
                                                                   remoteLocation);
-                    // TODO: set managedBy
+
+                    // infrastructure and current instance are both managed by a remote Container
+                    infrastructureNodeTemplateInstance.setManagingContainer(remoteLocation);
+                    nodeTemplateInstance.setManagingContainer(remoteLocation);
+
                     return remoteLocation;
                 }
 
@@ -127,6 +146,7 @@ public class DeploymentDistributionDecisionMaker {
         }
 
         // default (no matching): return host name of local container
+        nodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
         return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
     }
 
@@ -198,10 +218,62 @@ public class DeploymentDistributionDecisionMaker {
             DeploymentDistributionDecisionMaker.LOG.debug("Found NodeTemplateInstance with matching type. ID: {}",
                                                           typeMatchingInstance.getId());
 
-            // TODO: Only match with special instances which are created to represent managed
-            // infrastructure. Property <State>Infrastructure</State>?
+            // avoid matching with currently starting or already deleted NodeTemplateInstances
+            if (!typeMatchingInstance.getServiceTemplateInstance().getState()
+                                     .equals(ServiceTemplateInstanceState.DELETED)) {
+                if (typeMatchingInstance.getState().equals(NodeTemplateInstanceState.STARTED)) {
 
-            // TODO: perform property matching --> return true if successful
+                    // get the build plan instance that belongs to this NodeTemplateInstance
+                    PlanInstance buildPlan = null;
+                    for (final PlanInstance plan : typeMatchingInstance.getServiceTemplateInstance()
+                                                                       .getPlanInstances()) {
+                        if (plan.getType().equals(PlanType.BUILD)) {
+                            buildPlan = plan;
+                            break;
+                        }
+                    }
+
+                    // only match with NodeTemplateInstances for which the build process is already
+                    // finished (avoids self matching)
+                    if (buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED)) {
+
+                        // Only match with NodeTemplateInstances which are managed by this
+                        // Container. It is managed by this Container if the corresponding attribute
+                        // is set accordingly. However, it is also managed by this Container, if the
+                        // corresponding attribute is null and the build plan is finished. This
+                        // means that there was no IA invocation in the build plan and therefore
+                        // also no remote deployment which means it is managed locally. But this is
+                        // a bit hacky at the moment...
+                        if (typeMatchingInstance.getManagingContainer() == null
+                            || typeMatchingInstance.getManagingContainer()
+                                                   .equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+
+                            DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
+
+                            final Map<String, String> matchingProperties = typeMatchingInstance.getPropertiesAsMap();
+
+                            // match the property maps
+                            if (matchingProperties.entrySet().equals(infrastructureProperties.entrySet())) {
+
+                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
+                                return true;
+                            } else {
+                                DeploymentDistributionDecisionMaker.LOG.debug("Properties have different entry sets.");
+                            }
+                        } else {
+                            DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is managed by remote Container: {}",
+                                                                          typeMatchingInstance.getManagingContainer());
+                        }
+                    } else {
+                        DeploymentDistributionDecisionMaker.LOG.debug("No build plan instance found or not yet finished!");
+                    }
+                } else {
+                    DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance state is not appropriate for matching: {}",
+                                                                  typeMatchingInstance.getState());
+                }
+            } else {
+                DeploymentDistributionDecisionMaker.LOG.debug("Corresponding ServiceTemplateInstance is already deleted!");
+            }
         }
 
         // no matching found
@@ -226,16 +298,5 @@ public class DeploymentDistributionDecisionMaker {
                                                             final Map<String, String> infrastructureProperties) {
         // TODO: perform remote matching
         return null;
-    }
-
-    /**
-     * Checks whether the given NodeType is of Type RaspbianJessie:
-     * {@link org.opentosca.container.core.tosca.convention.Types#raspbianJessieOSNodeType}
-     *
-     * @param nodeType the NodeType to check
-     * @return <tt>true</tt> if the NodeType is of type RasbianJessie, <tt>false</tt> otherwise.
-     */
-    private static boolean isRaspbianJessieNodeType(final QName nodeType) {
-        return nodeType.equals(Types.raspbianJessieOSNodeType);
     }
 }
