@@ -465,10 +465,10 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
     @Override
     public void printPlanEndpoints() {
-        List<WSDLEndpoint> endpoints = null;
         final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.PlanId is not null");
 
-        endpoints = queryWSDLEndpoint.getResultList();
+        @SuppressWarnings("unchecked")
+        final List<WSDLEndpoint> endpoints = queryWSDLEndpoint.getResultList();
 
         final StringBuilder builder = new StringBuilder();
         final String ls = System.getProperty("line.separator");

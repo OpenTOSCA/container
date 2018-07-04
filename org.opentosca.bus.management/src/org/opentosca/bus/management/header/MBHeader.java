@@ -20,6 +20,13 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 public enum MBHeader {
 
     /**
+     * <b>TRIGGERINGCONTAINER_STRING</b> This header field contains the host name of the OpenTOSCA
+     * Container where the invoke request in this exchange was initiated. It makes all other
+     * identifying header fields unique if multiple OpenTOSCA Containers interact.
+     */
+    TRIGGERINGCONTAINER_STRING,
+
+    /**
      * <b>CSARID</b> This header field contains an identifier for a CSAR file in OpenTOSCA (see
      * {@link CSARID}).
      */
@@ -115,7 +122,7 @@ public enum MBHeader {
 
     /**
      * <b>DEPLOYMENTLOCATION_STRING</b> This header field contains the host name of the OpenTOSCA
-     * container where the ArtifactTemplate identified by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
+     * Container where the ArtifactTemplate identified by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
      * has to be deployed.
      */
     DEPLOYMENTLOCATION_STRING

@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * <b>Tomcat config:</b> Tomcat location, username and password for this Plug-in are defined in the
- * class {@link Settings}.<br>
+ * class {@link Settings} or the corresponding config.ini file.<br>
  * <br>
  *
  * <b>Deployment:</b> The {@link MBHeader#ARTIFACTREFERENCES_LIST_STRING} header field contains a
@@ -141,8 +141,11 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
                         final QName nodeTypeImplementation =
                             message.getHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
 
+                        final String triggeringContainer =
+                            message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
+
                         // perform deployment on management infrastructure
-                        endpoint = deployWAROnTomcat(warFile, nodeTypeImplementation, fileName);
+                        endpoint = deployWAROnTomcat(warFile, triggeringContainer, nodeTypeImplementation, fileName);
 
                         if (endpoint != null) {
                             // add endpoint suffix to endpoint of deployed WAR
@@ -189,7 +192,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
             String deployPath = endpoint.replace(Settings.ENGINE_IA_TOMCAT_URL, "");
 
             // delete ServiceEndpoint suffix from endpoints
-            deployPath = deployPath.substring(0, StringUtils.ordinalIndexOf(deployPath, "/", 3));
+            deployPath = deployPath.substring(0, StringUtils.ordinalIndexOf(deployPath, "/", 4));
 
             // command to perform deployment on Tomcat from local file
             final String undeploymentURL = Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/undeploy?path=" + deployPath;
@@ -342,87 +345,98 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
 
 
     /**
-     * Deploy the given WAR-File on the Tomcat. As path on Tomcat the NodeTypeImplementation with
-     * removed special characters (except '-') and the name of the WAR-File (without ".war") is
-     * used: <tt>[NodeTypeImplementationID]/[File-Name]</tt>
+     * Deploy the given WAR-File on the Tomcat. As path on Tomcat the host name of the triggering
+     * OpenTOSCA Container and the NodeTypeImplementation with removed special characters (except
+     * '-' and '_') concatenated with the name of the WAR-File (without ".war") is used:
+     * <tt>/[Container-Hostname]/[NodeTypeImplementationID]/[File-Name]</tt>
      *
      * @param warFile the WAR artifact that has to be deployed
+     * @param triggeringContainer the host name of the OpenTOSCA Container that triggered the IA
+     *        deployment
      * @param nodeTypeImplementation the NodeTypeImplementation which is used to create a unique
      *        path where the WAR is deployed
      * @param fileName the file name which is part of the deployment path
      * @return
      */
-    private String deployWAROnTomcat(final File warFile, final QName nodeTypeImplementation, final String fileName) {
+    private String deployWAROnTomcat(final File warFile, final String triggeringContainer,
+                                     final QName nodeTypeImplementation, final String fileName) {
 
         String endpoint = null;
 
-        if (nodeTypeImplementation != null) {
-            // path where the WAR is deployed on the Tomcat
-            final String deployPath = "/" + getConvertedQName(nodeTypeImplementation) + "/" + fileName;
+        if (triggeringContainer != null) {
+            if (nodeTypeImplementation != null) {
+                // path where the WAR is deployed on the Tomcat
+                final String deployPath = "/" + getConvertedString(triggeringContainer) + "/"
+                    + getConvertedString(nodeTypeImplementation.toString()) + "/" + fileName;
 
-            // command to perform deployment on Tomcat from local file
-            final String deploymentURL =
-                Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/deploy?update=true&path=" + deployPath;
+                // command to perform deployment on Tomcat from local file
+                final String deploymentURL =
+                    Settings.ENGINE_IA_TOMCAT_URL + "/manager/text/deploy?update=true&path=" + deployPath;
 
-            // create HttpEntity which contains the WAR-File
-            final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-            final FileBody fileBody = new FileBody(warFile);
-            builder.addPart(fileName + ".war", fileBody);
-            final HttpEntity entity = builder.build();
+                // create HttpEntity which contains the WAR-File
+                final MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+                final FileBody fileBody = new FileBody(warFile);
+                builder.addPart(fileName + ".war", fileBody);
+                final HttpEntity entity = builder.build();
 
-            try {
-                // perform deployment request on Tomcat
-                final HttpResponse httpResponse =
-                    ServiceHandler.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
-                                                   Settings.ENGINE_IA_TOMCAT_PASSWORD);
+                try {
+                    // perform deployment request on Tomcat
+                    final HttpResponse httpResponse =
+                        ServiceHandler.httpService.Put(deploymentURL, entity, Settings.ENGINE_IA_TOMCAT_USERNAME,
+                                                       Settings.ENGINE_IA_TOMCAT_PASSWORD);
 
-                final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+                    final String response = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
 
-                ManagementBusDeploymentPluginTomcat.LOG.info("Tomcat response to deployment request: {}", response);
+                    ManagementBusDeploymentPluginTomcat.LOG.info("Tomcat response to deployment request: {}", response);
 
-                // check if WAR-File was deployed successfully.
-                if (response.contains("OK - Deployed application at context path " + deployPath)
-                    | response.contains("OK - Deployed application at context path [" + deployPath + "]")) {
-                    ManagementBusDeploymentPluginTomcat.LOG.info("Deployment was successful.");
+                    // check if WAR-File was deployed successfully.
+                    if (response.contains("OK - Deployed application at context path " + deployPath)
+                        | response.contains("OK - Deployed application at context path [" + deployPath + "]")) {
+                        ManagementBusDeploymentPluginTomcat.LOG.info("Deployment was successful.");
 
-                    // concatenate service endpoint
-                    endpoint = Settings.ENGINE_IA_TOMCAT_URL + deployPath;
+                        // concatenate service endpoint
+                        endpoint = Settings.ENGINE_IA_TOMCAT_URL + deployPath;
 
-                    ManagementBusDeploymentPluginTomcat.LOG.info("Endpoint of deployed service: {}", endpoint);
-                } else {
-                    ManagementBusDeploymentPluginTomcat.LOG.error("Deployment was not successful.");
+                        ManagementBusDeploymentPluginTomcat.LOG.info("Endpoint of deployed service: {}", endpoint);
+                    } else {
+                        ManagementBusDeploymentPluginTomcat.LOG.error("Deployment was not successful.");
+                    }
                 }
-            }
-            catch (final IOException e) {
-                ManagementBusDeploymentPluginTomcat.LOG.error("IOException occured while deploying the WAR-File: {}!",
-                                                              e);
+                catch (final IOException e) {
+                    ManagementBusDeploymentPluginTomcat.LOG.error("IOException occured while deploying the WAR-File: {}!",
+                                                                  e);
+                }
+            } else {
+                ManagementBusDeploymentPluginTomcat.LOG.warn("NodeTypeImplementation ID is null. Deployment aborted because the ID is part of the deployment path on Tomcat");
             }
         } else {
-            ManagementBusDeploymentPluginTomcat.LOG.debug("NodeTypeImplementation ID is null. Deployment aborted because the ID is part of the deployment path on Tomcat");
+            ManagementBusDeploymentPluginTomcat.LOG.warn("Triggering Container host name is null. Deployment aborted because it is part of the deployment path on Tomcat");
         }
 
         return endpoint;
     }
 
     /**
-     * Remove invalid characters from the provided QName.
+     * Remove invalid characters from the provided String.
      *
-     * @param qname the QName to convert
-     * @return String with removed special characters (except '-').
+     * @param string the String to convert
+     * @return String with replaced '.' by "-" and removed remaining special characters (except '-'
+     *         and '_').
      */
-    private String getConvertedQName(final QName qname) {
+    private String getConvertedString(final String string) {
 
-        final String qnameString = qname.toString();
+        ManagementBusDeploymentPluginTomcat.LOG.debug("Converting String: {}", string);
 
-        ManagementBusDeploymentPluginTomcat.LOG.debug("Converting QName: {}", qnameString);
+        // replace '.' by '-' to leave IPs unique
+        String convertedString = string.replace(".", "-");
 
         // remove all special characters except '-' and '_'
-        final String convertedCsarID = qnameString.replaceAll("[^-a-zA-Z0-9_]", "");
+        convertedString = convertedString.replaceAll("[^-a-zA-Z0-9_]", "");
 
-        ManagementBusDeploymentPluginTomcat.LOG.debug("Converted QName: {}", convertedCsarID);
+        ManagementBusDeploymentPluginTomcat.LOG.debug("Converted string: {}", convertedString);
 
-        return convertedCsarID;
+        return convertedString;
     }
 
     /**
