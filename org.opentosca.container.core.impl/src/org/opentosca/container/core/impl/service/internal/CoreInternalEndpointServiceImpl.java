@@ -351,36 +351,25 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     }
 
     @Override
-    public void removeEndpoints(final String triggeringContainer, final CSARID csarId) {
+    public void removePlanEndpoints(final String triggeringContainer, final CSARID csarId) {
         if (!this.em.getTransaction().isActive()) {
             this.em.getTransaction().begin();
         }
 
-        // get all rest endpoints for the given csarid
-        final Query queryRestEndpoints =
-            this.em.createQuery("SELECT e FROM RESTEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId");
-        queryRestEndpoints.setParameter("triggeringContainer", triggeringContainer);
-        queryRestEndpoints.setParameter("csarId", csarId);
-        @SuppressWarnings("unchecked")
-        final List<RESTEndpoint> restEndpoints = queryRestEndpoints.getResultList();
-
-        // get all wsdl endpoints for the given csarid
-        final Query queryWsdlEndpoints = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId = :csarId");
+        // get all plan endpoints (plan ID set) for the given csarid
+        final Query queryWsdlEndpoints =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.csarId = :csarId and e.PlanId is not null");
+        queryWsdlEndpoints.setParameter("triggeringContainer", triggeringContainer);
         queryWsdlEndpoints.setParameter("csarId", csarId);
         @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> wsdlEndpoints = queryWsdlEndpoints.getResultList();
 
-        // remove all found endpoints one by one
-        for (final RESTEndpoint restEndpoint : restEndpoints) {
-            this.em.remove(restEndpoint);
-        }
-
+        // remove all found plan endpoints one by one
         for (final WSDLEndpoint wsdlEndpoint : wsdlEndpoints) {
             this.em.remove(wsdlEndpoint);
         }
 
         this.em.getTransaction().commit();
-
     }
 
     @Override
@@ -477,7 +466,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     @Override
     public void printPlanEndpoints() {
         List<WSDLEndpoint> endpoints = null;
-        final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
+        final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.PlanId is not null");
 
         endpoints = queryWSDLEndpoint.getResultList();
 

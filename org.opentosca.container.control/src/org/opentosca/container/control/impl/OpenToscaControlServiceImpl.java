@@ -17,7 +17,6 @@ import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
-import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.model.instance.ServiceTemplateInstanceID;
 import org.opentosca.container.core.service.ICSARInstanceManagementService;
 import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
@@ -218,15 +217,12 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             errors.add("Could not undeploy all plans.");
         }
 
-        if (!OpenToscaControlServiceImpl.iAEngine.undeployImplementationArtifacts(csarID)) {
-            this.LOG.warn("It was not possible to delete all ImplementationArtifacts of the CSAR \"" + csarID + ".");
-            errors.add("Could not undeploy all ImplementationArtifacts.");
-
-            // TODO: undeploy IAs via Management Bus
-            final List<WSDLEndpoint> csarEndpoints =
-                OpenToscaControlServiceImpl.endpointService.getWSDLEndpointsForCSARID(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
-                                                                                      csarID);
-        }
+        // TODO: undeployment of IAs via Management Bus
+        // if (!OpenToscaControlServiceImpl.iAEngine.undeployImplementationArtifacts(csarID)) {
+        // this.LOG.warn("It was not possible to delete all ImplementationArtifacts of the CSAR \""
+        // + csarID + ".");
+        // errors.add("Could not undeploy all ImplementationArtifacts.");
+        // }
 
         // Delete operation is legal, thus continue.
         if (!OpenToscaControlServiceImpl.toscaEngine.clearCSARContent(csarID)) {
@@ -237,14 +233,14 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
         OpenToscaControlServiceImpl.coreDeploymentTracker.deleteDeploymentState(csarID);
 
-        // TODO: delete and remove all endpoints on undeployment (plan + IA)?
-        OpenToscaControlServiceImpl.endpointService.removeEndpoints(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID);
+        // Delete all plan endpoints related to this CSAR. IA endpoints are undeployed and deleted
+        // by the Management Bus.
+        OpenToscaControlServiceImpl.endpointService.removePlanEndpoints(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID);
 
         try {
             OpenToscaControlServiceImpl.fileService.deleteCSAR(csarID);
         }
         catch (SystemException | UserException e) {
-            // e.printStackTrace();
             this.LOG.error("The file service could not delete all data of the CSAR \"{}\". ", csarID, e);
             errors.add("Could not delete CSAR files.");
         }
@@ -266,12 +262,12 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     private boolean undeployPlans(final CSARID csarID) {
         final List<TPlan> listOfUndeployedPlans = new ArrayList<>();
         // invoke PlanEngine
-        if (this.toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
+        if (OpenToscaControlServiceImpl.toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
             // nothing to delete
             return true;
         }
 
-        for (final QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
+        for (final QName serviceTemplateID : OpenToscaControlServiceImpl.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
             if (OpenToscaControlServiceImpl.planEngine != null) {

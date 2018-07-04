@@ -76,8 +76,8 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     }
 
     @Override
-    public void removeEndpoints(final String triggeringContainer, final CSARID csarId) {
-        this.endpointService.removeEndpoints(triggeringContainer, csarId);
+    public void removePlanEndpoints(final String triggeringContainer, final CSARID csarId) {
+        this.endpointService.removePlanEndpoints(triggeringContainer, csarId);
     }
 
     @Override

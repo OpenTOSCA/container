@@ -63,13 +63,9 @@ public interface ICoreEndpointService {
     public void storeRESTEndpoint(RESTEndpoint endpoint);
 
     /**
-     * Removes all Endpoints associated with the CSAR identified by the given OpenTOSCA Container
-     * hostname and the given CSARID
-     *
-     * @param triggeringContainer the OpenTOSCA Container where the CSAR is deployed
-     * @param csarId the CSARID whose Endpoints should be removed
+     * @see ICoreInternalEndpointService#removePlanEndpoints
      */
-    public void removeEndpoints(String triggeringContainer, CSARID csarId);
+    public void removePlanEndpoints(String triggeringContainer, CSARID csarId);
 
     /**
      * Removes the given WSDL Endpoint if found
