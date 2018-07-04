@@ -42,6 +42,11 @@ public interface ICoreEndpointService {
     public List<WSDLEndpoint> getWSDLEndpointsForCSARID(String triggeringContainer, CSARID csarId);
 
     /**
+     * @see ICoreInternalEndpointService#getWSDLEndpointsForSTID()
+     */
+    public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID);
+
+    /**
      * @see ICoreInternalEndpointService#getWSDLEndpointsForNTImplAndIAName
      */
     public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(String triggeringContainer, String managingContainer,

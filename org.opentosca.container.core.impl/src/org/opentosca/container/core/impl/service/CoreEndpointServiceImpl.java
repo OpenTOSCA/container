@@ -92,6 +92,12 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     }
 
     @Override
+    public List<WSDLEndpoint> getWSDLEndpointsForSTID(final String triggeringContainer,
+                                                      final Long serviceTemplateInstanceID) {
+        return this.endpointService.getWSDLEndpointsForSTID(triggeringContainer, serviceTemplateInstanceID);
+    }
+
+    @Override
     public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final String triggeringContainer,
                                                                  final String managingContainer,
                                                                  final QName nodeTypeImpl, final String iaName) {
@@ -118,5 +124,4 @@ public class CoreEndpointServiceImpl implements ICoreEndpointService {
     public boolean removeWSDLEndpoint(final WSDLEndpoint endpoint) {
         return this.endpointService.removeWSDLEndpoint(endpoint);
     }
-
 }

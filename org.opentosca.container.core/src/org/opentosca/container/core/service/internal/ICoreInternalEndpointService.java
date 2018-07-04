@@ -93,6 +93,18 @@ public interface ICoreInternalEndpointService {
     public List<WSDLEndpoint> getWSDLEndpointsForCSARID(String triggeringContainer, CSARID csarId);
 
     /**
+     * This method queries for all WSDLEndpoints identified by the given Container and
+     * ServiceTemplateInstance ID
+     *
+     * @param triggeringContainer OpenTOSCA Container host name where the ServiceTemplateInstance
+     *        identified by serviceTemplateInstanceID resides
+     * @param serviceTemplateInstanceID an ID which identifies a ServiceTemplateInstance uniquely
+     * @return List of WSDLEndpoints of the given serviceTemplateInstanceID if min. one was found
+     *         else null
+     */
+    public List<WSDLEndpoint> getWSDLEndpointsForSTID(String triggeringContainer, Long serviceTemplateInstanceID);
+
+    /**
      * This method queries for a WSDLEndpoint identified by the triggering and managing OpenTOSCA
      * Container, the NodeTypeImplementationId and the ImplementationArtifact name
      *

@@ -421,7 +421,23 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         return endpoints;
     }
 
-    // TODO: add method which returns all WSDL endpoints for a ServiceInstanceID
+    @Override
+    public List<WSDLEndpoint> getWSDLEndpointsForSTID(final String triggeringContainer,
+                                                      final Long serviceTemplateInstanceID) {
+        final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
+        final Query queryWSDLEndpoint =
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.serviceTemplateInstanceID= :serviceTemplateInstanceID");
+        queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
+        queryWSDLEndpoint.setParameter("serviceTemplateInstanceID", serviceTemplateInstanceID);
+
+        @SuppressWarnings("unchecked")
+        final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();
+        for (final WSDLEndpoint endpoint : queryResults) {
+            endpoints.add(endpoint);
+        }
+
+        return endpoints;
+    }
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final String triggeringContainer,
