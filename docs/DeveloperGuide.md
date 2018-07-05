@@ -25,13 +25,6 @@
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
     + [Create a new directory](#create-a-new-directory)
-  * [Build the admin user interface](#build-the-admin-user-interface)
-    + [Install maven](#install-maven)
-    + [Install the maven plugin of eclipse](#install-the-maven-plugin-of-eclipse)
-    + [Initial update and build of the admin user interface web project](#inital-update-and-build-of-the-admin-user-interface-web-project)
-    + [Run the admin user interface in the tomcat managed by Eclipse](#run-the-admin-user-interface-in-the-tomcat-managed-by-eclipse)
-    + [Run the admin user interface in a dedicated tomcat](#run-the-admin-user-interface-in-a-dedicated-tomcat)
-
 <!-- tocstop -->
 
 ## Introduction
@@ -298,73 +291,3 @@ If you found the bundle you can add it to the Target Platform.
 1. Open the project "**target-definition**" in the package explorer
 2. Move the bundle JAR file in the desired directory (e.g. "**Apache**") in the project.
 3. Set the container again as it's described in 3.4.
-
-
-### Build the admin user interface
-#### Install maven
-
-Download and install maven. You can follow the instructions on the following website:
-
-http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html
-
-#### Install the maven plugin of eclipse
-
-First open the marketplace of Eclipse.
-
-![Eclipse Marketplace](graphics/EclipseMarketplace.png)
-
-Then search for m2eclipse-wtp:
-
-![Marketplace Install](graphics/EclipseMarketplaceInstall.png)
-
-Click on "**Install**" and follow the displayed steps.
-
-#### Inital update and build of the admin user interface web project
-
-After importing the project org.opentosca.ui.admin into the Eclipse workspace click with the right
-mouse button on the project in the Eclipse "**Project Explorer**" and select "**Update Project...**"
-in the "Maven" menu.
-
-![Update Link](graphics/EclipseMavenUpdateLink.png)
-
-Then just click on "OK" to download and update all dependencies of the project.
-
-![Maven Accept](graphics/EclipseMavenAccept.png)
-
-To setup the maven build run configuration click on the black arrow on the right side of the green
-play button and select "**Run Configurations...**"
-
-![Maven Build Run](graphics/EclipseSetUpMavenBuildRun.png)
-
-With a right click on "**Maven Build**" and "**New**" you can create a new maven run configuration.
-Name it "**org.opentosca.ui.admin build**" and insert the two goals clean and package. Last click on "**Apply**".
-
-![Maven Build Run Accept](graphics/EclipseSetUpMavenBuildRunAccept.png)
-
-If you execute this run configuration there is an admin.war in the "**target**" folder inside your project
-afterwards.
-
-![Admin War](graphics/EclipseAdminWar.png)
-
-#### Run the admin user interface in the tomcat managed by Eclipse
-
-First make sure to install a tomcat like described in chapter 3.1. Then do a right click on the
-org.opentosca.ui.admin project and select "**Run As**" and then "**Run on Server**".
-
-![Run As Link](graphics/EclipseRunAsLink.png)
-
-Then choose the existing Tomcat v8.5 server and click on "**Finish**".
-
-![Run As Accept](graphics/EclipseRunAsAccept.png)
-
-Then browse to the website like http://127.0.0.1:8080/admin/index.action if the tomcat is installed
-locally.
-
-#### 	Run the admin user interface in a dedicated tomcat
-
-Copy the admin.war inside the "webapps" folder of your tomcat installation.
-Then browse to the website like http://127.0.0.1:8080/admin/index.action if the tomcat is installed locally.
-
-
-
-
