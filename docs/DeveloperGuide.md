@@ -299,26 +299,6 @@ If you found the bundle you can add it to the Target Platform.
 2. Move the bundle JAR file in the desired directory (e.g. "**Apache**") in the project.
 3. Set the container again as it's described in 3.4.
 
-#### Create a new directory
-
-If you want create a new directory in a Target Platform you must do the following
-
-1. Right click on the Target Platform project and go in the appearing context menu to "**New**" then "**Folder**".
-   Choose at "**Folder name**" the desired name of the directory and click on "**Finish**".
-2. Open the file "**target-definition.target**"/"ToscsGui.target" in the projetct.
-3. In the appearing Eclipse target definiton editor click at "**Locations**" on "**Add...**"
-4. In the appearing wizard select "**Directory**" and click on "**Next**"
-5. Define at "**Location**" the path to the new directory in the following way:
-   A new directory "MyDir" must be added as
-   "**${workspace_loc}/target-definition/MyDir**" (Fig. 7)/
-   "**${workspace_loc}/target-definition.ui.rap/MyDir**"
-
-![Target Definition File](graphics/TargetDefinitionFile.png)
-**Fig.7: Directory "MyDir" was added to target definition file.**
-
-6. Save the target definition file.
-
-Now you can add bundles to the created directory like it's described in 4.4.1.
 
 ### Build the admin user interface
 #### Install maven
