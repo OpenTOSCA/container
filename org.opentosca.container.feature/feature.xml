@@ -1534,13 +1534,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.fusesource.hawtbuf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.fusesource.hawtbuf.hawtbuf"
          download-size="0"
          install-size="0"
