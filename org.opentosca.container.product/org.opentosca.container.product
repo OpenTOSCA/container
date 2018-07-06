@@ -102,6 +102,7 @@
       <plugin id="org.apache.camel.camel-restlet" autoStart="true" startLevel="0" />
       <plugin id="org.apache.camel.camel-spring" autoStart="true" startLevel="0" />
       <plugin id="org.apache.camel.camel-stream" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.camel.camel-mqtt" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.codec" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.httpclient" autoStart="true" startLevel="0" />
       <plugin id="org.apache.commons.io" autoStart="true" startLevel="0" />

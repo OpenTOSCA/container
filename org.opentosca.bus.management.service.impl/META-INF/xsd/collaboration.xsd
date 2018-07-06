@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ns="http://collaboration.org/schema" attributeFormDefault="qualified"
+	elementFormDefault="qualified" targetNamespace="http://collaboration.org/schema">
+    <xs:complexType name="KeyValueType">
+		<xs:sequence>
+			<xs:element name="key" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="KeyValueMap">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="KeyValuePair"
+				type="ns:KeyValueType" />
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="BodyType">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="1" name="NodeType"
+				type="xs:QName" />
+            <xs:element minOccurs="1" maxOccurs="1" name="Properties"
+				type="ns:KeyValueMap" />
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="collaborationMessage">
+		<xs:sequence>
+			<xs:element minOccurs="1" maxOccurs="1" name="HeaderMap"
+				type="ns:KeyValueMap" />
+			<xs:element minOccurs="0" maxOccurs="1" name="Body"
+				type="ns:BodyType" />
+		</xs:sequence>
+	</xs:complexType>
+    <xs:element name="collaborationMessage" type="ns:collaborationMessage" />
+</xs:schema> 

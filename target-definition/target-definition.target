@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="85">
+<?pde version="3.8"?><target name="OpenTOSCA" sequenceNumber="88">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.gemini.dbaccess.feature.feature.group" version="1.1.0.RELEASE"/>
@@ -124,6 +124,7 @@
 <unit id="org.apache.camel.camel-jetty" version="2.18.3"/>
 <unit id="org.apache.camel.camel-jetty-common" version="2.18.3"/>
 <unit id="org.apache.camel.camel-jetty9" version="2.18.3"/>
+<unit id="org.apache.camel.camel-mqtt" version="2.18.3"/>
 <unit id="org.apache.camel.camel-restlet" version="2.18.3"/>
 <unit id="org.apache.camel.camel-spring" version="2.18.3"/>
 <unit id="org.apache.camel.camel-stream" version="2.18.3"/>
@@ -148,6 +149,8 @@
 <unit id="org.apache.servicemix.bundles.spring-core" version="4.3.7.RELEASE_1"/>
 <unit id="org.apache.servicemix.bundles.spring-expression" version="4.3.7.RELEASE_1"/>
 <unit id="org.apache.servicemix.bundles.spring-tx" version="4.3.7.RELEASE_1"/>
+<unit id="org.fusesource.hawtbuf.hawtbuf" version="1.11.0"/>
+<unit id="org.fusesource.hawtdispatch.hawtdispatch" version="1.22.0"/>
 <unit id="io.moquette.broker" version="0.10.0"/>
 <unit id="org.restlet.jee.org.restlet" version="2.3.6"/>
 <unit id="org.restlet.jee.org.restlet.ext.httpclient" version="2.3.6"/>

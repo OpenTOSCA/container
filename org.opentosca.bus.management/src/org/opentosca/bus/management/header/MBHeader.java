@@ -19,6 +19,8 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  */
 public enum MBHeader {
 
+    // ***** GENERAL MB HEADER FIELDS ***** //
+
     /**
      * <b>TRIGGERINGCONTAINER_STRING</b> This header field contains the host name of the OpenTOSCA
      * Container where the invoke request in this exchange was initiated. It makes all other
@@ -125,5 +127,26 @@ public enum MBHeader {
      * Container where the ArtifactTemplate identified by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
      * has to be deployed.
      */
-    DEPLOYMENTLOCATION_STRING
+    DEPLOYMENTLOCATION_STRING,
+
+    // ***** COLLABORATION ORIENTED HEADER FIELDS ***** //
+
+    /**
+     * <b>CORRELATIONID_STRING</b> This header field contains a unique ID to identify to which
+     * request a response belongs. It is set by the requester and copied to the answer by the
+     * responding component.
+     */
+    CORRELATIONID_STRING,
+
+    /**
+     * <b>MQTTBROKERHOSTNAME_STRING</b> This header field contains the host name of a MQTT broker
+     * which is used by the collaboration camel routes to send Exchanges to the correct destination.
+     */
+    MQTTBROKERHOSTNAME_STRING,
+
+    /**
+     * <b>MQTTTOPIC_STRING</b> This header field contains a MQTT topic name which is used by the
+     * collaboration camel routes to send Exchanges to the correct destination.
+     */
+    MQTTTOPIC_STRING
 }
