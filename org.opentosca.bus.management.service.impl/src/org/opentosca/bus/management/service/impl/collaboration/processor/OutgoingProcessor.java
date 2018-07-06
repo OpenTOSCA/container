@@ -51,9 +51,7 @@ public class OutgoingProcessor implements Processor {
 
                 // the header fields have to be Strings (maybe some meaning gets lost if the headers
                 // have complex types...)
-                final KeyValueType keyValue = new KeyValueType();
-                keyValue.setKey(header.getKey());
-                keyValue.setValue(header.getValue().toString());
+                final KeyValueType keyValue = new KeyValueType(header.getKey(), header.getValue().toString());
                 headerList.add(keyValue);
             }
             collaborationMessage.setHeaderMap(headerObject);

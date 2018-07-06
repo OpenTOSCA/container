@@ -43,6 +43,13 @@ public class CollaborationMessage {
     @XmlElement(name = "Body")
     protected BodyType body;
 
+    public CollaborationMessage() {}
+
+    public CollaborationMessage(final KeyValueMap headerMap, final BodyType body) {
+        this.headerMap = headerMap;
+        this.body = body;
+    }
+
     /**
      * Gets the value of the headerMap property.
      *

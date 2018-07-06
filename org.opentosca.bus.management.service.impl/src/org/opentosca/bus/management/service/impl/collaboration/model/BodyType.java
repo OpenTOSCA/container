@@ -44,6 +44,13 @@ public class BodyType {
     @XmlElement(name = "Properties", required = true)
     protected KeyValueMap properties;
 
+    public BodyType() {}
+
+    public BodyType(final QName nodeType, final KeyValueMap properties) {
+        this.nodeType = nodeType;
+        this.properties = properties;
+    }
+
     /**
      * Gets the value of the nodeType property.
      *

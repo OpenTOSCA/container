@@ -42,6 +42,13 @@ public class KeyValueType {
     @XmlElement(name = "Value", required = true)
     protected String value;
 
+    public KeyValueType() {}
+
+    public KeyValueType(final String key, final String value) {
+        this.key = key;
+        this.value = value;
+    }
+
     /**
      * Gets the value of the key property.
      *

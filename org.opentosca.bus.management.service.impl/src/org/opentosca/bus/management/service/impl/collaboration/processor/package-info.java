@@ -1,6 +1,6 @@
 /**
- * This package contains the Camel processors needed for communicate between the Management Buses of
- * different OpenTOSCA instances.<br />
+ * This package contains the Camel processors which are needed for communication between Management
+ * Buses of different OpenTOSCA instances.<br />
  * <br />
  * Copyright 2018 IAAS University of Stuttgart <br />
  * <br />

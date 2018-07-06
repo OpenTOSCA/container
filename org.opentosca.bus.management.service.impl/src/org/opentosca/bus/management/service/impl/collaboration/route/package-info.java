@@ -1,6 +1,6 @@
 /**
- * This package contains the Camel routes needed for communicate between the Management Buses of
- * different OpenTOSCA instances.<br />
+ * This package contains the Camel routes which are needed for communication between the Management
+ * Buses of different OpenTOSCA instances.<br />
  * <br />
  * Copyright 2018 IAAS University of Stuttgart <br />
  * <br />
