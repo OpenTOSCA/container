@@ -220,72 +220,76 @@ public class DeploymentDistributionDecisionMaker {
      *        matched
      * @return <tt>true</tt> if a matching NodeTemplateInstance is found, <tt>false</tt> otherwise.
      */
-    private static boolean performInstanceDataMatching(final QName infrastructureNodeType,
-                                                       final Map<String, String> infrastructureProperties) {
+    protected static boolean performInstanceDataMatching(final QName infrastructureNodeType,
+                                                         final Map<String, String> infrastructureProperties) {
 
-        // retrieve all instances with matching type from instance data
-        final Collection<NodeTemplateInstance> typeMatchingInstances =
-            nodeTemplateInstanceRepository.findByTemplateType(infrastructureNodeType);
+        if (infrastructureNodeType != null) {
 
-        for (final NodeTemplateInstance typeMatchingInstance : typeMatchingInstances) {
-            DeploymentDistributionDecisionMaker.LOG.debug("Found NodeTemplateInstance with matching type. ID: {}",
-                                                          typeMatchingInstance.getId());
+            // retrieve all instances with matching type from instance data
+            final Collection<NodeTemplateInstance> typeMatchingInstances =
+                nodeTemplateInstanceRepository.findByTemplateType(infrastructureNodeType);
 
-            // avoid matching with currently starting or already deleted NodeTemplateInstances
-            if (!typeMatchingInstance.getServiceTemplateInstance().getState()
-                                     .equals(ServiceTemplateInstanceState.DELETED)) {
-                if (typeMatchingInstance.getState().equals(NodeTemplateInstanceState.STARTED)) {
+            for (final NodeTemplateInstance typeMatchingInstance : typeMatchingInstances) {
+                DeploymentDistributionDecisionMaker.LOG.debug("Found NodeTemplateInstance with matching type. ID: {}",
+                                                              typeMatchingInstance.getId());
 
-                    // get the build plan instance that belongs to this NodeTemplateInstance
-                    PlanInstance buildPlan = null;
-                    for (final PlanInstance plan : typeMatchingInstance.getServiceTemplateInstance()
-                                                                       .getPlanInstances()) {
-                        if (plan.getType().equals(PlanType.BUILD)) {
-                            buildPlan = plan;
-                            break;
+                // avoid matching with currently starting or already deleted NodeTemplateInstances
+                if (!typeMatchingInstance.getServiceTemplateInstance().getState()
+                                         .equals(ServiceTemplateInstanceState.DELETED)) {
+                    if (typeMatchingInstance.getState().equals(NodeTemplateInstanceState.STARTED)) {
+
+                        // get the build plan instance that belongs to this NodeTemplateInstance
+                        PlanInstance buildPlan = null;
+                        for (final PlanInstance plan : typeMatchingInstance.getServiceTemplateInstance()
+                                                                           .getPlanInstances()) {
+                            if (plan.getType().equals(PlanType.BUILD)) {
+                                buildPlan = plan;
+                                break;
+                            }
                         }
-                    }
 
-                    // only match with NodeTemplateInstances for which the build process is already
-                    // finished (avoids self matching)
-                    if (buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED)) {
+                        // only match with NodeTemplateInstances for which the build process is
+                        // already finished (avoids self matching)
+                        if (buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED)) {
 
-                        // Only match with NodeTemplateInstances which are managed by this
-                        // Container. It is managed by this Container if the corresponding attribute
-                        // is set accordingly. However, it is also managed by this Container, if the
-                        // corresponding attribute is null and the build plan is finished. This
-                        // means that there was no IA invocation in the build plan and therefore
-                        // also no remote deployment which means it is managed locally. But this is
-                        // a bit hacky at the moment...
-                        if (typeMatchingInstance.getManagingContainer() == null
-                            || typeMatchingInstance.getManagingContainer()
-                                                   .equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+                            // Only match with NodeTemplateInstances which are managed by this
+                            // Container. It is managed by this Container if the corresponding
+                            // attribute is set accordingly. However, it is also managed by this
+                            // Container, if the corresponding attribute is null and the build plan
+                            // is finished. This means that there was no IA invocation in the build
+                            // plan and therefore also no remote deployment which means it is
+                            // managed locally. But this is a bit hacky at the moment...
+                            if (typeMatchingInstance.getManagingContainer() == null
+                                || typeMatchingInstance.getManagingContainer()
+                                                       .equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
 
-                            DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
+                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
 
-                            final Map<String, String> matchingProperties = typeMatchingInstance.getPropertiesAsMap();
+                                final Map<String, String> matchingProperties =
+                                    typeMatchingInstance.getPropertiesAsMap();
 
-                            // match the property maps
-                            if (matchingProperties.entrySet().equals(infrastructureProperties.entrySet())) {
+                                // match the property maps
+                                if (matchingProperties.entrySet().equals(infrastructureProperties.entrySet())) {
 
-                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
-                                return true;
+                                    DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
+                                    return true;
+                                } else {
+                                    DeploymentDistributionDecisionMaker.LOG.debug("Properties have different entry sets.");
+                                }
                             } else {
-                                DeploymentDistributionDecisionMaker.LOG.debug("Properties have different entry sets.");
+                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is managed by remote Container: {}",
+                                                                              typeMatchingInstance.getManagingContainer());
                             }
                         } else {
-                            DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is managed by remote Container: {}",
-                                                                          typeMatchingInstance.getManagingContainer());
+                            DeploymentDistributionDecisionMaker.LOG.debug("No build plan instance found or not yet finished!");
                         }
                     } else {
-                        DeploymentDistributionDecisionMaker.LOG.debug("No build plan instance found or not yet finished!");
+                        DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance state is not appropriate for matching: {}",
+                                                                      typeMatchingInstance.getState());
                     }
                 } else {
-                    DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance state is not appropriate for matching: {}",
-                                                                  typeMatchingInstance.getState());
+                    DeploymentDistributionDecisionMaker.LOG.debug("Corresponding ServiceTemplateInstance is already deleted!");
                 }
-            } else {
-                DeploymentDistributionDecisionMaker.LOG.debug("Corresponding ServiceTemplateInstance is already deleted!");
             }
         }
 
