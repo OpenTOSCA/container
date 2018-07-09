@@ -13,6 +13,7 @@ import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
@@ -29,8 +30,6 @@ import org.opentosca.container.core.tosca.model.TPlans;
 import org.opentosca.container.core.tosca.model.TServiceTemplate;
 import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
-// import org.opentosca.planengine.service.IPlanEngineService;
-// import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +56,12 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
     private final Logger LOG = LoggerFactory.getLogger(OpenToscaControlServiceImpl.class);
 
+    @Override
+    public void markAsProcessed(final CsarId csarID) {
+        LOG.info("Explicitly marking CSAR \"" + csarID.csarName() + "\" as processed.");
+        coreDeploymentTracker.storeDeploymentState(csarID.toOldCsarId(), DeploymentProcessState.TOSCA_PROCESSED);
+    }
+    
     /**
      * {@inheritDoc}
      */

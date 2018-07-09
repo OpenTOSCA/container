@@ -2,21 +2,27 @@ package org.opentosca.container.core.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.Response;
 
+import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
@@ -134,6 +140,18 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         if (importInfo == null || !importInfo.errors.isEmpty()) {
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
         }
+        Optional<ServiceTemplateId> entryServiceTemplate = importInfo.entryServiceTemplate;
+        if (entryServiceTemplate.isPresent()) {
+            try (OutputStream os = Files.newOutputStream(permanentLocation.resolve("EntryServiceTemplate"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
+                os.write(entryServiceTemplate.get().getQName().toString().getBytes(StandardCharsets.UTF_8));
+            }
+            catch (IOException e) {
+                // well... we failed to keep track of the entryServiceTemplate
+                LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
+                throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
+            }
+        }
+        // TODO: What if there is no entryServiceTemplate?
         return candidateId;
     }
 

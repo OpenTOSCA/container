@@ -31,13 +31,14 @@ public class CoreFileServiceAdapter implements ICoreFileService {
     }
 
     @Override
+    @Deprecated // we dropped the toscametadata, so CSARContent can not know about it
     public CSARContent getCSAR(CSARID csarID) throws UserException {
         CsarId newId = new CsarId(csarID);
         Csar csar = actualService.findById(newId);
         return new CSARContent(csarID
                                , Collections.singleton(newId.getSaveLocation())
                                , new HashMap<Path,String>()
-                               , csar.toscaMetadata());
+                               , null /*csar.toscaMetadata( )*/);
     }
 
     @Override

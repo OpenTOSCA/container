@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessOperation;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
@@ -129,5 +130,7 @@ public interface IOpenToscaControlService {
     public TPlanDTO getActivePlanOfInstance(ServiceTemplateInstanceID csarInstanceID, String correlationID);
 
     int getCSARInstanceIDForCorrelationID(String correlationID);
+
+    void markAsProcessed(CsarId csarID);
 
 }

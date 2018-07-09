@@ -20,7 +20,6 @@ public interface Csar {
 
     public List<TServiceTemplate> serviceTemplates();
     
-    // or force pass through TOSCAMetaFile and traverse the graph? 
     public TServiceTemplate entryServiceTemplate();
     
     public List<TDefinitions> definitions();
@@ -28,11 +27,6 @@ public interface Csar {
     
     public List<TPlan> plans();
     public List<TNodeType> nodeTypes();
-
-    // FIXME does this even exist in the CSAR we imported?? and if it does... WHY?
-    public TOSCAMetaFile toscaMetadata();
-    // FIXME check usage in SmartServicesResource whether this matches toscaMetadata
-    public AbstractFile getRootTosca();
     
     public String description();
     // FIXME decide on Path / File / Binary Representation / ??

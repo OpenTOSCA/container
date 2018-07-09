@@ -280,42 +280,42 @@ public class CsarController {
 //            return Response.serverError().build();
 //        }
 
-        CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
-        if (plannedCsar == null) {
-            return Response.serverError().build();
-        }
+//        CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
+//        if (plannedCsar == null) {
+//            return Response.serverError().build();
+//        }
 
-        this.controlService.setDeploymentProcessStateStored(csarId.toOldCsarId());
-        boolean success = this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
+//        this.controlService.setDeploymentProcessStateStored(csarId.toOldCsarId());
+//        boolean success = this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
+//
+//        if (success) {
+//            final List<QName> serviceTemplates =
+//                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId.toOldCsarId());
+//            for (final QName serviceTemplate : serviceTemplates) {
+//                logger.info("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
+//                            csarId.csarName());
+//                if (!this.controlService.invokeIADeployment(csarId.toOldCsarId(), serviceTemplate)) {
+//                    logger.error("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
+//                                 csarId.csarName());
+//                    success = false;
+//                }
+//                logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
+//                            csarId.csarName());
+//                if (!this.controlService.invokePlanDeployment(csarId.toOldCsarId(), serviceTemplate)) {
+//                    logger.error("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
+//                                 csarId.csarName());
+//                    success = false;
+//                }
+//            }
+//        }
 
-        if (success) {
-            final List<QName> serviceTemplates =
-                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId.toOldCsarId());
-            for (final QName serviceTemplate : serviceTemplates) {
-                logger.info("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                            csarId.csarName());
-                if (!this.controlService.invokeIADeployment(csarId.toOldCsarId(), serviceTemplate)) {
-                    logger.error("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                                 csarId.csarName());
-                    success = false;
-                }
-                logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                            csarId.csarName());
-                if (!this.controlService.invokePlanDeployment(csarId.toOldCsarId(), serviceTemplate)) {
-                    logger.error("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-                                 csarId.csarName());
-                    success = false;
-                }
-            }
-        }
-
-        if (!success) {
-            return Response.serverError().build();
-        }
+//        if (!success) {
+//            return Response.serverError().build();
+//        }
 
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
         final URI uri =
-            UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId));
+            UriUtil.encode(this.uriInfo.getAbsolutePathBuilder().path(CsarController.class, "getCsar").build(csarId.csarName()));
         return Response.created(uri).build();
     }
 
