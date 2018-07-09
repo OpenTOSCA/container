@@ -25,6 +25,9 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.selfservice.Application;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.importing.CsarImporter;
+import org.eclipse.winery.repository.importing.ImportMetaInformation;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
@@ -107,15 +110,20 @@ public class CsarController {
 
             final CsarDTO csar = CsarDTO.Converter.convert(metadata);
             // Absolute URLs for icon and image
-            final String urlTemplate = "{0}csars/{1}/content/SELFSERVICE-Metadata/{2}";
+            final String urlTemplate = "{0}csars/{1}/content/servicetemplates/{2}/{3}/SELFSERVICE-Metadata/{4}";
+            
+            TServiceTemplate entryServiceTemplate = csarContent.entryServiceTemplate();
+            // double encoding, otherwise the link breaks
+            final String namespaceSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getTargetNamespace()));
+            final String baseUri = this.uriInfo.getBaseUri().toString();
             if (csar.getIconUrl() != null) {
                 final String iconUrl =
-                    MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getIconUrl());
+                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, entryServiceTemplate.getName(), csar.getIconUrl());
                 csar.setIconUrl(iconUrl);
             }
             if (csar.getImageUrl() != null) {
                 final String imageUrl =
-                    MessageFormat.format(urlTemplate, this.uriInfo.getBaseUri().toString(), id, csar.getImageUrl());
+                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, entryServiceTemplate.getName(), csar.getImageUrl());
                 csar.setImageUrl(imageUrl);
             }
 
