@@ -23,6 +23,7 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.bus.management;bundle-version="1.0.0",
  org.opentosca.bus.management.service;bundle-version="1.0.0",
  org.opentosca.bus.management.invocation.plugin;bundle-version="1.0.0",
- org.opentosca.bus.management.deployment.plugin;bundle-version="1.0.0"
+ org.opentosca.bus.management.deployment.plugin;bundle-version="1.0.0",
+ org.apache.camel.camel-core
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*

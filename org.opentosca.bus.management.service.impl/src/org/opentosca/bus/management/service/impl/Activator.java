@@ -3,6 +3,7 @@ package org.opentosca.bus.management.service.impl;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveResponseRoute;
 import org.opentosca.bus.management.service.impl.collaboration.route.SendRequestResponseRoute;
 import org.opentosca.container.core.common.Settings;
@@ -39,6 +40,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         Activator.camelContext = new OsgiDefaultCamelContext(bundleContext);
+        camelContext.setUseBreadcrumb(false);
 
         // the camel routes are only needed if collaboration is turned on
         if (Settings.OPENTOSCA_COLLABORATION_MODE.equals("true")) {
@@ -48,13 +50,22 @@ public class Activator implements BundleActivator {
             // This is recommended by camel to avoid the usage of too many threads.
             producer = Activator.camelContext.createProducerTemplate();
 
-            // route to receive responses by other OpenTOSCA Containers
-            Activator.camelContext.addRoutes(new ReceiveResponseRoute());
-
             // route to send requests/responses to other OpenTOSCA Containers
             Activator.camelContext.addRoutes(new SendRequestResponseRoute());
 
-            // TODO: if master is defined: route to receive requests
+            // route to receive responses by other OpenTOSCA Containers
+            Activator.camelContext.addRoutes(new ReceiveResponseRoute());
+
+            // if the setting is null or equals the empty string, this Container does not subscribe
+            // for requests of other Containers (acts as 'master')
+            if (Settings.OPENTOSCA_COLLABORATION_MASTER == null || Settings.OPENTOSCA_COLLABORATION_MASTER.equals("")) {
+                Activator.LOG.info("No other Container defined to subscribe for requests. Only started route to send own requests and receive replies.");
+            } else {
+                Activator.LOG.info("'Master' Container defined: {}. Starting route to receive requests from this Container...",
+                                   Settings.OPENTOSCA_COLLABORATION_MASTER);
+
+                Activator.camelContext.addRoutes(new ReceiveRequestRoute());
+            }
         }
 
         Activator.camelContext.start();
@@ -64,13 +75,21 @@ public class Activator implements BundleActivator {
     @Override
     public void stop(final BundleContext arg0) throws Exception {
         // release resources
-        if (producer != null) {
-            producer.stop();
-            producer = null;
+        try {
+            if (producer != null) {
+                producer.stop();
+                producer = null;
+            }
+
+            if (camelContext != null) {
+                camelContext.stop();
+                camelContext = null;
+            }
+        }
+        catch (final Exception e) {
+            Activator.LOG.warn("Execption while releasing resources: {}", e.getMessage());
         }
 
-        Activator.camelContext = null;
         Activator.LOG.info("Management Bus stopped!");
     }
-
 }

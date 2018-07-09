@@ -148,5 +148,18 @@ public enum MBHeader {
      * <b>MQTTTOPIC_STRING</b> This header field contains a MQTT topic name which is used by the
      * collaboration camel routes to send Exchanges to the correct destination.
      */
-    MQTTTOPIC_STRING
+    MQTTTOPIC_STRING,
+
+    /**
+     * <b>REPLYTOTOPIC_STRING</b> This header field is only used for request messages. It contains a
+     * MQTT topic name which has to be used by receivers of the request as the destination for their
+     * replies.
+     */
+    REPLYTOTOPIC_STRING,
+
+    /**
+     * <b>REMOTEOPERATION_STRING</b> This header field contains the name of the operation that shall
+     * be executed on a remote OpenTOSCA Container.
+     */
+    REMOTEOPERATION_STRING
 }

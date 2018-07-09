@@ -1,10 +1,23 @@
 package org.opentosca.bus.management.service.impl.collaboration;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 import javax.xml.namespace.QName;
 
+import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.Exchange;
+import org.apache.camel.builder.ExchangeBuilder;
+import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.bus.management.service.impl.Activator;
+import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
+import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
+import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap;
+import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
+import org.opentosca.bus.management.service.impl.collaboration.model.RemoteOperations;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
@@ -281,12 +294,12 @@ public class DeploymentDistributionDecisionMaker {
     }
 
     /**
-     * Match the given NodeType and properties against instance data from remote OpenTOSCA Container
-     * instances. The matching is successful if a NodeTemplateInstance with the same NodeType and
+     * Match the given NodeType and properties against instance data from remote OpenTOSCA
+     * Containers. The matching is successful if a NodeTemplateInstance with the same NodeType and
      * the same values for the properties is found in their instance data. The method sends a
-     * request via MQTT to all subscribed OpenTOSCA Container instances. Afterwards, it waits for a
-     * reply which contains the host name of the OpenTOSCA Container that found matching instance
-     * data. If it receives a reply in time, it returns the host name. Otherwise, it returns null.
+     * request via MQTT to all subscribed OpenTOSCA Containers. Afterwards, it waits for a reply
+     * which contains the host name of the OpenTOSCA Container that found matching instance data. If
+     * it receives a reply in time, it returns the host name. Otherwise, it returns null.
      *
      * @param infrastructureNodeType the NodeType of the NodeTemplate which has to be matched
      * @param infrastructureProperties the set of properties of the NodeTemplate which has to be
@@ -296,7 +309,73 @@ public class DeploymentDistributionDecisionMaker {
      */
     private static String performRemoteInstanceDataMatching(final QName infrastructureNodeType,
                                                             final Map<String, String> infrastructureProperties) {
-        // TODO: perform remote matching
-        return null;
+
+        DeploymentDistributionDecisionMaker.LOG.debug("Creating collaboration message for remote instance data matching...");
+
+        // transform infrastructureProperties for the message body
+        final KeyValueMap properties = new KeyValueMap();
+        final List<KeyValueType> propertyList = properties.getKeyValuePair();
+
+        for (final Entry<String, String> entry : infrastructureProperties.entrySet()) {
+            propertyList.add(new KeyValueType(entry.getKey(), entry.getValue()));
+        }
+
+        // create collaboration message
+        final BodyType content = new BodyType(infrastructureNodeType, properties);
+        final CollaborationMessage collaborationMessage = new CollaborationMessage(new KeyValueMap(), content);
+
+        // create an unique correlation ID for the request
+        final String correlationID = UUID.randomUUID().toString();
+
+        DeploymentDistributionDecisionMaker.LOG.debug("Publishing instance matching request to MQTT broker at {} with topic {} and correlation ID {}",
+                                                      Constants.LOCAL_MQTT_BROKER, Constants.REQUEST_TOPIC,
+                                                      correlationID);
+
+        // create exchange containing the collaboration message and the needed headers
+        final Exchange request =
+            new ExchangeBuilder(Activator.camelContext).withBody(collaborationMessage)
+                                                       .withHeader(MBHeader.MQTTBROKERHOSTNAME_STRING.toString(),
+                                                                   Constants.LOCAL_MQTT_BROKER)
+                                                       .withHeader(MBHeader.MQTTTOPIC_STRING.toString(),
+                                                                   Constants.REQUEST_TOPIC)
+                                                       .withHeader(MBHeader.REPLYTOTOPIC_STRING.toString(),
+                                                                   Constants.RESPONSE_TOPIC)
+                                                       .withHeader(MBHeader.CORRELATIONID_STRING.toString(),
+                                                                   correlationID)
+                                                       .withHeader(MBHeader.REMOTEOPERATION_STRING.toString(),
+                                                                   RemoteOperations.invokeInstanceDataMatching)
+                                                       .build();
+
+        // publish the exchange over the camel route
+        final Thread thread = new Thread(() -> {
+
+            // By using an extra thread and waiting some time before sending the request, the
+            // consumer can be started in time to avoid loosing replies.
+            try {
+                Thread.sleep(300);
+            }
+            catch (final InterruptedException e) {
+            }
+
+            Activator.producer.send("direct:SendMQTT", request);
+        });
+        thread.start();
+
+        final String callbackEndpoint = "direct:Callback-" + correlationID;
+        DeploymentDistributionDecisionMaker.LOG.debug("Waiting for response at endpoint: {}", callbackEndpoint);
+
+        // wait for a response and consume it or timeout after 10s
+        final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
+        final Exchange response = consumer.receive(callbackEndpoint, 10000);
+
+        if (response != null) {
+            DeploymentDistributionDecisionMaker.LOG.debug("Received a response in time.");
+
+            // read the deployment location from the reply
+            return response.getIn().getHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), String.class);
+        } else {
+            DeploymentDistributionDecisionMaker.LOG.debug("No response received within the timeout interval.");
+            return null;
+        }
     }
 }

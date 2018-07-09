@@ -8,7 +8,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.direct.DirectConsumerNotAvailableException;
 import org.apache.camel.converter.jaxb.JaxbDataFormat;
 import org.opentosca.bus.management.header.MBHeader;
-import org.opentosca.bus.management.service.impl.collaboration.processor.ResponseProcessor;
+import org.opentosca.bus.management.service.impl.collaboration.Constants;
+import org.opentosca.bus.management.service.impl.collaboration.processor.IncomingProcessor;
 import org.opentosca.container.core.common.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class ReceiveResponseRoute extends RouteBuilder {
         final String consumerEndpoint = "mqtt:response?host=" + host + "&userName=" + username + "&password=" + password
             + "&subscribeTopicNames=" + topic + "&qualityOfService=ExactlyOnce";
 
-        final String producerEndpoint = "direct:Callback${header." + correlationHeader + "}";
+        final String producerEndpoint = "direct:Callback-${header." + correlationHeader + "}";
 
         // JAXB definitions to unmarshal the incoming message body
         final ClassLoader classLoader =
@@ -54,7 +55,7 @@ public class ReceiveResponseRoute extends RouteBuilder {
         final JaxbDataFormat jaxb = new JaxbDataFormat(jc);
 
         // extracts headers from the marshaled object and adds them to the exchange
-        final Processor headerProcessor = new ResponseProcessor();
+        final Processor headerProcessor = new IncomingProcessor();
 
         // log messages to increase the readability of the route
         final String messageReceived = "Received response message via MQTT topic. Unmarshaling...";
@@ -75,7 +76,7 @@ public class ReceiveResponseRoute extends RouteBuilder {
                 .choice()
                     .when(header(correlationHeader).isNotNull())
                         .log(LoggingLevel.DEBUG, LOG, correlationNotNull)
-                        .to(producerEndpoint)
+                        .recipientList(this.simple(producerEndpoint))
                     .endChoice()
                     .otherwise()
                         .log(LoggingLevel.WARN, LOG, noCorrelation)

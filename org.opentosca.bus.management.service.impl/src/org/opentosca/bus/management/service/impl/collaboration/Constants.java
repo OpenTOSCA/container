@@ -1,4 +1,4 @@
-package org.opentosca.bus.management.service.impl.collaboration.route;
+package org.opentosca.bus.management.service.impl.collaboration;
 
 import org.opentosca.container.core.common.Settings;
 
@@ -19,6 +19,13 @@ public final class Constants {
      */
     public final static String LOCAL_MQTT_BROKER =
         "tcp://" + Settings.OPENTOSCA_CONTAINER_HOSTNAME + ":" + Settings.OPENTOSCA_BROKER_MQTT_PORT;
+
+    /**
+     * Topic name where the OpenTOSCA Container sends his request to and where it expects requests
+     * at the MQTT broker of the 'master' OpenTOSCA Container in case it acts as a 'slave'. This
+     * topic name has to be consistent between interacting OpenTOSCA Containers.
+     */
+    public final static String REQUEST_TOPIC = "opentosca/container/collaboration/request";
 
     /**
      * Topic name where the OpenTOSCA Container expects responses to his requests. This topic name
