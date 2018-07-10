@@ -24,7 +24,6 @@
   * [Consume / use a declarative service](#consume--use-a-declarative-service)
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
-    + [Create a new directory](#create-a-new-directory)
 <!-- tocstop -->
 
 ## Introduction
