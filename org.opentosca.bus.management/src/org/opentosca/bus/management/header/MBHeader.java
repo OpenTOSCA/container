@@ -100,6 +100,24 @@ public enum MBHeader {
     ARTIFACTTEMPLATEID_QNAME,
 
     /**
+     * <b>ARTIFACTTYPEID_STRING</b> This header field contains the ArtifactType of the
+     * ArtifactTemplate represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}
+     */
+    ARTIFACTTYPEID_STRING,
+
+    /**
+     * <b>PORTTYPE_QNAME</b> This header field contains the PortType of the ArtifactTemplate
+     * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME} if one is specified.
+     */
+    PORTTYPE_QNAME,
+
+    /**
+     * <b>IMPLEMENTATIONARTIFACTNAME_STRING</b> This header field contains the name of the
+     * Implementation Artifact which shall be invoked by the camel exchange.
+     */
+    IMPLEMENTATIONARTIFACTNAME_STRING,
+
+    /**
      * <b>ARTIFACTREFERENCES_LIST_URL</b> This header field contains a list of Strings. Each String
      * represents an ArifactReference that is defined in the TOSCA file of the ArtifactTemplate
      * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}.

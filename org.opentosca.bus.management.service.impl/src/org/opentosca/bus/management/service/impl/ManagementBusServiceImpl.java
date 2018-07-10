@@ -73,7 +73,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
-    Map<String, Object> locks = new HashMap<>();
+    private static Map<String, Object> locks = new HashMap<>();
 
     @Override
     public void invokeIA(Exchange exchange) {
@@ -197,11 +197,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         for (final String implementationArtifactName : implementationArtifactNames) {
 
                             ManagementBusServiceImpl.LOG.debug("Trying to invoke Implementation Artifact: {}",
-                                                               implementationArtifactName.toString());
+                                                               implementationArtifactName);
 
                             // check if requested interface/operation is provided
                             if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null, null,
                                             implementationArtifactName, neededOperation, neededInterface)) {
+
+                                message.setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(),
+                                                  implementationArtifactName);
 
                                 // get ArtifactTemplate and ArtifactType of the IA
                                 final QName artifactTemplateID =
@@ -219,6 +222,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                    artifactTemplateID.toString());
 
                                 message.setHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), artifactTemplateID);
+                                message.setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
+
+                                // retrieve portType property if specified
+                                final QName portType = getPortTypeQName(csarID, artifactTemplateID);
+                                message.setHeader(MBHeader.PORTTYPE_QNAME.toString(), portType);
 
                                 // retrieve deployment and invocation type for the IA
                                 deploymentType = hasSupportedDeploymentType(artifactType);
@@ -279,9 +287,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                 endpointURI = endpoints.get(0).getURI();
 
                                                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
-
-                                                // retrieve portType property if specified
-                                                final QName portType = getPortTypeQName(csarID, artifactTemplateID);
 
                                                 // store new endpoint for the IA
                                                 final WSDLEndpoint endpoint =
@@ -396,11 +401,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                   endpointURI);
                                                             } else {
                                                                 ManagementBusServiceImpl.LOG.debug("IA successfully deployed. Storing endpoint...");
-
-                                                                // retrieve portType property if
-                                                                // specified
-                                                                final QName portType =
-                                                                    getPortTypeQName(csarID, artifactTemplateID);
 
                                                                 // store new endpoint for the IA
                                                                 final WSDLEndpoint endpoint =
@@ -732,14 +732,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param lockString
      * @return the object which can be used for synchronization
      */
-    private Object getLockForString(final String lockString) {
+    public static Object getLockForString(final String lockString) {
         Object lock = null;
-        synchronized (this.locks) {
-            lock = this.locks.get(lockString);
+        synchronized (locks) {
+            lock = locks.get(lockString);
 
             if (lock == null) {
                 lock = new Object();
-                this.locks.put(lockString, lock);
+                locks.put(lockString, lock);
             }
             return lock;
         }
