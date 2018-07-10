@@ -18,7 +18,6 @@ import org.opentosca.container.core.service.ICoreModelRepositoryService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
-import org.opentosca.container.core.service.internal.ICoreInternalCapabilityService;
 import org.opentosca.container.core.service.internal.ICoreInternalDeploymentTrackerService;
 import org.opentosca.container.core.service.internal.ICoreInternalEndpointService;
 import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
@@ -40,7 +39,6 @@ public class ServiceBindingTracker {
     ICoreDeploymentTrackerService coreDeploymentTrackerService;
     ICoreEndpointService coreEndpointService;
     ICoreFileService coreFileService;
-    ICoreInternalCapabilityService coreInternalCapabilityService;
     ICoreInternalDeploymentTrackerService coreInternalDeploymentTrackerService;
     ICoreInternalEndpointService coreInternalEndpointService;
     ICoreInternalModelRepositoryService coreInternalModelRepositoryService;
@@ -242,33 +240,6 @@ public class ServiceBindingTracker {
     protected void unbindICoreFileService(final ICoreFileService service) {
         this.LOG.debug("Unbind of the ICoreFileService.");
         this.coreFileService = null;
-        this.log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindICoreInternalCapabilityService(final ICoreInternalCapabilityService service) {
-        if (service == null) {
-            this.LOG.error("Service ICoreInternalCapabilityService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICoreInternalCapabilityService.");
-            this.coreInternalCapabilityService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindICoreInternalCapabilityService(final ICoreInternalCapabilityService service) {
-        this.LOG.debug("Unbind of the ICoreInternalCapabilityService.");
-        this.coreInternalCapabilityService = null;
         this.log_offline(service.getClass().getSimpleName());
     }
 
