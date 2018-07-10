@@ -1,5 +1,6 @@
 package org.opentosca.container.api.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -26,6 +27,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.eclipse.winery.repository.importing.CsarImporter;
 import org.eclipse.winery.repository.importing.ImportMetaInformation;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -47,6 +49,9 @@ import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
+import org.opentosca.planbuilder.export.Exporter;
+import org.opentosca.planbuilder.importer.Importer;
+import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,15 +120,16 @@ public class CsarController {
             TServiceTemplate entryServiceTemplate = csarContent.entryServiceTemplate();
             // double encoding, otherwise the link breaks
             final String namespaceSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getTargetNamespace()));
+            final String nameSegment = UriUtil.encodePathSegment(UriUtil.encodePathSegment(entryServiceTemplate.getName()));
             final String baseUri = this.uriInfo.getBaseUri().toString();
             if (csar.getIconUrl() != null) {
                 final String iconUrl =
-                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, entryServiceTemplate.getName(), csar.getIconUrl());
+                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, nameSegment, csar.getIconUrl());
                 csar.setIconUrl(iconUrl);
             }
             if (csar.getImageUrl() != null) {
                 final String imageUrl =
-                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, entryServiceTemplate.getName(), csar.getImageUrl());
+                    MessageFormat.format(urlTemplate, baseUri, id, namespaceSegment, nameSegment, csar.getImageUrl());
                 csar.setImageUrl(imageUrl);
             }
 
@@ -231,25 +237,12 @@ public class CsarController {
         CsarId csarId = null;
         try {
             csarId = storage.storeCSAR(tempFile);
-        } catch (UserException e1) {
-            try {
-                Files.delete(tempFile);
-            }
-            catch (IOException e) {
-                logger.debug("Cleanup of temporary import file failed with an exception");
-            }
-            return Response.notAcceptable(null).entity(e1).build();
-        }
-        catch (SystemException e1) {
-            logger.info("Failed to store csar [{}] to permanent storage, due to {}", filename, e1);
-            try {
-                Files.delete(tempFile);
-            }
-            catch (IOException e) {
-                logger.debug("Cleanup of temporary import file failed with an exception");
-                logger.trace("Details", e);
-            }
-            return Response.serverError().build();
+        } catch (UserException e) {
+            FileUtils.forceDelete(tempFile);
+            return Response.notAcceptable(null).entity(e).build();
+        } catch (SystemException e) {
+            FileUtils.forceDelete(tempFile);
+            return Response.serverError().entity(e).build();
         }
         this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
         try {
@@ -275,10 +268,38 @@ public class CsarController {
         }
         catch (final Exception e) {
             logger.error("Error resolving open requirements: {}", e.getMessage(), e);
+            FileUtils.forceDelete(tempFile);
             return Response.serverError().build();
         }
+        // FIXME BOLLOCKS!
+        this.controlService.markAsProcessed(csarId);
+//        this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
+//        try {
+//            if (ModelUtil.hasOpenRequirements(csarId.toOldCsarId(), this.engineService)) {
+//                final WineryConnector wc = new WineryConnector();
+//                if (wc.isWineryRepositoryAvailable()) {
+//                    final QName serviceTemplate = wc.uploadCSAR(tempFile.toFile());
+//                    this.controlService.deleteCSAR(csarId.toOldCsarId());
+//                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
+//                        + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
+//                } else {
+//                    logger.error("CSAR has open requirments but Winery repository is not available");
+//                    try {
+//                        this.storage.deleteCSAR(csarId);
+//                    }
+//                    catch (final Exception e) {
+//                        // Ignore
+//                    }
+//                    return Response.serverError().build();
+//                }
+//            }
+//        }
+//        catch (final Exception e) {
+//            logger.error("Error resolving open requirements: {}", e.getMessage(), e);
+//            return Response.serverError().build();
+//        }
 
-        this.controlService.deleteCSAR(csarId.toOldCsarId());
+//        this.controlService.deleteCSAR(csarId.toOldCsarId());
 //        try {
 //            // this CANNOT work, we already imported before
 //            csarId = this.storage.storeCSAR(tempFile);
@@ -288,6 +309,13 @@ public class CsarController {
 //            return Response.serverError().build();
 //        }
 
+        final Importer planBuilderImporter = new Importer();
+        final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csarId.toOldCsarId());
+        if (!buildPlans.isEmpty()) {
+            final Exporter planBuilderExporter = new Exporter();
+            final File plannedCsarArchive = planBuilderExporter.export(buildPlans, csarId.toOldCsarId());
+            // reimport the already stored csar 
+        }
 //        CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
 //        if (plannedCsar == null) {
 //            return Response.serverError().build();
