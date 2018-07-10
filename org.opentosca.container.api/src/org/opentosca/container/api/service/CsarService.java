@@ -45,6 +45,7 @@ public class CsarService {
      *
      * @return Set of {@link CSARContent} objects
      */
+    @Deprecated
     public Set<CSARContent> findAll() {
         logger.debug("Requesting all CSARs...");
         final Set<CSARContent> csarSet = new HashSet<>();
@@ -66,6 +67,7 @@ public class CsarService {
      * @param id The id of the CSAR
      * @return The CSAR as {@link CSARContent}
      */
+    @Deprecated
     public CSARContent findById(final CSARID id) {
         logger.debug("Requesting CSAR \"{}\"...", id);
         try {
@@ -83,6 +85,7 @@ public class CsarService {
      * @param id The id of the CSAR
      * @return The CSAR as {@link CSARContent}
      */
+    @Deprecated
     public CSARContent findById(final String id) {
         return this.findById(new CSARID(id));
     }
@@ -93,6 +96,7 @@ public class CsarService {
      * @param csarContent The content object of the CSAR
      * @return The self-service metadata as Java object
      */
+    @Deprecated
     public Application getSelfserviceMetadata(final CSARContent csarContent) {
         try (final InputStream is =
             csarContent.getDirectory("SELFSERVICE-Metadata").getFile("data.xml").getFileAsInputStream()) {
@@ -112,6 +116,7 @@ public class CsarService {
      * @param id The id of the CSAR
      * @return A Set of String objects representing service templates
      */
+    @Deprecated
     public Set<String> getServiceTemplates(final CSARID id) {
         logger.debug("Requesting ServiceTemplates of CSAR \"{}\"...", id);
         final List<QName> result = this.engineService.getServiceTemplatesInCSAR(id);
@@ -125,10 +130,12 @@ public class CsarService {
      * @param name The QName as string of the ServiceTemplate
      * @return true or false
      */
+    @Deprecated
     public boolean hasServiceTemplate(final CSARID id, final String name) {
         return this.getServiceTemplates(id).contains(name);
     }
 
+    @Deprecated
     public File storeTemporaryFile(final String filename, final InputStream is) {
 
         final File tempDirectory = new File(System.getProperty("java.io.tmpdir"));

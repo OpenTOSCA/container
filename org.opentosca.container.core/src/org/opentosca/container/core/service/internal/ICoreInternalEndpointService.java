@@ -16,6 +16,7 @@ import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
  * @see RESTEndpoint
  * @see WSDLEndpoint
  */
+@Deprecated
 public interface ICoreInternalEndpointService {
 
     /**

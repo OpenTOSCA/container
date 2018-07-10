@@ -10,6 +10,7 @@ import org.opentosca.container.core.tosca.model.TDefinitions;
 /**
  * This interface provides methods to to store and retrieve TOSCAs / Definitions.
  */
+@Deprecated
 public interface ICoreInternalModelRepositoryService {
 
     // /**

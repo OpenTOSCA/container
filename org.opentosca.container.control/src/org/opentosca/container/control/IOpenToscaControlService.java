@@ -22,6 +22,7 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
  * the current state of a certain CSAR and provides a HashSet with the possible process invocations
  * for a certain CSAR.
  */
+@Deprecated
 public interface IOpenToscaControlService {
 
     /**

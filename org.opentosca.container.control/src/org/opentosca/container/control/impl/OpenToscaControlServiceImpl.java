@@ -57,6 +57,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     private final Logger LOG = LoggerFactory.getLogger(OpenToscaControlServiceImpl.class);
 
     @Override
+    @Deprecated // this is probably nonsensefin
     public void markAsProcessed(final CsarId csarID) {
         LOG.info("Explicitly marking CSAR \"" + csarID.csarName() + "\" as processed.");
         coreDeploymentTracker.storeDeploymentState(csarID.toOldCsarId(), DeploymentProcessState.TOSCA_PROCESSED);

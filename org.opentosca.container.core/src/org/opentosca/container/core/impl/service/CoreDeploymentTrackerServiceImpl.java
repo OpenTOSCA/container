@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see ICoreInternalDeploymentTrackerService
  */
+@Deprecated
 public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerService {
 
     ICoreInternalDeploymentTrackerService deploymentTrackerService;

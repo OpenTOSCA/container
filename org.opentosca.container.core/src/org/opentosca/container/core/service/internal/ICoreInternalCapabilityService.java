@@ -12,6 +12,7 @@ import org.opentosca.container.core.model.capability.provider.ProviderType;
  *
  * @see ProviderType
  */
+@Deprecated
 public interface ICoreInternalCapabilityService {
 
     /**
