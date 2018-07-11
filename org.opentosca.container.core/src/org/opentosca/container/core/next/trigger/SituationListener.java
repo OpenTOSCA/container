@@ -1,6 +1,7 @@
 package org.opentosca.container.core.next.trigger;
 
 import javax.persistence.PostUpdate;
+import javax.persistence.PreUpdate;
 
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.repository.SituationRepository;
@@ -17,12 +18,17 @@ public class SituationListener {
 
     private final SituationRepository sitRepo = new SituationRepository();
 
+    @PreUpdate
+    public void situationBeforeUpdate(final Situation situation) {
+        LOG.info("Updating situation with template " + situation.getSituationTemplateId() + " and thing "
+            + situation.getThingId() + " with active state " + situation.isActive());
+
+    }
+
     @PostUpdate
     public void situationAfterUpdate(final Situation situation) {
         LOG.info("Updated situation with template " + situation.getSituationTemplateId() + " and thing "
-            + situation.getThingId());
-
-
+            + situation.getThingId() + " with active state " + situation.isActive());
     }
 
 }

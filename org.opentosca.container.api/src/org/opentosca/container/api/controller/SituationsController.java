@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -47,6 +48,21 @@ public class SituationsController {
         final SituationListDTO dto = new SituationListDTO();
         this.instanceService.getSituations().forEach(x -> dto.add(SituationDTO.Converter.convert(x)));;
         return Response.ok(dto).build();
+    }
+
+    @PUT
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Path("/{situation}")
+    public Response updateSituation(@PathParam("situation") final Long situationId, final SituationDTO situation) {
+        final Situation sit = this.instanceService.getSituation(situation.getId());
+
+        sit.setActive(situation.getActive());
+
+        this.instanceService.updateSituation(sit);
+
+        final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sit.getId().toString(), false);
+
+        return Response.ok(instanceURI).build();
     }
 
     @POST

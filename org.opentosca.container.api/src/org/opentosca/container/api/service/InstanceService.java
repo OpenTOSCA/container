@@ -677,7 +677,13 @@ public class InstanceService {
         return triggerInstances;
     }
 
+
+    public void updateSituation(final Situation situation) {
+        this.sitRepo.update(situation);
+    }
+
     public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
+
         final Optional<SituationTriggerInstance> opt = this.sitTrigInst.find(id);
 
         if (opt.isPresent()) {
