@@ -34,4 +34,11 @@ public final class Constants {
      */
     public final static String RESPONSE_TOPIC = "opentosca/container/collaboration/response";
 
+    /**
+     * The invocation and deployment type of the invocation/deployment plug-ins that move requests
+     * from the local OpenTOSCA Container to a remote one. This type has to be different from all
+     * types that are supported by all other invocation and deployment plug-ins.
+     */
+    public final static String REMOTE_TYPE = "remote";
+
 }

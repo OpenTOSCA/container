@@ -25,5 +25,8 @@ Require-Bundle: org.opentosca.container.core;bundle-version="1.0.0",
  org.opentosca.bus.management.invocation.plugin;bundle-version="1.0.0",
  org.opentosca.bus.management.deployment.plugin;bundle-version="1.0.0",
  org.apache.camel.camel-core
+Export-Package: org.opentosca.bus.management.service.impl,
+ org.opentosca.bus.management.service.impl.collaboration,
+ org.opentosca.bus.management.service.impl.collaboration.model
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*

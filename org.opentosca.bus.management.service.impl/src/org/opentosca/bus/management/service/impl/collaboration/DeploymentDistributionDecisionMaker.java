@@ -372,6 +372,14 @@ public class DeploymentDistributionDecisionMaker {
         final ConsumerTemplate consumer = Activator.camelContext.createConsumerTemplate();
         final Exchange response = consumer.receive(callbackEndpoint, 10000);
 
+        // release resources
+        try {
+            consumer.stop();
+        }
+        catch (final Exception e) {
+            DeploymentDistributionDecisionMaker.LOG.warn("Unable to stop consumer: {}", e.getMessage());
+        }
+
         if (response != null) {
             DeploymentDistributionDecisionMaker.LOG.debug("Received a response in time.");
 

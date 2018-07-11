@@ -25,6 +25,11 @@ public enum RemoteOperations {
     invokeIADeployment,
 
     /**
+     * Requests the undeployment of a certain IA.
+     */
+    invokeIAUndeployment,
+
+    /**
      * Requests the operation on a deployed IA.
      */
     invokeIAOperation

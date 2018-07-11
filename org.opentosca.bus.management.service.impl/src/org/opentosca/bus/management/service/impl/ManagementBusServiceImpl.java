@@ -17,6 +17,7 @@ import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPl
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.IManagementBusService;
+import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.service.impl.util.DeploymentPluginCapabilityChecker;
@@ -73,7 +74,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
-    Map<String, Object> locks = new HashMap<>();
+    private static Map<String, Object> locks = new HashMap<>();
 
     @Override
     public void invokeIA(Exchange exchange) {
@@ -197,11 +198,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         for (final String implementationArtifactName : implementationArtifactNames) {
 
                             ManagementBusServiceImpl.LOG.debug("Trying to invoke Implementation Artifact: {}",
-                                                               implementationArtifactName.toString());
+                                                               implementationArtifactName);
 
                             // check if requested interface/operation is provided
                             if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null, null,
                                             implementationArtifactName, neededOperation, neededInterface)) {
+
+                                message.setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(),
+                                                  implementationArtifactName);
 
                                 // get ArtifactTemplate and ArtifactType of the IA
                                 final QName artifactTemplateID =
@@ -219,6 +223,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                    artifactTemplateID.toString());
 
                                 message.setHeader(MBHeader.ARTIFACTTEMPLATEID_QNAME.toString(), artifactTemplateID);
+                                message.setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
 
                                 // retrieve deployment and invocation type for the IA
                                 deploymentType = hasSupportedDeploymentType(artifactType);
@@ -230,6 +235,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     if (invocationType != null) {
                                         ManagementBusServiceImpl.LOG.debug("Deployment type {} and invocation type {} are supported.",
                                                                            deploymentType, invocationType);
+
+                                        // retrieve portType property if specified
+                                        final QName portType = getPortTypeQName(csarID, artifactTemplateID);
+                                        message.setHeader(MBHeader.PORTTYPE_QNAME.toString(), portType);
 
                                         // retrieve specific content for the IA if defined and add
                                         // to the headers
@@ -251,8 +260,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                         ManagementBusServiceImpl.LOG.debug("Host name of responsible OpenTOSCA Container: {}",
                                                                            deploymentLocation);
 
-                                        // TODO: Use deployment location to call the correct plug-in
-                                        // (remote/local).
+                                        // redirect invocation call to 'remote' plug-in if
+                                        // deployment location is not the local Container
+                                        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+                                            invocationType = Constants.REMOTE_TYPE;
+                                        }
 
                                         // String that identifies an IA uniquely for synchronization
                                         final String identifier = triggeringContainer + "/" + deploymentLocation + "/"
@@ -280,9 +292,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                                 message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpointURI);
 
-                                                // retrieve portType property if specified
-                                                final QName portType = getPortTypeQName(csarID, artifactTemplateID);
-
                                                 // store new endpoint for the IA
                                                 final WSDLEndpoint endpoint =
                                                     new WSDLEndpoint(endpointURI, portType, triggeringContainer,
@@ -299,7 +308,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                                 ManagementBusServiceImpl.LOG.debug("Checking if all required features are met by the deployment plug-in or the environment.");
 
-                                                final IManagementBusDeploymentPluginService deploymentPlugin =
+                                                IManagementBusDeploymentPluginService deploymentPlugin =
                                                     ServiceHandler.deploymentPluginServices.get(artifactType);
 
                                                 // retrieve required features for the
@@ -364,8 +373,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                             ManagementBusServiceImpl.LOG.debug("No ServiceEndpoint property defined!");
                                                         }
 
-                                                        // call the determined plug-in to deploy the
-                                                        // IA
+                                                        // redirect deployment call to 'remote'
+                                                        // plug-in if deployment location is not the
+                                                        // local Container
+                                                        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+                                                            deploymentPlugin =
+                                                                ServiceHandler.deploymentPluginServices.get(Constants.REMOTE_TYPE);
+                                                        }
+
+                                                        // deploy the IA
                                                         ManagementBusServiceImpl.LOG.debug("Deploying IA...");
                                                         exchange =
                                                             deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
@@ -396,11 +412,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                   endpointURI);
                                                             } else {
                                                                 ManagementBusServiceImpl.LOG.debug("IA successfully deployed. Storing endpoint...");
-
-                                                                // retrieve portType property if
-                                                                // specified
-                                                                final QName portType =
-                                                                    getPortTypeQName(csarID, artifactTemplateID);
 
                                                                 // store new endpoint for the IA
                                                                 final WSDLEndpoint endpoint =
@@ -527,7 +538,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Calls the plug-in that supports the specific invocation-type.
+     * Calls the invocation plug-in that supports the specific invocation-type.
      *
      * @param exchange to be given the plug-in.
      * @param invokeType that a plug-in is searched for.
@@ -732,14 +743,14 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @param lockString
      * @return the object which can be used for synchronization
      */
-    private Object getLockForString(final String lockString) {
+    public static Object getLockForString(final String lockString) {
         Object lock = null;
-        synchronized (this.locks) {
-            lock = this.locks.get(lockString);
+        synchronized (locks) {
+            lock = locks.get(lockString);
 
             if (lock == null) {
                 lock = new Object();
-                this.locks.put(lockString, lock);
+                locks.put(lockString, lock);
             }
             return lock;
         }

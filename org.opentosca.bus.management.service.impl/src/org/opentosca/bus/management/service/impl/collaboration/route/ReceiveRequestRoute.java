@@ -54,6 +54,8 @@ public class ReceiveRequestRoute extends RouteBuilder {
             "bean:org.opentosca.bus.management.service.impl.collaboration.RequestReceiver?method=invokeInstanceDataMatching";
         final String deploymentEndpoint =
             "bean:org.opentosca.bus.management.service.impl.collaboration.RequestReceiver?method=invokeIADeployment";
+        final String undeploymentEndpoint =
+            "bean:org.opentosca.bus.management.service.impl.collaboration.RequestReceiver?method=invokeIAUndeployment";
         final String invocationEndpoint =
             "bean:org.opentosca.bus.management.service.impl.collaboration.RequestReceiver?method=invokeIAOperation";
 
@@ -77,6 +79,7 @@ public class ReceiveRequestRoute extends RouteBuilder {
         final String invalidOperation = "Remote operation header is either null or contains an invalid operation!";
         final String invokeInstanceDataMatching = "Invoking instance data matching on local OpenTOSCA Container";
         final String invokeIADeployment = "Invoking IA deployment on local OpenTOSCA Container";
+        final String invokeIAUndeployment = "Invoking IA undeployment on local OpenTOSCA Container";
         final String invokeIAOperation = "Invoking IA operation on local OpenTOSCA Container";
 
         // @formatter:off
@@ -94,6 +97,10 @@ public class ReceiveRequestRoute extends RouteBuilder {
                     .when(header(remoteOperationHeader).isEqualTo(RemoteOperations.invokeIADeployment))
                         .log(LoggingLevel.DEBUG, LOG, invokeIADeployment)
                         .to(deploymentEndpoint)
+                    .endChoice()
+                    .when(header(remoteOperationHeader).isEqualTo(RemoteOperations.invokeIAUndeployment))
+                        .log(LoggingLevel.DEBUG, LOG, invokeIAUndeployment)
+                        .to(undeploymentEndpoint)
                     .endChoice()
                     .when(header(remoteOperationHeader).isEqualTo(RemoteOperations.invokeIAOperation))
                         .log(LoggingLevel.DEBUG, LOG, invokeIAOperation)
