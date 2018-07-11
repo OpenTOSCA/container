@@ -46,13 +46,15 @@ public class OutgoingProcessor implements Processor {
 
             // copy exchange headers into the CollaborationMessage to transmit them over MQTT
             for (final Entry<String, Object> header : message.getHeaders().entrySet()) {
-                OutgoingProcessor.LOG.debug("Adding header field with key {} and value {}", header.getKey(),
-                                            header.getValue().toString());
+                if (header.getKey() != null && header.getValue() != null) {
+                    OutgoingProcessor.LOG.debug("Adding header field with key {} and value {}", header.getKey(),
+                                                header.getValue().toString());
 
-                // the header fields have to be Strings (maybe some meaning gets lost if the headers
-                // have complex types...)
-                final KeyValueType keyValue = new KeyValueType(header.getKey(), header.getValue().toString());
-                headerList.add(keyValue);
+                    // the header fields have to be Strings (maybe some meaning gets lost if the
+                    // headers have complex types...)
+                    final KeyValueType keyValue = new KeyValueType(header.getKey(), header.getValue().toString());
+                    headerList.add(keyValue);
+                }
             }
             collaborationMessage.setHeaderMap(headerObject);
 
