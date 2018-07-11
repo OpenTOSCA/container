@@ -1,9 +1,12 @@
 package org.opentosca.bus.management.service.impl.collaboration.processor;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -50,8 +53,8 @@ public class OutgoingProcessor implements Processor {
                     OutgoingProcessor.LOG.debug("Adding header field with key {} and value {}", header.getKey(),
                                                 header.getValue().toString());
 
-                    // the header fields have to be Strings (maybe some meaning gets lost if the
-                    // headers have complex types...)
+                    // The header fields must be converted to Strings because they are marshaled to
+                    // XML. After the transmission the original type is created again if possible.
                     final KeyValueType keyValue = new KeyValueType(header.getKey(), header.getValue().toString());
                     headerList.add(keyValue);
                 }
@@ -64,8 +67,31 @@ public class OutgoingProcessor implements Processor {
             // transform CollaborationMessage to jaxb object
             final JAXBElement<CollaborationMessage> jaxbCollaborationMessage =
                 factory.createCollaborationMessage(collaborationMessage);
+
             message.setBody(jaxbCollaborationMessage);
+
+            OutgoingProcessor.LOG.debug("Forwarding message in XML format: {}", toXML(jaxbCollaborationMessage));
         }
     }
 
+    /**
+     * Convert the given JAXB element to a String representation of the XML which it represents.
+     *
+     * @param element the JAXB element of a CollaborationMessage
+     * @return the String containing the XML or the empty String if an error occurs.
+     */
+    public String toXML(final JAXBElement<CollaborationMessage> element) {
+        try {
+            final JAXBContext jc = JAXBContext.newInstance(element.getValue().getClass());
+            final Marshaller marshaller = jc.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            marshaller.marshal(element, baos);
+            return baos.toString();
+        }
+        catch (final Exception e) {
+            return "";
+        }
+    }
 }

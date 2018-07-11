@@ -2,7 +2,9 @@ package org.opentosca.bus.management.deployment.plugin.remote;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,6 +38,16 @@ import org.slf4j.LoggerFactory;
 public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploymentPluginService {
 
     static final private Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginRemote.class);
+
+    // all header fields that have to be passed to the other Container
+    static final private HashSet<String> neededHeaders = new HashSet<>(
+        Arrays.asList(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(),
+                      MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), MBHeader.ARTIFACTTYPEID_STRING.toString(),
+                      MBHeader.CSARID.toString(), MBHeader.DEPLOYMENTLOCATION_STRING.toString(),
+                      MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(),
+                      MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(),
+                      MBHeader.TRIGGERINGCONTAINER_STRING.toString(), MBHeader.SERVICEINSTANCEID_URI.toString(),
+                      MBHeader.PORTTYPE_QNAME.toString()));
 
     @Override
     public Exchange invokeImplementationArtifactDeployment(final Exchange exchange) {
@@ -118,7 +130,10 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
 
         // add header fields of the incoming exchange to the outgoing message
         for (final Entry<String, Object> entry : message.getHeaders().entrySet()) {
-            requestHeaders.put(entry.getKey(), entry.getValue());
+            // only add needed headers to keep the MQTT message small
+            if (neededHeaders.contains(entry.getKey())) {
+                requestHeaders.put(entry.getKey(), entry.getValue());
+            }
         }
 
         ManagementBusDeploymentPluginRemote.LOG.debug("Publishing request to MQTT broker at {} with topic {} and correlation ID {}",

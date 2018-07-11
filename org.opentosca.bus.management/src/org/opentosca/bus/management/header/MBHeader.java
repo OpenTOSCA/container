@@ -9,7 +9,14 @@ import org.opentosca.container.core.model.csar.id.CSARID;
  * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
- * This enum defines the headers of the camel exchange message that is used from all MB-components.
+ * This enum defines the headers of the camel exchange message that is used from all
+ * MB-components.<br>
+ * <br>
+ *
+ * All header fields must end with their type after the last underscore of the name, otherwise they
+ * can not be used by the collaboration classes. This is because the header fields have to be
+ * transformed to String to be transmitted over MQTT and the information is needed to recreate the
+ * corresponding type afterwards.
  *
  *
  *
@@ -118,11 +125,11 @@ public enum MBHeader {
     IMPLEMENTATIONARTIFACTNAME_STRING,
 
     /**
-     * <b>ARTIFACTREFERENCES_LIST_URL</b> This header field contains a list of Strings. Each String
+     * <b>ARTIFACTREFERENCES_LISTURL</b> This header field contains a list of Strings. Each String
      * represents an ArifactReference that is defined in the TOSCA file of the ArtifactTemplate
      * represented by {@link MBHeader#ARTIFACTTEMPLATEID_QNAME}.
      */
-    ARTIFACTREFERENCES_LIST_STRING,
+    ARTIFACTREFERENCES_LISTSTRING,
 
     /**
      * <b>ARTIFACTSERVICEENDPOINT_STRING</b> This header field contains the ServiceEndpoint property

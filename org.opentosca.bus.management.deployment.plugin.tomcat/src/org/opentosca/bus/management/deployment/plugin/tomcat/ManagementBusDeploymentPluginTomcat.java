@@ -86,7 +86,7 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
 
         @SuppressWarnings("unchecked")
         final List<String> artifactReferences =
-            message.getHeader(MBHeader.ARTIFACTREFERENCES_LIST_STRING.toString(), List.class);
+            message.getHeader(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(), List.class);
 
         // get URL of the WAR-File that has to be deployed
         final URL warURL = getWARFileReference(artifactReferences);

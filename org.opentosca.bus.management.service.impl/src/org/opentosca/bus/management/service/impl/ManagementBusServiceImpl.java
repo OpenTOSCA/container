@@ -356,7 +356,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                     if (!artifactReferences.isEmpty()) {
                                                         // add references list to header to enable
                                                         // access from the deployment plug-ins
-                                                        message.setHeader(MBHeader.ARTIFACTREFERENCES_LIST_STRING.toString(),
+                                                        message.setHeader(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(),
                                                                           artifactReferences);
 
                                                         // search ServiceEndpoint property for the
