@@ -48,6 +48,11 @@ public class Util {
             this.option = option;
             this.planInputMessageFile = planInputMessageFile;
         }
+
+        @Override
+        public String toString() {
+            return "SelfServiceOption Id: " + this.option.getId() + " Name: " + this.option.getName();
+        }
     }
 
     private static class NameValuePairUtils implements NameValuePair {
@@ -176,7 +181,7 @@ public class Util {
 
         final File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
 
-        option.setName("Default_PlanBuilderGenerated");
+        option.setName(Util.getBuildPlanServiceName(buildPlan.getDeploymentDeskriptor()).getLocalPart());
         option.setId(id);
         option.setIconUrl("");
         option.setDescription("N/A");
@@ -268,5 +273,6 @@ public class Util {
         final String soapEnvelopeSuffix = "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
         return soapEnvelopeSuffix;
     }
+
 
 }

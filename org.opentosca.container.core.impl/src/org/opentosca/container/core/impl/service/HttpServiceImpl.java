@@ -2,6 +2,7 @@ package org.opentosca.container.core.impl.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -47,6 +48,23 @@ public class HttpServiceImpl implements IHTTPService {
         return response;
         // TODO Return something useful maybe... like an InputStream
     }
+
+    @Override
+    public HttpResponse Get(final String uri, final Map<String, String> headers) throws ClientProtocolException,
+                                                                                 IOException {
+        this.client = new DefaultHttpClient();
+        final HttpGet get = new HttpGet(uri);
+
+        for (final String header : headers.keySet()) {
+            get.addHeader(header, headers.get(header));
+        }
+
+        final HttpResponse response = this.client.execute(get);
+
+        return response;
+        // TODO Return something useful maybe... like an InputStream
+    }
+
 
     @Override
     public HttpResponse Get(final String uri) throws ClientProtocolException, IOException {

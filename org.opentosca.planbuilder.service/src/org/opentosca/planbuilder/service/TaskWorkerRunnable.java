@@ -1,8 +1,10 @@
 package org.opentosca.planbuilder.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HeaderElement;
@@ -58,6 +61,12 @@ public class TaskWorkerRunnable implements Runnable {
         return this.state;
     }
 
+    public static String read(final InputStream input) throws IOException {
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
+            return buffer.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
     @Override
     public void run() {
 
@@ -76,8 +85,15 @@ public class TaskWorkerRunnable implements Runnable {
         InputStream csarInputStream = null;
         try {
             LOG.debug("Downloading CSAR " + this.state.getCsarUrl());
-            final HttpResponse csarResponse = openToscaHttpService.Get(this.state.getCsarUrl().toString());
+
+            final Map<String, String> headers = new HashMap<>();
+
+            headers.put("Accept", "application/zip");
+
+            final HttpResponse csarResponse = openToscaHttpService.Get(this.state.getCsarUrl().toString(), headers);
+
             csarInputStream = csarResponse.getEntity().getContent();
+
 
             String fileName = null;
             for (final org.apache.http.Header header : csarResponse.getAllHeaders()) {
@@ -93,6 +109,15 @@ public class TaskWorkerRunnable implements Runnable {
                     }
 
                 }
+            }
+
+            if (fileName == null) {
+                // robustness hack (*g*)
+                fileName = this.state.getCsarUrl().toString().replace("?csar", "");
+                if (fileName.endsWith("/")) {
+                    fileName = fileName.substring(0, fileName.length() - 1);
+                }
+                fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
             }
 
             this.state.currentState = PlanGenerationStates.CSARDOWNLOADED;
@@ -173,6 +198,9 @@ public class TaskWorkerRunnable implements Runnable {
             // write to tmp dir, only generating one plan
             final File planTmpFile = plansToUpload.get(buildPlan);
 
+            final List<String> inputParameters = ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames();
+            final List<String> outputParameters = ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames();
+
             final JSONObject obj = new JSONObject();
 
             obj.put("name", buildPlan.getId());
@@ -227,7 +255,7 @@ public class TaskWorkerRunnable implements Runnable {
                 this.state.currentMessage = "Sending Plan";
                 LOG.debug("Sending Plan");
 
-                for (final String inputParam : ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames()) {
+                for (final String inputParam : inputParameters) {
                     final String inputParamPostUrl = planLocation + "/inputparameters/";
 
                     final List<NameValuePair> params = new ArrayList<>();
@@ -255,7 +283,7 @@ public class TaskWorkerRunnable implements Runnable {
                 }
 
                 // FIXME Move OutputParams into AbstractPlans
-                for (final String outputParam : ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames()) {
+                for (final String outputParam : outputParameters) {
                     final String outputParamPostUrl = planLocation + "/outputparameters/";
 
                     final List<NameValuePair> params = new ArrayList<>();
@@ -312,6 +340,8 @@ public class TaskWorkerRunnable implements Runnable {
                     LOG.debug("Sending options to " + optionsUrl.toString());
 
                     final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) buildPlan);
+
+                    LOG.debug("Sending the following option: " + option.toString());
 
                     // send plan back
                     final MultipartEntityBuilder multipartBuilder = MultipartEntityBuilder.create();
@@ -404,9 +434,9 @@ public class TaskWorkerRunnable implements Runnable {
              *
              * @FormDataParam("file") FormDataBodyPart body
              */
-            this.state.currentState = PlanGenerationStates.FINISHED;
-            this.state.currentMessage = "Plans where successfully sent.";
-            Util.deleteCSAR(csarId);
         }
+        this.state.currentState = PlanGenerationStates.FINISHED;
+        this.state.currentMessage = "Plans where successfully sent.";
+        Util.deleteCSAR(csarId);
     }
 }
