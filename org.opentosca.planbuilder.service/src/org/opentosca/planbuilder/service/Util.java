@@ -28,7 +28,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -90,11 +89,7 @@ public class Util {
         try {
             final AbstractDefinitions defs =
                 planBuilderImporter.createContext(ServiceRegistry.getCoreFileService().getCSAR(csarId));
-
-            for (final AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
-                plans.add(planBuilderImporter.buildPlan(defs, csarId.getFileName(), serviceTemplate.getQName()));
-            }
-
+            plans.addAll(planBuilderImporter.buildPlans(defs, csarId.getFileName()));
         }
         catch (final SystemException e) {
             // TODO Auto-generated catch block
