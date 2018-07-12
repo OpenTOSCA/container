@@ -10,7 +10,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.commons.io.FilenameUtils;
@@ -110,8 +109,6 @@ public class RequestProcessor implements Processor {
             exchange.getIn().setHeader(MBHeader.RELATIONSHIPTEMPLATEID_STRING.toString(), relationshipTemplateID);
 
             // Support new Deployment Artifact Header
-            final Message message = exchange.getIn();
-
             final ServiceReference<?> servRef =
                 Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
             final IToscaEngineService toscaEngineService =
@@ -139,7 +136,7 @@ public class RequestProcessor implements Processor {
                 }
             }
             final Gson gson = new Gson();
-            exchange.getIn().setHeader(MBHeader.DEPLOYMENT_ARTIFACTS.name(), gson.toJson(DAs));
+            exchange.getIn().setHeader(MBHeader.DEPLOYMENT_ARTIFACTS_STRING.toString(), gson.toJson(DAs));
             LOG.info("serviceInstanceID:" + serviceInstanceID);
             LOG.info("OPENTOSCA_CONTAINER_HOSTNAME:" + Settings.OPENTOSCA_CONTAINER_HOSTNAME);
             LOG.info("OPENTOSCA_CONTAINER_PORT:" + Settings.OPENTOSCA_CONTAINER_PORT);

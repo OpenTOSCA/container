@@ -138,7 +138,12 @@ public enum MBHeader {
      */
     ARTIFACTSERVICEENDPOINT_STRING,
 
-    DEPLOYMENT_ARTIFACTS,
+    /**
+     * <b>DEPLOYMENT_ARTIFACTS_STRING</b> TODO: What is this header used for? Only referenced once
+     * where it is added but never extracted from the headers. Used by some IAs which access the
+     * SOAP headers?
+     */
+    DEPLOYMENT_ARTIFACTS_STRING,
 
     /**
      * <b>OPERATIONSTATE_BOOLEAN</b> This header field contains the state of an operation or method
