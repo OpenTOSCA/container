@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.plan.PlanDTO;
-import org.opentosca.container.core.tosca.model.TExportedOperation;
+import org.eclipse.winery.model.tosca.TExportedOperation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

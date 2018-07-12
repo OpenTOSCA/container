@@ -16,7 +16,7 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.tosca.model.TPropertyConstraint;
+import org.eclipse.winery.model.tosca.TPropertyConstraint;
 import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.ia.plugin.IIAEnginePluginService;
 import org.slf4j.Logger;

@@ -2,7 +2,7 @@ package org.opentosca.container.core.engine.impl.resolver.data;
 
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.Definitions;
+import org.eclipse.winery.model.tosca.Definitions;
 
 /**
  * This DTO stores data of a CSAR and access to nested files as well as the marshalled main

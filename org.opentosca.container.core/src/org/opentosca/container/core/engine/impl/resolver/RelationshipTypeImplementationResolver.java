@@ -3,10 +3,10 @@ package org.opentosca.container.core.engine.impl.resolver;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
-import org.opentosca.container.core.tosca.model.Definitions;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
-import org.opentosca.container.core.tosca.model.TImplementationArtifact;
-import org.opentosca.container.core.tosca.model.TRelationshipTypeImplementation;
+import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TExtensibleElements;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

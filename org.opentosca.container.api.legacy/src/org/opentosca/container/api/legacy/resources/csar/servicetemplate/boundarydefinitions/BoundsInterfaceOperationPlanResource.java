@@ -21,8 +21,8 @@ import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
-import org.opentosca.container.core.tosca.model.TParameter;
-import org.opentosca.container.core.tosca.model.TPlan;
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

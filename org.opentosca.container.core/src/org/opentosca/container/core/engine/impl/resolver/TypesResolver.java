@@ -1,6 +1,6 @@
 package org.opentosca.container.core.engine.impl.resolver;
 
-import org.opentosca.container.core.tosca.model.Definitions;
+import org.eclipse.winery.model.tosca.Definitions;
 
 /**
  * The ServiceTemplateResolver resolves references inside of TOSCA Types according to the TOSCA

@@ -8,12 +8,12 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Properties.PropertyMappings;
-import org.opentosca.container.core.tosca.model.TDefinitions;
-import org.opentosca.container.core.tosca.model.TExportedInterface;
-import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TPropertyMapping;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Policies;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TExportedInterface;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

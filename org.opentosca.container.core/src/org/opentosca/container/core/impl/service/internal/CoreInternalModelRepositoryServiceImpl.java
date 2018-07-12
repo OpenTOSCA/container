@@ -8,7 +8,7 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
-import org.opentosca.container.core.tosca.model.TDefinitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

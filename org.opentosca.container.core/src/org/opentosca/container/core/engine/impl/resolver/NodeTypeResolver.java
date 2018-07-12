@@ -3,13 +3,13 @@ package org.opentosca.container.core.engine.impl.resolver;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
-import org.opentosca.container.core.tosca.model.Definitions;
-import org.opentosca.container.core.tosca.model.TCapabilityDefinition;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
-import org.opentosca.container.core.tosca.model.TInterface;
-import org.opentosca.container.core.tosca.model.TNodeType;
-import org.opentosca.container.core.tosca.model.TOperation;
-import org.opentosca.container.core.tosca.model.TRequirementDefinition;
+import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TCapabilityDefinition;
+import org.eclipse.winery.model.tosca.TExtensibleElements;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TRequirementDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

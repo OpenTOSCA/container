@@ -6,13 +6,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Policies;
 import org.opentosca.container.api.legacy.instancedata.exception.GenericRestException;
 import org.opentosca.container.api.legacy.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
 import org.opentosca.container.api.legacy.resources.utilities.Utilities;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

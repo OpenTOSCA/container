@@ -7,8 +7,8 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
-import org.opentosca.container.core.tosca.model.TPropertyConstraint;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TPropertyConstraint;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

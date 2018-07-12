@@ -13,7 +13,7 @@ import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
-import org.opentosca.container.core.tosca.model.TPropertyConstraint;
+import org.eclipse.winery.model.tosca.TPropertyConstraint;
 import org.opentosca.container.engine.ia.plugin.IIAEnginePluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

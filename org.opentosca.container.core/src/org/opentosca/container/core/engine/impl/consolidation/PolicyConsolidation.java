@@ -6,11 +6,11 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Policies;
-import org.opentosca.container.core.tosca.model.TEntityTemplate;
-import org.opentosca.container.core.tosca.model.TNodeTemplate;
-import org.opentosca.container.core.tosca.model.TPolicy;
-import org.opentosca.container.core.tosca.model.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Policies;
+import org.eclipse.winery.model.tosca.TEntityTemplate;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

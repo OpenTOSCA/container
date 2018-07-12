@@ -1,6 +1,6 @@
 package org.opentosca.container.core.engine.impl.resolver;
 
-import org.opentosca.container.core.tosca.model.Definitions;
+import org.eclipse.winery.model.tosca.Definitions;
 
 /**
  * The ExtensionsResolver resolves references inside of TOSCA Extensions according to the TOSCA

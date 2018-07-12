@@ -3,7 +3,7 @@ package org.opentosca.container.core.engine.impl.resolver;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
-import org.opentosca.container.core.tosca.model.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
 
 /**
  * The DeploymentArtifactResolver resolves references inside of TOSCA DeploymentArtifacts according

@@ -1,29 +1,30 @@
 package org.opentosca.container.core.engine.impl;
 
-import org.opentosca.container.core.tosca.model.TArtifactTemplate;
-import org.opentosca.container.core.tosca.model.TArtifactType;
-import org.opentosca.container.core.tosca.model.TCapability;
-import org.opentosca.container.core.tosca.model.TCapabilityDefinition;
-import org.opentosca.container.core.tosca.model.TCapabilityType;
-import org.opentosca.container.core.tosca.model.TDefinitions;
-import org.opentosca.container.core.tosca.model.TDeploymentArtifact;
-import org.opentosca.container.core.tosca.model.TImplementationArtifact;
-import org.opentosca.container.core.tosca.model.TInterface;
-import org.opentosca.container.core.tosca.model.TNodeTemplate;
-import org.opentosca.container.core.tosca.model.TNodeType;
-import org.opentosca.container.core.tosca.model.TNodeTypeImplementation;
-import org.opentosca.container.core.tosca.model.TOperation;
-import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TPolicy;
-import org.opentosca.container.core.tosca.model.TPolicyTemplate;
-import org.opentosca.container.core.tosca.model.TPolicyType;
-import org.opentosca.container.core.tosca.model.TRelationshipTemplate;
-import org.opentosca.container.core.tosca.model.TRelationshipType;
-import org.opentosca.container.core.tosca.model.TRelationshipTypeImplementation;
-import org.opentosca.container.core.tosca.model.TRequirement;
-import org.opentosca.container.core.tosca.model.TRequirementDefinition;
-import org.opentosca.container.core.tosca.model.TRequirementType;
-import org.opentosca.container.core.tosca.model.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+import org.eclipse.winery.model.tosca.TArtifactType;
+import org.eclipse.winery.model.tosca.TCapability;
+import org.eclipse.winery.model.tosca.TCapabilityDefinition;
+import org.eclipse.winery.model.tosca.TCapabilityType;
+import org.eclipse.winery.model.tosca.TDefinitions;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TInterface;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TNodeType;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.TOperation;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPolicy;
+import org.eclipse.winery.model.tosca.TPolicyTemplate;
+import org.eclipse.winery.model.tosca.TPolicyType;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate.SourceOrTargetElement;
+import org.eclipse.winery.model.tosca.TRelationshipType;
+import org.eclipse.winery.model.tosca.TRelationshipTypeImplementation;
+import org.eclipse.winery.model.tosca.TRequirement;
+import org.eclipse.winery.model.tosca.TRequirementDefinition;
+import org.eclipse.winery.model.tosca.TRequirementType;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,9 +169,8 @@ public enum AvailableToscaElements {
             case SERVICETEMPLATE:
                 return TServiceTemplate.class;
             case SOURCEELEMENT:
-                return TRelationshipTemplate.SourceElement.class;
             case TARGETELEMENT:
-                return TRelationshipTemplate.TargetElement.class;
+                return SourceOrTargetElement.class;
             case PLAN:
                 return TPlan.class;
 

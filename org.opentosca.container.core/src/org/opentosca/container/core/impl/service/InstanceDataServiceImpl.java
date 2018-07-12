@@ -45,9 +45,9 @@ import org.opentosca.container.core.next.repository.NodeTemplateInstanceReposito
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.service.IInstanceDataService;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions;
-import org.opentosca.container.core.tosca.model.TNodeTemplate;
-import org.opentosca.container.core.tosca.model.TPropertyMapping;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

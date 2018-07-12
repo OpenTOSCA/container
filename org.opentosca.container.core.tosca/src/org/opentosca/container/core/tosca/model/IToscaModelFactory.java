@@ -4,6 +4,9 @@
 
 package org.opentosca.container.core.tosca.model;
 
+import org.eclipse.winery.model.tosca.*;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate.SourceOrTargetElement;
+
 public interface IToscaModelFactory {
 
     /**
@@ -352,13 +355,13 @@ public interface IToscaModelFactory {
      * Create an instance of {@link TRelationshipTemplate.SourceElement }
      *
      */
-    public TRelationshipTemplate.SourceElement createTRelationshipTemplateSourceElement();
+    public TRelationshipTemplate.SourceOrTargetElement createTRelationshipTemplateSourceElement();
 
     /**
      * Create an instance of {@link TRelationshipTemplate.TargetElement }
      *
      */
-    public TRelationshipTemplate.TargetElement createTRelationshipTemplateTargetElement();
+    public TRelationshipTemplate.SourceOrTargetElement createTRelationshipTemplateTargetElement();
 
     /**
      * Create an instance of

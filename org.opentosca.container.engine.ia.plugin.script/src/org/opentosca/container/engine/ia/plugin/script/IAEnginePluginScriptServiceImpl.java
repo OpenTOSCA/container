@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreFileService;
-import org.opentosca.container.core.tosca.model.TPropertyConstraint;
+import org.eclipse.winery.model.tosca.TPropertyConstraint;
 import org.opentosca.container.engine.ia.plugin.IIAEnginePluginService;
 import org.opentosca.container.engine.ia.plugin.script.util.Messages;
 import org.slf4j.Logger;

@@ -7,7 +7,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreModelRepositoryService;
 import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
-import org.opentosca.container.core.tosca.model.TDefinitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 
 /**
  * This implementation currently acts as a Proxy to the Internal Core Model Repository service. It

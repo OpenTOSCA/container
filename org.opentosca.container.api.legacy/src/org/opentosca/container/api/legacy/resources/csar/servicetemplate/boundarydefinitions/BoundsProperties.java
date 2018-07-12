@@ -15,6 +15,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions.Properties.PropertyMappings;
+import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.opentosca.container.api.legacy.osgi.servicegetter.ToscaServiceHandler;
 import org.opentosca.container.api.legacy.resources.utilities.JSONUtils;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
@@ -23,8 +25,6 @@ import org.opentosca.container.api.legacy.resources.xlink.Reference;
 import org.opentosca.container.api.legacy.resources.xlink.References;
 import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TBoundaryDefinitions.Properties.PropertyMappings;
-import org.opentosca.container.core.tosca.model.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

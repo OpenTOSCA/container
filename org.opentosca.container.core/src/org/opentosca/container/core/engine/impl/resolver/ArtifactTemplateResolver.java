@@ -3,9 +3,9 @@ package org.opentosca.container.core.engine.impl.resolver;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
-import org.opentosca.container.core.tosca.model.Definitions;
-import org.opentosca.container.core.tosca.model.TArtifactTemplate;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
+import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TArtifactTemplate;
+import org.eclipse.winery.model.tosca.TExtensibleElements;
 
 public class ArtifactTemplateResolver extends GenericResolver {
 

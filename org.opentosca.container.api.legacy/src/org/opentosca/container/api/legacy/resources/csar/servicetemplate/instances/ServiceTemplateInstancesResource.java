@@ -45,7 +45,7 @@ import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepos
 import org.opentosca.container.core.service.IInstanceDataService;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
-import org.opentosca.container.core.tosca.model.TBoolean;
+import org.eclipse.winery.model.tosca.TBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

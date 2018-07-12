@@ -24,7 +24,7 @@ import org.opentosca.container.core.service.ICoreEndpointService;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.core.service.IHTTPService;
-import org.opentosca.container.core.tosca.model.TPlan.PlanModelReference;
+import org.eclipse.winery.model.tosca.TPlan.PlanModelReference;
 import org.opentosca.container.engine.plan.plugin.IPlanEnginePlanRefPluginService;
 import org.opentosca.container.engine.plan.plugin.camunda.iaenginecopies.CopyOfIAEnginePluginWarTomcatServiceImpl;
 import org.opentosca.container.engine.plan.plugin.camunda.util.Messages;

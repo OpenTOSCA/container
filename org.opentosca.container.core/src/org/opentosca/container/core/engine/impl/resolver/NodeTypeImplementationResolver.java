@@ -5,11 +5,11 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.Definitions;
-import org.opentosca.container.core.tosca.model.TDeploymentArtifact;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
-import org.opentosca.container.core.tosca.model.TImplementationArtifact;
-import org.opentosca.container.core.tosca.model.TNodeTypeImplementation;
+import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TDeploymentArtifact;
+import org.eclipse.winery.model.tosca.TExtensibleElements;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TNodeTypeImplementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

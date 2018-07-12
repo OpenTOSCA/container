@@ -5,7 +5,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TDefinitions;
+import org.eclipse.winery.model.tosca.TDefinitions;
 
 /**
  * This interface provides methods to retrieve and store Tosca-XML files. It is meant to be used by

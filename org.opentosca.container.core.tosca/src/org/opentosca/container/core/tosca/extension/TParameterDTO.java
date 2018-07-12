@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.opentosca.container.core.tosca.model.TBoolean;
+import org.eclipse.winery.model.tosca.TBoolean;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "tParameterDTO")
@@ -26,7 +26,7 @@ public class TParameterDTO {
 
     }
 
-    public TParameterDTO(final org.opentosca.container.core.tosca.model.TParameter param) {
+    public TParameterDTO(final org.eclipse.winery.model.tosca.TParameter param) {
         this.name = param.getName();
         this.type = param.getType();
         this.required = param.getRequired();

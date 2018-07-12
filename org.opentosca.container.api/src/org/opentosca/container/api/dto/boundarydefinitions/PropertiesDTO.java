@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.container.api.dto.ResourceSupport;
-import org.opentosca.container.core.tosca.model.TPropertyMapping;
+import org.eclipse.winery.model.tosca.TPropertyMapping;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

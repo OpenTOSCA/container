@@ -13,8 +13,8 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.opentosca.container.core.tosca.model.TParameter;
-import org.opentosca.container.core.tosca.model.TPlan;
+import org.eclipse.winery.model.tosca.TParameter;
+import org.eclipse.winery.model.tosca.TPlan;
 import org.w3c.dom.Element;
 
 @XmlRootElement(name = "Plan")

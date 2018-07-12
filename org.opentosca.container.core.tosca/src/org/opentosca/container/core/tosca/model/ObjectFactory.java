@@ -16,6 +16,9 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.*;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate.SourceOrTargetElement;
+
 /**
  * This object contains factory methods for each Java content interface and Java element interface
  * generated in the org.opentosca.model.tosca package.
@@ -541,8 +544,8 @@ public class ObjectFactory implements IToscaModelFactory {
      *
      */
     @Override
-    public org.opentosca.container.core.tosca.model.TEntityTemplate.Properties createTEntityTemplateProperties() {
-        return new org.opentosca.container.core.tosca.model.TEntityTemplate.Properties();
+    public TEntityTemplate.Properties createTEntityTemplateProperties() {
+        return new TEntityTemplate.Properties();
     }
 
     /**
@@ -551,8 +554,8 @@ public class ObjectFactory implements IToscaModelFactory {
      *
      */
     @Override
-    public org.opentosca.container.core.tosca.model.TEntityTemplate.PropertyConstraints createTEntityTemplatePropertyConstraints() {
-        return new org.opentosca.container.core.tosca.model.TEntityTemplate.PropertyConstraints();
+    public TEntityTemplate.PropertyConstraints createTEntityTemplatePropertyConstraints() {
+        return new TEntityTemplate.PropertyConstraints();
     }
 
     /**
@@ -560,8 +563,8 @@ public class ObjectFactory implements IToscaModelFactory {
      *
      */
     @Override
-    public TRelationshipTemplate.SourceElement createTRelationshipTemplateSourceElement() {
-        return new TRelationshipTemplate.SourceElement();
+    public SourceOrTargetElement createTRelationshipTemplateSourceElement() {
+        return new SourceOrTargetElement();
     }
 
     /**
@@ -569,8 +572,8 @@ public class ObjectFactory implements IToscaModelFactory {
      *
      */
     @Override
-    public TRelationshipTemplate.TargetElement createTRelationshipTemplateTargetElement() {
-        return new TRelationshipTemplate.TargetElement();
+    public SourceOrTargetElement createTRelationshipTemplateTargetElement() {
+        return new SourceOrTargetElement();
     }
 
     /**
@@ -669,8 +672,8 @@ public class ObjectFactory implements IToscaModelFactory {
      *
      */
     @Override
-    public org.opentosca.container.core.tosca.model.TEntityType.DerivedFrom createTEntityTypeDerivedFrom() {
-        return new org.opentosca.container.core.tosca.model.TEntityType.DerivedFrom();
+    public TEntityType.DerivedFrom createTEntityTypeDerivedFrom() {
+        return new TEntityType.DerivedFrom();
     }
 
     /**
@@ -679,8 +682,8 @@ public class ObjectFactory implements IToscaModelFactory {
      *
      */
     @Override
-    public org.opentosca.container.core.tosca.model.TEntityType.PropertiesDefinition createTEntityTypePropertiesDefinition() {
-        return new org.opentosca.container.core.tosca.model.TEntityType.PropertiesDefinition();
+    public TEntityType.PropertiesDefinition createTEntityTypePropertiesDefinition() {
+        return new TEntityType.PropertiesDefinition();
     }
 
     /**

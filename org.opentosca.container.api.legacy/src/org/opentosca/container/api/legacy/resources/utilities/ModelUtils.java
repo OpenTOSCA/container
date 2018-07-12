@@ -14,10 +14,10 @@ import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreFileService;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
-import org.opentosca.container.core.tosca.model.Definitions;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
-import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TServiceTemplate;
+import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TExtensibleElements;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 
 public class ModelUtils {
 

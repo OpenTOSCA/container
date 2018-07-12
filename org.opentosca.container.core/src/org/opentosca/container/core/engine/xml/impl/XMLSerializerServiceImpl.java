@@ -5,9 +5,9 @@ import java.io.File;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.service.IFileAccessService;
-import org.opentosca.container.core.tosca.model.Definitions;
 import org.opentosca.container.core.tosca.model.IToscaModelFactory;
 import org.opentosca.container.core.tosca.model.ObjectFactory;
+import org.eclipse.winery.model.tosca.Definitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

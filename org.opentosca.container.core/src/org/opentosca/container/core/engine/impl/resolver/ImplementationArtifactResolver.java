@@ -4,7 +4,7 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
 import org.opentosca.container.core.tosca.StaticTOSCANamespaces;
-import org.opentosca.container.core.tosca.model.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,8 @@ public class ImplementationArtifactResolver extends GenericResolver {
             implArtName = ownerName + StaticTOSCANamespaces.nameIANameExtension + iANumber;
             this.LOG.warn("One resolved implementation artifact of \"" + ownerName
                 + "\" has no name attribute specified. Thus set the name \"" + implArtName + "\".");
-            implementationArtifact.setName(new QName(StaticTOSCANamespaces.nsToscaExtension, "name"), implArtName);
+            implementationArtifact.getOtherAttributes().put(new QName(StaticTOSCANamespaces.nsToscaExtension, "name"), implArtName);
+            implementationArtifact.setName(implArtName);
         } else {
             this.LOG.debug("Found the implementation artifact name \"" + implArtName
                 + "\" in the extension namespace of OpenTOSCA.");

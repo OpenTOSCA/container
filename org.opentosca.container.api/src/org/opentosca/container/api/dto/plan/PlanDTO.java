@@ -16,7 +16,7 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.container.core.tosca.extension.TParameterDTO;
 import org.opentosca.container.core.tosca.extension.TPlanDTO;
-import org.opentosca.container.core.tosca.model.TPlan;
+import org.eclipse.winery.model.tosca.TPlan;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

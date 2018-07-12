@@ -1,7 +1,7 @@
 package org.opentosca.container.engine.plan.plugin;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TPlan.PlanModel;
+import org.eclipse.winery.model.tosca.TPlan.PlanModel;
 
 /**
  * This is a subinterface of

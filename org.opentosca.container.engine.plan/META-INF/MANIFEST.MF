@@ -8,7 +8,7 @@ Export-Package: org.opentosca.container.engine.plan;version="2.0.0",
  org.opentosca.container.engine.plan.plugin;version="2.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Import-Package: org.opentosca.container.core.tosca.model;version="2.0.0",
+Import-Package: org.eclipse.winery.model.tosca,
  org.opentosca.container.core.model.csar.id;version="2.0.0",
  org.opentosca.container.core.model.capability.provider;version="2.0.0",
  org.opentosca.container.core.service;version="2.0.0",

@@ -1,6 +1,6 @@
 package org.opentosca.container.core.engine.impl.resolver;
 
-import org.opentosca.container.core.tosca.model.TEntityType.PropertiesDefinition;
+import org.eclipse.winery.model.tosca.TEntityType.PropertiesDefinition;
 
 /**
  * The PropertiesDefinitionResolver resolves references inside of TOSCA PropertiesDefinitions

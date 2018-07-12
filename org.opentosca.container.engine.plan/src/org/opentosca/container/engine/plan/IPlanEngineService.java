@@ -6,8 +6,8 @@ package org.opentosca.container.engine.plan;
 import java.util.List;
 
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TPlans;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlans;
 
 /**
  * This interface defines highlevel methods for deploying, undeploying of plans specified in the

@@ -3,9 +3,9 @@ package org.opentosca.container.core.engine.impl.resolver;
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.engine.impl.resolver.data.ElementNamesEnum;
-import org.opentosca.container.core.tosca.model.Definitions;
-import org.opentosca.container.core.tosca.model.TCapabilityType;
-import org.opentosca.container.core.tosca.model.TExtensibleElements;
+import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.model.tosca.TCapabilityType;
+import org.eclipse.winery.model.tosca.TExtensibleElements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -31,10 +31,10 @@ import org.opentosca.container.core.engine.IToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
-import org.opentosca.container.core.tosca.model.TExportedInterface;
-import org.opentosca.container.core.tosca.model.TExportedOperation;
-import org.opentosca.container.core.tosca.model.TPlan;
-import org.opentosca.container.core.tosca.model.TPropertyMapping;
+import org.eclipse.winery.model.tosca.TExportedInterface;
+import org.eclipse.winery.model.tosca.TExportedOperation;
+import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPropertyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

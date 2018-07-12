@@ -22,7 +22,7 @@ import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
-import org.opentosca.container.core.tosca.model.TImplementationArtifact;
+import org.eclipse.winery.model.tosca.TImplementationArtifact;
 import org.opentosca.container.engine.plan.plugin.camunda.Activator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;

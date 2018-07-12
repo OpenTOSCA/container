@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
-import org.opentosca.container.core.tosca.model.TBoolean;
+import org.eclipse.winery.model.tosca.TBoolean;
 
 @XmlRootElement(name = "Parameter")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -29,7 +29,7 @@ public class TParameter {
 
     }
 
-    public TParameter(final org.opentosca.container.core.tosca.model.TParameter p) {
+    public TParameter(final org.eclipse.winery.model.tosca.TParameter p) {
         this.name = p.getName();
         this.required = p.getRequired();
         this.type = p.getType();
