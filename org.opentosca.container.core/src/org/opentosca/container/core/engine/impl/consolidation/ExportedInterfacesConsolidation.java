@@ -13,7 +13,6 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.opentosca.container.core.engine.impl.ToscaEngineServiceImpl;
 import org.opentosca.container.core.engine.impl.ToscaReferenceMapper;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.tosca.extension.PlanTypes;

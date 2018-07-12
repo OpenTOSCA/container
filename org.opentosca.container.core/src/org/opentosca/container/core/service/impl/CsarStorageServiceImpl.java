@@ -4,27 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.zip.ZipInputStream;
-
-import javax.ws.rs.core.Response;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
-import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
-import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileParser;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.eclipse.winery.repository.configuration.FileBasedRepositoryConfiguration;
@@ -33,19 +24,11 @@ import org.eclipse.winery.repository.importing.ImportMetaInformation;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
-import org.opentosca.container.core.impl.service.ZipManager;
-import org.opentosca.container.core.impl.service.internal.file.csar.CSARMetaDataJPAStore;
-import org.opentosca.container.core.impl.service.internal.file.csar.CSARUnpacker;
-import org.opentosca.container.core.impl.service.internal.file.csar.CSARValidator;
-import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryDeleteVisitor;
-import org.opentosca.container.core.impl.service.internal.file.visitors.DirectoryVisitor;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.CsarImpl;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.utils.Consts;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.container.core.service.IFileAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +36,8 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsarStorageServiceImpl.class);
 
-    /**
-     * Relative path to CSAR root of the TOSCA meta file.
-     *
-     * @see org.opentosca.settings.Settings
-     */
-    private final String TOSCA_META_FILE_REL_PATH = Settings.getSetting("toscaMetaFileRelPath");
     // FIXME obtain from settings or otherwise
     private static final Path CSAR_BASE_PATH = Paths.get(Settings.getSetting(Settings.CONTAINER_STORAGE_BASEPATH));
-    private static final CSARMetaDataJPAStore JPA_STORE = new CSARMetaDataJPAStore();
 
     @Override
     public Set<Csar> findAll() {
@@ -158,31 +134,25 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     @Override
     public void deleteCSAR(CsarId csarId) throws SystemException, UserException {
         LOGGER.debug("Deleting CSAR \"{}\"...", csarId);
-        JPA_STORE.deleteCSARMetaData(csarId.toOldCsarId());
+        FileUtils.forceDelete(csarId.getSaveLocation());
     }
 
     @Override
     public void purgeCsars() throws SystemException {
-
         LOGGER.debug("Deleting all CSARs...");
-
-        final Set<CSARID> csarIDs = this.JPA_STORE.getCSARIDsMetaData();
-
-        if (!csarIDs.isEmpty()) {
-
-            LOGGER.debug("{} CSAR(s) is / are currently stored and will be deleted now.", csarIDs.size());
-
-            for (final CSARID csarID : csarIDs) {
-                try {
-                    this.deleteCSAR(new CsarId(csarID));
-                }
-                catch (final UserException exc) {
-                    throw new SystemException("An System Exception occured.", exc);
+        
+        try {
+            for (Path csarRepoContent : Files.newDirectoryStream(CSAR_BASE_PATH)) {
+                LOGGER.debug("Deleting CSAR at [{}]", csarRepoContent);
+                if (Files.isDirectory(csarRepoContent)) {
+                    // delete csar here
+                    FileUtils.forceDelete(csarRepoContent);
                 }
             }
-            LOGGER.debug("Deleting all CSARs completed.");
-        } else {
-            LOGGER.debug("No CSARs are currently stored.");
+            LOGGER.debug("Deleting all CSARs completed");
+        }
+        catch (IOException e) {
+            throw new SystemException("Could not delete all CSARs.", e);
         }
     }
 
@@ -190,38 +160,22 @@ public class CsarStorageServiceImpl implements CsarStorageService {
     @Override
     public Path exportCSAR(final CsarId csarId) throws UserException, SystemException {
         LOGGER.debug("Exporting CSAR \"{}\"...", csarId);
-        final Set<Path> directoriesOfCSAR = JPA_STORE.getDirectories(csarId.toOldCsarId());
-
+        Csar csar = findById(csarId);
+        
         final Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
         final Path csarDownloadDirectory = tempDirectory.resolve("content");
-
         try {
             Files.createDirectory(csarDownloadDirectory);
-            for (final Path directoryOfCSAR : directoriesOfCSAR) {
-                final Path directoryOfCSARAbsPath = csarDownloadDirectory.resolve(directoryOfCSAR);
-                Files.createDirectories(directoryOfCSARAbsPath);
+            final Path csarTarget = csarDownloadDirectory.resolve(csarId.csarName());
+            if (Files.exists(csarTarget)) {
+                // remove previous export result
+                FileUtils.forceDelete(csarTarget);
             }
-
-            final Path csarFile = tempDirectory.resolve(csarId.getSaveLocation().getFileName());
-            // FIXME was encapsulated in IFileAccessService. Don't make this a hard dep
-            ZipManager.getInstance().zip(csarDownloadDirectory.toFile(), csarFile.toFile());
-            LOGGER.debug("CSAR \"{}\" was successfully exported to \"{}\".", csarId, csarFile);
-            return csarFile;
+            csar.exportTo(csarTarget);
+            return csarTarget;
         }
         catch (final IOException exc) {
             throw new SystemException("An IO Exception occured.", exc);
-        }
-        finally {
-            final DirectoryDeleteVisitor csarDeleteVisitor = new DirectoryDeleteVisitor();
-            try {
-                LOGGER.debug("Deleting CSAR download directory \"{}\"...", csarDownloadDirectory);
-                Files.walkFileTree(csarDownloadDirectory, csarDeleteVisitor);
-                LOGGER.debug("Deleting CSAR download directory \"{}\" completed.", csarDownloadDirectory);
-            }
-            catch (final IOException exc) {
-                throw new SystemException("An IO Exception occured. Deleting CSAR download directory \""
-                    + csarDownloadDirectory + "\" failed.", exc);
-            }
         }
     }
 }

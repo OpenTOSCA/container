@@ -86,14 +86,9 @@ Export-Package: org.opentosca.container.core;version="2.0.0",
  org.opentosca.container.core.next.xml;version="2.0.0",
  org.opentosca.container.core.service;version="2.0.0",
  org.opentosca.container.core.service.impl;version="2.0.0",
- org.opentosca.container.core.service.internal;version="2.0.0",
  org.opentosca.container.core.impl.persistence;version="2.0.0",
  org.opentosca.container.core.impl.plan;version="2.0.0",
  org.opentosca.container.core.impl.plan.messages;version="2.0.0",
- org.opentosca.container.core.impl.service;version="2.0.0",
- org.opentosca.container.core.impl.service.internal;version="2.0.0",
- org.opentosca.container.core.impl.service.internal.file;version="2.0.0",
- org.opentosca.container.core.impl.service.internal.file.csar;version="2.0.0",
- org.opentosca.container.core.impl.service.internal.file.visitors;version="2.0.0"
+ org.opentosca.container.core.impl.service;version="2.0.0"
 Meta-Persistence: META-INF/persistence.xml
 Service-Component: OSGI-INF/*

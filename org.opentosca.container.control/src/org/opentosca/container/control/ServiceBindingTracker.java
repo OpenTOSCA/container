@@ -18,9 +18,6 @@ import org.opentosca.container.core.service.ICoreModelRepositoryService;
 import org.opentosca.container.core.service.IFileAccessService;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.container.core.service.IPlanInvocationEngine;
-import org.opentosca.container.core.service.internal.ICoreInternalDeploymentTrackerService;
-import org.opentosca.container.core.service.internal.ICoreInternalEndpointService;
-import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
 import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
 import org.osgi.service.event.Event;
@@ -39,9 +36,6 @@ public class ServiceBindingTracker {
     ICoreDeploymentTrackerService coreDeploymentTrackerService;
     ICoreEndpointService coreEndpointService;
     ICoreFileService coreFileService;
-    ICoreInternalDeploymentTrackerService coreInternalDeploymentTrackerService;
-    ICoreInternalEndpointService coreInternalEndpointService;
-    ICoreInternalModelRepositoryService coreInternalModelRepositoryService;
     ICoreModelRepositoryService coreModelRepositoryService;
     IFileAccessService fileAccessService;
     IHTTPService httpService;
@@ -240,87 +234,6 @@ public class ServiceBindingTracker {
     protected void unbindICoreFileService(final ICoreFileService service) {
         this.LOG.debug("Unbind of the ICoreFileService.");
         this.coreFileService = null;
-        this.log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindICoreInternalDeploymentTrackerService(final ICoreInternalDeploymentTrackerService service) {
-        if (service == null) {
-            this.LOG.error("Service ICoreInternalDeploymentTrackerService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICoreInternalDeploymentTrackerService.");
-            this.coreInternalDeploymentTrackerService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindICoreInternalDeploymentTrackerService(final ICoreInternalDeploymentTrackerService service) {
-        this.LOG.debug("Unbind of the ICoreInternalDeploymentTrackerService.");
-        this.coreInternalDeploymentTrackerService = null;
-        this.log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindICoreInternalEndpointService(final ICoreInternalEndpointService service) {
-        if (service == null) {
-            this.LOG.error("Service ICoreInternalEndpointService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICoreInternalEndpointService.");
-            this.coreInternalEndpointService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindICoreInternalEndpointService(final ICoreInternalEndpointService service) {
-        this.LOG.debug("Unbind of the ICoreInternalEndpointService.");
-        this.coreInternalEndpointService = null;
-        this.log_offline(service.getClass().getSimpleName());
-    }
-
-    /**
-     * Bind method for a service.
-     *
-     * @param service The service to bind.
-     */
-    protected void bindICoreInternalModelRepositoryService(final ICoreInternalModelRepositoryService service) {
-        if (service == null) {
-            this.LOG.error("Service ICoreInternalModelRepositoryService is null.");
-        } else {
-            this.LOG.debug("Bind of the ICoreInternalModelRepositoryService.");
-            this.coreInternalModelRepositoryService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
-        }
-    }
-
-    /**
-     * Unbind method for a service.
-     *
-     * @param service The service to unbind.
-     */
-    protected void unbindICoreInternalModelRepositoryService(final ICoreInternalModelRepositoryService service) {
-        this.LOG.debug("Unbind of the ICoreInternalModelRepositoryService.");
-        this.coreInternalModelRepositoryService = null;
         this.log_offline(service.getClass().getSimpleName());
     }
 
