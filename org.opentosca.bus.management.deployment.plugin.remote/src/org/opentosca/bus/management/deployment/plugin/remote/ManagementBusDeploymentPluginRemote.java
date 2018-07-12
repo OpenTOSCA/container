@@ -21,7 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO<br>
+ * Management Bus-Plug-in for the deployment of IAs on a remote OpenTOSCA Container.<br>
+ * <br>
+ *
+ * This Plug-in is able to deploy and undeploy all kind of IAs which are supported by one of the
+ * other available deployment plug-ins on a remote OpenTOSCA Container. It gets a camel exchange
+ * object from the Management Bus which contains all information that is needed for the
+ * deployment/undeployment. Afterwards it forwards the information via MQTT to the remote Container
+ * and waits for a response. When the response arrives the result of the deployment/undeployment is
+ * extracted, added to the incoming exchange and passed back to the caller.<br>
  * <br>
  *
  * Copyright 2018 IAAS University of Stuttgart <br>
@@ -58,9 +66,17 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
     public Exchange invokeImplementationArtifactUndeployment(final Exchange exchange) {
 
         ManagementBusDeploymentPluginRemote.LOG.debug("Trying to undeploy IA on remote OpenTOSCA Container.");
+        final Message message = exchange.getIn();
 
-        // TODO
+        // perform remote undeployment
+        final Exchange response = sendRequestToRemoteContainer(message, RemoteOperations.invokeIAUndeployment);
 
+        // extract the undeployment state from the response
+        final boolean state = response.getIn().getHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), boolean.class);
+        ManagementBusDeploymentPluginRemote.LOG.debug("Result of remote undeployment: Success: {}", state);
+
+        // add the header to the incoming exchange and return result
+        message.setHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), state);
         return exchange;
     }
 
