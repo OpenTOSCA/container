@@ -434,9 +434,9 @@ public class TaskWorkerRunnable implements Runnable {
              *
              * @FormDataParam("file") FormDataBodyPart body
              */
-            this.state.currentState = PlanGenerationStates.FINISHED;
-            this.state.currentMessage = "Plans where successfully sent.";
-            Util.deleteCSAR(csarId);
         }
+        this.state.currentState = PlanGenerationStates.FINISHED;
+        this.state.currentMessage = "Plans where successfully sent.";
+        Util.deleteCSAR(csarId);
     }
 }

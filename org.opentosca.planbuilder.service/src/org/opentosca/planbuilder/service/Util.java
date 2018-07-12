@@ -181,7 +181,7 @@ public class Util {
 
         final File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
 
-        option.setName("Default_PlanBuilderGenerated");
+        option.setName(Util.getBuildPlanServiceName(buildPlan.getDeploymentDeskriptor()).getLocalPart());
         option.setId(id);
         option.setIconUrl("");
         option.setDescription("N/A");
