@@ -22,6 +22,7 @@ import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.bus.management.service.impl.util.DeploymentPluginCapabilityChecker;
+import org.opentosca.bus.management.service.impl.util.ParameterHandler;
 import org.opentosca.bus.management.utils.MBUtils;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
@@ -30,11 +31,9 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -132,6 +131,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             boolean wasFound = false;
             String deploymentType = null;
             String invocationType = null;
+            String deploymentLocation = null;
 
             if (nodeTemplateID != null) {
                 // handle operations on NodeTemplates
@@ -157,8 +157,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         @SuppressWarnings("unchecked")
                         HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
 
-                        inputParams = updateInputParams(inputParams, csarID, nodeTemplateInstance, neededInterface,
-                                                        neededOperation);
+                        inputParams = ParameterHandler.updateInputParams(inputParams, csarID, nodeTemplateInstance,
+                                                                         neededInterface, neededOperation);
                         message.setBody(inputParams);
 
                     } else {
@@ -243,34 +243,17 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                         // retrieve specific content for the IA if defined and add
                                         // to the headers
-                                        final Document specificContent =
-                                            ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                                           nodeTypeImplementationID, implementationArtifactName);
-                                        if (specificContent != null) {
-                                            ManagementBusServiceImpl.LOG.debug("ArtifactSpecificContent specified!");
-                                            message.setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(),
-                                                              specificContent);
-                                        }
+                                        exchange = addSpecificContent(exchange, csarID, nodeTypeImplementationID,
+                                                                      implementationArtifactName);
 
                                         // host name of the container where the IA has to be
                                         // deployed
-                                        final String deploymentLocation =
+                                        deploymentLocation =
                                             DeploymentDistributionDecisionMaker.getDeploymentLocation(nodeTemplateInstance);
                                         message.setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(),
                                                           deploymentLocation);
                                         ManagementBusServiceImpl.LOG.debug("Host name of responsible OpenTOSCA Container: {}",
                                                                            deploymentLocation);
-
-                                        // redirect invocation call to 'remote' plug-in if
-                                        // deployment location is not the local Container
-                                        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-
-                                            // FIXME find better solution to avoid forwarding of
-                                            // script calls to the remote Container
-                                            if (!(ServiceHandler.invocationPluginServices.get(invocationType) instanceof ManagementBusInvocationPluginScript)) {
-                                                invocationType = Constants.REMOTE_TYPE;
-                                            }
-                                        }
 
                                         // String that identifies an IA uniquely for synchronization
                                         final String identifier = triggeringContainer + "/" + deploymentLocation + "/"
@@ -314,8 +297,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                                 ManagementBusServiceImpl.LOG.debug("Checking if all required features are met by the deployment plug-in or the environment.");
 
-                                                IManagementBusDeploymentPluginService deploymentPlugin =
-                                                    ServiceHandler.deploymentPluginServices.get(artifactType);
+                                                final IManagementBusDeploymentPluginService deploymentPlugin =
+                                                    ServiceHandler.deploymentPluginServices.get(deploymentType);
 
                                                 // retrieve required features for the
                                                 // NodeTypeImplementation
@@ -379,18 +362,10 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                             ManagementBusServiceImpl.LOG.debug("No ServiceEndpoint property defined!");
                                                         }
 
-                                                        // redirect deployment call to 'remote'
-                                                        // plug-in if deployment location is not the
-                                                        // local Container
-                                                        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-                                                            deploymentPlugin =
-                                                                ServiceHandler.deploymentPluginServices.get(Constants.REMOTE_TYPE);
-                                                        }
-
-                                                        // deploy the IA
-                                                        ManagementBusServiceImpl.LOG.debug("Deploying IA...");
+                                                        // invoke deployment
                                                         exchange =
-                                                            deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
+                                                            callMatchingDeploymentPlugin(exchange, deploymentType,
+                                                                                         deploymentLocation);
 
                                                         endpointURI =
                                                             message.getHeader(MBHeader.ENDPOINT_URI.toString(),
@@ -476,7 +451,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // try to perform operation call
             if (wasFound) {
                 ManagementBusServiceImpl.LOG.debug("Trying to invoke the operation on the deployed implementation artifact.");
-                exchange = callMatchingPlugin(exchange, invocationType);
+                exchange = callMatchingInvocationPlugin(exchange, invocationType, deploymentLocation);
             } else {
                 ManagementBusServiceImpl.LOG.warn("No invokable implementation artifact found that provides required interface/operation.");
             }
@@ -524,7 +499,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // Assumption. Should be checked with ToscaEngine
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
 
-            exchange = callMatchingPlugin(exchange, "REST");
+            exchange = callMatchingInvocationPlugin(exchange, "REST", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
 
         } else if (WSDLendpoint != null) {
             final URI endpoint = WSDLendpoint.getURI();
@@ -534,7 +509,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             // Assumption. Should be checked with ToscaEngine
             message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
 
-            exchange = callMatchingPlugin(exchange, "SOAP/HTTP");
+            exchange = callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
         } else {
             ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invoking aborted!",
                                               planID, csarID);
@@ -544,31 +519,82 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Calls the invocation plug-in that supports the specific invocation-type.
+     * Calls the invocation plug-in that supports the specific invocation-type and redirects
+     * invocations on remote OpenTOSCA Containers to the 'remote' plug-in.
      *
-     * @param exchange to be given the plug-in.
-     * @param invokeType that a plug-in is searched for.
+     * @param exchange the exchange that has to be passed to the plug-in.
+     * @param invocationType the invocation type for the IA/Plan invocation
+     * @param deploymentLocation the deployment location of the IA that is invoked
      *
      * @return the response of the called plug-in.
      *
      */
-    private Exchange callMatchingPlugin(Exchange exchange, final String invokeType) {
+    private Exchange callMatchingInvocationPlugin(Exchange exchange, String invocationType,
+                                                  final String deploymentLocation) {
 
-        ManagementBusServiceImpl.LOG.debug("Searching a matching invocation plug-in for InvocationType: {}...",
-                                           invokeType);
+        ManagementBusServiceImpl.LOG.debug("Searching a matching invocation plug-in for InvocationType {} and deployment location {}",
+                                           invocationType, deploymentLocation);
 
-        ManagementBusServiceImpl.LOG.debug("Available invocation plug-ins: {}",
-                                           ServiceHandler.invocationPluginServices.toString());
+        // redirect invocation call to 'remote' plug-in if deployment location is not the
+        // local Container
+        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
 
-        final IManagementBusInvocationPluginService plugin = ServiceHandler.invocationPluginServices.get(invokeType);
+            // FIXME: find better solution to avoid forwarding of script calls to the
+            // remote Container
+            if (!(ServiceHandler.invocationPluginServices.get(invocationType) instanceof ManagementBusInvocationPluginScript)) {
 
-        if (plugin != null) {
-            ManagementBusServiceImpl.LOG.debug("Matching invocation plug-in found: {}. Calling it.", plugin.toString());
-            exchange = plugin.invoke(exchange);
+                ManagementBusServiceImpl.LOG.debug("Deployment location is remote. Redirecting invocation to remote plug-in.");
 
+                invocationType = Constants.REMOTE_TYPE;
+            }
+        }
+
+        final IManagementBusInvocationPluginService invocationPlugin =
+            ServiceHandler.invocationPluginServices.get(invocationType);
+
+        if (invocationPlugin != null) {
+            exchange = invocationPlugin.invoke(exchange);
         } else {
             ManagementBusServiceImpl.LOG.warn("No matching plug-in found!");
         }
+
+        return exchange;
+    }
+
+    /**
+     * Calls the deployment plug-in that supports the specific deployment type and redirects
+     * deployments on remote OpenTOSCA Containers to the 'remote' plug-in.
+     *
+     * @param exchange the exchange that has to be passed to the plug-in.
+     * @param deploymentType the deployment type of the IA that shall be deployed
+     * @param deploymentLocation the deployment location of the IA
+     *
+     * @return the response of the called plug-in.
+     *
+     */
+    private Exchange callMatchingDeploymentPlugin(Exchange exchange, String deploymentType,
+                                                  final String deploymentLocation) {
+
+        ManagementBusServiceImpl.LOG.debug("Searching a matching deployment plug-in for deployment type {} and deployment location {}",
+                                           deploymentType, deploymentLocation);
+
+        // redirect deployment call to 'remote' plug-in if deployment location is not the
+        // local Container
+        if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+            ManagementBusServiceImpl.LOG.debug("Deployment location is remote. Redirecting deployment to remote plug-in.");
+
+            deploymentType = Constants.REMOTE_TYPE;
+        }
+
+        final IManagementBusDeploymentPluginService deploymentPlugin =
+            ServiceHandler.deploymentPluginServices.get(deploymentType);
+
+        if (deploymentPlugin != null) {
+            exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
+        } else {
+            ManagementBusServiceImpl.LOG.warn("No matching plug-in found!");
+        }
+
         return exchange;
     }
 
@@ -718,9 +744,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // First check if a plug-in is registered that supports the
         // ArtifactType.
         if (ServiceHandler.invocationPluginServices.containsKey(artifactType)) {
-
             return artifactType;
-
         } else {
 
             final Document properties =
@@ -733,12 +757,38 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             if (invocationType != null) {
 
                 if (ServiceHandler.invocationPluginServices.containsKey(invocationType)) {
-
                     return invocationType;
                 }
             }
         }
 
+        return null;
+    }
+
+    /**
+     * Checks if a InvocationType was specified in the Tosca.xml and returns it if so.
+     *
+     * @param properties to check for InvocationType.
+     * @return InvocationType if specified. Otherwise <tt>null</tt>.
+     */
+    private String getInvocationType(final Document properties) {
+
+        // checks if there are specified properties at all.
+        if (properties != null) {
+            final NodeList list = properties.getFirstChild().getChildNodes();
+
+            for (int i = 0; i < list.getLength(); i++) {
+
+                final Node propNode = list.item(i);
+                final String localName = propNode.getLocalName();
+
+                // check if the node contains the InvocationType
+                if (localName != null && localName.equals("InvocationType")) {
+                    return propNode.getTextContent().trim();
+                }
+            }
+        }
+        ManagementBusServiceImpl.LOG.debug("No InvocationType found!");
         return null;
     }
 
@@ -760,6 +810,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             }
             return lock;
         }
+    }
+
+    /**
+     * Add the specific content of the ImplementationArtifact to the Exchange headers if defined.
+     */
+    private Exchange addSpecificContent(final Exchange exchange, final CSARID csarID,
+                                        final QName nodeTypeImplementationID, final String implementationArtifactName) {
+        final Document specificContent =
+            ServiceHandler.toscaEngineService.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                           nodeTypeImplementationID, implementationArtifactName);
+        if (specificContent != null) {
+            ManagementBusServiceImpl.LOG.debug("ArtifactSpecificContent specified!");
+            exchange.getIn().setHeader(MBHeader.SPECIFICCONTENT_DOCUMENT.toString(), specificContent);
+        }
+        return exchange;
     }
 
     /**
@@ -813,184 +878,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         }
         catch (final IllegalArgumentException e) {
             ManagementBusServiceImpl.LOG.debug("PortType property can not be parsed to QName.");
-        }
-        return null;
-    }
-
-    /**
-     * Checks if a InvocationType was specified in the Tosca.xml and returns it if so.
-     *
-     * @param properties to check for InvocationType.
-     * @return InvocationType if specified. Otherwise <tt>null</tt>.
-     */
-    private String getInvocationType(final Document properties) {
-
-        // Checks if there are specified properties at all.
-        if (properties != null) {
-
-            final NodeList list = properties.getFirstChild().getChildNodes();
-
-            for (int i = 0; i < list.getLength(); i++) {
-
-                final Node propNode = list.item(i);
-
-                if (containsInvocationType(propNode)) {
-                    final String invocationType = propNode.getTextContent().trim();
-                    return invocationType;
-                }
-            }
-        }
-        ManagementBusServiceImpl.LOG.debug("No InvocationType found!");
-        return null;
-    }
-
-    /**
-     * Checks if the Node contains a InvocationType. A InvocationType has to be specified within
-     * <tt>{@literal <}namespace:InvocationType{@literal >}...
-     * {@literal <}/namespace:InvocationType{@literal >}</tt>.
-     *
-     * @param currentNode to check.
-     * @return if currentNode contains a InvocationType.
-     */
-    private boolean containsInvocationType(final Node currentNode) {
-        final String localName = currentNode.getLocalName();
-
-        if (localName != null) {
-            return localName.equals("InvocationType");
-        }
-        return false;
-    }
-
-    /**
-     * Updates the input parameters. If instance data are available the provided input parameters
-     * will be overwritten with them.
-     *
-     * @param inputParams
-     * @param csarID
-     * @param nodeTemplateInstance
-     * @param neededInterface
-     * @param neededOperation
-     * @return the updated input parameters.
-     */
-    private HashMap<String, String> updateInputParams(final HashMap<String, String> inputParams, final CSARID csarID,
-                                                      final NodeTemplateInstance nodeTemplateInstance,
-                                                      final String neededInterface, final String neededOperation) {
-
-        ManagementBusServiceImpl.LOG.debug("{} inital input parameters for operation: {} found: {}", inputParams.size(),
-                                           neededOperation, inputParams.toString());
-
-        final List<String> expectedParams =
-            getExpectedInputParams(csarID, nodeTemplateInstance.getTemplateType(), neededInterface, neededOperation);
-
-        ManagementBusServiceImpl.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
-                                           expectedParams.size(), expectedParams.toString());
-
-        if (!expectedParams.isEmpty()) {
-
-            ManagementBusServiceImpl.LOG.debug("Getting instance data for NodeTemplateInstance ID: {} ...",
-                                               nodeTemplateInstance.getId());
-
-            final Map<String, String> propertiesMap = nodeTemplateInstance.getPropertiesAsMap();
-
-            if (propertiesMap != null) {
-
-                ManagementBusServiceImpl.LOG.debug("Found following properties: ");
-
-                for (final String key : propertiesMap.keySet()) {
-                    ManagementBusServiceImpl.LOG.debug("Prop: " + key + " Val: " + propertiesMap.get(key));
-                }
-
-                final List<String> supportedIPPropertyNames = Utils.getSupportedVirtualMachineIPPropertyNames();
-                final List<String> supportedInstanceIdPropertyNames =
-                    Utils.getSupportedVirtualMachineInstanceIdPropertyNames();
-                final List<String> supportedPasswordPropertyNames =
-                    Utils.getSupportedVirtualMachineLoginPasswordPropertyNames();
-                final List<String> supportedUsernamePropertyNames =
-                    Utils.getSupportedVirtualMachineLoginUserNamePropertyNames();
-
-                String prop;
-                // Check for property convention
-                for (final String expectedParam : expectedParams) {
-
-                    if (supportedIPPropertyNames.contains(expectedParam)) {
-                        ManagementBusServiceImpl.LOG.debug("Supported IP-Property found.");
-                        prop = getSupportedProperty(supportedIPPropertyNames, propertiesMap);
-
-                        if (prop != null) {
-                            putOnlyIfNotSet(inputParams, expectedParam, prop);
-                        }
-
-                    } else if (supportedInstanceIdPropertyNames.contains(expectedParam)) {
-                        ManagementBusServiceImpl.LOG.debug("Supported InstanceID-Property found.");
-                        prop = getSupportedProperty(supportedInstanceIdPropertyNames, propertiesMap);
-
-                        if (prop != null) {
-                            putOnlyIfNotSet(inputParams, expectedParam, prop);
-                        }
-
-                    } else if (supportedPasswordPropertyNames.contains(expectedParam)) {
-                        ManagementBusServiceImpl.LOG.debug("Supported Password-Property found.");
-                        prop = getSupportedProperty(supportedPasswordPropertyNames, propertiesMap);
-
-                        if (prop != null) {
-                            putOnlyIfNotSet(inputParams, expectedParam, prop);
-                        }
-
-                    } else if (supportedUsernamePropertyNames.contains(expectedParam)) {
-                        ManagementBusServiceImpl.LOG.debug("Supported Username-Property found.");
-                        prop = getSupportedProperty(supportedUsernamePropertyNames, propertiesMap);
-
-                        if (prop != null) {
-                            putOnlyIfNotSet(inputParams, expectedParam, prop);
-                        }
-
-                    } else {
-
-                        for (final String propName : propertiesMap.keySet()) {
-                            if (expectedParam.equals(propName)) {
-                                putOnlyIfNotSet(inputParams, expectedParam, propertiesMap.get(propName));
-                            }
-                        }
-                    }
-                }
-
-                ManagementBusServiceImpl.LOG.debug("Final {} input parameters for operation {} : {}",
-                                                   inputParams.size(), neededOperation, inputParams.toString());
-
-            } else {
-                ManagementBusServiceImpl.LOG.debug("No stored instance data found.");
-            }
-        }
-
-        return inputParams;
-    }
-
-    private void putOnlyIfNotSet(final Map<String, String> inputParams, final String key, final String value) {
-        if (!inputParams.containsKey(key)) {
-            inputParams.put(key, value);
-        }
-    }
-
-    /**
-     * @param supportedProperties
-     * @param propertiesMap
-     *
-     *
-     * @return convention defined properties.
-     */
-    private String getSupportedProperty(final List<String> supportedProperties,
-                                        final Map<String, String> propertiesMap) {
-
-        String prop;
-
-        for (final String supportedProperty : supportedProperties) {
-
-            if (propertiesMap.containsKey(supportedProperty)) {
-                prop = propertiesMap.get(supportedProperty);
-                ManagementBusServiceImpl.LOG.debug("Supported convention property: {} found: {}", supportedProperty,
-                                                   prop);
-                return prop;
-            }
         }
         return null;
     }
@@ -1051,56 +938,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     *
-     * Returns the input parameters that are specified in the TOSCA of the defined operation.
-     *
-     * @param csarID
-     * @param nodeTypeID
-     * @param interfaceName
-     * @param operationName
-     *
-     *
-     * @return specified input parameters of the operation
-     */
-    private List<String> getExpectedInputParams(final CSARID csarID, final QName nodeTypeID, final String interfaceName,
-                                                final String operationName) {
-
-        ManagementBusServiceImpl.LOG.debug("Fetching expected input params of " + operationName + " in interface "
-            + interfaceName);
-        final List<String> inputParams = new ArrayList<>();
-
-        ManagementBusServiceImpl.LOG.debug("Checking for params with NodeType " + nodeTypeID);
-        if (ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID,
-                                                                                          interfaceName,
-                                                                                          operationName)) {
-
-            final Node definedInputParameters =
-                ServiceHandler.toscaEngineService.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID,
-                                                                                         interfaceName, operationName);
-
-            if (definedInputParameters != null) {
-
-                final NodeList definedInputParameterList = definedInputParameters.getChildNodes();
-
-                for (int i = 0; i < definedInputParameterList.getLength(); i++) {
-
-                    final Node currentNode = definedInputParameterList.item(i);
-
-                    if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                        final String name = ((Element) currentNode).getAttribute("name");
-
-                        inputParams.add(name);
-
-                    }
-                }
-            }
-        }
-        return inputParams;
-    }
-
-    /**
-     * Handles the response from the plug-in. If needed the response is sent back to the api.
+     * Handles the response from the plug-in. If needed the response is sent back to the API.
      *
      *
      * @param exchange to handle.
