@@ -14,7 +14,9 @@ import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPl
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.service.impl.Activator;
 import org.opentosca.bus.management.service.impl.ManagementBusServiceImpl;
+import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
+import org.opentosca.bus.management.service.impl.collaboration.model.InstanceDataMatchingRequest;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
 import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
@@ -60,43 +62,54 @@ public class RequestReceiver {
 
         if (headers != null) {
             if (message.getBody() instanceof CollaborationMessage) {
-                RequestReceiver.LOG.debug("Message body has valid class...");
-
                 final CollaborationMessage collMsg = (CollaborationMessage) message.getBody();
+                final BodyType body = collMsg.getBody();
 
-                // get NodeType and properties from the incoming message
-                final QName nodeType = collMsg.getBody().getNodeType();
-                final Map<String, String> properties = new HashMap<>();
-                for (final KeyValueType property : collMsg.getBody().getProperties().getKeyValuePair()) {
-                    properties.put(property.getKey(), property.getValue());
-                }
+                if (body != null) {
+                    final InstanceDataMatchingRequest request = body.getInstanceDataMatchingRequest();
 
-                RequestReceiver.LOG.debug("Performing matching with NodeType: {} and properties: {}", nodeType,
-                                          properties.toString());
+                    if (request != null) {
+                        RequestReceiver.LOG.debug("InstanceDataMatchingRequest contained in incoming message. Processing it...");
 
-                // perform instance data matching
-                final String deploymentLocation =
-                    DeploymentDistributionDecisionMaker.performInstanceDataMatching(nodeType, properties);
-                if (deploymentLocation != null) {
-                    RequestReceiver.LOG.debug("Instance data matching was successful. Sending response to requestor...");
-                    RequestReceiver.LOG.debug("Broker: {} Topic: {} Correlation: {}",
-                                              headers.get(MBHeader.MQTTBROKERHOSTNAME_STRING.toString()),
-                                              headers.get(MBHeader.MQTTTOPIC_STRING.toString()),
-                                              headers.get(MBHeader.CORRELATIONID_STRING.toString()));
+                        // get NodeType and properties from the request
+                        final QName nodeType = request.getNodeType();
+                        final Map<String, String> properties = new HashMap<>();
+                        for (final KeyValueType property : request.getProperties().getKeyValuePair()) {
+                            properties.put(property.getKey(), property.getValue());
+                        }
 
-                    // add the deployment location as operation result to the headers
-                    headers.put(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
+                        RequestReceiver.LOG.debug("Performing matching with NodeType: {} and properties: {}", nodeType,
+                                                  properties.toString());
 
-                    // create empty reply message and transmit it with the headers
-                    final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
-                    Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
+                        // perform instance data matching
+                        final String deploymentLocation =
+                            DeploymentDistributionDecisionMaker.performInstanceDataMatching(nodeType, properties);
+                        if (deploymentLocation != null) {
+                            RequestReceiver.LOG.debug("Instance data matching was successful. Sending response to requestor...");
+                            RequestReceiver.LOG.debug("Broker: {} Topic: {} Correlation: {}",
+                                                      headers.get(MBHeader.MQTTBROKERHOSTNAME_STRING.toString()),
+                                                      headers.get(MBHeader.MQTTTOPIC_STRING.toString()),
+                                                      headers.get(MBHeader.CORRELATIONID_STRING.toString()));
+
+                            // add the deployment location as operation result to the headers
+                            headers.put(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
+
+                            // create empty reply message and transmit it with the headers
+                            final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
+                            Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
+                        } else {
+                            // if matching is not successful, no response is needed
+                            RequestReceiver.LOG.debug("Instance data matching was not successful.");
+                        }
+                    } else {
+                        RequestReceiver.LOG.error("Body contains no InstanceDataMatchingRequest. Aborting operation!");
+                    }
                 } else {
-                    // if matching is not successful, no response is needed
-                    RequestReceiver.LOG.debug("Instance data matching was not successful.");
+                    RequestReceiver.LOG.error("Collaboration message contains no body. Aborting operation!");
                 }
             } else {
                 // this case is not possible due to the IncomingProcessor
-                RequestReceiver.LOG.error("Message body has invalid class. Aborting operation!");
+                RequestReceiver.LOG.error("Message has invalid class. Aborting operation!");
             }
         } else {
             RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
