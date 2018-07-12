@@ -5,7 +5,6 @@
 package org.opentosca.container.core.tosca.model;
 
 import org.eclipse.winery.model.tosca.*;
-import org.eclipse.winery.model.tosca.TRelationshipTemplate.SourceOrTargetElement;
 
 public interface IToscaModelFactory {
 

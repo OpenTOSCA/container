@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -271,51 +272,36 @@ public class CsarController {
             FileUtils.forceDelete(tempFile);
             return Response.serverError().build();
         }
-        // FIXME BOLLOCKS!
-        this.controlService.markAsProcessed(csarId);
-//        this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
-//        try {
-//            if (ModelUtil.hasOpenRequirements(csarId.toOldCsarId(), this.engineService)) {
-//                final WineryConnector wc = new WineryConnector();
-//                if (wc.isWineryRepositoryAvailable()) {
-//                    final QName serviceTemplate = wc.uploadCSAR(tempFile.toFile());
-//                    this.controlService.deleteCSAR(csarId.toOldCsarId());
-//                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
-//                        + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
-//                } else {
-//                    logger.error("CSAR has open requirments but Winery repository is not available");
-//                    try {
-//                        this.storage.deleteCSAR(csarId);
-//                    }
-//                    catch (final Exception e) {
-//                        // Ignore
-//                    }
-//                    return Response.serverError().build();
-//                }
-//            }
-//        }
-//        catch (final Exception e) {
-//            logger.error("Error resolving open requirements: {}", e.getMessage(), e);
-//            return Response.serverError().build();
-//        }
 
-//        this.controlService.deleteCSAR(csarId.toOldCsarId());
-//        try {
-//            // this CANNOT work, we already imported before
-//            csarId = this.storage.storeCSAR(tempFile);
-//        }
-//        catch (UserException | SystemException e) {
-//            logger.error("Failed to store CSAR: {}", e.getMessage(), e);
-//            return Response.serverError().build();
-//        }
-
-        final Importer planBuilderImporter = new Importer();
-        final List<AbstractPlan> buildPlans = planBuilderImporter.importDefs(csarId.toOldCsarId());
-        if (!buildPlans.isEmpty()) {
-            final Exporter planBuilderExporter = new Exporter();
-            final File plannedCsarArchive = planBuilderExporter.export(buildPlans, csarId.toOldCsarId());
-            // reimport the already stored csar 
+        this.controlService.invokeToscaProcessing(csarId);
+        if (ModelUtil.hasOpenRequirements(storage.findById(csarId))) {
+            final WineryConnector wc = new WineryConnector();
+            if (wc.isWineryRepositoryAvailable()) {
+                QName serviceTemplate = null;
+                try {
+                    serviceTemplate = wc.uploadCSAR(tempFile.toFile());
+                }
+                catch (URISyntaxException | IOException e) {
+                    logger.warn("Failed to upload CSAR to winery repository to satisfy missing requirements", e);
+                }
+                this.controlService.deleteCsar(csarId);
+                if (serviceTemplate == null) { return Response.serverError().build(); }
+                return Response.notAcceptable(Collections.emptyList())
+                    .entity("{ \"Location\": \"" + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }")
+                    .build();
+            } else {
+                logger.error("CSAR has open requirements, but Winery repository is not available");
+                try {
+                    this.storage.deleteCSAR(csarId);
+                } catch (Exception log) {
+                    logger.warn("Failed to delete CSAR [{}] with open requirements on import", csarId.csarName());
+                }
+                return Response.serverError().build();
+            }
         }
+        
+//        csarService.generatePlans(csarId);
+
 //        CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
 //        if (plannedCsar == null) {
 //            return Response.serverError().build();
@@ -360,7 +346,7 @@ public class CsarController {
     @ApiOperation(value = "Deletes a CSAR file", response = Response.class)
     public Response delete(@ApiParam("CSAR id") @PathParam("csar") final String id) {
         final Csar csarContent = storage.findById(new CsarId(id));
-
+        
         logger.info("Deleting CSAR \"{}\"", id);
         final List<String> errors = this.controlService.deleteCSAR(csarContent.id().toOldCsarId());
 
@@ -369,23 +355,26 @@ public class CsarController {
             errors.forEach(s -> logger.error(s));
             return Response.serverError().build();
         }
-
         return Response.noContent().build();
     }
 
     public void setCsarService(final CsarService csarService) {
+        logger.debug("Binding CsarService");
         this.csarService = csarService;
     }
 
     public void setStorageService(final CsarStorageService storageService) {
+        logger.debug("Binding CsarStorageService");
         this.storage = storageService;
     }
 
     public void setEngineService(final IToscaEngineService engineService) {
+        logger.debug("Binding ToscaEngineService");
         this.engineService = engineService;
     }
 
     public void setControlService(final IOpenToscaControlService controlService) {
+        logger.debug("Binding ToscaControlService");
         this.controlService = controlService;
     }
 }

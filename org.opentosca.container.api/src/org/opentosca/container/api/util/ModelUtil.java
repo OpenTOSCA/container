@@ -6,9 +6,18 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.model.tosca.RelationshipSourceOrTarget;
+import org.eclipse.winery.model.tosca.TNodeTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate;
+import org.eclipse.winery.model.tosca.TRelationshipTemplate.SourceOrTargetElement;
+import org.eclipse.winery.model.tosca.TRequirement;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
+import org.eclipse.winery.model.tosca.TTopologyTemplate;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,6 +26,32 @@ import org.w3c.dom.NodeList;
 
 public abstract class ModelUtil {
 
+    public static boolean hasOpenRequirements(final Csar csar) {
+        TServiceTemplate serviceTemplate = csar.entryServiceTemplate();
+        TTopologyTemplate topology = serviceTemplate.getTopologyTemplate();
+        
+        List<TNodeTemplate> nodeTemplates = topology.getNodeTemplates();
+        List<TRelationshipTemplate> relationshipTemplates = topology.getRelationshipTemplates();
+        
+        for (final TNodeTemplate nodeTemplate : nodeTemplates) {
+            final List<TRequirement> nodeTemplateRequirements = nodeTemplate.getRequirements().getRequirement();
+            int foundRelations = 0;
+            for (final TRelationshipTemplate relationship : relationshipTemplates) {
+                RelationshipSourceOrTarget src = relationship.getSourceElement().getRef();
+                RelationshipSourceOrTarget target = relationship.getTargetElement().getRef();
+                if ((src instanceof TNodeTemplate && nodeTemplate.equals((TNodeTemplate)src))
+                    || (target instanceof TNodeTemplate && nodeTemplate.equals((TNodeTemplate)target))) {
+                    foundRelations++;
+                }
+            }
+            
+            if (foundRelations < nodeTemplateRequirements.size()) { 
+                return true;
+            }
+        }
+        return false;
+    }
+    
     // FIXME move onto IToscaEngineService? Only makes sense in 
     public static boolean hasOpenRequirements(final CSARID csarId,
                                               final IToscaEngineService service) throws UserException, SystemException {
