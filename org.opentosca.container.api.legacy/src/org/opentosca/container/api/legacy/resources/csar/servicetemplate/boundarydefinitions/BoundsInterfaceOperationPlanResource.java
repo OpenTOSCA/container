@@ -69,21 +69,7 @@ public class BoundsInterfaceOperationPlanResource {
             ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                .getBoundaryPlanOfCSARInterface(this.csarID, this.intName, this.opName).getLocalPart();
 
-        final TPlan plan = this.getPlan(planName);
-
-        // if
-        // (plan.getPlanType().startsWith("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"))
-        // {
-        // plan.getAny().add(new
-        // Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-        // getPostPath(uriInfo, true)), XLinkConstants.REFERENCE,
-        // "PlanPostURL").toXml());
-        // } else {
-        // plan.getAny().add((new
-        // Reference(Utilities.buildURI(uriInfo.getAbsolutePath().toString(),
-        // getPostPath(uriInfo, false)), XLinkConstants.REFERENCE,
-        // "PlanPostURL").toXml()));
-        // }
+        final TPlan plan = getPlan(planName);
 
         return ToscaServiceHandler.getIXMLSerializer().createJAXBElement(plan);
     }
@@ -117,15 +103,15 @@ public class BoundsInterfaceOperationPlanResource {
             ToscaServiceHandler.getToscaEngineService().getToscaReferenceMapper()
                                .getBoundaryPlanOfCSARInterface(this.csarID, this.intName, this.opName).getLocalPart();
 
-        final TPlan plan = this.getPlan(planName);
+        final TPlan plan = getPlan(planName);
 
         final JsonObject json = new JsonObject();
 
         if (plan.getPlanType().startsWith("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan")) {
-            final URI url = uriInfo.getBaseUriBuilder().path(this.getPostPath()).build();
+            final URI url = uriInfo.getBaseUriBuilder().path(getPostPath()).build();
             json.add("Reference", new Reference(url.toString(), XLinkConstants.REFERENCE, "PlanPostURL").toJson());
         } else {
-            final URI url = uriInfo.getBaseUriBuilder().path(this.getPostPath()).build();
+            final URI url = uriInfo.getBaseUriBuilder().path(getPostPath()).build();
             json.add("Reference",
                      new Reference(url.toString() + "/{instanceId}", XLinkConstants.REFERENCE, "PlanPostURL").toJson());
         }
