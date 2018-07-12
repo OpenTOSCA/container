@@ -54,6 +54,10 @@ public class RootController {
         links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
         links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
 
+        // Link to plan builder resources
+        links.add(Link.fromUriBuilder(this.uriInfo.getBaseUriBuilder().path("containerapi").path("planbuilder"))
+                      .rel("planbuilder").baseUri(this.uriInfo.getBaseUri()).build());
+
         return Response.ok(links).build();
     }
 }
