@@ -17,6 +17,7 @@ import org.opentosca.bus.management.service.impl.ManagementBusServiceImpl;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
+import org.opentosca.bus.management.service.impl.collaboration.route.ReceiveRequestRoute;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -25,7 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO<br>
+ * This class provides methods which can be invoked by remote OpenTOSCA Containers. The methods are
+ * consumer endpoints of the collaboration request route ({@link ReceiveRequestRoute}).<br>
  * <br>
  *
  * Copyright 2018 IAAS University of Stuttgart <br>
@@ -218,9 +220,11 @@ public class RequestReceiver {
      * Undeploy the IA that is specified in the incoming exchange by using the Management Bus
      * deployment Plug-ins.
      *
+     * TODO: test
+     *
      * @param exchange the exchange containing the needed information as header fields
      */
-    public void invokeIAUndeployment(final Exchange exchange) {
+    public void invokeIAUndeployment(Exchange exchange) {
 
         RequestReceiver.LOG.debug("Received remote operation call for IA undeployment.");
         final Message message = exchange.getIn();
@@ -236,15 +240,66 @@ public class RequestReceiver {
                 final String identifier = getUniqueSynchronizationString(message);
                 if (identifier != null) {
 
-                    final boolean undeploymentState = false;
+                    boolean undeploymentState = false;
+
+                    // retrieve needed data from the headers
+                    final String triggeringContainer =
+                        message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
+                    final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+                    final QName nodeTypeImplementationID =
+                        message.getHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+                    final String implementationArtifactName =
+                        message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
+                    final String artifactType =
+                        message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
+
+                    RequestReceiver.LOG.debug("Undeployment of IA: Triggering Container: {}, Deployment location: {}, NodeTypeImplementation ID: {}, IA name: {}, Type: {}",
+                                              triggeringContainer, deploymentLocation, nodeTypeImplementationID,
+                                              implementationArtifactName, artifactType);
 
                     // Prevent two threads from trying to deploy the same IA
                     // concurrently and avoid the deletion of an IA after
                     // successful checking that an IA is already deployed.
                     synchronized (ManagementBusServiceImpl.getLockForString(identifier)) {
-                        // TODO: implement IA undeployment via deployment plug-ins and delete
-                        // endpoint
+
+                        RequestReceiver.LOG.debug("Got lock for operations on the given IA. Getting endpoints fot the IA...");
+
+                        // get all endpoints for the given parameters
+                        final List<WSDLEndpoint> endpoints =
+                            ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
+                                                                                              deploymentLocation,
+                                                                                              nodeTypeImplementationID,
+                                                                                              implementationArtifactName);
+
+                        if (endpoints != null && endpoints.size() > 0) {
+
+                            // There should be just one endpoint, because the 'master' Container
+                            // sends only one deployment request per IA and intercepts all other
+                            // deployment actions if there is already an endpoint.
+                            final WSDLEndpoint endpoint = endpoints.get(0);
+                            ServiceHandler.endpointService.removeWSDLEndpoint(endpoint);
+
+                            final IManagementBusDeploymentPluginService deploymentPlugin =
+                                ServiceHandler.deploymentPluginServices.get(artifactType);
+
+                            if (deploymentPlugin != null) {
+
+                                RequestReceiver.LOG.debug("Undeploying IA...");
+
+                                exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
+                                undeploymentState =
+                                    exchange.getIn().getHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(),
+                                                               boolean.class);
+                            } else {
+                                RequestReceiver.LOG.error("No matching plug-in found. Aborting deployment!");
+                            }
+                        } else {
+                            RequestReceiver.LOG.error("No enpoint found for this IA. Undeployment not possible!");
+                        }
                     }
+
+                    RequestReceiver.LOG.debug("Sending response message containing undeployment state: {}",
+                                              undeploymentState);
 
                     // add the undeployment state as operation result to the headers
                     headers.put(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), undeploymentState);
@@ -253,7 +308,7 @@ public class RequestReceiver {
                     final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);
                     Activator.producer.sendBodyAndHeaders("direct:SendMQTT", replyBody, headers);
                 } else {
-                    RequestReceiver.LOG.error("Request does not contain all needed header fields to deploy the IA. Aborting operation!");
+                    RequestReceiver.LOG.error("Request does not contain all needed header fields to undeploy the IA. Aborting operation!");
                 }
             } else {
                 RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
@@ -264,7 +319,9 @@ public class RequestReceiver {
     }
 
     /**
-     * TODO
+     * Invoke an IA which is managed by this OpenTOSCA Container based on the request of another
+     * Container. The request contains all needed input parameters and the endpoint of the invoked
+     * IA.
      *
      * @param exchange the exchange containing the needed information as headers and body
      */
