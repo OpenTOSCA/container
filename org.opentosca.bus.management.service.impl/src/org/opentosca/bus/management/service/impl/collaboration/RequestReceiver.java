@@ -162,16 +162,13 @@ public class RequestReceiver {
 
                         if (endpoints != null && endpoints.size() > 0) {
 
+                            // This case should not happen, as the 'master' Container sends only one
+                            // deployment request per IA and intercepts all other deployment actions
+                            // if there is already an endpoint.
                             endpointURI = endpoints.get(0).getURI();
 
-                            RequestReceiver.LOG.debug("IA is already deployed. Endpoint URI: {}. Storing new endpoint for this ServiceTemplateInstance.",
-                                                      endpointURI);
-
-                            // store new endpoint for the IA
-                            final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType, triggeringContainer,
-                                deploymentLocation, csarID, serviceTemplateInstanceID, null, nodeTypeImplementationID,
-                                implementationArtifactName);
-                            ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
+                            RequestReceiver.LOG.warn("IA is already deployed. Storing only one endpoint at the remote side. Endpoint URI: {}",
+                                                     endpointURI);
                         } else {
                             RequestReceiver.LOG.debug("IA not yet deployed. Trying to deploy...");
 
@@ -273,9 +270,7 @@ public class RequestReceiver {
 
                         if (endpoints != null && endpoints.size() > 0) {
 
-                            // There should be just one endpoint, because the 'master' Container
-                            // sends only one deployment request per IA and intercepts all other
-                            // deployment actions if there is already an endpoint.
+                            // only one endpoint is stored for remote IAs
                             final WSDLEndpoint endpoint = endpoints.get(0);
                             ServiceHandler.endpointService.removeWSDLEndpoint(endpoint);
 
