@@ -17,7 +17,20 @@ public abstract class AbstractPlan {
 
     // general categories
     public enum PlanType {
-        BUILD, MANAGE, TERMINATE
+        BUILD, MANAGE, TERMINATE;
+
+        public String getString() {
+            switch (this) {
+                case BUILD:
+                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
+                case TERMINATE:
+                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
+                default:
+                    // every other plan is a management plan
+                case MANAGE:
+                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan";
+            }
+        }
     }
 
     public static class Link {

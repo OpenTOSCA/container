@@ -7,18 +7,24 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.json.simple.JSONObject;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
@@ -147,74 +153,80 @@ public class TaskWorkerRunnable implements Runnable {
             return;
         }
 
-        // write to tmp dir, only generating one plan
-        final File planTmpFile = Util.writePlan2TmpFolder((BPELPlan) buildPlans.get(0));
+        this.state.currentState = PlanGenerationStates.PLANSGENERATED;
+        this.state.currentMessage = "Stored and generated Plans";
+        LOG.debug("Stored and generated Plans");
 
-        this.state.currentState = PlanGenerationStates.PLANGENERATED;
-        this.state.currentMessage = "Stored and generated Plan";
-        LOG.debug("Stored and generated Plan");
+        final Map<BPELPlan, File> plansToUpload = new HashMap<>();
 
-        // send plan back
-        final MultipartEntity mpEntity = new MultipartEntity();
-
-        try {
-            mpEntity.addPart("planName", new StringBody(planTmpFile.getName()));
-            mpEntity.addPart("planType",
-                             new StringBody("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"));
-            mpEntity.addPart("planLanguage",
-                             new StringBody("http://docs.oasis-open.org/wsbpel/2.0/process/executable"));
-        }
-        catch (final UnsupportedEncodingException e1) {
-            this.state.currentState = PlanGenerationStates.PLANGENERATIONFAILED;
-            this.state.currentMessage = "Couldn't generate Upload request to PLANPOSTURL";
-            Util.deleteCSAR(csarId);
-            LOG.error("Couldn't generate Upload request to PLANPOSTURL");
-            return;
+        for (final AbstractPlan buildPlan : buildPlans) {
+            final File planTmpFile = Util.writePlan2TmpFolder((BPELPlan) buildPlan);
+            plansToUpload.put((BPELPlan) buildPlan, planTmpFile);
         }
 
-        final FileBody bin = new FileBody(planTmpFile);
-        final ContentBody cb = bin;
-        mpEntity.addPart("file", cb);
+        LOG.debug("Plans to upload: " + buildPlans.size());
 
-        try {
+        for (final AbstractPlan buildPlan : plansToUpload.keySet()) {
 
-            this.state.currentState = PlanGenerationStates.PLANSENDING;
-            this.state.currentMessage = "Sending Plan";
-            LOG.debug("Sending Plan");
 
-            final HttpResponse uploadResponse = openToscaHttpService.Post(this.state.getPostUrl().toString(), mpEntity);
-            if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
+            // write to tmp dir, only generating one plan
+            final File planTmpFile = plansToUpload.get(buildPlan);
+
+            final JSONObject obj = new JSONObject();
+
+            obj.put("name", buildPlan.getId());
+
+            obj.put("planType", buildPlan.getType().getString());
+
+            obj.put("planLanguage", ((BPELPlan) buildPlan).bpelNamespace);
+
+            // BUILD("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"),
+            // OTHERMANAGEMENT("undefined or custom management plan"), APPLICATION("http://www.opentosca.org"),
+            // TERMINATION("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
+
+            final HttpEntity ent =
+                EntityBuilder.create().setText(obj.toJSONString()).setContentType(ContentType.APPLICATION_JSON).build();
+
+            HttpResponse createPlanResponse = null;
+            try {
+                createPlanResponse = openToscaHttpService.Post(getState().getPostUrl().toString(), ent);
+
+            }
+            catch (final ClientProtocolException e2) {
+
                 // we assume ,if the status code ranges from 300 to 5xx , that
                 // an error occured
                 this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
                 this.state.currentMessage =
-                    "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
+                    "Couldn't send plan. Server send status " + createPlanResponse.getStatusLine().getStatusCode();
                 Util.deleteCSAR(csarId);
-                LOG.error("Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode());
+                LOG.error("Couldn't send plan. Server send status "
+                    + createPlanResponse.getStatusLine().getStatusCode());
                 return;
-            } else {
-                // still need to send the parameters
+            }
+            catch (final IOException e2) {
+                this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+                this.state.currentMessage =
+                    "Couldn't send plan. Server send status " + createPlanResponse.getStatusLine().getStatusCode();
+                Util.deleteCSAR(csarId);
+                LOG.error("Couldn't send plan. Server send status "
+                    + createPlanResponse.getStatusLine().getStatusCode());
+                return;
+            }
 
-                // fetch location header from plan upload response
-                final org.apache.http.Header locationHeader = uploadResponse.getHeaders("Location")[0];
-                String planLocation = "";
+            final org.apache.http.Header planLocationHeader = createPlanResponse.getHeaders("Location")[0];
 
-                if (locationHeader == null) {
-                    // no location header sent back, construct inputParam url
-                    planLocation = this.state.getPostUrl() + planTmpFile.getName();
-                } else {
-                    planLocation = locationHeader.getValue();
-                }
+            final String planLocation = planLocationHeader.getValue();
 
-                final BPELPlan buildPlan = (BPELPlan) buildPlans.get(0);
-                /*
-                 * http://localhost:8080/winery/servicetemplates/http%253A%252F% 252F example
-                 * .com%252Fhello/HelloAppTest/plans/HelloAppTest_buildPlan
-                 * .zip/inputparameters/?name=test&required=on&type=String *
-                 */
 
-                // post the parameters
-                for (final String inputParam : buildPlan.getWsdl().getInputMessageLocalNames()) {
+
+            try {
+
+                this.state.currentState = PlanGenerationStates.PLANSENDING;
+                this.state.currentMessage = "Sending Plan";
+                LOG.debug("Sending Plan");
+
+                for (final String inputParam : ((BPELPlan) buildPlan).getWsdl().getInputMessageLocalNames()) {
                     final String inputParamPostUrl = planLocation + "/inputparameters/";
 
                     final List<NameValuePair> params = new ArrayList<>();
@@ -241,7 +253,8 @@ public class TaskWorkerRunnable implements Runnable {
                     LOG.debug("Sent inputParameter " + inputParam);
                 }
 
-                for (final String outputParam : buildPlan.getWsdl().getOuputMessageLocalNames()) {
+                // FIXME Move OutputParams into AbstractPlans
+                for (final String outputParam : ((BPELPlan) buildPlan).getWsdl().getOuputMessageLocalNames()) {
                     final String outputParamPostUrl = planLocation + "/outputparameters/";
 
                     final List<NameValuePair> params = new ArrayList<>();
@@ -268,106 +281,132 @@ public class TaskWorkerRunnable implements Runnable {
                     LOG.debug("Sent outputParameter " + outputParam);
                 }
 
-                this.state.currentState = PlanGenerationStates.PLANSENT;
+                // send file
+                final MultipartEntity mpEntity = new MultipartEntity();
+
+                final FileBody bin = new FileBody(planTmpFile);
+                final ContentBody cb = bin;
+                mpEntity.addPart("file", cb);
+
+                final HttpResponse uploadResponse = openToscaHttpService.Put(planLocation + "/file", mpEntity);
+                if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
+                    // we assume ,if the status code ranges from 300 to 5xx , that
+                    // an error occured
+                    this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+                    this.state.currentMessage =
+                        "Couldn't send plan. Server send status " + uploadResponse.getStatusLine().getStatusCode();
+                    Util.deleteCSAR(csarId);
+                    LOG.error("Couldn't send plan. Server send status "
+                        + uploadResponse.getStatusLine().getStatusCode());
+                    return;
+                }
+
+
+                try {
+                    LOG.debug("Starting to send Options");
+                    this.state.currentState = PlanGenerationStates.OPTIONSENDING;
+                    this.state.currentMessage = "Sending SelfService Option";
+
+                    final URL optionsUrl = new URL(this.state.getCsarUrl(), "selfserviceportal/options/");
+                    LOG.debug("Sending options to " + optionsUrl.toString());
+
+                    final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) buildPlan);
+
+                    // send plan back
+                    final MultipartEntity mpOptionEntity = new MultipartEntity();
+
+                    try {
+                        mpOptionEntity.addPart("name", new StringBody(option.option.getName()));
+                        mpOptionEntity.addPart("description", new StringBody(option.option.getDescription()));
+                        mpOptionEntity.addPart("planServiceName", new StringBody(option.option.getPlanServiceName()));
+                        mpOptionEntity.addPart("planInputMessage",
+                                               new StringBody(FileUtils.readFileToString(option.planInputMessageFile)));
+                    }
+                    catch (final UnsupportedEncodingException e1) {
+                        this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
+                        this.state.currentMessage = "Couldn't generate option to send to winery";
+                        Util.deleteCSAR(csarId);
+                        LOG.error("Couldn't generate option request to " + optionsUrl.toString());
+                        return;
+                    }
+
+                    // TODO here we should send a default image, instead of the
+                    // message..
+                    final FileBody fileBody = new FileBody(option.planInputMessageFile);
+                    final ContentBody contentBody = fileBody;
+                    mpOptionEntity.addPart("file", contentBody);
+
+                    final HttpResponse optionsResponse =
+                        openToscaHttpService.Post(optionsUrl.toString(), mpOptionEntity);
+
+                    if (optionsResponse.getStatusLine().getStatusCode() >= 300) {
+                        // we assume ,if the status code ranges from 300 to 5xx , that
+                        // an error occured
+                        this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
+                        this.state.currentMessage = "Couldn't send option to winery. Response: \n  StatusCode: "
+                            + optionsResponse.getStatusLine().getStatusCode() + " \n Reason Phrase: \n"
+                            + optionsResponse.getStatusLine().getReasonPhrase();
+                        Util.deleteCSAR(csarId);
+                        return;
+                    } else {
+                        this.state.currentState = PlanGenerationStates.OPTIONSENT;
+                        this.state.currentMessage = "Sent option. Everythings okay.";
+
+
+                    }
+                }
+                catch (final MalformedURLException e) {
+                    this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
+                    this.state.currentMessage = "Couldn't send option to winery.";
+                    Util.deleteCSAR(csarId);
+                    return;
+                }
+                catch (final IOException e) {
+                    this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
+                    this.state.currentMessage = "Couldn't send option to winery.";
+                    Util.deleteCSAR(csarId);
+                    return;
+                }
+
+
+
+                this.state.currentState = PlanGenerationStates.PLANSSENT;
                 this.state.currentMessage = "Sent plan.";
                 LOG.debug("Sent plan.");
             }
-        }
-        catch (final ClientProtocolException e) {
-            this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-            this.state.currentMessage = "Couldn't send plan.";
-            Util.deleteCSAR(csarId);
-            LOG.error("Couldn't send plan.");
-            return;
-        }
-        catch (final IOException e) {
-            this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-            this.state.currentMessage = "Couldn't send plan.";
-            Util.deleteCSAR(csarId);
-            LOG.error("Couldn't send plan.");
-            return;
-        }
-
-        // TODO send self-service option
-
-        /*
-         * @FormDataParam("name") String name,
-         *
-         * @FormDataParam("description") String description,
-         *
-         * @FormDataParam("planServiceName") String planServiceName,
-         *
-         * @FormDataParam("planInputMessage") String planInputMessage,
-         *
-         * @FormDataParam("file") InputStream uploadedInputStream,
-         *
-         * @FormDataParam("file") FormDataContentDisposition fileDetail,
-         *
-         * @FormDataParam("file") FormDataBodyPart body
-         */
-        try {
-            LOG.debug("Starting to send Options");
-            this.state.currentState = PlanGenerationStates.OPTIONSENDING;
-            this.state.currentMessage = "Sending SelfService Option";
-
-            final URL optionsUrl = new URL(this.state.getCsarUrl(), "selfserviceportal/options/");
-            LOG.debug("Sending options to " + optionsUrl.toString());
-
-            final SelfServiceOptionWrapper option = Util.generateSelfServiceOption((BPELPlan) buildPlans.get(0));
-
-            // send plan back
-            final MultipartEntity mpOptionEntity = new MultipartEntity();
-
-            try {
-                mpOptionEntity.addPart("name", new StringBody(option.option.getName()));
-                mpOptionEntity.addPart("description", new StringBody(option.option.getDescription()));
-                mpOptionEntity.addPart("planServiceName", new StringBody(option.option.getPlanServiceName()));
-                mpOptionEntity.addPart("planInputMessage",
-                                       new StringBody(FileUtils.readFileToString(option.planInputMessageFile)));
-            }
-            catch (final UnsupportedEncodingException e1) {
-                this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-                this.state.currentMessage = "Couldn't generate option to send to winery";
+            catch (final ClientProtocolException e) {
+                this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+                this.state.currentMessage = "Couldn't send plan.";
                 Util.deleteCSAR(csarId);
-                LOG.error("Couldn't generate option request to " + optionsUrl.toString());
+                LOG.error("Couldn't send plan.");
+                return;
+            }
+            catch (final IOException e) {
+                this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
+                this.state.currentMessage = "Couldn't send plan.";
+                Util.deleteCSAR(csarId);
+                LOG.error("Couldn't send plan.");
                 return;
             }
 
-            // TODO here we should send a default image, instead of the
-            // message..
-            final FileBody fileBody = new FileBody(option.planInputMessageFile);
-            final ContentBody contentBody = fileBody;
-            mpOptionEntity.addPart("file", contentBody);
-
-            final HttpResponse optionsResponse = openToscaHttpService.Post(optionsUrl.toString(), mpOptionEntity);
-
-            if (optionsResponse.getStatusLine().getStatusCode() >= 300) {
-                // we assume ,if the status code ranges from 300 to 5xx , that
-                // an error occured
-                this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-                this.state.currentMessage = "Couldn't send option to winery. Response: \n  StatusCode: "
-                    + optionsResponse.getStatusLine().getStatusCode() + " \n Reason Phrase: \n"
-                    + optionsResponse.getStatusLine().getReasonPhrase();
-                Util.deleteCSAR(csarId);
-                return;
-            } else {
-                this.state.currentState = PlanGenerationStates.OPTIONSENT;
-                this.state.currentMessage = "Sent option. Everythings okay.";
-                Util.deleteCSAR(csarId);
-                return;
-            }
-        }
-        catch (final MalformedURLException e) {
-            this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-            this.state.currentMessage = "Couldn't send option to winery.";
+            /*
+             * @FormDataParam("name") String name,
+             *
+             * @FormDataParam("description") String description,
+             *
+             * @FormDataParam("planServiceName") String planServiceName,
+             *
+             * @FormDataParam("planInputMessage") String planInputMessage,
+             *
+             * @FormDataParam("file") InputStream uploadedInputStream,
+             *
+             * @FormDataParam("file") FormDataContentDisposition fileDetail,
+             *
+             * @FormDataParam("file") FormDataBodyPart body
+             */
+            this.state.currentState = PlanGenerationStates.FINISHED;
+            this.state.currentMessage = "Plans where successfully sent.";
             Util.deleteCSAR(csarId);
-            return;
-        }
-        catch (final IOException e) {
-            this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
-            this.state.currentMessage = "Couldn't send option to winery.";
-            Util.deleteCSAR(csarId);
-            return;
         }
     }
 }
