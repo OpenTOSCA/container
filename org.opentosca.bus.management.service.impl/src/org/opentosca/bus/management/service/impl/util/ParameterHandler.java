@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.opentosca.bus.management.service.impl.ManagementBusServiceImpl;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
@@ -32,7 +31,7 @@ import org.w3c.dom.NodeList;
  */
 public class ParameterHandler {
 
-    private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
+    private final static Logger LOG = LoggerFactory.getLogger(ParameterHandler.class);
 
     /**
      * Updates missing input parameters with instance data. The provided input parameters have

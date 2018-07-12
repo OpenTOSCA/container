@@ -3,7 +3,7 @@
     xmlns:ns="http://collaboration.org/schema" attributeFormDefault="qualified"
     elementFormDefault="qualified" targetNamespace="http://collaboration.org/schema">
     <xs:complexType name="KeyValueType">
-		<xs:sequence>
+        <xs:sequence>
             <xs:element name="Key" type="xs:string" />
             <xs:element name="Value" type="xs:string" />
         </xs:sequence>
