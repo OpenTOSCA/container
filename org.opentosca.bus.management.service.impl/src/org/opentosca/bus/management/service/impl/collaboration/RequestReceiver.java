@@ -183,6 +183,12 @@ public class RequestReceiver {
                                 // execute deployment via corresponding plug-in
                                 exchange = deploymentPlugin.invokeImplementationArtifactDeployment(exchange);
                                 endpointURI = exchange.getIn().getHeader(MBHeader.ENDPOINT_URI.toString(), URI.class);
+
+                                // store new endpoint for the IA
+                                final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType,
+                                    triggeringContainer, deploymentLocation, csarID, serviceTemplateInstanceID, null,
+                                    nodeTypeImplementationID, implementationArtifactName);
+                                ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
                             } else {
                                 RequestReceiver.LOG.error("No matching deployment plug-in found. Aborting deployment!");
                             }

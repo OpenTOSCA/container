@@ -2,12 +2,9 @@ package org.opentosca.bus.management.deployment.plugin.remote;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.camel.ConsumerTemplate;
@@ -38,16 +35,6 @@ import org.slf4j.LoggerFactory;
 public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploymentPluginService {
 
     static final private Logger LOG = LoggerFactory.getLogger(ManagementBusDeploymentPluginRemote.class);
-
-    // all header fields that have to be passed to the other Container
-    static final private HashSet<String> neededHeaders = new HashSet<>(
-        Arrays.asList(MBHeader.ARTIFACTREFERENCES_LISTSTRING.toString(),
-                      MBHeader.ARTIFACTSERVICEENDPOINT_STRING.toString(), MBHeader.ARTIFACTTYPEID_STRING.toString(),
-                      MBHeader.CSARID.toString(), MBHeader.DEPLOYMENTLOCATION_STRING.toString(),
-                      MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(),
-                      MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(),
-                      MBHeader.TRIGGERINGCONTAINER_STRING.toString(), MBHeader.SERVICEINSTANCEID_URI.toString(),
-                      MBHeader.PORTTYPE_QNAME.toString()));
 
     @Override
     public Exchange invokeImplementationArtifactDeployment(final Exchange exchange) {
@@ -120,21 +107,21 @@ public class ManagementBusDeploymentPluginRemote implements IManagementBusDeploy
         // create an unique correlation ID for the request
         final String correlationID = UUID.randomUUID().toString();
 
-        // create header fields to forward the deployment requests
         final Map<String, Object> requestHeaders = new HashMap<>();
+
+        // add header fields of the incoming message to the outgoing message
+        for (final MBHeader header : MBHeader.values()) {
+            if (message.getHeader(header.toString()) != null) {
+                requestHeaders.put(header.toString(), message.getHeader(header.toString()));
+            }
+        }
+
+        // create header fields to forward the deployment requests
         requestHeaders.put(MBHeader.MQTTBROKERHOSTNAME_STRING.toString(), Constants.LOCAL_MQTT_BROKER);
         requestHeaders.put(MBHeader.MQTTTOPIC_STRING.toString(), Constants.REQUEST_TOPIC);
         requestHeaders.put(MBHeader.CORRELATIONID_STRING.toString(), correlationID);
         requestHeaders.put(MBHeader.REPLYTOTOPIC_STRING.toString(), Constants.RESPONSE_TOPIC);
         requestHeaders.put(MBHeader.REMOTEOPERATION_STRING.toString(), operation);
-
-        // add header fields of the incoming exchange to the outgoing message
-        for (final Entry<String, Object> entry : message.getHeaders().entrySet()) {
-            // only add needed headers to keep the MQTT message small
-            if (neededHeaders.contains(entry.getKey())) {
-                requestHeaders.put(entry.getKey(), entry.getValue());
-            }
-        }
 
         ManagementBusDeploymentPluginRemote.LOG.debug("Publishing request to MQTT broker at {} with topic {} and correlation ID {}",
                                                       Constants.LOCAL_MQTT_BROKER, Constants.REQUEST_TOPIC,
