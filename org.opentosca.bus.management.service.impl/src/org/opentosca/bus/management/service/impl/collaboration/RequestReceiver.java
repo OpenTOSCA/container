@@ -75,7 +75,9 @@ public class RequestReceiver {
                                           properties.toString());
 
                 // perform instance data matching
-                if (DeploymentDistributionDecisionMaker.performInstanceDataMatching(nodeType, properties)) {
+                final String deploymentLocation =
+                    DeploymentDistributionDecisionMaker.performInstanceDataMatching(nodeType, properties);
+                if (deploymentLocation != null) {
                     RequestReceiver.LOG.debug("Instance data matching was successful. Sending response to requestor...");
                     RequestReceiver.LOG.debug("Broker: {} Topic: {} Correlation: {}",
                                               headers.get(MBHeader.MQTTBROKERHOSTNAME_STRING.toString()),
@@ -83,7 +85,7 @@ public class RequestReceiver {
                                               headers.get(MBHeader.CORRELATIONID_STRING.toString()));
 
                     // add the deployment location as operation result to the headers
-                    headers.put(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    headers.put(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
 
                     // create empty reply message and transmit it with the headers
                     final CollaborationMessage replyBody = new CollaborationMessage(new KeyValueMap(), null);

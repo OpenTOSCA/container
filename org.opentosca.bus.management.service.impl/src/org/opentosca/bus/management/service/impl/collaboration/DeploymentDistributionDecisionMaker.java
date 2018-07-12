@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.xml.namespace.QName;
@@ -127,29 +128,32 @@ public class DeploymentDistributionDecisionMaker {
 
                 // match NodeType and properties against local instance data
                 DeploymentDistributionDecisionMaker.LOG.debug("Performing local instance data matching...");
-                if (performInstanceDataMatching(infrastructureNodeType, infrastructureProperties)) {
-                    DeploymentDistributionDecisionMaker.LOG.debug("Found matching local instance data. Deployment will be done locally.");
+                String deploymentLocation =
+                    performInstanceDataMatching(infrastructureNodeType, infrastructureProperties);
+                if (deploymentLocation != null) {
+                    DeploymentDistributionDecisionMaker.LOG.debug("Found matching local instance data. Deployment will be done at: {}",
+                                                                  deploymentLocation);
 
-                    // infrastructure and current instance are both managed locally
-                    infrastructureNodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
-                    nodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    // set property to speed up future matching
+                    infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
+                    nodeTemplateInstance.setManagingContainer(deploymentLocation);
 
-                    return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
+                    return deploymentLocation;
                 }
 
                 // match against instance data at remote OpenTOSCA Containers
                 DeploymentDistributionDecisionMaker.LOG.debug("Local instance data matching had no success. Performing matching with remote instance data...");
-                final String remoteLocation =
+                deploymentLocation =
                     performRemoteInstanceDataMatching(infrastructureNodeType, infrastructureProperties);
-                if (remoteLocation != null) {
+                if (deploymentLocation != null) {
                     DeploymentDistributionDecisionMaker.LOG.debug("Found matching remote instance data. Deployment will be done on OpenTOSCA Container with host name: {}",
-                                                                  remoteLocation);
+                                                                  deploymentLocation);
 
-                    // infrastructure and current instance are both managed by a remote Container
-                    infrastructureNodeTemplateInstance.setManagingContainer(remoteLocation);
-                    nodeTemplateInstance.setManagingContainer(remoteLocation);
+                    // set property to speed up future matching
+                    infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
+                    nodeTemplateInstance.setManagingContainer(deploymentLocation);
 
-                    return remoteLocation;
+                    return deploymentLocation;
                 }
 
                 DeploymentDistributionDecisionMaker.LOG.debug("Remote instance data matching had no success. Returning local host name as default deployment location.");
@@ -220,10 +224,13 @@ public class DeploymentDistributionDecisionMaker {
      *        matched
      * @return <tt>true</tt> if a matching NodeTemplateInstance is found, <tt>false</tt> otherwise.
      */
-    protected static boolean performInstanceDataMatching(final QName infrastructureNodeType,
-                                                         final Map<String, String> infrastructureProperties) {
+    protected static String performInstanceDataMatching(final QName infrastructureNodeType,
+                                                        final Map<String, String> infrastructureProperties) {
 
         if (infrastructureNodeType != null) {
+
+            // get the infrastructure properties without 'state' property for comparison
+            final Set<Entry<String, String>> infrastructureEntrySet = getEntrySetWithoutState(infrastructureProperties);
 
             // retrieve all instances with matching type from instance data
             final Collection<NodeTemplateInstance> typeMatchingInstances =
@@ -234,8 +241,8 @@ public class DeploymentDistributionDecisionMaker {
                                                               typeMatchingInstance.getId());
 
                 // avoid matching with currently starting or already deleted NodeTemplateInstances
-                if (!typeMatchingInstance.getServiceTemplateInstance().getState()
-                                         .equals(ServiceTemplateInstanceState.DELETED)) {
+                if (typeMatchingInstance.getServiceTemplateInstance().getState()
+                                        .equals(ServiceTemplateInstanceState.CREATED)) {
                     if (typeMatchingInstance.getState().equals(NodeTemplateInstanceState.STARTED)) {
 
                         // get the build plan instance that belongs to this NodeTemplateInstance
@@ -249,36 +256,40 @@ public class DeploymentDistributionDecisionMaker {
                         }
 
                         // only match with NodeTemplateInstances for which the build process is
-                        // already finished (avoids self matching)
+                        // already finished
                         if (buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED)) {
 
-                            // Only match with NodeTemplateInstances which are managed by this
-                            // Container. It is managed by this Container if the corresponding
-                            // attribute is set accordingly. However, it is also managed by this
-                            // Container, if the corresponding attribute is null and the build plan
-                            // is finished. This means that there was no IA invocation in the build
-                            // plan and therefore also no remote deployment which means it is
-                            // managed locally. But this is a bit hacky at the moment...
-                            if (typeMatchingInstance.getManagingContainer() == null
-                                || typeMatchingInstance.getManagingContainer()
-                                                       .equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+                            DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
 
-                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
+                            // get the properties without 'state' property for comparison
+                            final Set<Entry<String, String>> matchingEntrySet =
+                                getEntrySetWithoutState(typeMatchingInstance.getPropertiesAsMap());
 
-                                final Map<String, String> matchingProperties =
-                                    typeMatchingInstance.getPropertiesAsMap();
+                            // match the two entry sets
+                            if (matchingEntrySet.equals(infrastructureEntrySet)) {
 
-                                // match the property maps
-                                if (matchingProperties.entrySet().equals(infrastructureProperties.entrySet())) {
+                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
 
-                                    DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
-                                    return true;
+                                // Check if the NodeTemplateInstances is managed by this Container.
+                                // It is managed by this Container if the corresponding attribute is
+                                // set accordingly. However, it is also managed by this Container,
+                                // if the corresponding attribute is null and the build plan
+                                // is finished. This means that there was no IA invocation in the
+                                // build plan and therefore also no remote deployment which means it
+                                // is managed locally. But this is a bit hacky at the moment...
+                                if (typeMatchingInstance.getManagingContainer() == null
+                                    || typeMatchingInstance.getManagingContainer()
+                                                           .equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+
+                                    DeploymentDistributionDecisionMaker.LOG.debug("Matched NodeTemplateInstance is managed locally!");
+                                    return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
                                 } else {
-                                    DeploymentDistributionDecisionMaker.LOG.debug("Properties have different entry sets.");
+                                    DeploymentDistributionDecisionMaker.LOG.debug("Matched NodeTemplateInstance is managed remotely: {}",
+                                                                                  typeMatchingInstance.getManagingContainer());
+                                    return typeMatchingInstance.getManagingContainer();
                                 }
                             } else {
-                                DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is managed by remote Container: {}",
-                                                                              typeMatchingInstance.getManagingContainer());
+                                DeploymentDistributionDecisionMaker.LOG.debug("Properties have different entry sets.");
                             }
                         } else {
                             DeploymentDistributionDecisionMaker.LOG.debug("No build plan instance found or not yet finished!");
@@ -288,13 +299,13 @@ public class DeploymentDistributionDecisionMaker {
                                                                       typeMatchingInstance.getState());
                     }
                 } else {
-                    DeploymentDistributionDecisionMaker.LOG.debug("Corresponding ServiceTemplateInstance is already deleted!");
+                    DeploymentDistributionDecisionMaker.LOG.debug("Corresponding ServiceTemplateInstance is not in state 'CREATED'!");
                 }
             }
         }
 
         // no matching found
-        return false;
+        return null;
     }
 
     /**
@@ -389,5 +400,31 @@ public class DeploymentDistributionDecisionMaker {
             DeploymentDistributionDecisionMaker.LOG.debug("No response received within the timeout interval.");
             return null;
         }
+    }
+
+    /**
+     * Remove the 'State' property from the given properties Map if it is defined and return the
+     * corresponding entry Set.
+     *
+     * @param properties the properties as Map
+     * @return the properties as entry Set without 'State' property
+     */
+    private static Set<Entry<String, String>> getEntrySetWithoutState(final Map<String, String> properties) {
+
+        final Set<Entry<String, String>> entrySet = properties.entrySet();
+
+        // remove 'state' property entry from the entry set if contained
+        if (properties.containsKey("State")) {
+            Entry<String, String> stateEntry = null;
+            for (final Entry<String, String> entry : entrySet) {
+                if (entry.getKey().equals("State")) {
+                    stateEntry = entry;
+                    break;
+                }
+            }
+            entrySet.remove(stateEntry);
+        }
+
+        return entrySet;
     }
 }
