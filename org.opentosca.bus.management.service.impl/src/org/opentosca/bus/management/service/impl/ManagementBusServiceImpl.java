@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
+import org.opentosca.bus.management.invocation.plugin.script.ManagementBusInvocationPluginScript;
 import org.opentosca.bus.management.service.IManagementBusService;
 import org.opentosca.bus.management.service.impl.collaboration.Constants;
 import org.opentosca.bus.management.service.impl.collaboration.DeploymentDistributionDecisionMaker;
@@ -263,7 +264,12 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                         // redirect invocation call to 'remote' plug-in if
                                         // deployment location is not the local Container
                                         if (!deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-                                            invocationType = Constants.REMOTE_TYPE;
+
+                                            // FIXME find better solution to avoid forwarding of
+                                            // script calls to the remote Container
+                                            if (!(ServiceHandler.invocationPluginServices.get(invocationType) instanceof ManagementBusInvocationPluginScript)) {
+                                                invocationType = Constants.REMOTE_TYPE;
+                                            }
                                         }
 
                                         // String that identifies an IA uniquely for synchronization
