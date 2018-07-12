@@ -24,6 +24,7 @@ import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -343,14 +344,17 @@ public class TaskWorkerRunnable implements Runnable {
                     LOG.debug("Sending the following option: " + option.toString());
 
                     // send plan back
-                    final MultipartEntity mpOptionEntity = new MultipartEntity();
+                    final MultipartEntityBuilder multipartBuilder = MultipartEntityBuilder.create();
 
                     try {
-                        mpOptionEntity.addPart("name", new StringBody(option.option.getName()));
-                        mpOptionEntity.addPart("description", new StringBody(option.option.getDescription()));
-                        mpOptionEntity.addPart("planServiceName", new StringBody(option.option.getPlanServiceName()));
-                        mpOptionEntity.addPart("planInputMessage",
-                                               new StringBody(FileUtils.readFileToString(option.planInputMessageFile)));
+                        multipartBuilder.addPart("name",
+                                                 new StringBody(option.option.getName(), ContentType.TEXT_PLAIN));
+                        multipartBuilder.addPart("description", new StringBody(option.option.getDescription(),
+                            ContentType.TEXT_PLAIN));
+                        multipartBuilder.addPart("planServiceName", new StringBody(option.option.getPlanServiceName(),
+                            ContentType.TEXT_PLAIN));
+                        multipartBuilder.addPart("planInputMessage", new StringBody(
+                            FileUtils.readFileToString(option.planInputMessageFile), ContentType.TEXT_PLAIN));
                     }
                     catch (final UnsupportedEncodingException e1) {
                         this.state.currentState = PlanGenerationStates.OPTIONSENDINGFAILED;
@@ -364,10 +368,10 @@ public class TaskWorkerRunnable implements Runnable {
                     // message..
                     final FileBody fileBody = new FileBody(option.planInputMessageFile);
                     final ContentBody contentBody = fileBody;
-                    mpOptionEntity.addPart("file", contentBody);
+                    multipartBuilder.addPart("file", contentBody);
 
                     final HttpResponse optionsResponse =
-                        openToscaHttpService.Post(optionsUrl.toString(), mpOptionEntity);
+                        openToscaHttpService.Post(optionsUrl.toString(), multipartBuilder.build());
 
                     if (optionsResponse.getStatusLine().getStatusCode() >= 300) {
                         // we assume ,if the status code ranges from 300 to 5xx , that
@@ -381,8 +385,6 @@ public class TaskWorkerRunnable implements Runnable {
                     } else {
                         this.state.currentState = PlanGenerationStates.OPTIONSENT;
                         this.state.currentMessage = "Sent option. Everythings okay.";
-
-
                     }
                 }
                 catch (final MalformedURLException e) {
@@ -397,8 +399,6 @@ public class TaskWorkerRunnable implements Runnable {
                     Util.deleteCSAR(csarId);
                     return;
                 }
-
-
 
                 this.state.currentState = PlanGenerationStates.PLANSSENT;
                 this.state.currentMessage = "Sent plan.";
