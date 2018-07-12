@@ -48,6 +48,11 @@ public class Util {
             this.option = option;
             this.planInputMessageFile = planInputMessageFile;
         }
+
+        @Override
+        public String toString() {
+            return "SelfServiceOption Id: " + this.option.getId() + " Name: " + this.option.getName();
+        }
     }
 
     private static class NameValuePairUtils implements NameValuePair {
@@ -268,5 +273,6 @@ public class Util {
         final String soapEnvelopeSuffix = "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
         return soapEnvelopeSuffix;
     }
+
 
 }

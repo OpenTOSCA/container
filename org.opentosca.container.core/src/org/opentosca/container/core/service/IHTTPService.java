@@ -2,6 +2,7 @@ package org.opentosca.container.core.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -27,6 +28,18 @@ public interface IHTTPService {
      * @throws IOException
      */
     public HttpResponse Get(String uri) throws ClientProtocolException, IOException;
+
+    /**
+     * Executes a HTTP GET command.
+     *
+     * @param uri - Resource URI
+     * @param headers - map of headers and values
+     * @return Response Message
+     * @throws ClientProtocolException
+     * @throws IOException
+     */
+    public HttpResponse Get(String uri, Map<String, String> headers) throws ClientProtocolException, IOException;
+
 
     /**
      * Executes a HTTP GET command.
@@ -118,5 +131,6 @@ public interface IHTTPService {
      * @throws IOException
      */
     public HttpResponse Options(String uri) throws ClientProtocolException, IOException;
+
 
 }
