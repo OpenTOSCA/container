@@ -27,6 +27,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.message.BasicHeader;
 import org.json.simple.JSONObject;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.IHTTPService;
@@ -216,7 +217,9 @@ public class TaskWorkerRunnable implements Runnable {
 
             HttpResponse createPlanResponse = null;
             try {
-                createPlanResponse = openToscaHttpService.Post(getState().getPostUrl().toString(), ent);
+                createPlanResponse = openToscaHttpService.Post(getState().getPostUrl().toString(), ent,
+                                                               new BasicHeader("Accept", "application/json"),
+                                                               new BasicHeader("Content-Type", "application/json"));
             }
             catch (final Exception e) {
                 this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
