@@ -158,6 +158,7 @@ public class ManagementBusInvocationPluginRemote implements IManagementBusInvoca
                             }
                         } else {
                             ManagementBusInvocationPluginRemote.LOG.warn("Response contains no output.");
+                            message.setBody(null);
                         }
                     }
                 } else {

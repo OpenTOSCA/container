@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -19,6 +20,7 @@ import org.opentosca.bus.management.service.impl.Activator;
 import org.opentosca.bus.management.service.impl.ManagementBusServiceImpl;
 import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
+import org.opentosca.bus.management.service.impl.collaboration.model.Doc;
 import org.opentosca.bus.management.service.impl.collaboration.model.IAInvocationRequest;
 import org.opentosca.bus.management.service.impl.collaboration.model.InstanceDataMatchingRequest;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap;
@@ -410,11 +412,48 @@ public class RequestReceiver {
                                 final IManagementBusInvocationPluginService invocationPlugin =
                                     ServiceHandler.invocationPluginServices.get(invocationType);
                                 if (invocationPlugin != null) {
+                                    RequestReceiver.LOG.debug("Invoking IA with plug-in: {}",
+                                                              invocationPlugin.getClass());
                                     final Exchange response = invocationPlugin.invoke(exchange);
 
-                                    // TODO: parse response exchange
+                                    final Object responseBody = response.getIn().getBody();
 
-                                    // TODO: send response message over MQTT
+                                    // object to transmitt output parameters to the calling
+                                    // Container
+                                    final IAInvocationRequest invocationResponse = new IAInvocationRequest();
+
+                                    if (responseBody instanceof HashMap) {
+                                        RequestReceiver.LOG.debug("Response contains output parameters as HashMap");
+
+                                        @SuppressWarnings("unchecked")
+                                        final HashMap<String, String> paramsMap =
+                                            (HashMap<String, String>) responseBody;
+
+                                        final KeyValueMap invocationResponseMap = new KeyValueMap();
+                                        final List<KeyValueType> invocationResponsePairs =
+                                            invocationResponseMap.getKeyValuePair();
+
+                                        for (final Entry<String, String> param : paramsMap.entrySet()) {
+                                            invocationResponsePairs.add(new KeyValueType(param.getKey(),
+                                                param.getValue()));
+                                        }
+
+                                        invocationResponse.setParams(invocationResponseMap);
+                                    } else {
+                                        if (body instanceof Document) {
+                                            RequestReceiver.LOG.debug("Response contains output parameters as Document.");
+
+                                            final Document document = (Document) body;
+                                            invocationResponse.setDoc(new Doc(document.getDocumentElement()));
+                                        } else {
+                                            RequestReceiver.LOG.warn("No output parameters defined!");
+                                        }
+                                    }
+
+                                    // send response to calling Container
+                                    final CollaborationMessage reply =
+                                        new CollaborationMessage(new KeyValueMap(), new BodyType(invocationResponse));
+                                    Activator.producer.sendBodyAndHeaders("direct:SendMQTT", reply, headers);
                                 } else {
                                     RequestReceiver.LOG.error("No invocation plug-in found for invocation type: {}",
                                                               invocationType);
