@@ -23,7 +23,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -68,6 +67,7 @@ public class TaskWorkerRunnable implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void run() {
 
         LOG.debug("Starting to download CSAR");
@@ -204,10 +204,8 @@ public class TaskWorkerRunnable implements Runnable {
             final JSONObject obj = new JSONObject();
 
             obj.put("name", buildPlan.getId());
-
             obj.put("planType", buildPlan.getType().getString());
-
-            obj.put("planLanguage", ((BPELPlan) buildPlan).bpelNamespace);
+            obj.put("planLanguage", BPELPlan.bpelNamespace);
 
             // BUILD("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"),
             // OTHERMANAGEMENT("undefined or custom management plan"), APPLICATION("http://www.opentosca.org"),
@@ -219,35 +217,23 @@ public class TaskWorkerRunnable implements Runnable {
             HttpResponse createPlanResponse = null;
             try {
                 createPlanResponse = openToscaHttpService.Post(getState().getPostUrl().toString(), ent);
-
             }
-            catch (final ClientProtocolException e2) {
-
-                // we assume ,if the status code ranges from 300 to 5xx , that
-                // an error occured
+            catch (final Exception e) {
                 this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
                 this.state.currentMessage =
                     "Couldn't send plan. Server send status " + createPlanResponse.getStatusLine().getStatusCode();
+                LOG.error("[{}] {}", this.state.currentState, this.state.currentMessage);
                 Util.deleteCSAR(csarId);
-                LOG.error("Couldn't send plan. Server send status "
-                    + createPlanResponse.getStatusLine().getStatusCode());
-                return;
-            }
-            catch (final IOException e2) {
-                this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-                this.state.currentMessage =
-                    "Couldn't send plan. Server send status " + createPlanResponse.getStatusLine().getStatusCode();
-                Util.deleteCSAR(csarId);
-                LOG.error("Couldn't send plan. Server send status "
-                    + createPlanResponse.getStatusLine().getStatusCode());
                 return;
             }
 
             final org.apache.http.Header planLocationHeader = createPlanResponse.getHeaders("Location")[0];
 
-            final String planLocation = planLocationHeader.getValue();
-
-
+            String planLocation = planLocationHeader.getValue();
+            // Remove trailing slash
+            if (planLocation.endsWith("/")) {
+                planLocation = planLocation.substring(0, planLocation.length() - 1);
+            }
 
             try {
 
@@ -256,7 +242,8 @@ public class TaskWorkerRunnable implements Runnable {
                 LOG.debug("Sending Plan");
 
                 for (final String inputParam : inputParameters) {
-                    final String inputParamPostUrl = planLocation + "/inputparameters/";
+
+                    final String inputParamPostUrl = planLocation + "/inputparameters";
 
                     final List<NameValuePair> params = new ArrayList<>();
                     params.add(Util.createNameValuePair("name", inputParam));
@@ -284,7 +271,8 @@ public class TaskWorkerRunnable implements Runnable {
 
                 // FIXME Move OutputParams into AbstractPlans
                 for (final String outputParam : outputParameters) {
-                    final String outputParamPostUrl = planLocation + "/outputparameters/";
+
+                    final String outputParamPostUrl = planLocation + "/outputparameters";
 
                     final List<NameValuePair> params = new ArrayList<>();
                     params.add(Util.createNameValuePair("name", outputParam));
@@ -311,13 +299,12 @@ public class TaskWorkerRunnable implements Runnable {
                 }
 
                 // send file
-                final MultipartEntity mpEntity = new MultipartEntity();
-
                 final FileBody bin = new FileBody(planTmpFile);
                 final ContentBody cb = bin;
+                final MultipartEntityBuilder mpEntity = MultipartEntityBuilder.create();
                 mpEntity.addPart("file", cb);
 
-                final HttpResponse uploadResponse = openToscaHttpService.Put(planLocation + "/file", mpEntity);
+                final HttpResponse uploadResponse = openToscaHttpService.Put(planLocation + "/file", mpEntity.build());
                 if (uploadResponse.getStatusLine().getStatusCode() >= 300) {
                     // we assume ,if the status code ranges from 300 to 5xx , that
                     // an error occured
