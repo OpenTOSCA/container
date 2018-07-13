@@ -107,6 +107,7 @@ public class DeploymentDistributionDecisionMaker {
                 // current NodeTemplateInstance is managed by the same Container as the
                 // infrastructure instance
                 nodeTemplateInstance.setManagingContainer(managingContainer);
+                nodeTemplateInstanceRepository.update(nodeTemplateInstance);
                 return managingContainer;
             } else {
 
@@ -139,6 +140,10 @@ public class DeploymentDistributionDecisionMaker {
                     infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
                     nodeTemplateInstance.setManagingContainer(deploymentLocation);
 
+                    // update stored entities
+                    nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+                    nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
+
                     return deploymentLocation;
                 }
 
@@ -154,6 +159,10 @@ public class DeploymentDistributionDecisionMaker {
                     infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
                     nodeTemplateInstance.setManagingContainer(deploymentLocation);
 
+                    // update stored entities
+                    nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+                    nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
+
                     return deploymentLocation;
                 }
 
@@ -165,6 +174,7 @@ public class DeploymentDistributionDecisionMaker {
 
         // default (no matching): return host name of local container
         nodeTemplateInstance.setManagingContainer(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+        nodeTemplateInstanceRepository.update(nodeTemplateInstance);
         return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
     }
 
@@ -239,6 +249,7 @@ public class DeploymentDistributionDecisionMaker {
                 nodeTemplateInstanceRepository.findByTemplateType(infrastructureNodeType);
 
             for (final NodeTemplateInstance typeMatchingInstance : typeMatchingInstances) {
+
                 DeploymentDistributionDecisionMaker.LOG.debug("Found NodeTemplateInstance with matching type. ID: {}",
                                                               typeMatchingInstance.getId());
 
