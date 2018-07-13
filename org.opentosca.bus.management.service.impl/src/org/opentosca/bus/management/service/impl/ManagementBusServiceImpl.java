@@ -236,6 +236,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                     if (invocationType != null) {
                                         ManagementBusServiceImpl.LOG.debug("Deployment type {} and invocation type {} are supported.",
                                                                            deploymentType, invocationType);
+                                        message.setHeader(MBHeader.INVOCATIONTYPE_STRING.toString(), invocationType);
 
                                         // retrieve portType property if specified
                                         final QName portType = getPortTypeQName(csarID, artifactTemplateID);
