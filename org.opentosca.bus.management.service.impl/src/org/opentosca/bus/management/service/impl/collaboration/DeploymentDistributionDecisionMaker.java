@@ -87,13 +87,21 @@ public class DeploymentDistributionDecisionMaker {
             DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplateInstance with ID: {}",
                                                           nodeTemplateInstance.getId());
 
+            // check if decision is already made for this instance
+            if (nodeTemplateInstance.getManagingContainer() != null) {
+                DeploymentDistributionDecisionMaker.LOG.debug("ManagingContainer attribute is already set for this NodeTemplateInstance: {}",
+                                                              nodeTemplateInstance.getManagingContainer());
+                return nodeTemplateInstance.getManagingContainer();
+            }
+
             DeploymentDistributionDecisionMaker.LOG.debug("Looking for infrastructure NodeTemplateInstance that corresponds to this NodeTemplateInstance...");
 
             // get infrastructure NodeTemplate
             final NodeTemplateInstance infrastructureNodeTemplateInstance =
                 searchInfrastructureNode(nodeTemplateInstance);
 
-            // check if "managingContainer" is already set for the NodeTemplateInstance
+            // check if "managingContainer" is already set for the infrastructure
+            // NodeTemplateInstance
             if (infrastructureNodeTemplateInstance.getManagingContainer() != null) {
 
                 // no instance data matching needed, as it was already performed for the
