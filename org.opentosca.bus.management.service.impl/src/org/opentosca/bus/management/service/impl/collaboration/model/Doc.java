@@ -35,6 +35,12 @@ import org.w3c.dom.Element;
 @XmlType(name = "Doc", propOrder = {"any"})
 public class Doc {
 
+    public Doc() {}
+
+    public Doc(final Element content) {
+        this.any = content;
+    }
+
     @XmlAnyElement
     protected Element any;
 

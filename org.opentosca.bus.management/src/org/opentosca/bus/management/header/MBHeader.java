@@ -159,6 +159,12 @@ public enum MBHeader {
      */
     DEPLOYMENTLOCATION_STRING,
 
+    /**
+     * <b>INVOCATIONTYPE_STRING</b> This header field contains the invocation type of the
+     * Implementation Artifact identified by {@link MBHeader#IMPLEMENTATIONARTIFACTNAME_STRING}.
+     */
+    INVOCATIONTYPE_STRING,
+
     // ***** COLLABORATION ORIENTED HEADER FIELDS ***** //
 
     /**

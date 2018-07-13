@@ -7,7 +7,10 @@ Bundle-Activator: org.opentosca.bus.management.invocation.plugin.remote.Activato
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",
  org.apache.camel.builder;version="2.10.4",
+ org.apache.camel.impl;version="2.18.3",
+ org.opentosca.bus.management.service.impl,
  org.opentosca.bus.management.service.impl.collaboration,
+ org.opentosca.bus.management.service.impl.collaboration.model,
  org.osgi.framework;version="1.3.0",
  org.slf4j;version="1.7.5"
 Service-Component: OSGI-INF/*

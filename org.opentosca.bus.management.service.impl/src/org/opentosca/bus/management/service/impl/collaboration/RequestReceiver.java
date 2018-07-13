@@ -6,16 +6,20 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
+import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPluginService;
 import org.opentosca.bus.management.service.impl.Activator;
 import org.opentosca.bus.management.service.impl.ManagementBusServiceImpl;
 import org.opentosca.bus.management.service.impl.collaboration.model.BodyType;
 import org.opentosca.bus.management.service.impl.collaboration.model.CollaborationMessage;
+import org.opentosca.bus.management.service.impl.collaboration.model.IAInvocationRequest;
 import org.opentosca.bus.management.service.impl.collaboration.model.InstanceDataMatchingRequest;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueMap;
 import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueType;
@@ -26,6 +30,8 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * This class provides methods which can be invoked by remote OpenTOSCA Containers. The methods are
@@ -108,8 +114,8 @@ public class RequestReceiver {
                     RequestReceiver.LOG.error("Collaboration message contains no body. Aborting operation!");
                 }
             } else {
-                // this case is not possible due to the IncomingProcessor
-                RequestReceiver.LOG.error("Message has invalid class. Aborting operation!");
+                RequestReceiver.LOG.error("Message body has invalid class: {}. Aborting operation!",
+                                          message.getBody().getClass());
             }
         } else {
             RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
@@ -337,7 +343,7 @@ public class RequestReceiver {
      */
     public void invokeIAOperation(final Exchange exchange) {
 
-        RequestReceiver.LOG.debug("Received remote operation call for invokation of an IA operation.");
+        RequestReceiver.LOG.debug("Received remote operation call for invocation of an IA operation.");
         final Message message = exchange.getIn();
 
         // check whether the request is directed to this OpenTOSCA Container
@@ -347,8 +353,85 @@ public class RequestReceiver {
             final Map<String, Object> headers = getResponseHeaders(message);
             if (headers != null) {
 
-                // TODO: implement IA operation call via invocation plug-ins
+                if (message.getBody() instanceof CollaborationMessage) {
+                    final CollaborationMessage collMsg = (CollaborationMessage) message.getBody();
+                    final BodyType body = collMsg.getBody();
 
+                    if (body != null) {
+                        final IAInvocationRequest request = body.getIAInvocationRequest();
+
+                        if (request != null) {
+
+                            RequestReceiver.LOG.debug("Request is valid. Checking for input parameters...");
+
+                            if (request.getParams() != null) {
+                                RequestReceiver.LOG.debug("Request contains input parameters as HashMap:");
+
+                                final HashMap<String, String> inputParamMap = new HashMap<>();
+
+                                for (final KeyValueType inputParam : request.getParams().getKeyValuePair()) {
+                                    RequestReceiver.LOG.debug("Key: {}, Value: {}", inputParam.getKey(),
+                                                              inputParam.getValue());
+                                    inputParamMap.put(inputParam.getKey(), inputParam.getValue());
+                                }
+
+                                message.setBody(inputParamMap, HashMap.class);
+                            } else {
+                                if (request.getDoc() != null) {
+                                    RequestReceiver.LOG.debug("Request contains input parameters a Document");
+
+                                    try {
+                                        final DocumentBuilderFactory dFact = DocumentBuilderFactory.newInstance();
+                                        final DocumentBuilder build = dFact.newDocumentBuilder();
+                                        final Document document = build.newDocument();
+
+                                        final Element element = request.getDoc().getAny();
+
+                                        document.adoptNode(element);
+                                        document.appendChild(element);
+
+                                        message.setBody(document, Document.class);
+                                    }
+                                    catch (final Exception e) {
+                                        RequestReceiver.LOG.error("Unable to parse Document: {}", e.getMessage());
+                                    }
+                                } else {
+                                    RequestReceiver.LOG.warn("Request contains no input parameters.");
+                                    message.setBody(null);
+                                }
+                            }
+
+                            final String invocationType =
+                                message.getHeader(MBHeader.INVOCATIONTYPE_STRING.toString(), String.class);
+
+                            if (invocationType != null) {
+
+                                // call the operation with the related invocation plug-in
+                                final IManagementBusInvocationPluginService invocationPlugin =
+                                    ServiceHandler.invocationPluginServices.get(invocationType);
+                                if (invocationPlugin != null) {
+                                    final Exchange response = invocationPlugin.invoke(exchange);
+
+                                    // TODO: parse response exchange
+
+                                    // TODO: send response message over MQTT
+                                } else {
+                                    RequestReceiver.LOG.error("No invocation plug-in found for invocation type: {}",
+                                                              invocationType);
+                                }
+                            } else {
+                                RequestReceiver.LOG.error("No invocation type specified for the IA!");
+                            }
+                        } else {
+                            RequestReceiver.LOG.error("Body contains no IAInvocationRequest. Aborting operation!");
+                        }
+                    } else {
+                        RequestReceiver.LOG.error("Collaboration message contains no body. Aborting operation!");
+                    }
+                } else {
+                    RequestReceiver.LOG.error("Message body has invalid class: {}. Aborting operation!",
+                                              message.getBody().getClass());
+                }
             } else {
                 RequestReceiver.LOG.error("Request does not contain all needed header fields to send a response. Aborting operation!");
             }
