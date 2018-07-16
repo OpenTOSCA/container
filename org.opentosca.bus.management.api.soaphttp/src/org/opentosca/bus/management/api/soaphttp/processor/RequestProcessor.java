@@ -91,6 +91,7 @@ public class RequestProcessor implements Processor {
             csarIDString = invokeIaRequest.getCsarID();
 
             serviceInstanceID = invokeIaRequest.getServiceInstanceID();
+            exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(serviceInstanceID));
 
             final String nodeInstanceID = invokeIaRequest.getNodeInstanceID();
             exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
@@ -179,6 +180,7 @@ public class RequestProcessor implements Processor {
             csarIDString = invokeIaRequest.getCsarID();
 
             serviceInstanceID = invokeIaRequest.getServiceInstanceID();
+            exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(serviceInstanceID));
 
             final String nodeInstanceID = invokeIaRequest.getNodeInstanceID();
             exchange.getIn().setHeader(MBHeader.NODEINSTANCEID_STRING.toString(), nodeInstanceID);
@@ -221,6 +223,9 @@ public class RequestProcessor implements Processor {
             csarIDString = invokePlanRequest.getCsarID();
 
             serviceInstanceID = invokePlanRequest.getServiceInstanceID();
+            if (serviceInstanceID != null) {
+                exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), new URI(serviceInstanceID));
+            }
 
             final String planIDNamespaceURI = invokePlanRequest.getPlanIDNamespaceURI();
             final String planIDLocalPart = invokePlanRequest.getPlanIDLocalPart();
@@ -250,11 +255,6 @@ public class RequestProcessor implements Processor {
         }
 
         final CSARID csarID = new CSARID(csarIDString);
-
-        if (serviceInstanceID != null) {
-            final URI serviceInstanceURI = new URI(serviceInstanceID);
-            exchange.getIn().setHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), serviceInstanceURI);
-        }
 
         exchange.getIn().setHeader(MBHeader.CSARID.toString(), csarID);
         exchange.getIn().setHeader(MBHeader.OPERATIONNAME_STRING.toString(), operationName);
