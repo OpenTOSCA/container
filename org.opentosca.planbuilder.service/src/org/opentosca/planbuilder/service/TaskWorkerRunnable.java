@@ -8,11 +8,12 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HeaderElement;
@@ -21,7 +22,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.EntityBuilder;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -195,7 +195,6 @@ public class TaskWorkerRunnable implements Runnable {
 
         for (final AbstractPlan buildPlan : plansToUpload.keySet()) {
 
-
             // write to tmp dir, only generating one plan
             final File planTmpFile = plansToUpload.get(buildPlan);
 
@@ -204,9 +203,17 @@ public class TaskWorkerRunnable implements Runnable {
 
             final JSONObject obj = new JSONObject();
 
-            obj.put("name", buildPlan.getId());
+            obj.put("name", QName.valueOf(buildPlan.getId()).getLocalPart());
             obj.put("planType", buildPlan.getType().getString());
             obj.put("planLanguage", BPELPlan.bpelNamespace);
+
+            final HashMap<String, List<ParameterTupel>> inputParams = new HashMap<>();
+            inputParams.put("inputParameter", createParameters(inputParameters));
+            obj.put("inputParameters", inputParams);
+
+            final HashMap<String, List<ParameterTupel>> outputParams = new HashMap<>();
+            outputParams.put("outputParameter", createParameters(outputParameters));
+            obj.put("outputParameters", outputParams);
 
             // BUILD("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"),
             // OTHERMANAGEMENT("undefined or custom management plan"), APPLICATION("http://www.opentosca.org"),
@@ -243,63 +250,6 @@ public class TaskWorkerRunnable implements Runnable {
                 this.state.currentState = PlanGenerationStates.PLANSENDING;
                 this.state.currentMessage = "Sending Plan";
                 LOG.debug("Sending Plan");
-
-                for (final String inputParam : inputParameters) {
-
-                    final String inputParamPostUrl = planLocation + "/inputparameters";
-
-                    final List<NameValuePair> params = new ArrayList<>();
-                    params.add(Util.createNameValuePair("name", inputParam));
-                    params.add(Util.createNameValuePair("type", "String"));
-                    params.add(Util.createNameValuePair("required", "on"));
-
-                    final UrlEncodedFormEntity encodedForm = new UrlEncodedFormEntity(params);
-
-                    final HttpResponse inputParamPostResponse =
-                        openToscaHttpService.Post(inputParamPostUrl, encodedForm);
-                    if (inputParamPostResponse.getStatusLine().getStatusCode() >= 300) {
-                        this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-                        this.state.currentMessage =
-                            "Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl + ") "
-                                + inputParam + " failed, Service for Plan Upload sent statusCode "
-                                + inputParamPostResponse.getStatusLine().getStatusCode();
-                        Util.deleteCSAR(csarId);
-                        LOG.error("Couldn't set inputParameters. Setting InputParam (postURL: " + inputParamPostUrl
-                            + ") " + inputParam + " failed, Service for Plan Upload sent statusCode "
-                            + inputParamPostResponse.getStatusLine().getStatusCode());
-                        return;
-                    }
-                    LOG.debug("Sent inputParameter " + inputParam);
-                }
-
-                // FIXME Move OutputParams into AbstractPlans
-                for (final String outputParam : outputParameters) {
-
-                    final String outputParamPostUrl = planLocation + "/outputparameters";
-
-                    final List<NameValuePair> params = new ArrayList<>();
-                    params.add(Util.createNameValuePair("name", outputParam));
-                    params.add(Util.createNameValuePair("type", "String"));
-                    params.add(Util.createNameValuePair("required", "on"));
-
-                    final UrlEncodedFormEntity encodedForm = new UrlEncodedFormEntity(params);
-
-                    final HttpResponse outputParamPostResponse =
-                        openToscaHttpService.Post(outputParamPostUrl, encodedForm);
-                    if (outputParamPostResponse.getStatusLine().getStatusCode() >= 300) {
-                        this.state.currentState = PlanGenerationStates.PLANSENDINGFAILED;
-                        this.state.currentMessage =
-                            "Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl + ") "
-                                + outputParam + " failed, Service for Plan Upload sent statusCode "
-                                + outputParamPostResponse.getStatusLine().getStatusCode();
-                        Util.deleteCSAR(csarId);
-                        LOG.error("Couldn't set outputParameters. Setting OutputParam (postURL: " + outputParamPostUrl
-                            + ") " + outputParam + " failed, Service for Plan Upload sent statusCode "
-                            + outputParamPostResponse.getStatusLine().getStatusCode());
-                        return;
-                    }
-                    LOG.debug("Sent outputParameter " + outputParam);
-                }
 
                 // send file
                 final FileBody bin = new FileBody(planTmpFile);
@@ -408,25 +358,60 @@ public class TaskWorkerRunnable implements Runnable {
                 LOG.error("Couldn't send plan.");
                 return;
             }
-
-            /*
-             * @FormDataParam("name") String name,
-             *
-             * @FormDataParam("description") String description,
-             *
-             * @FormDataParam("planServiceName") String planServiceName,
-             *
-             * @FormDataParam("planInputMessage") String planInputMessage,
-             *
-             * @FormDataParam("file") InputStream uploadedInputStream,
-             *
-             * @FormDataParam("file") FormDataContentDisposition fileDetail,
-             *
-             * @FormDataParam("file") FormDataBodyPart body
-             */
         }
         this.state.currentState = PlanGenerationStates.FINISHED;
         this.state.currentMessage = "Plans where successfully sent.";
         Util.deleteCSAR(csarId);
+    }
+
+    private List<ParameterTupel> createParameters(final List<String> parameters) {
+        return parameters.stream().map(p -> new ParameterTupel(p, "xsd:string", "NO")).collect(Collectors.toList());
+    }
+
+    private static class ParameterTupel {
+
+        private String name;
+        private String type;
+        private String required;
+
+        public ParameterTupel() {
+
+        }
+
+        public ParameterTupel(final String name, final String type, final String required) {
+            this.name = name;
+            this.type = type;
+            this.required = required;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public void setName(final String name) {
+            this.name = name;
+        }
+
+        public String getType() {
+            return this.type;
+        }
+
+        public void setType(final String type) {
+            this.type = type;
+        }
+
+        public String getRequired() {
+            return this.required;
+        }
+
+        public void setRequired(final String required) {
+            this.required = required;
+        }
+
+        @Override
+        public String toString() {
+            return "{ \"name\": \"" + this.name + "\", \"type\": \"" + this.type + "\", \"required\": \""
+                + this.required + "\" }";
+        }
     }
 }
