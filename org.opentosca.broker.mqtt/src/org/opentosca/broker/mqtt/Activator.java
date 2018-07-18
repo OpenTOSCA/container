@@ -78,6 +78,10 @@ public class Activator implements BundleActivator {
         props.put("port", String.valueOf(Settings.OPENTOSCA_BROKER_MQTT_PORT));
         props.put("host", "0.0.0.0");
 
+        // Set the max message size according to the MQTT spec
+        // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/errata01/os/mqtt-v3.1.1-errata01-os-complete.html#_Toc442180836
+        props.put("netty.mqtt.message_size", "268435455");
+
         if (credentialsFile != null) {
             // set credentials file
             props.put("allow_anonymous", "false");
