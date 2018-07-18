@@ -1,9 +1,12 @@
 package org.opentosca.bus.management.service.impl.collaboration.processor;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Arrays;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -15,6 +18,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueTyp
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  * This processor checks if the body type of the incoming message is valid for further processing.
@@ -89,6 +93,17 @@ public class IncomingProcessor implements Processor {
                         case "LISTSTRING":
                             final String array[] = header.getValue().replace("[", "").replace("]", "").split(",");
                             message.setHeader(header.getKey(), Arrays.asList(array));
+                            break;
+                        case "DOCUMENT":
+                            try {
+                                final DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                                final Document document =
+                                    db.parse(new ByteArrayInputStream(header.getValue().getBytes("UTF-8")));
+                                message.setHeader(header.getKey(), document);
+                            }
+                            catch (final Exception e) {
+                                IncomingProcessor.LOG.warn("Unable to parse header to type Document. Ignoring it.");
+                            }
                             break;
                         default:
                             IncomingProcessor.LOG.warn("Header has unknown type and can not be added to the exchange!");
