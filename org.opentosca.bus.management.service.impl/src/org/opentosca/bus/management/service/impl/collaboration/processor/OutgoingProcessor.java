@@ -1,12 +1,18 @@
 package org.opentosca.bus.management.service.impl.collaboration.processor;
 
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -17,6 +23,7 @@ import org.opentosca.bus.management.service.impl.collaboration.model.KeyValueTyp
 import org.opentosca.bus.management.service.impl.collaboration.model.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  * This processor is intended to extract the header fields from the envelope and add them into an
@@ -50,12 +57,21 @@ public class OutgoingProcessor implements Processor {
             // copy exchange headers into the CollaborationMessage to transmit them over MQTT
             for (final Entry<String, Object> header : message.getHeaders().entrySet()) {
                 if (header.getKey() != null && header.getValue() != null) {
-                    OutgoingProcessor.LOG.debug("Adding header field with key {} and value {}", header.getKey(),
-                                                header.getValue().toString());
 
                     // The header fields must be converted to Strings because they are marshaled to
                     // XML. After the transmission the original type is created again if possible.
-                    final KeyValueType keyValue = new KeyValueType(header.getKey(), header.getValue().toString());
+                    String stringRepresentation = "";
+                    if (header.getValue() instanceof Document) {
+                        final Document headerValue = (Document) header.getValue();
+                        stringRepresentation = toXMLString(headerValue);
+                    } else {
+                        stringRepresentation = header.getValue().toString();
+                    }
+
+                    OutgoingProcessor.LOG.debug("Adding header field with key {} and value {}", header.getKey(),
+                                                stringRepresentation);
+
+                    final KeyValueType keyValue = new KeyValueType(header.getKey(), stringRepresentation);
                     headerList.add(keyValue);
                 }
             }
@@ -70,7 +86,7 @@ public class OutgoingProcessor implements Processor {
 
             message.setBody(jaxbCollaborationMessage);
 
-            OutgoingProcessor.LOG.debug("Forwarding message in XML format: {}", toXML(jaxbCollaborationMessage));
+            OutgoingProcessor.LOG.debug("Forwarding message in XML format: {}", toXMLString(jaxbCollaborationMessage));
         }
     }
 
@@ -80,7 +96,7 @@ public class OutgoingProcessor implements Processor {
      * @param element the JAXB element of a CollaborationMessage
      * @return the String containing the XML or the empty String if an error occurs.
      */
-    public String toXML(final JAXBElement<CollaborationMessage> element) {
+    private String toXMLString(final JAXBElement<CollaborationMessage> element) {
         try {
             final JAXBContext jc = JAXBContext.newInstance(element.getValue().getClass());
             final Marshaller marshaller = jc.createMarshaller();
@@ -91,6 +107,32 @@ public class OutgoingProcessor implements Processor {
             return baos.toString();
         }
         catch (final Exception e) {
+            OutgoingProcessor.LOG.debug("Error converting JAXb element to String: {}", e.getMessage());
+            return "";
+        }
+    }
+
+    /**
+     * Convert the given Document element to a String representation of the XML which it represents.
+     *
+     * @param element the Document element
+     * @return the String containing the XML or the empty String if an error occurs.
+     */
+    private String toXMLString(final Document doc) {
+        try {
+            final StringWriter sw = new StringWriter();
+            final TransformerFactory tf = TransformerFactory.newInstance();
+            final Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "no");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+            transformer.transform(new DOMSource(doc), new StreamResult(sw));
+            return sw.toString();
+        }
+        catch (final Exception e) {
+            OutgoingProcessor.LOG.debug("Error converting Document to String: {}", e.getMessage());
             return "";
         }
     }
