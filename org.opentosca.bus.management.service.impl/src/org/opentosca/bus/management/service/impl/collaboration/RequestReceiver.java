@@ -240,8 +240,6 @@ public class RequestReceiver {
      * Undeploy the IA that is specified in the incoming exchange by using the Management Bus
      * deployment Plug-ins.
      *
-     * TODO: test
-     *
      * @param exchange the exchange containing the needed information as header fields
      */
     public void invokeIAUndeployment(Exchange exchange) {
@@ -524,11 +522,7 @@ public class RequestReceiver {
             message.getHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), String.class);
         RequestReceiver.LOG.debug("Deplyoment location header: {}", deploymentLocation);
 
-        if (deploymentLocation != null && deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
-            return true;
-        } else {
-            return false;
-        }
+        return deploymentLocation != null && deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
     }
 
     /**
