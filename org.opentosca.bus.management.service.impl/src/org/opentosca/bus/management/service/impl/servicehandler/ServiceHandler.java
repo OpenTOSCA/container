@@ -10,7 +10,6 @@ import org.opentosca.bus.management.invocation.plugin.IManagementBusInvocationPl
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.service.ICoreCapabilityService;
 import org.opentosca.container.core.service.ICoreEndpointService;
-import org.opentosca.container.core.service.IInstanceDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
  *
  * @see IManagementBusInvocationPluginService
  * @see IManagementBusDeploymentPluginService
- * @see IInstanceDataService
  * @see ICoreEndpointService
  * @see IToscaEngineService
  * @see ICoreCapabilityService
@@ -41,7 +39,6 @@ public class ServiceHandler {
         Collections.synchronizedMap(new HashMap<String, IManagementBusInvocationPluginService>());
     public static Map<String, IManagementBusDeploymentPluginService> deploymentPluginServices =
         Collections.synchronizedMap(new HashMap<String, IManagementBusDeploymentPluginService>());
-    public static IInstanceDataService instanceDataService, oldInstanceDataService;
     public static ICoreEndpointService endpointService, oldEndpointService;
     public static IToscaEngineService toscaEngineService, oldToscaEngineService;
     public static ICoreCapabilityService capabilityService, oldCapabilityService;
@@ -118,42 +115,6 @@ public class ServiceHandler {
         }
 
         ServiceHandler.LOG.debug("Unbind ToscaEngineService unbound.");
-    }
-
-    /**
-     * Bind InstanceDataService
-     *
-     * @param instanceDataService
-     */
-    public void bindInstanceDataService(final IInstanceDataService instanceDataService) {
-        if (instanceDataService != null) {
-            if (ServiceHandler.instanceDataService == null) {
-                ServiceHandler.instanceDataService = instanceDataService;
-            } else {
-                ServiceHandler.oldInstanceDataService = ServiceHandler.instanceDataService;
-                ServiceHandler.instanceDataService = instanceDataService;
-            }
-
-            ServiceHandler.LOG.debug("Bind InstanceDataServiceInterface: {} bound.",
-                                     ServiceHandler.instanceDataService.toString());
-        } else {
-            ServiceHandler.LOG.error("Bind InstanceDataServiceInterface: Supplied parameter is null!");
-        }
-    }
-
-    /**
-     * Unbind InstanceDataServiceInterface
-     *
-     * @param instanceDataService
-     */
-    public void unbindInstanceDataService(IInstanceDataService instanceDataService) {
-        if (ServiceHandler.oldInstanceDataService == null) {
-            instanceDataService = null;
-        } else {
-            ServiceHandler.oldInstanceDataService = null;
-        }
-
-        ServiceHandler.LOG.debug("Unbind InstanceDataServiceInterface unbound.");
     }
 
     /**
