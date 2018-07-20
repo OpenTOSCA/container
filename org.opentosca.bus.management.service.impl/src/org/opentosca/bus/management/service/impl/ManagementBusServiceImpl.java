@@ -42,29 +42,42 @@ import org.w3c.dom.NodeList;
  * plug-ins.<br>
  * <br>
  *
- * Copyright 2013 IAAS University of Stuttgart <br>
+ * Copyright 2018 IAAS University of Stuttgart <br>
  * <br>
  *
  * The engine gets the invoke-request as a camel exchange object with all needed parameters (e.g.
- * CSARID, ServiceTemplateID,...) in the header and the actual invoke message in the body of it. In
- * case of invoking an operation of an implementation artifact, the engine identify with help of the
- * ToscaEngine and the parameters from the header the right implementation artifact. Via
- * EndpointService the engine determine the endpoint of the implementation artifact or the plan. The
- * engine also handles the plug-ins. To determine which plug-in can execute the invoke-request, the
- * engine needs a specified property like <tt>{@literal <}namespace:InvocationType{@literal >}...
- * {@literal <}/namespace:InvocationType{@literal >}</tt>. The engine also can update request
- * parameters from stored InstanceData.
+ * CSARID, ServiceTemplateID,...) in the header and the actual invoke message in the body of it.
+ * <br>
+ * <br>
  *
- * TODO: adapt comment to new functionalities
+ * In case of invoking an operation of an implementation artifact, the engine identifies with help
+ * of the <tt>ToscaEngine</tt> and the parameters from the header the right implementation artifact.
+ * Afterwards it checks if the implementation artifact is already deployed by using the
+ * <tt>EndpointService</tt>. If this is not the case it tries to deploy the implementation artifact
+ * by using an available deployment plug-in and stores a corresponding endpoint. When an endpoint
+ * was found/created the engine determines which invocation plug-in has to be used to call the
+ * operation. Therefore, the engine uses information like the ArtifactType of the implementation
+ * artifact or a specified property like <tt>{@literal <}namespace:InvocationType{@literal >}...
+ * {@literal <}/namespace:InvocationType{@literal >}</tt>. Finally, the engine calls the
+ * implementation artifact operation by passing the exchange to the invocation plug-in. The engine
+ * is also able to update request parameters from stored <tt>InstanceData</tt> before passing the
+ * request on.<br>
+ * <br>
+ *
+ * In case of invoking a plan no deployment is needed as this is already done when the corresponding
+ * CSAR is deployed on the OpenTOSCA Container. The engine determines the invocation plug-in by
+ * checking the language of the plan and afterwards invokes the plan via this plug-in.<br>
+ * <br>
  *
  * TODO: undeployment logic
  *
  * @see IManagementBusInvocationPluginService
+ * @see IManagementBusDeploymentPluginService
  * @see IToscaEngineService
  * @see ICoreEndpointService
  *
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
- *
+ * @author Benjamin Weder - st100495@stud.uni-stuttgart.de
  *
  */
 
@@ -456,7 +469,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             } else {
                 ManagementBusServiceImpl.LOG.warn("No invokable implementation artifact found that provides required interface/operation.");
             }
-
         } else {
             ManagementBusServiceImpl.LOG.error("Unable to invoke operation without ServiceTemplateInstance ID!");
         }
@@ -492,25 +504,27 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         final String planLanguage = message.getHeader("PlanLanguage", String.class);
         ManagementBusServiceImpl.LOG.debug("plan language is: {}", planLanguage);
 
-        if (planLanguage.startsWith(BPMNNS)) {
-            final URI endpoint = WSDLendpoint.getURI();
-            ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
+        if (WSDLendpoint != null) {
+            if (planLanguage.startsWith(BPMNNS)) {
+                final URI endpoint = WSDLendpoint.getURI();
+                ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
 
-            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
-            // Assumption. Should be checked with ToscaEngine
-            message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+                // Assumption. Should be checked with ToscaEngine
+                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
 
-            exchange = callMatchingInvocationPlugin(exchange, "REST", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                exchange = callMatchingInvocationPlugin(exchange, "REST", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
 
-        } else if (WSDLendpoint != null) {
-            final URI endpoint = WSDLendpoint.getURI();
-            ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
+            } else {
+                final URI endpoint = WSDLendpoint.getURI();
+                ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
 
-            message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
-            // Assumption. Should be checked with ToscaEngine
-            message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
+                // Assumption. Should be checked with ToscaEngine
+                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
 
-            exchange = callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                exchange = callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+            }
         } else {
             ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invoking aborted!",
                                               planID, csarID);
