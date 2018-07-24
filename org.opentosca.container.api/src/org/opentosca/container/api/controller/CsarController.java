@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -124,6 +125,15 @@ public class CsarController {
         }
         csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
                      .baseUri(this.uriInfo.getBaseUri()).build(id));
+        // Add direct link to service template
+        final Set<String> serviceTemplates = this.csarService.getServiceTemplates(new CSARID(id));
+        if (serviceTemplates.size() == 1) {
+            final String name = serviceTemplates.stream().findFirst().get();
+            csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
+                                              .path(ServiceTemplateController.class, "getServiceTemplate")
+                                              .build(id, UriUtil.encodePathSegment(name)))
+                         .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
+        }
         csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
                                           .path(CsarController.class, "getContent").build(id))
                      .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));

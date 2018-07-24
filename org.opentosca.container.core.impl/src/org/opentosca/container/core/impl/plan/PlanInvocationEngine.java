@@ -324,163 +324,182 @@ public class PlanInvocationEngine implements IPlanInvocationEngine, EventHandler
     public void invokePlan(final CSARID csarID, final QName serviceTemplateId, final long serviceTemplateInstanceID,
                            final TPlanDTO givenPlan, final String correlationID) throws UnsupportedEncodingException {
 
-        // refill information that might not be sent
-        final TPlan storedPlan = ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
-
-        if (null == storedPlan) {
-            this.LOG.error("Plan " + givenPlan.getId() + " with name " + givenPlan.getName() + " is null!");
-            return;
+        boolean rulesFulfilled = true;
+        if (RulesChecker.areRulesContained(csarID)) {
+            rulesFulfilled = RulesChecker.check(csarID, serviceTemplateId, givenPlan.getInputParameters());
+            if (rulesFulfilled) {
+                this.LOG.debug("Deployment Rules are fulfilled. Continuing the provisioning.");
+            } else {
+                this.LOG.debug("Deployment Rules are not fulfilled. Arborting the provisioning.");
+                return;
+            }
         }
-        if (!storedPlan.getId().equals(givenPlan.getId().getLocalPart())) {
-            this.LOG.error("Plan " + givenPlan.getId() + " with internal ID " + givenPlan.getName()
-                + " should copy of PublicPlan " + storedPlan.getId() + "!");
-            return;
-        }
+        if (rulesFulfilled) {
 
-        givenPlan.setName(storedPlan.getName());
-        givenPlan.setPlanLanguage(storedPlan.getPlanLanguage());
-        givenPlan.setPlanType(storedPlan.getPlanType());
-        givenPlan.setOutputParameters(storedPlan.getOutputParameters());
+            // refill information that might not be sent
+            final TPlan storedPlan =
+                ServiceProxy.toscaReferenceMapper.getPlanForCSARIDAndPlanID(csarID, givenPlan.getId());
 
-        final PlanInvocationEvent planEvent = new PlanInvocationEvent();
+            if (null == storedPlan) {
+                this.LOG.error("Plan " + givenPlan.getId() + " with name " + givenPlan.getName() + " is null!");
+                return;
+            }
+            if (!storedPlan.getId().equals(givenPlan.getId().getLocalPart())) {
+                this.LOG.error("Plan " + givenPlan.getId() + " with internal ID " + givenPlan.getName()
+                    + " should copy of PublicPlan " + storedPlan.getId() + "!");
+                return;
+            }
 
-        this.LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType()
-            + "\" of CSAR \"" + csarID + "\".");
+            givenPlan.setName(storedPlan.getName());
+            givenPlan.setPlanLanguage(storedPlan.getPlanLanguage());
+            givenPlan.setPlanType(storedPlan.getPlanType());
+            givenPlan.setOutputParameters(storedPlan.getOutputParameters());
 
-        // fill in the informations about this PublicPlan which is not provided
-        // by the PublicPlan received by the REST API
-        final Map<QName, TPlan> publicPlanMap =
-            ServiceProxy.toscaReferenceMapper.getCSARIDToPlans(csarID)
-                                             .get(PlanTypes.isPlanTypeURI(givenPlan.getPlanType()));
+            final PlanInvocationEvent planEvent = new PlanInvocationEvent();
 
-        if (null == publicPlanMap) {
-            this.LOG.error("Wrong type! \"" + givenPlan.getPlanType() + "\"");
-            return;
+            this.LOG.info("Invoke the Plan \"" + givenPlan.getId() + "\" of type \"" + givenPlan.getPlanType()
+                + "\" of CSAR \"" + csarID + "\".");
 
-        }
+            // fill in the informations about this PublicPlan which is not provided
+            // by the PublicPlan received by the REST API
+            final Map<QName, TPlan> publicPlanMap =
+                ServiceProxy.toscaReferenceMapper.getCSARIDToPlans(csarID)
+                                                 .get(PlanTypes.isPlanTypeURI(givenPlan.getPlanType()));
 
-        planEvent.setCSARID(csarID.toString());
-        planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()));
-        planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID, givenPlan.getId()));
-        planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID, givenPlan.getId()));
-        // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
-        planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
-        planEvent.setPlanType(storedPlan.getPlanType());
-        planEvent.setPlanID(givenPlan.getId());
-        planEvent.setIsActive(true);
-        planEvent.setHasFailed(false);
-        for (final TParameter temp : storedPlan.getInputParameters().getInputParameter()) {
-            boolean found = false;
+            if (null == publicPlanMap) {
+                this.LOG.error("Wrong type! \"" + givenPlan.getPlanType() + "\"");
+                return;
 
-            this.LOG.trace("Processing input parameter {}", temp.getName());
+            }
 
-            final List<TParameterDTO> params = givenPlan.getInputParameters().getInputParameter();
-            for (final TParameterDTO param : params) {
+            planEvent.setCSARID(csarID.toString());
+            planEvent.setInputMessageID(ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID,
+                                                                                                givenPlan.getId()));
+            planEvent.setInterfaceName(ServiceProxy.toscaReferenceMapper.getIntferaceNameOfPlan(csarID,
+                                                                                                givenPlan.getId()));
+            planEvent.setOperationName(ServiceProxy.toscaReferenceMapper.getOperationNameOfPlan(csarID,
+                                                                                                givenPlan.getId()));
+            // planEvent.setOutputMessageID(storedPlan.getOutputMessageID());
+            planEvent.setPlanLanguage(storedPlan.getPlanLanguage());
+            planEvent.setPlanType(storedPlan.getPlanType());
+            planEvent.setPlanID(givenPlan.getId());
+            planEvent.setIsActive(true);
+            planEvent.setHasFailed(false);
+            for (final TParameter temp : storedPlan.getInputParameters().getInputParameter()) {
+                boolean found = false;
 
-                if (param.getName().equals(temp.getName())) {
-                    final TParameterDTO dto = param;
-                    // param.setRequired(temp.getRequired());
-                    // param.setType(temp.getType());
-                    found = true;
-                    planEvent.getInputParameter().add(dto);
-                    String value = dto.getValue();
-                    if (value == null) {
-                        value = "";
+                this.LOG.trace("Processing input parameter {}", temp.getName());
+
+                final List<TParameterDTO> params = givenPlan.getInputParameters().getInputParameter();
+                for (final TParameterDTO param : params) {
+
+                    if (param.getName().equals(temp.getName())) {
+                        final TParameterDTO dto = param;
+                        // param.setRequired(temp.getRequired());
+                        // param.setType(temp.getType());
+                        found = true;
+                        planEvent.getInputParameter().add(dto);
+                        String value = dto.getValue();
+                        if (value == null) {
+                            value = "";
+                        }
+                        // Probably copied from:
+                        // https://stackoverflow.com/a/3777853/7065173
+                        // TODO: Check if can use Apache Common's normalize method
+                        // to implement this platfrom independently
+                        value = value.replace("\\r", "\r");
+                        value = value.replace("\r", "");
+                        value = value.replace("\\n", "\n");
+                        dto.setValue(value);
+                        this.LOG.trace("Found input param {} with value {}", param.getName(), param.getValue());
                     }
-                    // Probably copied from:
-                    // https://stackoverflow.com/a/3777853/7065173
-                    // TODO: Check if can use Apache Common's normalize method
-                    // to implement this platfrom independently
-                    value = value.replace("\\r", "\r");
-                    value = value.replace("\r", "");
-                    value = value.replace("\\n", "\n");
-                    dto.setValue(value);
-                    this.LOG.trace("Found input param {} with value {}", param.getName(), param.getValue());
+                }
+                if (!found) {
+                    this.LOG.trace("Did not found input param {}, thus, insert empty one.", temp.getName());
+                    final TParameterDTO newParam = new TParameterDTO();
+                    newParam.setName(temp.getName());
+                    newParam.setType(temp.getType());
+                    newParam.setRequired(temp.getRequired());
+                    planEvent.getInputParameter().add(newParam);
                 }
             }
-            if (!found) {
-                this.LOG.trace("Did not found input param {}, thus, insert empty one.", temp.getName());
-                final TParameterDTO newParam = new TParameterDTO();
-                newParam.setName(temp.getName());
-                newParam.setType(temp.getType());
-                newParam.setRequired(temp.getRequired());
-                planEvent.getInputParameter().add(newParam);
+            for (final TParameter temp : storedPlan.getOutputParameters().getOutputParameter()) {
+                final TParameterDTO param = new TParameterDTO();
+
+                param.setName(temp.getName());
+                param.setRequired(temp.getRequired());
+                param.setType(temp.getType());
+
+                planEvent.getOutputParameter().add(param);
             }
+
+            final Map<String, Object> eventValues = new Hashtable<>();
+            eventValues.put("CSARID", csarID);
+            eventValues.put("PLANID", planEvent.getPlanID());
+            eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
+            eventValues.put("OPERATIONNAME", planEvent.getOperationName());
+
+            this.LOG.debug("complete the list of parameters {}", givenPlan.getId());
+
+            final Map<String, String> message =
+                createRequest(csarID, serviceTemplateId,
+                              ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
+                              planEvent.getInputParameter(), correlationID);
+
+            if (null == message) {
+                this.LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(),
+                               givenPlan.getPlanLanguage());
+                return;
+            }
+
+            final StringBuilder builder = new StringBuilder("Invoking the plan with the following parameters:\n");
+            for (final String key : message.keySet()) {
+                builder.append("     " + key + " : " + message.get(key) + "\n");
+            }
+            this.LOG.trace(builder.toString());
+
+            eventValues.put("BODY", message);
+
+            if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
+                this.LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
+                eventValues.put("ASYNC", true);
+            } else if (ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
+                eventValues.put("ASYNC", true);
+            } else {
+                eventValues.put("ASYNC", false);
+            }
+            eventValues.put("MESSAGEID", correlationID);
+
+            ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
+
+            // Create a new instance
+            final PlanInstanceRepository repository = new PlanInstanceRepository();
+            final PlanInstance pi = new PlanInstance();
+            pi.setCorrelationId(correlationID);
+            this.LOG.debug("Plan Language: {}", storedPlan.getPlanLanguage());
+            pi.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
+            this.LOG.debug("Plan Type: {}", storedPlan.getPlanType());
+            pi.setType(PlanType.fromString(storedPlan.getPlanType()));
+            pi.setState(PlanInstanceState.RUNNING);
+            pi.setTemplateId(givenPlan.getId());
+
+
+            stiRepo.find(serviceTemplateInstanceID)
+                   .ifPresent(serviceTemplateInstance -> pi.setServiceTemplateInstance(serviceTemplateInstance));
+
+            planEvent.getInputParameter().stream().forEach(p -> {
+                new PlanInstanceInput(p.getName(), p.getValue(), p.getType()).setPlanInstance(pi);
+            });
+            repository.add(pi);
+
+            // send the message to the service bus
+            final Event event = new Event("org_opentosca_plans/requests", eventValues);
+            this.LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
+            ServiceProxy.eventAdmin.sendEvent(event);
         }
-        for (final TParameter temp : storedPlan.getOutputParameters().getOutputParameter()) {
-            final TParameterDTO param = new TParameterDTO();
-
-            param.setName(temp.getName());
-            param.setRequired(temp.getRequired());
-            param.setType(temp.getType());
-
-            planEvent.getOutputParameter().add(param);
-        }
-
-        final Map<String, Object> eventValues = new Hashtable<>();
-        eventValues.put("CSARID", csarID);
-        eventValues.put("PLANID", planEvent.getPlanID());
-        eventValues.put("PLANLANGUAGE", planEvent.getPlanLanguage());
-        eventValues.put("OPERATIONNAME", planEvent.getOperationName());
-
-        this.LOG.debug("complete the list of parameters {}", givenPlan.getId());
-
-        final Map<String, String> message =
-            createRequest(csarID, serviceTemplateId,
-                          ServiceProxy.toscaReferenceMapper.getPlanInputMessageID(csarID, givenPlan.getId()),
-                          planEvent.getInputParameter(), correlationID);
-
-        if (null == message) {
-            this.LOG.error("Failed to construct parameter list for plan {} of type {}", givenPlan.getId(),
-                           givenPlan.getPlanLanguage());
-            return;
-        }
-
-        final StringBuilder builder = new StringBuilder("Invoking the plan with the following parameters:\n");
-        for (final String key : message.keySet()) {
-            builder.append("     " + key + " : " + message.get(key) + "\n");
-        }
-        this.LOG.trace(builder.toString());
-
-        eventValues.put("BODY", message);
-
-        if (null == ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
-            this.LOG.warn(" There are no informations stored about whether the plan is synchronous or asynchronous. Thus, we believe it is asynchronous.");
-            eventValues.put("ASYNC", true);
-        } else if (ServiceProxy.toscaReferenceMapper.isPlanAsynchronous(csarID, givenPlan.getId())) {
-            eventValues.put("ASYNC", true);
-        } else {
-            eventValues.put("ASYNC", false);
-        }
-        eventValues.put("MESSAGEID", correlationID);
-
-        ServiceProxy.csarInstanceManagement.storePublicPlanToHistory(correlationID, planEvent);
-
-        // Create a new instance
-        final PlanInstanceRepository repository = new PlanInstanceRepository();
-        final PlanInstance pi = new PlanInstance();
-        pi.setCorrelationId(correlationID);
-        this.LOG.debug("Plan Language: {}", storedPlan.getPlanLanguage());
-        pi.setLanguage(PlanLanguage.fromString(storedPlan.getPlanLanguage()));
-        this.LOG.debug("Plan Type: {}", storedPlan.getPlanType());
-        pi.setType(PlanType.fromString(storedPlan.getPlanType()));
-        pi.setState(PlanInstanceState.RUNNING);
-        pi.setTemplateId(givenPlan.getId());
-
-
-        stiRepo.find(serviceTemplateInstanceID)
-               .ifPresent(serviceTemplateInstance -> pi.setServiceTemplateInstance(serviceTemplateInstance));
-
-        planEvent.getInputParameter().stream().forEach(p -> {
-            new PlanInstanceInput(p.getName(), p.getValue(), p.getType()).setPlanInstance(pi);
-        });
-        repository.add(pi);
-
-        // send the message to the service bus
-        final Event event = new Event("org_opentosca_plans/requests", eventValues);
-        this.LOG.debug("Send event with parameters for invocation with the CorrelationID \"{}\".", correlationID);
-        ServiceProxy.eventAdmin.sendEvent(event);
     }
+
+
 
     @Override
     public void correctCorrelationToServiceTemplateInstanceIdMapping(final CSARID csarID, final QName serviceTemplateId,
