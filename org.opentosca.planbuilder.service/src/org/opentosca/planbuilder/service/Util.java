@@ -28,7 +28,6 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
-import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 
 /**
  * Copyright 2015 IAAS University of Stuttgart <br>
@@ -48,6 +47,11 @@ public class Util {
         public SelfServiceOptionWrapper(final ApplicationOption option, final File planInputMessageFile) {
             this.option = option;
             this.planInputMessageFile = planInputMessageFile;
+        }
+
+        @Override
+        public String toString() {
+            return "SelfServiceOption Id: " + this.option.getId() + " Name: " + this.option.getName();
         }
     }
 
@@ -90,11 +94,7 @@ public class Util {
         try {
             final AbstractDefinitions defs =
                 planBuilderImporter.createContext(ServiceRegistry.getCoreFileService().getCSAR(csarId));
-
-            for (final AbstractServiceTemplate serviceTemplate : defs.getServiceTemplates()) {
-                plans.add(planBuilderImporter.buildPlan(defs, csarId.getFileName(), serviceTemplate.getQName()));
-            }
-
+            plans.addAll(planBuilderImporter.buildPlans(defs, csarId.getFileName()));
         }
         catch (final SystemException e) {
             // TODO Auto-generated catch block
@@ -181,7 +181,7 @@ public class Util {
 
         final File planInputMessageFile = new File(tmpDir, "plan.input.default." + id + ".xml");
 
-        option.setName("Default_PlanBuilderGenerated");
+        option.setName(Util.getBuildPlanServiceName(buildPlan.getDeploymentDeskriptor()).getLocalPart());
         option.setId(id);
         option.setIconUrl("");
         option.setDescription("N/A");
@@ -273,5 +273,6 @@ public class Util {
         final String soapEnvelopeSuffix = "</org:" + messageBodyRootLocalName + "></soapenv:Body></soapenv:Envelope>";
         return soapEnvelopeSuffix;
     }
+
 
 }
