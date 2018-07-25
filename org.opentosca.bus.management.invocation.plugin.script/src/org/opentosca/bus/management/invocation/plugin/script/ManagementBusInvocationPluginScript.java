@@ -146,8 +146,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         if (artifactType != null && nodeTemplateID != null) {
 
             // search operating system ia to upload files and run scripts on
-            // target
-            // machine
+            // target machine
             final String osNodeTemplateID =
                 MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
 
@@ -182,93 +181,96 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
                         ManagementBusInvocationPluginScript.LOG.debug("Packages installed.");
 
-                        // upload files
-                        ManagementBusInvocationPluginScript.LOG.debug("Uploading files...");
-
+                        // get list of artifacts
                         final List<String> artifactReferences =
                             ServiceHandler.toscaEngineService.getArtifactReferenceWithinArtifactTemplate(csarID,
                                                                                                          artifactTemplateID);
 
-                        String fileSource;
-                        String targetFilePath = null;
-                        String targetFileFolderPath = null;
+                        ManagementBusInvocationPluginScript.LOG.debug("{} contains {} artifacts. Uploading and executing them...",
+                                                                      artifactTemplateID, artifactReferences.size());
 
+                        // Map which contains the output parameters
+                        final Map<String, String> resultMap = new HashMap<>();
+
+                        // upload and execute all contained artifacts
                         for (final String artifactRef : artifactReferences) {
 
-                            fileSource =
+                            final String fileSource =
                                 Settings.CONTAINER_API + "/csars/" + csarID.getFileName() + "/content/" + artifactRef;
 
+                            final String targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
 
-                            targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
-
-                            targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
+                            final String targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
 
                             final String createDirCommand = "sleep 1 && mkdir -p " + targetFileFolderPath;
+
+                            ManagementBusInvocationPluginScript.LOG.debug("Uploading file: {}", fileSource);
 
                             // create directory before uploading file
                             runScript(createDirCommand, headers);
 
                             // upload file
                             transferFile(csarID, artifactTemplateID, fileSource, targetFilePath, headers);
+
+                            ManagementBusInvocationPluginScript.LOG.debug("File successfully uploaded.");
+
+                            // run script
+                            ManagementBusInvocationPluginScript.LOG.debug("Running script...");
+
+                            final String fileNameWithE = FilenameUtils.getName(targetFilePath);
+                            final String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
+
+                            String artifactTypeSpecificCommand =
+                                createArtifcatTypeSpecificCommandString(csarID, artifactType, artifactTemplateID,
+                                                                        params);
+
+                            ManagementBusInvocationPluginScript.LOG.debug("Replacing further generic placeholder...");
+
+                            // replace placeholders
+                            artifactTypeSpecificCommand =
+                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_PATH,
+                                                                    targetFilePath);
+                            artifactTypeSpecificCommand =
+                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_FOLDER_PATH,
+                                                                    targetFileFolderPath);
+                            artifactTypeSpecificCommand =
+                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION,
+                                                                    fileNameWithE);
+                            artifactTypeSpecificCommand =
+                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION,
+                                                                    fileNameWithoutE);
+                            artifactTypeSpecificCommand =
+                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_NAME_PATH_MAP,
+                                                                    "sudo -E "
+                                                                        + createDANamePathMapEnvVar(csarID,
+                                                                                                    serviceTemplateID, nodeTypeID, nodeTemplateID)
+                                                                        + " CSAR='" + csarID + "' NodeInstanceID='"
+                                                                        + nodeInstanceID + "' ServiceInstanceID='"
+                                                                        + serviceInstanceID + "' ");
+                            artifactTypeSpecificCommand =
+                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_INPUT_PARAMETER,
+                                                                    createParamsString(params));
+
+                            ManagementBusInvocationPluginScript.LOG.debug("Final command for the script execution: {}",
+                                                                          artifactTypeSpecificCommand);
+
+                            final Object result = runScript(artifactTypeSpecificCommand, headers);
+
+                            ManagementBusInvocationPluginScript.LOG.debug("Script execution result: {}", result);
+
+                            // check for output parameters in the script result and add them to the
+                            // operation result
+                            addOutputParametersToResultMap(resultMap, result, outputParameters);
                         }
 
-                        ManagementBusInvocationPluginScript.LOG.debug("Files uploaded.");
+                        ManagementBusInvocationPluginScript.LOG.debug("All artifacts are executed. Returning result to the Management Bus...");
 
-                        // run script
-                        ManagementBusInvocationPluginScript.LOG.debug("Running scripts...");
-
-                        final String fileNameWithE = FilenameUtils.getName(targetFilePath);
-                        final String fileNameWithoutE = FilenameUtils.getBaseName(targetFilePath);
-
-                        String artifactTypeSpecificCommand =
-                            createArtifcatTypeSpecificCommandString(csarID, artifactType, artifactTemplateID, params);
-
-                        ManagementBusInvocationPluginScript.LOG.debug("Replacing further generic placeholder...");
-
-                        // replace placeholders
-                        artifactTypeSpecificCommand =
-                            artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_PATH,
-                                                                targetFilePath);
-                        artifactTypeSpecificCommand =
-                            artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_FOLDER_PATH,
-                                                                targetFileFolderPath);
-                        artifactTypeSpecificCommand =
-                            artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITH_EXTENSION,
-                                                                fileNameWithE);
-                        artifactTypeSpecificCommand =
-                            artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION,
-                                                                fileNameWithoutE);
-                        artifactTypeSpecificCommand =
-                            artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_NAME_PATH_MAP,
-                                                                "sudo -E "
-                                                                    + createDANamePathMapEnvVar(csarID,
-                                                                                                serviceTemplateID, nodeTypeID, nodeTemplateID)
-                                                                    + " CSAR='" + csarID + "' NodeInstanceID='"
-                                                                    + nodeInstanceID + "' ServiceInstanceID='"
-                                                                    + serviceInstanceID + "' ");
-                        artifactTypeSpecificCommand =
-                            artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_INPUT_PARAMETER,
-                                                                createParamsString(params));
-
-                        ManagementBusInvocationPluginScript.LOG.debug("Final command for ArtifactType {} : {}",
-                                                                      artifactType, artifactTypeSpecificCommand);
-
-                        final Object result = runScript(artifactTypeSpecificCommand, headers);
-
-                        ManagementBusInvocationPluginScript.LOG.debug("Script execution result: {}", result);
-
-                        ManagementBusInvocationPluginScript.LOG.debug("Scripts finished.");
-
-                        // create response
-                        final Map<String, String> resultMap = new HashMap<>();
-                        addOutputParametersToResultMap(resultMap, result, outputParameters);
+                        // create dummy response in case there are no output parameters
                         if (resultMap.isEmpty()) {
-                            // create dummy response in case there are no output parameters
                             resultMap.put("invocation", "finished");
                         }
 
                         exchange.getIn().setBody(resultMap);
-
                     } else {
                         ManagementBusInvocationPluginScript.LOG.warn("No OperatingSystem-IA found!");
                     }
