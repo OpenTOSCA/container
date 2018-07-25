@@ -192,13 +192,15 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                         // Map which contains the output parameters
                         final Map<String, String> resultMap = new HashMap<>();
 
+                        final String targetBasePath = "~/" + csarID.getFileName();
+
                         // upload and execute all contained artifacts
                         for (final String artifactRef : artifactReferences) {
 
                             final String fileSource =
                                 Settings.CONTAINER_API + "/csars/" + csarID.getFileName() + "/content/" + artifactRef;
 
-                            final String targetFilePath = "~/" + csarID.getFileName() + "/" + artifactRef;
+                            final String targetFilePath = targetBasePath + "/" + artifactRef;
 
                             final String targetFileFolderPath = FilenameUtils.getFullPathNoEndSeparator(targetFilePath);
 
@@ -261,7 +263,17 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                             // check for output parameters in the script result and add them to the
                             // operation result
                             addOutputParametersToResultMap(resultMap, result, outputParameters);
+
+                            // delete the uploaded file on the remote site to save resources
+                            ManagementBusInvocationPluginScript.LOG.debug("Deleting file...");
+                            final String deleteFileCommand = "rm -f " + targetFilePath;
+                            runScript(deleteFileCommand, headers);
                         }
+
+                        // remove the created directories
+                        ManagementBusInvocationPluginScript.LOG.debug("Deleting directories...");
+                        final String deleteDirsCommand = "find " + targetBasePath + " -empty -type d -delete";
+                        runScript(deleteDirsCommand, headers);
 
                         ManagementBusInvocationPluginScript.LOG.debug("All artifacts are executed. Returning result to the Management Bus...");
 
