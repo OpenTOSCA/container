@@ -86,6 +86,12 @@ public enum MBHeader {
     PLANID_QNAME,
 
     /**
+     * <b>PLANCORRELATIONID_STRING</b> This header field contains the correlation ID which uniquely
+     * identifies a PlanInstance.
+     */
+    PLANCORRELATIONID_STRING,
+
+    /**
      * <b>ENDPOINT_URI</b> This header field contains the endpoint of an Implementation Artifact or
      * a Plan.
      */

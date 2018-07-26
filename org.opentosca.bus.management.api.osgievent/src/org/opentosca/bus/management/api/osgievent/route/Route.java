@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.osgievent.route;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.opentosca.bus.management.api.osgievent.Activator;
+import org.opentosca.bus.management.api.osgievent.model.Operations;
 import org.opentosca.bus.management.header.MBHeader;
 
 /**
@@ -34,17 +35,17 @@ public class Route extends RouteBuilder {
 
             exchange.getIn().setHeader(MBHeader.APIID_STRING.toString(), Activator.apiID);
 
-            final String messageID = exchange.getIn().getHeader("MessageID", String.class);
+            final String messageID =
+                exchange.getIn().getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
             if (messageID != null) {
                 exchange.getIn().setMessageId(messageID);
-                exchange.getIn().removeHeader("MessageID");
-                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), "false");
+                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), false);
             } else {
-                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), "true");
+                exchange.getIn().setHeader(MBHeader.SYNCINVOCATION_BOOLEAN.toString(), true);
             }
 
-        }).to("stream:out").choice().when(this.header("OPERATION").isEqualTo("invokeIA")).to("direct:invokeIA")
-            .when(this.header("OPERATION").isEqualTo("invokePlan")).to("direct:invokePlan").end();
+        }).to("stream:out").choice().when(header("OPERATION").isEqualTo(Operations.invokeIA)).to("direct:invokeIA")
+            .when(header("OPERATION").isEqualTo(Operations.invokePlan)).to("direct:invokePlan").end();
 
         this.from("direct:invokeIA").to("stream:out").wireTap(MANAGEMENT_BUS_IA);
         this.from("direct:invokePlan").to("stream:out").to(MANAGEMENT_BUS_PLAN).end();
