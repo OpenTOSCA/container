@@ -30,6 +30,9 @@ import org.opentosca.container.core.model.AbstractArtifact;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.PlanInstance;
+import org.opentosca.container.core.next.model.PlanLanguage;
+import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +85,6 @@ import org.w3c.dom.NodeList;
  */
 
 public class ManagementBusServiceImpl implements IManagementBusService {
-
-    private static String BPMNNS = "http://www.omg.org/spec/BPMN/20100524/MODEL";
 
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
@@ -483,51 +484,57 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
         final Message message = exchange.getIn();
 
+        final String correlationID = message.getHeader(MBHeader.PLANCORRELATIONID_STRING.toString(), String.class);
+        ManagementBusServiceImpl.LOG.debug("Correlation ID: {}", correlationID);
+
         final CSARID csarID = message.getHeader(MBHeader.CSARID.toString(), CSARID.class);
         ManagementBusServiceImpl.LOG.debug("CSARID: " + csarID.toString());
 
         final URI serviceInstanceID = message.getHeader(MBHeader.SERVICEINSTANCEID_URI.toString(), URI.class);
         ManagementBusServiceImpl.LOG.debug("csarInstanceID: {}", serviceInstanceID);
 
-        final QName planID = message.getHeader(MBHeader.PLANID_QNAME.toString(), QName.class);
-        ManagementBusServiceImpl.LOG.debug("planID: {}", planID.toString());
+        if (correlationID != null) {
 
-        final String nodeTemplateID = message.getHeader(MBHeader.NODETEMPLATEID_STRING.toString(), String.class);
-        ManagementBusServiceImpl.LOG.debug("nodeTemplateID: {}", nodeTemplateID);
+            // get the PlanInstance object which contains all needed information
+            final PlanInstance plan = new PlanInstanceRepository().findByCorrelationId(correlationID);
 
-        ManagementBusServiceImpl.LOG.debug("Getting Endpoint for Plan {} from CSAR: {}", planID, csarID);
-        ServiceHandler.endpointService.printPlanEndpoints();
-        final WSDLEndpoint WSDLendpoint =
-            ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME, csarID,
-                                                                    planID);
+            if (plan != null) {
+                ManagementBusServiceImpl.LOG.debug("Plan ID: {}", plan.getTemplateId());
+                ManagementBusServiceImpl.LOG.debug("Plan language: {}", plan.getLanguage().toString());
 
-        final String planLanguage = message.getHeader("PlanLanguage", String.class);
-        ManagementBusServiceImpl.LOG.debug("plan language is: {}", planLanguage);
+                ManagementBusServiceImpl.LOG.debug("Getting endpoint for the plan...");
+                ServiceHandler.endpointService.printPlanEndpoints();
+                final WSDLEndpoint WSDLendpoint =
+                    ServiceHandler.endpointService.getWSDLEndpointForPlanId(Settings.OPENTOSCA_CONTAINER_HOSTNAME,
+                                                                            csarID, plan.getTemplateId());
 
-        if (WSDLendpoint != null) {
-            if (planLanguage.startsWith(BPMNNS)) {
-                final URI endpoint = WSDLendpoint.getURI();
-                ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
+                if (WSDLendpoint != null) {
 
-                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
-                // Assumption. Should be checked with ToscaEngine
-                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                    final URI endpoint = WSDLendpoint.getURI();
+                    ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", plan.getTemplateId(), endpoint);
 
-                exchange = callMatchingInvocationPlugin(exchange, "REST", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    // Assumption. Should be checked with ToscaEngine
+                    message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
+                    message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
 
+                    if (plan.getLanguage().equals(PlanLanguage.BPMN)) {
+                        exchange =
+                            callMatchingInvocationPlugin(exchange, "REST", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+
+                    } else {
+                        exchange =
+                            callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    }
+                } else {
+                    ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
+                                                      plan.getTemplateId(), csarID);
+                }
             } else {
-                final URI endpoint = WSDLendpoint.getURI();
-                ManagementBusServiceImpl.LOG.debug("Endpoint for Plan {} : {} ", planID, endpoint);
-
-                message.setHeader(MBHeader.ENDPOINT_URI.toString(), endpoint);
-                // Assumption. Should be checked with ToscaEngine
-                message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), true);
-
-                exchange = callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                ManagementBusServiceImpl.LOG.warn("Unable to get plan for CorrelationID {}. Invocation aborted!",
+                                                  correlationID);
             }
         } else {
-            ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invoking aborted!",
-                                              planID, csarID);
+            ManagementBusServiceImpl.LOG.warn("No correlation ID specified to identify the plan. Invocation aborted!");
         }
 
         handleResponse(exchange);
@@ -539,7 +546,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      *
      * @param exchange the exchange that has to be passed to the plug-in.
      * @param invocationType the invocation type for the IA/Plan invocation
-     * @param deploymentLocation the deployment location of the IA that is invoked
+     * @param deploymentLocation the deployment location of the IA/Plan that is invoked
      *
      * @return the response of the called plug-in.
      *
