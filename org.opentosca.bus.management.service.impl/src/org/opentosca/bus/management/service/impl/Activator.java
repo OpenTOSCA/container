@@ -43,7 +43,7 @@ public class Activator implements BundleActivator {
         camelContext.setUseBreadcrumb(false);
 
         // the camel routes are only needed if collaboration is turned on
-        if (Settings.OPENTOSCA_COLLABORATION_MODE.equals("true")) {
+        if (Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
             Activator.LOG.info("Collaboration mode is turned on. Starting camel routes...");
 
             // Create a producer template for all components of the Management Bus implementation.

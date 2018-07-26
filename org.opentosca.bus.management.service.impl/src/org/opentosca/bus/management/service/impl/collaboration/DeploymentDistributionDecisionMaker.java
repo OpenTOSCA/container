@@ -82,7 +82,7 @@ public class DeploymentDistributionDecisionMaker {
     public static String getDeploymentLocation(final NodeTemplateInstance nodeTemplateInstance) {
 
         // only perform matching if collaboration mode is turned on
-        if (Settings.OPENTOSCA_COLLABORATION_MODE.equals("true")) {
+        if (Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
 
             DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplateInstance with ID: {}",
                                                           nodeTemplateInstance.getId());
