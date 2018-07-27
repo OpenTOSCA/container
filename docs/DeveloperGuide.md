@@ -14,17 +14,6 @@
   * [Java SE Development Kit (JDK)](#java-se-development-kit-jdk)
   * [Eclipse](#eclipse)
 - [Set up Eclipse](#set-up-eclipse)
-  * [Add Tomcat Runtime](#add-tomcat-runtime)
-  * [Code Structure](#code-structure)
-  * [Import Code](#import-code)
-  * [Set Container Target Platform](#set-container-target-platform)
-- [How to](#how-to)
-  * [Create an Eclipse Plug-in project](#create-an-eclipse-plug-in-project)
-  * [Create / provide a declarative service](#create--provide-a-declarative-service)
-  * [Consume / use a declarative service](#consume--use-a-declarative-service)
-  * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
-    + [Get and add libraries](#get-and-add-libraries)
-<!-- tocstop -->
 
 ## Introduction
 
@@ -61,7 +50,7 @@ http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 If not installed already, download and install the most recent "Eclipse IDE for Java EE Developers"
 from http://www.eclipse.org/downloads .
-Install Eclipse by unpacking the downloaded archieve to a location of your choice.
+Install Eclipse by unpacking the downloaded archive to a location of your choice.
 
 ***
 
@@ -69,42 +58,22 @@ Install Eclipse by unpacking the downloaded archieve to a location of your choic
 
 Start Eclipse and create a new workspace at a location of your choice.
 
-### Add Tomcat Runtime
-
-Some of our projects are web projects (e.g. the JSP UI project) and can be directly deployed
-on a local Tomcat from Eclipse. Thus, the path to Tomcat must be specified. the following must
-be done in all workspaces.
-
-1. In Eclipse choose "**Preferences**" in the Window menu.
-2. Go to "**Server**", then "**Runtime Environments**" and click on "**Add...**".
-3. The wizard "**New Server Runtime Environment**" appears. select in the list "**Apache Tomcat v8.5**"
-   and click on "**Next**".
-4. If you already installed Tomcat define its path at "**Tomcat installation directionary**".
-   Otherwise you can download and install it directly from Eclipse by clicking on "**Download and Install**",
-   accepting the license agreement and defining an installation directory.
-5. Click on "**Finish**" to add the defined Tomcat installations as a server runtime environment.
-
-### Code Structure
-
-The following table shows the folder structure of the projects:
-
-| Path (relative to Repository Root)    | Content                                            |
-|:-------------------------------------:|:--------------------------------------------------:|
-| OpenTOSCA\trunk\common                | Common projects, e.g. logging projects, settings   |
-| OpenTOSCA\trunk\container             | Container projects and Target Platform             |
-| OpenTOSCA\trunk\container-test        | Test projects of Container                         |
-| OpenTOSCA\trunk\ui-jsp                | Root UI; JSP                                       |
-| OpenTOSCA\trunk\ui-root               | Root UI; JSP                                       |
-| OpenTOSCA\trunk\ui-vinothek           | Vinothek (self service portal); JSP                |
-
 ### Import Code
 
- 1. Download and unzip code to a location of your choice.
- 2. Menu "**File**" then ""**Import...**""
- 3. Then select import source: "**General**" then "**Existing Projects into Workspace**" and click on "**Next**".
- 4. Choose the location you extracted the code as "**root directory**" and select all projects
-    If you want you can exclude the tests (folder container test) or the UIs (folder ui-*)
- 5. Click "**Finish**"
+IMPORTANT: We recommend opening useful Git views in Eclipse. If not done already, click **Window** -> **Show view** -> **Other...**. In the **Show View** window, type **Git** in the filter box and select **Git Repositories** and **Git Staging**. (Optionally you can add more views).
+
+ 1. Copy the clone link of the Github repository.
+ 2. In Eclipse click **File** -> **Import...**
+ 3. Type **Git** in the filter box and select **Projets from Git**
+ 4. In the following window select **Clone URI**
+ 5. The copied repository link should be pasted automatically into the corresponding box. If not, paste it into the **URI** text box.
+ 6. Add your authentication credentials (Optional)
+ 7. Click **Next**
+ 8. Select at least the **master** branch and optionally other branches you want to develop.
+ 9. Click **Next**
+ 10. Now choose the directory you want to store the project files locally.
+ 11. Click **Next** and the cloning process starts. This should take a few seconds.
+ 12. After the download is completed, select **Import as general project** to finish the import process.
 
 ### Set Container Target Platform
 
