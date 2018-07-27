@@ -27,7 +27,7 @@ package names, which should help to understand the code better. Figure 1 shows a
 overview of the OpenTosca container including the relations of the different components.
 Further details can be found in the respective architecture documentation of OpenTOSCA.
 
-![OpenTosca Container Architecture](graphics/ContainerArchitectur.png)
+![OpenTosca Container Architecture](graphics/ArchitekturOpenTOSCAContainer-SOLL.png)
 **Fig.1: OpenTOSCA Container Architecture Overview**
 
 Figure 2 shows the architecture of the OpenTosca Container core which provides different shared
@@ -83,7 +83,7 @@ An Eclipse Target Platform contains libraries (OSGI bundles) that can be used / 
 plug-in projects. The OpenTOSCA Target Platform is contained in the project
 "**target-definition**".
 
-1.open the file "target-definition.target" in the project
+1.Open the file "target-definition.target" in the project
   "**target-definition**".
 2.In the appearing Target Platform Editor click on "**Set as Target Platform**" in the top right corner
   (FIG. 3)
