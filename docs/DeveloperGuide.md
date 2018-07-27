@@ -74,6 +74,8 @@ IMPORTANT: We recommend opening useful Git views in Eclipse. If not done already
  10. Now choose the directory you want to store the project files locally.
  11. Click **Next** and the cloning process starts. This should take a few seconds.
  12. After the download is completed, select **Import as general project** to finish the import process.
+ 
+ Hint: To add additional projects from the repository, right click on the imported **container** repository in the **Git Repositories** view and select **Import projects...**
 
 ### Set Container Target Platform
 
