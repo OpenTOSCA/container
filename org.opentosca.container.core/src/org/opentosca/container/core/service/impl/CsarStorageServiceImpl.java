@@ -14,11 +14,14 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.eclipse.winery.common.ids.definitions.ServiceTemplateId;
+import org.eclipse.winery.provenance.exceptions.ProvenanceException;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
 import org.eclipse.winery.repository.configuration.FileBasedRepositoryConfiguration;
+import org.eclipse.winery.repository.importing.CsarImportOptions;
 import org.eclipse.winery.repository.importing.CsarImporter;
 import org.eclipse.winery.repository.importing.ImportMetaInformation;
 import org.opentosca.container.core.common.Settings;
@@ -103,8 +106,11 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             RepositoryFactory.reconfigure(new FileBasedRepositoryConfiguration(permanentLocation));
 
             CsarImporter importer = new CsarImporter();
-            // do not overwrite existing definitions, use async parsing for speed
-            importInfo = importer.readCSAR(Files.newInputStream(csarLocation), false, true);
+            final CsarImportOptions importOptions = new CsarImportOptions();
+            importOptions.setValidate(true);
+            importOptions.setAsyncWPDParsing(true);
+            importOptions.setOverwrite(false);
+            importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
             if (!importInfo.errors.isEmpty()) {
                 FileUtils.forceDelete(permanentLocation);
             }
@@ -112,22 +118,36 @@ public class CsarStorageServiceImpl implements CsarStorageService {
         catch (IOException e) {
             // roll back the import
             FileUtils.forceDelete(permanentLocation);
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+        }
+        catch (ProvenanceException e) {
+            LOGGER.debug("Provenance for imported CSAR could not be checked", e);
+            FileUtils.forceDelete(permanentLocation);
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+        }
+        catch (ExecutionException | InterruptedException e) {
+            LOGGER.warn("CSAR Import was interrupted or terminated with an exception", e);
+            FileUtils.forceDelete(permanentLocation);
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
         }
         if (importInfo == null || !importInfo.errors.isEmpty()) {
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
         }
-        Optional<ServiceTemplateId> entryServiceTemplate = importInfo.entryServiceTemplate;
-        if (entryServiceTemplate.isPresent()) {
-            try (OutputStream os = Files.newOutputStream(permanentLocation.resolve("EntryServiceTemplate"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
-                os.write(entryServiceTemplate.get().getQName().toString().getBytes(StandardCharsets.UTF_8));
-            }
-            catch (IOException e) {
-                // well... we failed to keep track of the entryServiceTemplate
-                LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
-                throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
-            }
+        // apparently there will always be an EntryServiceTemplate??
+        ServiceTemplateId entryServiceTemplate = importInfo.entryServiceTemplate;
+        // we may be able to "guarantee" it's not null, since we validate CSARs on import
+        if (entryServiceTemplate == null) {
+            return candidateId;
         }
-        // TODO: What if there is no entryServiceTemplate?
+        // FIXME don't store this in the winery repo location. Use some database for this!
+        try (OutputStream os = Files.newOutputStream(permanentLocation.resolve("EntryServiceTemplate"), StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW)) {
+            os.write(entryServiceTemplate.getQName().toString().getBytes(StandardCharsets.UTF_8));
+        }
+        catch (IOException e) {
+            // well... we failed to keep track of the entryServiceTemplate
+            LOGGER.warn("Could not save EntryServiceTemplate for Csar [{}] due to {}", candidateId.csarName(), e);
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
+        }
         return candidateId;
     }
 

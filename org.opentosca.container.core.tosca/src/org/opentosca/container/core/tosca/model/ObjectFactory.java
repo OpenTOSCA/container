@@ -247,7 +247,8 @@ public class ObjectFactory implements IToscaModelFactory {
      */
     @Override
     public TExtensibleElements createTExtensibleElements() {
-        return new TExtensibleElements();
+        return null;
+        // return new TExtensibleElements();
     }
 
     /**
