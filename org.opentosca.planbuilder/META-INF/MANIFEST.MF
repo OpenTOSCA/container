@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Planbuilder is a bundle which builds plans from ba.context.AbstractDefinitions
 Bundle-SymbolicName: org.opentosca.planbuilder
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.0
 Test-Suite: org.opentosca.planbuilder.test.PlanBuilderTestSuite
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: javax.wsdl;version="1.6.0",

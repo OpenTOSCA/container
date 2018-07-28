@@ -10,4 +10,8 @@
   <artifactId>org.opentosca.deployment.tests</artifactId>
   <packaging>eclipse-plugin</packaging>
 
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+  </build>
+
 </project>

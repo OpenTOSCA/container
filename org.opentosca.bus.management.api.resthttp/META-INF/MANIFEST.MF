@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rest-Http API for Management Bus
 Bundle-SymbolicName: org.opentosca.bus.management.api.resthttp
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.0
 Bundle-Activator: org.opentosca.bus.management.api.resthttp.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4",

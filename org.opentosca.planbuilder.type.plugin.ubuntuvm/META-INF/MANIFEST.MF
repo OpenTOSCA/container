@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Core Ubuntu VM Plugin
 Bundle-SymbolicName: org.opentosca.planbuilder.type.plugin.ubuntuvm
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.0
 Bundle-Vendor: OpenTOSCA
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",

@@ -15,6 +15,8 @@ import org.opentosca.container.core.next.repository.DeploymentTestRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.integration.tests.CsarActions;
 import org.opentosca.container.integration.tests.ServiceTrackerUtil;
+import org.opentosca.deployment.tests.TestContext;
+import org.opentosca.deployment.tests.TestExecutor;
 import org.opentosca.planbuilder.importer.Importer;
 import org.opentosca.planbuilder.model.tosca.AbstractDefinitions;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;

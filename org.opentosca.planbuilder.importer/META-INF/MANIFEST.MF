@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Contextbuilder
 Bundle-SymbolicName: org.opentosca.planbuilder.importer
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.0
 Test-Suite: org.opentosca.planbuilder.importer.test.ContextTestSuite2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.oasis_open.docs.tosca.ns._2011._12,

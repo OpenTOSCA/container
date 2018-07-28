@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA IA Engine Script Plugin
 Bundle-SymbolicName: org.opentosca.container.engine.ia.plugin.script
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.osgi.util;version="1.1.0",
  org.opentosca.container.core.model;version="2.0.0",

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Selection Core Plugin First Available
 Bundle-SymbolicName: org.opentosca.planbuilder.selection.plugin.firstavailable
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
  org.eclipse.core.runtime;common=split;version="[3.1.0,4.0.0)",

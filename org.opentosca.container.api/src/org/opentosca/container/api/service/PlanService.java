@@ -40,9 +40,9 @@ import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
 import org.opentosca.container.core.tosca.extension.TParameter;
+import org.opentosca.deployment.tests.DeploymentTestService;
 import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TPlan;
-import org.opentosca.deployment.tests.DeploymentTestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
