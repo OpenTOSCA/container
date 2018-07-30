@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-@Path("/situations")
+@Path("/situationsapi")
 public class SituationsController {
 
     @Context
@@ -44,6 +45,7 @@ public class SituationsController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Path("/situations")
     public Response getSituations() {
         final SituationListDTO dto = new SituationListDTO();
         this.instanceService.getSituations().forEach(x -> dto.add(SituationDTO.Converter.convert(x)));;
@@ -52,7 +54,7 @@ public class SituationsController {
 
     @PUT
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/{situation}")
+    @Path("/situations/{situation}")
     public Response updateSituation(@PathParam("situation") final Long situationId, final SituationDTO situation) {
         final Situation sit = this.instanceService.getSituation(situation.getId());
 
@@ -60,7 +62,7 @@ public class SituationsController {
 
         this.instanceService.updateSituation(sit);
 
-        final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sit.getId().toString(), false);
+        final URI instanceURI = UriUtil.generateSelfURI(this.uriInfo);
 
         return Response.ok(instanceURI).build();
     }
@@ -68,6 +70,7 @@ public class SituationsController {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Path("/situations")
     public Response createSituation(final SituationDTO situation) {
         final Situation sit =
             this.instanceService.createNewSituation(situation.getThingId(), situation.getSituationTemplateId());
@@ -79,30 +82,35 @@ public class SituationsController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/{situation}")
+    @Path("/situations/{situation}")
     public Response getSituation(@PathParam("situation") final Long situationId) {
         return Response.ok(SituationDTO.Converter.convert(this.instanceService.getSituation(situationId))).build();
     }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/{situation}/triggers")
-    public Response getSituationTriggers(@PathParam("situation") final Long situationId) {
+    @Path("/triggers")
+    public Response getSituationTriggers() {
         final SituationTriggerListDTO dto = new SituationTriggerListDTO();
-        this.instanceService.getSituationTriggers(this.instanceService.getSituation(situationId))
-                            .forEach(x -> dto.add(SituationTriggerDTO.Converter.convert(x)));
+
+        this.instanceService.getSituationTriggers().forEach(x -> dto.add(SituationTriggerDTO.Converter.convert(x)));
         return Response.ok(dto).build();
     }
 
     @POST
-    @Path("/{situation}/triggers")
+    @Path("/triggers")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createSituationTrigger(final SituationTriggerDTO situationTrigger) {
 
         final Situation situation = this.instanceService.getSituation(situationTrigger.getSituationId());
-        final ServiceTemplateInstance serviceInstance =
-            this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId());
+        ServiceTemplateInstance serviceInstance;
+        try {
+            serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId());
+        }
+        catch (final NotFoundException e) {
+            serviceInstance = null;
+        }
         NodeTemplateInstance nodeInstance = null;
         if (situationTrigger.getNodeInstanceId() != null) {
             nodeInstance = this.instanceService.getNodeTemplateInstance(situationTrigger.getNodeInstanceId());
@@ -117,8 +125,8 @@ public class SituationsController {
 
         final SituationTrigger sitTrig =
             this.instanceService.createNewSituationTrigger(situation, situationTrigger.isOnActivation(),
-                                                           serviceInstance, nodeInstance,
-                                                           situationTrigger.getInterfaceName(),
+                                                           situationTrigger.isSingleInstance(), serviceInstance,
+                                                           nodeInstance, situationTrigger.getInterfaceName(),
                                                            situationTrigger.getOperationName(), inputs);
 
         final URI instanceURI = UriUtil.generateSubResourceURI(this.uriInfo, sitTrig.getId().toString(), false);
@@ -127,18 +135,16 @@ public class SituationsController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/{situation}/triggers/{situationtrigger}")
-    public Response getSituationTrigger(@PathParam("situation") final Long situationId,
-                                        @PathParam("situationtrigger") final Long situationTriggerId) {
+    @Path("/triggers/{situationtrigger}")
+    public Response getSituationTrigger(@PathParam("situationtrigger") final Long situationTriggerId) {
         return Response.ok(SituationTriggerDTO.Converter.convert(this.instanceService.getSituationTrigger(situationTriggerId)))
                        .build();
     }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/{situation}/triggers/{situationtrigger}/{situationtriggerinstance}")
-    public Response getSituationTriggerInstance(@PathParam("situation") final Long situationId,
-                                                @PathParam("situationtrigger") final Long situationTriggerId,
+    @Path("/triggers/{situationtrigger}/{situationtriggerinstance}")
+    public Response getSituationTriggerInstance(@PathParam("situationtrigger") final Long situationTriggerId,
                                                 @PathParam("situationtriggerinstance") final Long situationTriggerInstanceId) {
         return Response.ok(SituationTriggerInstanceDTO.Converter.convert(this.instanceService.getSituationTriggerInstance(situationTriggerInstanceId)))
                        .build();

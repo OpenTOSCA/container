@@ -1,12 +1,12 @@
 package org.opentosca.container.core.next.model;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
@@ -22,19 +22,22 @@ public class SituationTrigger extends PersistenceObject {
 
     public static final String TABLE_NAME = "SITUATION_TRIGGER";
 
-    @ManyToOne()
+    @OneToOne()
     @JoinColumn(name = "SITUATION_ID")
     private Situation situation;
 
     @Column(nullable = false)
     private boolean triggerOnActivation;
 
+    @Column(nullable = false)
+    private boolean isSingleInstance;
+
     @OneToOne
-    @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID")
+    @JoinColumn(name = "SERVICE_TEMPLATE_INSTANCE_ID", nullable = true)
     private ServiceTemplateInstance serviceInstance;
 
     @OneToOne
-    @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID")
+    @JoinColumn(name = "NODE_TEMPLATE_INSTANCE_ID", nullable = true)
     private NodeTemplateInstance nodeInstance;
 
     @Column(nullable = false)
@@ -42,6 +45,10 @@ public class SituationTrigger extends PersistenceObject {
 
     @Column(nullable = false)
     private String operationName;
+
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "situationTrigger")
+    private Collection<SituationTriggerInstance> situationTriggerInstances;
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "situationTrigger", cascade = {CascadeType.ALL})
@@ -53,6 +60,14 @@ public class SituationTrigger extends PersistenceObject {
 
     public void setSituation(final Situation situation) {
         this.situation = situation;
+    }
+
+    public boolean isSingleInstance() {
+        return this.isSingleInstance;
+    }
+
+    public boolean setSingleInstance(final boolean isSingleInstance) {
+        return this.isSingleInstance;
     }
 
     public boolean isTriggerOnActivation() {
@@ -101,6 +116,14 @@ public class SituationTrigger extends PersistenceObject {
 
     public void setInputs(final Set<SituationTriggerProperty> inputs) {
         this.inputs = inputs;
+    }
+
+    public Collection<SituationTriggerInstance> getSituationTriggerInstances() {
+        return this.situationTriggerInstances;
+    }
+
+    public void setSituationTriggerInstances(final Collection<SituationTriggerInstance> situationTriggerInstances) {
+        this.situationTriggerInstances = situationTriggerInstances;
     }
 
 }

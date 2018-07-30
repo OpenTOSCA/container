@@ -29,6 +29,9 @@ public class SituationTriggerDTO extends ResourceSupport {
     @XmlElement(name = "onActivation")
     private boolean onActivation;
 
+    @XmlElement(name = "isSingleInstance")
+    private boolean isSingleInstance;
+
     @XmlElement(name = "ServiceInstanceId")
     private Long serviceInstanceId;
 
@@ -68,6 +71,14 @@ public class SituationTriggerDTO extends ResourceSupport {
 
     public void setOnActivation(final boolean onActivation) {
         this.onActivation = onActivation;
+    }
+
+    public boolean isSingleInstance() {
+        return this.isSingleInstance;
+    }
+
+    public void setIsSingleInstance(final boolean isSingleInstance) {
+        this.isSingleInstance = isSingleInstance;
     }
 
     public Long getServiceInstanceId() {
@@ -116,7 +127,10 @@ public class SituationTriggerDTO extends ResourceSupport {
 
             dto.setId(object.getId());
             dto.setOnActivation(object.isTriggerOnActivation());
-            dto.setServiceInstanceId(object.getServiceInstance().getId());
+            dto.setIsSingleInstance(object.isSingleInstance());
+            if (object.getServiceInstance() != null) {
+                dto.setServiceInstanceId(object.getServiceInstance().getId());
+            }
             if (object.getNodeInstance() != null) {
                 dto.setNodeInstanceId(object.getNodeInstance().getId());
             }

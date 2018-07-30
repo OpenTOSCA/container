@@ -53,7 +53,7 @@ public class RootController {
         final ResourceSupport links = new ResourceSupport();
         links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());
         links.add(Link.fromResource(CsarController.class).rel("csars").baseUri(this.uriInfo.getBaseUri()).build());
-        links.add(Link.fromResource(SituationsController.class).rel("situations").baseUri(this.uriInfo.getBaseUri())
+        links.add(Link.fromResource(SituationsController.class).rel("situationsapi").baseUri(this.uriInfo.getBaseUri())
                       .build());
 
         // Link to plan builder resources

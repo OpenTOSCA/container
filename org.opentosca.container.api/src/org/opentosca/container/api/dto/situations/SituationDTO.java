@@ -94,6 +94,7 @@ public class SituationDTO extends ResourceSupport {
 
             dto.setId(object.getId());
             dto.setSituationTemplateId(object.getSituationTemplateId());
+            dto.setActive(object.isActive());
 
             final Collection<SituationTriggerDTO> sitTrigDtos = Sets.newHashSet();
             object.getSituationTriggers().forEach(x -> sitTrigDtos.add(SituationTriggerDTO.Converter.convert(x)));

@@ -68,7 +68,7 @@ public class SituationTriggerInstanceDTO extends ResourceSupport {
             final SituationTriggerInstanceDTO dto = new SituationTriggerInstanceDTO();
 
             dto.setId(object.getId());
-            dto.setActive(object.isActive());
+            dto.setActive(object.isFinished());
             dto.setSituationTriggerId(object.getSituationTrigger().getId());
             final Map<String, String> outputParams = Maps.newHashMap();
             object.getOutputs().forEach(x -> outputParams.put(x.getName(), x.getValue()));
