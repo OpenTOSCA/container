@@ -28,7 +28,6 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
 import org.opentosca.container.core.tosca.model.TPlan;
 import org.opentosca.container.core.tosca.model.TPlans;
 import org.opentosca.container.core.tosca.model.TServiceTemplate;
-import org.opentosca.container.engine.ia.IIAEngineService;
 import org.opentosca.container.engine.plan.IPlanEngineService;
 // import org.opentosca.planengine.service.IPlanEngineService;
 // import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
-    protected static IIAEngineService iAEngine = null;
     protected static IPlanEngineService planEngine = null;
     protected static ICoreFileService fileService = null;
     protected static IToscaEngineService toscaEngine = null;
@@ -395,20 +393,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     @Override
     public DeploymentProcessState getDeploymentProcessState(final CSARID csarID) {
         return OpenToscaControlServiceImpl.coreDeploymentTracker.getDeploymentState(csarID);
-    }
-
-    protected void bindIAEngine(final IIAEngineService service) {
-        if (service == null) {
-            this.LOG.error("Service IAEngine is null.");
-        } else {
-            this.LOG.debug("Bind of the IAEngine.");
-            OpenToscaControlServiceImpl.iAEngine = service;
-        }
-    }
-
-    protected void unbindIAEngine(final IIAEngineService service) {
-        this.LOG.debug("Unbind of the IAEngine.");
-        OpenToscaControlServiceImpl.iAEngine = null;
     }
 
     protected void bindPlanEngine(final IPlanEngineService service) {
