@@ -858,6 +858,11 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                                                                     iaName)
                                                                                  .toString();
 
+
+                    // create exchange for the undeployment plug-in invocation
+                    Exchange exchange = new DefaultExchange(Activator.camelContext);
+                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
+
                     // get plug-in for the undeployment
                     IManagementBusDeploymentPluginService deploymentPlugin;
                     if (deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
@@ -865,12 +870,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         deploymentPlugin = ServiceHandler.deploymentPluginServices.get(artifactType);
                     } else {
                         ManagementBusServiceImpl.LOG.debug("Undeployment is done on a remote Container.");
+                        exchange.getIn().setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
                         deploymentPlugin = ServiceHandler.deploymentPluginServices.get(Constants.REMOTE_TYPE);
                     }
-
-                    // create exchange for the plug-in invocation
-                    Exchange exchange = new DefaultExchange(Activator.camelContext);
-                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
 
                     exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
 
