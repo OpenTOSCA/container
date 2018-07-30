@@ -858,7 +858,6 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                                                                     iaName)
                                                                                  .toString();
 
-
                     // create exchange for the undeployment plug-in invocation
                     Exchange exchange = new DefaultExchange(Activator.camelContext);
                     exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
@@ -870,8 +869,16 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                         deploymentPlugin = ServiceHandler.deploymentPluginServices.get(artifactType);
                     } else {
                         ManagementBusServiceImpl.LOG.debug("Undeployment is done on a remote Container.");
-                        exchange.getIn().setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
                         deploymentPlugin = ServiceHandler.deploymentPluginServices.get(Constants.REMOTE_TYPE);
+
+                        // add header fields that are needed for the undeployment on a
+                        // remote OpenTOSCA Container
+                        exchange.getIn().setHeader(MBHeader.DEPLOYMENTLOCATION_STRING.toString(), deploymentLocation);
+                        exchange.getIn().setHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), triggeringContainer);
+                        exchange.getIn().setHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(),
+                                                   nodeTypeImpl.toString());
+                        exchange.getIn().setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), iaName);
+                        exchange.getIn().setHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), artifactType);
                     }
 
                     exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
