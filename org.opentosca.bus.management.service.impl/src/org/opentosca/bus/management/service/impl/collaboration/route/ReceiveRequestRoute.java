@@ -84,6 +84,7 @@ public class ReceiveRequestRoute extends RouteBuilder {
 
         // @formatter:off
         this.from(consumerEndpoint)
+            .threads(2, 5)
             .log(LoggingLevel.DEBUG, LOG, messageReceived)
             .doTry()
                 .unmarshal(jaxb)
