@@ -86,7 +86,7 @@ public class OutgoingProcessor implements Processor {
 
             message.setBody(jaxbCollaborationMessage);
 
-            OutgoingProcessor.LOG.debug("Forwarding message in XML format: {}", toXMLString(jaxbCollaborationMessage));
+            OutgoingProcessor.LOG.trace("Forwarding message in XML format: {}", toXMLString(jaxbCollaborationMessage));
         }
     }
 
