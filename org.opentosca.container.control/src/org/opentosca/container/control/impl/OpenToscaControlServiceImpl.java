@@ -217,13 +217,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             errors.add("Could not undeploy all plans.");
         }
 
-        // TODO: undeployment of IAs via Management Bus
-        // if (!OpenToscaControlServiceImpl.iAEngine.undeployImplementationArtifacts(csarID)) {
-        // this.LOG.warn("It was not possible to delete all ImplementationArtifacts of the CSAR \""
-        // + csarID + ".");
-        // errors.add("Could not undeploy all ImplementationArtifacts.");
-        // }
-
         // Delete operation is legal, thus continue.
         if (!OpenToscaControlServiceImpl.toscaEngine.clearCSARContent(csarID)) {
             this.LOG.error("It was not possible to delete all content of the CSAR \"" + csarID

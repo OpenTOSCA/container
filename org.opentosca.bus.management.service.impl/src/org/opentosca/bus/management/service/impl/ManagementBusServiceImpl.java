@@ -12,6 +12,7 @@ import javax.xml.namespace.QName;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultExchange;
 import org.apache.commons.lang3.StringUtils;
 import org.opentosca.bus.management.deployment.plugin.IManagementBusDeploymentPluginService;
 import org.opentosca.bus.management.header.MBHeader;
@@ -32,6 +33,8 @@ import org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanLanguage;
+import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
 import org.slf4j.Logger;
@@ -49,8 +52,8 @@ import org.w3c.dom.NodeList;
  * <br>
  *
  * The engine gets the invoke-request as a camel exchange object with all needed parameters (e.g.
- * CSARID, ServiceTemplateID,...) in the header and the actual invoke message in the body of it.
- * <br>
+ * CSARID, ServiceTemplateID, CorrelationID...) in the header and the actual invoke message in the
+ * body of it. <br>
  * <br>
  *
  * In case of invoking an operation of an implementation artifact, the engine identifies with help
@@ -72,8 +75,6 @@ import org.w3c.dom.NodeList;
  * checking the language of the plan and afterwards invokes the plan via this plug-in.<br>
  * <br>
  *
- * TODO: undeployment logic
- *
  * @see IManagementBusInvocationPluginService
  * @see IManagementBusDeploymentPluginService
  * @see IToscaEngineService
@@ -89,6 +90,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     private final static Logger LOG = LoggerFactory.getLogger(ManagementBusServiceImpl.class);
 
     private static Map<String, Object> locks = new HashMap<>();
+
+    private final static String placeholderStart = "/PLACEHOLDER_";
+    private final static String placeholderEnd = "_PLACEHOLDER/";
 
     @Override
     public void invokeIA(Exchange exchange) {
@@ -389,8 +393,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                         if (endpointURI != null) {
                                                             // check whether the endpoint contains a
                                                             // placeholder
-                                                            if (endpointURI.toString().contains("/PLACEHOLDER_")
-                                                                && endpointURI.toString().contains("_PLACEHOLDER/")) {
+                                                            if (endpointURI.toString().contains(placeholderStart)
+                                                                && endpointURI.toString().contains(placeholderEnd)) {
 
                                                                 // If a placeholder is specified,
                                                                 // the service is part of the
@@ -524,6 +528,20 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     } else {
                         exchange =
                             callMatchingInvocationPlugin(exchange, "SOAP/HTTP", Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+                    }
+
+                    // Undeploy IAs for the related ServiceTemplateInstance if
+                    // a termination plan was executed.
+                    if (plan.getType().equals(PlanType.TERMINATION)) {
+                        ManagementBusServiceImpl.LOG.debug("Executed plan was a termination plan. Removing endpoints...");
+
+                        final ServiceTemplateInstance serviceInstance = plan.getServiceTemplateInstance();
+
+                        if (serviceInstance != null) {
+                            deleteEndpointsForServiceInstance(csarID, serviceInstance);
+                        } else {
+                            ManagementBusServiceImpl.LOG.warn("Unable to retrieve ServiceTemplateInstance related to the plan.");
+                        }
                     }
                 } else {
                     ManagementBusServiceImpl.LOG.warn("No endpoint found for specified plan: {} of csar: {}. Invocation aborted!",
@@ -788,6 +806,94 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
+     * Delete all endpoints for the given ServiceTemplateInstance from the <tt>EndpointService</tt>.
+     * In case an endpoint is the only one for a certain implementation artifact, it is undeployed
+     * too.
+     *
+     * @param csarID The CSAR to which the ServiceTemplateInstance belongs.
+     * @param serviceInstance The ServiceTemplateInstance for which the endpoints have to be
+     *        removed.
+     */
+    private void deleteEndpointsForServiceInstance(final CSARID csarID, final ServiceTemplateInstance serviceInstance) {
+        final Long instanceID = serviceInstance.getId();
+
+        ManagementBusServiceImpl.LOG.debug("Deleting endpoints for ServiceTemplateInstance with ID: {}", instanceID);
+
+        final List<WSDLEndpoint> serviceEndpoints =
+            ServiceHandler.endpointService.getWSDLEndpointsForSTID(Settings.OPENTOSCA_CONTAINER_HOSTNAME, instanceID);
+
+        ManagementBusServiceImpl.LOG.debug("Found {} endpoints to delete...", serviceEndpoints.size());
+
+        for (final WSDLEndpoint serviceEndpoint : serviceEndpoints) {
+
+            final String triggeringContainer = serviceEndpoint.getTriggeringContainer();
+            final String deploymentLocation = serviceEndpoint.getManagingContainer();
+            final QName nodeTypeImpl = serviceEndpoint.getNodeTypeImplementation();
+            final String iaName = serviceEndpoint.getIaName();
+
+            ManagementBusServiceImpl.LOG.debug("Deleting endpoint: Triggering Container: {}; "
+                + "Managing Container: {}; NodeTypeImplementation: {}; IA name: {}", triggeringContainer,
+                                               deploymentLocation, nodeTypeImpl, iaName);
+
+            final String identifier =
+                triggeringContainer + "/" + deploymentLocation + "/" + nodeTypeImpl.toString() + "/" + iaName;
+
+            // synchronize deletion to avoid concurrency issues
+            synchronized (getLockForString(identifier)) {
+
+                // get number of endpoints for the same IA
+                final int count =
+                    ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
+                                                                                      deploymentLocation, nodeTypeImpl,
+                                                                                      iaName)
+                                                  .size();
+
+                // only undeploy the IA if this is the only endpoint
+                if (count == 1) {
+                    ManagementBusServiceImpl.LOG.debug("Undeploying corresponding IA...");
+
+                    final String artifactType = ServiceHandler.toscaEngineService
+                                                                                 .getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                                                                    nodeTypeImpl,
+                                                                                                                                                    iaName)
+                                                                                 .toString();
+
+                    // get plug-in for the undeployment
+                    IManagementBusDeploymentPluginService deploymentPlugin;
+                    if (deploymentLocation.equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+                        ManagementBusServiceImpl.LOG.debug("Undeployment is done locally.");
+                        deploymentPlugin = ServiceHandler.deploymentPluginServices.get(artifactType);
+                    } else {
+                        ManagementBusServiceImpl.LOG.debug("Undeployment is done on a remote Container.");
+                        deploymentPlugin = ServiceHandler.deploymentPluginServices.get(Constants.REMOTE_TYPE);
+                    }
+
+                    // create exchange for the plug-in invocation
+                    Exchange exchange = new DefaultExchange(Activator.camelContext);
+                    exchange.getIn().setHeader(MBHeader.ENDPOINT_URI.toString(), serviceEndpoint.getURI());
+
+                    exchange = deploymentPlugin.invokeImplementationArtifactUndeployment(exchange);
+
+                    // print the undeployment result state
+                    if (exchange.getIn().getHeader(MBHeader.OPERATIONSTATE_BOOLEAN.toString(), boolean.class)) {
+                        ManagementBusServiceImpl.LOG.debug("Undeployed IA successfully!");
+                    } else {
+                        ManagementBusServiceImpl.LOG.warn("Undeployment of IA failed!");
+                    }
+                } else {
+                    ManagementBusServiceImpl.LOG.debug("Found further endpoints for the IA. No undeployment!");
+                }
+
+                // delete the endpoint
+                ServiceHandler.endpointService.removeWSDLEndpoint(serviceEndpoint);
+                ManagementBusServiceImpl.LOG.debug("Endpoint deleted.");
+            }
+        }
+
+        ManagementBusServiceImpl.LOG.debug("Endpoint deletion terminated.");
+    }
+
+    /**
      * Checks if a InvocationType was specified in the Tosca.xml and returns it if so.
      *
      * @param properties to check for InvocationType.
@@ -899,7 +1005,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             return portType;
         }
         catch (final IllegalArgumentException e) {
-            ManagementBusServiceImpl.LOG.debug("PortType property can not be parsed to QName.");
+            ManagementBusServiceImpl.LOG.warn("PortType property can not be parsed to QName.");
         }
         return null;
     }
@@ -915,18 +1021,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      */
     private URI replacePlaceholderWithInstanceData(URI endpoint, final NodeTemplateInstance nodeTemplateInstance) {
 
-        final String placeholderBegin = "/PLACEHOLDER_";
-        final String placeholderEnd = "_PLACEHOLDER/";
-
         final String placeholder =
-            endpoint.toString().substring(endpoint.toString().lastIndexOf(placeholderBegin),
+            endpoint.toString().substring(endpoint.toString().lastIndexOf(placeholderStart),
                                           endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
 
         ManagementBusServiceImpl.LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder,
                                            endpoint.toString());
 
         final String[] placeholderProperties =
-            placeholder.replace(placeholderBegin, "").replace(placeholderEnd, "").split("_");
+            placeholder.replace(placeholderStart, "").replace(placeholderEnd, "").split("_");
 
         String propertyValue = null;
 
