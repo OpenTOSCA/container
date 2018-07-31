@@ -21,6 +21,8 @@ import org.opentosca.container.core.tosca.extension.TPlanDTO;
  * the org.opentosca.core.deployment.tracker.service.ICoreDeploymentTrackerService to read and set
  * the current state of a certain CSAR and provides a HashSet with the possible process invocations
  * for a certain CSAR.
+ * 
+ * @deprecated in favor of {@link OpenToscaControlService}
  */
 @Deprecated
 public interface IOpenToscaControlService {

@@ -40,6 +40,7 @@ public class ServiceBindingTracker {
     IFileAccessService fileAccessService;
     IHTTPService httpService;
     IOpenToscaControlService openToscaControlService;
+    OpenToscaControlService openToscaControlServiceReplacement;
     IPlanEngineService planEngineService;
     IToscaEngineService toscaEngineService;
     IXMLSerializerService xmlSerializerService;
@@ -499,6 +500,33 @@ public class ServiceBindingTracker {
         }
     }
 
+    /**
+     * Bind method for a service.
+     *
+     * @param service The service to bind.
+     */
+    protected void bindOpenToscaControlService(final OpenToscaControlService service) {
+        if (service == null) {
+            this.LOG.error("Service OpenToscaControlService is null.");
+        } else {
+            this.LOG.debug("Bind of the OpenToscaControlService.");
+            this.openToscaControlServiceReplacement = service;
+            this.log_online(service.getClass().getSimpleName());
+            this.checkAvailability();
+        }
+    }
+
+    /**
+     * Unbind method for a service.
+     *
+     * @param service The service to unbind.
+     */
+    protected void unbindOpenToscaControlService(final OpenToscaControlService service) {
+        this.LOG.debug("Unbind of the OpenToscaControlService.");
+        this.openToscaControlServiceReplacement = null;
+        this.log_offline(service.getClass().getSimpleName());
+    }
+    
     protected void unbindEventAdmin(final EventAdmin service) {
         this.LOG.debug("Unbind of the EventAdmin.");
         this.eventAdmin = null;

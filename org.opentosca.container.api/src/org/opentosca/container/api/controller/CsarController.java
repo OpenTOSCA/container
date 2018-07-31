@@ -41,14 +41,13 @@ import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.ModelUtil;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.connector.winery.WineryConnector;
-import org.opentosca.container.control.IOpenToscaControlService;
+import org.opentosca.container.control.OpenToscaControlService;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
-import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.importer.Importer;
@@ -62,7 +61,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
-
 @javax.ws.rs.Path("/csars")
 @Api(value = "/")
 public class CsarController {
@@ -79,7 +77,7 @@ public class CsarController {
 
     private IToscaEngineService engineService;
 
-    private IOpenToscaControlService controlService;
+    private OpenToscaControlService controlService;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -307,33 +305,29 @@ public class CsarController {
 //            return Response.serverError().build();
 //        }
 
-//        this.controlService.setDeploymentProcessStateStored(csarId.toOldCsarId());
-//        boolean success = this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
-//
-//        if (success) {
-//            final List<QName> serviceTemplates =
-//                this.engineService.getToscaReferenceMapper().getServiceTemplateIDsContainedInCSAR(csarId.toOldCsarId());
-//            for (final QName serviceTemplate : serviceTemplates) {
-//                logger.info("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-//                            csarId.csarName());
-//                if (!this.controlService.invokeIADeployment(csarId.toOldCsarId(), serviceTemplate)) {
-//                    logger.error("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-//                                 csarId.csarName());
-//                    success = false;
-//                }
-//                logger.info("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-//                            csarId.csarName());
-//                if (!this.controlService.invokePlanDeployment(csarId.toOldCsarId(), serviceTemplate)) {
-//                    logger.error("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate,
-//                                 csarId.csarName());
-//                    success = false;
-//                }
-//            }
-//        }
+        // FIXME maybe this only makes sense when we have generated plans :/
+        this.controlService.declareStored(csarId);
+        boolean success = this.controlService.invokeToscaProcessing(csarId);
+        if (success) {
+            Csar storedCsar = storage.findById(csarId);
+            final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
+            for (final TServiceTemplate serviceTemplate : serviceTemplates) {
+                logger.trace("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                if (!this.controlService.invokeIADeployment(csarId, serviceTemplate)) {
+                    logger.info("Error deploying IA for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                    success = false;
+                }
+                logger.trace("Invoke plan deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                if (!this.controlService.invokePlanDeployment(csarId, serviceTemplate)) {
+                    logger.info("Error deploying plan for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
+                    success = false;
+                }
+            }
+        }
 
-//        if (!success) {
-//            return Response.serverError().build();
-//        }
+        if (!success) {
+            return Response.serverError().build();
+        }
 
         logger.info("Uploading and storing CSAR \"{}\" was successful", csarId.csarName());
         final URI uri =
@@ -348,8 +342,8 @@ public class CsarController {
         final Csar csarContent = storage.findById(new CsarId(id));
         
         logger.info("Deleting CSAR \"{}\"", id);
-        final List<String> errors = this.controlService.deleteCSAR(csarContent.id().toOldCsarId());
-
+        final List<String> errors = this.controlService.deleteCsar(csarContent.id());
+        
         if (errors.size() > 0) {
             logger.error("Error deleting CSAR");
             errors.forEach(s -> logger.error(s));
@@ -373,7 +367,7 @@ public class CsarController {
         this.engineService = engineService;
     }
 
-    public void setControlService(final IOpenToscaControlService controlService) {
+    public void setControlService(final OpenToscaControlService controlService) {
         logger.debug("Binding ToscaControlService");
         this.controlService = controlService;
     }

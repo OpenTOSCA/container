@@ -7,14 +7,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.winery.common.ids.definitions.ArtifactTemplateId;
 import org.eclipse.winery.common.ids.definitions.NodeTypeId;
@@ -31,6 +33,7 @@ import org.eclipse.winery.repository.backend.RepositoryFactory;
 import org.eclipse.winery.repository.backend.SelfServiceMetaDataUtils;
 import org.eclipse.winery.repository.datatypes.ids.elements.SelfServiceMetaDataId;
 import org.eclipse.winery.repository.exceptions.RepositoryCorruptException;
+import org.eclipse.winery.repository.export.CsarExportConfiguration;
 import org.eclipse.winery.repository.export.CsarExporter;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.FileSystemFile;
@@ -144,4 +147,19 @@ public class CsarImpl implements Csar {
         return new FileSystemFile(Paths.get(imageUrl));
     }
 
+    @Override
+    public void exportTo(Path targetPath) throws IOException {
+        CsarExporter exporter = new CsarExporter();
+        Map<String, Object> exportConfiguration = new HashMap<>();
+        exportConfiguration.put(CsarExportConfiguration.INCLUDE_HASHES.name(), false);
+        exportConfiguration.put(CsarExportConfiguration.INCLUDE_PROVENANCE.name(), false);
+        try (OutputStream out = Files.newOutputStream(targetPath, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+            try {
+                exporter.writeCsar(wineryRepo, entryServiceTemplate.get(), out, exportConfiguration);
+            }
+            catch (RepositoryCorruptException | JAXBException e) {
+                throw new IOException("Failed to export CSAR", e);
+            }
+        }
+    }
 }
