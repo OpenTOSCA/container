@@ -7,6 +7,7 @@
 
 ## Table of Contents
 
+
 <!-- toc -->
 
 - [Introduction](#introduction)
@@ -14,6 +15,16 @@
   * [Java SE Development Kit (JDK)](#java-se-development-kit-jdk)
   * [Eclipse](#eclipse)
 - [Set up Eclipse](#set-up-eclipse)
+  * [Import Code](#import-code)
+  * [Set Container Target Platform](#set-container-target-platform)
+- [How to](#how-to)
+  * [Create an Eclipse Plug-in project](#create-an-eclipse-plug-in-project)
+  * [Create / provide a declarative service](#create--provide-a-declarative-service)
+  * [Consume / use a declarative service](#consume--use-a-declarative-service)
+  * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
+    + [Get and add libraries](#get-and-add-libraries)
+    
+<!-- tocstop -->
 
 ## Introduction
 
@@ -98,7 +109,7 @@ ___
 
 ### Create an Eclipse Plug-in project
 
-New Projects that should be belonging to the Container or the RAP UI must be created as Eclipse Plug-in Project (OSGI Bundle)
+New Projects that should belong to the Container or the RAP UI must be created as Eclipse Plug-in Project (OSGI Bundle)
 
 1. In Eclipse go to "**New**" then "**Other...**" in the File menu.
 2. Select in the list "**Plug-in Project**" and click on "**Next**".
@@ -110,14 +121,14 @@ New Projects that should be belonging to the Container or the RAP UI must be cre
 **Fig.4: Define details of new Eclipse plug-in project.**
 
 4. Define at "**Name**" a human readable name of this project/bundle, e.g. "**Core File Service Implementation**"
-5. A Activator is a class that contains the methods "**start**" and "**stop**" that will be executed when the
-   bundle will be started/stopped in the OSGi framework. Usually a Activator is not necessary.
+5. An Activator is a class that contains the methods "**start**" and "**stop**" that will be executed when the
+   bundle will be started/stopped in the OSGi framework. Usually an Activator is not necessary.
    Thus, deselect the checkbox "**Generate an activator...**"
 6. Click on "**Finish**" to create the plug in project.
 
 ### Create / provide a declarative service
 
-A OSGi service consists of a interface class and one or more implementation classes (e.g. the Core File Service
+An OSGi service consists of an interface class and one or more implementation classes (e.g. the Core File Service
 implementation for a database or Amazon S3) Interface and implementations should be in separate projects/bundles.
 
 _Interface project:_
