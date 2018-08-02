@@ -177,7 +177,7 @@ Fig. 6 shows the correct project structure of the Core File Service used as exam
 
 ![InterfaceImplementationStructure](graphics/InterfaceImplementationStructure.png)
 
-**Fig. 6: Service interface and implementation project structure. The Core File Services provides the methods “getTHOR” and “storeTHOR”. Its component XML resides in the folder “OSGI-INF” in the implementation project.**
+**Fig. 6: Service interface and implementation project structure. The Core File Services provides the methods “getCSAR” and “storeCSAR”. Its component XML resides in the folder “OSGI-INF” in the implementation project.**
 
 ### Consume / use a declarative service
 
@@ -218,8 +218,8 @@ public class MyServiceImpl{
 	private ICoreFileService coreFileService;
 
 	public void process() {
-		File thorFile = new File("E:\\SuperApp.thor");
-		coreFileService.storeTHOR(thorFile);
+		File csarFile = new File("E:\\SuperApp.csar");
+		coreFileService.storeCSAR(csarFile);
 	}
 
 	public void bindCoreFileService(ICoreFileService coreFileService){
@@ -242,7 +242,7 @@ public class MyServiceImpl{
 **Lst. 1 "MyServiceImpl" consumes the Core File Service.**
 
 You can now use the service by calling the desired method(s) on the service varaible.
-In Lst. 1 coreFileService.storeTHOR(thorFile) will be called in method process.
+In Lst. 1 coreFileService.storeCSAR(csarFile) will be called in method process.
 
 ### OpenTOSCA Target Platforms
 
