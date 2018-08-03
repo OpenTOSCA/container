@@ -8,8 +8,6 @@
 ## Table of Contents
 
 
-<!-- toc -->
-
 - [Introduction](#introduction)
 - [Eclipse Installation](#eclipse-installation)
   * [Java SE Development Kit (JDK)](#java-se-development-kit-jdk)
@@ -23,8 +21,6 @@
   * [Consume / use a declarative service](#consume--use-a-declarative-service)
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
-    
-<!-- tocstop -->
 
 ## Introduction
 
@@ -100,7 +96,7 @@ plug-in projects. The OpenTOSCA Target Platform is contained in the project
   (FIG. 3)
 3.After building the workspace there should be no errors left.
 
-![Target Platform Editor](graphics/TargetPlatformEditor.png)
+![Target Platform Editor](graphics/TargetDefinition.png)
 Fig.3: Eclipse Target Platform Editor
 
 ___
