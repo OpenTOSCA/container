@@ -465,7 +465,11 @@ public class DeploymentDistributionDecisionMaker {
     private static boolean isInstanceManagedLocally(final NodeTemplateInstance instance,
                                                     final boolean buildPlanFinished) {
         final boolean noIAInvocation = buildPlanFinished && instance.getManagingContainer() == null;
-        return noIAInvocation || instance.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+
+        final boolean managingContainerIsSetLocally = instance.getManagingContainer() != null
+            && instance.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+
+        return noIAInvocation || managingContainerIsSetLocally;
     }
 
     /**
