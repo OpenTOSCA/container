@@ -218,8 +218,7 @@ public class DeploymentDistributionDecisionMaker {
                                                               relationType);
 
                 // traverse topology stack downwards
-                if (relationType.equals(Types.hostedOnRelationType) || relationType.equals(Types.deployedOnRelationType)
-                    || relationType.equals(Types.dependsOnRelationType)) {
+                if (isInfrastructureRelationshipType(relationType)) {
                     DeploymentDistributionDecisionMaker.LOG.debug("Continue search with the target of the RelationshipTemplate...");
                     return searchInfrastructureNode(relation.getTarget());
                 } else {
@@ -278,7 +277,7 @@ public class DeploymentDistributionDecisionMaker {
 
                         // only match with NodeTemplateInstances for which the build process is
                         // already finished
-                        if (buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED)) {
+                        if (isBuildPlanFinished(buildPlan)) {
 
                             DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance is valid candidate for property matching...");
 
@@ -292,15 +291,7 @@ public class DeploymentDistributionDecisionMaker {
                                 DeploymentDistributionDecisionMaker.LOG.debug("NodeTemplateInstance matches with given type and properties!");
 
                                 // Check if the NodeTemplateInstances is managed by this Container.
-                                // It is managed by this Container if the corresponding attribute is
-                                // set accordingly. However, it is also managed by this Container,
-                                // if the corresponding attribute is null and the build plan
-                                // is finished. This means that there was no IA invocation in the
-                                // build plan and therefore also no remote deployment which means it
-                                // is managed locally. But this is a bit hacky at the moment...
-                                if (typeMatchingInstance.getManagingContainer() == null
-                                    || typeMatchingInstance.getManagingContainer()
-                                                           .equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME)) {
+                                if (isInstanceManagedLocally(typeMatchingInstance, true)) {
 
                                     DeploymentDistributionDecisionMaker.LOG.debug("Matched NodeTemplateInstance is managed locally!");
                                     return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
@@ -447,5 +438,46 @@ public class DeploymentDistributionDecisionMaker {
         }
 
         return entrySet;
+    }
+
+    /**
+     * Check if a given build plan has the state 'finished'.
+     *
+     * @param buildPlan The build plan to check
+     * @return <tt>true</tt> if the build plan is not null and the state is 'finished',
+     *         <tt>false</tt> otherwise
+     */
+    private static boolean isBuildPlanFinished(final PlanInstance buildPlan) {
+        return buildPlan != null && buildPlan.getState().equals(PlanInstanceState.FINISHED);
+    }
+
+    /**
+     * Check whether the given NodeTemplateInstance is managed by this Container. It is managed by
+     * this Container if the corresponding attribute is set accordingly. However, it is also managed
+     * by this Container, if the corresponding attribute is null and the build plan is finished.
+     * This means that there was no IA invocation in the build plan and therefore also no remote
+     * deployment which means it is managed locally.
+     *
+     * @param instance The instance to check if it is managed locally
+     * @param buildPlanFinished Whether the build plan of the instance is finished
+     * @return <tt>true</tt> if the instance is managed locally, <tt>false</tt> otherwise
+     */
+    private static boolean isInstanceManagedLocally(final NodeTemplateInstance instance,
+                                                    final boolean buildPlanFinished) {
+        final boolean noIAInvocation = buildPlanFinished && instance.getManagingContainer() == null;
+        return noIAInvocation || instance.getManagingContainer().equals(Settings.OPENTOSCA_CONTAINER_HOSTNAME);
+    }
+
+    /**
+     * Check whether a given Relationship Type is used to connect parts of a topology stack
+     * (infrastructure type) or different topology stacks.
+     *
+     * @param relationType The Relationship Type to check
+     * @return <tt>true</tt> if the Relationship Type is hostedOn, deployedOn or dependsOn and
+     *         <tt>false</tt> otherwise
+     */
+    private static boolean isInfrastructureRelationshipType(final QName relationType) {
+        return relationType.equals(Types.hostedOnRelationType) || relationType.equals(Types.deployedOnRelationType)
+            || relationType.equals(Types.dependsOnRelationType);
     }
 }
