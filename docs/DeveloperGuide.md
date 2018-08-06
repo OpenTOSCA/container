@@ -274,4 +274,7 @@ If you found the bundle you can add it to the Target Platform.
 
 The container can be started within Eclipse by navigating to the **org.opentosca.container.product** folder.
 In this folder open the file named **org.opentosca.container.product**.
-After opening this file you can click the green launch button on the top right of the editor window to start the container.
+
+After opening this file you can click the green launch button (Fig. 7) on the top right of the editor window to start the container.
+![ProductFile](graphics/ContainerProductFile.png)
+**Fig. 7**
