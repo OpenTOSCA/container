@@ -1,6 +1,7 @@
 package org.opentosca.container.api.controller;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -31,6 +32,7 @@ import org.opentosca.container.core.next.model.SituationTriggerProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 @Path("/situationsapi")
@@ -91,9 +93,15 @@ public class SituationsController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Path("/triggers")
     public Response getSituationTriggers() {
-        final SituationTriggerListDTO dto = new SituationTriggerListDTO();
-
-        this.instanceService.getSituationTriggers().forEach(x -> dto.add(SituationTriggerDTO.Converter.convert(x)));
+        final SituationTriggerListDTO dto;
+        try {
+            dto = new SituationTriggerListDTO();
+            this.instanceService.getSituationTriggers().forEach(x -> dto.add(SituationTriggerDTO.Converter.convert(x)));
+        }
+        catch (final Exception e) {
+            e.printStackTrace();
+            return Response.serverError().build();
+        }
         return Response.ok(dto).build();
     }
 
@@ -102,8 +110,13 @@ public class SituationsController {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response createSituationTrigger(final SituationTriggerDTO situationTrigger) {
+        final Collection<Situation> sits = Lists.newArrayList();
 
-        final Situation situation = this.instanceService.getSituation(situationTrigger.getSituationId());
+        for (final Long situationId : situationTrigger.getSituationIds()) {
+            final Situation situation = this.instanceService.getSituation(situationId);
+            sits.add(situation);
+        }
+
         ServiceTemplateInstance serviceInstance;
         try {
             serviceInstance = this.instanceService.getServiceTemplateInstance(situationTrigger.getServiceInstanceId());
@@ -124,7 +137,7 @@ public class SituationsController {
 
 
         final SituationTrigger sitTrig =
-            this.instanceService.createNewSituationTrigger(situation, situationTrigger.isOnActivation(),
+            this.instanceService.createNewSituationTrigger(sits, situationTrigger.isOnActivation(),
                                                            situationTrigger.isSingleInstance(), serviceInstance,
                                                            nodeInstance, situationTrigger.getInterfaceName(),
                                                            situationTrigger.getOperationName(), inputs);

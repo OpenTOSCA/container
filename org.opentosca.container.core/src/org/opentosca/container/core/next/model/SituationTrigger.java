@@ -22,9 +22,9 @@ public class SituationTrigger extends PersistenceObject {
 
     public static final String TABLE_NAME = "SITUATION_TRIGGER";
 
-    @OneToOne()
+    @OneToMany()
     @JoinColumn(name = "SITUATION_ID")
-    private Situation situation;
+    private Collection<Situation> situations;
 
     @Column(nullable = false)
     private boolean triggerOnActivation;
@@ -54,12 +54,12 @@ public class SituationTrigger extends PersistenceObject {
     @OneToMany(mappedBy = "situationTrigger", cascade = {CascadeType.ALL})
     private Set<SituationTriggerProperty> inputs = Sets.newHashSet();
 
-    public Situation getSituation() {
-        return this.situation;
+    public Collection<Situation> getSituations() {
+        return this.situations;
     }
 
-    public void setSituation(final Situation situation) {
-        this.situation = situation;
+    public void setSituations(final Collection<Situation> situation) {
+        this.situations = situation;
     }
 
     public boolean isSingleInstance() {

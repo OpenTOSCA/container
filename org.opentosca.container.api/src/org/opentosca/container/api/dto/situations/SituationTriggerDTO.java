@@ -10,9 +10,11 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.opentosca.container.api.dto.ResourceSupport;
+import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 @XmlRootElement(name = "SituationTrigger")
@@ -24,7 +26,8 @@ public class SituationTriggerDTO extends ResourceSupport {
     private Long id;
 
     @XmlElement(name = "SituationId")
-    private Long situationId;
+    @XmlElementWrapper(name = "Situations")
+    private Collection<Long> situationIds;
 
     @XmlElement(name = "onActivation")
     private boolean onActivation;
@@ -57,12 +60,12 @@ public class SituationTriggerDTO extends ResourceSupport {
         this.id = id;
     }
 
-    public Long getSituationId() {
-        return this.situationId;
+    public Collection<Long> getSituationIds() {
+        return this.situationIds;
     }
 
-    public void setSituationId(final Long situationId) {
-        this.situationId = situationId;
+    public void setSituationIds(final Collection<Long> situationIds) {
+        this.situationIds = situationIds;
     }
 
     public boolean isOnActivation() {
@@ -128,6 +131,15 @@ public class SituationTriggerDTO extends ResourceSupport {
             dto.setId(object.getId());
             dto.setOnActivation(object.isTriggerOnActivation());
             dto.setIsSingleInstance(object.isSingleInstance());
+
+            final Collection<Long> situationIds = Lists.newArrayList();
+
+            for (final Situation situation : object.getSituations()) {
+                situationIds.add(situation.getId());
+            }
+
+            dto.setSituationIds(situationIds);
+
             if (object.getServiceInstance() != null) {
                 dto.setServiceInstanceId(object.getServiceInstance().getId());
             }

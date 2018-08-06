@@ -1,12 +1,8 @@
 package org.opentosca.container.core.next.model;
 
-import java.util.Collection;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.opentosca.container.core.next.trigger.SituationListener;
@@ -28,10 +24,6 @@ public class Situation extends PersistenceObject {
 
     @Column(nullable = false)
     private String situationTemplateId;
-
-    @OrderBy("createdAt DESC")
-    @OneToMany(mappedBy = "situation")
-    private Collection<SituationTrigger> situationTriggers;
 
     public boolean isActive() {
         return this.active;
@@ -55,13 +47,5 @@ public class Situation extends PersistenceObject {
 
     public void setSituationTemplateId(final String situationTemplateId) {
         this.situationTemplateId = situationTemplateId;
-    }
-
-    public Collection<SituationTrigger> getSituationTriggers() {
-        return this.situationTriggers;
-    }
-
-    public void setSituationTriggerIds(final Collection<SituationTrigger> situationTriggers) {
-        this.situationTriggers = situationTriggers;
     }
 }

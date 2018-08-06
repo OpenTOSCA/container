@@ -2,6 +2,7 @@ package org.opentosca.container.core.next.repository;
 
 import java.util.List;
 
+import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 
 import com.google.common.collect.Lists;
@@ -16,8 +17,10 @@ public class SituationTriggerRepository extends JpaRepository<SituationTrigger> 
         final List<SituationTrigger> result = Lists.newArrayList();
 
         findAll().forEach(x -> {
-            if (x.getSituation().getId() == situationId) {
-                result.add(x);
+            for (final Situation situation : x.getSituations()) {
+                if (situation.getId() == situationId) {
+                    result.add(x);
+                }
             }
         });
 

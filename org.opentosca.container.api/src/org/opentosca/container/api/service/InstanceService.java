@@ -630,24 +630,18 @@ public class InstanceService {
     }
 
     public Collection<SituationTrigger> getSituationTriggers(final Situation situation) {
-        final Collection<SituationTrigger> triggers = Lists.newArrayList();
-        for (final SituationTrigger trigger : this.sitTrig.findAll()) {
-            if (trigger.getSituation().equals(situation)) {
-                triggers.add(trigger);
-            }
-        }
-        return triggers;
+        return this.sitTrig.findSituationTriggersBySituationId(situation.getId());
     }
 
-    public SituationTrigger createNewSituationTrigger(final Situation situation, final boolean triggerOnActivation,
-                                                      final boolean isSingleInstance,
+    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations,
+                                                      final boolean triggerOnActivation, final boolean isSingleInstance,
                                                       final ServiceTemplateInstance serviceInstance,
                                                       final NodeTemplateInstance nodeInstance,
                                                       final String interfaceName, final String operationName,
                                                       final Set<SituationTriggerProperty> inputs) {
         final SituationTrigger newInstance = new SituationTrigger();
 
-        newInstance.setSituation(situation);
+        newInstance.setSituations(situations);
         newInstance.setTriggerOnActivation(triggerOnActivation);
         newInstance.setSingleInstance(isSingleInstance);
         newInstance.setServiceInstance(serviceInstance);

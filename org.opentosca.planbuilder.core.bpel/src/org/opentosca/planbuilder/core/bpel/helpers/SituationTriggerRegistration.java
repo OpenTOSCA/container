@@ -404,10 +404,11 @@ public class SituationTriggerRegistration {
 
         final StringBuilder strB = new StringBuilder();
         strB.append("<SituationTrigger>");
-        strB.append("<SituationTrigger xmlns=\"\">");
+        strB.append("<SituationTrigger xmlns=\"\"><Situations>");
         for (final Situation situation : trigger.situations) {
             strB.append("<SituationId></SituationId>");
         }
+        strB.append("</Situations>");
         strB.append("<onActivation>" + trigger.onActivation + "</onActivation>");
         strB.append("<isSingleInstance>" + trigger.isSingleInstance + "</isSingleInstance>");
         strB.append("<ServiceInstanceId></ServiceInstanceId>");
@@ -461,8 +462,11 @@ public class SituationTriggerRegistration {
 
     private List<SituationTrigger> parseSituationTriggers(final AbstractServiceTemplate serviceTemplate) throws XPathExpressionException {
         final List<SituationTrigger> situationTriggers = new ArrayList<>();
-        final Element properties =
-            serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
+        final Element properties = getPropertiesSafely(serviceTemplate);
+
+        if (properties == null) {
+            return situationTriggers;
+        }
 
         final NodeList list = queryNodeSet(properties, xpath_query_situationtriggers);
 
@@ -474,6 +478,20 @@ public class SituationTriggerRegistration {
         }
 
         return situationTriggers;
+    }
+
+    private Element getPropertiesSafely(final AbstractServiceTemplate serviceTemplate) {
+        if (serviceTemplate.getBoundaryDefinitions() != null) {
+            if (serviceTemplate.getBoundaryDefinitions().getProperties() != null) {
+                if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties() != null) {
+                    if (serviceTemplate.getBoundaryDefinitions().getProperties().getProperties()
+                                       .getDOMElement() != null) {
+                        return serviceTemplate.getBoundaryDefinitions().getProperties().getProperties().getDOMElement();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private SituationTrigger parseSituationTrigger(final Element situationTriggerElement) throws XPathExpressionException {
