@@ -21,6 +21,7 @@
   * [Consume / use a declarative service](#consume--use-a-declarative-service)
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
+  * [Start container within Eclipse](#start-container-within-eclipse)
 
 ## Introduction
 
@@ -268,3 +269,9 @@ If you found the bundle you can add it to the Target Platform.
 1. Open the project "**target-definition**" in the package explorer
 2. Move the bundle JAR file in the desired directory (e.g. "**Apache**") in the project.
 3. Set the container again as it's described in 3.4.
+
+### Start container within Eclipse
+
+The container can be started within Eclipse by navigating to the **org.opentosca.container.product** folder.
+In this folder open the file named **org.opentosca.container.product**.
+After opening this file you can click the green launch button on the top right of the editor window to start the container.
