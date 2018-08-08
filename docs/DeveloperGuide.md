@@ -22,6 +22,9 @@
   * [OpenTOSCA Target Platforms](#opentosca-target-platforms)
     + [Get and add libraries](#get-and-add-libraries)
   * [Start container within Eclipse](#start-container-within-eclipse)
+- [Common issues] (#common-issues)
+  * [Resolving dependencies]
+ 
 
 ## Introduction
 
@@ -278,3 +281,17 @@ In this folder open the file named **org.opentosca.container.product**.
 After opening this file you can click the green launch button (Fig. 7) on the top right of the editor window to start the container.
 ![ProductFile](graphics/ContainerProductFile.png)
 **Fig. 7**
+
+
+## Common issues
+
+Sometimes unexpected errors occur during the import process into Eclipse.
+
+
+### Resolving dependencies
+
+In case the project's dependencies cannot be resolved properly, there might be an issue with a missing Eclipse Plug-In named "Tycho".
+Make sure to get the latest version here: <LINK>
+After installation select all imported maven bundles. Right click, choose **Maven** and click **Update Project...** (default shortcut: **ALT + F5**).
+
+In the following window select **Offline** and **Force Update of Snapshots/Releases**
