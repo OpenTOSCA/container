@@ -84,7 +84,9 @@ IMPORTANT: We recommend opening useful Git views in Eclipse. If not done already
  9. Click **Next**
  10. Now choose the directory you want to store the project files locally.
  11. Click **Next** and the cloning process starts. This should take a few seconds.
- 12. After the download is completed, select **Import as general project** to finish the import process.
+ 12. After the download is completed, import the bundles via **File** -> **Import...** -> **Existing maven  project** and select the container directory.
+ 
+ IMPORTANT: In order to resolve all dependencies properly, make sure to install the required Plug-in "Tycho Configurator". The window to install this Plug-in will pop up automatically.
  
  Hint: To add additional projects from the repository, right click on the imported **container** repository in the **Git Repositories** view and select **Import projects...**
 
@@ -102,6 +104,9 @@ plug-in projects. The OpenTOSCA Target Platform is contained in the project
 
 ![Target Platform Editor](graphics/TargetDefinition.png)
 Fig.3: Eclipse Target Platform Editor
+
+After the target platform has been set properly, all bundles in the Project Explorer will appear normal.
+This indicates all dependencies have been resolved properly and the workspace is good to go.
 
 ___
 
@@ -281,17 +286,3 @@ In this folder open the file named **org.opentosca.container.product**.
 After opening this file you can click the green launch button (Fig. 7) on the top right of the editor window to start the container.
 ![ProductFile](graphics/ContainerProductFile.png)
 **Fig. 7**
-
-
-## Common issues
-
-Sometimes unexpected errors occur during the import process into Eclipse.
-
-
-### Resolving dependencies
-
-In case the project's dependencies cannot be resolved properly, there might be an issue with a missing Eclipse Plug-In named "Tycho".
-Make sure to get the latest version here: <LINK>
-After installation select all imported maven bundles. Right click, choose **Maven** and click **Update Project...** (default shortcut: **ALT + F5**).
-
-In the following window select **Offline** and **Force Update of Snapshots/Releases**
