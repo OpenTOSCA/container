@@ -2,6 +2,7 @@ package org.opentosca.planbuilder.prephase.plugin.fileupload.core;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.tosca.convention.Types;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractImplementationArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;
@@ -105,6 +106,10 @@ public abstract class PrePhasePlugin<T extends PlanContext>
      */
     private boolean isSupportedDeploymentPair(final QName artifactType, final QName infrastructureNodeType,
                                               final boolean isDA) {
+
+        if (infrastructureNodeType.equals(Types.dockerEngineNodeType)) {
+            return false;
+        }
 
         if (!isDA
             && (PrePhasePlugin.warArtifactType.equals(artifactType)
