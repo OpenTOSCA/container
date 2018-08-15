@@ -254,14 +254,14 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                                                                                                 serviceTemplateID,
                                                                                                 nodeTypeID,
                                                                                                 nodeTemplateID)
-                                                                    + "CSAR='" + csarID + "' NodeInstanceID='"
+                                                                    + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                     + nodeInstanceID + "' ServiceInstanceID='"
                                                                     + serviceInstanceID + "'\r\n" + "else\r\n"
                                                                     + createDANamePathMapEnvVar(csarID,
                                                                                                 serviceTemplateID,
                                                                                                 nodeTypeID,
                                                                                                 nodeTemplateID)
-                                                                    + "CSAR='" + csarID + "' NodeInstanceID='"
+                                                                    + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                     + nodeInstanceID + "' ServiceInstanceID='"
                                                                     + serviceInstanceID + "'\r\n" + "fi\r\n");
                         artifactTypeSpecificCommand =
