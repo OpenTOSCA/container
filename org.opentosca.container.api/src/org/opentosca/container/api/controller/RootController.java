@@ -38,8 +38,7 @@ import io.swagger.annotations.SwaggerDefinition;
                                 version = "2.0", termsOfService = "",
                                 contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org"),
                                 license = @License(name = "Apache License, Version 2.0",
-                                                   url = "https://www.apache.org/licenses/LICENSE-2.0")),
-                   basePath = "/", host = "localhost:1337")
+                                                   url = "https://www.apache.org/licenses/LICENSE-2.0")))
 public class RootController {
 
     @Context
