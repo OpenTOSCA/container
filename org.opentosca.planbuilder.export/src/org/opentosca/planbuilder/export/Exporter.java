@@ -160,6 +160,7 @@ public class Exporter extends AbstractExporter {
                 }
 
                 for (final BPELPlan plan : plans) {
+                	Exporter.LOG.debug("Processing plan with id {}", plan.getId());
                     if (plan.getServiceTemplate().getQName().equals(buildQName(defs, serviceTemplate))) {
 
                         final TPlan generatedPlanElement = generateTPlanElement(plan);
@@ -204,6 +205,7 @@ public class Exporter extends AbstractExporter {
             }
 
             for (final AbstractFile file : files) {
+            	Exporter.LOG.debug("Processing file: {}", file.getName());
                 if (file.getFile().toFile().toString().equals(rootDefFile.toString())) {
                     continue;
                 }
@@ -501,7 +503,8 @@ public class Exporter extends AbstractExporter {
                 break;
         }
 
-        plan.setId(generatedPlan.getBpelProcessElement().getAttribute("name"));
+        String id = generatedPlan.getBpelProcessElement().getAttribute("name");
+        plan.setId(id);
         plan.setPlanLanguage(BPELPlan.bpelNamespace);
 
         return plan;
