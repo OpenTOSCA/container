@@ -215,8 +215,7 @@ public class CsarController {
 
     private Response handleCsarUpload(final String filename, final InputStream is) {
 
-    	String fixedName = filename.replaceAll(" ", "");
-        final File file = this.csarService.storeTemporaryFile(fixedName, is);
+        final File file = this.csarService.storeTemporaryFile(filename, is);
 
         CSARID csarId;
 
