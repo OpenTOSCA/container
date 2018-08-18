@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.opentosca.container.util
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.opentosca.container.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.opentosca.container.util.converter.impl, org.opentosca.container.util.converters, org.opentosca.container.util.formatters, org.opentosca.container.util.impl
