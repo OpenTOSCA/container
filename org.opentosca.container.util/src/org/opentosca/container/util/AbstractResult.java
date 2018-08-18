@@ -1,16 +1,13 @@
 package org.opentosca.container.util;
 
+import java.util.function.Supplier;
+
 /**
- * Contains the result of any process.
+ * The result of a data transformation process.
  * @author Stefan
  *
- * @param <T> The type of the resulting data.
+ * @param <T>
  */
-public interface AbstractResult<T> {
+public interface AbstractResult<T> extends Supplier<T> {
 
-	/**
-	 * 
-	 * @return The result of the process.
-	 */
-	T getResult();
 }
