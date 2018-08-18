@@ -1,14 +1,14 @@
 package org.opentosca.container.util.converter;
 
+import java.util.function.Function;
+
 /**
  * 
  * @author Stefan
  *
- * @param <S> The input data type
- * @param <T> The output data type
+ * @param <T> The input data type
+ * @param <R> The output data type
  */
-public interface AbstractConverter<S, T> {
+public interface AbstractConverter<T, R extends AbstractConversionResult<?>> extends Function<T, R> {
 
-	
-	AbstractConversionResult<T> convert(S input);
 }
