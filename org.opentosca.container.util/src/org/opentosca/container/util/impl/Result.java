@@ -11,7 +11,7 @@ public class Result<T> implements AbstractResult<T> {
 	}
 	
 	@Override
-	public T getResult() {
+	public T get() {
 		return this.result;
 	}
 	
