@@ -13,10 +13,7 @@ import org.opentosca.container.util.impl.Result;
  * @param <T> The input data type
  * @param <S> The output data type
  */
-public abstract class Converter<T, S> implements AbstractConverter<T, S> {
-
-	@Override
-	public abstract ConversionResult<S> convert(T input);
+public abstract class Converter<T, S extends AbstractConversionResult<?>> implements AbstractConverter<T, S> {
 	
 	public class ConversionResult<O> extends Result<O> implements AbstractConversionResult<O> {
 
