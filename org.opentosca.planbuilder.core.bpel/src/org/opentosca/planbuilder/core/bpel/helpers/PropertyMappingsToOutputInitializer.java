@@ -1,7 +1,6 @@
 package org.opentosca.planbuilder.core.bpel.helpers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +43,6 @@ import org.w3c.dom.NodeList;
 public class PropertyMappingsToOutputInitializer {
 
     private final static Logger LOG = LoggerFactory.getLogger(PropertyMappingsToOutputInitializer.class);
-    private final XPathFactory xPathfactory;
 
     /**
      * <p>
@@ -181,10 +179,6 @@ public class PropertyMappingsToOutputInitializer {
 
     }
 
-    public PropertyMappingsToOutputInitializer() {
-        this.xPathfactory = XPathFactory.newInstance();
-    }
-
     /**
      * <p>
      * Initializes the response message of the given BuildPlan according to the given
@@ -310,39 +304,6 @@ public class PropertyMappingsToOutputInitializer {
         return copyString;
     }
 
-    /**
-     * Generates a BPEL Literal element as String. The literal contains a valid OutputMessage Element of
-     * the given BuildPlan.
-     *
-     * @param mapping the ServiceTemplate Property to Template Property mappings
-     * @param buildPlan the BuildPlan to generate the Literal for
-     * @return a valid BPEL Literal element as String
-     */
-    private String generateLiteralAssignForOutput(final ServiceTemplatePropertyToPropertyMapping mapping,
-                                                  final BPELPlan buildPlan) {
-        final String responseMessageLocalName = buildPlan.getWsdl().getResponseMessageLocalName();
-
-        // <bpel:literal>
-        // <impl:getPublicDNS xmlns:impl="http://ec2vm.aws.ia.opentosca.org"
-        // xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        // <impl:CorrelationId>impl:CorrelationId</impl:CorrelationId>
-        // <impl:instanceId>impl:instanceId</impl:instanceId>
-        // <impl:region>impl:region</impl:region>
-        // <impl:accessKey>impl:accessKey</impl:accessKey>
-        // <impl:secretKey>impl:secretKey</impl:secretKey>
-        // </impl:getPublicDNS>
-        // </bpel:literal>
-
-        String literalString = "<bpel:literal xmlns:bpel=\"" + BPELPlan.bpelNamespace + "\">";
-        literalString += "<impl:" + responseMessageLocalName + " xmlns:impl=\""
-            + buildPlan.getWsdl().getTargetNamespace() + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" >";
-        for (final String localName : mapping.getServiceTemplatePropertyNames()) {
-            literalString += "<impl:" + localName + ">impl:" + localName + "</impl:" + localName + ">";
-        }
-        literalString += "</impl:" + responseMessageLocalName + "></bpel:literal>";
-
-        return literalString;
-    }
 
     /**
      * Calculates the ServiceTemplate Property to Template Property mappings for the given
@@ -402,8 +363,6 @@ public class PropertyMappingsToOutputInitializer {
             // these two will be used to create a propery reference for the
             // internal property variable of the plan
             final String templateId = propertyMapping.getTargetObjectRef();
-
-            final String serviceTemplatePropertyRef = propertyMapping.getServiceTemplatePropertyRef();
 
             final String targetPropertyRef = propertyMapping.getTargetPropertyRef();
 
@@ -552,152 +511,6 @@ public class PropertyMappingsToOutputInitializer {
         }
 
         return true;
-    }
-
-    /**
-     * Checks whether the given XPath 1.0 Query is referencing multiple NodeTemplate PropertyElements in
-     * the form of fkt(propertyQuery,propertyQuery,..).
-     *
-     * @param xpathQuery a String containing a XPath 1.0 Query
-     * @return true if the given query references a single NodeTemplate Property
-     */
-    private boolean isMultiQuery(final String xpathQuery, final Element topologyTemplateElement,
-                                 final List<AbstractNodeTemplate> nodeTemplates) {
-
-        final String testQuery = xpathQuery.trim();
-
-        if (!testQuery.endsWith(")")) {
-            return false;
-        }
-
-        final int functionOpeningBracket = testQuery.indexOf("(");
-
-        final String functionString = testQuery.substring(0, functionOpeningBracket);
-
-        // simple validity check as we only want to be able to concat strings,
-        // but maybe more later
-        if (!functionString.equals("concat")) {
-            return false;
-        }
-
-        final String functionContent =
-            testQuery.substring(functionOpeningBracket + 1, testQuery.lastIndexOf(")")).trim();
-        final List<String> functionParts = seperateIntoStringsAndQueries(functionContent);
-
-        for (final String part : functionParts) {
-            if (!isStringPart(part) | isQueryPart(part, topologyTemplateElement, nodeTemplates) == null) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private Map<AbstractNodeTemplate, String> isQueryPart(final String queryPart, final Element topologyTemplateElement,
-                                                          final List<AbstractNodeTemplate> nodeTemplates) {
-
-        final XPath xpath = this.xPathfactory.newXPath();
-        try {
-            final Node propertyNode = (Node) xpath.evaluate(queryPart, topologyTemplateElement, XPathConstants.NODE);
-
-            if (propertyNode == null) {
-                return null;
-            }
-
-            if (propertyNode.getNodeType() != Node.ELEMENT_NODE) {
-                return null;
-            }
-
-            final String foundNodeTemplateName = getNodeTemplateNameWithWalk(propertyNode);
-            if (foundNodeTemplateName != null) {
-                for (final AbstractNodeTemplate nodeTemplate : nodeTemplates) {
-                    if (nodeTemplate.getName().equals(foundNodeTemplateName)) {
-                        if (getListOfChildLocalNames(nodeTemplate.getProperties()
-                                                                 .getDOMElement()).contains(getLocalNameWithoutPrefi((Element) propertyNode))) {
-                            final Map<AbstractNodeTemplate, String> result = new HashMap<>();
-                            result.put(nodeTemplate, getLocalNameWithoutPrefi((Element) propertyNode));
-                            return result;
-                        }
-                    }
-                }
-            }
-
-        }
-        catch (final XPathExpressionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        }
-
-        return null;
-    }
-
-    private String getLocalNameWithoutPrefi(final Element e) {
-        if (e.getLocalName().contains(":")) {
-            final String localName = e.getLocalName();
-            return localName.substring(localName.indexOf(":") + 1);
-        }
-        return e.getLocalName();
-    }
-
-    private List<String> getListOfChildLocalNames(final Element element) {
-        final List<String> localNames = new ArrayList<>();
-        final NodeList childNodes = element.getChildNodes();
-        for (int index = 0; index < childNodes.getLength(); index++) {
-            if (childNodes.item(index).getNodeType() == Node.ELEMENT_NODE) {
-                localNames.add(childNodes.item(index).getLocalName());
-            }
-        }
-
-        return localNames;
-    }
-
-    private String getNodeTemplateNameWithWalk(final Node node) {
-        final XPath xpath = this.xPathfactory.newXPath();
-        try {
-            final Node nodeTemplateNode =
-                (Node) xpath.evaluate("/*/*/*[local-name()='NodeTemplate']", node, XPathConstants.NODE);
-
-            if (nodeTemplateNode.getNodeType() == Node.ELEMENT_NODE) {
-                if (nodeTemplateNode.hasAttributes()) {
-                    if (nodeTemplateNode.getAttributes().getNamedItem("Name") != null) {
-                        return ((Element) nodeTemplateNode).getAttribute("Name");
-                    }
-                }
-            }
-        }
-        catch (final XPathExpressionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    private boolean isStringPart(final String part) {
-        return part.startsWith("\"") & part.endsWith("\"") | part.startsWith("'") & part.endsWith("'");
-    }
-
-    private List<String> seperateIntoStringsAndQueries(final String str) {
-        final List<String> parts = new ArrayList<>();
-        final String[] strs = str.split(",");
-        for (final String s : strs) {
-            parts.add(s);
-        }
-        return parts;
-    }
-
-    private int countCharIString(final String str, final char chr) {
-        int count = 0;
-        int index = 0;
-
-        while (index != -1) {
-            index = str.indexOf(chr, index);
-            if (index != -1) {
-                count++;
-            }
-        }
-        return count;
     }
 
     /**
