@@ -10,10 +10,7 @@ import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
-import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
-import org.opentosca.planbuilder.model.tosca.AbstractOperation;
-import org.opentosca.planbuilder.model.tosca.AbstractParameter;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.w3c.dom.Element;
@@ -45,12 +42,11 @@ public class EmptyPropertyToInputInitializer {
 
         // add copy from input local element to property
         // variable
-        final String bpelCopy =
-            this.generateCopyFromInputToVariableAsString(this.createLocalNameXpathQuery(propLocalName),
-                                                         this.createBPELVariableXpathQuery(var.getName()));
+        final String bpelCopy = generateCopyFromInputToVariableAsString(createLocalNameXpathQuery(propLocalName),
+                                                                        createBPELVariableXpathQuery(var.getName()));
         try {
             final Node bpelCopyNode = ModelUtils.string2dom(bpelCopy);
-            this.appendToInitSequence(bpelCopyNode, buildPlan);
+            appendToInitSequence(bpelCopyNode, buildPlan);
         }
         catch (ParserConfigurationException | SAXException | IOException e) {
             // TODO Auto-generated catch block
@@ -128,34 +124,12 @@ public class EmptyPropertyToInputInitializer {
                 for (final String propLocalName : propMap.getPropertyMappingMap(nodeTemplate.getId()).keySet()) {
                     final Variable var = context.getPropertyVariable(nodeTemplate, propLocalName);
 
-                    if (BPELPlanContext.isVariableValueEmpty(var, context)) {
-                        // if the property is empty we have to check against the
-                        // hostingNodes' operations outputparams
-                        boolean matched = false;
-
-                        for (final AbstractNodeTemplate hostingNode : hostingNodes) {
-                            for (final AbstractInterface iface : hostingNode.getType().getInterfaces()) {
-                                for (final AbstractOperation op : iface.getOperations()) {
-                                    for (final AbstractParameter param : op.getOutputParameters()) {
-                                        if (param.getName().equals(propLocalName)) {
-                                            matched = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (!matched) {
-                            this.addToPlanInput(plan, propLocalName, var, context);
-                        }
-                    } else {
+                    if (!BPELPlanContext.isVariableValueEmpty(var, context)) {
                         String content = BPELPlanContext.getVariableContent(var, context);
                         if (content.startsWith("get_input")) {
                             if (content.contains("get_input:")) {
                                 content = content.replace("get_input:", "").trim();
-                                this.addToPlanInput(plan, content, var, context);
-                            } else {
-                                this.addToPlanInput(plan, propLocalName, var, context);
+                                addToPlanInput(plan, content, var, context);
                             }
                         }
                     }
