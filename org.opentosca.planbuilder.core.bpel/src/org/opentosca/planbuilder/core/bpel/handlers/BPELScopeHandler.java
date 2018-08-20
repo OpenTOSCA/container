@@ -2,9 +2,12 @@ package org.opentosca.planbuilder.core.bpel.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.util.formatters.NCNameFormatter;
+import org.opentosca.container.util.formatters.NCNameFormatter.NCNameFormattingResult;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
@@ -31,6 +34,7 @@ import org.w3c.dom.NodeList;
 public class BPELScopeHandler {
 
     private final static Logger LOG = LoggerFactory.getLogger(BPELScopeHandler.class);
+    private static NCNameFormatter ncnFormatter = new NCNameFormatter();
 
     /**
      * Removes all ChildNodes of he given DOM Node
@@ -100,8 +104,17 @@ public class BPELScopeHandler {
             templateBuildPlan.getBpelDocument().createElementNS(BPELPlan.bpelNamespace, "partnerLink");
 
         partnerLinkElement.setAttribute("name", partnerLinkName);
-        partnerLinkElement.setAttribute("partnerLinkType",
-                                        partnerLinkType.getPrefix() + ":" + partnerLinkType.getLocalPart());
+        
+        
+        // CAUTION: partnerLinkType is a NCName type attribute (requires special formatting, will break things otherwise)
+        // You may ONLY set the partnerLinkType by using this lambda in order to ensure the NCName formatting.
+        Consumer<NCNameFormattingResult> setPartnerLinkType = (t) -> {partnerLinkElement.setAttribute("partnerLinkType",
+                                        partnerLinkType.getPrefix() + ":" + t.get());};
+
+        NCNameFormattingResult formattingResult = ncnFormatter.format(partnerLinkType.getLocalPart());
+        setPartnerLinkType.accept(formattingResult);
+        
+        
         if (myRole != null) {
             partnerLinkElement.setAttribute("myRole", myRole);
         }
@@ -237,7 +250,10 @@ public class BPELScopeHandler {
     public BPELScopeActivity createTemplateBuildPlan(final AbstractNodeTemplate nodeTemplate,
                                                      final BPELPlan buildPlan) {
         final BPELScopeActivity templatePlan = this.createTemplateBuildPlan(buildPlan);
-        this.setName(this.getNCNameFromString(nodeTemplate.getId()), templatePlan);
+        
+        NCNameFormattingResult result = ncnFormatter.format(nodeTemplate.getId());
+        
+        this.setName(result, templatePlan);
         templatePlan.setNodeTemplate(nodeTemplate);
         return templatePlan;
     }
@@ -252,7 +268,9 @@ public class BPELScopeHandler {
     public BPELScopeActivity createTemplateBuildPlan(final AbstractRelationshipTemplate relationshipTemplate,
                                                      final BPELPlan buildPlan) {
         final BPELScopeActivity templatePlan = this.createTemplateBuildPlan(buildPlan);
-        this.setName(relationshipTemplate.getId(), templatePlan);
+        
+        NCNameFormattingResult result = ncnFormatter.format(relationshipTemplate.getId());
+        this.setName(result, templatePlan);
         templatePlan.setRelationshipTemplate(relationshipTemplate);
         return templatePlan;
     }
@@ -316,17 +334,6 @@ public class BPELScopeHandler {
             }
         }
         return targetsLinkNames;
-    }
-
-    /**
-     * Returns a valid NCName string
-     *
-     * @param string a String to convert to valid NCName
-     * @return a String which can be used as NCName
-     */
-    public String getNCNameFromString(final String string) {
-        // TODO check if this enough ;)
-        return string.replace(" ", "_");
     }
 
     /**
@@ -589,10 +596,11 @@ public class BPELScopeHandler {
     /**
      * Sets the name of the TemplateBuildPlan
      *
-     * @param name the name to set
+     * @param result the result of the NCName formatting which contains the name to set.
      * @param templateBuildPlan the TemplateBuildPlan to set the name for
      */
-    public void setName(final String name, final BPELScopeActivity templateBuildPlan) {
+    public void setName(final NCNameFormattingResult result, final BPELScopeActivity templateBuildPlan) {
+    	String name = result.get();
         BPELScopeHandler.LOG.debug("Setting name {} for TemplateBuildPlan", name);
         // set scope name
         templateBuildPlan.getBpelScopeElement().setAttribute("name", name + "_scope");
