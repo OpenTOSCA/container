@@ -9,10 +9,10 @@ public class Result<T> implements AbstractResult<T> {
 	protected Result(T result) {
 		this.result = result;
 	}
-	
+
 	@Override
 	public T get() {
 		return this.result;
 	}
-	
+
 }

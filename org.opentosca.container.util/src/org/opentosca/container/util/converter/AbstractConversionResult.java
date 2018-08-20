@@ -4,6 +4,7 @@ import org.opentosca.container.util.AbstractResult;
 
 /**
  * Contains the result of any conversion process.
+ * 
  * @author Stefan
  *
  * @param <T> The type of the conversion result.

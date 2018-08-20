@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 /**
  * The result of a data transformation process.
+ * 
  * @author Stefan
  *
  * @param <T>

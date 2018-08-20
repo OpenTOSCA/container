@@ -5,8 +5,8 @@ import org.opentosca.container.util.converter.AbstractConverter;
 import org.opentosca.container.util.impl.Result;
 
 /**
- * A Converter is used to convert one data type into another.
- * For example converting a time stamp (long) into a datetime object.
+ * A Converter is used to convert one data type into another. For example
+ * converting a time stamp (long) into a datetime object.
  * 
  * @author Stefan
  *
@@ -14,7 +14,7 @@ import org.opentosca.container.util.impl.Result;
  * @param <S> The output data type
  */
 public abstract class Converter<T, S extends AbstractConversionResult<?>> implements AbstractConverter<T, S> {
-	
+
 	public class ConversionResult<O> extends Result<O> implements AbstractConversionResult<O> {
 
 		protected ConversionResult(O result) {

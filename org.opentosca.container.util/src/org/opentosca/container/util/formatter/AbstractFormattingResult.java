@@ -7,8 +7,7 @@ import org.opentosca.container.util.AbstractResult;
  * 
  * @author Stefan
  *
- * @param <T>
- *            The type of the formatting result
+ * @param <T> The type of the formatting result
  */
 public interface AbstractFormattingResult<T> extends AbstractResult<T> {
 
