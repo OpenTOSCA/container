@@ -928,7 +928,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
         createDEInternalExternalPropsInput.put("ContainerImage", containerImageVariable);
 
         createDEInternalExternalPropsOutput.put("ContainerIP", serverIpPropWrapper);
-        createDEInternalExternalPropsOutput.put("ImageID", instanceIdPropWrapper);
+        createDEInternalExternalPropsOutput.put("ContainerID", instanceIdPropWrapper);
 
         LOG.debug(dockerEngineNodeTemplate.getId() + " " + dockerEngineNodeTemplate.getType());
         this.invokerOpPlugin.handle(context, dockerEngineNodeTemplate.getId(), true,
