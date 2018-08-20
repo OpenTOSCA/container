@@ -1,5 +1,8 @@
 package org.opentosca.container.util.formatters;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.opentosca.container.util.formatter.impl.Formatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +25,17 @@ public class NCNameFormatter extends Formatter<String> {
 		}
 		
 		String output = input;
+		
+		// An NCName cannot begin with these characters.
+		Pattern invalidStartPattern = Pattern.compile("^[\\.\\d\\-]+");
+		Matcher matcher = invalidStartPattern.matcher(output);
+		output = matcher.replaceFirst("");
+		
 		// Replace invalid characters.
+		
+		// Remove white spaces.
 		output = output.replaceAll("\\s", "");
+		// Replace every other invalid character.
 		output = output.replaceAll("\\W", "_");
 		
 		if(output.length() == 0) {
@@ -31,7 +43,7 @@ public class NCNameFormatter extends Formatter<String> {
 		}
 		
 		NCNameFormattingResult result = new NCNameFormattingResult(output);
-		LOG.debug("Successfully formatted input {} to output {}", input, output);
+		NCNameFormatter.LOG.debug("Successfully formatted input {} to output {}", input, output);
 		return result;
 	}
 

@@ -20,7 +20,7 @@ public class NCNameBuilder extends Builder<String> {
 	
 	// TODO there might be missing some valid characters in these patterns.
 	private Pattern ncPrefixPattern = Pattern.compile("[\\w]+");
-	private Pattern ncNamePattern = Pattern.compile("[\\w]+");
+	private Pattern ncNamePattern = Pattern.compile("[^\\.\\d\\-][\\w]+");
 	
 	/**
 	 * Sets the NCName prefix.
