@@ -893,6 +893,16 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
 
 
         switch (cleanName) {
+            case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP:
+                // old nodetype properties
+                if (serverIp != null && runScriptInputParams.contains("ContainerIP")) {
+                    runScriptRequestInputParams.put("ContainerIP", serverIp);
+                }
+                runScriptRequestInputParams.put("Script", mkdirScriptVar);
+                this.handle(templateContext, infraTemplate.getId(), true, "runScript", "ContainerManagementInterface",
+                            "planCallbackAddress_invoker", runScriptRequestInputParams, new HashMap<String, Variable>(),
+                            appendToPrePhase);
+                break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 // old nodetype properties
                 if (serverIp != null && runScriptInputParams.contains("hostname")) {
@@ -943,6 +953,16 @@ public class BPELInvokerPluginHandler implements InvokerPluginHandler<BPELPlanCo
         final List<String> transferFileInputParams = getTransferFileParams(infraTemplate);
 
         switch (cleanName2) {
+            case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_CONTAINERIP:
+                if (serverIp != null && transferFileInputParams.contains("ContainerIP")) {
+                    transferFileRequestInputParams.put("ContainerIP", serverIp);
+                }
+                transferFileRequestInputParams.put("TargetAbsolutePath", ubuntuFilePathVar);
+                transferFileRequestInputParams.put("SourceURLorLocalPath", containerAPIAbsoluteURIVar);
+                this.handle(templateContext, infraTemplate.getId(), true, "transferFile",
+                            "ContainerManagementInterface", "planCallbackAddress_invoker",
+                            transferFileRequestInputParams, new HashMap<String, Variable>(), appendToPrePhase);
+                break;
             case Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP:
                 if (serverIp != null && transferFileInputParams.contains("hostname")) {
                     transferFileRequestInputParams.put("hostname", serverIp);

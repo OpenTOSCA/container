@@ -244,16 +244,26 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION,
                                                                 fileNameWithoutE);
+                        // hacky check if sudo is available or not
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP,
-                                                                "sudo -E "
+                                                                "CAN_SUDO=$(sudo -n uptime 2>&1|grep \"load\"|wc -l)\r\n"
+                                                                    + "if [ ${CAN_SUDO} -gt 0 ]\r\n" + "then\r\n"
+                                                                    + "sudo -E "
                                                                     + createDANamePathMapEnvVar(csarID,
                                                                                                 serviceTemplateID,
                                                                                                 nodeTypeID,
                                                                                                 nodeTemplateID)
                                                                     + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                     + nodeInstanceID + "' ServiceInstanceID='"
-                                                                    + serviceInstanceID + "' ");
+                                                                    + serviceInstanceID + "'\r\n" + "else\r\n"
+                                                                    + createDANamePathMapEnvVar(csarID,
+                                                                                                serviceTemplateID,
+                                                                                                nodeTypeID,
+                                                                                                nodeTemplateID)
+                                                                    + " CSAR='" + csarID + "' NodeInstanceID='"
+                                                                    + nodeInstanceID + "' ServiceInstanceID='"
+                                                                    + serviceInstanceID + "'\r\n" + "fi\r\n");
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_INPUT_PARAMETER,
                                                                 createParamsString(params));

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -73,6 +74,9 @@ public interface IHTTPService {
      * @throws IOException
      */
     public HttpResponse Post(String uri, HttpEntity httpEntity) throws ClientProtocolException, IOException;
+
+    public HttpResponse Post(String uri, HttpEntity httpEntity, Header... header) throws ClientProtocolException,
+                                                                                  IOException;
 
     public HttpResponse Post(String uri, HttpEntity httpEntity, List<Cookie> cookies) throws ClientProtocolException,
                                                                                       IOException;

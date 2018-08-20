@@ -295,23 +295,21 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDeploymentTests(@PathParam("csar") final String csar,
-                                       @PathParam("servicetemplate") final String servicetemplate,
-                                       @PathParam("id") final Integer id) {
+    public Response getDeploymentTests(@PathParam("id") final Integer id) {
 
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        final CSARContent csarContent = this.csarService.findById(this.csarId);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
+            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
+            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
         }
 
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
         if (sti == null) {
-            logger.info("Service template instance \"" + id + "\" of template \"" + servicetemplate
+            logger.info("Service template instance \"" + id + "\" of template \"" + this.serviceTemplateId
                 + "\" could not be found");
-            throw new NotFoundException(
-                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException("Service template instance \"" + id + "\" of template \""
+                + this.serviceTemplateId + "\" could not be found");
         }
 
         final List<ResourceDecorator> items = sti.getDeploymentTests().stream().map(v -> {
@@ -333,24 +331,22 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/deploymenttests/{deploymenttest}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDeploymentTest(@PathParam("csar") final String csar,
-                                      @PathParam("servicetemplate") final String servicetemplate,
-                                      @PathParam("id") final Integer id,
+    public Response getDeploymentTest(@PathParam("id") final Integer id,
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
 
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        final CSARContent csarContent = this.csarService.findById(this.csarId);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
+            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
+            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
         }
 
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
         if (sti == null) {
-            logger.info("Service template instance \"" + id + "\" of template \"" + servicetemplate
+            logger.info("Service template instance \"" + id + "\" of template \"" + this.serviceTemplateId
                 + "\" could not be found");
-            throw new NotFoundException(
-                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException("Service template instance \"" + id + "\" of template \""
+                + this.serviceTemplateId + "\" could not be found");
         }
 
         // TODO: Check if deployment test belongs the current instance
@@ -370,23 +366,21 @@ public class ServiceTemplateInstanceController {
     @POST
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createDeploymentTest(@PathParam("csar") final String csar,
-                                         @PathParam("servicetemplate") final String servicetemplate,
-                                         @PathParam("id") final Integer id) {
+    public Response createDeploymentTest(@PathParam("id") final Integer id) {
 
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
-            logger.info("Service template \"" + servicetemplate + "\" could not be found");
-            throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
+        final CSARContent csarContent = this.csarService.findById(this.csarId);
+        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
+            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
+            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
         }
 
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
         if (sti == null) {
-            logger.info("Service template instance \"" + id + "\" of template \"" + servicetemplate
+            logger.info("Service template instance \"" + id + "\" of template \"" + this.serviceTemplateId
                 + "\" could not be found");
-            throw new NotFoundException(
-                "Service template instance \"" + id + "\" of template \"" + servicetemplate + "\" could not be found");
+            throw new NotFoundException("Service template instance \"" + id + "\" of template \""
+                + this.serviceTemplateId + "\" could not be found");
         }
 
         final DeploymentTest result = this.deploymentTestService.run(csarContent.getCSARID(), sti);

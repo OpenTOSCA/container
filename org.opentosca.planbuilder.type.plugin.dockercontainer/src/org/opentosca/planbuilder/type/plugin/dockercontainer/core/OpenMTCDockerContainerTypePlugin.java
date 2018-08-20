@@ -119,7 +119,7 @@ public abstract class OpenMTCDockerContainerTypePlugin<T extends PlanContext> im
                 check++;
             } else if (childNodeList.item(index).getLocalName().equals("Port")) {
                 check++;
-            } else if (childNodeList.item(index).getLocalName().equals("ContainerImage")) {
+            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
                 foundDockerImageProp = true;
             }
         }
