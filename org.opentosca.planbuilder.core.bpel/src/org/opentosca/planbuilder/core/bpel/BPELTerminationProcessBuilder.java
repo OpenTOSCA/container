@@ -243,7 +243,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
                 check++;
             } else if (childNodeList.item(index).getLocalName().equals("Port")) {
                 check++;
-            } else if (childNodeList.item(index).getLocalName().equals("ContainerImage")) {
+            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
                 foundDockerImageProp = true;
             }
         }
