@@ -119,7 +119,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         final Variable dockerEngineUrlVar = templateContext.getPropertyVariable(dockerEngineNode, "DockerEngineURL");
 
         // determine whether we work with an ImageId or a zipped DockerContainer
-        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerImage");
+        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
 
 
