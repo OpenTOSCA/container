@@ -22,7 +22,7 @@ public class NCNameFormatter extends Formatter<String> {
 	}
 
 	
-	class NCNameFormattingResult extends FormattingResult {
+	public class NCNameFormattingResult extends FormattingResult {
 
 		protected NCNameFormattingResult(String result) {
 			super(result);
