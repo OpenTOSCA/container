@@ -17,6 +17,8 @@ import org.eclipse.persistence.annotations.Convert;
 import org.eclipse.persistence.annotations.Converter;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.endpoint.GenericEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class Represents a WSDL-Endpoint (an endpoint which points to a SOAP-Operation of a WSDL).
@@ -33,6 +35,8 @@ import org.opentosca.container.core.model.endpoint.GenericEndpoint;
 @Table(name = WSDLEndpoint.tableName,
        uniqueConstraints = @UniqueConstraint(columnNames = {"portType", "addressType", "csarId"}))
 public class WSDLEndpoint extends GenericEndpoint {
+	
+	final private static Logger LOG = LoggerFactory.getLogger(WSDLEndpoint.class);
 
     // Table Name
     protected final static String tableName = "WSDLEndpoint";
@@ -89,6 +93,8 @@ public class WSDLEndpoint extends GenericEndpoint {
 
     public WSDLEndpoint() {
         super();
+        
+        LOG.debug("Created new empty WSDLEndpoint.");
     }
 
     // if planid is set nodeTypeimpl and iaName must be "null"
@@ -100,6 +106,8 @@ public class WSDLEndpoint extends GenericEndpoint {
         this.setPlanId(planid);
         this.setNodeTypeImplementation(nodeTypeImplementation);
         // this.setAddressType(addressType);
+        
+        LOG.debug("Created new WSDLEndpoint: uri {} portType {} csarId {} planId {} nodeTypeImplementation {}, iaName {}", uri.toString(), portType.toString(), csarId.toString(), planid.toString(), nodeTypeImplementation.toString(), iaName);
     }
 
     @Override
