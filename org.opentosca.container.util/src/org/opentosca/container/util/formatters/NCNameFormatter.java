@@ -22,9 +22,9 @@ public class NCNameFormatter extends Formatter<String> {
 		}
 		
 		String output = input;
-		output.replaceAll("\\.", "_");
-		output.replaceAll(" ", "_");
-		output.replaceAll(":", "_");
+		// Replace invalid characters.
+		output = output.replaceAll("\\s", "");
+		output = output.replaceAll("\\W", "_");
 		
 		if(output.length() == 0) {
 			throw new NCNameFormattingException("Resulting NCName string was empty.");
