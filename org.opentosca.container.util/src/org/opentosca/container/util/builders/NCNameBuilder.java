@@ -52,6 +52,8 @@ public class NCNameBuilder extends Builder<String> {
 
 	@Override
 	public NCNameBuildingResult build() {
+		Objects.requireNonNull(this.ncName, "NCName cannot be null during build process");
+		Objects.requireNonNull(this.ncPrefix, "NCName prefix cannot be null during build process");
 		String outputFormat = "%s:%s";
 		
 		String output = String.format(outputFormat, this.ncPrefix, this.ncName);
