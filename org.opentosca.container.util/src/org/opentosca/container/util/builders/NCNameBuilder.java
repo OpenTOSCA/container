@@ -5,7 +5,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.opentosca.container.util.builder.impl.Builder;
-import org.opentosca.container.util.builder.impl.Builder.BuildingResult;
 
 /**
  * Builds a fully qualified and valid NCName string with the format
@@ -21,7 +20,6 @@ public class NCNameBuilder extends Builder<String> {
 	private String ncName;
 
 	// TODO there might be missing some valid characters in these patterns.
-	private Pattern ncPrefixPattern = Pattern.compile("[\\w]+");
 	private Pattern ncNamePattern = Pattern.compile("[^\\.\\d\\-][\\w]+");
 
 	/**
@@ -31,7 +29,7 @@ public class NCNameBuilder extends Builder<String> {
 	 */
 	public void setNCPrefix(String ncPrefix) {
 		Objects.requireNonNull(ncPrefix);
-		Matcher match = ncPrefixPattern.matcher(ncPrefix);
+		Matcher match = ncNamePattern.matcher(ncPrefix);
 
 		if (!match.matches()) {
 			throw new NCNameBuildingException("NCprefix contains invalid characters or is empty.");

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Formats a given String into a valid NCName format.
  * {@link https://stackoverflow.com/questions/1631396/what-is-an-xsncname-type-and-when-should-it-be-used}
- * 
+ * Important: This class does NOT handle the NCName prefix!
  * @author Stefan
  *
  */

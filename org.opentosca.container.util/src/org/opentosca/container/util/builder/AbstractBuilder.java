@@ -1,7 +1,5 @@
 package org.opentosca.container.util.builder;
 
-import org.opentosca.container.util.AbstractBuildingResult;
-
 public interface AbstractBuilder<T> {
 
 	/**
