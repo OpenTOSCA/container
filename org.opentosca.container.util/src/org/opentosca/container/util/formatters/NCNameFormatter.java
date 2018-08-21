@@ -1,5 +1,6 @@
 package org.opentosca.container.util.formatters;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +21,7 @@ public class NCNameFormatter extends Formatter<String> {
 
 	@Override
 	public NCNameFormattingResult format(final String input) {
-
+		Objects.requireNonNull(input);
 		// Empty NCName is not allowed.
 		if (input.length() == 0) {
 			throw new NCNameFormattingException("Unable to format valid NCName from empty String.");
