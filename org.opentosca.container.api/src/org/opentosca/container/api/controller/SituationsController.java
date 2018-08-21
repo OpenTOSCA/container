@@ -69,6 +69,31 @@ public class SituationsController {
         return Response.ok(instanceURI).build();
     }
 
+    @PUT
+    @Consumes({MediaType.TEXT_PLAIN})
+    @Path("/situations/{situation}/active")
+    public Response updateSituationActivity(@PathParam("situation") final Long situationId, final String body) {
+        final Situation sit = this.instanceService.getSituation(situationId);
+
+        boolean active = false;
+
+        if (body.equalsIgnoreCase("true") || body.equalsIgnoreCase("false")) {
+            active = Boolean.valueOf(body);
+        } else {
+            return Response.notAcceptable(null).build();
+        }
+
+
+
+        sit.setActive(active);
+
+        this.instanceService.updateSituation(sit);
+
+        final URI instanceURI = UriUtil.generateSelfURI(this.uriInfo);
+
+        return Response.ok(instanceURI).build();
+    }
+
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
