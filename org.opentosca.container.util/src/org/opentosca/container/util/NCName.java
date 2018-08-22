@@ -91,7 +91,7 @@ public class NCName {
 	public class NCNameException extends RuntimeException {
 
 		/**
-		 * Gernerated serialVersionUID
+		 * Generated serialVersionUID
 		 */
 		private static final long serialVersionUID = -4052808822350498637L;
 
