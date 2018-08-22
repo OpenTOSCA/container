@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentoscacontainer" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="OpenTOSCA Container" uid="org.opentosca.container.product" id="org.opentosca.container.application.opentosca" application="org.opentosca.container.application.application" version="2.0.0.qualifier" useFeatures="true" includeLaunchers="true">
+
 
    <configIni use="default">
    </configIni>
@@ -20,12 +21,13 @@
 
    <windowImages/>
 
+
    <launcher name="OpenTOSCA">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
       <linux include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</linux>
@@ -34,12 +36,12 @@
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
 
+
    <plugins>
    </plugins>
 
    <features>
       <feature id="org.opentosca.container.feature" version="2.0.0.qualifier"/>
-      <feature id="winery" version="2.0.0"/>
    </features>
 
    <configurations>
@@ -165,15 +167,6 @@
       <plugin id="org.eclipse.persistence.core" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.jpa" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.persistence.jpa.jpql" autoStart="true" startLevel="4" />
-      <plugin id="org.eclipse.winery.common" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.model.csar.toscametafile" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.model.selfservice" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.model.tosca" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.model.tosca.yaml" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.repository" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.repository.configuration" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.yaml.common" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.winery.yaml.converter" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.bundles.repackaged.jersey-guava" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.ext.entityfiltering" autoStart="true" startLevel="0" />
       <plugin id="org.glassfish.jersey.media.jersey-media-json-jackson" autoStart="true" startLevel="0" />
@@ -260,5 +253,12 @@
       <property name="org.opentosca.container.port" value="1337" />
       <property name="org.osgi.framework.system.packages.extra" value="sun.misc,sun.reflect" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>
