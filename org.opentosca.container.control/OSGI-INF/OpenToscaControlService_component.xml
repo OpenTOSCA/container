@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.container.control.impl.OpenToscaControlServiceImplReplacement">
+   <implementation class="org.opentosca.container.control.impl.OpenToscaControlServiceImplReplacement"/>
+   <service>
+      <provide interface="org.opentosca.container.control.OpenToscaControlService"/>
+   </service>
+   <reference bind="bindToscaEngineService" cardinality="1..1" interface="org.opentosca.container.core.engine.IToscaEngineService" name="IToscaEngineService" policy="static" unbind="unbindToscaEngineService"/>
+   <reference bind="bindCoreDeploymentTrackerService" cardinality="1..1" interface="org.opentosca.container.core.service.ICoreDeploymentTrackerService" name="ICoreDeploymentTrackerService" policy="static" unbind="unbindCoreDeploymentTrackerService"/>
+   <reference bind="bindIAEngineService" cardinality="1..1" interface="org.opentosca.container.engine.ia.IIAEngineService" name="IIAEngineService" policy="static" unbind="unbindIAEngineService"/>
+   <reference bind="bindPlanEngineService" cardinality="1..1" interface="org.opentosca.container.engine.plan.IPlanEngineService" name="IPlanEngineService" policy="static" unbind="unbindPlanEngineService"/>
+   <reference bind="bindCsarStorageService" cardinality="1..1" interface="org.opentosca.container.core.service.CsarStorageService" name="CsarStorageService" policy="static" unbind="unbindCsarStorageService"/>
+   <reference bind="bindPlanInvocationEngine" cardinality="1..1" interface="org.opentosca.container.core.service.IPlanInvocationEngine" name="IPlanInvocationEngine" policy="static" unbind="unbindPlanInvocationEngine"/>
+   <reference bind="bindInstanceManagementService" cardinality="1..1" interface="org.opentosca.container.core.service.ICSARInstanceManagementService" name="ICSARInstanceManagementService" policy="static" unbind="unbindInstanceManagementService"/>
+</scr:component>
