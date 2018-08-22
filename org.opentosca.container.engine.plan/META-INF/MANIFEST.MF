@@ -13,5 +13,5 @@ Import-Package: org.eclipse.winery.model.tosca,
  org.opentosca.container.core.model.capability.provider;version="2.0.0",
  org.opentosca.container.core.service;version="2.0.0",
  org.osgi.framework;version="1.8.0",
- org.slf4j;version="1.7.2"
+ org.slf4j;version="1.7.25"
 Service-Component: OSGI-INF/*

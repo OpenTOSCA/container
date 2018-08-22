@@ -258,6 +258,7 @@
       <property name="org.opentosca.container.engine.plan.plugin.bpel.username" value="" />
       <property name="org.opentosca.container.hostname" value="localhost" />
       <property name="org.opentosca.container.port" value="1337" />
+      <property name="org.osgi.framework.system.packages.extra" value="sun.misc,sun.reflect" />
    </configurations>
 
 </product>

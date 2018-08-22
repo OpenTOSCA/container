@@ -11,6 +11,6 @@ Import-Package: org.opentosca.container.core.engine;version="2.0.0",
  org.opentosca.container.core.model.csar.id;version="2.0.0",
  org.opentosca.container.core.model.instance;version="2.0.0",
  org.opentosca.container.core.service;version="2.0.0",
- org.slf4j;version="1.7.2"
+ org.slf4j;version="1.7.25"
 Service-Component: OSGI-INF/*
 Bundle-ActivationPolicy: lazy

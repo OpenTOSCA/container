@@ -105,7 +105,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
 
             CsarImporter importer = new CsarImporter();
             final CsarImportOptions importOptions = new CsarImportOptions();
-            importOptions.setValidate(true);
+            importOptions.setValidate(false); // avoid triggering Provenance meddling with this
             importOptions.setAsyncWPDParsing(true);
             importOptions.setOverwrite(false);
             importInfo = importer.readCSAR(Files.newInputStream(csarLocation), importOptions);
@@ -128,6 +128,13 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             FileUtils.forceDelete(permanentLocation);
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
         }
+        catch (Exception e) {
+            LOGGER.warn("CSAR Import failed with an unspecified exception", e);
+            FileUtils.forceDelete(permanentLocation);
+            if (e instanceof RuntimeException) { throw e; }
+            throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.", e);
+        }
+        
         if (importInfo == null || !importInfo.errors.isEmpty()) {
             throw new UserException("CSAR \"" + candidateId.csarName() + "\" could not be imported.");
         }
