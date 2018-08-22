@@ -63,7 +63,7 @@ public class CsarStorageServiceImpl implements CsarStorageService {
             return new CsarImpl(id);
         }
         LOGGER.info("CSAR '{}' could not be found", id.toString());
-        throw new NoSuchElementException(String.format("CSAR '%s' could not be found", id.toString()));
+        throw new NoSuchElementException();
     }
 
     @Override

@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -29,8 +31,6 @@ import javax.xml.namespace.QName;
 import org.eclipse.winery.model.selfservice.Application;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.filebased.FileUtils;
-import org.eclipse.winery.repository.importing.CsarImporter;
-import org.eclipse.winery.repository.importing.ImportMetaInformation;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.opentosca.container.api.controller.content.DirectoryController;
@@ -154,6 +154,9 @@ public class CsarController {
 
             return Response.ok(csar).build();
         }
+        catch (NoSuchElementException e) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         catch (Exception e) {
             throw new ServerErrorException(Response.serverError().build());
         }
@@ -161,8 +164,12 @@ public class CsarController {
 
     @javax.ws.rs.Path("/{csar}/content")
     public DirectoryController getContent(@ApiParam("CSAR id") @PathParam("csar") final String id) {
-        final Csar csarContent = storage.findById(new CsarId(id));
-        return new DirectoryController(new FileSystemDirectory(csarContent.id().getSaveLocation()));
+        try {
+            return new DirectoryController(new FileSystemDirectory(storage.findById(new CsarId(id)).id().getSaveLocation()));
+        }
+        catch (NoSuchElementException e) {
+            throw new javax.ws.rs.NotFoundException(e);
+        }
     }
 
     @POST
@@ -273,7 +280,8 @@ public class CsarController {
         }
 
         this.controlService.invokeToscaProcessing(csarId);
-        if (ModelUtil.hasOpenRequirements(storage.findById(csarId))) {
+        Csar storedCsar = storage.findById(csarId);
+        if (ModelUtil.hasOpenRequirements(storedCsar)) {
             final WineryConnector wc = new WineryConnector();
             if (wc.isWineryRepositoryAvailable()) {
                 QName serviceTemplate = null;
@@ -310,7 +318,6 @@ public class CsarController {
         this.controlService.declareStored(csarId);
         boolean success = this.controlService.invokeToscaProcessing(csarId);
         if (success) {
-            Csar storedCsar = storage.findById(csarId);
             final List<TServiceTemplate> serviceTemplates = storedCsar.serviceTemplates();
             for (final TServiceTemplate serviceTemplate : serviceTemplates) {
                 logger.trace("Invoke IA deployment for service template \"{}\" of CSAR \"{}\"", serviceTemplate, csarId.csarName());
@@ -340,7 +347,14 @@ public class CsarController {
     @javax.ws.rs.Path("/{csar}")
     @ApiOperation(value = "Deletes a CSAR file", response = Response.class)
     public Response delete(@ApiParam("CSAR id") @PathParam("csar") final String id) {
-        final Csar csarContent = storage.findById(new CsarId(id));
+
+        Csar csarContent;
+        try {
+            csarContent = storage.findById(new CsarId(id));
+        }
+        catch (NoSuchElementException e) {
+            return Response.notModified().build();
+        }
         
         logger.info("Deleting CSAR \"{}\"", id);
         final List<String> errors = this.controlService.deleteCsar(csarContent.id());

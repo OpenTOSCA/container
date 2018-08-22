@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
@@ -27,9 +26,8 @@ public interface CsarStorageService {
      * @param id The unique {@link CsarId} of the CSAR to retrieve.
      * @return A {@link CSARContent} instance representing the CSAR identified by the ID.
      * 
-     * @throws NotFoundException in case the CSARID was unknown.
+     * @throws NoSuchElementException in case the CSARID was unknown.
      */
-    // FIXME was originally a javax.ws.rs.NotFoundException
     public Csar findById(CsarId id) throws NoSuchElementException;
 
     /**
