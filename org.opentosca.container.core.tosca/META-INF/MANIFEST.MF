@@ -10,6 +10,4 @@ Import-Package: org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.25"
 Export-Package: org.opentosca.container.core.tosca;version="2.0.0",
  org.opentosca.container.core.tosca.convention;version="2.0.0",
- org.opentosca.container.core.tosca.extension;version="2.0.0",
- org.opentosca.container.core.tosca.model;version="2.0.0"
-Bundle-Activator: org.opentosca.container.core.tosca.Activator
+ org.opentosca.container.core.tosca.extension;version="2.0.0"

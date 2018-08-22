@@ -34,6 +34,7 @@ public abstract class ModelUtil {
         List<TRelationshipTemplate> relationshipTemplates = topology.getRelationshipTemplates();
         
         for (final TNodeTemplate nodeTemplate : nodeTemplates) {
+            if (nodeTemplate.getRequirements() == null) { continue; }
             final List<TRequirement> nodeTemplateRequirements = nodeTemplate.getRequirements().getRequirement();
             int foundRelations = 0;
             for (final TRelationshipTemplate relationship : relationshipTemplates) {

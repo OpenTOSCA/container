@@ -368,7 +368,7 @@ public class ToscaReferenceMapper implements IToscaReferenceMapper {
      */
     @Override
     public List<QName> getServiceTemplateIDsContainedInCSAR(final CSARID csarID) {
-        return this.mapCSARIDToServiceTemplateIDs.get(csarID);
+        return this.mapCSARIDToServiceTemplateIDs.getOrDefault(csarID, Collections.emptyList());
     }
 
     @Override

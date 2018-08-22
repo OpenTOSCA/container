@@ -5,8 +5,6 @@ import java.io.File;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
 import org.opentosca.container.core.service.IFileAccessService;
-import org.opentosca.container.core.tosca.model.IToscaModelFactory;
-import org.opentosca.container.core.tosca.model.ObjectFactory;
 import org.eclipse.winery.model.tosca.Definitions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +20,6 @@ import org.slf4j.LoggerFactory;
 public class XMLSerializerServiceImpl implements IXMLSerializerService {
 
     private IXMLSerializer xmlSerializer;
-    private IToscaModelFactory toscaModelFactory;
-
     private IFileAccessService fileAccessService = null;
 
     private final Logger LOG = LoggerFactory.getLogger(XMLSerializerServiceImpl.class);
@@ -38,17 +34,6 @@ public class XMLSerializerServiceImpl implements IXMLSerializerService {
             this.LOG.error("There is no XMLSerializer initiated yet.");
         }
         return this.xmlSerializer;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IToscaModelFactory getToscaModelFactory() {
-        if (this.toscaModelFactory == null) {
-            this.toscaModelFactory = new ObjectFactory();
-        }
-        return this.toscaModelFactory;
     }
 
     public void bindIFileAccessService(final IFileAccessService service) {

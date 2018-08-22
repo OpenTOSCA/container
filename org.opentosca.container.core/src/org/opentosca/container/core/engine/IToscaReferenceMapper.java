@@ -21,7 +21,10 @@ import org.w3c.dom.Node;
  * This interface provides the functionality of access to resolved data. This data is dependent to a
  * certain CSAR. Each data set is referenced by the QName of the CSAR nesting the data and the QName
  * with which it is referenced inside of a TOSCA file.
+ * 
+ * @deprecated Should be fully replaced by accessing the Winery repository representation of a CSAR
  */
+@Deprecated
 public interface IToscaReferenceMapper {
 
     /**

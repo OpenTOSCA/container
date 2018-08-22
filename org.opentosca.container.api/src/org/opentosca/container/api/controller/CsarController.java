@@ -99,6 +99,7 @@ public class CsarController {
             return Response.ok(list).build();
         }
         catch (Exception e) {
+            logger.warn("Exception when fetching all CSARs:", e);
             throw new ServerErrorException(Response.serverError().build());
         }
     }

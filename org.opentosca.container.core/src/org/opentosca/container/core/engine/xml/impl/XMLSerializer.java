@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import java.util.List;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -22,6 +21,7 @@ import javax.xml.validation.SchemaFactory;
 
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.eclipse.winery.model.tosca.Definitions;
+import org.eclipse.winery.repository.JAXBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -45,7 +45,6 @@ import org.xml.sax.SAXException;
  */
 public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
-    private JAXBContext jaxbContext;
     private SchemaFactory schemaFactory;
     private Schema schema = null;
     private ValidationEventCollector validationEventCollector;
@@ -67,8 +66,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
 
     /**
-     * Constructor for XML serialization of TOSCA Definitions. Instances are created via the
-     * org.opentosca.core.xmlserializer.SerializerFactory.
+     * Constructor for XML serialization of TOSCA Definitions.
      *
      * @param context The context of the JAXB classes - the package in which all related files are.
      * @param schemaFile File of the Schema. If null, no validation will be instantiated.
@@ -80,15 +78,12 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
 
         try {
 
-            // setup of the Serializer
-            this.jaxbContext = JAXBContext.newInstance(context.getPackage().getName());
-
             this.validationEventCollector = new ValidationEventCollector();
 
-            this.marshaller = this.jaxbContext.createMarshaller();
+            this.marshaller = JAXBSupport.createMarshaller(true);
             this.marshaller.setEventHandler(this.validationEventCollector);
 
-            this.marshallerWithoutValidation = this.jaxbContext.createMarshaller();
+            this.marshallerWithoutValidation = JAXBSupport.createMarshaller(false);
             this.marshallerWithoutValidation.setEventHandler(this.validationEventCollector);
 
             this.documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -228,7 +223,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         this.LOG.debug("Start the unmarshalling of file \"" + fileToUnmarshal.toString() + "\".");
         try {
             // return the unmarshaled data
-            return (Definitions) this.createUnmarshaller().unmarshal(fileToUnmarshal);
+            return (Definitions) JAXBSupport.createUnmarshaller().unmarshal(fileToUnmarshal);
 
         }
         catch (final JAXBException e) {
@@ -249,7 +244,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         this.LOG.debug("Start the unmarshalling of an InputStream.");
         try {
             // return the unmarshaled data
-            return (Definitions) this.createUnmarshaller().unmarshal(streamToUnmarshal);
+            return (Definitions) JAXBSupport.createUnmarshaller().unmarshal(streamToUnmarshal);
 
         }
         catch (final JAXBException e) {
@@ -270,7 +265,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
         this.LOG.debug("Start the unmarshalling of a DOM Document.");
         this.LOG.trace(this.docToString(doc.getFirstChild(), true));
         try {
-            return (Definitions) this.createUnmarshaller().unmarshal(doc.getFirstChild());
+            return (Definitions) JAXBSupport.createUnmarshaller().unmarshal(doc.getFirstChild());
         }
         catch (final JAXBException e) {
         }
@@ -291,7 +286,7 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             + destinationClazz.toString());
 
         try {
-            final Unmarshaller u = this.createUnmarshaller();
+            final Unmarshaller u = JAXBSupport.createUnmarshaller();
             final JAXBElement<?> jaxbElement = u.unmarshal(nodeToUnmarshal, destinationClazz);
             if (jaxbElement != null) {
                 return jaxbElement.getValue();
@@ -420,23 +415,5 @@ public class XMLSerializer extends FormatOutputUtil implements IXMLSerializer {
             }
         }
         this.validationEventCollector.reset();
-    }
-
-    private Unmarshaller createUnmarshaller() {
-        try {
-            Unmarshaller u;
-            u = this.jaxbContext.createUnmarshaller();
-
-            if (this.validationActive) {
-                u.setSchema(this.schema);
-            }
-            u.setEventHandler(this.validationEventCollector);
-            return u;
-        }
-        catch (final JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
     }
 }
