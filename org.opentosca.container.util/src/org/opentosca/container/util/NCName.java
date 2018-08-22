@@ -30,24 +30,29 @@ public class NCName {
 		String prefixResult = prefix;
 		String ncNameResult = ncName;
 
-		// Step 1
-		prefixResult = removeWhiteSpaces(prefixResult);
-		ncNameResult = removeWhiteSpaces(ncNameResult);
-		
-		// Step 2
-		prefixResult = replaceInvalidCharacters(prefixResult);
-		ncNameResult = replaceInvalidCharacters(ncNameResult);
-
-		// Step 3
-		prefixResult = removeInvalidStartCharacters(prefixResult);
-		ncNameResult = removeInvalidStartCharacters(ncNameResult);
-
-		// Step 4
-		checkNCNameValidity(prefixResult);
-		checkNCNameValidity(ncNameResult);
+		prefixResult = makeValidNCName(prefixResult);
+		ncNameResult = makeValidNCName(ncNameResult);
 
 		this.prefix = prefixResult;
 		this.ncName = ncNameResult;
+	}
+	
+	private String makeValidNCName(final String input) {
+		String output = input;
+		
+		// Step 1
+		output = removeWhiteSpaces(output);
+		
+		// Step 2
+		output = replaceInvalidCharacters(output);
+		
+		// Step 3
+		output = removeInvalidStartCharacters(output);
+		
+		// Step 4
+		checkNCNameValidity(output);
+		
+		return output;
 	}
 
 	private String removeInvalidStartCharacters(final String input) {
