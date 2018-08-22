@@ -251,33 +251,6 @@ public class CsarController {
             FileUtils.forceDelete(tempFile);
             return Response.serverError().entity(e).build();
         }
-        this.controlService.invokeTOSCAProcessing(csarId.toOldCsarId());
-        try {
-            if (ModelUtil.hasOpenRequirements(csarId.toOldCsarId(), this.engineService)) {
-                final WineryConnector wc = new WineryConnector();
-                if (wc.isWineryRepositoryAvailable()) {
-                    final QName serviceTemplate = wc.uploadCSAR(tempFile.toFile());
-                    this.controlService.deleteCSAR(csarId.toOldCsarId());
-                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{ \"Location\": \""
-                        + wc.getServiceTemplateURI(serviceTemplate).toString() + "\" }").build();
-                } else {
-                    logger.error("CSAR has open requirments but Winery repository is not available");
-                    try {
-                        this.storage.deleteCSAR(csarId);
-                    }
-                    catch (final Exception e) {
-                        // Ignore
-                        logger.error("Error deleting csar after open requirements check: {}", e.getMessage(), e);
-                    }
-                    return Response.serverError().build();
-                }
-            }
-        }
-        catch (final Exception e) {
-            logger.error("Error resolving open requirements: {}", e.getMessage(), e);
-            FileUtils.forceDelete(tempFile);
-            return Response.serverError().build();
-        }
 
         this.controlService.invokeToscaProcessing(csarId);
         Csar storedCsar = storage.findById(csarId);
