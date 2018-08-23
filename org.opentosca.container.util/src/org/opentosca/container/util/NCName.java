@@ -30,14 +30,14 @@ public class NCName {
 		String prefixResult = prefix;
 		String ncNameResult = ncName;
 
-		prefixResult = makeValidNCName(prefixResult);
-		ncNameResult = makeValidNCName(ncNameResult);
+		prefixResult = makeValid(prefixResult);
+		ncNameResult = makeValid(ncNameResult);
 
 		this.prefix = prefixResult;
 		this.ncName = ncNameResult;
 	}
 	
-	private String makeValidNCName(final String input) {
+	private String makeValid(final String input) {
 		String output = input;
 		
 		// Step 1
