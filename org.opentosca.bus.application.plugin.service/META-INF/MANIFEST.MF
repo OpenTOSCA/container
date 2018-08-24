@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Interface for the Application Bus Plugins
 Bundle-SymbolicName: org.opentosca.bus.application.plugin.service
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.camel;version="2.10.4"
 Export-Package: org.opentosca.bus.application.plugin.service;version="2.0.0"

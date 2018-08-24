@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA IA Engine Tomcat Plugin
 Bundle-SymbolicName: org.opentosca.container.engine.ia.plugin.tomcat
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.io;version="2.2.0",
  org.apache.http;version="4.2.1",

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Csarhandler
 Bundle-SymbolicName: org.opentosca.planbuilder.csarhandler;singleton:=true
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.opentosca.container.core.common;version="2.0.0",
  org.opentosca.container.core.model.csar;version="2.0.0",

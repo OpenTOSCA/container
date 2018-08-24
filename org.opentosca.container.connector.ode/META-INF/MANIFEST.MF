@@ -6,7 +6,7 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.osgi.framework;version="1.3.0",
- org.slf4j;version="1.6.4"
+ org.slf4j;version="1.7.25"
 Bundle-ClassPath: .,
  META-INF/libs/axis.jar,
  META-INF/libs/commons-discovery-0.2.jar,
@@ -14,5 +14,5 @@ Bundle-ClassPath: .,
  META-INF/libs/jaxrpc.jar,
  META-INF/libs/org.apache.commons.logging_1.1.1.v201101211721.jar,
  META-INF/libs/saaj.jar
-Export-Package: org.opentosca.container.connector.ode
+Export-Package: org.opentosca.container.connector.ode;version="2.0.0"
 Bundle-Activator: org.opentosca.container.connector.ode.Activator

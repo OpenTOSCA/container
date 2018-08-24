@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.opentosca.bus.management.plugins.rest.service.impl
 Bundle-SymbolicName: org.opentosca.bus.management.plugins.rest.service.impl
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.management.plugins.rest.service.impl.Activator
 Bundle-ActivationPolicy: lazy
 Import-Package: com.google.gson;version="2.2.4",
