@@ -50,7 +50,7 @@ public class NCName {
 		output = removeInvalidStartCharacters(output);
 		
 		// Step 4
-		checkNCNameValidity(output);
+		checkValidity(output);
 		
 		return output;
 	}
@@ -86,7 +86,7 @@ public class NCName {
 		return output;
 	}
 
-	private void checkNCNameValidity(String input) {
+	private void checkValidity(String input) {
 
 		if (input.length() == 0) {
 			throw new NCNameException("Resulting NCName was empty");
