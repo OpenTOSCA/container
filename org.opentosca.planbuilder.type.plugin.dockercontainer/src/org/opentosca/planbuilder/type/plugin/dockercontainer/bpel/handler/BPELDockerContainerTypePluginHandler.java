@@ -119,7 +119,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         final Variable dockerEngineUrlVar = templateContext.getPropertyVariable(dockerEngineNode, "DockerEngineURL");
 
         // determine whether we work with an ImageId or a zipped DockerContainer
-        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerImage");
+        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
 
 
@@ -181,7 +181,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
 
         for (final AbstractNodeTemplate infraNode : infraNodes) {
-            if (infraNode.getId() != nodeTemplate.getId() & context.getPropertyNames(infraNode).contains("VMIP")) {
+            if (infraNode.getId() != nodeTemplate.getId() & ModelUtils.getPropertyNames(infraNode).contains("VMIP")) {
                 // fetch the first which is not a dockercontainer
                 return infraNode;
             }
@@ -255,7 +255,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
     private Variable fetchEnvironmentVariables(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
-        final List<String> propertyNames = context.getPropertyNames(nodeTemplate);
+        final List<String> propertyNames = ModelUtils.getPropertyNames(nodeTemplate);
 
         // String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName()
         // + ",'~',$" + instanceIdVar.getName() +

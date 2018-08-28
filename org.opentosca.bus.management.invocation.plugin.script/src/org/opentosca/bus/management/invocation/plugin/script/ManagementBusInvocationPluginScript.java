@@ -242,10 +242,9 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                 artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION,
                                                                     fileNameWithoutE);
                             artifactTypeSpecificCommand =
-                                artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_NAME_PATH_MAP,
-                                                                    "sudo -E "
-                                                                        + createDANamePathMapEnvVar(csarID,
-                                                                                                    serviceTemplateID, nodeTypeID, nodeTemplateID)
+                                artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP,
+                                                                    createDANamePathMapEnvVar(csarID, serviceTemplateID,
+                                                                                              nodeTypeID, nodeTemplateID)
                                                                         + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                         + nodeInstanceID + "' ServiceInstanceID='"
                                                                         + serviceInstanceID + "' ");

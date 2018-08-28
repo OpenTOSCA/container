@@ -29,8 +29,6 @@ import org.opentosca.container.core.tosca.model.TPlan;
 import org.opentosca.container.core.tosca.model.TPlans;
 import org.opentosca.container.core.tosca.model.TServiceTemplate;
 import org.opentosca.container.engine.plan.IPlanEngineService;
-// import org.opentosca.planengine.service.IPlanEngineService;
-// import org.opentosca.planinvocationengine.service.IPlanInvocationEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,7 +245,6 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
         }
 
         return errors;
-
     }
 
     private boolean undeployPlans(final CSARID csarID) {
@@ -258,7 +255,16 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             return true;
         }
 
-        for (final QName serviceTemplateID : OpenToscaControlServiceImpl.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
+        switch (getDeploymentProcessState(csarID)) {
+            case STORED:
+            case TOSCA_PROCESSED:
+            case TOSCAPROCESSING_ACTIVE:
+                return true;
+            default:
+                break;
+        }
+
+        for (final QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
             if (OpenToscaControlServiceImpl.planEngine != null) {
@@ -288,8 +294,7 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
                 if (namespace == null) {
                     // the Plans element has no targetNamespace defined fallback
-                    // to
-                    // ServiceTemplate namespace
+                    // to ServiceTemplate namespace
                     namespace = serviceTemplateID.getNamespaceURI();
                 }
 
@@ -368,13 +373,11 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
 
                 // during active processing (states ending with active) there are no
                 // operations allowed for a certain CSAR
-
                 break;
         }
 
         // return possible operations
         return operationList;
-
     }
 
     /**

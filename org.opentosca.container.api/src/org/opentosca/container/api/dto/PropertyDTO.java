@@ -43,6 +43,14 @@ public class PropertyDTO {
 
     public static final class Converter {
 
+        public static PropertyDTO convert(final Property object) {
+            final PropertyDTO prop = new PropertyDTO();
+
+            fillValues(object, prop);
+
+            return prop;
+        }
+
         public static void fillValues(final Property object, final PropertyDTO empty) {
             empty.setName(object.getName());
             empty.setType(object.getType());

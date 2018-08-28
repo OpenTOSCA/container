@@ -245,6 +245,7 @@ public class CsarController {
                     }
                     catch (final Exception e) {
                         // Ignore
+                        logger.error("Error deleting csar after open requirements check: {}", e.getMessage(), e);
                     }
                     return Response.serverError().build();
                 }
