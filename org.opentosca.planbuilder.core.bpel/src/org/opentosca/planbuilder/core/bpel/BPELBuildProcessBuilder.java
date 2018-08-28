@@ -117,9 +117,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                               final QName serviceTemplateId) {
         // create empty plan from servicetemplate and add definitions
-    	BPELBuildProcessBuilder.LOG.debug("Building plan for {} with serviveTemplateId {}", csarName, serviceTemplateId.getNamespaceURI());
+
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-        	BPELBuildProcessBuilder.LOG.debug("Processing serviceTemplate {}, templateId {}", serviceTemplate.getName(), serviceTemplate.getId());
             String namespace;
             if (serviceTemplate.getTargetNamespace() != null) {
                 namespace = serviceTemplate.getTargetNamespace();
@@ -197,10 +196,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      */
     @Override
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
-    	BPELBuildProcessBuilder.LOG.debug("Started building plans for {} definitions: {}", csarName, definitions.getName());
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-        	BPELBuildProcessBuilder.LOG.debug("Building plans for servicetemplate ", serviceTemplate.getName());
             QName serviceTemplateId;
             // targetNamespace attribute doesn't has to be set, so we check it
             if (serviceTemplate.getTargetNamespace() != null) {
@@ -249,16 +246,13 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
      */
     private void runPlugins(final BPELPlan buildPlan, final PropertyMap map) {
 
-    	BPELBuildProcessBuilder.LOG.debug("Started running plugins for buildPlan {}", buildPlan.getId());
         for (final BPELScopeActivity templatePlan : buildPlan.getTemplateBuildPlans()) {
             final BPELPlanContext context = new BPELPlanContext(templatePlan, map, buildPlan.getServiceTemplate());
-            BPELBuildProcessBuilder.LOG.debug("Processing templatePlan with contextId {}", context.getId());
             if (templatePlan.getNodeTemplate() != null) {
                 if (isRunning(context, templatePlan.getNodeTemplate())) {
                     BPELBuildProcessBuilder.LOG.debug("Skipping the provisioning of NodeTemplate "
-                        + templatePlan.getNodeTemplate().getId() + "  because state=running is set.");
+                        + templatePlan.getNodeTemplate().getId() + "  beacuse state=running is set.");
                     for (final IPlanBuilderPostPhasePlugin postPhasePlugin : this.pluginRegistry.getPostPlugins()) {
-                    	BPELBuildProcessBuilder.LOG.debug("Processing postPluginId {}", postPhasePlugin.getID());
                         if (postPhasePlugin.canHandle(templatePlan.getNodeTemplate())) {
                             postPhasePlugin.handle(context, templatePlan.getNodeTemplate());
                         }

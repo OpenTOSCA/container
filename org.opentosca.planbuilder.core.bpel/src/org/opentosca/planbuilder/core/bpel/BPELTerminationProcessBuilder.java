@@ -82,9 +82,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
     @Override
     public BPELPlan buildPlan(final String csarName, final AbstractDefinitions definitions,
                               final QName serviceTemplateId) {
-    	BPELTerminationProcessBuilder.LOG.debug("Building plan: {}, definitions {} , serviceTemplate {}", csarName, definitions.getName(), serviceTemplateId.getNamespaceURI());
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-        	BPELTerminationProcessBuilder.LOG.debug("Processing ServiceTemplate: id {}, name {}", serviceTemplate.getId(), serviceTemplate.getName());
             String namespace;
             if (serviceTemplate.getTargetNamespace() != null) {
                 namespace = serviceTemplate.getTargetNamespace();
@@ -202,7 +200,6 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
     public List<AbstractPlan> buildPlans(final String csarName, final AbstractDefinitions definitions) {
         final List<AbstractPlan> plans = new ArrayList<>();
         for (final AbstractServiceTemplate serviceTemplate : definitions.getServiceTemplates()) {
-        	BPELTerminationProcessBuilder.LOG.debug("Processing serviceTemplate: id {}, name {}", serviceTemplate.getId(), serviceTemplate.getName());
             QName serviceTemplateId;
             // targetNamespace attribute doesn't has to be set, so we check it
             if (serviceTemplate.getTargetNamespace() != null) {
