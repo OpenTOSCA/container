@@ -79,18 +79,6 @@ public class BPELPlanContext implements PlanContext {
     public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
     public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 
-    public List<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
-        final List<String> propertyNames = new ArrayList<>();
-        final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propertyNodes.getLength(); index++) {
-            final Node propertyNode = propertyNodes.item(index);
-            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                propertyNames.add(propertyNode.getLocalName());
-            }
-        }
-        return propertyNames;
-    }
-
     public static String getVariableContent(final Variable variable, final BPELPlanContext context) {
         // check whether the property is empty --> external parameter
         for (final AbstractNodeTemplate node : context.getNodeTemplates()) {

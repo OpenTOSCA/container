@@ -107,7 +107,7 @@ public class BPELMonitoringPlugin implements IPlanBuilderPostPhasePlugin<BPELPla
 
         for (final AbstractNodeTemplate infraNodeTemplate : infraNodes) {
             int propMatchCount = 0;
-            final List<String> propNames = context.getPropertyNames(infraNodeTemplate);
+            final List<String> propNames = ModelUtils.getPropertyNames(infraNodeTemplate);
             for (final String propName : propNames) {
                 if (Utils.isSupportedVirtualMachineIPProperty(propName)) {
                     sshIpVar = context.getPropertyVariable(propName);

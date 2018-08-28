@@ -308,6 +308,17 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
             return true;
         }
 
+        switch (getDeploymentProcessState(csarID)) {
+            case IA_DEPLOYMENT_ACTIVE:
+            case IAS_DEPLOYED:
+            case STORED:
+            case TOSCA_PROCESSED:
+            case TOSCAPROCESSING_ACTIVE:
+                return true;
+            default:
+                break;
+        }
+
         for (final QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
