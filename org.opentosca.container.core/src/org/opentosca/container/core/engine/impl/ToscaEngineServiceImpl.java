@@ -201,7 +201,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public boolean hasOperationOfANodeTypeSpecifiedInputParams(final CSARID csarID, final QName nodeTypeID,
                                                                final String interfaceName, final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
+        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
 
             final TNodeType nodeType =
                 (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
@@ -298,7 +298,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                 final String interfaceName,
                                                                 final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
+        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
 
             final TNodeType nodeType =
                 (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
@@ -394,7 +394,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public boolean doesInterfaceOfNodeTypeContainOperation(final CSARID csarID, final QName nodeTypeID,
                                                            final String interfaceName, final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
+        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
 
             final TNodeType nodeType =
                 (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
@@ -512,7 +512,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         // search in all Definitions inside a certain CSAR
         for (final TDefinitions definitions : ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
 
-            for (final QName nodeTypeHierachyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
+            for (final QName nodeTypeHierachyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
 
                 // search for NodeTypeImplementations
                 for (final TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
@@ -598,8 +598,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         // return list
         final List<String> listOfNames = new ArrayList<>();
 
-        for (final QName nodeTypeImplHierarchyMember : this.getNodeTypeImplementationTypeHierarchy(csarID,
-                                                                                                   nodeTypeImplementationID)) {
+        for (final QName nodeTypeImplHierarchyMember : getNodeTypeImplementationTypeHierarchy(csarID,
+                                                                                              nodeTypeImplementationID)) {
 
             // get the NodeTypeImplementation
             final TNodeTypeImplementation nodeTypeImplementation =
@@ -857,18 +857,35 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                    final QName nodeTypeImplementationID,
                                                                                    final String implementationArtifactName) {
 
-        // get the NodeTypeImplementation
-        final TNodeTypeImplementation nodeTypeImplementation =
-            (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                   nodeTypeImplementationID);
+        try {
+            // get the NodeTypeImplementation
+            final TNodeTypeImplementation nodeTypeImplementation =
+                (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                       nodeTypeImplementationID);
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
 
-        // if there are ImplementationArtifacts
-        if (nodeTypeImplementation.getImplementationArtifacts() != null) {
-            for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
-                                                                               .getImplementationArtifact()) {
+                    if (implArt.getName().equals(implementationArtifactName)) {
+                        return implArt.getArtifactType();
+                    }
+                }
+            }
+        }
+        catch (final Exception e) {
+            // get the TRelationshipTypeImplementation
+            final TRelationshipTypeImplementation nodeTypeImplementation =
+                (TRelationshipTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                               nodeTypeImplementationID);
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
 
-                if (implArt.getName().equals(implementationArtifactName)) {
-                    return implArt.getArtifactType();
+                    if (implArt.getName().equals(implementationArtifactName)) {
+                        return implArt.getArtifactType();
+                    }
                 }
             }
         }
@@ -914,21 +931,41 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                        final QName nodeTypeImplementationID,
                                                                                        final String implementationArtifactName) {
 
-        // get the NodeTypeImplementation
-        final TNodeTypeImplementation nodeTypeImplementation =
-            (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                   nodeTypeImplementationID);
+        try {
+            // get the NodeTypeImplementation
+            final TNodeTypeImplementation nodeTypeImplementation =
+                (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                       nodeTypeImplementationID);
 
-        // if there are ImplementationArtifacts
-        if (nodeTypeImplementation.getImplementationArtifacts() != null) {
-            for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
-                                                                               .getImplementationArtifact()) {
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
+                    if (implArt.getName().equals(implementationArtifactName)) {
 
-                if (implArt.getName().equals(implementationArtifactName)) {
+                        ToscaEngineServiceImpl.LOG.trace("The ArtifactTemplate is found and has the QName \""
+                            + implArt.getArtifactRef() + "\".");
+                        return implArt.getArtifactRef();
+                    }
+                }
+            }
+        }
+        catch (final Exception e) {
+            // get the TRelationshipTypeImplementation
+            final TRelationshipTypeImplementation nodeTypeImplementation =
+                (TRelationshipTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                               nodeTypeImplementationID);
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
 
-                    ToscaEngineServiceImpl.LOG.trace("The ArtifactTemplate is found and has the QName \""
-                        + implArt.getArtifactRef() + "\".");
-                    return implArt.getArtifactRef();
+                    if (implArt.getName().equals(implementationArtifactName)) {
+
+                        ToscaEngineServiceImpl.LOG.trace("The ArtifactTemplate is found and has the QName \""
+                            + implArt.getArtifactRef() + "\".");
+                        return implArt.getArtifactRef();
+                    }
                 }
             }
         }
@@ -992,7 +1029,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     public Node getInputParametersOfANodeTypeOperation(final CSARID csarID, final QName nodeTypeID,
                                                        final String interfaceName, final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : this.getNodeTypeHierachy(csarID, nodeTypeID)) {
+        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
 
             final TNodeType nodeType =
                 (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
@@ -1173,59 +1210,65 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                                  final QName nodeTypeImplementationID,
                                                                                                  final String implementationArtifactName) {
 
-        // get the NodeTypeImplementation
-        final TNodeTypeImplementation nodeTypeImplementation =
-            (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                   nodeTypeImplementationID);
+        try {
+            // get the NodeTypeImplementation
+            final TNodeTypeImplementation nodeTypeImplementation =
+                (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                       nodeTypeImplementationID);
 
-        // if there are ImplementationArtifacts
-        if (nodeTypeImplementation.getImplementationArtifacts() != null) {
-            for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
-                                                                               .getImplementationArtifact()) {
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
 
-                if (implArt.getName().equals(implementationArtifactName)) {
+                    if (implArt.getName().equals(implementationArtifactName)) {
 
-                    final List<Element> listOfAnyElements = new ArrayList<>();
-                    for (final Object obj : implArt.getAny()) {
-                        if (obj instanceof Element) {
-                            listOfAnyElements.add((Element) obj);
-                        } else {
-                            ToscaEngineServiceImpl.LOG.error("There is content inside of the ImplementationArtifact \""
-                                + implementationArtifactName + "\" of the NodeTypeImplementation \""
-                                + nodeTypeImplementationID + "\" which is not a processable DOM Element.");
-                            return null;
+                        final List<Element> listOfAnyElements = new ArrayList<>();
+                        for (final Object obj : implArt.getAny()) {
+                            if (obj instanceof Element) {
+                                listOfAnyElements.add((Element) obj);
+                            } else {
+                                ToscaEngineServiceImpl.LOG.error("There is content inside of the ImplementationArtifact \""
+                                    + implementationArtifactName + "\" of the NodeTypeImplementation \""
+                                    + nodeTypeImplementationID + "\" which is not a processable DOM Element.");
+                                return null;
+                            }
                         }
+
+                        return ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .elementsIntoDocument(listOfAnyElements,
+                                                                                        "ImplementationArtifactSpecificContent");
                     }
+                }
+            }
+        }
+        catch (final Exception e) {
+            // get the TRelationshipTypeImplementation
+            final TRelationshipTypeImplementation nodeTypeImplementation =
+                (TRelationshipTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                                               nodeTypeImplementationID);
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
 
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .elementsIntoDocument(listOfAnyElements,
-                                                                                    "ImplementationArtifactSpecificContent");
+                    if (implArt.getName().equals(implementationArtifactName)) {
 
-                    // Node implArtNode =
-                    // ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(implArt);
-                    // NodeList childNodes = implArtNode.getChildNodes();
-                    //
-                    // try {
-                    // Document returnDocument =
-                    // DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-                    // Element root =
-                    // returnDocument.createElement("SpecificContent");
-                    // returnDocument.appendChild(root);
-                    //
-                    // for (int i = 0; i < childNodes.getLength(); i++) {
-                    // Node node = childNodes.item(i);
-                    // Node copyNode = returnDocument.importNode(node, true);
-                    // root.appendChild(copyNode);
-                    // }
-                    //
-                    // return returnDocument;
-                    //
-                    // } catch (ParserConfigurationException e) {
-                    // this.LOG.error(e.getLocalizedMessage());
-                    // e.printStackTrace();
-                    // return null;
-                    // }
-
+                        final List<Element> listOfAnyElements = new ArrayList<>();
+                        for (final Object obj : implArt.getAny()) {
+                            if (obj instanceof Element) {
+                                listOfAnyElements.add((Element) obj);
+                            } else {
+                                ToscaEngineServiceImpl.LOG.error("There is content inside of the ImplementationArtifact \""
+                                    + implementationArtifactName + "\" of the NodeTypeImplementation \""
+                                    + nodeTypeImplementationID + "\" which is not a processable DOM Element.");
+                                return null;
+                            }
+                        }
+                        return ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                                  .elementsIntoDocument(listOfAnyElements,
+                                                                                        "ImplementationArtifactSpecificContent");
+                    }
                 }
             }
         }
@@ -1854,7 +1897,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
      * {@inheritDoc}
      */
     public ResolvedArtifacts getResolvedArtifactsOfNodeTemplate(final CSARID csarID, final QName nodeTemplateID) {
-        final List<ResolvedDeploymentArtifact> resolvedDAs = this.getNodeTemplateResolvedDAs(csarID, nodeTemplateID);
+        final List<ResolvedDeploymentArtifact> resolvedDAs = getNodeTemplateResolvedDAs(csarID, nodeTemplateID);
 
         final ResolvedArtifacts result = new ResolvedArtifacts();
         result.setDeploymentArtifacts(resolvedDAs);
@@ -1871,9 +1914,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         // TODO: add debug logger
 
         final List<ResolvedImplementationArtifact> resolvedIAs =
-            this.getNodeTypeImplResolvedIAs(csarID, nodeTypeImplementationID);
+            getNodeTypeImplResolvedIAs(csarID, nodeTypeImplementationID);
         final List<ResolvedDeploymentArtifact> resolvedDAs =
-            this.getNodeTypeImplResolvedDAs(csarID, nodeTypeImplementationID);
+            getNodeTypeImplResolvedDAs(csarID, nodeTypeImplementationID);
 
         final ResolvedArtifacts result = new ResolvedArtifacts();
         result.setDeploymentArtifacts(resolvedDAs);
@@ -1890,7 +1933,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                                                                                   final QName nodeTypeImplementationID) {
         // TODO: add debug logger
         final List<ResolvedImplementationArtifact> resolvedIAs =
-            this.getRelationshipTypeImplResolvedIAs(csarID, nodeTypeImplementationID);
+            getRelationshipTypeImplResolvedIAs(csarID, nodeTypeImplementationID);
         final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
 
         final ResolvedArtifacts result = new ResolvedArtifacts();
@@ -2031,7 +2074,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                 ra.setReferences(references);
             } else {
                 artifactSpecificContent =
-                    this.getArtifactSpecificContentOfADeploymentArtifact(csarID, nodeTemplateID, deployArt.getName());
+                    getArtifactSpecificContentOfADeploymentArtifact(csarID, nodeTemplateID, deployArt.getName());
                 ra.setArtifactSpecificContent(artifactSpecificContent);
             }
 
@@ -2115,8 +2158,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                     ra.setReferences(references);
                 } else {
                     artifactSpecificContent =
-                        this.getArtifactSpecificContentOfADeploymentArtifact(csarID, nodeTypeImplementationID,
-                                                                             deployArt.getName());
+                        getArtifactSpecificContentOfADeploymentArtifact(csarID, nodeTypeImplementationID,
+                                                                        deployArt.getName());
                     ra.setArtifactSpecificContent(artifactSpecificContent);
                 }
 
@@ -2197,9 +2240,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                 ra.setReferences(references);
             } else {
                 artifactSpecificContent =
-                    this.getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                      nodeTypeImplementationID,
-                                                                                                      implArt.getName());
+                    getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
+                                                                                                 nodeTypeImplementationID,
+                                                                                                 implArt.getName());
                 ra.setArtifactSpecificContent(artifactSpecificContent);
             }
 
@@ -2276,9 +2319,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                 ra.setReferences(references);
             } else {
                 artifactSpecificContent =
-                    this.getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
-                                                                                                              relationshipTypeImplementationID,
-                                                                                                              implArt.getName());
+                    getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
+                                                                                                         relationshipTypeImplementationID,
+                                                                                                         implArt.getName());
                 ra.setArtifactSpecificContent(artifactSpecificContent);
             }
 
@@ -2556,7 +2599,7 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         qnames.add(nodeType);
 
         if (nodeTypeElement.getDerivedFrom() != null && nodeTypeElement.getDerivedFrom().getTypeRef() != null) {
-            qnames.addAll(this.getNodeTypeHierachy(csarID, nodeTypeElement.getDerivedFrom().getTypeRef()));
+            qnames.addAll(getNodeTypeHierachy(csarID, nodeTypeElement.getDerivedFrom().getTypeRef()));
         }
 
         return qnames;
@@ -2574,9 +2617,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
 
         if (nodeTypeImplElement.getDerivedFrom() != null
             && nodeTypeImplElement.getDerivedFrom().getNodeTypeImplementationRef() != null) {
-            qnames.addAll(this.getNodeTypeImplementationTypeHierarchy(csarID,
-                                                                      nodeTypeImplElement.getDerivedFrom()
-                                                                                         .getNodeTypeImplementationRef()));
+            qnames.addAll(getNodeTypeImplementationTypeHierarchy(csarID,
+                                                                 nodeTypeImplElement.getDerivedFrom()
+                                                                                    .getNodeTypeImplementationRef()));
         }
 
         return qnames;
@@ -2640,9 +2683,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                 if (((TRelationshipTemplate) entity).getTargetElement().getRef() instanceof TCapability) {
                     final TCapability cap = (TCapability) ((TRelationshipTemplate) entity).getTargetElement().getRef();
 
-                    if (this.resolveNodeTemplateFromCapability(csarId, serviceTemplateId, cap.getId()) != null) {
+                    if (resolveNodeTemplateFromCapability(csarId, serviceTemplateId, cap.getId()) != null) {
                         return new QName(serviceTemplate.getTargetNamespace(),
-                            this.resolveNodeTemplateFromCapability(csarId, serviceTemplateId, cap.getId()).getId());
+                            resolveNodeTemplateFromCapability(csarId, serviceTemplateId, cap.getId()).getId());
                     }
 
                 }
@@ -2669,9 +2712,9 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                         (TRequirement) ((TRelationshipTemplate) entity).getSourceElement().getRef();
                     // resolve requirement to nodeTemplate
 
-                    if (this.resolveNodeTemplateFromRequirement(csarId, serviceTemplateId, req.getId()) != null) {
+                    if (resolveNodeTemplateFromRequirement(csarId, serviceTemplateId, req.getId()) != null) {
                         return new QName(serviceTemplate.getTargetNamespace(),
-                            this.resolveNodeTemplateFromRequirement(csarId, serviceTemplateId, req.getId()).getId());
+                            resolveNodeTemplateFromRequirement(csarId, serviceTemplateId, req.getId()).getId());
                     }
                 }
             }
