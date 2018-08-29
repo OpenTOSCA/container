@@ -126,6 +126,38 @@ public class BPELScopeBuilder {
      * @param nodeTemplate an AbstractNodeTemplate to create a ProvisioningChain for
      * @return a complete ProvisioningChain
      */
+    public static OperationChain createOperationCall(final AbstractRelationshipTemplate relationshipTemplate,
+                                                     final String interfaceName, final String operationName) {
+
+        final List<AbstractRelationshipTypeImplementation> nodeTypeImpls = relationshipTemplate.getImplementations();
+
+        if (nodeTypeImpls.isEmpty()) {
+            BPELScopeBuilder.LOG.warn("No implementations available for RelationshipTemplate {} , can't generate Provisioning logic",
+                                      relationshipTemplate.getId());
+            return null;
+        }
+
+        final OperationChain chain = new OperationChain(relationshipTemplate);
+
+        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
+        infraNodes.add(new TOSCAManagementInfrastructureNodeTemplate());
+
+        final List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins =
+            BPELScopeBuilder.pluginRegistry.getProvPlugins();
+        BPELScopeBuilder.calculateProvPlugins(chain, provPlugins, interfaceName, operationName);
+        BPELScopeBuilder.filterIADACandidates(chain);
+        BPELScopeBuilder.reorderProvCandidates(chain);
+        BPELScopeBuilder.selectProvisioning(chain);
+
+        return chain;
+    }
+
+    /**
+     * Creates a complete ProvisioningChain for the given NodeTemplate
+     *
+     * @param nodeTemplate an AbstractNodeTemplate to create a ProvisioningChain for
+     * @return a complete ProvisioningChain
+     */
     public static OperationChain createOperationCall(final AbstractNodeTemplate nodeTemplate,
                                                      final String interfaceName, final String operationName) {
         // get nodetype implementations

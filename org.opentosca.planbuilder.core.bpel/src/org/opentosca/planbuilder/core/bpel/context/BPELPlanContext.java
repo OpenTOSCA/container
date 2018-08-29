@@ -937,6 +937,53 @@ public class BPELPlanContext implements PlanContext {
         return string.replace(" ", "_");
     }
 
+    public boolean executeOperation(final AbstractRelationshipTemplate relationshipTemplate, final String interfaceName,
+                                    final String operationName,
+                                    final Map<AbstractParameter, Variable> param2propertyMapping,
+                                    final Map<AbstractParameter, Variable> param2propertyOutputMapping) {
+
+        final OperationChain chain =
+            BPELScopeBuilder.createOperationCall(relationshipTemplate, interfaceName, operationName);
+        if (chain == null) {
+            return false;
+        }
+
+        final List<String> opNames = new ArrayList<>();
+        opNames.add(operationName);
+
+        /*
+         * create a new templatePlanContext that combines the requested nodeTemplate and the scope of this
+         * context
+         */
+        // backup nodes
+        final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+        final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+
+        // create context from this context and set the given nodeTemplate as
+        // the node for the scope
+        final BPELPlanContext context =
+            new BPELPlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+
+        context.templateBuildPlan.setNodeTemplate(null);
+        context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
+
+        if (param2propertyMapping == null) {
+            chain.executeOperationProvisioning(context, opNames);
+        } else {
+            if (param2propertyOutputMapping == null) {
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping);
+            } else {
+                chain.executeOperationProvisioning(context, opNames, param2propertyMapping,
+                                                   param2propertyOutputMapping);
+            }
+        }
+
+        this.templateBuildPlan.setNodeTemplate(nodeBackup);
+        this.templateBuildPlan.setRelationshipTemplate(relationBackup);
+
+        return true;
+    }
+
     public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
                                     final Map<AbstractParameter, Variable> param2propertyMapping,
