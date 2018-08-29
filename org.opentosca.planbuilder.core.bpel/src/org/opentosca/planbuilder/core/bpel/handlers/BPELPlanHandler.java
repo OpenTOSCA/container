@@ -98,6 +98,10 @@ public class BPELPlanHandler {
         return null;
     }
 
+    public Node importNode(final BPELPlan plan, final Node node) {
+        return plan.getBpelDocument().importNode(node, true);
+    }
+
     public String addGlobalStringVariable(final String varNamePrefix, final BPELPlan plan) {
         final QName stringXsdDeclQName =
             new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());

@@ -119,7 +119,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         final Variable dockerEngineUrlVar = templateContext.getPropertyVariable(dockerEngineNode, "DockerEngineURL");
 
         // determine whether we work with an ImageId or a zipped DockerContainer
-        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ContainerImage");
+        final Variable containerImageVar = templateContext.getPropertyVariable(nodeTemplate, "ImageID");
 
 
 
@@ -181,7 +181,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
         ModelUtils.getInfrastructureNodes(nodeTemplate, infraNodes);
 
         for (final AbstractNodeTemplate infraNode : infraNodes) {
-            if (infraNode.getId() != nodeTemplate.getId() & context.getPropertyNames(infraNode).contains("VMIP")) {
+            if (infraNode.getId() != nodeTemplate.getId() & ModelUtils.getPropertyNames(infraNode).contains("VMIP")) {
                 // fetch the first which is not a dockercontainer
                 return infraNode;
             }
@@ -255,7 +255,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
 
     private Variable fetchEnvironmentVariables(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate) {
 
-        final List<String> propertyNames = context.getPropertyNames(nodeTemplate);
+        final List<String> propertyNames = ModelUtils.getPropertyNames(nodeTemplate);
 
         // String envVarXpathQuery = "concat('ONEM2M_CSE_ID=',$" + tenantIdVar.getName()
         // + ",'~',$" + instanceIdVar.getName() +
@@ -269,29 +269,51 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             if (propName.startsWith("ENV_")) {
                 final Variable propVar = context.getPropertyVariable(nodeTemplate, propName);
 
-                final String varContent = context.getVariableContent(propVar, context);
+                String varContent = context.getVariableContent(propVar, context);
 
                 // FIXME brutal hack right now
                 if (varContent.contains("get_property")) {
-                    if (varContent.startsWith("[")) {
-
-                        // fetch static content
-                        final String staticContent = varContent.substring(varContent.lastIndexOf(']') + 1);
-
-                        String dynamicContent = varContent.substring(1);
-                        dynamicContent = dynamicContent.substring(0, dynamicContent.lastIndexOf(']'));
-
-                        final String[] splits = dynamicContent.split(" ");
-                        final String nodeTemplateId = splits[1];
-                        final String propertyName = splits[2];
-
-                        final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
-                        final Variable refProp = context.getPropertyVariable(refNode, propertyName);
+                    // concatenation required
+                    if (varContent.contains("[") && varContent.contains("]")) {
 
                         foundEnvVar = true;
                         final String envVarName = propName.replaceFirst("ENV_", "");
-                        envVarXpathQuery +=
-                            "'" + envVarName + "=',$" + refProp.getName() + ",'" + staticContent + ";',";
+                        envVarXpathQuery += "'" + envVarName + "='";
+
+                        while (!varContent.isEmpty()) {
+
+                            final int startIndex = varContent.indexOf("[");
+                            final int endIndex = varContent.indexOf("]");
+
+                            if (startIndex == 0) {
+
+                                final String dynamicContent = varContent.substring(startIndex, endIndex);
+
+                                final String[] splits = dynamicContent.split(" ");
+                                final String nodeTemplateId = splits[1];
+                                final String propertyName = splits[2];
+
+                                final AbstractNodeTemplate refNode = getNode(nodeTemplateId, context);
+                                final Variable refProp = context.getPropertyVariable(refNode, propertyName);
+
+                                envVarXpathQuery += ",$" + refProp.getName();
+                                varContent = varContent.replace(dynamicContent + "]", "");
+
+
+                            } else {
+                                String staticContent;
+                                if (startIndex == -1) {
+                                    staticContent = varContent;
+                                } else {
+                                    staticContent = varContent.substring(0, startIndex);
+                                }
+
+                                envVarXpathQuery += ",'" + staticContent + "'";
+                                varContent = varContent.replace(staticContent, "");
+                            }
+                        }
+                        envVarXpathQuery += ",';',";
+
                     } else {
                         final String[] splits = varContent.split(" ");
                         final String nodeTemplateId = splits[1];

@@ -16,6 +16,7 @@ import org.opentosca.planbuilder.core.bpel.helpers.PropertyMappingsToOutputIniti
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.core.bpel.helpers.ServiceInstanceVariablesHandler;
+import org.opentosca.planbuilder.core.bpel.helpers.SituationTriggerRegistration;
 import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -58,6 +59,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
 
     private ServiceInstanceVariablesHandler serviceInstanceInitializer;
 
+    private SituationTriggerRegistration sitRegistrationPlugin;
+
     // class for finalizing build plans (e.g when some template didn't receive
     // some provisioning logic and they must be filled with empty elements)
     private final BPELFinalizer finalizer;
@@ -81,6 +84,7 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             this.planHandler = new BPELPlanHandler();
             this.serviceInstanceInitializer = new ServiceInstanceVariablesHandler();
             this.instanceInit = new NodeRelationInstanceVariablesHandler(this.planHandler);
+            this.sitRegistrationPlugin = new SituationTriggerRegistration();
         }
         catch (final ParserConfigurationException e) {
             BPELBuildProcessBuilder.LOG.error("Error while initializing BuildPlanHandler", e);
@@ -177,6 +181,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 this.serviceInstanceInitializer.appendSetServiceInstanceState(newBuildPlan,
                                                                               newBuildPlan.getBpelMainSequenceOutputAssignElement(),
                                                                               "CREATED");
+
+                this.sitRegistrationPlugin.handle(serviceTemplate, newBuildPlan);
+
 
                 this.finalizer.finalize(newBuildPlan);
                 BPELBuildProcessBuilder.LOG.debug("Created BuildPlan:");

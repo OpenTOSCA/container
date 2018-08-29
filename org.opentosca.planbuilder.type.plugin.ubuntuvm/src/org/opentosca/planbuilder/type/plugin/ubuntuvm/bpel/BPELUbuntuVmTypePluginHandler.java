@@ -830,7 +830,7 @@ public class BPELUbuntuVmTypePluginHandler implements UbuntuVmTypePluginHandler<
 
         // create variable with image --> currently ubuntu 14.04 hard coded
         // TODO: map ubuntu template name to docker image name
-        final Variable containerImageVariable = context.createGlobalStringVariable("containerImage", "ubuntu:14.04");
+        final Variable containerImageVariable = context.createGlobalStringVariable("ImageID", "ubuntu:14.04");
 
         // find ServerIp Property inside ubuntu nodeTemplate
         Variable serverIpPropWrapper = null;

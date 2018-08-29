@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -629,6 +630,18 @@ public class ModelUtils {
         return relationshipType.equals(ModelUtils.TOSCABASETYPE_DEPENDSON)
             | relationshipType.equals(ModelUtils.TOSCABASETYPE_HOSTEDON)
             | relationshipType.equals(ModelUtils.TOSCABASETYPE_DEPLOYEDON);
+    }
+
+    public static List<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
+        final List<String> propertyNames = new ArrayList<>();
+        final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
+        for (int index = 0; index < propertyNodes.getLength(); index++) {
+            final Node propertyNode = propertyNodes.item(index);
+            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
+                propertyNames.add(propertyNode.getLocalName());
+            }
+        }
+        return propertyNames;
     }
 
     /**

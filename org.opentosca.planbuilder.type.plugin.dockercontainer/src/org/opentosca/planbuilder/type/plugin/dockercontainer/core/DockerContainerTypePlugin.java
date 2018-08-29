@@ -6,13 +6,13 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Node;
 
-import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
-import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.opentosca.planbuilder.model.tosca.AbstractDeploymentArtifact;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTypeImplementation;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
 import org.opentosca.planbuilder.model.utils.ModelUtils;
+import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.plugins.context.PlanContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -117,7 +117,7 @@ public abstract class DockerContainerTypePlugin<T extends PlanContext> implement
                 check++;
             } else if (childNodeList.item(index).getLocalName().equals("Port")) {
                 check++;
-            } else if (childNodeList.item(index).getLocalName().equals("ContainerImage")) {
+            } else if (childNodeList.item(index).getLocalName().equals("ImageID")) {
                 foundDockerImageProp = true;
             }
         }

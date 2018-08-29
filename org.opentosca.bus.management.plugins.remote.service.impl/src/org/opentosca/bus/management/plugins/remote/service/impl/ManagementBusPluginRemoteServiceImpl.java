@@ -244,13 +244,11 @@ public class ManagementBusPluginRemoteServiceImpl implements IManagementBusPlugi
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_TARGET_FILE_NAME_WITHOUT_EXTENSION,
                                                                 fileNameWithoutE);
+                        // hacky check if sudo is available or not
                         artifactTypeSpecificCommand =
                             artifactTypeSpecificCommand.replace(ManagementBusPluginRemoteServiceImpl.PLACEHOLDER_DA_NAME_PATH_MAP,
-                                                                "sudo -E "
-                                                                    + createDANamePathMapEnvVar(csarID,
-                                                                                                serviceTemplateID,
-                                                                                                nodeTypeID,
-                                                                                                nodeTemplateID)
+                                                                createDANamePathMapEnvVar(csarID, serviceTemplateID,
+                                                                                          nodeTypeID, nodeTemplateID)
                                                                     + " CSAR='" + csarID + "' NodeInstanceID='"
                                                                     + nodeInstanceID + "' ServiceInstanceID='"
                                                                     + serviceInstanceID + "' ");
