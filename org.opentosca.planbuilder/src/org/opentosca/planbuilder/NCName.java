@@ -20,7 +20,17 @@ public class NCName {
 
 	@Override
 	public String toString() {
+		if(prefix == null) {
+			return this.ncName;
+		}
+		
 		return String.format(OUTPUT_FORMAT, this.prefix, this.ncName);
+	}
+	
+	public NCName(final String ncName) {
+		Objects.requireNonNull(ncName);
+		
+		this.ncName = makeValid(ncName);
 	}
 
 	public NCName(final String prefix, final String ncName) {
