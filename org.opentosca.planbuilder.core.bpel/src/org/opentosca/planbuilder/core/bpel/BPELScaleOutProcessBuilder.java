@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.AbstractScaleOutPlanBuilder;
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.ScalingPlanDefinition;
 import org.opentosca.planbuilder.ScalingPlanDefinition.AnnotatedAbstractNodeTemplate;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
@@ -304,8 +305,9 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
 
         for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 
-            final String processName =
-                ModelUtils.makeValidNCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
+        	NCName ncName = new NCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
+        	
+            final String processName = ncName.toString();
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
 
             final AbstractPlan abstractScaleOutPlan = generateSOG(new QName(processNamespace, processName).toString(),

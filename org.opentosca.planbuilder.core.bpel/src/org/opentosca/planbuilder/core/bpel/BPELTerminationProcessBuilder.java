@@ -9,6 +9,7 @@ import javax.xml.soap.Node;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.planbuilder.AbstractTerminationPlanBuilder;
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
@@ -94,7 +95,9 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
 
             if (namespace.equals(serviceTemplateId.getNamespaceURI())
                 && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
-                final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_terminationPlan");
+            	
+            	NCName ncName = new NCName(serviceTemplate.getId() + "_terminationPlan");
+                final String processName = ncName.toString();
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 
                 final AbstractPlan newAbstractTerminationPlan =

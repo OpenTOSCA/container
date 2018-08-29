@@ -17,6 +17,7 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.core.bpel.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
@@ -198,8 +199,8 @@ public class BPELPlanContext implements PlanContext {
     }
 
     public String findInstanceURLVar(final String templateId, final boolean isNode) {
-        final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceURL_" + ModelUtils.makeValidNCName(templateId) + "_";
+    	NCName ncName = new NCName((isNode ? "node" : "relationship") + "InstanceURL_" + templateId + "_");
+        final String instanceURLVarName = ncName.toString();
         for (final String varName : getMainVariableNames()) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;
@@ -209,8 +210,8 @@ public class BPELPlanContext implements PlanContext {
     }
 
     public String findInstanceIDVar(final String templateId, final boolean isNode) {
-        final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceID_" + ModelUtils.makeValidNCName(templateId) + "_";
+    	NCName ncName = new NCName((isNode ? "node" : "relationship") + "InstanceID_" + templateId + "_");
+        final String instanceURLVarName = ncName.toString();
         final List<String> varNames = getMainVariableNames();
         for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {

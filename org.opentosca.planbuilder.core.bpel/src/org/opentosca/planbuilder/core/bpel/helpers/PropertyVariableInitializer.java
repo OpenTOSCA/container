@@ -3,6 +3,7 @@ package org.opentosca.planbuilder.core.bpel.helpers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
@@ -157,8 +158,9 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName = ModelUtils.makeValidNCName(relationshipTemplate.getId()) + "_"
-                    + propertyElement.getChildNodes().item(i).getLocalName();
+                NCName ncName = new NCName(relationshipTemplate.getId() + "_"
+                        + propertyElement.getChildNodes().item(i).getLocalName());
+                final String propVarName = ncName.toString();
                 map.addPropertyMapping(relationshipTemplate.getId(), propName, "prop_" + propVarName);
                 // String value =
                 // propertyElement.getChildNodes().item(i).getFirstChild().getNodeValue();
@@ -203,8 +205,9 @@ public class PropertyVariableInitializer {
                 }
 
                 final String propName = propertyElement.getChildNodes().item(i).getLocalName();
-                final String propVarName = ModelUtils.makeValidNCName(nodeTemplate.getId()) + "_"
-                    + propertyElement.getChildNodes().item(i).getLocalName();
+                NCName ncName = new NCName(nodeTemplate.getId() + "_"
+                        + propertyElement.getChildNodes().item(i).getLocalName());
+                final String propVarName = ncName.toString();
 
                 // TODO that "prop_" is a huge hack cause official only the
                 // buildplanhandler knows about the "prop_" piece
