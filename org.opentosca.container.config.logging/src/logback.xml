@@ -23,11 +23,11 @@
   <logger name="org.apache.camel" level="INFO" />
   <logger name="org.eclipse.jetty" level="OFF" />
   <logger name="org.apache.http" level="WARN" />
-  <logger name="org.jclouds" level="INFO" />   
-  <logger name="org.opentosca.container.api.controller" level="DEBUG" />    
+  <logger name="org.jclouds" level="INFO" />
   <logger name="org.opentosca.planbuilder.importer.context" level="INFO" />
-  <logger name="org.opentosca.container.api.config.LogFilter" level="INFO"/>
-  <logger name="org.opentosca.container.api.util.UriUtil" level="INFO"/>
+  <logger name="org.opentosca.container.api.controller" level="DEBUG" />
+  <logger name="org.opentosca.container.api.config" level="INFO"/>
+  <logger name="org.opentosca.container.api.util" level="INFO"/>
   <logger name="httpclient.wire" level="WARN" />
   <logger name="com.predic8" level="WARN" />
   <logger name="org.apache.cxf.services" level="WARN" />
