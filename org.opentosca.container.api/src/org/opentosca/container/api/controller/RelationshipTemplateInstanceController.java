@@ -117,9 +117,11 @@ public class RelationshipTemplateInstanceController {
             return Response.ok(instanceURI).build();
         }
         catch (final IllegalArgumentException e) {
+            logger.error("Error creating instance: {}", e.getMessage(), e);
             return Response.status(Status.BAD_REQUEST).build();
         }
         catch (InstantiationException | IllegalAccessException e) {
+            logger.error("Error creating instance: {}", e.getMessage(), e);
             return Response.serverError().build();
         }
 
