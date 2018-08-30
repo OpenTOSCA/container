@@ -121,34 +121,43 @@ public class BPELScopeBuilder {
     }
 
     /**
-     * Creates a complete ProvisioningChain for the given NodeTemplate
+     * TODO: We assume that IAs are already provisinoned on IA engine
      *
-     * @param nodeTemplate an AbstractNodeTemplate to create a ProvisioningChain for
-     * @return a complete ProvisioningChain
+     * @param relationshipTemplate
+     * @param interfaceName
+     * @param operationName
+     * @return OperationChain
      */
     public static OperationChain createOperationCall(final AbstractRelationshipTemplate relationshipTemplate,
                                                      final String interfaceName, final String operationName) {
 
-        final List<AbstractRelationshipTypeImplementation> nodeTypeImpls = relationshipTemplate.getImplementations();
-
-        if (nodeTypeImpls.isEmpty()) {
+        final List<AbstractRelationshipTypeImplementation> impls = relationshipTemplate.getImplementations();
+        if (impls.isEmpty()) {
             BPELScopeBuilder.LOG.warn("No implementations available for RelationshipTemplate {} , can't generate Provisioning logic",
                                       relationshipTemplate.getId());
             return null;
         }
 
         final OperationChain chain = new OperationChain(relationshipTemplate);
-
-        final List<AbstractNodeTemplate> infraNodes = new ArrayList<>();
-        infraNodes.add(new TOSCAManagementInfrastructureNodeTemplate());
+        chain.provCandidates = new ArrayList<>();
 
         final List<IPlanBuilderProvPhaseOperationPlugin<?>> provPlugins =
             BPELScopeBuilder.pluginRegistry.getProvPlugins();
-        BPELScopeBuilder.calculateProvPlugins(chain, provPlugins, interfaceName, operationName);
-        BPELScopeBuilder.filterIADACandidates(chain);
-        BPELScopeBuilder.reorderProvCandidates(chain);
-        BPELScopeBuilder.selectProvisioning(chain);
 
+        for (final AbstractRelationshipTypeImplementation impl : impls) {
+            final OperationNodeTypeImplCandidate provCandidate = new OperationNodeTypeImplCandidate();
+            for (final AbstractImplementationArtifact ia : impl.getImplementationArtifacts()) {
+                for (final IPlanBuilderProvPhaseOperationPlugin<?> plugin : provPlugins) {
+                    if (plugin.canHandle(ia.getArtifactType())
+                        && BPELScopeBuilder.getOperationForIa(chain.relationshipTemplate, ia, operationName) != null) {
+                        provCandidate.add(BPELScopeBuilder.getOperationForIa(chain.relationshipTemplate, ia,
+                                                                             operationName),
+                                          ia, plugin);
+                    }
+                }
+            }
+            chain.provCandidates.add(provCandidate);
+        }
         return chain;
     }
 
@@ -584,17 +593,34 @@ public class BPELScopeBuilder {
      */
     private static AbstractOperation getOperationForIa(final AbstractRelationshipTemplate relationshipTemplate,
                                                        final AbstractImplementationArtifact ia) {
+        return getOperationForIa(relationshipTemplate, ia, ia.getOperationName());
+    }
+
+    private static AbstractOperation getOperationForIa(final AbstractRelationshipTemplate relationshipTemplate,
+                                                       final AbstractImplementationArtifact ia,
+                                                       final String operationNameFallback) {
+        String name = ia.getOperationName();
+        if (name == null) {
+            name = operationNameFallback;
+        }
+
         for (final AbstractInterface iface : relationshipTemplate.getRelationshipType().getSourceInterfaces()) {
             for (final AbstractOperation op : iface.getOperations()) {
-                if (op.getName().equals(ia.getOperationName())) {
+                if (op.getName().equals(name)) {
                     return op;
                 }
             }
         }
-
         for (final AbstractInterface iface : relationshipTemplate.getRelationshipType().getTargetInterfaces()) {
             for (final AbstractOperation op : iface.getOperations()) {
-                if (op.getName().equals(ia.getOperationName())) {
+                if (op.getName().equals(name)) {
+                    return op;
+                }
+            }
+        }
+        for (final AbstractInterface iface : relationshipTemplate.getRelationshipType().getInterfaces()) {
+            for (final AbstractOperation op : iface.getOperations()) {
+                if (op.getName().equals(name)) {
                     return op;
                 }
             }
