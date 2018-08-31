@@ -197,8 +197,8 @@ public class MBUtils {
                 MBUtils.LOG.debug("IA: {} ", osIAName);
 
                 final String osIAInterface =
-                    ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                     osNodeTypeImpl, osIAName);
+                    ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                                 osNodeTypeImpl, osIAName);
 
                 MBUtils.LOG.debug("Interface: {} ", osIAInterface);
 

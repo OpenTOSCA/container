@@ -218,7 +218,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                implementationArtifactName);
 
                             // check if requested interface/operation is provided
-                            if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null, null,
+                            if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null,
                                             implementationArtifactName, neededOperation, neededInterface)) {
 
                                 message.setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(),
@@ -462,6 +462,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 ManagementBusServiceImpl.LOG.debug("Invoking operation on RelationshipTemplate: {}",
                                                    relationshipTemplateID);
 
+                // TODO: extend Utilities to extract RelationshipTemplateInstance
                 final RelationshipTemplateInstance relationshipTemplateInstance = null;
 
                 if (relationshipTemplateInstance != null) {
@@ -648,13 +649,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
     }
 
     /**
-     * Checks if the defined implementation artifact provides the needed interface/operation.
+     * Checks if the defined IA provides the needed interface/operation.
      *
-     * @param csarID of the implementation artifact to check
+     * @param csarID of the IA to check
      * @param nodeTypeID of the implementation artifact to check
-     * @param nodeTypeImplementationID of the implementation artifact to check
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the IA
      * @param relationshipTypeID of the implementation artifact to check
-     * @param relationshipTypeImplementationID of the implementation artifact to check
      * @param implementationArtifactName of the implementation artifact to check
      * @param neededOperation specifies the operation the implementation artifact should provide
      * @param neededInterface specifies the interface the implementation artifact should provide
@@ -662,44 +663,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return <code>true</code> if the specified implementation artifact provides needed
      *         interface/operation. Otherwise <code>false</code> .
      */
-    private boolean isCorrectIA(final CSARID csarID, final QName nodeTypeID, final QName nodeTypeImplementationID,
-                                final QName relationshipTypeID, final QName relationshipTypeImplementationID,
-                                final String implementationArtifactName, final String neededOperation,
-                                final String neededInterface) {
+    private boolean isCorrectIA(final CSARID csarID, final QName nodeTypeID, final QName typeImplementationID,
+                                final QName relationshipTypeID, final String implementationArtifactName,
+                                final String neededOperation, final String neededInterface) {
 
-        String providedInterface = null;
-        String providedOperation = null;
+        ManagementBusServiceImpl.LOG.debug("Checking if IA: {} of TypeImpl: {} is the correct one.",
+                                           implementationArtifactName, typeImplementationID);
 
-        if (nodeTypeID != null && nodeTypeImplementationID != null) {
+        // retrieve interface and operation names for the given IA
+        final String providedInterface =
+            ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                         typeImplementationID, implementationArtifactName);
 
-            ManagementBusServiceImpl.LOG.debug("Checking if IA: {} of NodeTypeImpl: {} is the correct one.",
-                                               implementationArtifactName, nodeTypeImplementationID);
-
-            providedInterface =
-                ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                 nodeTypeImplementationID,
-                                                                                                                 implementationArtifactName);
-
-            providedOperation =
-                ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                 nodeTypeImplementationID,
-                                                                                                                 implementationArtifactName);
-
-        } else if (relationshipTypeID != null && relationshipTypeImplementationID != null) {
-
-            ManagementBusServiceImpl.LOG.debug("Checking if IA: {} of RelationshipTypeImpl: {} is the correct one.",
-                                               implementationArtifactName, relationshipTypeImplementationID);
-
-            providedInterface =
-                ServiceHandler.toscaEngineService.getInterfaceOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
-                                                                                                                         relationshipTypeImplementationID,
-                                                                                                                         implementationArtifactName);
-
-            providedOperation =
-                ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
-                                                                                                                         relationshipTypeImplementationID,
-                                                                                                                         implementationArtifactName);
-        }
+        final String providedOperation =
+            ServiceHandler.toscaEngineService.getOperationOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                         typeImplementationID, implementationArtifactName);
 
         ManagementBusServiceImpl.LOG.debug("Needed interface: {}. Provided interface: {}", neededInterface,
                                            providedInterface);
