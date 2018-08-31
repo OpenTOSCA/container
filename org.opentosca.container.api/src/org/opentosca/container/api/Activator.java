@@ -25,6 +25,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
 import org.opentosca.container.api.config.CorsFilter;
 import org.opentosca.container.api.config.JAXBContextProvider;
+import org.opentosca.container.api.config.LogFilter;
 import org.opentosca.container.api.config.ObjectMapperProvider;
 import org.opentosca.container.api.config.PlainTextMessageBodyWriter;
 import org.opentosca.container.api.config.URI2XMLMessageBodyWriter;
@@ -75,7 +76,7 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
         this.services.add(bundleContext.registerService(ObjectMapperProvider.class, new ObjectMapperProvider(), null));
         this.services.add(bundleContext.registerService(JacksonFeature.class, new JacksonFeature(), null));
         this.services.add(bundleContext.registerService(MultiPartFeature.class, new MultiPartFeature(), null));
-        // this.services.add(bundleContext.registerService(LogFilter.class, new LogFilter(), null));
+        this.services.add(bundleContext.registerService(LogFilter.class, new LogFilter(), null));
 
         // Custom JAXBContext provider to have proper error logging. Can be
         // removed once the API is in a stable state.
