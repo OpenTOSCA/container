@@ -114,8 +114,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         // Determine output parameters of the current operation
         final List<String> outputParameters = new LinkedList<>();
         final boolean hasOutputParams =
-            ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID, nodeTypeID,
-                                                                                           interfaceName, operationName);
+            ServiceHandler.toscaEngineService.hasOperationOfATypeSpecifiedOutputParams(csarID, nodeTypeID,
+                                                                                       interfaceName, operationName);
         if (hasOutputParams) {
             final Node outputParametersNode =
                 ServiceHandler.toscaEngineService.getOutputParametersOfANodeTypeOperation(csarID, nodeTypeID,

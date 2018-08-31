@@ -34,6 +34,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -155,16 +156,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 // handle operations on NodeTemplates
                 ManagementBusServiceImpl.LOG.debug("Invoking operation on NodeTemplate: {}", nodeTemplateID);
 
-                // retrieve the NodeTemplateInstance for the operation call
                 final NodeTemplateInstance nodeTemplateInstance =
                     MBUtils.getNodeTemplateInstance(serviceTemplateInstanceID, nodeTemplateID);
-
 
                 if (nodeTemplateInstance != null) {
                     ManagementBusServiceImpl.LOG.debug("Operation belongs to NodeTemplateInstance with ID: {}",
                                                        nodeTemplateInstance.getId());
 
-                    // get NodeType of the NodeTemplateInstance
                     final QName nodeTypeID = nodeTemplateInstance.getTemplateType();
                     ManagementBusServiceImpl.LOG.debug("NodeType: {}", nodeTypeID);
                     message.setHeader(MBHeader.NODETYPEID_QNAME.toString(), nodeTypeID);
@@ -185,8 +183,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                     // check whether operation has output parameters
                     final boolean hasOutputParams =
-                        ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedOutputParams(csarID,
-                                                                                                       nodeTypeID, neededInterface, neededOperation);
+                        ServiceHandler.toscaEngineService.hasOperationOfATypeSpecifiedOutputParams(csarID, nodeTypeID,
+                                                                                                   neededInterface, neededOperation);
                     message.setHeader(MBHeader.HASOUTPUTPARAMS_BOOLEAN.toString(), hasOutputParams);
 
                     ManagementBusServiceImpl.LOG.debug("Getting NodeTypeImplementations of NodeType: {} from CSAR: {}",
@@ -460,11 +458,22 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     ManagementBusServiceImpl.LOG.warn("Unable to retrieve NodeTemplateInstance for the operation call.");
                 }
             } else if (relationshipTemplateID != null) {
+                // handle operations on RelationshipTemplates
                 ManagementBusServiceImpl.LOG.debug("Invoking operation on RelationshipTemplate: {}",
                                                    relationshipTemplateID);
 
-                // TODO: implement if needed
-                ManagementBusServiceImpl.LOG.warn("Invocation on RelationshipTemplates is currently not supported!");
+                final RelationshipTemplateInstance relationshipTemplateInstance = null;
+
+                if (relationshipTemplateInstance != null) {
+                    ManagementBusServiceImpl.LOG.debug("Operation belongs to RelationshipTemplateInstance with ID: {}",
+                                                       relationshipTemplateInstance.getId());
+
+                    // TODO: implement if needed
+                    ManagementBusServiceImpl.LOG.warn("Invocation on RelationshipTemplates is currently not supported!");
+
+                } else {
+                    ManagementBusServiceImpl.LOG.warn("Unable to retrieve RelationshipTemplateInstance for the operation call.");
+                }
             }
 
             // try to perform operation call

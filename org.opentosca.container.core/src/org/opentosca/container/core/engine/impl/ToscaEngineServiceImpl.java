@@ -294,95 +294,64 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
      * {@inheritDoc}
      */
     @Override
-    public boolean hasOperationOfANodeTypeSpecifiedOutputParams(final CSARID csarID, final QName nodeTypeID,
-                                                                final String interfaceName,
-                                                                final String operationName) {
+    public boolean hasOperationOfATypeSpecifiedOutputParams(final CSARID csarID, final QName typeID,
+                                                            final String interfaceName, final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
+        final Object type = ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, typeID);
 
-            final TNodeType nodeType =
-                (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                         nodeTypeHierarchyMember);
+        if (type instanceof TNodeType) {
 
-            if (nodeType.getInterfaces() != null) {
+            // handle NodeType operations
+            for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, typeID)) {
 
-                for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
+                final TNodeType nodeType =
+                    (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                             nodeTypeHierarchyMember);
 
-                    for (final TOperation operation : iface.getOperation()) {
+                if (nodeType.getInterfaces() != null) {
 
-                        if (operation.getName().equals(operationName)
-                            && (iface.getName().equals(interfaceName) || interfaceName == null)) {
+                    final TOperation operation = getOperationFromInterfaces(nodeType.getInterfaces().getInterface(),
+                                                                            interfaceName, operationName);
 
-                            if (operation.getOutputParameters() != null
-                                && operation.getOutputParameters().getOutputParameter() != null) {
+                    if (operation != null && operation.getOutputParameters() != null
+                        && operation.getOutputParameters().getOutputParameter() != null) {
 
-                                return !operation.getOutputParameters().getOutputParameter().isEmpty();
-
-                            }
-
-                        }
+                        return !operation.getOutputParameters().getOutputParameter().isEmpty();
                     }
                 }
             }
-        }
-        ToscaEngineServiceImpl.LOG.debug("The requested operation was not found.");
-        return false;
-    }
+        } else if (type instanceof TRelationshipType) {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasOperationOfARelationshipTypeSpecifiedOutputParams(final CSARID csarID,
-                                                                        final QName relationshipTypeID,
-                                                                        final String interfaceName,
-                                                                        final String operationName) {
+            // handle RelationshipType operations
+            final TRelationshipType relationshipType = (TRelationshipType) type;
 
-        final TRelationshipType relationshipType =
-            (TRelationshipType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                             relationshipTypeID);
+            if (relationshipType.getSourceInterfaces() != null) {
 
-        if (relationshipType.getSourceInterfaces() != null) {
+                final TOperation operation =
+                    getOperationFromInterfaces(relationshipType.getSourceInterfaces().getInterface(), interfaceName,
+                                               operationName);
 
-            for (final TInterface iface : relationshipType.getSourceInterfaces().getInterface()) {
+                if (operation != null && operation.getOutputParameters() != null
+                    && operation.getOutputParameters().getOutputParameter() != null) {
 
-                for (final TOperation operation : iface.getOperation()) {
+                    return !operation.getOutputParameters().getOutputParameter().isEmpty();
+                }
+            }
 
-                    if (operation.getName().equals(operationName)
-                        && (iface.getName().equals(interfaceName) || interfaceName == null)) {
+            if (relationshipType.getTargetInterfaces() != null) {
 
-                        if (operation.getOutputParameters() != null
-                            && operation.getOutputParameters().getOutputParameter() != null) {
+                final TOperation operation =
+                    getOperationFromInterfaces(relationshipType.getTargetInterfaces().getInterface(), interfaceName,
+                                               operationName);
 
-                            return !operation.getOutputParameters().getOutputParameter().isEmpty();
+                if (operation != null && operation.getOutputParameters() != null
+                    && operation.getOutputParameters().getOutputParameter() != null) {
 
-                        }
-
-                    }
+                    return !operation.getOutputParameters().getOutputParameter().isEmpty();
                 }
             }
         }
 
-        if (relationshipType.getTargetInterfaces() != null) {
-
-            for (final TInterface iface : relationshipType.getTargetInterfaces().getInterface()) {
-
-                for (final TOperation operation : iface.getOperation()) {
-
-                    if (operation.getName().equals(operationName)
-                        && (iface.getName().equals(interfaceName) || interfaceName == null)) {
-
-                        if (operation.getOutputParameters() != null
-                            && operation.getOutputParameters().getOutputParameter() != null) {
-
-                            return !operation.getOutputParameters().getOutputParameter().isEmpty();
-
-                        }
-
-                    }
-                }
-            }
-        }
         ToscaEngineServiceImpl.LOG.debug("The requested operation was not found.");
         return false;
     }

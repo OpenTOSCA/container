@@ -75,7 +75,7 @@ public interface IToscaEngineService {
      *
      * @param csarID of the CSAR containing the Type.
      * @param typeID of the Type to check.
-     * @param InterfaceName of the Type to check.
+     * @param interfaceName of the Type to check.
      * @param operationName of the Type to check.
      * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
      */
@@ -84,29 +84,16 @@ public interface IToscaEngineService {
 
     /**
      * This method checks if output parameter are specified for a given interface and operation of a
-     * NodeType.
+     * NodeType or RelationshipType.
      *
-     * @param csarID of the CSAR containing the NodeType.
-     * @param nodeTypeID of the NodeType to check.
-     * @param InterfaceName of the NodeType to check.
-     * @param operationName of the NodeType to check.
-     * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
+     * @param csarID of the CSAR containing the Type.
+     * @param typeID of the Type to check.
+     * @param interfaceName of the Type to check.
+     * @param operationName of the Type to check.
+     * @return <code>true</code> if output parameter are specified. Otherwise <code>false</code>.
      */
-    boolean hasOperationOfANodeTypeSpecifiedOutputParams(CSARID csarID, QName nodeTypeID, String interfaceName,
-                                                         String operationName);
-
-    /**
-     * This method checks if output parameter are specified for a given interface and operation of a
-     * RelationshipType.
-     *
-     * @param csarID of the CSAR containing the NodeType.
-     * @param relationshipTypeID of the RelationshipType to check.
-     * @param InterfaceName of the RelationshipType to check.
-     * @param operationName of the RelationshipType to check.
-     * @return <code>true</code> if input parameter are specified. Otherwise <code>false</code>.
-     */
-    boolean hasOperationOfARelationshipTypeSpecifiedOutputParams(CSARID csarID, QName relationshipTypeID,
-                                                                 String interfaceName, String operationName);
+    boolean hasOperationOfATypeSpecifiedOutputParams(CSARID csarID, QName typeID, String interfaceName,
+                                                     String operationName);
 
     /**
      * Checks if specified operations is bound to sourceNode.
