@@ -1258,48 +1258,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         return artifacts;
     }
 
-    // /**
-    // *
-    // * @param abstractFiles
-    // * @param patternObj
-    // * @return
-    // */
-    // private List<AbstractFile>
-    // getSubsetMatchingWithPattern(List<AbstractFile> abstractFiles, Object
-    // patternObj) {
-    //
-    // List<AbstractFile> returnFiles = new ArrayList<AbstractFile>();
-    //
-    // // get the pattern String
-    // String patternString = null;
-    // if (patternObj instanceof Include) {
-    // patternString = ((Include) patternObj).getPattern();
-    // } else {
-    // patternString = ((Exclude) patternObj).getPattern();
-    // }
-    //
-    // // regex
-    // Pattern pattern = Pattern.compile(patternString);
-    // Matcher matcher = null;
-    //
-    // // match regex with files
-    // for (AbstractFile file : abstractFiles) {
-    // this.LOG.debug("Try to match the pattern \"" + patternString +
-    // "\" to a file with a relative path \"" + file.getRelPath() + "\".");
-    // matcher = pattern.matcher(file.getRelPath());
-    //
-    // // shall the file be included?
-    // if (matcher.matches()) {
-    // returnFiles.add(file);
-    // this.LOG.debug("Include this file to subset to return!");
-    // } else {
-    // this.LOG.debug("Exclude this file to subset to return!");
-    // }
-    // }
-    //
-    // return returnFiles;
-    // }
-
     @Override
     public QName getNodeTypeOfNodeTemplate(final CSARID csarID, final QName serviceTemplateID,
                                            final String nodeTemplateID) {
@@ -1326,29 +1284,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         return null;
 
     }
-
-    // @Override
-    // public QName getNodeTypeOfNodeTemplate(CSARID csarID, QName
-    // nodeTemplateID) {
-    // // get the NodeTypeImplementation
-    // Object obj = ToscaEngineServiceImpl.toscaReferenceMapper
-    // .getJAXBReference(csarID, nodeTemplateID);
-    // if (obj == null) {
-    // this.LOG.error("The requested NodeTemplate was not found.");
-    // return null;
-    // }
-    //
-    // if (obj instanceof TNodeTemplate) {
-    // return ((TNodeTemplate) obj).getType();
-    // } else if (obj instanceof TNodeType) {
-    // // funny case with Moodle, since {ns}ApacheWebServer denotes a
-    // // NodeTemplate AND a NodeType, here we return the given QName
-    // return nodeTemplateID;
-    // }
-    //
-    // this.LOG.error("The requested NodeTemplate was not found.");
-    // return null;
-    // }
 
     @Override
     public QName getRelationshipTypeOfRelationshipTemplate(final CSARID csarID, final QName serviceTemplateID,
@@ -1424,32 +1359,38 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     }
 
     @Override
-    public Document getPropertiesOfNodeTemplate(final CSARID csarID, final QName serviceTemplateID,
-                                                final String nodeTemplateID) {
+    public Document getPropertiesOfTemplate(final CSARID csarID, final QName serviceTemplateID,
+                                            final String templateID) {
+
         // get the Namespace from the serviceTemplate
-        final QName NodeTemplateReference = new QName(serviceTemplateID.getNamespaceURI(), nodeTemplateID);
+        final QName templateReference = new QName(serviceTemplateID.getNamespaceURI(), templateID);
 
-        // get the NodeTypeImplementation
-        final TNodeTemplate nodeTemplate =
-            (TNodeTemplate) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, NodeTemplateReference);
+        final Object template = ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, templateReference);
 
-        // check if all referenced objects exist and if returned any element is
-        // really an element
-        if (nodeTemplate != null) {
-            final Properties properties = nodeTemplate.getProperties();
-            if (properties != null) {
-                final Object any = properties.getAny();
-                if (any instanceof Element) {
-                    final Element element = (Element) any;
-                    return element.getOwnerDocument();
-                } else {
-                    ToscaEngineServiceImpl.LOG.debug("Properties is not of class Element.");
-                }
+        // retrieve the properties from the Template
+        Properties properties = null;
+        if (template instanceof TNodeTemplate) {
+            final TNodeTemplate nodeTemplate = (TNodeTemplate) template;
+            properties = nodeTemplate.getProperties();
+        } else if (template instanceof TRelationshipTemplate) {
+            final TRelationshipTemplate relationshipTemplate = (TRelationshipTemplate) template;
+            properties = relationshipTemplate.getProperties();
+        } else {
+            ToscaEngineServiceImpl.LOG.error("Unable to retrieve a NodeTemplate or RelationshipTemplate for templateID: {}",
+                                             templateID);
+        }
+
+        // return the document containing the properties if found
+        if (properties != null) {
+            final Object any = properties.getAny();
+            if (any instanceof Element) {
+                final Element element = (Element) any;
+                return element.getOwnerDocument();
             } else {
-                ToscaEngineServiceImpl.LOG.debug("Properties are not set.");
+                ToscaEngineServiceImpl.LOG.warn("Properties is not of class Element.");
             }
         } else {
-            ToscaEngineServiceImpl.LOG.error("The requested NodeTemplate was not found.");
+            ToscaEngineServiceImpl.LOG.warn("Properties are not set.");
         }
 
         return null;
@@ -1498,40 +1439,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         }
 
         ToscaEngineServiceImpl.LOG.debug("NodeType {} not found.", nodeTypeID);
-        return null;
-    }
-
-    @Override
-    public Document getPropertiesOfRelationshipTemplate(final CSARID csarID, final QName serviceTemplateID,
-                                                        final String relationshipTemplateID) {
-        // get the Namespace from the serviceTemplate
-        final QName relationshipTemplateReference =
-            new QName(serviceTemplateID.getNamespaceURI(), relationshipTemplateID);
-
-        // get the RelationshipTemplate
-        final TRelationshipTemplate relationshipTemplate =
-            (TRelationshipTemplate) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                 relationshipTemplateReference);
-
-        // check if all referenced objects exist and if returned any element is
-        // really an element
-        if (relationshipTemplate != null) {
-            final Properties properties = relationshipTemplate.getProperties();
-            if (properties != null) {
-                final Object any = properties.getAny();
-                if (any instanceof Element) {
-                    final Element element = (Element) any;
-                    return element.getOwnerDocument();
-                } else {
-                    ToscaEngineServiceImpl.LOG.debug("Properties is not of class Element.");
-                }
-            } else {
-                ToscaEngineServiceImpl.LOG.debug("Properties are not set.");
-            }
-        } else {
-            ToscaEngineServiceImpl.LOG.error("The requested RelationshipTemplate was not found.");
-        }
-
         return null;
     }
 

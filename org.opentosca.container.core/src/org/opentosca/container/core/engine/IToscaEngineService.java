@@ -365,12 +365,15 @@ public interface IToscaEngineService {
      * This method returns the Document which contains the default Properties of the NodeTemplate
      * defined by the parameter
      *
-     * @param csarID of the CSAR containing the ArtifactTemplate.
-     * @param serviceTemplateID of the ServiceTemplate containing the NodeTemplate.
-     * @param nodeTemplateID the String value of the attribute ID of the NodeTemplate.
-     * @return Document containing the Properties (may be empty) or null in case of an error
+     * @param csarID of the CSAR containing the NodeTemplate or RelationshipTemplate.
+     * @param serviceTemplateID of the ServiceTemplate containing the NodeTemplate or
+     *        RelationshipTemplate.
+     * @param templateID the String value of the attribute ID of the NodeTemplate or
+     *        RelationshipTemplate.
+     * @return Document containing the Properties (may be empty) or <code>null</null> in case of an
+     *         error
      */
-    public Document getPropertiesOfNodeTemplate(CSARID csarID, QName serviceTemplateID, String nodeTemplateID);
+    public Document getPropertiesOfTemplate(CSARID csarID, QName serviceTemplateID, String templateID);
 
     /**
      * This method returns a Document which contains the PropertiesDefinition of the NodeType
@@ -380,19 +383,6 @@ public interface IToscaEngineService {
      *         error
      */
     public Document getPropertiesDefinitionOfNodeType(CSARID csarID, QName nodeTypeID);
-
-    /**
-     * This method returns the Document which contains the default Properties of the
-     * RelationshipTemplate defined by the parameter
-     *
-     * @param csarID of the CSAR containing the ArtifactTemplate.
-     * @param serviceTemplateID of the ServiceTemplate containing the RelationshipTemplate.
-     * @param relationshipTemplateID the String value of the attribute ID of the
-     *        RelationshipTemplate.
-     * @return Document containing the Properties (may be empty) or null in case of an error
-     */
-    public Document getPropertiesOfRelationshipTemplate(CSARID csarID, QName serviceTemplateID,
-                                                        String relationshipTemplateID);
 
     /**
      * Returns the the resolved artifacts.
