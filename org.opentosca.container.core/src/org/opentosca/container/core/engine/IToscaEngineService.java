@@ -100,7 +100,7 @@ public interface IToscaEngineService {
      *
      * @param csarID of the CSAR containing the NodeType.
      * @param relationshipTypeID of the RelationshipType to check.
-     * @param InterfaceName of the RelationshipType to check.
+     * @param interfaceName of the RelationshipType to check.
      * @param operationName of the RelationshipType to check.
      * @return <code>true</code> if operation is bound to sourceNode. Otherwise <code>false</code>.
      */
@@ -108,29 +108,17 @@ public interface IToscaEngineService {
                                                        String operationName);
 
     /**
-     * This method checks if the specified interface of a NodeType contains the specified operation.
+     * This method checks if the specified interface of a NodeType or RelationshipType contains the
+     * specified operation.
      *
-     * @param csarID of the CSAR containing the NodeType.
-     * @param nodeTypeID of the NodeType to check.
-     * @param InterfaceName of the NodeType to check.
-     * @param operationName of the NodeType to check.
+     * @param csarID of the CSAR containing the NodeType or RelationshiptType.
+     * @param typeID of the NodeType or RelationshiptType to check.
+     * @param interfaceName of the NodeType or RelationshiptType to check.
+     * @param operationName of the NodeType or RelationshiptType to check.
      * @return <code>true</code> if interface contains the operation. Otherwise <code>false</code>.
      */
-    boolean doesInterfaceOfNodeTypeContainOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-                                                    String operationName);
-
-    /**
-     * This method checks if the specified interface of a RelationshipType contains the specified
-     * operation.
-     *
-     * @param csarID of the CSAR containing the RelationshipType.
-     * @param relationshipTypeID of the RelationshipType to check.
-     * @param InterfaceName of the RelationshipType to check.
-     * @param operationName of the RelationshipType to check.
-     * @return <code>true</code> if interface contains the operation. Otherwise <code>false</code>.
-     */
-    boolean doesInterfaceOfRelationshipTypeContainOperation(CSARID csarID, QName relationshipTypeID,
-                                                            String interfaceName, String operationName);
+    boolean doesInterfaceOfTypeContainOperation(CSARID csarID, QName typeID, String interfaceName,
+                                                String operationName);
 
     /**
      * This method searches all NodeTypeImplementations for a certain NodeType inside of a given

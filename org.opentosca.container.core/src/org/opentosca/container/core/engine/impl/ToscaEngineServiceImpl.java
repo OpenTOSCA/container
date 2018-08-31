@@ -334,111 +334,61 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
     }
 
     /**
-     * Get the TOperation object for a given interface and operation name from a list of interfaces.
-     *
-     * @param ifaces the List of interfaces
-     * @param interfaceName the name of the interface of the operation
-     * @param operationName the name of the operation
-     * @return The TOperation object if one was found with the given properties, else
-     *         <code>null</code>.
-     */
-    private TOperation getOperationFromInterfaces(final List<TInterface> ifaces, final String interfaceName,
-                                                  final String operationName) {
-
-        for (final TInterface iface : ifaces) {
-            for (final TOperation operation : iface.getOperation()) {
-
-                if (operation.getName().equals(operationName)
-                    && (iface.getName().equals(interfaceName) || interfaceName == null)) {
-
-                    return operation;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
-    public boolean doesInterfaceOfNodeTypeContainOperation(final CSARID csarID, final QName nodeTypeID,
-                                                           final String interfaceName, final String operationName) {
+    public boolean doesInterfaceOfTypeContainOperation(final CSARID csarID, final QName typeID,
+                                                       final String interfaceName, final String operationName) {
 
-        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
+        final Object type = ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, typeID);
 
-            final TNodeType nodeType =
-                (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                         nodeTypeHierarchyMember);
+        if (type instanceof TNodeType) {
 
-            if (nodeType.getInterfaces() != null) {
+            // handle NodeType operations
+            for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, typeID)) {
 
-                for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
+                final TNodeType nodeType =
+                    (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                             nodeTypeHierarchyMember);
 
-                    if (iface.getName().equals(interfaceName)) {
+                if (nodeType.getInterfaces() != null) {
 
-                        for (final TOperation operation : iface.getOperation()) {
+                    final TOperation operation = getOperationFromInterfaces(nodeType.getInterfaces().getInterface(),
+                                                                            interfaceName, operationName);
 
-                            if (operation.getName().equals(operationName)) {
-
-                                return true;
-                            }
-                        }
-                    }
-
+                    return operation != null;
                 }
             }
-        }
-        return false;
-    }
+        } else if (type instanceof TRelationshipType) {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean doesInterfaceOfRelationshipTypeContainOperation(final CSARID csarID, final QName relationshipTypeID,
-                                                                   final String interfaceName,
-                                                                   final String operationName) {
+            // handle RelationshipType operations
+            final TRelationshipType relationshipType = (TRelationshipType) type;
 
-        final TRelationshipType relationshipType =
-            (TRelationshipType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                             relationshipTypeID);
+            if (relationshipType.getSourceInterfaces() != null) {
+                final TOperation operation =
+                    getOperationFromInterfaces(relationshipType.getSourceInterfaces().getInterface(), interfaceName,
+                                               operationName);
 
-        if (relationshipType.getSourceInterfaces() != null) {
-
-            for (final TInterface iface : relationshipType.getSourceInterfaces().getInterface()) {
-
-                if (iface.getName().equals(interfaceName)) {
-
-                    for (final TOperation operation : iface.getOperation()) {
-
-                        if (operation.getName().equals(operationName)) {
-
-                            return true;
-                        }
-                    }
+                if (operation != null) {
+                    return true;
                 }
-
             }
-        }
-        if (relationshipType.getTargetInterfaces() != null) {
 
-            for (final TInterface iface : relationshipType.getTargetInterfaces().getInterface()) {
+            if (relationshipType.getTargetInterfaces() != null) {
+                final TOperation operation =
+                    getOperationFromInterfaces(relationshipType.getTargetInterfaces().getInterface(), interfaceName,
+                                               operationName);
 
-                if (iface.getName().equals(interfaceName)) {
-
-                    for (final TOperation operation : iface.getOperation()) {
-
-                        if (operation.getName().equals(operationName)) {
-
-                            return true;
-                        }
-                    }
+                if (operation != null) {
+                    return true;
                 }
-
             }
+
+        } else {
+            ToscaEngineServiceImpl.LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}",
+                                            typeID);
         }
+
         return false;
     }
 
@@ -1284,65 +1234,6 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Retrieve all ImplementationArtifacts for a given NodeTypeImplementation or
-     * RelationshipTypeImplementation and return the one that matches the given name.
-     *
-     * @param csarID of the CSAR containing the NodeTypeImplementation or
-     *        RelationshipTypeImplementation.
-     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
-     *        containing the ImplementationArtifact.
-     * @param implementationArtifactName of the ImplementationArtifact
-     * @return the ImplementationArtifact if found, <code>null</code> otherwise.
-     */
-    private TImplementationArtifact getImplementationArtifactForName(final CSARID csarID,
-                                                                     final QName typeImplementationID,
-                                                                     final String implementationArtifactName) {
-        final Object typeImplementation =
-            ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, typeImplementationID);
-
-        if (typeImplementation instanceof TNodeTypeImplementation) {
-
-            // handle NodeTypeImplementations
-            final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) typeImplementation;
-
-            // if there are ImplementationArtifacts
-            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
-                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
-                                                                                   .getImplementationArtifact()) {
-
-                    if (implArt.getName().equals(implementationArtifactName)) {
-                        return implArt;
-                    }
-                }
-            }
-
-        } else if (typeImplementation instanceof TRelationshipTypeImplementation) {
-
-            // handle RelationshipTypeImplementations
-            final TRelationshipTypeImplementation relationshipTypeImplementation =
-                (TRelationshipTypeImplementation) typeImplementation;
-
-            // if there are ImplementationArtifacts
-            if (relationshipTypeImplementation.getImplementationArtifacts() != null) {
-                for (final TImplementationArtifact implArt : relationshipTypeImplementation.getImplementationArtifacts()
-                                                                                           .getImplementationArtifact()) {
-
-                    if (implArt.getName().equals(implementationArtifactName)) {
-                        return implArt;
-                    }
-                }
-            }
-
-        } else {
-            ToscaEngineServiceImpl.LOG.warn("Given typeImplementationID does not identifiy a NodeTypeImplementation or RelationshipTypeImplementation: {}",
-                                            typeImplementationID);
-        }
-
-        ToscaEngineServiceImpl.LOG.error("The requested ImplementationArtifact was not found.");
-        return null;
     }
 
     /**
@@ -2676,4 +2567,88 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
         return null;
     }
 
+    /**
+     * Get the TOperation object for a given interface and operation name from a list of interfaces.
+     *
+     * @param ifaces the List of interfaces
+     * @param interfaceName the name of the interface of the operation
+     * @param operationName the name of the operation
+     * @return The TOperation object if one was found with the given properties, else
+     *         <code>null</code>.
+     */
+    private TOperation getOperationFromInterfaces(final List<TInterface> ifaces, final String interfaceName,
+                                                  final String operationName) {
+
+        for (final TInterface iface : ifaces) {
+            for (final TOperation operation : iface.getOperation()) {
+
+                if (operation.getName().equals(operationName)
+                    && (iface.getName().equals(interfaceName) || interfaceName == null)) {
+
+                    return operation;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieve all ImplementationArtifacts for a given NodeTypeImplementation or
+     * RelationshipTypeImplementation and return the one that matches the given name.
+     *
+     * @param csarID of the CSAR containing the NodeTypeImplementation or
+     *        RelationshipTypeImplementation.
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the ImplementationArtifact.
+     * @param implementationArtifactName of the ImplementationArtifact
+     * @return the ImplementationArtifact if found, <code>null</code> otherwise.
+     */
+    private TImplementationArtifact getImplementationArtifactForName(final CSARID csarID,
+                                                                     final QName typeImplementationID,
+                                                                     final String implementationArtifactName) {
+        final Object typeImplementation =
+            ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, typeImplementationID);
+
+        if (typeImplementation instanceof TNodeTypeImplementation) {
+
+            // handle NodeTypeImplementations
+            final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) typeImplementation;
+
+            // if there are ImplementationArtifacts
+            if (nodeTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
+                                                                                   .getImplementationArtifact()) {
+
+                    if (implArt.getName().equals(implementationArtifactName)) {
+                        return implArt;
+                    }
+                }
+            }
+
+        } else if (typeImplementation instanceof TRelationshipTypeImplementation) {
+
+            // handle RelationshipTypeImplementations
+            final TRelationshipTypeImplementation relationshipTypeImplementation =
+                (TRelationshipTypeImplementation) typeImplementation;
+
+            // if there are ImplementationArtifacts
+            if (relationshipTypeImplementation.getImplementationArtifacts() != null) {
+                for (final TImplementationArtifact implArt : relationshipTypeImplementation.getImplementationArtifacts()
+                                                                                           .getImplementationArtifact()) {
+
+                    if (implArt.getName().equals(implementationArtifactName)) {
+                        return implArt;
+                    }
+                }
+            }
+
+        } else {
+            ToscaEngineServiceImpl.LOG.warn("Given typeImplementationID does not identifiy a NodeTypeImplementation or RelationshipTypeImplementation: {}",
+                                            typeImplementationID);
+        }
+
+        ToscaEngineServiceImpl.LOG.error("The requested ImplementationArtifact was not found.");
+        return null;
+    }
 }

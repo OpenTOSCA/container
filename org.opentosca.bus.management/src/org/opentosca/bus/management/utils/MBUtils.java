@@ -110,22 +110,22 @@ public class MBUtils {
      * @return true if the specified NodeType is the OperatingSystem NodeType. Otherwise false.
      */
     private static boolean isOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
-        if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-            && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
-            && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
+        if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+            && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
+            && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
             return true;
-        } else if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-            && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
+        } else if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
                                                                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+            && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
             return true;
         }
         return false;
@@ -140,22 +140,22 @@ public class MBUtils {
      *         OS Node Type null
      */
     public static String getInterfaceForOperatingSystemNodeType(final CSARID csarID, final QName nodeType) {
-        if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                                                                      Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
-            && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
-            && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
+        if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                  Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_RUNSCRIPT)
+            && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_TRANSFERFILE)
+            && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_INSTALLPACKAGE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM;
-        } else if (ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
-                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-                                                                                             Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
-            && ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeType,
+        } else if (ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
                                                                                          Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
-                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
+                                                                                         Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT)
+            && ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, nodeType,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER,
+                                                                                     Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE)) {
             return Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER;
         }
         return null;

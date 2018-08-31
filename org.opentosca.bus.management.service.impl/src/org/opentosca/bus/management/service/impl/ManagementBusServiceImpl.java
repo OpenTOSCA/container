@@ -218,8 +218,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                implementationArtifactName);
 
                             // check if requested interface/operation is provided
-                            if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, null,
-                                            implementationArtifactName, neededOperation, neededInterface)) {
+                            if (isCorrectIA(csarID, nodeTypeID, nodeTypeImplementationID, implementationArtifactName,
+                                            neededOperation, neededInterface)) {
 
                                 message.setHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(),
                                                   implementationArtifactName);
@@ -652,10 +652,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * Checks if the defined IA provides the needed interface/operation.
      *
      * @param csarID of the IA to check
-     * @param nodeTypeID of the implementation artifact to check
+     * @param typeID of NodeType or RelationshipType
      * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
      *        containing the IA
-     * @param relationshipTypeID of the implementation artifact to check
      * @param implementationArtifactName of the implementation artifact to check
      * @param neededOperation specifies the operation the implementation artifact should provide
      * @param neededInterface specifies the interface the implementation artifact should provide
@@ -663,9 +662,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      * @return <code>true</code> if the specified implementation artifact provides needed
      *         interface/operation. Otherwise <code>false</code> .
      */
-    private boolean isCorrectIA(final CSARID csarID, final QName nodeTypeID, final QName typeImplementationID,
-                                final QName relationshipTypeID, final String implementationArtifactName,
-                                final String neededOperation, final String neededInterface) {
+    private boolean isCorrectIA(final CSARID csarID, final QName typeID, final QName typeImplementationID,
+                                final String implementationArtifactName, final String neededOperation,
+                                final String neededInterface) {
 
         ManagementBusServiceImpl.LOG.debug("Checking if IA: {} of TypeImpl: {} is the correct one.",
                                            implementationArtifactName, typeImplementationID);
@@ -710,18 +709,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
         // should be unique within the NodeType
         if (neededInterface == null && neededOperation != null && providedInterface != null
             && providedOperation == null) {
-
-            if (nodeTypeID != null) {
-                return ServiceHandler.toscaEngineService.doesInterfaceOfNodeTypeContainOperation(csarID, nodeTypeID,
-                                                                                                 providedInterface,
-                                                                                                 neededOperation);
-            }
-            if (relationshipTypeID != null) {
-                return ServiceHandler.toscaEngineService.doesInterfaceOfRelationshipTypeContainOperation(csarID,
-                                                                                                         relationshipTypeID,
-                                                                                                         providedInterface,
-                                                                                                         neededOperation);
-            }
+            return ServiceHandler.toscaEngineService.doesInterfaceOfTypeContainOperation(csarID, typeID,
+                                                                                         providedInterface,
+                                                                                         neededOperation);
         }
 
         ManagementBusServiceImpl.LOG.debug("ImplementationArtifact {} does not provide needed interface/operation",
