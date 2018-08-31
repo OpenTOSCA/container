@@ -174,9 +174,8 @@ public class ParameterHandler {
         final List<String> inputParams = new ArrayList<>();
 
         ParameterHandler.LOG.debug("Checking for params with NodeType " + nodeTypeID);
-        if (ServiceHandler.toscaEngineService.hasOperationOfANodeTypeSpecifiedInputParams(csarID, nodeTypeID,
-                                                                                          interfaceName,
-                                                                                          operationName)) {
+        if (ServiceHandler.toscaEngineService.hasOperationOfATypeSpecifiedInputParams(csarID, nodeTypeID, interfaceName,
+                                                                                      operationName)) {
 
             final Node definedInputParameters =
                 ServiceHandler.toscaEngineService.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID,
