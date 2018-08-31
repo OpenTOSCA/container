@@ -157,29 +157,30 @@ public class ParameterHandler {
 
     /**
      * Returns the input parameters of the given operation which are specified in the TOSCA
-     * definitions.
+     * definitions of the NodeType or RelationshipType.
      *
-     * @param csarID ID of the CSAR which contains the NodeType with the operation
-     * @param nodeTypeID ID of the NodeType which contains the operation
+     * @param csarID ID of the CSAR which contains the NodeType or RelationshipType with the
+     *        operation
+     * @param typeID ID of the NodeType or RelationshipType which contains the operation
      * @param interfaceName the name of the interface which contains the operation
      * @param operationName the operation name for which the parameters are searched
      *
      * @return specified input parameters of the operation
      */
-    private static List<String> getExpectedInputParams(final CSARID csarID, final QName nodeTypeID,
+    private static List<String> getExpectedInputParams(final CSARID csarID, final QName typeID,
                                                        final String interfaceName, final String operationName) {
 
         ParameterHandler.LOG.debug("Fetching expected input params of " + operationName + " in interface "
             + interfaceName);
         final List<String> inputParams = new ArrayList<>();
 
-        ParameterHandler.LOG.debug("Checking for params with NodeType " + nodeTypeID);
-        if (ServiceHandler.toscaEngineService.hasOperationOfATypeSpecifiedInputParams(csarID, nodeTypeID, interfaceName,
+        ParameterHandler.LOG.debug("Checking for params with Type: {}", typeID);
+        if (ServiceHandler.toscaEngineService.hasOperationOfATypeSpecifiedInputParams(csarID, typeID, interfaceName,
                                                                                       operationName)) {
 
             final Node definedInputParameters =
-                ServiceHandler.toscaEngineService.getInputParametersOfANodeTypeOperation(csarID, nodeTypeID,
-                                                                                         interfaceName, operationName);
+                ServiceHandler.toscaEngineService.getInputParametersOfATypeOperation(csarID, typeID, interfaceName,
+                                                                                     operationName);
 
             if (definedInputParameters != null) {
 
@@ -194,11 +195,11 @@ public class ParameterHandler {
                         final String name = ((Element) currentNode).getAttribute("name");
 
                         inputParams.add(name);
-
                     }
                 }
             }
         }
+
         return inputParams;
     }
 

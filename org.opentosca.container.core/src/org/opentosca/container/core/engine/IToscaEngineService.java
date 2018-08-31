@@ -144,29 +144,16 @@ public interface IToscaEngineService {
 
     /**
      * This method returns a list of the names of ImplementationArtifacts of a given
-     * NodeTypeImplementation in a given CSAR.
+     * NodeTypeImplementation or RelationshipTypeImplementation in a given CSAR.
      *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param nodeTypeImplementationID of the NodeTypeImplementation containing the
-     *        ImplementationArtifact names.
+     * @param csarID of the CSAR containing the NodeTypeImplementation or
+     *        RelationshipTypeImplementation.
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the ImplementationArtifact names.
      * @return List of String containing the names of the ImplementationArtifacts or empty list if
      *         there none.
      */
-    public List<String> getImplementationArtifactNamesOfNodeTypeImplementation(CSARID csarID,
-                                                                               QName nodeTypeImplementationID);
-
-    /**
-     * This method returns a list of the names of ImplementationArtifacts of a given
-     * RelationshipTypeImplementation in a given CSAR.
-     *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param relationshipTypeImplementationID of the NodeTypeImplementation containing the
-     *        ImplementationArtifact names.
-     * @return List of String containing the names of the ImplementationArtifacts or empty list if
-     *         there none.
-     */
-    public List<String> getImplementationArtifactNamesOfRelationshipTypeImplementation(CSARID csarID,
-                                                                                       QName relationshipTypeImplementationID);
+    public List<String> getImplementationArtifactNamesOfTypeImplementation(CSARID csarID, QName typeImplementationID);
 
     /**
      * This method returns a list of Strings of the RequiredContainerFeatures of a given
@@ -183,122 +170,70 @@ public interface IToscaEngineService {
 
     /**
      * This method returns the ArtifactType of a given ImplementationArtifact of a given
-     * NodeTypeImplementation in a given CSAR.
+     * NodeTypeImplementation or RelationshipTypeImplementation in a given CSAR.
      *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param nodeTypeImplementationID of the NodeTypeImplementation containing the
-     *        ImplementationArtifact.
+     * @param csarID of the CSAR containing the NodeTypeImplementation or
+     *        RelationshipTypeImplementation.
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the ImplementationArtifact.
      * @param implementationArtifactName of the ImplementationArtifact
-     * @return QName of the ArtifactType or null in case of an error
+     * @return QName of the ArtifactType or <code>null</code> in case of an error
      */
-    public QName getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                                                                                   QName nodeTypeImplementationID,
+    public QName getArtifactTypeOfAImplementationArtifactOfATypeImplementation(CSARID csarID,
+                                                                               QName typeImplementationID,
+                                                                               String implementationArtifactName);
+
+    /**
+     * This method returns the ArtifactTemplate of a given ImplementationArtifact of a given
+     * NodeTypeImplementation or RelationshipTypeImplementation in a given CSAR.
+     *
+     * @param csarID of the CSAR containing the NodeTypeImplementation or
+     *        RelationshipTypeImplementation.
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the ImplementationArtifact.
+     * @param implementationArtifactName of the ImplementationArtifact
+     * @return QName of the ArtifactTemplate or <code>null</code> in case of an error
+     */
+    public QName getArtifactTemplateOfAImplementationArtifactOfATypeImplementation(CSARID csarID,
+                                                                                   QName typeImplementationID,
                                                                                    String implementationArtifactName);
 
     /**
-     * This method returns the ArtifactType of a given ImplementationArtifact of a given
-     * RelationshipTypeImplementation in a given CSAR.
-     *
-     * @param csarID of the CSAR containing the RelationshipTypeImplementation.
-     * @param relationshipTypeImplementationID of the RelationshipTypeImplementation containing the
-     *        ImplementationArtifact.
-     * @param implementationArtifactName of the ImplementationArtifact
-     * @return QName of the ArtifactType or null in case of an error
-     */
-    public QName getArtifactTypeOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                                                                                           QName relationshipTypeImplementationID,
-                                                                                           String implementationArtifactName);
-
-    /**
-     * This method returns the ArtifactTemplate of a given ImplementationArtifact of a given
-     * NodeTypeImplementation in a given CSAR.
-     *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param nodeTypeImplementationID of the NodeTypeImplementation containing the
-     *        ImplementationArtifact.
-     * @param implementationArtifactName of the ImplementationArtifact
-     * @return QName of the ArtifactType or null in case of an error
-     */
-    public QName getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                                                                                       QName nodeTypeImplementationID,
-                                                                                       String implementationArtifactName);
-
-    /**
-     * This method returns the ArtifactTemplate of a given ImplementationArtifact of a given
-     * RelationshipTypeImplementation in a given CSAR.
-     *
-     * @param csarID of the CSAR containing the RelationshipTypeImplementation.
-     * @param relationshipTypeImplementationID of the RelationshipTypeImplementation containing the
-     *        ImplementationArtifact.
-     * @param implementationArtifactName of the ImplementationArtifact
-     * @return QName of the ArtifactType or null in case of an error
-     */
-    public QName getArtifactTemplateOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                                                                                               QName relationshipTypeImplementationID,
-                                                                                               String implementationArtifactName);
-
-    /**
-     * This method returns the Node of the specified reference within the specified scarID.
+     * This method returns the Node of the specified reference within the specified csarID.
      *
      * @param csarID of the CSAR.
-     * @param reference of which the xml should be returned.
+     * @param reference of which the XML should be returned.
      * @return Node of the reference.
      */
     public Node getReferenceAsNode(CSARID csarID, QName reference);
 
     /**
      * This method returns a node containing the InputParameter of Elements of the specified
-     * operation of the specified interface of the specified nodeType within the specified scarID.
+     * operation of the specified interface of the specified NodeType or RelationshipType within the
+     * specified csarID.
      *
      * @param csarID of the CSAR.
-     * @param nodeTypeID of the operation.
+     * @param typeID of the NodeType or RelationshipType containing the operation.
      * @param interfaceName of the operation.
      * @param operationName of which the parameters should be returned.
-     * @return Node containing of the InputParameters.
+     * @return Node containing the InputParameters.
      */
-    public Node getInputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-                                                       String operationName);
+    public Node getInputParametersOfATypeOperation(CSARID csarID, QName typeID, String interfaceName,
+                                                   String operationName);
 
     /**
      * This method returns a node containing the OutputParameter of Elements of the specified
-     * operation of the specified interface of the specified nodeType within the specified scarID.
+     * operation of the specified interface of the specified NodeType or RelationshipType within the
+     * specified csarID.
      *
      * @param csarID of the CSAR.
-     * @param nodeTypeID of the operation.
+     * @param typeID of the NodeType or RelationshipType containing the operation.
      * @param interfaceName of the operation.
-     * @param operation name of which the parameters should be returned.
+     * @param operationName of which the parameters should be returned.
      * @return Node containing the OutputParameters.
      */
-    public Node getOutputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
-                                                        String operationName);
-
-    /**
-     * This method returns a node containing the InputParameter of Elements of the specified
-     * operation of the specified interface of the specified Relationship within the specified
-     * scarID.
-     *
-     * @param csarID of the CSAR.
-     * @param relationshipTypeID of the operation.
-     * @param interfaceName of the operation.
-     * @param operation name of which the parameters should be returned.
-     * @return Node containing of the InputParameters.
-     */
-    public Node getInputParametersOfARelationshipTypeOperation(CSARID csarID, QName relationshipTypeID,
-                                                               String interfaceName, String operationName);
-
-    /**
-     * This method returns a node containing the OutputParameter of Elements of the specified
-     * operation of the specified interface of the specified Relationship within the specified
-     * scarID.
-     *
-     * @param csarID of the CSAR.
-     * @param relationshipTypeID of the operation.
-     * @param interfaceName of the operation.
-     * @param operation name of which the parameters should be returned.
-     * @return Node containing the OutputParameters.
-     */
-    public Node getOutputParametersOfARelationshipTypeOperation(CSARID csarID, QName relationshipTypeID,
-                                                                String interfaceName, String operationName);
+    public Node getOutputParametersOfATypeOperation(CSARID csarID, QName typeID, String interfaceName,
+                                                    String operationName);
 
     /**
      * This method returns the specific content of a given ImplementationArtifact of a given

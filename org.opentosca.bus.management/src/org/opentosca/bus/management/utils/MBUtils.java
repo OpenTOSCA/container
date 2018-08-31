@@ -189,8 +189,8 @@ public class MBUtils {
             MBUtils.LOG.debug("NodeTypeImpl: {} ", osNodeTypeImpl);
 
             final List<String> osIANames =
-                ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(csarID,
-                                                                                                         osNodeTypeImpl);
+                ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfTypeImplementation(csarID,
+                                                                                                     osNodeTypeImpl);
 
             for (final String osIAName : osIANames) {
 

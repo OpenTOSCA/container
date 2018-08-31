@@ -118,8 +118,8 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                                                                        interfaceName, operationName);
         if (hasOutputParams) {
             final Node outputParametersNode =
-                ServiceHandler.toscaEngineService.getOutputParametersOfANodeTypeOperation(csarID, nodeTypeID,
-                                                                                          interfaceName, operationName);
+                ServiceHandler.toscaEngineService.getOutputParametersOfATypeOperation(csarID, nodeTypeID, interfaceName,
+                                                                                      operationName);
             if (outputParametersNode != null) {
                 final NodeList children = outputParametersNode.getChildNodes();
 

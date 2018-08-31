@@ -206,8 +206,8 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                         // get all IAs of the current NodeTypeImplementation
                         final List<String> implementationArtifactNames =
-                            ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfNodeTypeImplementation(csarID,
-                                                                                                                     nodeTypeImplementationID);
+                            ServiceHandler.toscaEngineService.getImplementationArtifactNamesOfTypeImplementation(csarID,
+                                                                                                                 nodeTypeImplementationID);
 
                         ManagementBusServiceImpl.LOG.debug("List of Implementation Artifacts: {}",
                                                            implementationArtifactNames.toString());
@@ -226,13 +226,13 @@ public class ManagementBusServiceImpl implements IManagementBusService {
 
                                 // get ArtifactTemplate and ArtifactType of the IA
                                 final QName artifactTemplateID =
-                                    ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                            nodeTypeImplementationID, implementationArtifactName);
+                                    ServiceHandler.toscaEngineService.getArtifactTemplateOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                                                        nodeTypeImplementationID, implementationArtifactName);
 
                                 final String artifactType = ServiceHandler.toscaEngineService
-                                                                                             .getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                                                nodeTypeImplementationID,
-                                                                                                                                                                implementationArtifactName)
+                                                                                             .getArtifactTypeOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                                                                            nodeTypeImplementationID,
+                                                                                                                                                            implementationArtifactName)
                                                                                              .toString();
 
                                 ManagementBusServiceImpl.LOG.debug("ArtifactType: {}", artifactType);
@@ -830,9 +830,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     ManagementBusServiceImpl.LOG.debug("Undeploying corresponding IA...");
 
                     final String artifactType = ServiceHandler.toscaEngineService
-                                                                                 .getArtifactTypeOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                                                                    nodeTypeImpl,
-                                                                                                                                                    iaName)
+                                                                                 .getArtifactTypeOfAImplementationArtifactOfATypeImplementation(csarID,
+                                                                                                                                                nodeTypeImpl,
+                                                                                                                                                iaName)
                                                                                  .toString();
 
                     // create exchange for the undeployment plug-in invocation
