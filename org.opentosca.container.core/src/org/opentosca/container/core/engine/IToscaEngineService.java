@@ -121,26 +121,17 @@ public interface IToscaEngineService {
                                                 String operationName);
 
     /**
-     * This method searches all NodeTypeImplementations for a certain NodeType inside of a given
-     * CSAR.
+     * This method searches all NodeTypeImplementations/RelationshipTypeImplementations for a
+     * certain NodeType/RelationshipType inside of a given CSAR.
      *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param nodeTypeID of the NodeTypeImplementation.
-     * @return List of QNames pointing to the NodeTypeImplementations or empty list of nothing is
+     * @param csarID of the CSAR containing the NodeTypeImplementations or
+     *        RelationshipTypeImplementations.
+     * @param typeID of the NodeType or RelationshipType.
+     * @return List of QNames pointing to the
+     *         NodeTypeImplementations/RelationshipTypeImplementations or empty list if nothing is
      *         found.
      */
-    public List<QName> getNodeTypeImplementationsOfNodeType(CSARID csarID, QName nodeTypeID);
-
-    /**
-     * This method searches all NodeTypeImplementations for a certain NodeType inside of a given
-     * CSAR.
-     *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param relationshipTypeID of the RelationshipTypeImplementation.
-     * @return List of QNames pointing to the RelationshipTypeImplementations or empty list of
-     *         nothing is found.
-     */
-    public List<QName> getRelationshipTypeImplementationsOfRelationshipType(CSARID csarID, QName relationshipTypeID);
+    public List<QName> getTypeImplementationsOfType(CSARID csarID, QName typeID);
 
     /**
      * This method returns a list of the names of ImplementationArtifacts of a given

@@ -403,7 +403,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         }
 
         final List<QName> nodeTypeImpls =
-            ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeID);
+            ServiceHandler.toscaEngineService.getTypeImplementationsOfType(csarID, nodeTypeID);
 
         for (final QName nodeTypeImpl : nodeTypeImpls) {
             final List<String> daNames =

@@ -191,7 +191,7 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                        nodeTypeID, csarID);
 
                     final List<QName> nodeTypeImplementationIDs =
-                        ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeID);
+                        ServiceHandler.toscaEngineService.getTypeImplementationsOfType(csarID, nodeTypeID);
                     ManagementBusServiceImpl.LOG.debug("List of NodeTypeImplementations: {}",
                                                        nodeTypeImplementationIDs.toString());
 

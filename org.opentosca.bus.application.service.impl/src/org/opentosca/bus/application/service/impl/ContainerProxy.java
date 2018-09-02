@@ -154,7 +154,7 @@ public class ContainerProxy {
             + " of NodeType: " + nodeTypeName + "inside of CSAR: " + csarID);
 
         final List<QName> nodeTypeImplementationsIDs =
-            ToscaServiceHandler.getToscaEngineService().getNodeTypeImplementationsOfNodeType(csarID, nodeTypeName);
+            ToscaServiceHandler.getToscaEngineService().getTypeImplementationsOfType(csarID, nodeTypeName);
 
         ContainerProxy.LOG.debug("The NodeType: " + nodeTypeName + " has " + nodeTypeImplementationsIDs.size()
             + " NodeTypeImplementations.");

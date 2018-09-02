@@ -429,86 +429,74 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
      * {@inheritDoc}
      */
     @Override
-    public List<QName> getNodeTypeImplementationsOfNodeType(final CSARID csarID, final QName nodeTypeID) {
+    public List<QName> getTypeImplementationsOfType(final CSARID csarID, final QName typeID) {
 
-        final List<QName> listOfNodeTypeImplementationQNames = new ArrayList<>();
+        final List<QName> listOfTypeImplementationQNames = new ArrayList<>();
 
-        // search in all Definitions inside a certain CSAR
-        for (final TDefinitions definitions : ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
+        final Object type = ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, typeID);
 
-            for (final QName nodeTypeHierachyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
+        if (type instanceof TNodeType) {
 
-                // search for NodeTypeImplementations
+            // search in all Definitions inside a certain CSAR
+            for (final TDefinitions definitions : ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
+
+                for (final QName nodeTypeHierachyMember : getNodeTypeHierachy(csarID, typeID)) {
+
+                    // search for NodeTypeImplementations
+                    for (final TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
+                        if (entity instanceof TNodeTypeImplementation) {
+
+                            final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) entity;
+                            if (nodeTypeImplementation.getNodeType().equals(nodeTypeHierachyMember)) {
+
+                                String targetNamespace;
+                                if (nodeTypeImplementation.getTargetNamespace() != null
+                                    && !nodeTypeImplementation.getTargetNamespace().equals("")) {
+                                    targetNamespace = nodeTypeImplementation.getTargetNamespace();
+                                } else {
+                                    targetNamespace = definitions.getTargetNamespace();
+                                }
+                                listOfTypeImplementationQNames.add(new QName(targetNamespace,
+                                    nodeTypeImplementation.getName()));
+                            }
+                        }
+                    }
+                }
+            }
+
+        } else if (type instanceof TRelationshipType) {
+
+            // search in all Definitions inside a certain CSAR
+            for (final TDefinitions definitions : ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
+
+                // search for RelationshipTypeImplementations
                 for (final TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-                    if (entity instanceof TNodeTypeImplementation) {
+                    if (entity instanceof TRelationshipTypeImplementation) {
 
-                        // if the Implementation is for the given NodeType,
-                        // remember
-                        // it
-                        final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) entity;
+                        final TRelationshipTypeImplementation relationshipTypeImplementation =
+                            (TRelationshipTypeImplementation) entity;
+                        if (relationshipTypeImplementation.getRelationshipType().equals(typeID)) {
 
-                        if (nodeTypeImplementation.getNodeType().equals(nodeTypeHierachyMember)) {
-
-                            // remember it
                             String targetNamespace;
-                            if (nodeTypeImplementation.getTargetNamespace() != null
-                                && !nodeTypeImplementation.getTargetNamespace().equals("")) {
-                                targetNamespace = nodeTypeImplementation.getTargetNamespace();
+                            if (relationshipTypeImplementation.getTargetNamespace() != null
+                                && !relationshipTypeImplementation.getTargetNamespace().equals("")) {
+                                targetNamespace = relationshipTypeImplementation.getTargetNamespace();
                             } else {
                                 targetNamespace = definitions.getTargetNamespace();
                             }
-                            listOfNodeTypeImplementationQNames.add(new QName(targetNamespace,
-                                nodeTypeImplementation.getName()));
-
+                            listOfTypeImplementationQNames.add(new QName(targetNamespace,
+                                relationshipTypeImplementation.getName()));
                         }
                     }
                 }
             }
 
+        } else {
+            ToscaEngineServiceImpl.LOG.warn("Given typeID does not identifiy a NodeType or RelationshipType: {}",
+                                            typeID);
         }
 
-        return listOfNodeTypeImplementationQNames;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<QName> getRelationshipTypeImplementationsOfRelationshipType(final CSARID csarID,
-                                                                            final QName relationshipTypeID) {
-
-        final List<QName> listOfNodeTypeImplementationQNames = new ArrayList<>();
-
-        // search in all Definitions inside a certain CSAR
-        for (final TDefinitions definitions : ToscaEngineServiceImpl.toscaReferenceMapper.getDefinitionsOfCSAR(csarID)) {
-
-            // search for NodeTypeImplementations
-            for (final TExtensibleElements entity : definitions.getServiceTemplateOrNodeTypeOrNodeTypeImplementation()) {
-                if (entity instanceof TRelationshipTypeImplementation) {
-
-                    // if the Implementation is for the given NodeType, remember it
-                    final TRelationshipTypeImplementation relationshipTypeImplementation =
-                        (TRelationshipTypeImplementation) entity;
-                    if (relationshipTypeImplementation.getRelationshipType().equals(relationshipTypeID)) {
-
-                        // remember it
-                        String targetNamespace;
-                        if (relationshipTypeImplementation.getTargetNamespace() != null
-                            && !relationshipTypeImplementation.getTargetNamespace().equals("")) {
-                            targetNamespace = relationshipTypeImplementation.getTargetNamespace();
-                        } else {
-                            targetNamespace = definitions.getTargetNamespace();
-                        }
-                        listOfNodeTypeImplementationQNames.add(new QName(targetNamespace,
-                            relationshipTypeImplementation.getName()));
-
-                    }
-                }
-            }
-
-        }
-
-        return listOfNodeTypeImplementationQNames;
+        return listOfTypeImplementationQNames;
     }
 
     /**

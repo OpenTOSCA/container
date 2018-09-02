@@ -182,7 +182,7 @@ public class MBUtils {
             ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, osNodeTemplateID);
 
         final List<QName> osNodeTypeImpls =
-            ServiceHandler.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, osNodeType);
+            ServiceHandler.toscaEngineService.getTypeImplementationsOfType(csarID, osNodeType);
 
         for (final QName osNodeTypeImpl : osNodeTypeImpls) {
 
