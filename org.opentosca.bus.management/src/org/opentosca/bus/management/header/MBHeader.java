@@ -51,20 +51,11 @@ public enum MBHeader {
 
     /**
      * <b>NODETYPEIMPLEMENTATIONID_QNAME</b> This header field contains an identifier for a
-     * NodeTypeImplementation. The NodeTypeImplementation implements the NodeType specified by
-     * {@link MBHeader#NODETYPEID_QNAME}.
+     * NodeTypeImplementation.
      */
     NODETYPEIMPLEMENTATIONID_QNAME,
 
     RELATIONSHIPTEMPLATEID_STRING,
-
-    /**
-     * <b>NODETYPEID_QNAME</b> This header field contains the QName of the NodeType which is the
-     * type of the NodeTemplate represented by {@link MBHeader#NODETEMPLATEID_STRING}.
-     */
-    NODETYPEID_QNAME,
-
-    RELATIONSHIPTYPEID_QNAME,
 
     /**
      * <b>OPERATIONNAME_STRING</b> This header field specifies the interface which contains the

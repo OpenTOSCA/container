@@ -78,10 +78,6 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         ManagementBusInvocationPluginScript.LOG.debug("RelationshipTemplateID: {}", relationshipTemplateID);
         final QName serviceTemplateID = message.getHeader(MBHeader.SERVICETEMPLATEID_QNAME.toString(), QName.class);
         ManagementBusInvocationPluginScript.LOG.debug("ServiceTemplateID: {}", serviceTemplateID);
-        final QName nodeTypeID = message.getHeader(MBHeader.NODETYPEID_QNAME.toString(), QName.class);
-        ManagementBusInvocationPluginScript.LOG.debug("NodeTypeID: {}", nodeTypeID);
-        final QName relationshipTypeID = message.getHeader(MBHeader.RELATIONSHIPTYPEID_QNAME.toString(), QName.class);
-        ManagementBusInvocationPluginScript.LOG.debug("RelationshipTypeID: {}", relationshipTypeID);
         final String interfaceName = message.getHeader(MBHeader.INTERFACENAME_STRING.toString(), String.class);
         ManagementBusInvocationPluginScript.LOG.debug("InterfaceName: {}", interfaceName);
         final String operationName = message.getHeader(MBHeader.OPERATIONNAME_STRING.toString(), String.class);
@@ -92,6 +88,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
         ManagementBusInvocationPluginScript.LOG.debug("NodeInstanceID: {}", nodeInstanceID);
 
         if (nodeTemplateID == null && relationshipTemplateID != null) {
+
+            final QName relationshipTypeID =
+                ServiceHandler.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID,
+                                                                                            relationshipTemplateID);
 
             final boolean isBoundToSourceNode =
                 ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, relationshipTypeID,
@@ -110,6 +110,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
             }
         }
 
+        final QName nodeTypeID =
+            ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID, nodeTemplateID);
+
+        ManagementBusInvocationPluginScript.LOG.debug("NodeType: {}", nodeTypeID);
 
         // Determine output parameters of the current operation
         final List<String> outputParameters = new LinkedList<>();
@@ -145,7 +149,7 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
 
         if (artifactType != null && nodeTemplateID != null) {
 
-            // search operating system ia to upload files and run scripts on
+            // search operating system IA to upload files and run scripts on
             // target machine
             final String osNodeTemplateID =
                 MBUtils.getOperatingSystemNodeTemplateID(csarID, serviceTemplateID, nodeTemplateID);
