@@ -153,8 +153,8 @@ public class RequestReceiver {
                     final String triggeringContainer =
                         message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
                     final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-                    final QName nodeTypeImplementationID =
-                        message.getHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+                    final QName typeImplementationID =
+                        message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
                     final String implementationArtifactName =
                         message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
                     final URI serviceInstanceID =
@@ -166,7 +166,7 @@ public class RequestReceiver {
                     final Long serviceTemplateInstanceID =
                         Long.parseLong(StringUtils.substringAfterLast(serviceInstanceID.toString(), "/"));
 
-                    logInformation(triggeringContainer, deploymentLocation, nodeTypeImplementationID,
+                    logInformation(triggeringContainer, deploymentLocation, typeImplementationID,
                                    implementationArtifactName, csarID, portType, artifactType,
                                    serviceTemplateInstanceID);
 
@@ -180,7 +180,7 @@ public class RequestReceiver {
                         final List<WSDLEndpoint> endpoints =
                             ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
                                                                                               deploymentLocation,
-                                                                                              nodeTypeImplementationID,
+                                                                                              typeImplementationID,
                                                                                               implementationArtifactName);
 
                         if (endpoints != null && endpoints.size() > 0) {
@@ -209,7 +209,7 @@ public class RequestReceiver {
                                 // store new endpoint for the IA
                                 final WSDLEndpoint endpoint = new WSDLEndpoint(endpointURI, portType,
                                     triggeringContainer, deploymentLocation, csarID, serviceTemplateInstanceID, null,
-                                    nodeTypeImplementationID, implementationArtifactName);
+                                    typeImplementationID, implementationArtifactName);
                                 ServiceHandler.endpointService.storeWSDLEndpoint(endpoint);
                             } else {
                                 RequestReceiver.LOG.error("No matching deployment plug-in found. Aborting deployment!");
@@ -264,15 +264,15 @@ public class RequestReceiver {
                     final String triggeringContainer =
                         message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
                     final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-                    final QName nodeTypeImplementationID =
-                        message.getHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+                    final QName typeImplementationID =
+                        message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
                     final String implementationArtifactName =
                         message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
                     final String artifactType =
                         message.getHeader(MBHeader.ARTIFACTTYPEID_STRING.toString(), String.class);
 
                     RequestReceiver.LOG.debug("Undeployment of IA: Triggering Container: {}, Deployment location: {}, NodeTypeImplementation ID: {}, IA name: {}, Type: {}",
-                                              triggeringContainer, deploymentLocation, nodeTypeImplementationID,
+                                              triggeringContainer, deploymentLocation, typeImplementationID,
                                               implementationArtifactName, artifactType);
 
                     // Prevent two threads from trying to deploy the same IA
@@ -286,7 +286,7 @@ public class RequestReceiver {
                         final List<WSDLEndpoint> endpoints =
                             ServiceHandler.endpointService.getWSDLEndpointsForNTImplAndIAName(triggeringContainer,
                                                                                               deploymentLocation,
-                                                                                              nodeTypeImplementationID,
+                                                                                              typeImplementationID,
                                                                                               implementationArtifactName);
 
                         if (endpoints != null && endpoints.size() > 0) {
@@ -539,15 +539,15 @@ public class RequestReceiver {
         final String triggeringContainer =
             message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
         final String deploymentLocation = Settings.OPENTOSCA_CONTAINER_HOSTNAME;
-        final QName nodeTypeImplementationID =
-            message.getHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+        final QName typeImplementationID =
+            message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
         final String implementationArtifactName =
             message.getHeader(MBHeader.IMPLEMENTATIONARTIFACTNAME_STRING.toString(), String.class);
 
-        if (triggeringContainer != null && deploymentLocation != null && nodeTypeImplementationID != null
+        if (triggeringContainer != null && deploymentLocation != null && typeImplementationID != null
             && implementationArtifactName != null) {
 
-            return triggeringContainer + "/" + deploymentLocation + "/" + nodeTypeImplementationID.toString() + "/"
+            return triggeringContainer + "/" + deploymentLocation + "/" + typeImplementationID.toString() + "/"
                 + implementationArtifactName;
         } else {
             return null;
@@ -559,7 +559,7 @@ public class RequestReceiver {
      *
      * @param triggeringContainer
      * @param deploymentLocation
-     * @param nodeTypeImplementationID
+     * @param typeImplementationID
      * @param implementationArtifactName
      * @param csarID
      * @param portType
@@ -567,7 +567,7 @@ public class RequestReceiver {
      * @param serviceTemplateInstanceID
      */
     private void logInformation(final String triggeringContainer, final String deploymentLocation,
-                                final QName nodeTypeImplementationID, final String implementationArtifactName,
+                                final QName typeImplementationID, final String implementationArtifactName,
                                 final CSARID csarID, final QName portType, final String artifactType,
                                 final Long serviceTemplateInstanceID) {
 
@@ -575,7 +575,7 @@ public class RequestReceiver {
         RequestReceiver.LOG.debug("CSARID: {}", csarID);
         RequestReceiver.LOG.debug("ServiceTemplateInstance ID: {}", serviceTemplateInstanceID);
         RequestReceiver.LOG.debug("Deployment location: {}", deploymentLocation);
-        RequestReceiver.LOG.debug("NodeTypeImplementation: {}", nodeTypeImplementationID);
+        RequestReceiver.LOG.debug("TypeImplementation: {}", typeImplementationID);
         RequestReceiver.LOG.debug("IA name: {}", implementationArtifactName);
         RequestReceiver.LOG.debug("ArtifactType: {}", artifactType);
         RequestReceiver.LOG.debug("Port type: {}", portType);

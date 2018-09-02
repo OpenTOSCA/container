@@ -50,10 +50,10 @@ public enum MBHeader {
     NODETEMPLATEID_STRING,
 
     /**
-     * <b>NODETYPEIMPLEMENTATIONID_QNAME</b> This header field contains an identifier for a
-     * NodeTypeImplementation.
+     * <b>TYPEIMPLEMENTATIONID_QNAME</b> This header field contains an identifier for a
+     * NodeTypeImplementation or a RelationshipTypeImplementation.
      */
-    NODETYPEIMPLEMENTATIONID_QNAME,
+    TYPEIMPLEMENTATIONID_QNAME,
 
     RELATIONSHIPTEMPLATEID_STRING,
 
@@ -98,8 +98,9 @@ public enum MBHeader {
 
     /**
      * <b>ARTIFACTTEMPLATEID_QNAME</b> This header field contains a QName that identifies an
-     * ArtifactTemplate. The ArtifactTemplate is part of the NodeTypeImplementation that is
-     * specified by {@link MBHeader#NODETYPEIMPLEMENTATIONID_QNAME}.
+     * ArtifactTemplate. The ArtifactTemplate is part of the NodeTypeImplementation or
+     * RelationshipTypeImplementation that is specified by
+     * {@link MBHeader#TYPEIMPLEMENTATIONID_QNAME}.
      */
     ARTIFACTTEMPLATEID_QNAME,
 

@@ -38,11 +38,12 @@ public class WSDLEndpoint extends GenericEndpoint {
     @Column(name = "PortType")
     private QName PortType;
 
-    // nodetypeimplementation and ianame are there to identify specific IAs
+    // NodeTypeImplementation/RelationshipTypeImplementation and IA name are there to identify
+    // specific IAs
     @Basic
     @Convert("QNameConverter")
-    @Column(name = "NodeTypeImplementation")
-    private QName NodeTypeImplementation;
+    @Column(name = "TypeImplementation")
+    private QName TypeImplementation;
 
     @Basic
     @Column(name = "IaName")
@@ -67,7 +68,7 @@ public class WSDLEndpoint extends GenericEndpoint {
         setPortType(portType);
         setIaName(iaName);
         setPlanId(planid);
-        setNodeTypeImplementation(nodeTypeImplementation);
+        setTypeImplementation(nodeTypeImplementation);
     }
 
     public QName getPortType() {
@@ -78,12 +79,12 @@ public class WSDLEndpoint extends GenericEndpoint {
         this.PortType = portType;
     }
 
-    public QName getNodeTypeImplementation() {
-        return this.NodeTypeImplementation;
+    public QName getTypeImplementation() {
+        return this.TypeImplementation;
     }
 
-    public void setNodeTypeImplementation(final QName nodeTypeImplementation) {
-        this.NodeTypeImplementation = nodeTypeImplementation;
+    public void setTypeImplementation(final QName nodeTypeImplementation) {
+        this.TypeImplementation = nodeTypeImplementation;
     }
 
     public QName getPlanId() {

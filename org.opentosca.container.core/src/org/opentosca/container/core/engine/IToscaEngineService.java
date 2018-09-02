@@ -148,16 +148,16 @@ public interface IToscaEngineService {
 
     /**
      * This method returns a list of Strings of the RequiredContainerFeatures of a given
-     * NodeTypeImplementation in a given CSAR.
+     * NodeTypeImplementation or RelationshipTypeImplementation a given CSAR.
      *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param nodeTypeImplementationID of the NodeTypeImplementation containing the
-     *        RequiredContainerFeatures.
+     * @param csarID of the CSAR containing the NodeTypeImplementation or
+     *        RelationshipTypeImplementation.
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the RequiredContainerFeatures.
      * @return List of String containing the URIs of the RequiredContainerFeatures or empty list if
      *         there none.
      */
-    public List<String> getRequiredContainerFeaturesOfANodeTypeImplementation(CSARID csarID,
-                                                                              QName nodeTypeImplementationID);
+    public List<String> getRequiredContainerFeaturesOfATypeImplementation(CSARID csarID, QName typeImplementationID);
 
     /**
      * This method returns the ArtifactType of a given ImplementationArtifact of a given
@@ -228,33 +228,18 @@ public interface IToscaEngineService {
 
     /**
      * This method returns the specific content of a given ImplementationArtifact of a given
-     * NodeTypeImplementation in a given CSAR.
+     * NodeTypeImplementation or RelationshipTypeImplementation in a given CSAR.
      *
-     * @param csarID of the CSAR containing the NodeTypeImplementation.
-     * @param nodeTypeImplementationID of the NodeTypeImplementation containing the
-     *        ImplementationArtifact.
+     * @param csarID of the CSAR containing the NodeTypeImplementation or
+     *        RelationshipTypeImplementation.
+     * @param typeImplementationID of the NodeTypeImplementation or RelationshipTypeImplementation
+     *        containing the ImplementationArtifact.
      * @param implementationArtifactName of the ImplementationArtifact
-     * @return Document which represents the specific content or null in case of an error. A new
-     *         document object is created for each method call.
+     * @return Document which represents the specific content or <code>null</code> in case of an
+     *         error. A new document object is created for each method call.
      */
-    public Document getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(CSARID csarID,
-                                                                                                 QName nodeTypeImplementationID,
-                                                                                                 String implementationArtifactName);
-
-    /**
-     * This method returns the specific content of a given ImplementationArtifact of a given
-     * RelationshipTypeImplementation in a given CSAR.
-     *
-     * @param csarID of the CSAR containing the RelationshipTypeImplementation.
-     * @param relationshipTypeImplementationID of the RelationshipTypeImplementation containing the
-     *        ImplementationArtifact.
-     * @param implementationArtifactName of the ImplementationArtifact
-     * @return Document which represents the specific content or null in case of an error. A new
-     *         document object is created for each method call.
-     */
-    public Document getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(CSARID csarID,
-                                                                                                         QName relationshipTypeImplementationID,
-                                                                                                         String implementationArtifactName);
+    public Document getArtifactSpecificContentOfAImplementationArtifact(CSARID csarID, QName typeImplementationID,
+                                                                        String implementationArtifactName);
 
     /**
      * This method returns the implemented interface of a given ImplementationArtifact of a given

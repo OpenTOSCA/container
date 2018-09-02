@@ -138,14 +138,14 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
                     if (isRunning()) {
                         ManagementBusDeploymentPluginTomcat.LOG.info("Tomcat is running and can be accessed.");
 
-                        final QName nodeTypeImplementation =
-                            message.getHeader(MBHeader.NODETYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
+                        final QName typeImplementation =
+                            message.getHeader(MBHeader.TYPEIMPLEMENTATIONID_QNAME.toString(), QName.class);
 
                         final String triggeringContainer =
                             message.getHeader(MBHeader.TRIGGERINGCONTAINER_STRING.toString(), String.class);
 
                         // perform deployment on management infrastructure
-                        endpoint = deployWAROnTomcat(warFile, triggeringContainer, nodeTypeImplementation, fileName);
+                        endpoint = deployWAROnTomcat(warFile, triggeringContainer, typeImplementation, fileName);
 
                         if (endpoint != null) {
                             // add endpoint suffix to endpoint of deployed WAR
@@ -348,26 +348,26 @@ public class ManagementBusDeploymentPluginTomcat implements IManagementBusDeploy
      * Deploy the given WAR-File on the Tomcat. As path on Tomcat the host name of the triggering
      * OpenTOSCA Container and the NodeTypeImplementation with removed special characters (except
      * '-' and '_') concatenated with the name of the WAR-File (without ".war") is used:
-     * <tt>/[Container-Hostname]/[NodeTypeImplementationID]/[File-Name]</tt>
+     * <tt>/[Container-Hostname]/[TypeImplementationID]/[File-Name]</tt>
      *
      * @param warFile the WAR artifact that has to be deployed
      * @param triggeringContainer the host name of the OpenTOSCA Container that triggered the IA
      *        deployment
-     * @param nodeTypeImplementation the NodeTypeImplementation which is used to create a unique
-     *        path where the WAR is deployed
+     * @param typeImplementation the NodeTypeImplementation or RelationshipTypeImplementation which
+     *        is used to create a unique path where the WAR is deployed
      * @param fileName the file name which is part of the deployment path
      * @return
      */
     private String deployWAROnTomcat(final File warFile, final String triggeringContainer,
-                                     final QName nodeTypeImplementation, final String fileName) {
+                                     final QName typeImplementation, final String fileName) {
 
         String endpoint = null;
 
         if (triggeringContainer != null) {
-            if (nodeTypeImplementation != null) {
+            if (typeImplementation != null) {
                 // path where the WAR is deployed on the Tomcat
                 final String deployPath = "/" + getConvertedString(triggeringContainer) + "/"
-                    + getConvertedString(nodeTypeImplementation.toString()) + "/" + fileName;
+                    + getConvertedString(typeImplementation.toString()) + "/" + fileName;
 
                 // command to perform deployment on Tomcat from local file
                 final String deploymentURL =

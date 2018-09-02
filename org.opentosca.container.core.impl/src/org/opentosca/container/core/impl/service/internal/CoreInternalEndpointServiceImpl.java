@@ -111,7 +111,7 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     public void storeWSDLEndpoint(final WSDLEndpoint endpoint) {
         CoreInternalEndpointServiceImpl.LOG.debug("Storing WSDL Endpoint with CSARID: \"" + endpoint.getCSARId()
             + "\", portType: \"" + endpoint.getPortType() + "\", IAName: \"" + endpoint.getIaName()
-            + "\", NodeTypeImplementation: \"" + endpoint.getNodeTypeImplementation() + "\", URI: \""
+            + "\", TypeImplementation: \"" + endpoint.getTypeImplementation() + "\", URI: \""
             + endpoint.getURI().toString() + "\"");
 
         // TODO this check is a hack because of the problem with deploying of
@@ -178,11 +178,11 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
                 continue;
             }
 
-            if (endpoint.getNodeTypeImplementation() != null) {
-                if (!endpoint.getNodeTypeImplementation().equals(wsdlEndpoint.getNodeTypeImplementation())) {
+            if (endpoint.getTypeImplementation() != null) {
+                if (!endpoint.getTypeImplementation().equals(wsdlEndpoint.getTypeImplementation())) {
                     continue;
                 }
-            } else if (wsdlEndpoint.getNodeTypeImplementation() != null) {
+            } else if (wsdlEndpoint.getTypeImplementation() != null) {
                 // see above
                 continue;
             }
@@ -341,8 +341,8 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
             commandInterpreter.println("ServiceTemplateInstanceID: "
                 + (e.getServiceTemplateInstanceID() == null ? "" : e.getServiceTemplateInstanceID().toString()));
             commandInterpreter.println("PlanId: " + (e.getPlanId() == null ? "" : e.getPlanId().toString()));
-            commandInterpreter.println("NodeTypeImpl: "
-                + (e.getNodeTypeImplementation() == null ? "" : e.getNodeTypeImplementation().toString()));
+            commandInterpreter.println("TypeImpl: "
+                + (e.getTypeImplementation() == null ? "" : e.getTypeImplementation().toString()));
             commandInterpreter.println("IaName: " + (e.getIaName() == null ? "" : e.getIaName()));
             commandInterpreter.println("URI: " + e.getURI().toString());
             commandInterpreter.println("");

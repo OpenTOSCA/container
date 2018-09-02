@@ -698,26 +698,40 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
      * {@inheritDoc}
      */
     @Override
-    public List<String> getRequiredContainerFeaturesOfANodeTypeImplementation(final CSARID csarID,
-                                                                              final QName nodeTypeImplementationID) {
+    public List<String> getRequiredContainerFeaturesOfATypeImplementation(final CSARID csarID,
+                                                                          final QName typeImplementationID) {
 
-        // return list
-        final List<String> listOfStrings = new ArrayList<>();
+        final List<String> requiredFeatures = new ArrayList<>();
 
-        // get the NodeTypeImplementation
-        final TNodeTypeImplementation nodeTypeImplementation =
-            (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                   nodeTypeImplementationID);
+        final Object typeImplementation =
+            ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID, typeImplementationID);
 
-        // if there are RequiredContainerFeatures, get the content
-        if (nodeTypeImplementation.getRequiredContainerFeatures() != null) {
-            for (final TRequiredContainerFeature requiredContainerFeature : nodeTypeImplementation.getRequiredContainerFeatures()
-                                                                                                  .getRequiredContainerFeature()) {
-                listOfStrings.add(requiredContainerFeature.getFeature());
+        if (typeImplementation instanceof TNodeTypeImplementation) {
+            final TNodeTypeImplementation nodeTypeImplementation = (TNodeTypeImplementation) typeImplementation;
+
+            if (nodeTypeImplementation.getRequiredContainerFeatures() != null) {
+                for (final TRequiredContainerFeature requiredContainerFeature : nodeTypeImplementation.getRequiredContainerFeatures()
+                                                                                                      .getRequiredContainerFeature()) {
+                    requiredFeatures.add(requiredContainerFeature.getFeature());
+                }
             }
+
+        } else if (typeImplementation instanceof TRelationshipTypeImplementation) {
+            final TRelationshipTypeImplementation relationshipTypeImplementation =
+                (TRelationshipTypeImplementation) typeImplementation;
+
+            if (relationshipTypeImplementation.getRequiredContainerFeatures() != null) {
+                for (final TRequiredContainerFeature requiredContainerFeature : relationshipTypeImplementation.getRequiredContainerFeatures()
+                                                                                                              .getRequiredContainerFeature()) {
+                    requiredFeatures.add(requiredContainerFeature.getFeature());
+                }
+            }
+        } else {
+            ToscaEngineServiceImpl.LOG.warn("Given typeImplementationID does not identifiy a NodeTypeImplementation or RelationshipTypeImplementation: {}",
+                                            typeImplementationID);
         }
 
-        return listOfStrings;
+        return requiredFeatures;
     }
 
     /**
@@ -923,113 +937,33 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
      * {@inheritDoc}
      */
     @Override
-    public Document getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(final CSARID csarID,
-                                                                                                 final QName nodeTypeImplementationID,
-                                                                                                 final String implementationArtifactName) {
+    public Document getArtifactSpecificContentOfAImplementationArtifact(final CSARID csarID,
+                                                                        final QName typeImplementationID,
+                                                                        final String implementationArtifactName) {
 
-        // get the NodeTypeImplementation
-        final TNodeTypeImplementation nodeTypeImplementation =
-            (TNodeTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                   nodeTypeImplementationID);
+        final TImplementationArtifact ia =
+            getImplementationArtifactForName(csarID, typeImplementationID, implementationArtifactName);
 
-        // if there are ImplementationArtifacts
-        if (nodeTypeImplementation.getImplementationArtifacts() != null) {
-            for (final TImplementationArtifact implArt : nodeTypeImplementation.getImplementationArtifacts()
-                                                                               .getImplementationArtifact()) {
-
-                if (implArt.getName().equals(implementationArtifactName)) {
-
-                    final List<Element> listOfAnyElements = new ArrayList<>();
-                    for (final Object obj : implArt.getAny()) {
-                        if (obj instanceof Element) {
-                            listOfAnyElements.add((Element) obj);
-                        } else {
-                            ToscaEngineServiceImpl.LOG.error("There is content inside of the ImplementationArtifact \""
-                                + implementationArtifactName + "\" of the NodeTypeImplementation \""
-                                + nodeTypeImplementationID + "\" which is not a processable DOM Element.");
-                            return null;
-                        }
-                    }
-
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .elementsIntoDocument(listOfAnyElements,
-                                                                                    "ImplementationArtifactSpecificContent");
-
-                    // Node implArtNode =
-                    // ServiceHandler.xmlSerializerService.getXmlSerializer().marshalToNode(implArt);
-                    // NodeList childNodes = implArtNode.getChildNodes();
-                    //
-                    // try {
-                    // Document returnDocument =
-                    // DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-                    // Element root =
-                    // returnDocument.createElement("SpecificContent");
-                    // returnDocument.appendChild(root);
-                    //
-                    // for (int i = 0; i < childNodes.getLength(); i++) {
-                    // Node node = childNodes.item(i);
-                    // Node copyNode = returnDocument.importNode(node, true);
-                    // root.appendChild(copyNode);
-                    // }
-                    //
-                    // return returnDocument;
-                    //
-                    // } catch (ParserConfigurationException e) {
-                    // this.LOG.error(e.getLocalizedMessage());
-                    // e.printStackTrace();
-                    // return null;
-                    // }
-
+        if (ia != null) {
+            final List<Element> listOfAnyElements = new ArrayList<>();
+            for (final Object obj : ia.getAny()) {
+                if (obj instanceof Element) {
+                    listOfAnyElements.add((Element) obj);
+                } else {
+                    ToscaEngineServiceImpl.LOG.error("There is content inside of the ImplementationArtifact \""
+                        + implementationArtifactName + "\" of the TypeImplementation \"" + typeImplementationID
+                        + "\" which is not a processable DOM Element.");
+                    return null;
                 }
             }
+
+            return ServiceHandler.xmlSerializerService.getXmlSerializer()
+                                                      .elementsIntoDocument(listOfAnyElements,
+                                                                            "ImplementationArtifactSpecificContent");
+        } else {
+            ToscaEngineServiceImpl.LOG.error("The requested ImplementationArtifact was not found.");
+            return null;
         }
-
-        ToscaEngineServiceImpl.LOG.error("The requested ImplementationArtifact was not found.");
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Document getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(final CSARID csarID,
-                                                                                                         final QName relationshipTypeImplementationID,
-                                                                                                         final String implementationArtifactName) {
-
-        // get the RelationshipTypeImplementation
-        final TRelationshipTypeImplementation relationshipTypeImplementation =
-            (TRelationshipTypeImplementation) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
-                                                                                                           relationshipTypeImplementationID);
-
-        // if there are ImplementationArtifacts
-        if (relationshipTypeImplementation.getImplementationArtifacts() != null) {
-            for (final TImplementationArtifact implArt : relationshipTypeImplementation.getImplementationArtifacts()
-                                                                                       .getImplementationArtifact()) {
-
-                if (implArt.getName().equals(implementationArtifactName)) {
-
-                    final List<Element> listOfAnyElements = new ArrayList<>();
-                    for (final Object obj : implArt.getAny()) {
-                        if (obj instanceof Element) {
-                            listOfAnyElements.add((Element) obj);
-                        } else {
-                            ToscaEngineServiceImpl.LOG.error("There is content inside of the ImplementationArtifact \""
-                                + implementationArtifactName + "\" of the RelationshipTypeImplementation \""
-                                + relationshipTypeImplementationID + "\" which is not a processable DOM Element.");
-                            return null;
-                        }
-                    }
-
-                    return ServiceHandler.xmlSerializerService.getXmlSerializer()
-                                                              .elementsIntoDocument(listOfAnyElements,
-                                                                                    "ImplementationArtifactSpecificContent");
-
-                }
-            }
-        }
-
-        ToscaEngineServiceImpl.LOG.error("The requested ImplementationArtifact was not found.");
-        return null;
     }
 
     /**
@@ -1778,9 +1712,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                 ra.setReferences(references);
             } else {
                 artifactSpecificContent =
-                    getArtifactSpecificContentOfAImplementationArtifactOfANodeTypeImplementation(csarID,
-                                                                                                 nodeTypeImplementationID,
-                                                                                                 implArt.getName());
+                    getArtifactSpecificContentOfAImplementationArtifact(csarID, nodeTypeImplementationID,
+                                                                        implArt.getName());
                 ra.setArtifactSpecificContent(artifactSpecificContent);
             }
 
@@ -1857,9 +1790,8 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
                 ra.setReferences(references);
             } else {
                 artifactSpecificContent =
-                    getArtifactSpecificContentOfAImplementationArtifactOfARelationshipTypeImplementation(csarID,
-                                                                                                         relationshipTypeImplementationID,
-                                                                                                         implArt.getName());
+                    getArtifactSpecificContentOfAImplementationArtifact(csarID, relationshipTypeImplementationID,
+                                                                        implArt.getName());
                 ra.setArtifactSpecificContent(artifactSpecificContent);
             }
 
