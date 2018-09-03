@@ -83,12 +83,14 @@ import javax.xml.namespace.QName;
  *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "tRelationshipType",
-         propOrder = {"instanceStates", "sourceInterfaces", "targetInterfaces", "validSource", "validTarget"})
+@XmlType(name = "tRelationshipType", propOrder = {"instanceStates", "interfaces", "sourceInterfaces",
+                                                  "targetInterfaces", "validSource", "validTarget"})
 public class TRelationshipType extends TEntityType {
 
     @XmlElement(name = "InstanceStates")
     protected TTopologyElementInstanceStates instanceStates;
+    @XmlElement(name = "Interfaces", namespace = "http://www.opentosca.org/winery/extensions/tosca/2013/02/12")
+    protected TInterfaces interfaces;
     @XmlElement(name = "SourceInterfaces")
     protected TRelationshipType.SourceInterfaces sourceInterfaces;
     @XmlElement(name = "TargetInterfaces")
@@ -116,6 +118,14 @@ public class TRelationshipType extends TEntityType {
      */
     public void setInstanceStates(final TTopologyElementInstanceStates value) {
         this.instanceStates = value;
+    }
+
+    public TInterfaces getInterfaces() {
+        return this.interfaces;
+    }
+
+    public void setInterfaces(final TInterfaces interfaces) {
+        this.interfaces = interfaces;
     }
 
     /**

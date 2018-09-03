@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.soaphttp.processor;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -114,10 +115,15 @@ public class RequestProcessor implements Processor {
                 Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
             final IToscaEngineService toscaEngineService =
                 (IToscaEngineService) Activator.bundleContext.getService(servRef);
-            final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
-            final ResolvedArtifacts resolvedArtifacts =
-                toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
-            final List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+
+            final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
+            if (nodeTemplateID != null) {
+                final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
+                final ResolvedArtifacts resolvedArtifacts =
+                    toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
+                resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+            }
+
             final URL serviceInstanceIDUrl = new URL(serviceInstanceID);
             final HashMap<QName, HashMap<String, String>> DAs = new HashMap<>();
             for (final ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
@@ -133,7 +139,6 @@ public class RequestProcessor implements Processor {
 
                     LOG.info(urlWithDa);
                     DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
-
                 }
             }
             final Gson gson = new Gson();

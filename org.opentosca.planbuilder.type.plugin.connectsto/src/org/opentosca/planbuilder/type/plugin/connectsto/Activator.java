@@ -1,6 +1,10 @@
 package org.opentosca.planbuilder.type.plugin.connectsto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opentosca.planbuilder.plugins.IPlanBuilderTypePlugin;
+import org.opentosca.planbuilder.type.plugin.connectsto.bpel.BPELConfigureRelationsPlugin;
 import org.opentosca.planbuilder.type.plugin.connectsto.bpel.BPELConnectsToPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -17,34 +21,25 @@ public class Activator implements BundleActivator {
 
     private static BundleContext context;
 
-    private ServiceRegistration registration;
+    private final List<ServiceRegistration<?>> registrations = new ArrayList<>();
 
     static BundleContext getContext() {
         return Activator.context;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext )
-     */
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
-        Activator.context = bundleContext;
-        this.registration =
-            Activator.context.registerService(IPlanBuilderTypePlugin.class.getName(), new BPELConnectsToPlugin(), null);
+        context = bundleContext;
+        this.registrations.add(bundleContext.registerService(IPlanBuilderTypePlugin.class.getName(),
+                                                             new BPELConnectsToPlugin(), null));
+        this.registrations.add(bundleContext.registerService(IPlanBuilderTypePlugin.class.getName(),
+                                                             new BPELConfigureRelationsPlugin(), null));
 
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
     @Override
     public void stop(final BundleContext bundleContext) throws Exception {
         Activator.context = null;
-        this.registration.unregister();
+        this.registrations.forEach(e -> e.unregister());
     }
-
 }

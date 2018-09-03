@@ -22,7 +22,7 @@ public abstract class AbstractPlan {
         public String getString() {
             switch (this) {
                 case BUILD:
-                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
+                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan";
                 case TERMINATE:
                     return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
                 default:
