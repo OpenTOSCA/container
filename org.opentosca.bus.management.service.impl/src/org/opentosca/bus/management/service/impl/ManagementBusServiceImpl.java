@@ -158,27 +158,21 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                 typeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
                                                                                      nodeTemplateID);
 
+                // get the NodeTemplateInstance object to access instance data
                 nodeTemplateInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceID, nodeTemplateID);
 
                 // update inputParams with instance data
-                if (nodeTemplateInstance != null) {
-                    ManagementBusServiceImpl.LOG.debug("Operation belongs to NodeTemplateInstance with ID: {}",
-                                                       nodeTemplateInstance.getId());
+                if (message.getBody() instanceof HashMap) {
 
-                    if (message.getBody() instanceof HashMap) {
+                    @SuppressWarnings("unchecked")
+                    HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
 
-                        @SuppressWarnings("unchecked")
-                        HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
+                    inputParams = ParameterHandler.updateInputParams(inputParams, csarID, nodeTemplateInstance,
+                                                                     neededInterface, neededOperation);
+                    message.setBody(inputParams);
 
-                        inputParams = ParameterHandler.updateInputParams(inputParams, csarID, nodeTemplateInstance,
-                                                                         neededInterface, neededOperation);
-                        message.setBody(inputParams);
-
-                    } else {
-                        ManagementBusServiceImpl.LOG.warn("There are no input parameters specified.");
-                    }
                 } else {
-                    ManagementBusServiceImpl.LOG.warn("Unable to retrieve NodeTemplateInstance for the operation call.");
+                    ManagementBusServiceImpl.LOG.warn("There are no input parameters specified.");
                 }
 
             } else if (relationshipTemplateID != null) {

@@ -430,15 +430,15 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
     @Override
     public List<WSDLEndpoint> getWSDLEndpointsForNTImplAndIAName(final String triggeringContainer,
-                                                                 final String managingContainer,
-                                                                 final QName nodeTypeImpl, final String iaName) {
+                                                                 final String managingContainer, final QName typeImpl,
+                                                                 final String iaName) {
         final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
         final Query queryWSDLEndpoint =
-            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer and e.IaName = :IaName and e.NodeTypeImplementation = :nodeTypeImpl");
+            this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.triggeringContainer = :triggeringContainer and e.managingContainer = :managingContainer and e.IaName = :IaName and e.TypeImplementation = :typeImpl");
         queryWSDLEndpoint.setParameter("triggeringContainer", triggeringContainer);
         queryWSDLEndpoint.setParameter("managingContainer", managingContainer);
         queryWSDLEndpoint.setParameter("IaName", iaName);
-        queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
+        queryWSDLEndpoint.setParameter("typeImpl", typeImpl);
 
         @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();

@@ -81,103 +81,109 @@ public class DeploymentDistributionDecisionMaker {
      */
     public static String getDeploymentLocation(final NodeTemplateInstance nodeTemplateInstance) {
 
-        // only perform matching if collaboration mode is turned on
-        if (Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
+        if (nodeTemplateInstance != null) {
 
-            DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplateInstance with ID: {}",
-                                                          nodeTemplateInstance.getId());
+            // only perform matching if collaboration mode is turned on
+            if (Boolean.parseBoolean(Settings.OPENTOSCA_COLLABORATION_MODE)) {
 
-            // check if decision is already made for this instance
-            if (nodeTemplateInstance.getManagingContainer() != null) {
-                DeploymentDistributionDecisionMaker.LOG.debug("ManagingContainer attribute is already set for this NodeTemplateInstance: {}",
-                                                              nodeTemplateInstance.getManagingContainer());
-                return nodeTemplateInstance.getManagingContainer();
-            }
+                DeploymentDistributionDecisionMaker.LOG.debug("Deployment distribution decision for IAs from NodeTemplateInstance with ID: {}",
+                                                              nodeTemplateInstance.getId());
 
-            DeploymentDistributionDecisionMaker.LOG.debug("Looking for infrastructure NodeTemplateInstance that corresponds to this NodeTemplateInstance...");
+                // check if decision is already made for this instance
+                if (nodeTemplateInstance.getManagingContainer() != null) {
+                    DeploymentDistributionDecisionMaker.LOG.debug("ManagingContainer attribute is already set for this NodeTemplateInstance: {}",
+                                                                  nodeTemplateInstance.getManagingContainer());
+                    return nodeTemplateInstance.getManagingContainer();
+                }
 
-            // get infrastructure NodeTemplate
-            final NodeTemplateInstance infrastructureNodeTemplateInstance =
-                searchInfrastructureNode(nodeTemplateInstance);
+                DeploymentDistributionDecisionMaker.LOG.debug("Looking for infrastructure NodeTemplateInstance that corresponds to this NodeTemplateInstance...");
 
-            // check if "managingContainer" is already set for the infrastructure
-            // NodeTemplateInstance
-            if (infrastructureNodeTemplateInstance.getManagingContainer() != null) {
+                // get infrastructure NodeTemplate
+                final NodeTemplateInstance infrastructureNodeTemplateInstance =
+                    searchInfrastructureNode(nodeTemplateInstance);
 
-                // no instance data matching needed, as it was already performed for the
-                // infrastructure NodeTemplateInstance
-                final String managingContainer = infrastructureNodeTemplateInstance.getManagingContainer();
+                // check if "managingContainer" is already set for the infrastructure
+                // NodeTemplateInstance
+                if (infrastructureNodeTemplateInstance.getManagingContainer() != null) {
 
-                DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has set managingContainer attribute.");
-                DeploymentDistributionDecisionMaker.LOG.debug("Result of deployment distribution decision: {}",
-                                                              managingContainer);
+                    // no instance data matching needed, as it was already performed for the
+                    // infrastructure NodeTemplateInstance
+                    final String managingContainer = infrastructureNodeTemplateInstance.getManagingContainer();
 
-                // current NodeTemplateInstance is managed by the same Container as the
-                // infrastructure instance
-                nodeTemplateInstance.setManagingContainer(managingContainer);
-                nodeTemplateInstanceRepository.update(nodeTemplateInstance);
-                return managingContainer;
+                    DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has set managingContainer attribute.");
+                    DeploymentDistributionDecisionMaker.LOG.debug("Result of deployment distribution decision: {}",
+                                                                  managingContainer);
+
+                    // current NodeTemplateInstance is managed by the same Container as the
+                    // infrastructure instance
+                    nodeTemplateInstance.setManagingContainer(managingContainer);
+                    nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+                    return managingContainer;
+                } else {
+
+                    // instance data matching has to be performed for the NodeTemplateInstance
+                    DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has ID: {}",
+                                                                  infrastructureNodeTemplateInstance.getId());
+
+                    // retrieve type and properties for the matching
+                    final QName infrastructureNodeType = infrastructureNodeTemplateInstance.getTemplateType();
+                    final Map<String, String> infrastructureProperties =
+                        infrastructureNodeTemplateInstance.getPropertiesAsMap();
+
+                    DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has NodeType: {}",
+                                                                  infrastructureNodeType);
+                    DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has properties:");
+                    for (final String key : infrastructureProperties.keySet()) {
+                        DeploymentDistributionDecisionMaker.LOG.debug("Key: {}; Value: {}", key,
+                                                                      infrastructureProperties.get(key));
+                    }
+
+                    // match NodeType and properties against local instance data
+                    DeploymentDistributionDecisionMaker.LOG.debug("Performing local instance data matching...");
+                    String deploymentLocation =
+                        performInstanceDataMatching(infrastructureNodeType, infrastructureProperties);
+                    if (deploymentLocation != null) {
+                        DeploymentDistributionDecisionMaker.LOG.debug("Found matching local instance data. Deployment will be done at: {}",
+                                                                      deploymentLocation);
+
+                        // set property to speed up future matching
+                        infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
+                        nodeTemplateInstance.setManagingContainer(deploymentLocation);
+
+                        // update stored entities
+                        nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+                        nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
+
+                        return deploymentLocation;
+                    }
+
+                    // match against instance data at remote OpenTOSCA Containers
+                    DeploymentDistributionDecisionMaker.LOG.debug("Local instance data matching had no success. Performing matching with remote instance data...");
+                    deploymentLocation =
+                        performRemoteInstanceDataMatching(infrastructureNodeType, infrastructureProperties);
+                    if (deploymentLocation != null) {
+                        DeploymentDistributionDecisionMaker.LOG.debug("Found matching remote instance data. Deployment will be done on OpenTOSCA Container with host name: {}",
+                                                                      deploymentLocation);
+
+                        // set property to speed up future matching
+                        infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
+                        nodeTemplateInstance.setManagingContainer(deploymentLocation);
+
+                        // update stored entities
+                        nodeTemplateInstanceRepository.update(nodeTemplateInstance);
+                        nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
+
+                        return deploymentLocation;
+                    }
+
+                    DeploymentDistributionDecisionMaker.LOG.debug("Remote instance data matching had no success. Returning local host name as default deployment location.");
+                }
             } else {
-
-                // instance data matching has to be performed for the NodeTemplateInstance
-                DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has ID: {}",
-                                                              infrastructureNodeTemplateInstance.getId());
-
-                // retrieve type and properties for the matching
-                final QName infrastructureNodeType = infrastructureNodeTemplateInstance.getTemplateType();
-                final Map<String, String> infrastructureProperties =
-                    infrastructureNodeTemplateInstance.getPropertiesAsMap();
-
-                DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has NodeType: {}",
-                                                              infrastructureNodeType);
-                DeploymentDistributionDecisionMaker.LOG.debug("Infrastructure NodeTemplateInstance has properties:");
-                for (final String key : infrastructureProperties.keySet()) {
-                    DeploymentDistributionDecisionMaker.LOG.debug("Key: {}; Value: {}", key,
-                                                                  infrastructureProperties.get(key));
-                }
-
-                // match NodeType and properties against local instance data
-                DeploymentDistributionDecisionMaker.LOG.debug("Performing local instance data matching...");
-                String deploymentLocation =
-                    performInstanceDataMatching(infrastructureNodeType, infrastructureProperties);
-                if (deploymentLocation != null) {
-                    DeploymentDistributionDecisionMaker.LOG.debug("Found matching local instance data. Deployment will be done at: {}",
-                                                                  deploymentLocation);
-
-                    // set property to speed up future matching
-                    infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
-                    nodeTemplateInstance.setManagingContainer(deploymentLocation);
-
-                    // update stored entities
-                    nodeTemplateInstanceRepository.update(nodeTemplateInstance);
-                    nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
-
-                    return deploymentLocation;
-                }
-
-                // match against instance data at remote OpenTOSCA Containers
-                DeploymentDistributionDecisionMaker.LOG.debug("Local instance data matching had no success. Performing matching with remote instance data...");
-                deploymentLocation =
-                    performRemoteInstanceDataMatching(infrastructureNodeType, infrastructureProperties);
-                if (deploymentLocation != null) {
-                    DeploymentDistributionDecisionMaker.LOG.debug("Found matching remote instance data. Deployment will be done on OpenTOSCA Container with host name: {}",
-                                                                  deploymentLocation);
-
-                    // set property to speed up future matching
-                    infrastructureNodeTemplateInstance.setManagingContainer(deploymentLocation);
-                    nodeTemplateInstance.setManagingContainer(deploymentLocation);
-
-                    // update stored entities
-                    nodeTemplateInstanceRepository.update(nodeTemplateInstance);
-                    nodeTemplateInstanceRepository.update(infrastructureNodeTemplateInstance);
-
-                    return deploymentLocation;
-                }
-
-                DeploymentDistributionDecisionMaker.LOG.debug("Remote instance data matching had no success. Returning local host name as default deployment location.");
+                DeploymentDistributionDecisionMaker.LOG.debug("Distributed IA deployment disabled. Using local deployment.");
             }
         } else {
-            DeploymentDistributionDecisionMaker.LOG.debug("Distributed IA deployment disabled. Using local deployment.");
+            DeploymentDistributionDecisionMaker.LOG.error("NodeTemplateInstance object is null. Using local deployment.");
+            return Settings.OPENTOSCA_CONTAINER_HOSTNAME;
         }
 
         // default (no matching): return host name of local container
