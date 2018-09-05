@@ -34,6 +34,7 @@ import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanLanguage;
 import org.opentosca.container.core.next.model.PlanType;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.service.ICoreEndpointService;
@@ -151,14 +152,15 @@ public class ManagementBusServiceImpl implements IManagementBusService {
             String invocationType = null;
             String deploymentLocation = null;
             QName typeID = null;
+
+            // instance object needed to perform the deployment distribution decision
             NodeTemplateInstance nodeTemplateInstance = null;
 
-            // get the type for the invocation
+            // get the type for the invocation and update input parameters
             if (nodeTemplateID != null) {
                 typeID = ServiceHandler.toscaEngineService.getNodeTypeOfNodeTemplate(csarID, serviceTemplateID,
                                                                                      nodeTemplateID);
 
-                // get the NodeTemplateInstance object to access instance data
                 nodeTemplateInstance = MBUtils.getNodeTemplateInstance(serviceTemplateInstanceID, nodeTemplateID);
 
                 // update inputParams with instance data
@@ -167,8 +169,9 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                     @SuppressWarnings("unchecked")
                     HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
 
-                    inputParams = ParameterHandler.updateInputParams(inputParams, csarID, nodeTemplateInstance,
-                                                                     neededInterface, neededOperation);
+                    inputParams =
+                        ParameterHandler.updateInputParamsForNodeTemplate(inputParams, csarID, nodeTemplateInstance,
+                                                                          neededInterface, neededOperation);
                     message.setBody(inputParams);
 
                 } else {
@@ -181,12 +184,43 @@ public class ManagementBusServiceImpl implements IManagementBusService {
                                                                                                 serviceTemplateID,
                                                                                                 relationshipTemplateID);
 
-                // TODO: get NodeTemplateInstance for deployment decision --> source?
-                // TODO: perform input parameter updates for relationships?
+                final RelationshipTemplateInstance relationshipTemplateInstance =
+                    MBUtils.getRelationshipTemplateInstance(serviceTemplateInstanceID, relationshipTemplateID);
+
+                if (relationshipTemplateInstance != null) {
+
+                    // get the Node to which the operation is bound to use it for the deployment
+                    // distribution decision
+                    if (ServiceHandler.toscaEngineService.isOperationOfRelationshipBoundToSourceNode(csarID, typeID,
+                                                                                                     neededInterface,
+                                                                                                     neededOperation)) {
+                        nodeTemplateInstance = relationshipTemplateInstance.getSource();
+                    } else {
+                        nodeTemplateInstance = relationshipTemplateInstance.getTarget();
+                    }
+
+                    // update inputParams with instance data
+                    if (message.getBody() instanceof HashMap) {
+
+                        @SuppressWarnings("unchecked")
+                        HashMap<String, String> inputParams = (HashMap<String, String>) message.getBody();
+
+                        inputParams =
+                            ParameterHandler.updateInputParamsForRelationshipTemplate(inputParams, csarID,
+                                                                                      relationshipTemplateInstance,
+                                                                                      neededInterface, neededOperation);
+                        message.setBody(inputParams);
+
+                    } else {
+                        ManagementBusServiceImpl.LOG.warn("There are no input parameters specified.");
+                    }
+                } else {
+                    ManagementBusServiceImpl.LOG.warn("RelationshipTemplateInstance is null. Unable to update input parameters.");
+                }
             }
 
+            // handle NodeTemplate and RelationshipTemplate operations uniformly
             ManagementBusServiceImpl.LOG.debug("NodeType/RelationshipType: {}", typeID);
-
             if (typeID != null) {
 
                 // check whether operation has output parameters
@@ -982,44 +1016,46 @@ public class ManagementBusServiceImpl implements IManagementBusService {
      */
     private URI replacePlaceholderWithInstanceData(URI endpoint, final NodeTemplateInstance nodeTemplateInstance) {
 
-        final String placeholder =
-            endpoint.toString().substring(endpoint.toString().lastIndexOf(placeholderStart),
-                                          endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
+        if (nodeTemplateInstance != null) {
+            final String placeholder =
+                endpoint.toString()
+                        .substring(endpoint.toString().lastIndexOf(placeholderStart),
+                                   endpoint.toString().lastIndexOf(placeholderEnd) + placeholderEnd.length());
 
-        ManagementBusServiceImpl.LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder,
-                                           endpoint.toString());
+            ManagementBusServiceImpl.LOG.debug("Placeholder: {} detected in Endpoint: {}", placeholder,
+                                               endpoint.toString());
 
-        final String[] placeholderProperties =
-            placeholder.replace(placeholderStart, "").replace(placeholderEnd, "").split("_");
+            final String[] placeholderProperties =
+                placeholder.replace(placeholderStart, "").replace(placeholderEnd, "").split("_");
 
-        String propertyValue = null;
+            String propertyValue = null;
 
-        for (final String placeholderProperty : placeholderProperties) {
-            ManagementBusServiceImpl.LOG.debug("Searching instance data value for property {} ...",
-                                               placeholderProperty);
+            for (final String placeholderProperty : placeholderProperties) {
+                ManagementBusServiceImpl.LOG.debug("Searching instance data value for property {} ...",
+                                                   placeholderProperty);
 
-            propertyValue = MBUtils.searchProperty(nodeTemplateInstance, placeholderProperty);
+                propertyValue = MBUtils.searchProperty(nodeTemplateInstance, placeholderProperty);
 
-            if (propertyValue != null) {
-                ManagementBusServiceImpl.LOG.debug("Value for property {} found: {}.", placeholderProperty,
-                                                   propertyValue);
+                if (propertyValue != null) {
+                    ManagementBusServiceImpl.LOG.debug("Value for property {} found: {}.", placeholderProperty,
+                                                       propertyValue);
 
-                try {
-                    endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
+                    try {
+                        endpoint = new URI(endpoint.toString().replace(placeholder, propertyValue));
+                    }
+                    catch (final URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+                } else {
+                    ManagementBusServiceImpl.LOG.warn("Value for property {} not found.", placeholderProperty);
                 }
-                catch (final URISyntaxException e) {
-                    e.printStackTrace();
-                }
-
-                break;
-            } else {
-                ManagementBusServiceImpl.LOG.debug("Value for property {} not found.", placeholderProperty);
             }
+        } else {
+            ManagementBusServiceImpl.LOG.warn("NodeTemplateInstance is null. Unable to replace placeholders!");
         }
 
-        if (propertyValue == null) {
-            ManagementBusServiceImpl.LOG.warn("No instance data value for placeholder {} found!", placeholder);
-        }
         return endpoint;
     }
 

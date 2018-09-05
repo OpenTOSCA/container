@@ -10,6 +10,7 @@ import javax.xml.namespace.QName;
 import org.opentosca.bus.management.service.impl.servicehandler.ServiceHandler;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
+import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.tosca.convention.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +47,11 @@ public class ParameterHandler {
      *
      * @return the updated input parameters.
      */
-    public static HashMap<String, String> updateInputParams(final HashMap<String, String> inputParams,
-                                                            final CSARID csarID,
-                                                            final NodeTemplateInstance nodeTemplateInstance,
-                                                            final String neededInterface,
-                                                            final String neededOperation) {
+    public static HashMap<String, String> updateInputParamsForNodeTemplate(final HashMap<String, String> inputParams,
+                                                                           final CSARID csarID,
+                                                                           final NodeTemplateInstance nodeTemplateInstance,
+                                                                           final String neededInterface,
+                                                                           final String neededOperation) {
 
         if (nodeTemplateInstance != null) {
 
@@ -143,6 +144,72 @@ public class ParameterHandler {
             }
         } else {
             ParameterHandler.LOG.warn("Unable to update input parameters with nodeTemplateInstance equal to null!");
+        }
+
+        return inputParams;
+    }
+
+    /**
+     * Updates missing input parameters for a operation on a RelationshipTemplate with instance
+     * data. The provided input parameters have priority, which means if one parameter is provided
+     * and found in the instance data, then the provided parameter is used. <br>
+     * <br>
+     *
+     * <b>Convention:</b><br>
+     * Input parameters without prefix are searched on the RelationshipTemplateInstance. <br>
+     * Input parameters with prefix "SRC_" are searched on the NodeTemplateInstance which is the
+     * source of the RelationshipTemplate. <br>
+     * Input parameters with prefix "TRG_" are searched on the NodeTemplateInstance which is the
+     * target of the RelationshipTemplate.
+     *
+     * @param inputParams the set of input parameters
+     * @param csarID of the CSAR containing the RelationshipTemplate
+     * @param relationshipTemplateInstance the RelationshipTemplate instance object
+     * @param neededInterface
+     * @param neededOperation
+     *
+     * @return the updated input parameters.
+     */
+    public static HashMap<String, String> updateInputParamsForRelationshipTemplate(final HashMap<String, String> inputParams,
+                                                                                   final CSARID csarID,
+                                                                                   final RelationshipTemplateInstance relationshipTemplateInstance,
+                                                                                   final String neededInterface,
+                                                                                   final String neededOperation) {
+
+        if (relationshipTemplateInstance != null) {
+
+            ParameterHandler.LOG.debug("Operation: {} on RelationshipTemplate: {}", relationshipTemplateInstance,
+                                       neededOperation);
+
+            ParameterHandler.LOG.debug("{} inital input parameters found: {}", inputParams.size(),
+                                       inputParams.toString());
+
+            final List<String> expectedParams =
+                ParameterHandler.getExpectedInputParams(csarID, relationshipTemplateInstance.getTemplateType(),
+                                                        neededInterface, neededOperation);
+
+            ParameterHandler.LOG.debug("Operation: {} expects {} parameters: {}", neededOperation,
+                                       expectedParams.size(), expectedParams.toString());
+
+            if (!expectedParams.isEmpty()) {
+
+                for (final String expectedParam : expectedParams) {
+                    ParameterHandler.LOG.debug("Expected parameter: {}", expectedParam);
+
+                    if (expectedParam.startsWith("SRC_")) {
+                        ParameterHandler.LOG.debug("Parameter is defined at the topology stack of the source NodeTemplate.");
+                        // TODO: search on source stack
+                    } else if (expectedParam.startsWith("TRG_")) {
+                        ParameterHandler.LOG.debug("Parameter is defined at the topology stack of the target NodeTemplate.");
+                        // TODO: search on target stack
+                    } else {
+                        ParameterHandler.LOG.debug("Parameter is defined at the RelationshipTemplate.");
+                        // TODO: search on RelationshipTemplateInstance properties
+                    }
+                }
+            }
+        } else {
+            ParameterHandler.LOG.warn("Unable to update input parameters with RelationshipTemplateInstance equal to null!");
         }
 
         return inputParams;

@@ -13,7 +13,6 @@ import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.model.RelationshipTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
-import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
 import org.opentosca.container.core.tosca.convention.Interfaces;
 import org.opentosca.container.core.tosca.convention.Types;
@@ -30,10 +29,6 @@ import org.w3c.dom.traversal.NodeIterator;
 public class MBUtils {
 
     final private static Logger LOG = LoggerFactory.getLogger(MBUtils.class);
-
-    // repository to access NodeTemplateInstance data
-    final private static NodeTemplateInstanceRepository nodeTemplateInstanceRepository =
-        new NodeTemplateInstanceRepository();
 
     // repository to access ServiceTemplateInstance data
     final private static ServiceTemplateInstanceRepository serviceTemplateInstanceRepository =
@@ -294,31 +289,6 @@ public class MBUtils {
     }
 
     /**
-     * Returns the NodeTemplateInstance object for a certain ID.
-     *
-     * @param nodeTemplateInstanceID the ID of the NodeTemplateInstance
-     * @return the NodeTemplateInstance if found, <tt>null</tt> otherwise
-     */
-    public static NodeTemplateInstance getNodeTemplateInstance(final Long nodeTemplateInstanceID) {
-        MBUtils.LOG.debug("Trying to retrieve NodeTemplateInstance with ID: {}", nodeTemplateInstanceID);
-
-        // retrieve ServiceTemplateInstance object from database
-        if (nodeTemplateInstanceID != null) {
-            final Optional<NodeTemplateInstance> instanceOptional =
-                nodeTemplateInstanceRepository.find(nodeTemplateInstanceID);
-            if (instanceOptional.isPresent()) {
-                return instanceOptional.get();
-            } else {
-                MBUtils.LOG.debug("Unable to find NodeTemplateInstance with ID: {}", nodeTemplateInstanceID);
-            }
-        } else {
-            MBUtils.LOG.debug("Given NodeTemplateInstance ID is null. Unable to retrieve NodeTemplateInstance.");
-        }
-
-        return null;
-    }
-
-    /**
      * Retrieve the NodeTemplateInstance which is contained in a certain ServiceTemplateInstance and
      * has a certain template ID.
      *
@@ -332,33 +302,86 @@ public class MBUtils {
         MBUtils.LOG.debug("Trying to retrieve NodeTemplateInstance for ServiceTemplateInstance ID {} and NodeTemplate ID {} ...",
                           serviceTemplateInstanceID, nodeTemplateID);
 
+        final ServiceTemplateInstance serviceTemplateInstance = getServiceTemplateInstance(serviceTemplateInstanceID);
+
+        if (serviceTemplateInstance != null) {
+            final Collection<NodeTemplateInstance> nodeTemplateInstances =
+                serviceTemplateInstance.getNodeTemplateInstances();
+
+            // search for the NodeTemplateInstance with matching ID
+            for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
+                if (nodeTemplateInstance.getName().equals(nodeTemplateID)) {
+                    MBUtils.LOG.debug("NodeTemplateInstance has ID: {}", nodeTemplateInstance.getId());
+                    return nodeTemplateInstance;
+                }
+            }
+        }
+
+        MBUtils.LOG.warn("No NodeTemplateInstance with this NodeTemplate ID found!");
+        return null;
+    }
+
+    /**
+     * * Retrieve the RelationshipTemplateInstance which is contained in a certain
+     * ServiceTemplateInstance and has a certain template ID.
+     *
+     * @param serviceTemplateInstanceID this ID identifies the ServiceTemplateInstance
+     * @param relationshipTemplateID the template ID to identify the correct instance
+     * @return the found RelationshipTemplateInstance or <tt>null</tt> if no instance was found that
+     *         matches the parameters
+     */
+    public static RelationshipTemplateInstance getRelationshipTemplateInstance(final Long serviceTemplateInstanceID,
+                                                                               final String relationshipTemplateID) {
+        MBUtils.LOG.debug("Trying to retrieve RelationshipTemplateInstance for ServiceTemplateInstance ID {} and RelationshipTemplate ID {} ...",
+                          serviceTemplateInstanceID, relationshipTemplateID);
+
+        final ServiceTemplateInstance serviceTemplateInstance = getServiceTemplateInstance(serviceTemplateInstanceID);
+
+        if (serviceTemplateInstance != null) {
+
+            // RelationshipTemplateInstances have to be accessed through the NodeTemplateInstances
+            final Collection<NodeTemplateInstance> nodeTemplateInstances =
+                serviceTemplateInstance.getNodeTemplateInstances();
+
+            for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
+                for (final RelationshipTemplateInstance relationshipTemplateInstance : nodeTemplateInstance.getOutgoingRelations()) {
+                    if (relationshipTemplateInstance.getTemplateId().getLocalPart().equals(relationshipTemplateID)) {
+                        MBUtils.LOG.debug("RelationshipTemplateInstance has ID: {}",
+                                          relationshipTemplateInstance.getId());
+                        return relationshipTemplateInstance;
+                    }
+                }
+            }
+        }
+
+        MBUtils.LOG.warn("No RelationshipTemplateInstance with this RelationshipTemplate ID found!");
+        return null;
+    }
+
+    /**
+     * Retrieve the ServiceTemplateInstance object with a certain ID from the database if present.
+     *
+     * @param serviceTemplateInstanceID the ID of the ServiceTemplateInstance
+     * @return the ServiceTemplateInstance object if present, <code>null</code> otherwise.
+     */
+    private static ServiceTemplateInstance getServiceTemplateInstance(final Long serviceTemplateInstanceID) {
+        MBUtils.LOG.debug("Trying to retrieve ServiceTemplateInstance for ID {}", serviceTemplateInstanceID);
+
         // retrieve ServiceTemplateInstance object from database
         if (serviceTemplateInstanceID != null) {
             final Optional<ServiceTemplateInstance> instanceOptional =
                 serviceTemplateInstanceRepository.find(serviceTemplateInstanceID);
             if (instanceOptional.isPresent()) {
                 MBUtils.LOG.debug("Corresponding ServiceTemplateInstance object found...");
-                final ServiceTemplateInstance serviceTemplateInstance = instanceOptional.get();
-
-                final Collection<NodeTemplateInstance> nodeTemplateInstances =
-                    serviceTemplateInstance.getNodeTemplateInstances();
-
-                // search for the NodeTemplateInstance with matching ID
-                for (final NodeTemplateInstance nodeTemplateInstance : nodeTemplateInstances) {
-                    if (nodeTemplateInstance.getName().equals(nodeTemplateID)) {
-                        MBUtils.LOG.debug("NodeTemplateInstance has ID: {}", nodeTemplateInstance.getId());
-                        return nodeTemplateInstance;
-                    }
-                }
-
-                MBUtils.LOG.debug("No NodeTemplateInstance with this NodeTemplate ID contained in the ServiceTemplateInstance!");
+                return instanceOptional.get();
             } else {
-                MBUtils.LOG.debug("Unable to find ServiceTemplateInstance with ID: {}", serviceTemplateInstanceID);
+                MBUtils.LOG.warn("Unable to find ServiceTemplateInstance with ID: {}", serviceTemplateInstanceID);
             }
         } else {
-            MBUtils.LOG.debug("Given ServiceTemplateInstance ID is null. Unable to search NodeTemplateInstance.");
+            MBUtils.LOG.error("Given ServiceTemplateInstance ID is null.");
         }
 
+        // no instance with that ID in DB
         return null;
     }
 
