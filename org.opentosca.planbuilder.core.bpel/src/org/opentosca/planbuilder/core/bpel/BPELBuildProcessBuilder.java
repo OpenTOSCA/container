@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opentosca.planbuilder.AbstractBuildPlanBuilder;
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.BPELFinalizer;
@@ -133,7 +134,9 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
             if (namespace.equals(serviceTemplateId.getNamespaceURI())
                 && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 
-                final String processName = ModelUtils.makeValidNCName(serviceTemplate.getId() + "_buildPlan");
+            	NCName ncName = new NCName(serviceTemplate.getId() + "_buildPlan");
+            	String processName = ncName.toString();
+                
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
                 final AbstractPlan buildPlan =

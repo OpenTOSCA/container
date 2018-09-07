@@ -17,12 +17,14 @@ import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.core.bpel.BPELScopeBuilder;
 import org.opentosca.planbuilder.core.bpel.OperationChain;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.ImportType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity.BPELScopePhaseType;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
@@ -198,8 +200,12 @@ public class BPELPlanContext implements PlanContext {
     }
 
     public String findInstanceURLVar(final String templateId, final boolean isNode) {
+    	
+    	NCName ncName = new NCName(templateId);
+    	String ncString = ncName.toString();
+    	
         final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceURL_" + ModelUtils.makeValidNCName(templateId) + "_";
+            (isNode ? "node" : "relationship") + "InstanceURL_" + ncString + "_";
         for (final String varName : getMainVariableNames()) {
             if (varName.contains(instanceURLVarName)) {
                 return varName;
@@ -209,8 +215,12 @@ public class BPELPlanContext implements PlanContext {
     }
 
     public String findInstanceIDVar(final String templateId, final boolean isNode) {
+    	
+    	NCName ncName = new NCName(templateId);
+    	String ncString = ncName.toString();
+    	
         final String instanceURLVarName =
-            (isNode ? "node" : "relationship") + "InstanceID_" + ModelUtils.makeValidNCName(templateId) + "_";
+            (isNode ? "node" : "relationship") + "InstanceID_" + ncString + "_";
         final List<String> varNames = getMainVariableNames();
         for (final String varName : varNames) {
             if (varName.contains(instanceURLVarName)) {
@@ -926,17 +936,6 @@ public class BPELPlanContext implements PlanContext {
         return this.bpelProcessHandler.getMainVariableNames(this.templateBuildPlan.getBuildPlan());
     }
 
-    /**
-     * Returns a NCName String of the given String
-     *
-     * @param string a String to convert
-     * @return the String which is a NCName
-     */
-    public String getNCNameFromString(final String string) {
-        // TODO check if this enough
-        return string.replace(" ", "_");
-    }
-
     public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,
                                     final String operationName,
                                     final Map<AbstractParameter, Variable> param2propertyMapping,
@@ -1537,7 +1536,7 @@ public class BPELPlanContext implements PlanContext {
         boolean check = true;
         // import wsdl into plan wsdl
         check &= this.templateBuildPlan.getBuildPlan().getWsdl()
-                                       .addImportElement("http://schemas.xmlsoap.org/wsdl/", portType.getNamespaceURI(),
+                                       .addImportElement(ImportType.WSDL.toString(), portType.getNamespaceURI(),
                                                          portType.getPrefix(),
 
                                                          wsdlDefinitionsFile.getAbsolutePath());
@@ -1549,11 +1548,11 @@ public class BPELPlanContext implements PlanContext {
         // import wsdl into bpel plan
         check &=
             this.buildPlanHandler.addImportToBpel(portType.getNamespaceURI(), wsdlDefinitionsFile.getAbsolutePath(),
-                                                  "http://schemas.xmlsoap.org/wsdl/",
+                                                  ImportType.WSDL.toString(),
                                                   this.templateBuildPlan.getBuildPlan());
 
         if (!check && this.buildPlanHandler.hasImport(portType.getNamespaceURI(), wsdlDefinitionsFile.getAbsolutePath(),
-                                                      "http://schemas.xmlsoap.org/wsdl/",
+                                                      ImportType.WSDL.toString(),
                                                       this.templateBuildPlan.getBuildPlan())) {
             check = true;
         }
@@ -1576,7 +1575,7 @@ public class BPELPlanContext implements PlanContext {
         check &= this.buildPlanHandler.addImportedFile(xmlSchemaFile, this.templateBuildPlan.getBuildPlan());
         // import type inside bpel file
         check &= this.buildPlanHandler.addImportToBpel(type.getNamespaceURI(), xmlSchemaFile.getAbsolutePath(),
-                                                       "http://www.w3.org/2001/XMLSchema",
+                                                       ImportType.XSD.toString(),
                                                        this.templateBuildPlan.getBuildPlan());
         return true;
     }

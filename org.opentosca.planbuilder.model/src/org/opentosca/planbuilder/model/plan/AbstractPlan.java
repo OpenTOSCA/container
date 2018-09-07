@@ -17,19 +17,25 @@ public abstract class AbstractPlan {
 
     // general categories
     public enum PlanType {
-        BUILD, MANAGE, TERMINATE;
+        BUILD("build", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan"),
+        // TODO is this url correct??!
+        MANAGE("manage", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan"),
+        TERMINATE("terminate", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan");
 
+    	private String name;
+    	private String url;
+    	
+    	PlanType(String name, String url) {
+    		this.name = name;
+    		this.url = url;
+    	}
+    	
         public String getString() {
-            switch (this) {
-                case BUILD:
-                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
-                case TERMINATE:
-                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan";
-                default:
-                    // every other plan is a management plan
-                case MANAGE:
-                    return "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan";
-            }
+        	return this.url;
+        }
+        
+        public String getName() {
+        	return this.name;
         }
     }
 

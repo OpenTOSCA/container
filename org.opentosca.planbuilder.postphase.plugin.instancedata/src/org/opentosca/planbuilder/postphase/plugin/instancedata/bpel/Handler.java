@@ -16,6 +16,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.opentosca.container.core.tosca.convention.Interfaces;
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.core.bpel.context.BPELPlanContext;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
@@ -78,7 +79,10 @@ public class Handler {
 
     private String createStateVar(final BPELPlanContext context, final String templateId) {
         // create state variable inside scope
-        final String stateVarName = ModelUtils.makeValidNCName(templateId) + "_state_" + context.getIdForNames();
+    	NCName ncName = new NCName(templateId);
+    	String ncString = ncName.toString();
+    	
+        final String stateVarName = ncString + "_state_" + context.getIdForNames();
         final QName stringTypeDeclId =
             context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
         if (!context.addGlobalVariable(stateVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
@@ -90,8 +94,12 @@ public class Handler {
 
 
     public String createInstanceURLVar(final BPELPlanContext context, final String templateId) {
+    	
+    	NCName ncName = new NCName(templateId);
+    	String ncString = ncName.toString();
+    	
         final String instanceURLVarName = (context.getRelationshipTemplate() == null ? "node" : "relationship")
-            + "InstanceURL_" + ModelUtils.makeValidNCName(templateId) + "_" + context.getIdForNames();
+            + "InstanceURL_" + ncString + "_" + context.getIdForNames();
         final QName stringTypeDeclId =
             context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
         if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {
@@ -102,8 +110,12 @@ public class Handler {
     }
 
     public String createInstanceIDVar(final BPELPlanContext context, final String templateId) {
+    	
+    	NCName ncName = new NCName(templateId);
+    	String ncString = ncName.toString();
+    	
         final String instanceURLVarName = (context.getRelationshipTemplate() == null ? "node" : "relationship")
-            + "InstanceID_" + ModelUtils.makeValidNCName(templateId) + "_" + context.getIdForNames();
+            + "InstanceID_" + ncString + "_" + context.getIdForNames();
         final QName stringTypeDeclId =
             context.importQName(new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd"));
         if (!context.addGlobalVariable(instanceURLVarName, BPELPlan.VariableType.TYPE, stringTypeDeclId)) {

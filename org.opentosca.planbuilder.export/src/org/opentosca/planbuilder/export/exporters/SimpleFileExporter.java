@@ -33,6 +33,7 @@ import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
 import org.apache.ode.schemas.dd._2007._03.TService;
 import org.opentosca.container.core.service.IFileAccessService;
+import org.opentosca.planbuilder.NCName;
 import org.opentosca.planbuilder.export.Exporter;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
@@ -152,6 +153,8 @@ public class SimpleFileExporter {
         // rewrite service names in deploy.xml and potential wsdl files
         try {
             this.rewriteServiceNames(deployment, exportedFiles, buildPlan.getCsarName());
+            // At this point there is invalid data in the deployment which causes
+            // https://github.com/OpenTOSCA/container/issues/61
         }
         catch (final WSDLException e) {
             LOG.warn("Rewriting of Service names failed", e);
@@ -237,6 +240,10 @@ public class SimpleFileExporter {
 
         LOG.debug("Starting to determine services to rewrite");
         LOG.debug("Starting to determine invoked services");
+        
+        NCName ncName = new NCName(csarName);
+        String validName = ncName.toString();
+        
         for (final TInvoke invoke : invokes) {
             if (invoke.getPartnerLink().equals("client")) {
                 continue;
@@ -246,9 +253,9 @@ public class SimpleFileExporter {
             final QName serviceName = service.getName();
 
             final QName renamedServiceName = new QName(serviceName.getNamespaceURI(),
-                csarName + serviceName.getLocalPart() + System.currentTimeMillis());
+                validName + serviceName.getLocalPart() + System.currentTimeMillis());
 
-            LOG.debug("Adding " + serviceName + " to be rewrited to " + renamedServiceName);
+            LOG.debug("Adding " + serviceName + " to be rewritten to " + renamedServiceName);
             invokedServicesToRewrite.add(new Mapping(serviceName, renamedServiceName));
 
             service.setName(renamedServiceName);
@@ -266,7 +273,7 @@ public class SimpleFileExporter {
             final QName serviceName = service.getName();
 
             final QName renamedServiceName = new QName(serviceName.getNamespaceURI(),
-                csarName + serviceName.getLocalPart() + System.currentTimeMillis());
+                validName + serviceName.getLocalPart() + System.currentTimeMillis());
 
             LOG.debug("Adding " + serviceName + " to be rewrited to " + renamedServiceName);
             providedServicesToRewrite.add(new Mapping(serviceName, renamedServiceName));

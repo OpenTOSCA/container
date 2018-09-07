@@ -63,19 +63,43 @@ public class BPELPlan extends AbstractPlan {
      *
      */
     public enum ImportType {
-        WSDL, XSD;
+        WSDL("wsdl", "http://schemas.xmlsoap.org/wsdl/"), 
+        XSD("xsd", "http://www.w3.org/2001/XMLSchema");
+    	
+    	
+    	private String name;
+    	private String url;
+    	
+    	ImportType(String name, String url) {
+    		this.name = name;
+    		this.url = url;
+		}
+    	
+    	public String getName() {
+    		return this.name;
+    	}
 
         @Override
+        // TODO rename to getNamespaceURL()
         public String toString() {
-            switch (this) {
-                case XSD:
-                    return "http://www.w3.org/2001/XMLSchema";
-                case WSDL:
-                    return "http://schemas.xmlsoap.org/wsdl/";
-                default:
-                    return null;
-            }
+        	return this.url;
         }
+    }
+    
+    // TODO please use me in future. You gonna like it :)
+    public enum ToscaOperation {
+    	INITIATE("initiate"), TERMINATE("terminate"), SCALE_OUT("scale-out");
+    	
+    	private String name;
+    	
+    	ToscaOperation(String name) {
+    		this.name = name;
+    	}
+    	
+    	public String getName() {
+    		return this.name;
+    	}
+    	
     }
 
     // xml document
