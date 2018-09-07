@@ -72,12 +72,6 @@ public class ModelUtils {
     public final static QName externalResourceNodeType =
         new QName("http://opentosca.org/nodetypes", "ExternalResource");
 
-
-
-    public static String makeValidNCName(final String string) {
-        return string.replaceAll("\\.", "_").replaceAll(" ", "_");
-    }
-
     /**
      * Returns true if the given QName type denotes to a NodeType in the type hierarchy of the given
      * NodeTemplate
