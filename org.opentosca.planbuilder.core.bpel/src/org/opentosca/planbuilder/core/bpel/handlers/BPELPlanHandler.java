@@ -757,7 +757,6 @@ public class BPELPlanHandler {
         setAttribute(invokeElement, "inputVariable", "output");
 
         final Deploy deployment = buildPlan.getDeploymentDeskriptor();
-        Process deploymentProcess = deployment.getDeploymentProcess();
         
         // this document seems to be pretty hungry. Let's feed it with data
         final TDeployment.Process process = deployment.getDeploymentProcess();

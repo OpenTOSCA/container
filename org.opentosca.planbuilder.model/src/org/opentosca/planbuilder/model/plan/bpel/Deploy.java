@@ -91,7 +91,11 @@ public class Deploy extends TDeployment {
 	}
 	
 	public TDeployment.Process getDeploymentProcess() {
-		return this.getProcess().get(0);
+		return this.deploymentProcess;
+	}
+	
+	public TProcessEvents getProcessEvents() {
+		return this.processEvents;
 	}
 
 }
