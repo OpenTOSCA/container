@@ -34,12 +34,6 @@ public class Deploy extends TDeployment {
 	private transient TDeployment.Process deploymentProcess;
 	private transient TProcessEvents processEvents;
 
-//	private transient TProvide provide;
-//	private transient TInvoke invoke;
-//
-//	private transient TProvide clientProvide;
-//	private transient TInvoke clientInvoke;
-
 	public Deploy() {
 		super();
 
@@ -56,11 +50,6 @@ public class Deploy extends TDeployment {
 		this.deploymentProcess = factory.createTDeploymentProcess();
 		this.processEvents = factory.createTProcessEvents();
 
-//		this.provide = createProvide();
-//		this.invoke = createInvoke();
-//
-//		this.clientProvide = createProvide();
-//		this.clientInvoke = createInvoke();
 	}
 	
 	private void setElementRelations() {
@@ -68,26 +57,8 @@ public class Deploy extends TDeployment {
 		List<Process> processes = this.getProcess();
 		processes.add(deploymentProcess);
 		
-//		List<TInvoke> invokes = this.deploymentProcess.getInvoke();
-//		invokes.add(invoke);
-//		invokes.add(clientInvoke);
-//		
-//		List<TProvide> provides = this.deploymentProcess.getProvide();
-//		provides.add(provide);
-//		provides.add(clientProvide);
-		
 		this.deploymentProcess.setProcessEvents(processEvents);
 		
-	}
-	
-	private TProvide createProvide() {
-		TProvide provide = factory.createTProvide();
-		
-		TService providerService = createService();
-		
-		provide.setService(providerService);
-		
-		return provide;
 	}
 	
 	public TProvide createProvide(TService service, String partnerLink) {
@@ -100,16 +71,6 @@ public class Deploy extends TDeployment {
 		
 	}
 	
-	private TInvoke createInvoke() {
-		TInvoke invoke = factory.createTInvoke();
-		
-		TService invokerService = createService();
-		
-		invoke.setService(invokerService);
-		
-		return invoke;
-	}
-	
 	public TInvoke createInvoke(TService service, String partnerLink) {
 		TInvoke invoke = factory.createTInvoke();
 		
@@ -118,14 +79,6 @@ public class Deploy extends TDeployment {
 		invoke.setPartnerLink(partnerLink);
 		
 		return invoke;
-	}
-	
-	private TService createService() {
-		TService service = factory.createTService();
-		
-		// anything else to do with the service?
-		
-		return service;
 	}
 	
 	public TService createService(QName name, String port) {
@@ -137,62 +90,6 @@ public class Deploy extends TDeployment {
 		return service;
 	}
 	
-//	/**
-//	 * @return the provide
-//	 */
-//	public TProvide getProvide() {
-//		return provide;
-//	}
-//
-//	/**
-//	 * @param provide the provide to set
-//	 */
-//	public void setProvide(TProvide provide) {
-//		this.provide = provide;
-//	}
-//
-//	/**
-//	 * @return the invoke
-//	 */
-//	public TInvoke getInvoke() {
-//		return invoke;
-//	}
-//
-//	/**
-//	 * @param invoke the invoke to set
-//	 */
-//	public void setInvoke(TInvoke invoke) {
-//		this.invoke = invoke;
-//	}
-//
-//	/**
-//	 * @return the clientProvide
-//	 */
-//	public TProvide getClientProvide() {
-//		return clientProvide;
-//	}
-//
-//	/**
-//	 * @param clientProvide the clientProvide to set
-//	 */
-//	public void setClientProvide(TProvide clientProvide) {
-//		this.clientProvide = clientProvide;
-//	}
-//
-//	/**
-//	 * @return the clientInvoke
-//	 */
-//	public TInvoke getClientInvoke() {
-//		return clientInvoke;
-//	}
-//
-//	/**
-//	 * @param clientInvoke the clientInvoke to set
-//	 */
-//	public void setClientInvoke(TInvoke clientInvoke) {
-//		this.clientInvoke = clientInvoke;
-//	}
-
 	public TDeployment.Process getDeploymentProcess() {
 		return this.getProcess().get(0);
 	}
