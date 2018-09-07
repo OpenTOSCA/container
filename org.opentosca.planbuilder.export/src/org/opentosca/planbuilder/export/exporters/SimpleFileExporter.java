@@ -159,6 +159,9 @@ public class SimpleFileExporter {
         catch (final FileNotFoundException e) {
             LOG.warn("Something went wrong with locating wsdl files that needed to be changed", e);
         }
+        catch(Exception e) {
+        	LOG.warn("Unable to rewrite service names", e);
+        }
 
         final File deployXmlFile = new File(tempFolder, "deploy.xml");
         deployXmlFile.createNewFile();
@@ -227,8 +230,8 @@ public class SimpleFileExporter {
         // first fetch all provide and invoke element which aren't using the
         // 'client' partnerLink
         // single process only
-        final List<TInvoke> invokes = deploy.getProcess().get(0).getInvoke();
-        final List<TProvide> provides = deploy.getProcess().get(0).getProvide();
+        final List<TInvoke> invokes = deploy.getDeploymentProcess().getInvoke();
+        final List<TProvide> provides = deploy.getDeploymentProcess().getProvide();
 
         // the services and their new name the dd uses, excluding the client
         // services, will be added here
@@ -253,7 +256,6 @@ public class SimpleFileExporter {
 
             service.setName(renamedServiceName);
 
-            invoke.setService(service);
         }
 
         LOG.debug("Starting to determine provided services");
@@ -272,8 +274,6 @@ public class SimpleFileExporter {
             providedServicesToRewrite.add(new Mapping(serviceName, renamedServiceName));
 
             service.setName(renamedServiceName);
-
-            provide.setService(service);
         }
 
         this.rewriteServices(invokedServicesToRewrite, writer, reader, referencedFiles);

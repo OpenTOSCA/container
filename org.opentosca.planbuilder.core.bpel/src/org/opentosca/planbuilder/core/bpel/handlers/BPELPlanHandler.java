@@ -14,8 +14,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.ode.schemas.dd._2007._03.ObjectFactory;
 import org.apache.ode.schemas.dd._2007._03.TDeployment;
+import org.apache.ode.schemas.dd._2007._03.TDeployment.Process;
 import org.apache.ode.schemas.dd._2007._03.TInvoke;
 import org.apache.ode.schemas.dd._2007._03.TProcessEvents;
 import org.apache.ode.schemas.dd._2007._03.TProvide;
@@ -62,8 +62,6 @@ public class BPELPlanHandler {
 
     private final NodeRelationInstanceVariablesHandler instanceInit;
 
-    private final ObjectFactory ddFactory;
-
     private final BPELScopeHandler bpelScopeHandler;
 
     /**
@@ -77,7 +75,6 @@ public class BPELPlanHandler {
         this.documentBuilderFactory.setNamespaceAware(true);
         this.documentBuilder = this.documentBuilderFactory.newDocumentBuilder();
         this.bpelScopeHandler = new BPELScopeHandler();
-        this.ddFactory = new ObjectFactory();
         this.instanceInit = new NodeRelationInstanceVariablesHandler(this);
     }
 
@@ -281,25 +278,23 @@ public class BPELPlanHandler {
                                   partnerLinkName, serviceName.toString(), portName,
                                   buildPlan.getBpelProcessElement().getAttribute("name"));
 
-        for (final TInvoke inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke()) {
+        Deploy deployment = buildPlan.getDeploymentDeskriptor();
+        Process process = deployment.getDeploymentProcess();
+        for (final TInvoke inv : process.getInvoke()) {
             if (inv.getPartnerLink().equals(partnerLinkName)) {
                 BPELPlanHandler.LOG.warn("Adding invoke for partnerLink {}, serviceName {} and portName {} failed, there is already a partnerLink with the same Name",
                                          partnerLinkName, serviceName.toString(), portName);
                 return false;
             }
         }
+        
+        TService service = deployment.createService(serviceName, portName);
+        
         // set invoke
-        final TInvoke invoke = this.ddFactory.createTInvoke();
-        invoke.setPartnerLink(partnerLinkName);
-
-        // set service
-        final TService service = this.ddFactory.createTService();
-        service.setName(serviceName);
-        service.setPort(portName);
-
-        invoke.setService(service);
-
-        buildPlan.getDeploymentDeskriptor().getProcess().get(0).getInvoke().add(invoke);
+        final TInvoke invoke = deployment.createInvoke(service, partnerLinkName);
+        
+        List<TInvoke> invokes = deployment.getDeploymentProcess().getInvoke();
+        invokes.add(invoke);
 
         BPELPlanHandler.LOG.debug("Adding invoke was successful");
         return true;
@@ -450,24 +445,22 @@ public class BPELPlanHandler {
         BPELPlanHandler.LOG.debug("Trying to add provide with partnerLink {}, service {} and port {} to BuildPlan {}",
                                   partnerLinkName, serviceName.toString(), portName,
                                   buildPlan.getBpelProcessElement().getAttribute("name"));
-        for (final TProvide inv : buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide()) {
+        
+        Deploy deployment = buildPlan.getDeploymentDeskriptor();
+        Process process = deployment.getDeploymentProcess();
+        for (final TProvide inv : process.getProvide()) {
             if (inv.getPartnerLink().equals(partnerLinkName)) {
                 BPELPlanHandler.LOG.warn("Adding provide failed");
                 return false;
             }
         }
-        // set invoke
-        final TProvide provide = this.ddFactory.createTProvide();
-        provide.setPartnerLink(partnerLinkName);
-
-        // set service
-        final TService service = this.ddFactory.createTService();
-        service.setName(serviceName);
-        service.setPort(portName);
-
-        provide.setService(service);
-
-        buildPlan.getDeploymentDeskriptor().getProcess().get(0).getProvide().add(provide);
+        
+        TService service = deployment.createService(serviceName, portName);
+        final TProvide provide = deployment.createProvide(service, partnerLinkName);
+        
+        List<TProvide> provides = process.getProvide();
+        provides.add(provide);
+        
         BPELPlanHandler.LOG.debug("Adding provide was successful");
         return true;
 
@@ -763,44 +756,34 @@ public class BPELPlanHandler {
         setAttribute(invokeElement, "operation", "onResult");
         setAttribute(invokeElement, "inputVariable", "output");
 
-        // set deployment deskriptor
         final Deploy deployment = buildPlan.getDeploymentDeskriptor();
-        final List<TDeployment.Process> processes = deployment.getProcess();
-
-        // generate process element and set name
-        final TDeployment.Process process = this.ddFactory.createTDeploymentProcess();
+        Process deploymentProcess = deployment.getDeploymentProcess();
+        
+        // this document seems to be pretty hungry. Let's feed it with data
+        final TDeployment.Process process = deployment.getDeploymentProcess();
         process.setName(new QName(processNamespace, processName));
 
-        final TProcessEvents events = this.ddFactory.createTProcessEvents();
+        final TProcessEvents events = process.getProcessEvents();
         events.setGenerate("all");
-        process.setProcessEvents(events);
-
-        // get invokes, generate invoke for callback, add to invokes
+        
         final List<TInvoke> invokes = process.getInvoke();
-        final TInvoke callbackInvoke = this.ddFactory.createTInvoke();
-        callbackInvoke.setPartnerLink("client");
-        // create "callbackservice"
-        final TService callbackService = this.ddFactory.createTService();
-        // example servicename : Wordpress_buildPlanServiceCallback
-        callbackService.setName(new QName(processNamespace, processName + "ServiceCallback"));
-        callbackService.setPort(processName + "PortCallbackPort");
-        callbackInvoke.setService(callbackService);
+        
+        final QName callbackServiceQName = new QName(processNamespace, processName + "ServiceCallback");
+        final TService callbackService = deployment.createService(callbackServiceQName, processName + "PortCallbackPort");
+        
+        final TInvoke callbackInvoke = deployment.createInvoke(callbackService, "client");
+
         invokes.add(callbackInvoke);
-
-        // get provides, generate provide element, add to process
+        
+        QName provideServiceQName = new QName(processNamespace, processName + "Service");
+        final TService provideService = deployment.createService(provideServiceQName, processName + "Port");
+        
+        
         final List<TProvide> provides = process.getProvide();
-        final TProvide provide = this.ddFactory.createTProvide();
-        provide.setPartnerLink("client");
-        final TService provideService = this.ddFactory.createTService();
-        provideService.setName(new QName(processNamespace, processName + "Service"));
-        provideService.setPort(processName + "Port");
-        provide.setService(provideService);
-
+        final TProvide provide = deployment.createProvide(provideService, "client");
+        
         provides.add(provide);
-
-        // add process to processes
-        processes.add(process);
-
+        
         return buildPlan;
     }
 
