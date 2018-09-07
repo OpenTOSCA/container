@@ -16,6 +16,7 @@ import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.ImportType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -273,8 +274,8 @@ public class ServiceInstanceVariablesHandler {
     public boolean appendSetServiceInstanceState(final BPELPlan plan, final Element insertBeforeElement,
                                                  final String state) {
 
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
         // generate any type variable for REST call response
@@ -344,8 +345,8 @@ public class ServiceInstanceVariablesHandler {
 
     public boolean appendServiceInstanceDelete(final BPELPlan plan) {
 
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
         // generate any type variable for REST call response
@@ -379,8 +380,8 @@ public class ServiceInstanceVariablesHandler {
 
     public boolean initPropertyVariablesFromInstanceData(final BPELPlan plan, final PropertyMap propMap) {
 
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
 
         // generate any type variable for REST call response
@@ -525,14 +526,14 @@ public class ServiceInstanceVariablesHandler {
 
         // generate any type variable for REST call response
         final QName responseVariableQName =
-            new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd" + System.currentTimeMillis());
+            new QName(ImportType.XSD.toString(), "anyType", ImportType.XSD.getName() + System.currentTimeMillis());
 
         try {
             final File schemaFile = this.fragments.getOpenTOSCAAPISchemaFile();
             final QName correlationIdElementSchemaQname = this.fragments.getOpenToscaApiCorrelationElementQname();
             this.bpelProcessHandler.addImportedFile(schemaFile, buildPlan);
             this.bpelProcessHandler.addImportToBpel(correlationIdElementSchemaQname.getNamespaceURI(),
-                                                    schemaFile.getAbsolutePath(), "http://www.w3.org/2001/XMLSchema",
+                                                    schemaFile.getAbsolutePath(), ImportType.XSD,
                                                     buildPlan);
 
         }
@@ -602,7 +603,7 @@ public class ServiceInstanceVariablesHandler {
         // assign the serviceInstance REST POST Response into global service
         // instance variable
         final QName serviceInstanceUrlDeclId =
-            new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());
+            new QName(ImportType.XSD.toString(), "string", ImportType.XSD.getName() + System.currentTimeMillis());
         this.bpelProcessHandler.addNamespaceToBPELDoc(serviceInstanceUrlDeclId.getPrefix(),
                                                       serviceInstanceUrlDeclId.getNamespaceURI(), buildPlan);
 
@@ -700,7 +701,7 @@ public class ServiceInstanceVariablesHandler {
         // can only handle simple xsd types (no queries from input message)
 
         final QName instanceDataAPIUrlDeclId =
-            new QName("http://www.w3.org/2001/XMLSchema", "string", "xsd" + System.currentTimeMillis());
+            new QName(ImportType.XSD.toString(), "string", ImportType.XSD.getName() + System.currentTimeMillis());
         this.bpelProcessHandler.addNamespaceToBPELDoc(instanceDataAPIUrlDeclId.getPrefix(),
                                                       instanceDataAPIUrlDeclId.getNamespaceURI(), plan);
 

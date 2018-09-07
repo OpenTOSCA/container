@@ -98,6 +98,7 @@ public class BPELTerminationProcessBuilder extends AbstractTerminationPlanBuilde
             	
             	NCName ncName = new NCName(serviceTemplate.getId() + "_terminationPlan");
                 final String processName = ncName.toString();
+                
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_terminationPlan";
 
                 final AbstractPlan newAbstractTerminationPlan =

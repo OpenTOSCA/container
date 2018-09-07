@@ -9,7 +9,6 @@ import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -208,7 +207,6 @@ public class PropertyVariableInitializer {
                 NCName ncName = new NCName(nodeTemplate.getId() + "_"
                         + propertyElement.getChildNodes().item(i).getLocalName());
                 final String propVarName = ncName.toString();
-
                 // TODO that "prop_" is a huge hack cause official only the
                 // buildplanhandler knows about the "prop_" piece
                 map.addPropertyMapping(nodeTemplate.getId(), propName, "prop_" + propVarName);

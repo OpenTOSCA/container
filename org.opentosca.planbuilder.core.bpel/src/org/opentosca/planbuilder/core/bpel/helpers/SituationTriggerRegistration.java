@@ -15,6 +15,7 @@ import javax.xml.xpath.XPathFactory;
 import org.opentosca.planbuilder.core.bpel.fragments.BPELProcessFragments;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.ImportType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.tosca.AbstractServiceTemplate;
 import org.w3c.dom.Element;
@@ -377,7 +378,7 @@ public class SituationTriggerRegistration {
     private void appendAssignLiteralVariable(final BPELPlan plan, final String xmlLiteral, final String varName,
                                              final Element elementToAppendBefore) throws IOException, SAXException {
 
-        final QName anyDecl = new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd");
+        final QName anyDecl = new QName(ImportType.XSD.toString(), "anyType", ImportType.XSD.getName());
         this.handler.importNamespace(anyDecl, plan);
 
 

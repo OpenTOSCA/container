@@ -15,11 +15,11 @@ import org.opentosca.planbuilder.core.bpel.handlers.BPELPlanHandler;
 import org.opentosca.planbuilder.core.bpel.handlers.BPELScopeHandler;
 import org.opentosca.planbuilder.core.bpel.helpers.PropertyVariableInitializer.PropertyMap;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.ImportType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.VariableType;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractRelationshipTemplate;
-import org.opentosca.planbuilder.model.utils.ModelUtils;
 import org.opentosca.planbuilder.plugins.context.Variable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -99,8 +99,8 @@ public class NodeRelationInstanceVariablesHandler {
     public boolean addInstanceFindLogic(final BPELScopeActivity templatePlan, final String serviceTemplateUrlVarName,
                                         final String instanceDataUrlVarName, final String query) {
         // add XML Schema Namespace for the logic
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
@@ -155,8 +155,8 @@ public class NodeRelationInstanceVariablesHandler {
     }
 
     public boolean addInstanceIDVarToTemplatePlan(final BPELScopeActivity templatePlan) {
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
 
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
 
@@ -186,8 +186,8 @@ public class NodeRelationInstanceVariablesHandler {
      * @return true iff adding a NodeInstanceID Var was successful
      */
     public boolean addInstanceURLVarToTemplatePlan(final BPELScopeActivity templatePlan) {
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
 
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
 
@@ -289,8 +289,8 @@ public class NodeRelationInstanceVariablesHandler {
 
         final AbstractNodeTemplate nodeTemplate = templatePlan.getNodeTemplate();
         // add XMLSchema Namespace for the logic
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
         this.bpelProcessHandler.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, templatePlan.getBuildPlan());
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
@@ -356,8 +356,8 @@ public class NodeRelationInstanceVariablesHandler {
             return false;
         }
 
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
 
         // create Response Variable for interaction
         final String instanceDataAPIResponseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();
@@ -416,8 +416,8 @@ public class NodeRelationInstanceVariablesHandler {
     public String appendCountInstancesLogic(final BPELPlanContext context, final AbstractNodeTemplate nodeTemplate,
                                             final String query) {
 
-        final String xsdPrefix = "xsd" + System.currentTimeMillis();
-        final String xsdNamespace = "http://www.w3.org/2001/XMLSchema";
+        final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+        final String xsdNamespace = ImportType.XSD.toString();
 
         // create Response Variable for interaction
         final String responseVarName = "instanceDataAPIResponseVariable" + System.currentTimeMillis();

@@ -136,8 +136,8 @@ public class BPELBuildProcessBuilder extends AbstractBuildPlanBuilder {
                 && serviceTemplate.getId().equals(serviceTemplateId.getLocalPart())) {
 
             	NCName ncName = new NCName(serviceTemplate.getId() + "_buildPlan");
-            	
                 final String processName = ncName.toString();
+                
                 final String processNamespace = serviceTemplate.getTargetNamespace() + "_buildPlan";
 
                 final AbstractPlan buildPlan =

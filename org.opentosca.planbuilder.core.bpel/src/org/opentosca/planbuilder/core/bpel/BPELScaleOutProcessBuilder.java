@@ -306,8 +306,8 @@ public class BPELScaleOutProcessBuilder extends AbstractScaleOutPlanBuilder {
         for (final ScalingPlanDefinition scalingPlanDefinition : scalingPlanDefinitions) {
 
         	NCName ncName = new NCName(serviceTemplate.getId() + "_scalingPlan_" + scalingPlanDefinition.name);
-        	
             final String processName = ncName.toString();
+            
             final String processNamespace = serviceTemplate.getTargetNamespace() + "_scalingPlan";
 
             final AbstractPlan abstractScaleOutPlan = generateSOG(new QName(processNamespace, processName).toString(),
