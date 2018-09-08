@@ -69,7 +69,7 @@ public class Deploy extends TDeployment {
 	 * @param provide
 	 * @param process
 	 */
-	public void addProvide(TProvide provide, TDeployment.Process process) {
+	public void addProvideToProcess(TProvide provide, TDeployment.Process process) {
 		List<TProvide> provides = process.getProvide();
 		provides.add(provide);
 	}
@@ -78,8 +78,8 @@ public class Deploy extends TDeployment {
 	 * Adds the specified provide to the default deployment process
 	 * @param provide
 	 */
-	public void addProvide(TProvide provide) {
-		addProvide(provide, this.getDeploymentProcess());
+	public void addProvideToProcess(TProvide provide) {
+		addProvideToProcess(provide, this.getDeploymentProcess());
 	}
 	
 	/**

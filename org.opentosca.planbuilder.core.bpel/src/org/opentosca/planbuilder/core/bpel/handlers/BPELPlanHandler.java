@@ -457,7 +457,7 @@ public class BPELPlanHandler {
         TService service = deployment.createService(serviceName, portName);
         final TProvide provide = deployment.createProvide(service, partnerLinkName);
         
-        deployment.addProvide(provide);
+        deployment.addProvideToProcess(provide);
         
         BPELPlanHandler.LOG.debug("Adding provide was successful");
         return true;
@@ -775,7 +775,7 @@ public class BPELPlanHandler {
         
         final TProvide provide = deployment.createProvide(provideService, "client");
         
-        deployment.addProvide(provide);
+        deployment.addProvideToProcess(provide);
         
         return buildPlan;
     }
