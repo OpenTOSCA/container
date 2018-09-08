@@ -133,7 +133,7 @@ public class Deploy extends TDeployment {
 	}
 	
 	/**
-	 * Creates a new service with the specifed QName and port
+	 * Creates a new service with the specified QName and port
 	 * @param name
 	 * @param port
 	 * @return
