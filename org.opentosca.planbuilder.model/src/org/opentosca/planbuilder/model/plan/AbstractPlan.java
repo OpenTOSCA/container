@@ -17,10 +17,10 @@ public abstract class AbstractPlan {
 
     // general categories
     public enum PlanType {
-        BUILD("build", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan"),
+        BUILD("build", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"),
         // TODO is this url correct??!
-        MANAGE("manage", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan"),
-        TERMINATE("terminate", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan");
+        MANAGE("manage", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/ManagementPlan"),
+        TERMINATE("terminate", "http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
 
     	private String name;
     	private String url;
