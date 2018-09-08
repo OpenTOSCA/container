@@ -293,8 +293,7 @@ public class BPELPlanHandler {
         // set invoke
         final TInvoke invoke = deployment.createInvoke(service, partnerLinkName);
         
-        List<TInvoke> invokes = deployment.getDeploymentProcess().getInvoke();
-        invokes.add(invoke);
+        deployment.addInvokeToProcess(invoke);
 
         BPELPlanHandler.LOG.debug("Adding invoke was successful");
         return true;
@@ -458,8 +457,7 @@ public class BPELPlanHandler {
         TService service = deployment.createService(serviceName, portName);
         final TProvide provide = deployment.createProvide(service, partnerLinkName);
         
-        List<TProvide> provides = process.getProvide();
-        provides.add(provide);
+        deployment.addProvide(provide);
         
         BPELPlanHandler.LOG.debug("Adding provide was successful");
         return true;
@@ -765,23 +763,19 @@ public class BPELPlanHandler {
         final TProcessEvents events = process.getProcessEvents();
         events.setGenerate("all");
         
-        final List<TInvoke> invokes = process.getInvoke();
-        
         final QName callbackServiceQName = new QName(processNamespace, processName + "ServiceCallback");
         final TService callbackService = deployment.createService(callbackServiceQName, processName + "PortCallbackPort");
         
         final TInvoke callbackInvoke = deployment.createInvoke(callbackService, "client");
 
-        invokes.add(callbackInvoke);
+        deployment.addInvokeToProcess(callbackInvoke);
         
         QName provideServiceQName = new QName(processNamespace, processName + "Service");
         final TService provideService = deployment.createService(provideServiceQName, processName + "Port");
         
-        
-        final List<TProvide> provides = process.getProvide();
         final TProvide provide = deployment.createProvide(provideService, "client");
         
-        provides.add(provide);
+        deployment.addProvide(provide);
         
         return buildPlan;
     }

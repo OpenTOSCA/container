@@ -61,6 +61,33 @@ public class Deploy extends TDeployment {
 		
 	}
 	
+	// Things would have been so much easier if someone had connected provide and invoke in a superclass :(
+	// They share so much similarity in some methods.
+	
+	/**
+	 * Adds the specified provide to the specified process
+	 * @param provide
+	 * @param process
+	 */
+	public void addProvide(TProvide provide, TDeployment.Process process) {
+		List<TProvide> provides = process.getProvide();
+		provides.add(provide);
+	}
+	
+	/**
+	 * Adds the specified provide to the default deployment process
+	 * @param provide
+	 */
+	public void addProvide(TProvide provide) {
+		addProvide(provide, this.getDeploymentProcess());
+	}
+	
+	/**
+	 * Creates a provide with the specified service and partnerLink
+	 * @param service
+	 * @param partnerLink
+	 * @return
+	 */
 	public TProvide createProvide(TService service, String partnerLink) {
 		TProvide provide = factory.createTProvide();
 		
@@ -71,6 +98,30 @@ public class Deploy extends TDeployment {
 		
 	}
 	
+	/**
+	 * Adds the specified invoke to the specified process
+	 * @param invoke
+	 * @param process
+	 */
+	public void addInvokeToProcess(TInvoke invoke, TDeployment.Process process) {
+		List<TInvoke> invokes = process.getInvoke();
+		invokes.add(invoke);
+	}
+	
+	/**
+	 * Adds the specified invoke to the default deployment process
+	 * @param invoke
+	 */
+	public void addInvokeToProcess(TInvoke invoke) {
+		addInvokeToProcess(invoke, this.getDeploymentProcess());
+	}
+	
+	/**
+	 * Creates an invoke with the specified service and partnerLink
+	 * @param service
+	 * @param partnerLink
+	 * @return
+	 */
 	public TInvoke createInvoke(TService service, String partnerLink) {
 		TInvoke invoke = factory.createTInvoke();
 		
@@ -81,6 +132,12 @@ public class Deploy extends TDeployment {
 		return invoke;
 	}
 	
+	/**
+	 * Creates a new service with the specifed QName and port
+	 * @param name
+	 * @param port
+	 * @return
+	 */
 	public TService createService(QName name, String port) {
 		TService service = factory.createTService();
 		
@@ -90,6 +147,10 @@ public class Deploy extends TDeployment {
 		return service;
 	}
 	
+	/**
+	 * Returns the default deployment process
+	 * @return
+	 */
 	public TDeployment.Process getDeploymentProcess() {
 		return this.deploymentProcess;
 	}
