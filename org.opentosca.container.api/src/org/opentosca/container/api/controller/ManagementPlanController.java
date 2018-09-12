@@ -18,6 +18,8 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceEventDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
+import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -50,7 +52,7 @@ public class ManagementPlanController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get management plans", response = PlanDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get management plans", response = PlanListDTO.class)
     public Response getManagementPlans(@Context final UriInfo uriInfo) {
         return this.planService.getPlans(uriInfo, this.csarId, this.serviceTemplate, this.planTypes);
     }
@@ -67,8 +69,7 @@ public class ManagementPlanController {
     @GET
     @Path("/{plan}/instances")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get instances of a management plan", response = PlanInstanceListDTO.class)
     public Response getManagementPlanInstances(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                                @Context final UriInfo uriInfo) {
         return this.planService.getPlanInstances(plan, uriInfo, this.csarId, this.serviceTemplate,

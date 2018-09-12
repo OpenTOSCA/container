@@ -15,10 +15,12 @@ import com.google.common.collect.Lists;
 
 @XmlRootElement(name = "PlanInstnaceEventResources")
 public class PlanInstanceEventListDTO extends ResourceSupport {
+
     @JsonProperty
     @XmlElement(name = "PlanInstnaceEvent")
     @XmlElementWrapper(name = "PlanInstnaceEvents")
     private final List<PlanInstanceEventDTO> planInstanceEvents = Lists.newArrayList();
+
 
     public PlanInstanceEventListDTO() {
 
@@ -26,6 +28,10 @@ public class PlanInstanceEventListDTO extends ResourceSupport {
 
     public PlanInstanceEventListDTO(final Collection<PlanInstanceEventDTO> events) {
         this.planInstanceEvents.addAll(events);
+    }
+
+    public List<PlanInstanceEventDTO> getPlanInstanceEvents() {
+        return this.planInstanceEvents;
     }
 
     public void add(final PlanInstanceEventDTO... planInstanceEvents) {

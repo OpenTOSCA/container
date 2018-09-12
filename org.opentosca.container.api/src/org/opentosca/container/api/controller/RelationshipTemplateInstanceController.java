@@ -63,8 +63,8 @@ public class RelationshipTemplateInstanceController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all relationship template instances", response = RelationshipTemplateInstanceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get all relationship template instances",
+                  response = RelationshipTemplateInstanceListDTO.class)
     public Response getRelationshipTemplateInstances(@QueryParam(value = "target") final Long targetNodeInstanceId) {
         final QName relationshipTemplateQName =
             new QName(QName.valueOf(this.servicetemplate).getNamespaceURI(), this.relationshiptemplate);

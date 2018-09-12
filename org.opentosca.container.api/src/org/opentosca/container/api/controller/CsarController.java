@@ -67,7 +67,7 @@ public class CsarController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all CSARs", response = CsarDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all CSARs", response = CsarListDTO.class)
     public Response getCsars() {
 
         final CsarListDTO list = new CsarListDTO();

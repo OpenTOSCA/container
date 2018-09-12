@@ -48,8 +48,7 @@ public class NodeTemplateController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all node templates of a service template", response = NodeTemplateDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get all node templates of a service template", response = NodeTemplateListDTO.class)
     public Response getNodeTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                      @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 

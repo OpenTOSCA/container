@@ -58,7 +58,7 @@ public class ServiceTemplateController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all service templates", response = ServiceTemplateDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get all service templates", response = ServiceTemplateListDTO.class)
     public Response getServiceTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csar) {
 
         final ServiceTemplateListDTO list = new ServiceTemplateListDTO();

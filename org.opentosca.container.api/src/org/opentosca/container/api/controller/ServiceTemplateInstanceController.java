@@ -85,8 +85,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceListDTO.class)
     public Response getServiceTemplateInstances() {
         final Collection<ServiceTemplateInstance> serviceInstances =
             this.instanceService.getServiceTemplateInstances(this.serviceTemplateId);

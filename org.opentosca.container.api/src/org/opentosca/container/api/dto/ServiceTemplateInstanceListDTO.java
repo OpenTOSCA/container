@@ -19,6 +19,10 @@ public class ServiceTemplateInstanceListDTO extends ResourceSupport {
     private final List<ServiceTemplateInstanceDTO> serviceTemplateInstances = Lists.newArrayList();
 
 
+    public List<ServiceTemplateInstanceDTO> getServiceTemplateInstances() {
+        return this.serviceTemplateInstances;
+    }
+
     public void add(final ServiceTemplateInstanceDTO... serviceTemplateInstances) {
         this.serviceTemplateInstances.addAll(Arrays.asList(serviceTemplateInstances));
     }

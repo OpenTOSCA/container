@@ -19,6 +19,10 @@ public class CsarListDTO extends ResourceSupport {
     private final List<CsarDTO> csars = Lists.newArrayList();
 
 
+    public List<CsarDTO> getCsars() {
+        return this.csars;
+    }
+
     public void add(final CsarDTO... csars) {
         this.csars.addAll(Arrays.asList(csars));
     }

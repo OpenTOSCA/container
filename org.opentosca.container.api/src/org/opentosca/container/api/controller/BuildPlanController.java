@@ -18,6 +18,8 @@ import javax.xml.namespace.QName;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceDTO;
 import org.opentosca.container.api.dto.plan.PlanInstanceEventDTO;
+import org.opentosca.container.api.dto.plan.PlanInstanceListDTO;
+import org.opentosca.container.api.dto.plan.PlanListDTO;
 import org.opentosca.container.api.dto.request.CreatePlanInstanceLogEntryRequest;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.core.model.csar.id.CSARID;
@@ -47,7 +49,7 @@ public class BuildPlanController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get build plans of service template", response = PlanDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get build plans of service template", response = PlanListDTO.class)
     public Response getBuildPlans(@Context final UriInfo uriInfo) {
         return this.planService.getPlans(uriInfo, this.csarId, this.serviceTemplate, this.PLAN_TYPE);
     }
@@ -64,7 +66,7 @@ public class BuildPlanController {
     @GET
     @Path("/{plan}/instances")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get build plan instances", response = PlanInstanceDTO.class, responseContainer = "List")
+    @ApiOperation(value = "Get build plan instances", response = PlanInstanceListDTO.class)
     public Response getBuildPlanInstances(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                           @Context final UriInfo uriInfo) {
         return this.planService.getPlanInstances(plan, uriInfo, this.csarId, this.serviceTemplate, null,

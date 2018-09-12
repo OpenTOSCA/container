@@ -22,6 +22,10 @@ public class PlanInstanceListDTO extends ResourceSupport {
     private final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
 
 
+    public List<PlanInstanceDTO> getPlanInstances() {
+        return this.planInstances;
+    }
+
     public void add(final PlanInstanceDTO... planInstances) {
         this.planInstances.addAll(Arrays.asList(planInstances));
     }

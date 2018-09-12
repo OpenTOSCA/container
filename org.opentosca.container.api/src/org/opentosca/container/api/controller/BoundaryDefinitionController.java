@@ -92,8 +92,7 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/properties")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class)
     public Response getBoundaryDefinitionProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
@@ -125,8 +124,7 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/interfaces")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
     public Response getBoundaryDefinitionInterfaces(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                                     @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 

@@ -19,6 +19,10 @@ public class NodeTemplateInstanceListDTO extends ResourceSupport {
     private final List<NodeTemplateInstanceDTO> nodeTemplateInstances = Lists.newArrayList();
 
 
+    public List<NodeTemplateInstanceDTO> getNodeTemplateInstances() {
+        return this.nodeTemplateInstances;
+    }
+
     public void add(final NodeTemplateInstanceDTO... nodeTemplateInstances) {
         this.nodeTemplateInstances.addAll(Arrays.asList(nodeTemplateInstances));
     }

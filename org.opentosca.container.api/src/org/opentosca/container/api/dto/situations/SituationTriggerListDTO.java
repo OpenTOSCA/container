@@ -21,6 +21,10 @@ public class SituationTriggerListDTO extends ResourceSupport {
     private final List<SituationTriggerDTO> situationTriggers = Lists.newArrayList();
 
 
+    public List<SituationTriggerDTO> getSituationTriggers() {
+        return this.situationTriggers;
+    }
+
     public void add(final SituationTriggerDTO... situations) {
         this.situationTriggers.addAll(Arrays.asList(situations));
     }

@@ -19,6 +19,10 @@ public class RelationshipTemplateInstanceListDTO extends ResourceSupport {
     private final List<RelationshipTemplateInstanceDTO> relationshipTemplateInstances = Lists.newArrayList();
 
 
+    public List<RelationshipTemplateInstanceDTO> getRelationshipTemplateInstances() {
+        return this.relationshipTemplateInstances;
+    }
+
     public void add(final RelationshipTemplateInstanceDTO... relationshipTemplateInstances) {
         this.relationshipTemplateInstances.addAll(Arrays.asList(relationshipTemplateInstances));
     }

@@ -50,7 +50,7 @@ public class RelationshipTemplateController {
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Get all relationship templates of a service template",
-                  response = RelationshipTemplateDTO.class, responseContainer = "List")
+                  response = RelationshipTemplateListDTO.class)
     public Response getRelationshipTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                              @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 

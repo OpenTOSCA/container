@@ -65,8 +65,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
     public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
                                              @QueryParam(value = "source") final List<Long> relationIds) {
         final QName nodeTemplateQName =
