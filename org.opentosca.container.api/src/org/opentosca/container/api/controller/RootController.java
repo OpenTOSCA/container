@@ -24,21 +24,19 @@ import javax.ws.rs.core.UriInfo;
 
 import org.opentosca.container.api.dto.ResourceSupport;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
-@Path("/")
-@Api("/")
-@SwaggerDefinition(info = @Info(title = "Swagger API for OpenTOSCA Container",
-                                description = "This API provides access to the REST-based opearations that allow to query and manipulate various entities managed by the OpenTOSCA container, as well as to execute certain operations on it.",
-                                version = "2.0", termsOfService = "",
-                                contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org"),
+@SwaggerDefinition(info = @Info(title = "Public API for OpenTOSCA Container",
+                                description = "API access to query entities and manipulate them using plans",
+                                version = "2.1.0", termsOfService = "",
+                                contact = @Contact(name = "OpenTOSCA", url = "http://opentosca.org",
+                                                   email = "opentosca@iaas.uni-stuttgart.de"),
                                 license = @License(name = "Apache License, Version 2.0",
                                                    url = "https://www.apache.org/licenses/LICENSE-2.0")))
+@Path("/")
 public class RootController {
 
     @Context
@@ -47,7 +45,6 @@ public class RootController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets the root resource", response = ResourceSupport.class, responseContainer = "List")
     public Response getRoot() {
         final ResourceSupport links = new ResourceSupport();
         links.add(Link.fromResource(RootController.class).rel("self").baseUri(this.uriInfo.getBaseUri()).build());

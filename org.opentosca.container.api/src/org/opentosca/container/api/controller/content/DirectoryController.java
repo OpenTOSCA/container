@@ -19,11 +19,6 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-
-
-@Api
 public class DirectoryController {
 
     private static Logger logger = LoggerFactory.getLogger(DirectoryController.class);
@@ -40,8 +35,6 @@ public class DirectoryController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets links to all files and directories contained in this CSAR",
-                  response = ResourceSupport.class)
     public Response getLinks(@Context final UriInfo uriInfo) {
         final ResourceSupport dto = new ResourceSupport();
         for (final AbstractDirectory directory : this.directory.getDirectories()) {
@@ -57,7 +50,6 @@ public class DirectoryController {
 
     @Path("/{path}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets the sub-file or sub-directory specified")
     public Object getPath(@PathParam("path") String path, @Context final UriInfo uriInfo) {
         path = UriUtil.encodePathSegment(path);
         logger.debug("Serve path '{}' of directory '{}'", path, this.directory.getPath());

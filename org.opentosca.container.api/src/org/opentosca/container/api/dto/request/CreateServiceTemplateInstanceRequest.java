@@ -22,5 +22,4 @@ public class CreateServiceTemplateInstanceRequest {
     public void setCorrelationId(final String correlationId) {
         this.correlationId = correlationId;
     }
-
 }

@@ -19,9 +19,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "Resources")
 public class ResourceSupport {
 
+    @ApiModelProperty(hidden = true)
     @JsonSerialize(using = LinksSerializer.class)
     private final List<Link> links = new ArrayList<>();
 
