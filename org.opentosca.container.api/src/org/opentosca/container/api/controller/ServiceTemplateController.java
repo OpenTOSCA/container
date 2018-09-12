@@ -77,7 +77,7 @@ public class ServiceTemplateController {
     @GET
     @Path("/{servicetemplate}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a service templates", response = ServiceTemplateDTO.class)
+    @ApiOperation(value = "Get a service template", response = ServiceTemplateDTO.class)
     public Response getServiceTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                        @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
 

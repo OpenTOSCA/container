@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "RelationshipTemplateInstanceResources")
 public class RelationshipTemplateInstanceListDTO extends ResourceSupport {
 
@@ -19,6 +21,7 @@ public class RelationshipTemplateInstanceListDTO extends ResourceSupport {
     private final List<RelationshipTemplateInstanceDTO> relationshipTemplateInstances = Lists.newArrayList();
 
 
+    @ApiModelProperty(name = "relationship_template_instances")
     public List<RelationshipTemplateInstanceDTO> getRelationshipTemplateInstances() {
         return this.relationshipTemplateInstances;
     }

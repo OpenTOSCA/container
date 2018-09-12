@@ -13,6 +13,8 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "PlanInstnaceEventResources")
 public class PlanInstanceEventListDTO extends ResourceSupport {
 
@@ -30,6 +32,7 @@ public class PlanInstanceEventListDTO extends ResourceSupport {
         this.planInstanceEvents.addAll(events);
     }
 
+    @ApiModelProperty(name = "plan_instance_events")
     public List<PlanInstanceEventDTO> getPlanInstanceEvents() {
         return this.planInstanceEvents;
     }

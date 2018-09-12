@@ -14,6 +14,8 @@ import org.eclipse.winery.model.selfservice.Application;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "Csar")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CsarDTO extends ResourceSupport {
@@ -56,6 +58,7 @@ public class CsarDTO extends ResourceSupport {
         this.name = name;
     }
 
+    @ApiModelProperty(name = "display_name")
     @XmlElement(name = "DisplayName")
     public String getDisplayName() {
         return this.displayName;
@@ -83,6 +86,7 @@ public class CsarDTO extends ResourceSupport {
         this.description = description;
     }
 
+    @ApiModelProperty(name = "icon_url")
     @XmlElement(name = "IconUrl")
     public String getIconUrl() {
         return this.iconUrl;
@@ -92,6 +96,7 @@ public class CsarDTO extends ResourceSupport {
         this.iconUrl = iconUrl;
     }
 
+    @ApiModelProperty(name = "image_url")
     @XmlElement(name = "ImageUrl")
     public String getImageUrl() {
         return this.imageUrl;
