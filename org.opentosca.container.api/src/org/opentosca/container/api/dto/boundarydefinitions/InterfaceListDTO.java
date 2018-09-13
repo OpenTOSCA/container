@@ -21,6 +21,10 @@ public class InterfaceListDTO extends ResourceSupport {
     private final List<InterfaceDTO> interfaces = new ArrayList<>();
 
 
+    public List<InterfaceDTO> getInterfaces() {
+        return this.interfaces;
+    }
+
     public void add(final InterfaceDTO... interfaces) {
         this.interfaces.addAll(Arrays.asList(interfaces));
     }

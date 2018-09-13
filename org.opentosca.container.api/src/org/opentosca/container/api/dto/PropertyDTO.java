@@ -10,12 +10,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlTransient
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PropertyDTO {
+
     @XmlElement(name = "name")
     private String name;
     @XmlElement(name = "Value")
     private String value;
     @XmlElement(name = "Type")
     private String type;
+
 
     public String getName() {
         return this.name;

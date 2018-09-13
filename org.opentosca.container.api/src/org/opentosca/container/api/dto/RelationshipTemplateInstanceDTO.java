@@ -13,11 +13,13 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-// TODO: Add Properties
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "RelationshipTemplateInstance")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RelationshipTemplateInstanceDTO extends ResourceSupport {
+
     @XmlAttribute(name = "id")
     private Long id;
 
@@ -53,7 +55,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.id = id;
     }
 
-
+    @ApiModelProperty(name = "created_at")
     public Date getCreatedAt() {
         return this.createdAt;
     }
@@ -62,7 +64,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.createdAt = createdAt;
     }
 
-
+    @ApiModelProperty(name = "csar_id")
     public String getCsarId() {
         return this.csarId;
     }
@@ -71,7 +73,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.csarId = csarId;
     }
 
-
+    @ApiModelProperty(name = "service_template_id")
     public String getServiceTemplateId() {
         return this.serviceTemplateId;
     }
@@ -88,6 +90,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.state = state;
     }
 
+    @ApiModelProperty(name = "relationship_template_id")
     public String getRelationshipTemplateId() {
         return this.relationshipTemplateId;
     }
@@ -96,6 +99,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.relationshipTemplateId = relationshipTemplateId;
     }
 
+    @ApiModelProperty(name = "relationship_template_type")
     public String getRelationshipTemplateType() {
         return this.relationshipTemplateType;
     }
@@ -104,6 +108,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.relationshipTemplateType = relationshipTemplateType;
     }
 
+    @ApiModelProperty(name = "source_node_template_instance_id")
     public Long getSourceNodeTemplateInstanceId() {
         return this.sourceNodeTemplateInstanceId;
     }
@@ -112,6 +117,7 @@ public class RelationshipTemplateInstanceDTO extends ResourceSupport {
         this.sourceNodeTemplateInstanceId = sourceNodeTemplateInstanceId;
     }
 
+    @ApiModelProperty(name = "target_node_template_instance_id")
     public Long getTargetNodeTemplateInstanceId() {
         return this.targetNodeTemplateInstanceId;
     }

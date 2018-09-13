@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dk.nykredit.jackson.dataformat.hal.annotation.EmbeddedResource;
 import dk.nykredit.jackson.dataformat.hal.annotation.Resource;
+import io.swagger.annotations.ApiModelProperty;
 
 @Resource
 @XmlRootElement(name = "Operation")
@@ -43,6 +44,7 @@ public class OperationDTO extends ResourceSupport {
         this.name = name;
     }
 
+    @ApiModelProperty(name = "node_operation")
     public TExportedOperation.NodeOperation getNodeOperation() {
         return this.nodeOperation;
     }
@@ -51,6 +53,7 @@ public class OperationDTO extends ResourceSupport {
         this.nodeOperation = nodeOperation;
     }
 
+    @ApiModelProperty(name = "relationship_operation")
     public TExportedOperation.RelationshipOperation getRelationshipOperation() {
         return this.relationshipOperation;
     }

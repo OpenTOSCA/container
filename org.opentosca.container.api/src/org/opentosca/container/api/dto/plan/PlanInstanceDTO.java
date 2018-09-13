@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "PlanInstance")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -53,6 +55,7 @@ public class PlanInstanceDTO extends ResourceSupport {
     private Collection<PlanInstanceEventDTO> logs;
 
 
+    @ApiModelProperty(name = "correlation_id")
     public String getCorrelationId() {
         return this.correlationId;
     }

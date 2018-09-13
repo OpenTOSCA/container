@@ -13,6 +13,8 @@ import org.opentosca.container.api.dto.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "PlanInstanceResources")
 public class PlanInstanceListDTO extends ResourceSupport {
 
@@ -21,6 +23,11 @@ public class PlanInstanceListDTO extends ResourceSupport {
     @XmlElementWrapper(name = "PlanInstances")
     private final List<PlanInstanceDTO> planInstances = Lists.newArrayList();
 
+
+    @ApiModelProperty(name = "plan_instances")
+    public List<PlanInstanceDTO> getPlanInstances() {
+        return this.planInstances;
+    }
 
     public void add(final PlanInstanceDTO... planInstances) {
         this.planInstances.addAll(Arrays.asList(planInstances));

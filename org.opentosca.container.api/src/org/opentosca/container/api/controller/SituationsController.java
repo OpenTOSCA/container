@@ -29,8 +29,6 @@ import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.Situation;
 import org.opentosca.container.core.next.model.SituationTrigger;
 import org.opentosca.container.core.next.model.SituationTriggerProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -40,8 +38,6 @@ public class SituationsController {
 
     @Context
     UriInfo uriInfo;
-
-    private static Logger logger = LoggerFactory.getLogger(SituationsController.class);
 
     private InstanceService instanceService;
 

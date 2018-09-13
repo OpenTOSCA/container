@@ -56,12 +56,10 @@ public class ServiceTemplateController {
     private DeploymentTestService deploymentTestService;
 
 
-
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets all service templates of a CSAR", response = ServiceTemplateDTO.class,
-                  responseContainer = "List")
-    public Response getServiceTemplates(@ApiParam("CSAR id") @PathParam("csar") final String csar) {
+    @ApiOperation(value = "Get all service templates", response = ServiceTemplateListDTO.class)
+    public Response getServiceTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csar) {
 
         final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
 
@@ -79,9 +77,8 @@ public class ServiceTemplateController {
     @GET
     @Path("/{servicetemplate}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets a specific service templates identified by its qualified name",
-                  response = ServiceTemplateDTO.class)
-    public Response getServiceTemplate(@ApiParam("CSAR id") @PathParam("csar") final String csar,
+    @ApiOperation(value = "Get a service template", response = ServiceTemplateDTO.class)
+    public Response getServiceTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                        @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
 
         this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
@@ -101,61 +98,41 @@ public class ServiceTemplateController {
     }
 
     @Path("/{servicetemplate}/buildplans")
-    public BuildPlanController getBuildPlans(@ApiParam("CSAR id") @PathParam("csar") final String csar,
+    public BuildPlanController getBuildPlans(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
                                              @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
-
-        final CSARID csarId = this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws
-                                                                                                                  // exception
-                                                                                                                  // if
-                                                                                                                  // not!
-
+        final CSARID csarId = this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
         return new BuildPlanController(csarId, QName.valueOf(serviceTemplateId), this.planService);
     }
 
-    // We hide the parameters from Swagger because otherwise they will be captured
-    // twice (here and in the sub-resource)
     @Path("/{servicetemplate}/nodetemplates")
     public NodeTemplateController getNodeTemplates(@ApiParam(hidden = true) @PathParam("csar") final String csar,
                                                    @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-        this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
-
+        this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
         final NodeTemplateController child = new NodeTemplateController(this.nodeTemplateService, this.instanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
-
         return child;
     }
 
-    // We hide the parameters from Swagger because otherwise they will be captured
-    // twice (here and in the sub-resource)
     @Path("/{servicetemplate}/relationshiptemplates")
     public RelationshipTemplateController getRelationshipTemplates(@ApiParam(hidden = true) @PathParam("csar") final String csar,
                                                                    @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-        this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
-
+        this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
         final RelationshipTemplateController child =
             new RelationshipTemplateController(this.relationshipTemplateService, this.instanceService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
-
         return child;
     }
 
-    // We hide the parameters from Swagger because otherwise they will be captured
-    // twice (here and in the sub-resource)
     @Path("/{servicetemplate}/instances")
     public ServiceTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csar,
                                                           @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
-        this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId); // throws exception if not!
-
+        this.serviceTemplateService.checkServiceTemplateExistence(csar, serviceTemplateId);
         final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(this.instanceService,
             this.planService, this.csarService, this.deploymentTestService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
-
         return child;
     }
 
-
-    /* Service Injection */
-    /*********************/
     public void setPlanService(final PlanService planService) {
         this.planService = planService;
     }

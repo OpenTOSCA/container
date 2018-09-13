@@ -14,6 +14,8 @@ import org.opentosca.container.core.tosca.model.TPropertyMapping;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "Properties")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,6 +34,7 @@ public class PropertiesDTO extends ResourceSupport {
 
     }
 
+    @ApiModelProperty(name = "xml_fragment")
     public String getXmlFragment() {
         return this.xmlFragment;
     }
@@ -40,6 +43,7 @@ public class PropertiesDTO extends ResourceSupport {
         this.xmlFragment = xmlFragment;
     }
 
+    @ApiModelProperty(name = "property_mappings")
     public List<TPropertyMapping> getPropertyMappings() {
         return this.propertyMappings;
     }

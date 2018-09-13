@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanInstanceEventDTO {
+
     @XmlElement(name = "Timestamp")
     private Date timestamp;
 
