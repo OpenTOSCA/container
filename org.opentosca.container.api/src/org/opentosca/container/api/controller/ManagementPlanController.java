@@ -80,7 +80,7 @@ public class ManagementPlanController {
     @Path("/{plan}/instances")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Invokes a management plan")
+    @ApiOperation(value = "Invokes a management plan", response = String.class)
     public Response invokeManagementPlan(@ApiParam("ID of management plan") @PathParam("plan") final String plan,
                                          @Context final UriInfo uriInfo,
                                          @ApiParam(required = true,

@@ -77,7 +77,7 @@ public class BuildPlanController {
     @Path("/{plan}/instances")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Invokes a build plan")
+    @ApiOperation(value = "Invokes a build plan", response = String.class)
     public Response invokeBuildPlan(@ApiParam("ID of build plan") @PathParam("plan") final String plan,
                                     @Context final UriInfo uriInfo,
                                     @ApiParam(required = true,
