@@ -20,9 +20,12 @@ public class Interfaces {
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERENGINE_REMOVECONTAINER = "removeContainer";
 
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER = "ContainerManagementInterface";
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Backup = "http://opentosca.org/interfaces/backup";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_RUNSCRIPT = "runScript";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_TRANSFERFILE = "transferFile";
-
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Freeze = "freeze";
+    public static final String OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze = "defreeze";
+    
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_PACKAGENAMES = "PackageNames";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_SCRIPT = "Script";
     public static final String OPENTOSCA_DECLARATIVE_INTERFACE_OPERATINGSYSTEM_PARAMETER_TARGETABSOLUTPATH =
