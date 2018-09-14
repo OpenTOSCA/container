@@ -38,7 +38,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
     @XmlElement(name = "CsarId")
     private String csarId;
 
-
     @XmlElement(name = "ServiceTemplateInstanceId")
     private Long serviceTemplateInstanceId;
 

@@ -18,7 +18,6 @@ import org.opentosca.container.core.next.model.PlanInstanceOutput;
 import org.opentosca.container.core.next.model.PlanInstanceState;
 import org.opentosca.container.core.next.model.PlanType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 
@@ -29,7 +28,6 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanInstanceDTO extends ResourceSupport {
 
-    @JsonIgnore
     @XmlTransient
     private Long serviceTemplateInstanceId;
 
@@ -60,21 +58,17 @@ public class PlanInstanceDTO extends ResourceSupport {
         return this.correlationId;
     }
 
-
     public void setCorrelationId(final String correlationId) {
         this.correlationId = correlationId;
     }
-
 
     public Collection<PlanInstanceOutputDTO> getOutputs() {
         return this.outputs;
     }
 
-
     public PlanType getType() {
         return this.type;
     }
-
 
     public void setType(final PlanType type) {
         this.type = type;
@@ -83,8 +77,6 @@ public class PlanInstanceDTO extends ResourceSupport {
     public Collection<PlanInstanceInputDTO> getInputs() {
         return this.inputs;
     }
-
-
 
     public void setInputs(final Collection<PlanInstanceInputDTO> inputs) {
         this.inputs = inputs;
@@ -95,8 +87,6 @@ public class PlanInstanceDTO extends ResourceSupport {
         return this.state;
     }
 
-
-
     public void setState(final PlanInstanceState state) {
         this.state = state;
     }
@@ -105,19 +95,15 @@ public class PlanInstanceDTO extends ResourceSupport {
         this.outputs = outputs;
     }
 
-
-
     public Collection<PlanInstanceEventDTO> getLogs() {
         return this.logs;
     }
-
-
 
     public void setLogs(final Collection<PlanInstanceEventDTO> logs) {
         this.logs = logs;
     }
 
-
+    @ApiModelProperty(name = "service_template_instance_id")
     public Long getServiceTemplateInstanceId() {
         return this.serviceTemplateInstanceId;
     }
@@ -158,7 +144,5 @@ public class PlanInstanceDTO extends ResourceSupport {
 
             return dto;
         }
-
     }
-
 }
