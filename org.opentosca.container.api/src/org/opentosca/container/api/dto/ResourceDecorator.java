@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResourceDecorator extends ResourceSupport {
 
@@ -12,6 +14,7 @@ public class ResourceDecorator extends ResourceSupport {
     private Object object;
 
     @JsonProperty("_embedded")
+    @ApiModelProperty(hidden = true)
     private Object embedded;
 
     public Object getObject() {

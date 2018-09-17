@@ -14,7 +14,6 @@ public class PlanInstanceOutputDTO extends PropertyDTO {
         public static PlanInstanceOutputDTO convert(final PlanInstanceOutput object) {
             final PlanInstanceOutputDTO result = new PlanInstanceOutputDTO();
             PropertyDTO.Converter.fillValues(object, result);
-
             return result;
         }
     }

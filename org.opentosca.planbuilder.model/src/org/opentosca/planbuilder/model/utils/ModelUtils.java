@@ -246,6 +246,16 @@ public class ModelUtils {
                 }
             }
         }
+
+        // check outgoing edges of given node
+
+        for (final AbstractRelationshipTemplate outgoingEdge : nodeTemplate.getOutgoingRelations()) {
+            if (isInfrastructureRelationshipType(outgoingEdge.getType())) {
+                infrastructureEdges.add(outgoingEdge);
+            }
+        }
+
+
         ModelUtils.cleanDuplicates(infrastructureEdges);
     }
 

@@ -279,7 +279,7 @@ public class PlanService {
         final String correlationId = invokePlan(csarId, serviceTemplate, serviceTemplateInstanceId, p, parameters);
         final URI location = UriUtil.encode(uriInfo.getAbsolutePathBuilder().path(correlationId).build());
 
-        return Response.created(location).build();
+        return Response.created(location).entity(correlationId).build();
     }
 
     /* Plan Instances */

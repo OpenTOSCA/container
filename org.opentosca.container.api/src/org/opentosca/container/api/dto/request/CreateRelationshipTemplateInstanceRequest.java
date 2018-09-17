@@ -32,6 +32,4 @@ public class CreateRelationshipTemplateInstanceRequest {
     public void setTargetNodeTemplateInstanceId(final Long targetNodeTemplateInstanceId) {
         this.targetNodeTemplateInstanceId = targetNodeTemplateInstanceId;
     }
-
-
 }

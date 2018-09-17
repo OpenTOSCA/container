@@ -8,10 +8,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "NodeTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NodeTemplateDTO extends ResourceSupport {
+
     @XmlAttribute(name = "id")
     private String id;
 
@@ -37,6 +40,7 @@ public class NodeTemplateDTO extends ResourceSupport {
         this.name = name;
     }
 
+    @ApiModelProperty(name = "node_type")
     public String getNodeType() {
         return this.nodeType;
     }
@@ -44,6 +48,4 @@ public class NodeTemplateDTO extends ResourceSupport {
     public void setNodeType(final String nodeType) {
         this.nodeType = nodeType;
     }
-
-
 }

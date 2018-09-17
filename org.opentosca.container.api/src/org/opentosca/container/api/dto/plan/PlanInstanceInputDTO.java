@@ -14,7 +14,6 @@ public class PlanInstanceInputDTO extends PropertyDTO {
         public static PlanInstanceInputDTO convert(final PlanInstanceInput object) {
             final PlanInstanceInputDTO result = new PlanInstanceInputDTO();
             PropertyDTO.Converter.fillValues(object, result);
-
             return result;
         }
     }

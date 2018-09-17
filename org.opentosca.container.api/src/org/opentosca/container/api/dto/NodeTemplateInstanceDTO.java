@@ -13,11 +13,13 @@ import org.opentosca.container.core.next.model.NodeTemplateInstanceState;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-// TODO: Add Properties
+import io.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "NodeTemplateInstance")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NodeTemplateInstanceDTO extends ResourceSupport {
+
     @XmlAttribute(name = "id")
     private Long id;
 
@@ -36,7 +38,6 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
     @XmlElement(name = "CsarId")
     private String csarId;
 
-
     @XmlElement(name = "ServiceTemplateInstanceId")
     private Long serviceTemplateInstanceId;
 
@@ -52,7 +53,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.id = id;
     }
 
-
+    @ApiModelProperty(name = "created_at")
     public Date getCreatedAt() {
         return this.createdAt;
     }
@@ -61,7 +62,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.createdAt = createdAt;
     }
 
-
+    @ApiModelProperty(name = "csar_id")
     public String getCsarId() {
         return this.csarId;
     }
@@ -70,7 +71,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.csarId = csarId;
     }
 
-
+    @ApiModelProperty(name = "service_template_id")
     public String getServiceTemplateId() {
         return this.serviceTemplateId;
     }
@@ -87,6 +88,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.state = state;
     }
 
+    @ApiModelProperty(name = "node_template_id")
     public String getNodeTemplateId() {
         return this.nodeTemplateId;
     }
@@ -95,6 +97,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.nodeTemplateId = nodeTemplateId;
     }
 
+    @ApiModelProperty(name = "node_template_type")
     public String getNodeTemplateType() {
         return this.nodeTemplateType;
     }
@@ -103,6 +106,7 @@ public class NodeTemplateInstanceDTO extends ResourceSupport {
         this.nodeTemplateType = nodeTemplateType;
     }
 
+    @ApiModelProperty(name = "service_template_instance_id")
     public Long getServiceTemplateInstanceId() {
         return this.serviceTemplateInstanceId;
     }

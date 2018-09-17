@@ -42,8 +42,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+@Api
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
-@Api("/")
 public class BoundaryDefinitionController {
 
     private final Logger logger = LoggerFactory.getLogger(CsarController.class);
@@ -62,9 +62,8 @@ public class BoundaryDefinitionController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets boundary definitions for a given service template", response = ResourceSupport.class,
-                  responseContainer = "List")
-    public Response getBoundaryDefinitions(@ApiParam("CSAR id") @PathParam("csar") final String csar,
+    @ApiOperation(hidden = true, value = "")
+    public Response getBoundaryDefinitions(@PathParam("csar") final String csar,
                                            @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
@@ -93,10 +92,9 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/properties")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets properties of a service tempate", response = PropertiesDTO.class,
-                  responseContainer = "List")
-    public Response getProperties(@ApiParam("CSAR id") @PathParam("csar") final String csar,
-                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class)
+    public Response getBoundaryDefinitionProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
+                                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -126,10 +124,9 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/interfaces")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets interfaces of a service tempate", response = InterfaceDTO.class,
-                  responseContainer = "List")
-    public Response getInterfaces(@ApiParam("CSAR id") @PathParam("csar") final String csar,
-                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
+    public Response getBoundaryDefinitionInterfaces(@ApiParam("ID of CSAR") @PathParam("csar") final String csar,
+                                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
@@ -158,11 +155,10 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/interfaces/{name}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets an interface of a service template specified by its name",
-                  response = InterfaceDTO.class)
-    public Response getInterface(@ApiParam("Name of the interface") @PathParam("name") final String name,
-                                 @ApiParam("CSAR id") @PathParam("csar") final String csar,
-                                 @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    @ApiOperation(value = "Get an interface of a service template", response = InterfaceDTO.class)
+    public Response getBoundaryDefinitionInterface(@ApiParam("interface name") @PathParam("name") final String name,
+                                                   @ApiParam("ID of CSAR") @PathParam("csar") final String csar,
+                                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
 
         final CSARContent csarContent = this.csarService.findById(csar);
         if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
