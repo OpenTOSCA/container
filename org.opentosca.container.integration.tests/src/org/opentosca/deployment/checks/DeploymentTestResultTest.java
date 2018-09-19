@@ -1,4 +1,4 @@
-package org.opentosca.deployment.tests;
+package org.opentosca.deployment.checks;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;

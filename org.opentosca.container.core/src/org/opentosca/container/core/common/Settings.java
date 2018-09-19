@@ -26,7 +26,7 @@ public class Settings {
 
     public final static String PERSISTENCE_UNIT_NAME = "OpenTOSCA";
 
-    public final static String OPENTOSCA_DEPLOYMENT_TESTS = System.getProperty("org.opentosca.deployment.tests", "false");
+    public final static String OPENTOSCA_DEPLOYMENT_TESTS = System.getProperty("org.opentosca.deployment.checks", "false");
     
     public final static String CONTAINER_STORAGE_BASEPATH = "org.opentosca.container.storage.basepath";
 

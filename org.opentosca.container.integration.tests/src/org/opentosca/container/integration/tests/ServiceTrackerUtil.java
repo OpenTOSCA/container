@@ -1,6 +1,6 @@
 package org.opentosca.container.integration.tests;
 
-import org.opentosca.deployment.tests.TestExecutorTest;
+import org.opentosca.deployment.checks.TestExecutorTest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;

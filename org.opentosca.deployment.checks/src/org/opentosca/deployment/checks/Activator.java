@@ -22,7 +22,7 @@ import org.osgi.framework.ServiceReference;
 
 public class Activator implements BundleActivator {
 
-    public static final String ID = "org.opentosca.deployment.tests";
+    public static final String ID = "org.opentosca.deployment.checks";
 
     private static DefaultCamelContext camelContext;
 
