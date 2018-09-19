@@ -1,7 +1,7 @@
-package org.opentosca.deployment.tests.camel;
+package org.opentosca.deployment.checks.camel;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.opentosca.deployment.tests.Activator;
+import org.opentosca.deployment.checks.Activator;
 
 public class RouteConfiguration extends RouteBuilder {
 

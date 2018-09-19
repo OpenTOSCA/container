@@ -1,8 +1,8 @@
-package org.opentosca.deployment.tests.test;
+package org.opentosca.deployment.checks.test;
 
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.deployment.tests.TestContext;
+import org.opentosca.deployment.checks.TestContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 

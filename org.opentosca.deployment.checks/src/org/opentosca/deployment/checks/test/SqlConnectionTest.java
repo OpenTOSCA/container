@@ -1,10 +1,10 @@
-package org.opentosca.deployment.tests.test;
+package org.opentosca.deployment.checks.test;
 
 import javax.xml.namespace.QName;
 
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.deployment.tests.TestContext;
+import org.opentosca.deployment.checks.TestContext;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;

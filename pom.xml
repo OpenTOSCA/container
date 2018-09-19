@@ -169,7 +169,7 @@
     <module>org.opentosca.planbuilder.type.plugin.dockercontainer</module>
     <module>org.opentosca.planbuilder.type.plugin.mosquittoconnectsto</module>
     <module>org.opentosca.planbuilder.type.plugin.ubuntuvm</module>
-    <module>org.opentosca.deployment.tests</module>
+    <module>org.opentosca.deployment.checks</module>
   </modules>
 
 </project>

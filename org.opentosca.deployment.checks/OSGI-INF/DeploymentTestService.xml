@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.opentosca.deployment.checks.DeploymentTestService">
+   <implementation class="org.opentosca.deployment.checks.DeploymentTestService"/>
+   <reference bind="setTestExecutor" cardinality="1..1" interface="org.opentosca.deployment.tests.TestExecutor" name="TestExecutor" policy="static"/>
+   <service>
+      <provide interface="org.opentosca.deployment.checks.DeploymentTestService"/>
+   </service>
+</scr:component>

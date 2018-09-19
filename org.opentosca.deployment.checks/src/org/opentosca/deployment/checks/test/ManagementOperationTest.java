@@ -1,4 +1,4 @@
-package org.opentosca.deployment.tests.test;
+package org.opentosca.deployment.checks.test;
 
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -17,9 +17,9 @@ import org.opentosca.bus.management.header.MBHeader;
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
 import org.opentosca.container.core.next.utils.Types;
-import org.opentosca.deployment.tests.Activator;
-import org.opentosca.deployment.tests.TestContext;
-import org.opentosca.deployment.tests.TestUtil;
+import org.opentosca.deployment.checks.Activator;
+import org.opentosca.deployment.checks.TestContext;
+import org.opentosca.deployment.checks.TestUtil;
 import org.opentosca.planbuilder.model.tosca.AbstractInterface;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeType;

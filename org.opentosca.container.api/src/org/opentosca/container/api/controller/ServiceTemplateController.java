@@ -22,7 +22,7 @@ import org.opentosca.container.api.service.RelationshipTemplateService;
 import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.deployment.tests.DeploymentTestService;
+import org.opentosca.deployment.checks.DeploymentTestService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

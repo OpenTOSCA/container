@@ -1,4 +1,4 @@
-package org.opentosca.deployment.tests;
+package org.opentosca.deployment.checks;
 
 import java.util.Hashtable;
 import java.util.List;

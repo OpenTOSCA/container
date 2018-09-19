@@ -1,4 +1,4 @@
-package org.opentosca.deployment.tests;
+package org.opentosca.deployment.checks;
 
 import java.util.List;
 import java.util.Objects;
@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import org.opentosca.container.core.next.model.DeploymentTestResult;
 import org.opentosca.container.core.next.model.NodeTemplateInstance;
-import org.opentosca.deployment.tests.test.HttpTest;
-import org.opentosca.deployment.tests.test.ManagementOperationTest;
-import org.opentosca.deployment.tests.test.TcpPingTest;
-import org.opentosca.deployment.tests.test.TestExecutionPlugin;
+import org.opentosca.deployment.checks.test.HttpTest;
+import org.opentosca.deployment.checks.test.ManagementOperationTest;
+import org.opentosca.deployment.checks.test.TcpPingTest;
+import org.opentosca.deployment.checks.test.TestExecutionPlugin;
 import org.opentosca.planbuilder.model.tosca.AbstractNodeTemplate;
 import org.opentosca.planbuilder.model.tosca.AbstractPolicyTemplate;
 import org.slf4j.Logger;

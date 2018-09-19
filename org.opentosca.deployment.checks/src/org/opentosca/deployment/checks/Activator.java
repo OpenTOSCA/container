@@ -11,11 +11,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  *******************************************************************************/
-package org.opentosca.deployment.tests;
+package org.opentosca.deployment.checks;
 
 import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.opentosca.deployment.tests.camel.RouteConfiguration;
+import org.opentosca.deployment.checks.camel.RouteConfiguration;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
