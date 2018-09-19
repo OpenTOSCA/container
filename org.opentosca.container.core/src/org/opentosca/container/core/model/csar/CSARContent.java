@@ -422,42 +422,6 @@ public class CSARContent implements IBrowseable {
     }
 
     /**
-     * @return Author of this CSAR. If no author is specified in TOSCA meta file {@code null}.
-     */
-    public String getCSARAuthor() {
-
-        final String author = this.toscaMetaFile.getCreatedBy();
-
-        if (author == null) {
-            CSARContent.LOG.debug("Author is not specified in TOSCA meta file of CSAR \"{}\".",
-                                  TOSCAMetaFileAttributes.CREATED_BY, this.csarID);
-        } else {
-            CSARContent.LOG.debug("Author of CSAR \"{}\": {}", this.csarID, author);
-        }
-
-        return author;
-
-    }
-
-    /**
-     * @return Description of this CSAR. If no description is specified in TOSCA meta file {@code null}.
-     */
-    public String getCSARDescription() {
-
-        final String description = this.toscaMetaFile.getDescription();
-
-        if (description == null) {
-            CSARContent.LOG.debug("Description is not specified in TOSCA meta file of CSAR \"{}\".",
-                                  TOSCAMetaFileAttributes.DESCRIPTION, this.csarID);
-        } else {
-            CSARContent.LOG.debug("Description of CSAR \"{}\": {}", this.csarID, description);
-        }
-
-        return description;
-
-    }
-
-    /**
      * @return Picture that visualizes the topology of this CSAR as {@code AbstractFile}. If no topology
      *         picture path is specified in TOSCA meta file (attribute "Topology") or path points to a
      *         non-existent file {@code null}.

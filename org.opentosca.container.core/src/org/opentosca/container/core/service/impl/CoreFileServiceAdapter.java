@@ -38,7 +38,7 @@ public class CoreFileServiceAdapter implements ICoreFileService {
         return new CSARContent(csarID
                                , Collections.singleton(newId.getSaveLocation())
                                , new HashMap<Path,String>()
-                               , null /*csar.toscaMetadata( )*/);
+                               , csar.metafileReplacement());
     }
 
     @Override

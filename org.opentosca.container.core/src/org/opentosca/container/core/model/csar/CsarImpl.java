@@ -36,6 +36,7 @@ import org.eclipse.winery.repository.export.CsarExportConfiguration;
 import org.eclipse.winery.repository.export.CsarExporter;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.backwards.FileSystemFile;
+import org.opentosca.container.core.model.csar.backwards.ToscaMetaFileReplacement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,5 +161,10 @@ public class CsarImpl implements Csar {
                 throw new IOException("Failed to export CSAR", e);
             }
         }
+    }
+
+    @Override
+    public ToscaMetaFileReplacement metafileReplacement() {
+        return new ToscaMetaFileReplacement(this);
     }
 }
