@@ -250,36 +250,36 @@
 		<unit id="org.eclipse.jgit.source" version="4.11.0.201803080745-r"/>
 		<unit id="org.eclipse.virgo.util.parser.manifest" version="3.5.0.RELEASE"/>
 		<unit id="org.eclipse.virgo.util.parser.manifest.source" version="3.5.0.RELEASE"/>
-		<unit id="org.eclipse.winery.bpmn4tosca.converter.tobpel" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.bpmn4tosca.converter.tobpel.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.common" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.common.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.compliance" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.generators.ia" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.generators.ia.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.highlevelrestapi" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.highlevelrestapi.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.bpmn4tosca" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.bpmn4tosca.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.csar.toscametafile" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.csar.toscametafile.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.selfservice" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.selfservice.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.tosca" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.tosca.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.tosca.yaml" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.model.tosca.yaml.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.provenance" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.repository" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.repository.client" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.repository.client.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.repository.configuration" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.repository.configuration.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.repository.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.yaml.common" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.yaml.common.source" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.yaml.converter" version="2.0.0.20180824103615"/>
-		<unit id="org.eclipse.winery.yaml.converter.source" version="2.0.0.20180824103615"/>
+		<unit id="org.eclipse.winery.bpmn4tosca.converter.tobpel" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.bpmn4tosca.converter.tobpel.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.common" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.common.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.compliance" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.generators.ia" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.generators.ia.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.highlevelrestapi" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.highlevelrestapi.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.bpmn4tosca" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.bpmn4tosca.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.csar.toscametafile" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.csar.toscametafile.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.selfservice" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.selfservice.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.tosca" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.tosca.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.tosca.yaml" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.model.tosca.yaml.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.provenance" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.repository" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.repository.client" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.repository.client.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.repository.configuration" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.repository.configuration.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.repository.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.yaml.common" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.yaml.common.source" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.yaml.converter" version="2.0.0.20180917140157"/>
+		<unit id="org.eclipse.winery.yaml.converter.source" version="2.0.0.20180917140157"/>
 		<unit id="org.jgrapht.core" version="1.0.1"/>
 		<unit id="org.jgrapht.core.source" version="1.0.1"/>
 		<unit id="org.objectweb.asm" version="5.0.3"/>
@@ -331,7 +331,7 @@
 		<unit id="org.eclipse.collections.eclipse-collections-api" version="8.2.0"/>
 		<unit id="org.eclipse.collections.eclipse-collections-api.source" version="8.2.0"/>
 		<unit id="org.eclipse.collections.eclipse-collections.source" version="8.2.0"/>
-		<unit id="org.eclipse.winery.topologygraph" version="2.0.0.20180824103615"/>
+		<unit id="org.eclipse.winery.topologygraph" version="2.0.0.20180917140157"/>
 		<unit id="org.yaml.snakeyaml" version="1.17.0"/>
 		<unit id="org.yaml.snakeyaml.source" version="1.17.0"/>
 		<unit id="slf4j.api" version="1.7.25"/>
