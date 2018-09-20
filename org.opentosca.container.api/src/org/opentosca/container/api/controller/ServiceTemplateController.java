@@ -23,6 +23,8 @@ import org.opentosca.container.api.service.ServiceTemplateService;
 import org.opentosca.container.api.util.UriUtil;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.deployment.checks.DeploymentTestService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +34,8 @@ import io.swagger.annotations.ApiParam;
 @Api(value = "/")
 public class ServiceTemplateController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
+    
     @Context
     private UriInfo uriInfo;
 
@@ -62,7 +66,7 @@ public class ServiceTemplateController {
     @ApiOperation(value = "Gets all service templates of a CSAR", response = ServiceTemplateDTO.class,
                   responseContainer = "List")
     public Response getServiceTemplates(@ApiParam("CSAR id") @PathParam("csar") final String csar) {
-
+        logger.info("Loading all service templates for csar [{}]", csar);
         final ServiceTemplateListDTO list = new ServiceTemplateListDTO();
 
         for (final String name : this.serviceTemplateService.getServiceTemplatesOfCsar(csar)) {
@@ -154,30 +158,37 @@ public class ServiceTemplateController {
     /* Service Injection */
     /*********************/
     public void setPlanService(final PlanService planService) {
+        logger.debug("Binding PlanService");
         this.planService = planService;
     }
 
     public void setInstanceService(final InstanceService instanceService) {
+        logger.debug("Binding InstanceService");
         this.instanceService = instanceService;
     }
 
     public void setNodeTemplateService(final NodeTemplateService nodeTemplateService) {
+        logger.debug("Binding NodeTemplateService");
         this.nodeTemplateService = nodeTemplateService;
     }
 
     public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
+        logger.debug("Binding RelationshipTemplateService");
         this.relationshipTemplateService = relationshipTemplateService;
     }
 
     public void setServiceTemplateService(final ServiceTemplateService serviceTemplateService) {
+        logger.debug("Binding ServiceTemplateService");
         this.serviceTemplateService = serviceTemplateService;
     }
 
     public void setCsarService(final CsarService csarService) {
+        logger.debug("Binding CsarService");
         this.csarService = csarService;
     }
 
     public void setDeploymentTestService(final DeploymentTestService deploymentTestService) {
+        logger.debug("Binding DeploymentTestService");
         this.deploymentTestService = deploymentTestService;
     }
 }

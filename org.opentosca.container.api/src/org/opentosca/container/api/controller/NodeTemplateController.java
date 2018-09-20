@@ -28,7 +28,7 @@ import io.swagger.annotations.ApiParam;
 
 @Api
 public class NodeTemplateController {
-    private static Logger logger = LoggerFactory.getLogger(ServiceTemplateController.class);
+    private static Logger logger = LoggerFactory.getLogger(NodeTemplateController.class);
 
     @Context
     UriInfo uriInfo;
