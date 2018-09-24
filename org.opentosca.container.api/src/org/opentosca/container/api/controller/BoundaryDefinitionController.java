@@ -1,8 +1,10 @@
 package org.opentosca.container.api.controller;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
@@ -16,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
@@ -24,17 +25,17 @@ import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.PropertiesDTO;
 import org.opentosca.container.api.dto.plan.PlanDTO;
-import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.util.UriUtil;
-import org.opentosca.container.core.engine.IToscaEngineService;
-import org.opentosca.container.core.engine.IToscaReferenceMapper;
-import org.opentosca.container.core.model.csar.CSARContent;
-import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.model.csar.Csar;
+import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.tosca.extension.PlanTypes;
+import org.eclipse.winery.model.tosca.TBoundaryDefinitions;
 import org.eclipse.winery.model.tosca.TExportedInterface;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TPlan;
 import org.eclipse.winery.model.tosca.TPropertyMapping;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,21 +55,20 @@ public class BoundaryDefinitionController {
     @Context
     private Request request;
 
-    private CsarService csarService;
-
-    private IToscaEngineService engineService;
-
-    private IToscaReferenceMapper referenceMapper;
+    private CsarStorageService storage;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets boundary definitions for a given service template", response = ResourceSupport.class,
                   responseContainer = "List")
-    public Response getBoundaryDefinitions(@ApiParam("CSAR id") @PathParam("csar") final String csar,
+    public Response getBoundaryDefinitions(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
                                            @PathParam("servicetemplate") final String servicetemplate) {
 
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+        final Csar csar = this.storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+            .filter(template -> template.getId().equals(servicetemplate))
+            .findFirst().orElse(null);
+        if (serviceTemplate == null) {
             this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
@@ -95,31 +95,31 @@ public class BoundaryDefinitionController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets properties of a service tempate", response = PropertiesDTO.class,
                   responseContainer = "List")
-    public Response getProperties(@ApiParam("CSAR id") @PathParam("csar") final String csar,
+    public Response getProperties(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+        final Csar csar = this.storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+            .filter(template -> template.getId().equals(servicetemplate))
+            .findFirst().orElse(null);
+        if (serviceTemplate == null) {
             this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
-        final String xmlFragment =
-            this.referenceMapper.getServiceTemplateBoundsPropertiesContent(csarContent.getCSARID(),
-                                                                           QName.valueOf(servicetemplate));
-        final List<TPropertyMapping> propertyMappings =
-            this.referenceMapper.getPropertyMappings(csarContent.getCSARID(), QName.valueOf(servicetemplate));
-
+        // using optional to condense nullchecks
+        List<TPropertyMapping> propertyMappings = Optional.ofNullable(serviceTemplate)
+            .map(TServiceTemplate::getBoundaryDefinitions)
+            .map(TBoundaryDefinitions::getProperties)
+            .map(TBoundaryDefinitions.Properties::getPropertyMappings)
+            .map(TBoundaryDefinitions.Properties.PropertyMappings::getPropertyMapping)
+            .orElse(Collections.emptyList());
         final PropertiesDTO dto = new PropertiesDTO();
-        this.logger.debug("XML Fragement: {}", xmlFragment);
-        dto.setXmlFragment(xmlFragment);
-
+        dto.setXmlFragment(""); // we're not really exposing these in the winery-model
         if (propertyMappings != null) {
             this.logger.debug("Found <{}> property mappings", propertyMappings.size());
             dto.setPropertyMappings(propertyMappings);
         }
         dto.add(Link.fromUri(UriUtil.encode(this.uriInfo.getAbsolutePath())).rel("self").build());
-
         return Response.ok(dto).build();
     }
 
@@ -128,26 +128,32 @@ public class BoundaryDefinitionController {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @ApiOperation(value = "Gets interfaces of a service tempate", response = InterfaceDTO.class,
                   responseContainer = "List")
-    public Response getInterfaces(@ApiParam("CSAR id") @PathParam("csar") final String csar,
+    public Response getInterfaces(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+        final Csar csar = this.storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+            .filter(template -> template.getId().equals(servicetemplate))
+            .findFirst().orElse(null);
+        if (serviceTemplate == null) {
+            // TODO consider collapsing into `orElseThrow`
             this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
 
-        final List<String> interfaces =
-            this.referenceMapper.getBoundaryInterfacesOfServiceTemplate(csarContent.getCSARID(),
-                                                                        QName.valueOf(servicetemplate));
+        // we're hacking ourselves an elvis operator here, allowing us to condense nullchecks
+        final List<TExportedInterface> interfaces = Optional.ofNullable(serviceTemplate)
+            .map(TServiceTemplate::getBoundaryDefinitions)
+            .map(TBoundaryDefinitions::getInterfaces)
+            .map(TBoundaryDefinitions.Interfaces::getInterface)
+            .orElse(Collections.emptyList());
         this.logger.debug("Found <{}> interface(s) in Service Template \"{}\" of CSAR \"{}\" ", interfaces.size(),
                           servicetemplate, csar);
 
         final InterfaceListDTO list = new InterfaceListDTO();
-        list.add(interfaces.stream().map(name -> {
+        list.add(interfaces.stream().map(iface -> {
             final InterfaceDTO dto = new InterfaceDTO();
-            dto.setName(name);
-            dto.add(UriUtil.generateSubResourceLink(this.uriInfo, name, false, "self"));
+            dto.setName(iface.getName());
+            dto.add(UriUtil.generateSubResourceLink(this.uriInfo, iface.getName(), false, "self"));
             return dto;
         }).collect(Collectors.toList()).toArray(new InterfaceDTO[] {}));
         list.add(UriUtil.generateSelfLink(this.uriInfo));
@@ -161,23 +167,32 @@ public class BoundaryDefinitionController {
     @ApiOperation(value = "Gets an interface of a service template specified by its name",
                   response = InterfaceDTO.class)
     public Response getInterface(@ApiParam("Name of the interface") @PathParam("name") final String name,
-                                 @ApiParam("CSAR id") @PathParam("csar") final String csar,
+                                 @ApiParam("CSAR id") @PathParam("csar") final String csarId,
                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-
-        final CSARContent csarContent = this.csarService.findById(csar);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), servicetemplate)) {
+        final Csar csar = this.storage.findById(new CsarId(csarId));
+        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+            .filter(template -> template.getId().equals(servicetemplate))
+            .findFirst().orElse(null);
+        if (serviceTemplate == null) {
             this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
-
-        final List<TExportedOperation> operations =
-            getExportedOperations(csarContent.getCSARID(), QName.valueOf(servicetemplate), name);
+        
+        final List<TExportedOperation> operations= Optional.ofNullable(serviceTemplate)
+            .map(TServiceTemplate::getBoundaryDefinitions)
+            .map(TBoundaryDefinitions::getInterfaces)
+            .map(TBoundaryDefinitions.Interfaces::getInterface)
+            .map(List::stream)
+            .orElse(Collections.<TExportedInterface>emptyList().stream())
+            .filter(iface -> iface.getIdFromIdOrNameField().equals(name))
+            .findFirst()
+            .map(iface -> iface.getOperation())
+            .orElse(Collections.emptyList());
 
         this.logger.debug("Found <{}> operation(s) for Interface \"{}\" in Service Template \"{}\" of CSAR \"{}\" ",
                           operations.size(), name, servicetemplate, csar);
 
         final Map<String, OperationDTO> ops = operations.stream().map(o -> {
-
             final OperationDTO op = new OperationDTO();
 
             op.setName(o.getName());
@@ -191,26 +206,19 @@ public class BoundaryDefinitionController {
                 // Compute the according URL for the Build or Management Plan
                 final URI planUrl;
                 if (PlanTypes.BUILD.toString().equals(plan.getPlanType())) {
-
                     // If it's a build plan
-
-                    planUrl =
-                        this.uriInfo.getBaseUriBuilder()
+                    planUrl = this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{buildplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 } else {
                     // ... else we assume it's a management plan
-
-                    planUrl =
-                        this.uriInfo.getBaseUriBuilder()
+                    planUrl = this.uriInfo.getBaseUriBuilder()
                                     .path("/csars/{csar}/servicetemplates/{servicetemplate}/instances/:id/managementplans/{managementplan}")
                                     .build(csar, servicetemplate, plan.getId());
                 }
-
                 plan.add(Link.fromUri(UriUtil.encode(planUrl)).rel("self").build());
                 op.add(Link.fromUri(UriUtil.encode(planUrl)).rel("plan").build());
             }
-
             return op;
         }).collect(Collectors.toMap(OperationDTO::getName, t -> t));
 
@@ -219,32 +227,11 @@ public class BoundaryDefinitionController {
         dto.setOperations(ops);
         dto.add(UriUtil.generateSelfLink(this.uriInfo));
 
-
         return Response.ok(dto).build();
     }
 
-    private List<TExportedOperation> getExportedOperations(final CSARID csarId, final QName serviceTemplate,
-                                                           final String interfaceName) {
-        final Map<QName, List<TExportedInterface>> exportedInterfacesOfCsar =
-            this.referenceMapper.getExportedInterfacesOfCSAR(csarId);
-        final List<TExportedInterface> exportedInterfaces = exportedInterfacesOfCsar.get(serviceTemplate);
-        for (final TExportedInterface exportedInterface : exportedInterfaces) {
-            if (exportedInterface.getName().equalsIgnoreCase(interfaceName)) {
-                return exportedInterface.getOperation();
-            }
-        }
-        return null;
-    }
-
-    public void setCsarService(final CsarService csarService) {
-        this.csarService = csarService;
-    }
-
-    public void setEngineService(final IToscaEngineService engineService) {
-        this.engineService = engineService;
-        // We cannot inject an instance of {@link IToscaReferenceMapper} since
-        // it is manually created in our default implementation of {@link
-        // IToscaEngineService}
-        this.referenceMapper = this.engineService.getToscaReferenceMapper();
+    public void setCsarStorageService(final CsarStorageService storageService) {
+        logger.debug("Binding CsarStorageService");
+        this.storage = storageService;
     }
 }
