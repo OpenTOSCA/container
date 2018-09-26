@@ -27,7 +27,6 @@ import org.eclipse.persistence.annotations.Converter;
 import org.eclipse.persistence.annotations.Converters;
 import org.eclipse.persistence.annotations.MapKeyConvert;
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
-import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFileAttributes;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.common.UserException;
@@ -40,8 +39,6 @@ import org.opentosca.container.core.model.CSARDirectory;
 import org.opentosca.container.core.model.IBrowseable;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.csar.id.CSARIDConverter;
-//import org.opentosca.container.core.model.csar.toscametafile.TOSCAMetaFile;
-//import org.opentosca.container.core.model.csar.toscametafile.TOSCAMetaFileAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +47,8 @@ import org.slf4j.LoggerFactory;
  * structured access to all files and directories of the CSAR. For CSAR browsing this represents the
  * CSAR root. Access to information contained in the TOSCA meta file of the CSAR, e.g. the author.
  * Additionally, it resolves artifact references respectively gives access to the artifact content.
+ * 
+ * @deprecated Instead use {@link Csar}
  */
 @NamedQueries({@NamedQuery(name = CSARContent.getCSARIDs, query = CSARContent.getCSARIDsQuery),
                @NamedQuery(name = CSARContent.getFileToStorageProviderIDMapByCSARID,
@@ -61,6 +60,7 @@ import org.slf4j.LoggerFactory;
 @Table(name = CSARContent.CSAR_TABLE_NAME)
 @Converters({@Converter(name = "CSARIDConverter", converterClass = CSARIDConverter.class),
              @Converter(name = "PathConverter", converterClass = PathConverter.class)})
+@Deprecated
 public class CSARContent implements IBrowseable {
 
     final private static Logger LOG = LoggerFactory.getLogger(CSARContent.class);

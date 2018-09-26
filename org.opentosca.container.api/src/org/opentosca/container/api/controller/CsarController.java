@@ -146,10 +146,9 @@ public class CsarController {
                                               .path(CsarController.class, "getCsar").build(id))
                          .rel("self").build());
 
-            final String name = csarContent.entryServiceTemplate().getName();
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(ServiceTemplateController.class)
                                               .path(ServiceTemplateController.class, "getServiceTemplate")
-                                              .build(id, UriUtil.encodePathSegment(name)))
+                                              .build(id, UriUtil.encodePathSegment(entryServiceTemplate.getId())))
                          .rel("servicetemplate").baseUri(this.uriInfo.getBaseUri()).build());
 
             return Response.ok(csar).build();
