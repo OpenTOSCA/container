@@ -251,7 +251,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 							while (iasi.hasNext()) {
 								String methods = iasi.next().getName();
 								//
-								if (this.containsString(methods, "backup")) {
+								if (this.containsString(methods, Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Defreeze)) {
 									boolean gotExecuted = context.executeOperation(node,
 											Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Backup,
 											Interfaces.OPENTOSCA_DECLARATIVE_INTERFACE_DOCKERCONTAINER_Freeze, null);
