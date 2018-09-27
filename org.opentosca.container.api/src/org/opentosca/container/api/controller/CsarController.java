@@ -156,9 +156,6 @@ public class CsarController {
         catch (NoSuchElementException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        catch (Exception e) {
-            throw new ServerErrorException(Response.serverError().build());
-        }
     }
 
     @javax.ws.rs.Path("/{csar}/content")

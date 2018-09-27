@@ -1,5 +1,8 @@
 package org.opentosca.container.core.model.csar.backwards;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Paths;
 
 import org.eclipse.winery.model.csar.toscametafile.TOSCAMetaFile;
@@ -17,9 +20,16 @@ public class ToscaMetaFileReplacement extends TOSCAMetaFile {
     @Override
     public String getEntryDefinitions() {
         final TServiceTemplate entryServiceTemplate = wrappedCsar.entryServiceTemplate();
-        return "servicetemplates/" 
-            + entryServiceTemplate.getTargetNamespace() 
-            + "/" + entryServiceTemplate.getId();
+        try {
+            return "servicetemplates" + File.separator
+                + URLEncoder.encode(entryServiceTemplate.getTargetNamespace(), "UTF-8") 
+                + File.separator + entryServiceTemplate.getId()
+                + File.separator + "ServiceTemplate.tosca";
+        }
+        catch (UnsupportedEncodingException e) {
+            // yea you deserve that one.
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

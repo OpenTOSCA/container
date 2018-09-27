@@ -11,6 +11,7 @@ import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
+import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
 import org.opentosca.container.core.service.ICoreFileService;
@@ -36,8 +37,7 @@ public class CoreFileServiceAdapter implements ICoreFileService {
         CsarId newId = new CsarId(csarID);
         Csar csar = actualService.findById(newId);
         return new CSARContent(csarID
-                               , Collections.singleton(newId.getSaveLocation())
-                               , new HashMap<Path,String>()
+                               , new FileSystemDirectory(newId.getSaveLocation())
                                , csar.metafileReplacement());
     }
 

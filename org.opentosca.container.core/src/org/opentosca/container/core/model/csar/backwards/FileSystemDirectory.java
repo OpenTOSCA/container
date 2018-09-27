@@ -29,6 +29,32 @@ public class FileSystemDirectory extends AbstractDirectory {
     }
 
     @Override
+    public AbstractFile getFile(String relPathOfFile) {
+        Path resolved = representedPath.resolve(relPathOfFile);
+        if (Files.exists(resolved) && Files.isRegularFile(resolved)) {
+            return new FileSystemFile(resolved);
+        }
+        return null;
+    }
+
+    @Override
+    public Set<AbstractFile> getFilesRecursively() {
+        try {
+            return Files.walk(representedPath).filter(Files::isRegularFile)
+                .map(FileSystemFile::new)
+                .collect(Collectors.toSet());
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public String getPath() {
+        return representedPath.toAbsolutePath().toString();
+    }
+
+    @Override
     public Set<AbstractDirectory> getDirectories() {
         Set<Path> result = new HashSet<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(representedPath)) {
@@ -75,7 +101,11 @@ public class FileSystemDirectory extends AbstractDirectory {
 
     @Override
     public AbstractDirectory getDirectory(String relPathOfDirectory) {
-        return new FileSystemDirectory(representedPath.resolve(relPathOfDirectory));
+        Path resolved = representedPath.resolve(relPathOfDirectory);
+        if (Files.exists(resolved) && Files.isDirectory(resolved)) {
+            return new FileSystemDirectory(resolved);
+        }
+        return null;
     }
 
     @Override

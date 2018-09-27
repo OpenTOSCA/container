@@ -167,22 +167,13 @@ public class CSARContent implements IBrowseable {
     public CSARContent() {
         super();
     }
-
-    /**
-     * Creates a {@code CSARContent}.
-     *
-     * @param csarID of CSAR
-     * @param directories in the CSAR.
-     * @param fileToStorageProviderID - Files in the CSAR. A file given relative to the CSAR root is
-     *        mapped to the ID of the storage provider on which the file is stored.
-     * @param toscaMetaFile - contains the content of the TOSCA meta file of the CSAR.
-     */
-    public CSARContent(final CSARID csarID, final Set<Path> directories,
-                       final Map<Path, String> fileToStorageProviderIDMap, final TOSCAMetaFile toscaMetaFile) {
-        this.directories = directories;
-        this.fileToStorageProviderIDMap = fileToStorageProviderIDMap;
+    
+    public CSARContent(final CSARID csarID, final AbstractDirectory csarRoot, final TOSCAMetaFile toscaMetaFile) {
+        this.directories = Collections.emptySet();
+        this.fileToStorageProviderIDMap = Collections.emptyMap();
         this.toscaMetaFile = toscaMetaFile;
         this.csarID = csarID;
+        this.csarRoot = csarRoot;
     }
 
     /**
@@ -191,7 +182,7 @@ public class CSARContent implements IBrowseable {
      * Method will be automatically called by Eclipse Link after this entity was retrieved.
      */
     @PostLoad
-    protected void setUpBrowsing() {
+    private void setUpBrowsing() {
         this.csarRoot = new CSARDirectory("", this.csarID, this.directories, this.fileToStorageProviderIDMap);
     }
 
