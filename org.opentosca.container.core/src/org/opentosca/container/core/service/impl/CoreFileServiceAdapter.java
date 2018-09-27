@@ -1,8 +1,6 @@
 package org.opentosca.container.core.service.impl;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,14 +26,15 @@ public class CoreFileServiceAdapter implements ICoreFileService {
 
     @Override
     public CSARID storeCSAR(Path csarFile) throws UserException, SystemException {
+        LOGGER.debug("Delegating storage request to CsarStorageService");
         return actualService.storeCSAR(csarFile).toOldCsarId();
     }
 
     @Override
-    @Deprecated // we dropped the toscametadata, so CSARContent can not know about it
     public CSARContent getCSAR(CSARID csarID) throws UserException {
         CsarId newId = new CsarId(csarID);
         Csar csar = actualService.findById(newId);
+        LOGGER.debug("Retrieved Csar by id, wrapping it into CSARContent");
         return new CSARContent(csarID
                                , new FileSystemDirectory(newId.getSaveLocation())
                                , csar.metafileReplacement());
@@ -43,11 +42,13 @@ public class CoreFileServiceAdapter implements ICoreFileService {
 
     @Override
     public Path exportCSAR(CSARID csarID) throws UserException, SystemException {
+        LOGGER.debug("Delegating csar export request to actual service");
         return actualService.exportCSAR(new CsarId(csarID));
     }
 
     @Override
     public Set<CSARID> getCSARIDs() {
+        LOGGER.debug("Retrieving CSARIDs from actual service");
         return actualService.findAll().stream()
             .map(c -> c.id().toOldCsarId())
             .collect(Collectors.toSet());
@@ -55,11 +56,13 @@ public class CoreFileServiceAdapter implements ICoreFileService {
 
     @Override
     public void deleteCSAR(CSARID csarID) throws SystemException, UserException {
+        LOGGER.debug("Delegating csar deletion request to actual service");
         actualService.deleteCSAR(new CsarId(csarID));
     }
 
     @Override
     public void deleteCSARs() throws SystemException {
+        LOGGER.debug("Delegating csar purge to actual service");
         actualService.purgeCsars();
     }
     

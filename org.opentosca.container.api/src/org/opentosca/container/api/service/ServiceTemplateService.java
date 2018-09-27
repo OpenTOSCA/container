@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 
 public class ServiceTemplateService {
 
-    private static Logger logger = LoggerFactory.getLogger(ServiceTemplateService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceTemplateService.class);
 
     private CsarStorageService csarStorage;
 

@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.ext.ExceptionMapper;
-import org.apache.camel.spi.ExceptionHandler;
-import org.apache.camel.support.LoggingExceptionHandler;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;

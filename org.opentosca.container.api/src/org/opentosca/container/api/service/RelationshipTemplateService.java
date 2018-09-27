@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
  *
  */
 public class RelationshipTemplateService {
-    private static Logger logger = LoggerFactory.getLogger(InstanceService.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstanceService.class);
 
     private CsarService csarService;
     private IToscaEngineService toscaEngineService;
