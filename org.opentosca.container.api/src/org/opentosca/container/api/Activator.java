@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.ext.ExceptionMapper;
-
+import org.apache.camel.spi.ExceptionHandler;
+import org.apache.camel.support.LoggingExceptionHandler;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ServerProperties;
@@ -57,6 +58,7 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void start(final BundleContext bundleContext) throws Exception {
         logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
                     bundleContext.getBundle().getVersion());
@@ -94,15 +96,15 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
     }
 
     private void configurator(final BundleContext bundleContext) throws Exception {
-        final ServiceReference<?> configAdminRef =
-            bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+        final ServiceReference<ConfigurationAdmin> configAdminRef = 
+            bundleContext.getServiceReference(ConfigurationAdmin.class);
 
         if (configAdminRef == null) {
             logger.warn("Reference to <ConfigurationAdmin> service could not be found, did you activate the bundle?");
             return;
         }
 
-        final ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminRef);
+        final ConfigurationAdmin configAdmin = bundleContext.getService(configAdminRef);
         final Configuration config = configAdmin.getConfiguration("com.eclipsesource.jaxrs.connector", null);
 
         Dictionary<String, Object> properties = config.getProperties();
