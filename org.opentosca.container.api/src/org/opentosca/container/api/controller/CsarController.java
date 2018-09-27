@@ -1,12 +1,10 @@
 package org.opentosca.container.api.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -48,10 +46,8 @@ import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.CsarId;
 import org.opentosca.container.core.model.csar.backwards.FileSystemDirectory;
+import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.CsarStorageService;
-import org.opentosca.planbuilder.export.Exporter;
-import org.opentosca.planbuilder.importer.Importer;
-import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +135,7 @@ public class CsarController {
             }
             csar.add(Link.fromResource(ServiceTemplateController.class).rel("servicetemplates")
                          .baseUri(this.uriInfo.getBaseUri()).build(id));
+            
             csar.add(Link.fromUri(this.uriInfo.getBaseUriBuilder().path(CsarController.class)
                                               .path(CsarController.class, "getContent").build(id))
                          .rel("content").baseUri(this.uriInfo.getBaseUri()).build(id));
@@ -276,12 +273,21 @@ public class CsarController {
             }
         }
         
-//        csarService.generatePlans(csarId);
-
-//        CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
-//        if (plannedCsar == null) {
-//            return Response.serverError().build();
-//        }
+        try {
+            CSARID plannedCsar = this.csarService.generatePlans(csarId.toOldCsarId());
+            if (plannedCsar == null) {
+                logger.warn("Planning the CSAR failed");
+                return Response.serverError().build();
+            }
+        } catch (Exception e) {
+            logger.warn("Planning the CSAR [{}] failed with an exception", csarId.csarName(), e);
+            try {
+                this.storage.deleteCSAR(csarId);
+            } catch (Exception log) {
+                logger.warn("Failed to delete CSAR [{}] with failed plans on import", csarId.csarName());
+            }
+            return Response.serverError().build();
+        }
 
         // FIXME maybe this only makes sense when we have generated plans :/
         this.controlService.declareStored(csarId);
