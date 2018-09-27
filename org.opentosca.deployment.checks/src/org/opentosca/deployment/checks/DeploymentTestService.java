@@ -23,14 +23,18 @@ import org.slf4j.LoggerFactory;
 
 public class DeploymentTestService {
 
-    private static Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(DeploymentTestService.class);
+    
     private final DeploymentTestRepository repository = new DeploymentTestRepository();
     private final Importer importer = new Importer();
 
     private final ExecutorService pool = Executors.newFixedThreadPool(5);
 
     private TestExecutor executor;
+    
+    public DeploymentTestService() {
+        logger.debug("Instantiating DeploymentTestService");
+    }
 
     /**
      * Runs a deployment test if a plan with the given correlation id is in state FINISHED.
@@ -121,6 +125,7 @@ public class DeploymentTestService {
     }
 
     public void setTestExecutor(final TestExecutor executor) {
+        logger.debug("Binding TestExecutor");
         this.executor = executor;
     }
 }

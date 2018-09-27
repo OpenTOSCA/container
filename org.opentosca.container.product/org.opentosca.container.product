@@ -79,7 +79,7 @@
       <plugin id="org.opentosca.container.core.tosca" autoStart="true" startLevel="3" />
       <plugin id="org.opentosca.container.engine.ia" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.container.engine.plan" autoStart="true" startLevel="5" />
-      <plugin id="org.opentosca.deployment.checks" autoStart="true" startLevel="7" />
+      <plugin id="org.opentosca.deployment.checks" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="6" />
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8080/winery" />

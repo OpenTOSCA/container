@@ -8,7 +8,7 @@
    <reference bind="setInstanceService" cardinality="1..1" interface="org.opentosca.container.api.service.InstanceService" name="InstanceService" policy="static"/>
    <reference bind="setNodeTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.NodeTemplateService" name="NodeTemplateService" policy="static"/>
    <reference bind="setRelationshipTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.RelationshipTemplateService" name="RelationshipTemplateService" policy="static"/>
-   <reference bind="setServiceTemplateService" cardinality="1..1" interface="org.opentosca.container.api.service.ServiceTemplateService" name="ServiceTemplateService" policy="static"/>
    <reference bind="setCsarService" cardinality="1..1" interface="org.opentosca.container.api.service.CsarService" name="CsarService" policy="static"/>
    <reference bind="setDeploymentTestService" cardinality="1..1" interface="org.opentosca.deployment.checks.DeploymentTestService" name="DeploymentTestService" policy="static"/>
+   <reference bind="setCsarStorageService" cardinality="1..1" interface="org.opentosca.container.core.service.CsarStorageService" name="CsarStorageService" policy="static"/>
 </scr:component>
