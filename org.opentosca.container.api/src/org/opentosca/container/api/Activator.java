@@ -50,13 +50,11 @@ public class Activator implements BundleActivator, ApplicationConfiguration {
 
     private final List<ServiceRegistration<?>> services = new ArrayList<>();
 
-
     static BundleContext getContext() {
         return context;
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void start(final BundleContext bundleContext) throws Exception {
         logger.info("Starting bundle \"{}\" ({})...", bundleContext.getBundle().getSymbolicName(),
                     bundleContext.getBundle().getVersion());
