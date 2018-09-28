@@ -80,8 +80,8 @@ public abstract class AbstractPlanBuilder {
      * @param nodeTemplate an AbstractNodeTemplate denoting a NodeTemplate
      * @return true if there is any generic plugin which can handle the given NodeTemplate, else false
      */
-    public IPlanBuilderPolicyAwareTypePlugin findPolicyAwareTypePlugin(final AbstractNodeTemplate nodeTemplate) {
-        for (final IPlanBuilderPolicyAwareTypePlugin plugin : this.pluginRegistry.getPolicyAwareTypePlugins()) {
+    public IPlanBuilderPolicyAwareTypePlugin<?> findPolicyAwareTypePlugin(final AbstractNodeTemplate nodeTemplate) {
+        for (final IPlanBuilderPolicyAwareTypePlugin<?> plugin : this.pluginRegistry.getPolicyAwareTypePlugins()) {
             AbstractPlanBuilder.LOG.debug("Checking whether Generic Plugin " + plugin.getID()
                 + " can handle NodeTemplate " + nodeTemplate.getId());
             if (plugin.canHandlePolicyAware(nodeTemplate)) {

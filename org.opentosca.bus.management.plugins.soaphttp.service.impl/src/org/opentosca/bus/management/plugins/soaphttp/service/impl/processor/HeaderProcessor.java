@@ -39,7 +39,6 @@ public class HeaderProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) throws Exception {
 
-        @SuppressWarnings("unchecked")
         final CxfPayload<SoapHeader> payload = exchange.getIn().getBody(CxfPayload.class);
 
         final Map<String, Object> headers = exchange.getIn().getHeaders();

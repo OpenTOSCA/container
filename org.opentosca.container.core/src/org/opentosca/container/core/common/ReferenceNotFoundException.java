@@ -6,7 +6,6 @@ package org.opentosca.container.core.common;
  * @author Marcus Eisele - marcus.eisele@gmail.com
  *
  */
-@SuppressWarnings("serial")
 public class ReferenceNotFoundException extends Exception {
 
     /**

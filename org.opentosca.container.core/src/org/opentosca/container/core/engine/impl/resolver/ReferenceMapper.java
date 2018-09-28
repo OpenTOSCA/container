@@ -70,7 +70,6 @@ public class ReferenceMapper {
         // Dummy implementation
         // Suppress warnings because of this method is auto generated and not
         // used.
-        @SuppressWarnings("rawtypes")
         @Override
         public Iterator getPrefixes(final String val) {
             return null;

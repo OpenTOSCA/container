@@ -141,7 +141,6 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
             this.em.createNamedQuery(DeploymentProcessInfo.getDeploymentProcessInfoByCSARID).setParameter("csarID",
                                                                                                           csarID);
 
-        @SuppressWarnings("unchecked")
         final List<DeploymentProcessInfo> results = getDeploymentProcessInfo.getResultList();
 
         if (results.isEmpty()) {
@@ -232,7 +231,6 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
         final Query getIADeploymentInfo =
             this.em.createNamedQuery(IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath)
                    .setParameter("iaRelPath", iaRelPath).setParameter("csarID", csarID);
-        @SuppressWarnings("unchecked")
         final List<IADeploymentInfo> results = getIADeploymentInfo.getResultList();
         if (results.isEmpty()) {
             CoreInternalDeploymentTrackerServiceImpl.LOG.error("No IA deployment info for IA \"{}\" of CSAR \"{}\" stored.",
@@ -257,7 +255,6 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
         final ArrayList<IADeploymentInfo> results = new ArrayList<>();
         final Query getIADeploymentInfo =
             this.em.createNamedQuery(IADeploymentInfo.getIADeploymentInfoByCSARID).setParameter("csarID", csarID);
-        @SuppressWarnings("unchecked")
         final List<IADeploymentInfo> queryResults = getIADeploymentInfo.getResultList();
         for (final IADeploymentInfo ia : queryResults) {
             results.add(ia);
@@ -341,7 +338,6 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
         final Query getPlanDeploymentInfo =
             this.em.createNamedQuery(PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPath)
                    .setParameter("csarID", csarID).setParameter("planRelPath", planRelPath);
-        @SuppressWarnings("unchecked")
         final List<PlanDeploymentInfo> results = getPlanDeploymentInfo.getResultList();
         if (results.isEmpty()) {
             CoreInternalDeploymentTrackerServiceImpl.LOG.error("No Plan deployment info for Plan \"{}\" of CSAR \"{}\" stored.",
@@ -365,7 +361,6 @@ public class CoreInternalDeploymentTrackerServiceImpl implements ICoreInternalDe
         final ArrayList<PlanDeploymentInfo> results = new ArrayList<>();
         final Query getIADeploymentInfo =
             this.em.createNamedQuery(PlanDeploymentInfo.getPlanDeploymentInfoByCSARID).setParameter("csarID", csarID);
-        @SuppressWarnings("unchecked")
         final List<PlanDeploymentInfo> queryResults = getIADeploymentInfo.getResultList();
         for (final PlanDeploymentInfo ia : queryResults) {
             results.add(ia);

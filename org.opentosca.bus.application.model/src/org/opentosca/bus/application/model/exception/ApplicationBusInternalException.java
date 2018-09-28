@@ -7,7 +7,6 @@ package org.opentosca.bus.application.model.exception;
  * @author Michael Zimmermann - zimmerml@studi.informatik.uni-stuttgart.de
  *
  */
-@SuppressWarnings("serial")
 public class ApplicationBusInternalException extends Exception {
 
     /**

@@ -38,7 +38,6 @@ public class ResponseProcessor implements Processor {
     final private static Logger LOG = LoggerFactory.getLogger(ResponseProcessor.class);
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) throws Exception {
 

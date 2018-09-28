@@ -79,7 +79,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         getWSDLEndpointsQuery.setParameter("csarId", csarId);
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
-        @SuppressWarnings("unchecked")
         final
         // Result can only be a WSDLEndpoint
         List<WSDLEndpoint> queryResults = getWSDLEndpointsQuery.getResultList();
@@ -94,7 +93,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         getWSDLEndpointsQuery.setParameter("csarId", new CSARID("***"));
 
         // Get Query-Results (WSDLEndpoints) and add them to the result list.
-        @SuppressWarnings("unchecked")
         final
         // Result can only be a WSDLEndpoint
         List<WSDLEndpoint> queryResults2 = getWSDLEndpointsQuery.getResultList();
@@ -229,7 +227,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         getRestEndpointsQuery.setParameter("csarId", csarId);
 
         // Get Query-Results and add them to the result list
-        @SuppressWarnings("unchecked")
         final
         // Result can only be a RESTEndpoint
         List<RESTEndpoint> queryResults = getRestEndpointsQuery.getResultList();
@@ -367,7 +364,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
     public void _endpoint_show_rest(final CommandInterpreter commandInterpreter) {
 
         final Query query = this.em.createQuery("SELECT e FROM RESTEndpoint e");
-        @SuppressWarnings("unchecked")
         final List<RESTEndpoint> queryResults = query.getResultList();
         for (final RESTEndpoint e : queryResults) {
             commandInterpreter.println("SeriviceTemplateID: " + e.getCSARId().getFileName() + " URI: " + e.getURI());
@@ -377,7 +373,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
 
     public void _endpoint_show_wsdl(final CommandInterpreter commandInterpreter) {
         final Query query = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
-        @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> queryResults = query.getResultList();
         for (final WSDLEndpoint e : queryResults) {
             commandInterpreter.println("CSARId: " + e.getCSARId());
@@ -404,13 +399,11 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         // get all rest endpoints for the given csarid
         final Query queryRestEndpoints = this.em.createQuery("SELECT e FROM RESTEndpoint e where e.csarId = :csarId");
         queryRestEndpoints.setParameter("csarId", csarId);
-        @SuppressWarnings("unchecked")
         final List<RESTEndpoint> restEndpoints = queryRestEndpoints.getResultList();
 
         // get all wsdl endpoints for the given csarid
         final Query queryWsdlEndpoints = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId = :csarId");
         queryWsdlEndpoints.setParameter("csarId", csarId);
-        @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> wsdlEndpoints = queryWsdlEndpoints.getResultList();
 
         // remove all found endpoints one by one
@@ -479,7 +472,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e where e.csarId= :csarId");
         queryWSDLEndpoint.setParameter("csarId", csarId);
 
-        @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();
         for (final WSDLEndpoint endpoint : queryResults) {
             endpoints.add(endpoint);
@@ -496,7 +488,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         queryWSDLEndpoint.setParameter("IaName", iaName);
         queryWSDLEndpoint.setParameter("nodeTypeImpl", nodeTypeImpl);
 
-        @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();
         for (final WSDLEndpoint endpoint : queryResults) {
             endpoints.add(endpoint);
@@ -510,7 +501,6 @@ public class CoreInternalEndpointServiceImpl implements ICoreInternalEndpointSer
         final ArrayList<WSDLEndpoint> endpoints = new ArrayList<>();
         final Query queryWSDLEndpoint = this.em.createQuery("SELECT e FROM WSDLEndpoint e");
 
-        @SuppressWarnings("unchecked")
         final List<WSDLEndpoint> queryResults = queryWSDLEndpoint.getResultList();
         for (final WSDLEndpoint endpoint : queryResults) {
             endpoints.add(endpoint);
