@@ -1,163 +1,351 @@
 package org.opentosca.container.core.impl.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.eclipse.osgi.framework.console.CommandProvider;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.model.deployment.ia.IADeploymentInfo;
 import org.opentosca.container.core.model.deployment.ia.IADeploymentState;
 import org.opentosca.container.core.model.deployment.plan.PlanDeploymentInfo;
 import org.opentosca.container.core.model.deployment.plan.PlanDeploymentState;
+import org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo;
 import org.opentosca.container.core.model.deployment.process.DeploymentProcessState;
+import org.opentosca.container.core.next.jpa.EntityManagerProvider;
 import org.opentosca.container.core.service.ICoreDeploymentTrackerService;
-import org.opentosca.container.core.service.internal.ICoreInternalDeploymentTrackerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This implementation currently acts as a Proxy to the Core Internal Deployment Tracker Service. It
- * can in future be used to modify the incoming parameters to fit another back end interface /
- * implementation.
- *
- * @see ICoreInternalDeploymentTrackerService
+ * Tracks the deployment process of CSAR files, Implementations Artifacts and Plans by providing
+ * methods for storing and getting it deployment states. It is used by OpenTOSCA Control to allowing
+ * only a subset of all provided operations in a certain deployment state of a CSAR file.
  */
-@Deprecated
-public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerService {
-
-    ICoreInternalDeploymentTrackerService deploymentTrackerService;
+public class CoreDeploymentTrackerServiceImpl implements ICoreDeploymentTrackerService, CommandProvider {
 
     final private static Logger LOG = LoggerFactory.getLogger(CoreDeploymentTrackerServiceImpl.class);
 
+    private EntityManager em;
+    
+    /**
+     * Initializes JPA.
+     */
+    private void init() {
+        if (this.em == null) {
+            this.em = EntityManagerProvider.createEntityManager();
+        }
+    }
 
+    /**
+     * This method is called when the garbage collector destroys the class. We will then manually close
+     * the EntityManager / Factory and pass control back.
+     */
     @Override
+    protected void finalize() throws Throwable {
+        this.em.close();
+        super.finalize();
+    }
+    
     /**
      * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
      */
+    @Override
     public boolean storeDeploymentState(final CSARID csarID, final DeploymentProcessState deploymentState) {
-        return this.deploymentTrackerService.storeDeploymentState(csarID, deploymentState);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public DeploymentProcessState getDeploymentState(final CSARID csarID) {
-        return this.deploymentTrackerService.getDeploymentState(csarID);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public boolean storeIADeploymentInfo(final IADeploymentInfo iaDeploymentInfo) {
-        return this.deploymentTrackerService.storeIADeploymentInfo(iaDeploymentInfo);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public IADeploymentInfo getIADeploymentInfo(final CSARID csarID, final String iaRelPath) {
-        return this.deploymentTrackerService.getIADeploymentInfo(csarID, iaRelPath);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public List<IADeploymentInfo> getIADeploymentInfos(final CSARID csarID) {
-        return this.deploymentTrackerService.getIADeploymentInfos(csarID);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public boolean storePlanDeploymentInfo(final PlanDeploymentInfo planDeploymentInfo) {
-        return this.deploymentTrackerService.storePlanDeploymentInfo(planDeploymentInfo);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public PlanDeploymentInfo getPlanDeploymentInfo(final CSARID csarID, final String planRelPath) {
-        return this.deploymentTrackerService.getPlanDeploymentInfo(csarID, planRelPath);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public List<PlanDeploymentInfo> getPlanDeploymentInfos(final CSARID csarID) {
-        return this.deploymentTrackerService.getPlanDeploymentInfos(csarID);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public boolean storeIADeploymentInfo(final CSARID csarID, final String iaRelPath,
-                                         final IADeploymentState iaDeploymentState) {
-        return this.deploymentTrackerService.storeIADeploymentInfo(csarID, iaRelPath, iaDeploymentState);
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     *
-     * This currently acts as a proxy.
-     */
-    public boolean storePlanDeploymentInfo(final CSARID csarID, final String planRelPath,
-                                           final PlanDeploymentState planDeploymentState) {
-        return this.deploymentTrackerService.storePlanDeploymentInfo(csarID, planRelPath, planDeploymentState);
-    }
-
-    @Override
-    public void deleteDeploymentState(final CSARID csarId) {
-        this.deploymentTrackerService.deleteDeploymentState(csarId);
-    }
-
-    /**
-     * Binds the Core Internal Deployment Tracker.
-     *
-     * @param deploymentTrackerService to bind
-     */
-    public void bindCoreInternalDeploymentTrackerService(final ICoreInternalDeploymentTrackerService deploymentTrackerService) {
-        if (deploymentTrackerService == null) {
-            CoreDeploymentTrackerServiceImpl.LOG.error("Can't bind Core Internal Deployment Tracker Service.");
+        this.init();
+        LOG.info("Storing deployment state {} for CSAR \"{}\"...", deploymentState, csarID);
+        this.em.getTransaction().begin();
+        // check if deployment state for this CSAR already exists
+        final DeploymentProcessInfo deploymentInfo = this.getDeploymentProcessInfo(csarID);
+        if (deploymentInfo != null) {
+            // CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Deployment
+            // state for CSAR \"{}\" already exists. Existent state will be
+            // overwritten!", csarID);
+            deploymentInfo.setDeploymentProcessState(deploymentState);
+            this.em.persist(deploymentInfo);
         } else {
-            this.deploymentTrackerService = deploymentTrackerService;
-            CoreDeploymentTrackerServiceImpl.LOG.debug("Core Internal Deployment Tracker Service bound.");
+            // CoreInternalDeploymentTrackerServiceImpl.LOG.debug("Deployment
+            // state for CSAR \"{}\" did not already exist.", csarID);
+            this.em.persist(new DeploymentProcessInfo(csarID, deploymentState));
+        }
+        this.em.getTransaction().commit();
+        LOG.info("Storing deployment state {} for CSAR \"{}\" completed.", deploymentState, csarID);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DeploymentProcessState getDeploymentState(final CSARID csarID) {
+        LOG.info("Retrieving deployment state for CSAR \"{}\"...", csarID);
+        this.init();
+        final DeploymentProcessInfo info = this.getDeploymentProcessInfo(csarID);
+
+        DeploymentProcessState deploymentState = null;
+        if (info == null) {
+            LOG.error("No deployment state for CSAR \"{}\" stored!", csarID);
+        } else {
+            deploymentState = info.getDeploymentProcessState();
+            LOG.info("Deployment state of CSAR \"{}\": {}.", csarID, deploymentState);
+        }
+        return deploymentState;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean storeIADeploymentInfo(IADeploymentInfo iaDeploymentInfo) {
+        this.init();
+        LOG.info("Storing deployment state {} for IA \"{}\" of CSAR \"{}\"...", 
+                 iaDeploymentInfo.getDeploymentState(), iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
+        this.em.getTransaction().begin();
+
+        // check if deployment info for this IA already exists
+        final IADeploymentInfo storedIA =
+            this.getIADeploymentInfo(iaDeploymentInfo.getCSARID(), iaDeploymentInfo.getRelPath());
+
+        // deployment info already exists
+        if (storedIA != null) {
+            LOG.debug("IA deployment info for IA \"{}\" of CSAR \"{}\" already exists. "
+                + "Existent deployment info will be overwritten!", iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
+
+            final IADeploymentState storedIADeployState = storedIA.getDeploymentState();
+            final IADeploymentState newIADeployState = iaDeploymentInfo.getDeploymentState();
+
+            // if IA is deployed and will be now undeployed (deployment state
+            // change to IA_UNDEPLOYING) reset the attempt counter to 0
+            if (storedIADeployState.equals(IADeploymentState.IA_DEPLOYED)
+                && newIADeployState.equals(IADeploymentState.IA_UNDEPLOYING)) {
+                LOG.debug("Deployed IA \"{}\" of CSAR \"{}\" is now undeploying. Attempt count will be reseted.", 
+                          iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
+                storedIA.setAttempt(0);
+            }
+            storedIA.setDeploymentState(newIADeployState);
+            iaDeploymentInfo = storedIA;
         }
 
+        // if IA is now deploying or undeploying (deployment state change to
+        // IA_DEPLOYING / IA_UNDEPLOYING) increment attempt counter
+        if (iaDeploymentInfo.getDeploymentState().equals(IADeploymentState.IA_DEPLOYING)
+            || iaDeploymentInfo.getDeploymentState().equals(IADeploymentState.IA_UNDEPLOYING)) {
+            LOG.debug("IA \"{}\" of CSAR \"{}\" is now deploying / undeploying. Increase attempt count.",
+                      iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
+            iaDeploymentInfo.setAttempt(iaDeploymentInfo.getAttempt() + 1);
+        }
+
+        this.em.persist(iaDeploymentInfo);
+        this.em.getTransaction().commit();
+
+        LOG.info("Storing deployment state {} for IA \"{}\" of CSAR \"{}\" completed.",
+                 iaDeploymentInfo.getDeploymentState(), iaDeploymentInfo.getRelPath(), iaDeploymentInfo.getCSARID());
+        return true;
     }
 
     /**
-     * Unbinds the Core Internal Deployment Tracker.
-     *
-     * @param deploymentTrackerService to unbind
+     * {@inheritDoc}
      */
-    public void unbindCoreInternalDeploymentTrackerService(final ICoreInternalDeploymentTrackerService deploymentTrackerService) {
-        this.deploymentTrackerService = null;
-        CoreDeploymentTrackerServiceImpl.LOG.debug("Core Internal Deployment Tracker Service unbound.");
+    @Override
+    public IADeploymentInfo getIADeploymentInfo(final CSARID csarID, final String iaRelPath) {
+        this.init();
+        LOG.info("Retrieving IA deployment info for IA \"{}\" of CSAR \"{}\"...", iaRelPath, csarID);
+        final Query getIADeploymentInfo =
+            this.em.createNamedQuery(IADeploymentInfo.getIADeploymentInfoByCSARIDAndRelPath)
+                   .setParameter("iaRelPath", iaRelPath).setParameter("csarID", csarID);
+        final List<IADeploymentInfo> results = getIADeploymentInfo.getResultList();
+        if (results.isEmpty()) {
+            LOG.error("No IA deployment info for IA \"{}\" of CSAR \"{}\" stored.", iaRelPath, csarID);
+            return null;
+        } else {
+            LOG.info("IA deployment info for IA \"{}\" of CSAR \"{}\" exists.", iaRelPath, csarID);
+            return results.get(0);
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<IADeploymentInfo> getIADeploymentInfos(final CSARID csarID) {
+        this.init();
+        LOG.info("Retrieving all IA deployment infos of CSAR \"{}\"...", csarID);
+        final ArrayList<IADeploymentInfo> results = new ArrayList<>();
+        final Query getIADeploymentInfo =
+            this.em.createNamedQuery(IADeploymentInfo.getIADeploymentInfoByCSARID).setParameter("csarID", csarID);
+        final List<IADeploymentInfo> queryResults = getIADeploymentInfo.getResultList();
+        for (final IADeploymentInfo ia : queryResults) {
+            results.add(ia);
+        }
+        LOG.info("IA deployment infos of {} IA(s) of CSAR \"{}\" stored.", results.size(), csarID);
+        return results;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean storePlanDeploymentInfo(PlanDeploymentInfo planDeploymentInfo) {
+        this.init();
+
+        LOG.info("Storing deployment state {} for Plan \"{}\" of CSAR \"{}\"...",
+                 planDeploymentInfo.getDeploymentState(), planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
+
+        this.em.getTransaction().begin();
+
+        // check if deployment info for this Plan already exists
+        final PlanDeploymentInfo storedPlan =
+            this.getPlanDeploymentInfo(planDeploymentInfo.getCSARID(), planDeploymentInfo.getRelPath());
+
+        // deployment info already exists
+        if (storedPlan != null) {
+            LOG.debug("Plan deployment info for Plan \"{}\" of CSAR \"{}\" already exists. "
+                + "Existent deployment info will be overwritten!", planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
+
+            final PlanDeploymentState storedPlanDeployState = storedPlan.getDeploymentState();
+            final PlanDeploymentState newPlanDeployState = planDeploymentInfo.getDeploymentState();
+
+            // if Plan is deployed and will be now undeployed (deployment state
+            // change to PLAN_UNDEPLOYING) reset the attempt counter to 0
+            if (storedPlanDeployState.equals(PlanDeploymentState.PLAN_DEPLOYED)
+                && newPlanDeployState.equals(PlanDeploymentState.PLAN_UNDEPLOYING)) {
+                LOG.debug("Deployed Plan \"{}\" of CSAR \"{}\" is now undeploying. Attempt count will be reseted.",
+                          planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
+                storedPlan.setAttempt(0);
+            }
+
+            storedPlan.setDeploymentState(newPlanDeployState);
+            planDeploymentInfo = storedPlan;
+        }
+
+        // if Plan is now deploying or undeploying (deployment state change to
+        // PLAN_DEPLOYING / PLAN_UNDEPLOYING) increment attempt counter
+        if (planDeploymentInfo.getDeploymentState().equals(PlanDeploymentState.PLAN_DEPLOYING)
+            || planDeploymentInfo.getDeploymentState().equals(PlanDeploymentState.PLAN_UNDEPLOYING)) {
+            LOG.debug("Plan \"{}\" of CSAR \"{}\" is now deploying / undeploying. Increase attempt count.",
+                      planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
+            planDeploymentInfo.setAttempt(planDeploymentInfo.getAttempt() + 1);
+        }
+
+        this.em.persist(planDeploymentInfo);
+        this.em.getTransaction().commit();
+
+        LOG.info("Storing deployment state {} for Plan \"{}\" of CSAR \"{}\" completed.",
+                 planDeploymentInfo.getDeploymentState(), planDeploymentInfo.getRelPath(), planDeploymentInfo.getCSARID());
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PlanDeploymentInfo getPlanDeploymentInfo(final CSARID csarID, final String planRelPath) {
+        this.init();
+        LOG.info("Retrieving Plan deployment info for Plan \"{}\" of CSAR \"{}\"...", planRelPath, csarID);
+        final Query getPlanDeploymentInfo =
+            this.em.createNamedQuery(PlanDeploymentInfo.getPlanDeploymentInfoByCSARIDAndRelPath)
+                   .setParameter("csarID", csarID).setParameter("planRelPath", planRelPath);
+        final List<PlanDeploymentInfo> results = getPlanDeploymentInfo.getResultList();
+        if (results.isEmpty()) {
+            LOG.error("No Plan deployment info for Plan \"{}\" of CSAR \"{}\" stored.", planRelPath, csarID);
+            return null;
+        } else {
+            LOG.info("Plan deployment info for Plan \"{}\" of CSAR \"{}\" exists.", planRelPath, csarID);
+            return results.get(0);
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<PlanDeploymentInfo> getPlanDeploymentInfos(final CSARID csarID) {
+        this.init();
+        LOG.info("Retrieving all Plan deployment infos of CSAR \"{}\"...", csarID);
+        final ArrayList<PlanDeploymentInfo> results = new ArrayList<>();
+        final Query getIADeploymentInfo =
+            this.em.createNamedQuery(PlanDeploymentInfo.getPlanDeploymentInfoByCSARID).setParameter("csarID", csarID);
+        final List<PlanDeploymentInfo> queryResults = getIADeploymentInfo.getResultList();
+        for (final PlanDeploymentInfo ia : queryResults) {
+            results.add(ia);
+        }
+        LOG.info("Plan deployment infos of {} Plan(s) of CSAR \"{}\" stored.", results.size(), csarID);
+        return results;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean storeIADeploymentInfo(final CSARID csarID, final String iaRelPath,
+                                         final IADeploymentState iaDeploymentState) {
+        final IADeploymentInfo iaDeploymentInfo = new IADeploymentInfo(csarID, iaRelPath, iaDeploymentState);
+        this.storeIADeploymentInfo(iaDeploymentInfo);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean storePlanDeploymentInfo(final CSARID csarID, final String planRelPath,
+                                           final PlanDeploymentState planDeploymentState) {
+        final PlanDeploymentInfo planDeploymentInfo = new PlanDeploymentInfo(csarID, planRelPath, planDeploymentState);
+        this.storePlanDeploymentInfo(planDeploymentInfo);
+        return true;
+    }
+
+
+    @Override
+    public void deleteDeploymentState(final CSARID csarID) {
+        LOG.debug("Retrieving DeploymentProcessInfo for {}", csarID);
+        final DeploymentProcessInfo info = this.getDeploymentProcessInfo(csarID);
+        if (info != null) {
+            LOG.debug("Beginning Transaction for removing DeploymentProcessInfo {}", csarID);
+            this.em.getTransaction().begin();
+            LOG.debug("Removing DeploymentProcessInfo {}", csarID);
+
+            final Query queryRestEndpoints =
+                this.em.createQuery("DELETE FROM DeploymentProcessInfo e where e.csarID = :csarID");
+            queryRestEndpoints.setParameter("csarID", csarID);
+
+            // this.em.remove(info);
+            LOG.debug("Commiting Transaction");
+            this.em.getTransaction().commit();
+        }
+    }
+
+    /**
+     * Gets the deployment process information of a CSAR file.
+     *
+     * @param csarID that uniquely identifies a CSAR file
+     * @return the deployment process information, if the CSAR with <code>csarID</code> exists,
+     *         otherwise <code>null</code>
+     */
+    private DeploymentProcessInfo getDeploymentProcessInfo(final CSARID csarID) {
+        this.init();
+        LOG.debug("Retrieving deployment process info for CSAR \"{}\"...", csarID);
+        final Query getDeploymentProcessInfo =
+            this.em.createNamedQuery(DeploymentProcessInfo.getDeploymentProcessInfoByCSARID).setParameter("csarID", csarID);
+
+        final List<DeploymentProcessInfo> results = getDeploymentProcessInfo.getResultList();
+        if (results.isEmpty()) {
+            LOG.debug("No deployment process info for CSAR \"{}\" stored.", csarID);
+            return null;
+        } else {
+            LOG.debug("Deployment process info for CSAR \"{}\" exists.", csarID);
+            return results.get(0);
+        }
+    }
+    
+    /**
+     * Prints the available OSGi commands.
+     */
+    @Override
+    public String getHelp() {
+        return null;
+    }
+    
 }
