@@ -6,9 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.opentosca.container.core.common.SystemException;
 import org.opentosca.container.core.model.csar.id.CSARID;

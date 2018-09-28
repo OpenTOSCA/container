@@ -1,33 +1,23 @@
 package org.opentosca.container.api.legacy.resources.csar.content;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.Set;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.opentosca.container.api.legacy.osgi.servicegetter.FileRepositoryServiceHandler;
 import org.opentosca.container.api.legacy.resources.utilities.ResourceConstants;
 import org.opentosca.container.api.legacy.resources.utilities.Utilities;
 import org.opentosca.container.api.legacy.resources.xlink.Reference;
 import org.opentosca.container.api.legacy.resources.xlink.References;
 import org.opentosca.container.api.legacy.resources.xlink.XLinkConstants;
-import org.opentosca.container.core.common.SystemException;
-import org.opentosca.container.core.common.UserException;
 import org.opentosca.container.core.model.AbstractDirectory;
 import org.opentosca.container.core.model.AbstractFile;
 import org.opentosca.container.core.model.csar.id.CSARID;
-import org.opentosca.container.core.service.ICoreFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
