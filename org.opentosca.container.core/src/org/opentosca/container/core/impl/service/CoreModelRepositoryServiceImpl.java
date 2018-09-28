@@ -4,9 +4,12 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.service.ICoreModelRepositoryService;
-import org.opentosca.container.core.service.internal.ICoreInternalModelRepositoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.eclipse.osgi.framework.console.CommandProvider;
 import org.eclipse.winery.model.tosca.TDefinitions;
 
 /**
@@ -16,51 +19,11 @@ import org.eclipse.winery.model.tosca.TDefinitions;
  *
  * @see ICoreInternalModelRepositoryService
  */
-public class CoreModelRepositoryServiceImpl implements ICoreModelRepositoryService {
+public class CoreModelRepositoryServiceImpl implements ICoreModelRepositoryService, CommandProvider {
 
-    private ICoreInternalModelRepositoryService modelServ = null;
+    private static final Logger LOG = LoggerFactory.getLogger(CoreModelRepositoryServiceImpl.class);
 
-    // @Override
-    // /**
-    // * {@inheritDoc}
-    // *
-    // * This currently acts as a proxy
-    // */
-    // public QName storeTOSCA(File toscaFile) {
-    // return this.modelServ.storeTOSCA(toscaFile);
-    // }
-
-    // @Override
-    // /**
-    // * {@inheritDoc}
-    // *
-    // * This currently acts as a proxy
-    // */
-    // public List<QName> getServiceTemplateIDs(CSARID csarID, QName
-    // definitionsID) {
-    // return this.modelServ.getServiceTemplateIDs(csarID, definitionsID);
-    // }
-
-    // @Override
-    // /**
-    // * {@inheritDoc}
-    // *
-    // * This currently acts as a proxy
-    // */
-    // public int deleteAllDefinitions() {
-    // return this.modelServ.deleteAllDefinitions();
-    // }
-
-
-    // @Override
-    // /**
-    // * {@inheritDoc}
-    // *
-    // * This currently acts as a proxy
-    // */
-    // public boolean deleteDefinitions(QName definitionsID) {
-    // return this.modelServ.deleteDefinitions(definitionsID);
-    // }
+    private IToscaEngineService toscaEngineService;
 
     /**
      * {@inheritDoc}
@@ -69,7 +32,12 @@ public class CoreModelRepositoryServiceImpl implements ICoreModelRepositoryServi
      */
     @Override
     public List<QName> getAllDefinitionsIDs(final CSARID csarID) {
-        return this.modelServ.getAllDefinitionsIDs(csarID);
+        LOG.info("Getting IDs of all Definitions in CSAR \"{}\"...", csarID);
+        if (this.toscaEngineService == null) {
+            LOG.error("TOSCA Engine Service is not available! Can't get Definitions IDs of CSAR \"{}\"", csarID);
+            return null;
+        }
+        return this.toscaEngineService.getToscaReferenceMapper().getDefinitionIDsOfCSAR(csarID);
     }
 
     /**
@@ -79,15 +47,42 @@ public class CoreModelRepositoryServiceImpl implements ICoreModelRepositoryServi
      */
     @Override
     public TDefinitions getDefinitions(final CSARID csarID, final QName definitionsID) {
-        return this.modelServ.getDefinitions(csarID, definitionsID);
+        LOG.info("Getting Definitions with ID \"{}\" in CSAR \"{}\"...", definitionsID.toString(), csarID.toString());
+
+        if (this.toscaEngineService == null) {
+            LOG.error("TOSCA Engine Service is not available! Can't get Definitions with ID \"{}\" of CSAR \"{}\"",
+                      definitionsID.toString(), csarID.toString());
+            return null;
+        }
+        final Object definitions =
+            this.toscaEngineService.getToscaReferenceMapper().getJAXBReference(csarID, definitionsID);
+        if (definitions instanceof TDefinitions) {
+            return (TDefinitions) definitions;
+        } else {
+            LOG.error("Definitions with ID \"{}\" was not found in CSAR \"{}\"!", definitionsID.toString(),
+                      csarID.toString());
+            return null;
+        }
+    }
+    
+    public void bindToscaEngineService(final IToscaEngineService toscaEngineService) {
+        this.toscaEngineService = toscaEngineService;
+        LOG.debug("Tosca Engine Service bound.");
     }
 
-    public void bind(final ICoreInternalModelRepositoryService serv) {
-        this.modelServ = serv;
+    public void unbindToscaEngineService(final IToscaEngineService toscaEngineService) {
+        this.toscaEngineService = toscaEngineService;
+        LOG.debug("Tosca Engine Service unbound.");
     }
 
-    public void unbind(final ICoreInternalModelRepositoryService serv) {
-        this.modelServ = null;
+    /**
+     * The following methods are OSGi-Console-Commands
+     */
+    @Override
+    public String getHelp() {
+        final StringBuilder help = new StringBuilder();
+        help.append("--- OpenTOSCA Core Model Repository Management ---\n");
+        help.append("\tgetAllDefinitionsIDs - Gets the IDs of all stored Definitions.\n");
+        return help.toString();
     }
-
 }
