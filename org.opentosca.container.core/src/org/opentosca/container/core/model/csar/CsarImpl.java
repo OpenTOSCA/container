@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import org.eclipse.winery.model.tosca.TDefinitions;
 import org.eclipse.winery.model.tosca.TExportedOperation;
 import org.eclipse.winery.model.tosca.TNodeType;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TPlans;
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.eclipse.winery.repository.backend.IRepository;
 import org.eclipse.winery.repository.backend.RepositoryFactory;
@@ -118,7 +120,10 @@ public class CsarImpl implements Csar {
 
     @Override
     public List<TPlan> plans() {
-        return entryServiceTemplate().getPlans().getPlan();
+        return Optional.ofNullable(entryServiceTemplate())
+            .map(TServiceTemplate::getPlans)
+            .map(TPlans::getPlan)
+            .orElse(Collections.emptyList());
     }
 
     @Override

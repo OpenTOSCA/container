@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.namespace.QName;
 
 import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.ServiceTemplateDTO;
@@ -118,12 +117,11 @@ public class ServiceTemplateController {
                                              @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) {
         
         final Csar csar = storage.findById(new CsarId(csarId));
-        // return value should be used when creating the BuildPlanController later
-        csar.serviceTemplates().stream()
+        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        return new BuildPlanController(csar.id().toOldCsarId(), QName.valueOf(serviceTemplateId), this.planService);
+        return new BuildPlanController(csar, serviceTemplate, this.planService);
     }
 
     // We hide the parameters from Swagger because otherwise they will be captured

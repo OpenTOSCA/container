@@ -31,6 +31,7 @@ import org.opentosca.container.control.IOpenToscaControlService;
 import org.opentosca.container.core.common.Settings;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.IToscaReferenceMapper;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.model.csar.id.CSARID;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanInstanceEvent;
@@ -43,6 +44,7 @@ import org.opentosca.container.core.tosca.extension.TParameter;
 import org.opentosca.deployment.checks.DeploymentTestService;
 import org.eclipse.winery.model.tosca.TBoolean;
 import org.eclipse.winery.model.tosca.TPlan;
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,7 @@ public class PlanService {
     private final PlanInstanceRepository planInstanceRepository = new PlanInstanceRepository();
 
 
+    @Deprecated
     public List<TPlan> getPlansByType(final CSARID id, final PlanTypes... planTypes) {
         logger.debug("Requesting plans of type \"{}\" for CSAR \"{}\"...", planTypes, id);
         final List<TPlan> plans = new ArrayList<>();
@@ -81,6 +84,7 @@ public class PlanService {
         return plans;
     }
 
+    @Deprecated
     public TPlan getPlan(final String name, final CSARID id) {
 
         final List<TPlan> plans = getPlansByType(id, ALL_PLAN_TYPES);
@@ -93,6 +97,7 @@ public class PlanService {
         return null;
     }
 
+    @Deprecated
     public String invokePlan(final CSARID csarId, final QName serviceTemplate, final long serviceTemplateInstanceId,
                              final TPlan plan, final List<TParameter> parameters) {
 
@@ -118,6 +123,7 @@ public class PlanService {
         }
     }
 
+    @Deprecated
     public boolean hasPlan(final CSARID csarId, final PlanTypes[] planTypes, final String plan) {
         final TPlan p = this.getPlan(plan, csarId);
         if (p == null) {
@@ -143,7 +149,8 @@ public class PlanService {
      * @param planTypes
      * @return
      */
-    private PlanInstance resolvePlanInstance(final String plan, final String instance, final UriInfo uriInfo,
+    @Deprecated
+    public PlanInstance resolvePlanInstance(final String plan, final String instance, final UriInfo uriInfo,
                                              final CSARID csarId, final QName serviceTemplate,
                                              final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
 
@@ -190,7 +197,7 @@ public class PlanService {
 
     /* Plan Templates */
     /******************/
-
+    @Deprecated
     public Response getPlans(final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                              final PlanTypes... planTypes) {
 
@@ -213,7 +220,8 @@ public class PlanService {
 
         return Response.ok(list).build();
     }
-
+    
+    @Deprecated
     public Response getPlan(final String plan, final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                             final PlanTypes... planTypes) {
 
@@ -236,7 +244,8 @@ public class PlanService {
         dto.add(Link.fromUri(UriUtil.encode(uriInfo.getAbsolutePath())).rel("self").build());
         return Response.ok(dto).build();
     }
-
+    
+    @Deprecated
     public Response invokePlan(final String plan, final UriInfo uriInfo, final List<TParameter> parameters,
                                final CSARID csarId, final QName serviceTemplate, final Long serviceTemplateInstanceId,
                                final PlanTypes... planTypes) {
@@ -282,8 +291,27 @@ public class PlanService {
         return Response.created(location).build();
     }
 
+    public List<PlanInstance> getPlanInstances(final Csar csar, final TServiceTemplate serviceTemplate, String planName, final PlanTypes... planTypes) {
+        TPlan plan = csar.plans().stream()
+            .filter(tplan -> Arrays.stream(planTypes).anyMatch(pt -> tplan.getPlanType().equals(pt.toString()))
+                    && tplan.getName().equals(planName))
+            .findFirst()
+            .orElseThrow(NotFoundException::new);
+        
+        final ServiceTemplateInstanceRepository repo = new ServiceTemplateInstanceRepository();
+        final Collection<ServiceTemplateInstance> serviceInstances = repo.findByCsarId(csar.id().toOldCsarId());
+        return serviceInstances.stream()
+            .flatMap(sti -> sti.getPlanInstances().stream())
+            .filter(p -> {
+                final PlanTypes currentType = PlanTypes.isPlanTypeURI(p.getType().toString());
+                return Arrays.stream(planTypes).anyMatch(pt -> pt.equals(currentType));
+            })
+            .collect(Collectors.toList());
+    }
+    
     /* Plan Instances */
     /*****************/
+    @Deprecated
     public Response getPlanInstances(final String plan, final UriInfo uriInfo, final CSARID csarId,
                                      final QName serviceTemplate, final Long serviceTemplateInstanceId,
                                      final PlanTypes... planTypes) {
@@ -305,11 +333,11 @@ public class PlanService {
 
         final List<PlanInstanceDTO> planInstances = new ArrayList<>();
         for (final ServiceTemplateInstance sti : serviceInstances) {
-            final List<PlanInstanceDTO> foo = sti.getPlanInstances().stream().filter(p -> {
+            sti.getPlanInstances().stream().filter(p -> {
                 final PlanTypes currType = PlanTypes.isPlanTypeURI(p.getType().toString());
                 return Arrays.asList(planTypes).contains(currType);
-            }).map(p -> PlanInstanceDTO.Converter.convert(p)).collect(Collectors.toList());
-            planInstances.addAll(foo);
+            }).map(p -> PlanInstanceDTO.Converter.convert(p))
+            .forEach(planInstances::add);
         }
 
         for (final PlanInstanceDTO pi : planInstances) {
@@ -336,6 +364,7 @@ public class PlanService {
         return Response.ok(list).build();
     }
 
+    @Deprecated
     public Response getPlanInstance(final String plan, final String instance, final UriInfo uriInfo,
                                     final CSARID csarId, final QName serviceTemplate,
                                     final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
@@ -363,6 +392,7 @@ public class PlanService {
 
     }
 
+    @Deprecated
     public Response getPlanInstanceState(final String plan, final String instance, final UriInfo uriInfo,
                                          final CSARID csarId, final QName serviceTemplate,
                                          final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
@@ -373,6 +403,19 @@ public class PlanService {
         return Response.ok(pi.getState().toString()).build();
     }
 
+    public boolean updatePlanInstanceState(PlanInstance instance, PlanInstanceState newState) {
+        try {
+            instance.setState(newState);
+            this.planInstanceRepository.update(instance);
+            return true;
+        }
+        catch (final IllegalArgumentException e) {
+            logger.info("The given state {} is an illegal plan instance state.", newState);
+            return false;
+        }
+    }
+    
+    @Deprecated
     public Response changePlanInstanceState(final String newState, final String plan, final String instance,
                                             final UriInfo uriInfo, final CSARID csarId, final QName serviceTemplate,
                                             final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
@@ -395,6 +438,7 @@ public class PlanService {
 
     }
 
+    @Deprecated
     public Response getPlanInstanceLogs(final String plan, final String instance, final UriInfo uriInfo,
                                         final CSARID csarId, final QName serviceTemplate,
                                         final Long serviceTemplateInstanceId, final PlanTypes... planTypes) {
@@ -409,6 +453,12 @@ public class PlanService {
         return Response.ok(dto).build();
     }
 
+    public void addLogToPlanInstance(PlanInstance instance, PlanInstanceEvent event) {
+        instance.addEvent(event);
+        planInstanceRepository.update(instance);
+    }
+    
+    @Deprecated
     public Response addLogToPlanInstance(final CreatePlanInstanceLogEntryRequest logEntry, final String plan,
                                          final String instance, final UriInfo uriInfo, final CSARID csarId,
                                          final QName serviceTemplate, final Long serviceTemplateInstanceId,
