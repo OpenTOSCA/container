@@ -16,6 +16,10 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="winery"
+         version="0.0.0"/>
+
    <requires>
       <import plugin="org.slf4j.api" version="1.7.10" match="equivalent"/>
       <import plugin="com.google.inject" version="3.0.0" match="compatible"/>
@@ -1693,48 +1697,6 @@
 
    <plugin
          id="org.eclipse.virgo.util.parser.manifest"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.web3j.abi"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.web3j.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.web3j.crypto"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.web3j.rlp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.web3j.tuples"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.web3j.utils"
          download-size="0"
          install-size="0"
          version="0.0.0"
