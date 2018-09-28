@@ -22,15 +22,15 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.eclipse.winery.model.tosca.TServiceTemplate;
 import org.opentosca.container.api.dto.ResourceDecorator;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceDTO;
 import org.opentosca.container.api.dto.ServiceTemplateInstanceListDTO;
 import org.opentosca.container.api.dto.request.CreateServiceTemplateInstanceRequest;
-import org.opentosca.container.api.service.CsarService;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.PlanService;
 import org.opentosca.container.api.util.UriUtil;
-import org.opentosca.container.core.model.csar.CSARContent;
+import org.opentosca.container.core.model.csar.Csar;
 import org.opentosca.container.core.next.model.DeploymentTest;
 import org.opentosca.container.core.next.model.PlanInstance;
 import org.opentosca.container.core.next.model.PlanType;
@@ -52,13 +52,8 @@ import io.swagger.annotations.ApiResponses;
 
 @Api()
 public class ServiceTemplateInstanceController {
-    @ApiParam("CSAR id")
-    @PathParam("csar")
-    String csarId;
-
-    @ApiParam("qualified name of the service template")
-    @PathParam("servicetemplate")
-    String serviceTemplateId;
+    private final Csar csar;
+    private final TServiceTemplate serviceTemplate;
 
     @Context
     private UriInfo uriInfo;
@@ -69,18 +64,15 @@ public class ServiceTemplateInstanceController {
 
     private final PlanService planService;
 
-
-    private final CsarService csarService;
-
     private final DeploymentTestService deploymentTestService;
-
-
-    public ServiceTemplateInstanceController(final InstanceService instanceService, final PlanService planService,
-                                             final CsarService csarService,
+    
+    public ServiceTemplateInstanceController(final Csar csar, final TServiceTemplate serviceTemplate,
+                                             final InstanceService instanceService, final PlanService planService,
                                              final DeploymentTestService deploymentTestService) {
+        this.csar = csar;
+        this.serviceTemplate = serviceTemplate;
         this.instanceService = instanceService;
         this.planService = planService;
-        this.csarService = csarService;
         this.deploymentTestService = deploymentTestService;
     }
 
@@ -90,9 +82,8 @@ public class ServiceTemplateInstanceController {
                   responseContainer = "List")
     public Response getServiceTemplateInstances() {
         final Collection<ServiceTemplateInstance> serviceInstances =
-            this.instanceService.getServiceTemplateInstances(this.serviceTemplateId);
-        logger.debug("Found <{}> instances of ServiceTemplate \"{}\" ", serviceInstances.size(),
-                     this.serviceTemplateId);
+            this.instanceService.getServiceTemplateInstances(serviceTemplate.getId());
+        logger.debug("Found <{}> instances of ServiceTemplate \"{}\" ", serviceInstances.size(), serviceTemplate.getId());
 
         final ServiceTemplateInstanceListDTO list = new ServiceTemplateInstanceListDTO();
 
@@ -128,8 +119,7 @@ public class ServiceTemplateInstanceController {
 
         try {
             final ServiceTemplateInstance createdInstance =
-                this.instanceService.createServiceTemplateInstance(this.csarId, this.serviceTemplateId,
-                                                                   request.getCorrelationId().trim());
+                this.instanceService.createServiceTemplateInstance(csar.id().csarName(), serviceTemplate.getId(), request.getCorrelationId().trim());
 
             final URI uri = UriUtil.generateSubResourceURI(this.uriInfo, createdInstance.getId().toString(), false);
 
@@ -156,7 +146,7 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(value = "Get a service template instance by id", response = ServiceTemplateInstanceDTO.class)
     public Response getServiceTemplateInstance(@ApiParam("service template instance id") @PathParam("id") final Long id) {
 
-        final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
+        final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
 
         final ServiceTemplateInstanceDTO dto = ServiceTemplateInstanceDTO.Converter.convert(instance);
 
@@ -167,7 +157,7 @@ public class ServiceTemplateInstanceController {
         // Add a link
         final String path = "/csars/{csar}/servicetemplates/{servicetemplate}/buildplans/{plan}/instances/{instance}";
         final URI uri =
-            this.uriInfo.getBaseUriBuilder().path(path).build(this.csarId, this.serviceTemplateId,
+            this.uriInfo.getBaseUriBuilder().path(path).build(csar.id().csarName(), serviceTemplate.getId(),
                                                               pi.getTemplateId().getLocalPart(), pi.getCorrelationId());
         dto.add(Link.fromUri(UriUtil.encode(uri)).rel("build_plan_instance").build());
         dto.add(UriUtil.generateSubResourceLink(this.uriInfo, "managementplans", false, "managementplans"));
@@ -190,10 +180,8 @@ public class ServiceTemplateInstanceController {
 
     @Path("/{id}/managementplans")
     public ManagementPlanController getManagementPlans(@ApiParam("service template instance id") @PathParam("id") final Long id) {
-        final ServiceTemplateInstance instance = resolveInstance(id, this.serviceTemplateId);
-
-        return new ManagementPlanController(instance.getCsarId(), QName.valueOf(this.serviceTemplateId), id,
-            this.planService, PlanTypes.TERMINATION, PlanTypes.OTHERMANAGEMENT);
+        final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
+        return new ManagementPlanController(csar, serviceTemplate, id, this.planService, PlanTypes.TERMINATION, PlanTypes.OTHERMANAGEMENT);
     }
 
     @GET
@@ -202,7 +190,6 @@ public class ServiceTemplateInstanceController {
     @ApiOperation(value = "Get the state of a service template instance identified by its id.", response = String.class)
     public Response getServiceTemplateInstanceState(@ApiParam("service template instance id") @PathParam("id") final Long id) {
         final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
-
         return Response.ok(state.toString()).build();
     }
 
@@ -265,7 +252,6 @@ public class ServiceTemplateInstanceController {
         catch (final ReflectiveOperationException e) {
             return Response.serverError().build();
         }
-
         return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
     }
 
@@ -296,20 +282,13 @@ public class ServiceTemplateInstanceController {
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDeploymentTests(@PathParam("id") final Integer id) {
-
-        final CSARContent csarContent = this.csarService.findById(this.csarId);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
-            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
-            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
-        }
-
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
         if (sti == null) {
-            logger.info("Service template instance \"" + id + "\" of template \"" + this.serviceTemplateId
+            logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
             throw new NotFoundException("Service template instance \"" + id + "\" of template \""
-                + this.serviceTemplateId + "\" could not be found");
+                + serviceTemplate.getId() + "\" could not be found");
         }
 
         final List<ResourceDecorator> items = sti.getDeploymentTests().stream().map(v -> {
@@ -333,20 +312,13 @@ public class ServiceTemplateInstanceController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDeploymentTest(@PathParam("id") final Integer id,
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
-
-        final CSARContent csarContent = this.csarService.findById(this.csarId);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
-            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
-            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
-        }
-
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
         if (sti == null) {
-            logger.info("Service template instance \"" + id + "\" of template \"" + this.serviceTemplateId
+            logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
             throw new NotFoundException("Service template instance \"" + id + "\" of template \""
-                + this.serviceTemplateId + "\" could not be found");
+                + serviceTemplate.getId() + "\" could not be found");
         }
 
         // TODO: Check if deployment test belongs the current instance
@@ -367,23 +339,16 @@ public class ServiceTemplateInstanceController {
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
     public Response createDeploymentTest(@PathParam("id") final Integer id) {
-
-        final CSARContent csarContent = this.csarService.findById(this.csarId);
-        if (!this.csarService.hasServiceTemplate(csarContent.getCSARID(), this.serviceTemplateId)) {
-            logger.info("Service template \"" + this.serviceTemplateId + "\" could not be found");
-            throw new NotFoundException("Service template \"" + this.serviceTemplateId + "\" could not be found");
-        }
-
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
         if (sti == null) {
-            logger.info("Service template instance \"" + id + "\" of template \"" + this.serviceTemplateId
+            logger.info("Service template instance \"" + id + "\" of template \"" + serviceTemplate.getId()
                 + "\" could not be found");
             throw new NotFoundException("Service template instance \"" + id + "\" of template \""
-                + this.serviceTemplateId + "\" could not be found");
+                + serviceTemplate.getId() + "\" could not be found");
         }
 
-        final DeploymentTest result = this.deploymentTestService.run(csarContent.getCSARID(), sti);
+        final DeploymentTest result = this.deploymentTestService.run(csar.id().toOldCsarId(), sti);
         final URI location = this.uriInfo.getAbsolutePathBuilder().path(String.valueOf(result.getId())).build();
         return Response.created(UriUtil.encode(location)).build();
     }

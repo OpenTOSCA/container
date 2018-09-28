@@ -149,8 +149,8 @@ public class BuildPlanController {
                                     @ApiParam(required = true,
                                               value = "input parameters for the plan") final List<TParameter> parameters) {
         // We pass -1L because "PlanInvocationEngine.invokePlan()" expects it for build plans
-        return this.planService.invokePlan(plan, uriInfo, parameters, this.csar.id().toOldCsarId(), 
-                                           new QName(serviceTemplate.getId()), -1L, PLAN_TYPE);
+        String correlationId = planService.invokePlan(csar, serviceTemplate, -1L, plan, parameters, PLAN_TYPE);
+        return Response.ok(correlationId).build();
     }
 
     @GET
@@ -162,8 +162,7 @@ public class BuildPlanController {
     public Response getBuildPlanInstance(@ApiParam("build plan id") @PathParam("plan") final String plan,
                                          @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
                                          @Context final UriInfo uriInfo) {
-        PlanInstance pi = planService.resolvePlanInstance(plan, instance, uriInfo, csar.id().toOldCsarId(),
-                                                                new QName(serviceTemplate.getId()), null, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
 
         final PlanInstanceDTO dto = PlanInstanceDTO.Converter.convert(pi);
         // Add service template instance link
@@ -192,8 +191,7 @@ public class BuildPlanController {
     public Response getBuildPlanInstanceState(@ApiParam("build plan id") @PathParam("plan") final String plan,
                                               @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
                                               @Context final UriInfo uriInfo) {
-        final PlanInstance pi = planService.resolvePlanInstance(plan, instance, uriInfo, csar.id().toOldCsarId(),
-                                                               new QName(serviceTemplate.getId()), null, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
         return Response.ok(pi.getState().toString()).build();
     }
 
@@ -209,8 +207,7 @@ public class BuildPlanController {
                                                  @Context final UriInfo uriInfo,
                                                  @ApiParam(required = true,
                                                            value = "The new state of the build plan instance, possible values include \"RUNNING\", \"FINISHED\", \"FAILED\", \"UNKNOWN\"") final String request) {
-        final PlanInstance pi = planService.resolvePlanInstance(plan, instance, uriInfo, csar.id().toOldCsarId(),
-                                                               new QName(serviceTemplate.getId()), null, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
         return planService.updatePlanInstanceState(pi, PlanInstanceState.valueOf(request)) 
             ? Response.ok().build()
             : Response.status(Status.BAD_REQUEST).build();
@@ -225,8 +222,7 @@ public class BuildPlanController {
     public Response getBuildPlanInstanceLogs(@ApiParam("build plan id") @PathParam("plan") final String plan,
                                              @ApiParam("plan instance correlation id") @PathParam("instance") final String instance,
                                              @Context final UriInfo uriInfo) {
-        final PlanInstance pi = planService.resolvePlanInstance(plan, instance, uriInfo, csar.id().toOldCsarId(),
-                                                                new QName(serviceTemplate.getId()), null, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
 
         final PlanInstanceDTO piDto = PlanInstanceDTO.Converter.convert(pi);
         final PlanInstanceEventListDTO dto = new PlanInstanceEventListDTO(piDto.getLogs());
@@ -254,8 +250,7 @@ public class BuildPlanController {
             LOGGER.info("Log entry is empty!");
             return Response.status(Status.BAD_REQUEST).build();
         }
-        final PlanInstance pi = planService.resolvePlanInstance(plan, instance, uriInfo, csar.id().toOldCsarId(),
-                                                                new QName(serviceTemplate.getId()), null, PLAN_TYPE);
+        PlanInstance pi = planService.resolvePlanInstance(csar, serviceTemplate, null, plan, instance, PLAN_TYPE);
         final PlanInstanceEvent event = new PlanInstanceEvent("INFO", "PLAN_LOG", entry);
         planService.addLogToPlanInstance(pi, event);
         

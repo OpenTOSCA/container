@@ -167,12 +167,12 @@ public class ServiceTemplateController {
                                                           @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId) {
         final Csar csar = storage.findById(new CsarId(csarId));
         // return value is not used, we only need to throw if we didn't find stuff
-        csar.serviceTemplates().stream()
+        TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
             .filter(t -> t.getIdFromIdOrNameField().equals(serviceTemplateId))
             .findFirst().orElseThrow(NotFoundException::new);
 
-        final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(this.instanceService,
-            this.planService, this.csarService, this.deploymentTestService);
+        final ServiceTemplateInstanceController child = new ServiceTemplateInstanceController(csar, serviceTemplate, this.instanceService,
+            this.planService, this.deploymentTestService);
         this.resourceContext.initResource(child);// this initializes @Context fields in the sub-resource
 
         return child;
