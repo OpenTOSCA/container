@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ansibleoperation
 Bundle-SymbolicName: org.opentosca.planbuilder.provphase.plugin.ansibleoperation
+Automatic-Module-Name: org.opentosca.planbuilder.provphase.plugin.ansibleoperation
 Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenTosca PlanBuilder Core Ansible Operation Plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

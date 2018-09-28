@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Core DockerContainerTypePlugin
 Bundle-SymbolicName: org.opentosca.planbuilder.type.plugin.dockercontainer
+Automatic-Module-Name: org.opentosca.planbuilder.type.plugin.dockercontainer
 Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenTOSCA
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA IA Engine Plugin for .aar Files
 Bundle-SymbolicName: org.opentosca.container.engine.ia.plugin.aar
+Automatic-Module-Name: org.opentosca.container.engine.ia.plugin.aar
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.http;version="4.2.1",

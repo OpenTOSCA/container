@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Implementation Artifact Engine
 Bundle-SymbolicName: org.opentosca.container.engine.ia
+Automatic-Module-Name: org.opentosca.container.engine.ia
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.opentosca.container.core.engine;version="2.0.0",

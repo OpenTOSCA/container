@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Deployment Tests
 Bundle-SymbolicName: org.opentosca.deployment.checks
+Automatic-Module-Name: org.opentosca.deployment.checks
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.google.common.base;version="15.0.0",

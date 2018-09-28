@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Context
 Bundle-SymbolicName: org.opentosca.planbuilder.model
+Automatic-Module-Name: org.opentosca.planbuilder.model
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.apache.ode.activityrecovery;version="2.0.0",

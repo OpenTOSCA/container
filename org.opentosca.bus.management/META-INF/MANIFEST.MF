@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.opentosca.bus.management
 Bundle-SymbolicName: org.opentosca.bus.management
+Automatic-Module-Name: org.opentosca.bus.management
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.opentosca.bus.management.header;version="2.0.0",

@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Application Bus Soap over http API
 Bundle-SymbolicName: org.opentosca.bus.application.api.soaphttp
+Automatic-Module-Name: org.opentosca.bus.application.api.soaphttp
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.application.api.soaphttp.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

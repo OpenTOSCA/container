@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenTOSCA Container Core
 Bundle-SymbolicName: org.opentosca.container.core
+Automatic-Module-Name: org.opentosca.container.core
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.container.core.Activator
 Bundle-ActivationPolicy: lazy

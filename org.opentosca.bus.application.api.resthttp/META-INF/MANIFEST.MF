@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rest-Http API for Application Bus
 Bundle-SymbolicName: org.opentosca.bus.application.api.resthttp
+Automatic-Module-Name: org.opentosca.bus.application.api.resthttp
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.opentosca.bus.application.api.resthttp.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
