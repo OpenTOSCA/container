@@ -65,7 +65,8 @@ public class Utils {
      */
     public static boolean isSupportedVirtualMachineIPProperty(final String name) {
         return name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_SERVERIP)
-            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP);
+            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_VMIP)
+            | name.equals(Properties.OPENTOSCA_DECLARATIVE_PROPERTYNAME_RASPBIANIP);
     }
 
     /**
