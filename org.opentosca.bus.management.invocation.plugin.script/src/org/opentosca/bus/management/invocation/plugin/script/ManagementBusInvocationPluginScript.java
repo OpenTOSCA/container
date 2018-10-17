@@ -256,6 +256,10 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                                 artifactTypeSpecificCommand.replace(ManagementBusInvocationPluginScript.PLACEHOLDER_DA_INPUT_PARAMETER,
                                                                     createParamsString(params));
 
+                            // delete the uploaded file on the remote site to save resources
+                            final String deleteFileCommand = "; rm -f " + targetFilePath;
+                            artifactTypeSpecificCommand = artifactTypeSpecificCommand + deleteFileCommand;
+                          
                             ManagementBusInvocationPluginScript.LOG.debug("Final command for the script execution: {}",
                                                                           artifactTypeSpecificCommand);
 
@@ -266,11 +270,6 @@ public class ManagementBusInvocationPluginScript implements IManagementBusInvoca
                             // check for output parameters in the script result and add them to the
                             // operation result
                             addOutputParametersToResultMap(resultMap, result, outputParameters);
-
-                            // delete the uploaded file on the remote site to save resources
-                            ManagementBusInvocationPluginScript.LOG.debug("Deleting file...");
-                            final String deleteFileCommand = "rm -f " + targetFilePath;
-                            runScript(deleteFileCommand, headers);
                         }
 
                         // remove the created directories
