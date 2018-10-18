@@ -28,6 +28,7 @@ import org.opentosca.planbuilder.model.plan.AbstractPlan;
 import org.opentosca.planbuilder.model.plan.AbstractPlan.Link;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan;
 import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.ImportType;
+import org.opentosca.planbuilder.model.plan.bpel.BPELPlan.ToscaOperation;
 import org.opentosca.planbuilder.model.plan.bpel.BPELScopeActivity;
 import org.opentosca.planbuilder.model.plan.bpel.Deploy;
 import org.opentosca.planbuilder.model.plan.bpel.GenericWsdlWrapper;
@@ -83,42 +84,6 @@ public class BPELPlanHandler {
 	}
 
 	/**
-	 * Returns a prefix for the given namespace if it is declared in the buildPlan
-	 *
-	 * @param namespace the namespace to get the prefix for
-	 * @return a String containing the prefix, else null
-	 */
-	public String getPrefixForNamespace(final String namespace, final BPELPlan plan) {
-		if (plan.namespaceMap.containsValue(namespace)) {
-			for (final String key : plan.namespaceMap.keySet()) {
-				if (plan.namespaceMap.get(key).equals(namespace)) {
-					return key;
-				}
-			}
-		}
-		return null;
-	}
-
-	public Node importNode(final BPELPlan plan, final Node node) {
-		return plan.getBpelDocument().importNode(node, true);
-	}
-
-	public String addGlobalStringVariable(final String varNamePrefix, final BPELPlan plan) {
-		final QName stringXsdDeclQName = new QName(ImportType.XSD.toString(), "string",
-				ImportType.XSD.getName() + System.currentTimeMillis());
-
-		final String xsdNamespace = ImportType.XSD.toString();
-		final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
-		addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
-
-		final String serviceTemplateURLVarName = varNamePrefix + System.currentTimeMillis();
-
-		addVariable(serviceTemplateURLVarName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
-
-		return serviceTemplateURLVarName;
-	}
-
-	/**
 	 * Adds a BPEL copy element given as String to the last assign of the BuildPlan.
 	 * Note that the string given must be valid
 	 *
@@ -164,7 +129,7 @@ public class BPELPlanHandler {
 	public boolean addExtension(final String namespace, final boolean mustUnderstand, final BPELPlan buildPlan) {
 		BPELPlanHandler.LOG.debug("Trying to add extension {} with mustUnderstand {} to BuildPlan {}", namespace,
 				String.valueOf(mustUnderstand), buildPlan.getBpelProcessElement().getAttribute("name"));
-		if (hasExtension(namespace, buildPlan)) {
+		if (this.hasExtension(namespace, buildPlan)) {
 			BPELPlanHandler.LOG.warn("Adding extension failed");
 			return false;
 		} else {
@@ -176,6 +141,21 @@ public class BPELPlanHandler {
 		}
 		BPELPlanHandler.LOG.debug("Adding Extension was successful");
 		return true;
+	}
+
+	public String addGlobalStringVariable(final String varNamePrefix, final BPELPlan plan) {
+		final QName stringXsdDeclQName = new QName(ImportType.XSD.toString(), "string",
+				ImportType.XSD.getName() + System.currentTimeMillis());
+
+		final String xsdNamespace = ImportType.XSD.toString();
+		final String xsdPrefix = ImportType.XSD.getName() + System.currentTimeMillis();
+		this.addNamespaceToBPELDoc(xsdPrefix, xsdNamespace, plan);
+
+		final String serviceTemplateURLVarName = varNamePrefix + System.currentTimeMillis();
+
+		this.addVariable(serviceTemplateURLVarName, BPELPlan.VariableType.TYPE, stringXsdDeclQName, plan);
+
+		return serviceTemplateURLVarName;
 	}
 
 	/**
@@ -228,6 +208,14 @@ public class BPELPlanHandler {
 		return true;
 	}
 
+	// much better version of the same functionality.
+	public boolean addImportToBpel(final String namespace, final String location, final ImportType importType,
+			final BPELPlan buildPlan) {
+		BPELPlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}",
+				namespace, location, importType.getName(), buildPlan.getBpelProcessElement().getAttribute("name"));
+		return this.addImports(namespace, location, importType, buildPlan);
+	}
+
 	/**
 	 * Adds an import to the given BuildPlan
 	 *
@@ -242,20 +230,12 @@ public class BPELPlanHandler {
 		BPELPlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}",
 				namespace, location, importType, buildPlan.getBpelProcessElement().getAttribute("name"));
 		if (importType.equals(BPELPlan.ImportType.WSDL.toString())) {
-			return addImports(namespace, location, BPELPlan.ImportType.WSDL, buildPlan);
+			return this.addImports(namespace, location, BPELPlan.ImportType.WSDL, buildPlan);
 		} else if (importType.equals(BPELPlan.ImportType.XSD.toString())) {
-			return addImports(namespace, location, BPELPlan.ImportType.XSD, buildPlan);
+			return this.addImports(namespace, location, BPELPlan.ImportType.XSD, buildPlan);
 		} else {
 			return false;
 		}
-	}
-
-	// much better version of the same functionality.
-	public boolean addImportToBpel(final String namespace, final String location, final ImportType importType,
-			final BPELPlan buildPlan) {
-		BPELPlanHandler.LOG.debug("Adding import with namespace {}, location {} and importType to BuildPlan {}",
-				namespace, location, importType.getName(), buildPlan.getBpelProcessElement().getAttribute("name"));
-			return addImports(namespace, location, importType, buildPlan);
 	}
 
 	/**
@@ -266,7 +246,7 @@ public class BPELPlanHandler {
 	 * @return true if adding the variable was successful
 	 */
 	public boolean addIntegerVariable(final String name, final BPELPlan plan) {
-		return addVariable(name, BPELPlan.VariableType.TYPE,
+		return this.addVariable(name, BPELPlan.VariableType.TYPE,
 				new QName(ImportType.XSD.toString(), "integer", ImportType.XSD.getName()), plan);
 	}
 
@@ -324,7 +304,7 @@ public class BPELPlanHandler {
 		BPELPlanHandler.LOG.debug("Trying to add link {} to BuildPlan {}", linkName,
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 
-		if (hasLink(linkName, buildPlan)) {
+		if (this.hasLink(linkName, buildPlan)) {
 			BPELPlanHandler.LOG.warn("Adding link failed");
 			return false;
 		}
@@ -374,7 +354,7 @@ public class BPELPlanHandler {
 				"Trying to add partnerLink {} with type {}, myRole {}, partnerRole {} and initializePartnerRole {} to BuildPlan {}",
 				partnerLinkName, partnerLinkType.toString(), myRole, partnerRole, String.valueOf(initializePartnerRole),
 				buildPlan.getBpelProcessElement().getAttribute("name"));
-		if (hasPartnerLink(partnerLinkName, buildPlan)) {
+		if (this.hasPartnerLink(partnerLinkName, buildPlan)) {
 			BPELPlanHandler.LOG.warn("Failed to add partnerLink");
 			return false;
 		} else {
@@ -385,7 +365,7 @@ public class BPELPlanHandler {
 			partnerLinkElement.setAttribute("partnerLinkType",
 					partnerLinkType.getPrefix() + ":" + partnerLinkType.getLocalPart());
 			partnerLinkElement.setAttribute("myRole", myRole);
-			if (partnerRole != null && !partnerRole.equals("")) {
+			if ((partnerRole != null) && !partnerRole.equals("")) {
 				partnerLinkElement.setAttribute("partnerRole", partnerRole);
 			}
 
@@ -442,7 +422,7 @@ public class BPELPlanHandler {
 	 * @return true if adding the PropertyVariable to the BuildPlan, else false
 	 */
 	public boolean addPropertyVariable(final String name, final BPELPlan buildPlan) {
-		return addVariable("prop_" + name, BPELPlan.VariableType.TYPE,
+		return this.addVariable("prop_" + name, BPELPlan.VariableType.TYPE,
 				new QName(ImportType.XSD.toString(), "string", ImportType.XSD.getName()), buildPlan);
 	}
 
@@ -524,7 +504,7 @@ public class BPELPlanHandler {
 			final BPELPlan buildPlan) {
 		BPELPlanHandler.LOG.debug("Trying to add variable {} with type {} and declarationId {} to Plan {}", name,
 				variableType, declarationId.toString(), buildPlan.getBpelProcessElement().getAttribute("name"));
-		if (hasVariable(name, buildPlan)) {
+		if (this.hasVariable(name, buildPlan)) {
 			BPELPlanHandler.LOG.warn("Adding variable failed, as it is already declared");
 			return false;
 		}
@@ -702,17 +682,17 @@ public class BPELPlanHandler {
 			BPELPlanHandler.LOG.error("Internal error while initializing WSDL for BuildPlan", e);
 		}
 
-		initializeXMLElements(buildPlan);
+		this.initializeXMLElements(buildPlan);
 
 		// add new deployment deskriptor
 		buildPlan.setDeploymentDeskriptor(new Deploy());
 
 		// set name of process and wsdl
-		setId(processNamespace, processName, buildPlan);
-		setWsdlId(processNamespace, processName, buildPlan);
+		this.setId(processNamespace, processName, buildPlan);
+		this.setWsdlId(processNamespace, processName, buildPlan);
 
 		// add import for the process wsdl
-		addImports(processNamespace, buildPlan.getWsdl().getFileName(), BPELPlan.ImportType.WSDL, buildPlan);
+		this.addImports(processNamespace, buildPlan.getWsdl().getFileName(), BPELPlan.ImportType.WSDL, buildPlan);
 
 		// add partnerlink to the process. note/FIXME?: the partnerlinktype of
 		// the process itself is alread initialized with setting the name of the
@@ -722,7 +702,7 @@ public class BPELPlanHandler {
 		// partnerLinkType="tns:bamoodlebuildplan"
 		// myRole="bamoodlebuildplanProvider"
 		// partnerRole="bamoodlebuildplanRequester" />
-		addPartnerLink("client", new QName(processNamespace, processName, "tns"), processName + "Provider",
+		this.addPartnerLink("client", new QName(processNamespace, processName, "tns"), processName + "Provider",
 				processName + "Requester", true, buildPlan);
 
 		// add input and output variables
@@ -740,9 +720,9 @@ public class BPELPlanHandler {
 		// <bpel:variable name="output"
 		// messageType="tns:bamoodlebuildplanResponseMessage" />
 
-		addVariable("input", BPELPlan.VariableType.MESSAGE,
+		this.addVariable("input", BPELPlan.VariableType.MESSAGE,
 				new QName(processNamespace, processName + "RequestMessage", "tns"), buildPlan);
-		addVariable("output", BPELPlan.VariableType.MESSAGE,
+		this.addVariable("output", BPELPlan.VariableType.MESSAGE,
 				new QName(processNamespace, processName + "ResponseMessage", "tns"), buildPlan);
 
 		// set the receive and callback invoke elements
@@ -758,22 +738,22 @@ public class BPELPlanHandler {
 		// inputVariable="output"
 		// />
 		final Element receiveElement = buildPlan.getBpelMainSequenceReceiveElement();
-		setAttribute(receiveElement, "name", "receiveInput");
+		this.setAttribute(receiveElement, "name", "receiveInput");
 
-		setAttribute(receiveElement, "operation", inputOperationName);
+		this.setAttribute(receiveElement, "operation", inputOperationName);
 
-		setAttribute(receiveElement, "variable", "input");
-		setAttribute(receiveElement, "createInstance", "yes");
-		setAttribute(receiveElement, "partnerLink", "client");
-		setAttribute(receiveElement, "portType", "tns:" + processName);
+		this.setAttribute(receiveElement, "variable", "input");
+		this.setAttribute(receiveElement, "createInstance", "yes");
+		this.setAttribute(receiveElement, "partnerLink", "client");
+		this.setAttribute(receiveElement, "portType", "tns:" + processName);
 
 		final Element invokeElement = buildPlan.getBpelMainSequenceCallbackInvokeElement();
-		setAttribute(invokeElement, "name", "callbackClient");
-		setAttribute(invokeElement, "partnerLink", "client");
+		this.setAttribute(invokeElement, "name", "callbackClient");
+		this.setAttribute(invokeElement, "partnerLink", "client");
 		// FIXME serious hack here
-		setAttribute(invokeElement, "portType", "tns:" + processName + "Callback");
-		setAttribute(invokeElement, "operation", "onResult");
-		setAttribute(invokeElement, "inputVariable", "output");
+		this.setAttribute(invokeElement, "portType", "tns:" + processName + "Callback");
+		this.setAttribute(invokeElement, "operation", "onResult");
+		this.setAttribute(invokeElement, "inputVariable", "output");
 
 		// set deployment descriptor
 		final Deploy deployment = buildPlan.getDeploymentDeskriptor();
@@ -814,6 +794,11 @@ public class BPELPlanHandler {
 		processes.add(process);
 
 		return buildPlan;
+	}
+
+	public BPELPlan createEmptyBPELPlan(final String processNamespace, final String processName,
+			final AbstractPlan abstractPlan, final ToscaOperation operation) {
+		return this.createEmptyBPELPlan(processNamespace, processName, abstractPlan, operation.getName());
 	}
 
 	/**
@@ -860,6 +845,23 @@ public class BPELPlanHandler {
 	}
 
 	/**
+	 * Returns a prefix for the given namespace if it is declared in the buildPlan
+	 *
+	 * @param namespace the namespace to get the prefix for
+	 * @return a String containing the prefix, else null
+	 */
+	public String getPrefixForNamespace(final String namespace, final BPELPlan plan) {
+		if (plan.namespaceMap.containsValue(namespace)) {
+			for (final String key : plan.namespaceMap.keySet()) {
+				if (plan.namespaceMap.get(key).equals(namespace)) {
+					return key;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Returns all TemplateBuildPlans of the given BuildPlan which handle
 	 * RelationshipTemplates
 	 *
@@ -888,10 +890,10 @@ public class BPELPlanHandler {
 		for (final BPELScopeActivity template : buildPlan.getTemplateBuildPlans()) {
 			// FIXME it looks a bit hacky.. it looks even more hacky if you look
 			// at getRelationshipTemplatePlans(..), the ifs
-			if (template.getNodeTemplate() != null && template.getNodeTemplate().getId().equals(id)) {
+			if ((template.getNodeTemplate() != null) && template.getNodeTemplate().getId().equals(id)) {
 				return template;
 			}
-			if (template.getRelationshipTemplate() != null && template.getRelationshipTemplate().getId().equals(id)) {
+			if ((template.getRelationshipTemplate() != null) && template.getRelationshipTemplate().getId().equals(id)) {
 				return template;
 			}
 		}
@@ -899,7 +901,7 @@ public class BPELPlanHandler {
 	}
 
 	/**
-	 * Chechs whether the given BuildPlan has a extension with the given namespace
+	 * Checks whether the given BuildPlan has a extension with the given namespace
 	 *
 	 * @param namespace the namespace of the extension
 	 * @param buildPlan the BuildPlan to check with
@@ -1003,6 +1005,70 @@ public class BPELPlanHandler {
 		return ModelUtils.hasChildElementWithAttribute(buildPlan.getBpelProcessVariablesElement(), "name", name);
 	}
 
+	/**
+	 * Imports the given QName Namespace into the BuildPlan
+	 *
+	 * @param bpelPlanContext TODO
+	 * @param qname           a QName to import
+	 * @return the QName with set prefix
+	 */
+	public QName importNamespace(final QName qname, final BPELPlan plan) {
+		String prefix = qname.getPrefix();
+		final String namespace = qname.getNamespaceURI();
+		boolean prefixInUse = false;
+		boolean namespaceInUse = false;
+
+		// check if prefix is in use
+		if ((prefix != null) && !prefix.isEmpty()) {
+			prefixInUse = plan.namespaceMap.containsKey(prefix);
+		}
+
+		// check if namespace is in use
+		if ((namespace != null) && !namespace.isEmpty()) {
+			namespaceInUse = plan.namespaceMap.containsValue(namespace);
+		}
+
+		// TODO refactor this whole thing
+		if (prefixInUse & namespaceInUse) {
+			// both is already registered, this means we set the prefix of the
+			// given qname to the prefix used in the system
+			for (final String key : plan.namespaceMap.keySet()) {
+				if (plan.namespaceMap.get(key).equals(namespace)) {
+					prefix = key;
+				}
+			}
+		} else if (!prefixInUse & namespaceInUse) {
+			// the prefix isn't in use, but the namespace is, re-set the prefix
+			for (final String key : plan.namespaceMap.keySet()) {
+				if (plan.namespaceMap.get(key).equals(namespace)) {
+					prefix = key;
+				}
+			}
+		} else if (!prefixInUse & !namespaceInUse) {
+			// just add the namespace and prefix to the system
+			if ((prefix == null) || prefix.isEmpty()) {
+				// generate new prefix
+				prefix = "ns" + plan.namespaceMap.keySet().size();
+			}
+			plan.namespaceMap.put(prefix, namespace);
+
+			this.addNamespaceToBPELDoc(prefix, namespace, plan);
+
+		} else {
+			if ((prefix == null) || prefix.isEmpty()) {
+				// generate new prefix
+				prefix = "ns" + plan.namespaceMap.keySet().size();
+			}
+			plan.namespaceMap.put(prefix, namespace);
+			this.addNamespaceToBPELDoc(prefix, namespace, plan);
+		}
+		return new QName(namespace, qname.getLocalPart(), prefix);
+	}
+
+	public Node importNode(final BPELPlan plan, final Node node) {
+		return plan.getBpelDocument().importNode(node, true);
+	}
+
 	public void initializeBPELSkeleton(final BPELPlan plan, final String csarName) {
 		plan.setCsarName(csarName);
 
@@ -1027,7 +1093,7 @@ public class BPELPlanHandler {
 		plan.setAbstract2BPELMapping(abstract2bpelMap);
 
 		// connect the templates
-		initializeConnectionsAsLinkInBPELPlan(plan);
+		this.initializeConnectionsAsLinkInBPELPlan(plan);
 	}
 
 	private void initializeConnectionsAsLinkInBPELPlan(final BPELPlan plan) {
@@ -1035,7 +1101,7 @@ public class BPELPlanHandler {
 			final BPELScopeActivity source = plan.getAbstract2BPEL().get(link.getSrcActiv());
 			final BPELScopeActivity target = plan.getAbstract2BPEL().get(link.getTrgActiv());
 
-			if (source == null | target == null) {
+			if ((source == null) | (target == null)) {
 				continue;
 			}
 
@@ -1044,7 +1110,7 @@ public class BPELPlanHandler {
 							: source.getRelationshipTemplate().getId())
 					+ "_" + (target.getNodeTemplate() != null ? target.getNodeTemplate().getId()
 							: target.getRelationshipTemplate().getId());
-			addLink(linkName, plan);
+			this.addLink(linkName, plan);
 
 			this.bpelScopeHandler.connect(source, target, linkName);
 
@@ -1061,7 +1127,7 @@ public class BPELPlanHandler {
 	 * @return true if adding the copy was successful, else false
 	 */
 	public boolean initializePropertyVariable(final String propertyName, final String value, final BPELPlan buildPlan) {
-		return assignVariableStringValue("prop_" + propertyName, value, buildPlan);
+		return this.assignVariableStringValue("prop_" + propertyName, value, buildPlan);
 	}
 
 	/**
@@ -1186,7 +1252,7 @@ public class BPELPlanHandler {
 	 * @return true if adding the extension was successful, else false
 	 */
 	public boolean registerExtension(final String namespace, final boolean mustUnderstand, final BPELPlan buildPlan) {
-		return addExtension(namespace, mustUnderstand, buildPlan);
+		return this.addExtension(namespace, mustUnderstand, buildPlan);
 	}
 
 	/**
@@ -1255,66 +1321,6 @@ public class BPELPlanHandler {
 				buildPlan.getBpelProcessElement().getAttribute("name"));
 		final GenericWsdlWrapper wsdl = buildPlan.getWsdl();
 		wsdl.setId(namespace, name);
-	}
-
-	/**
-	 * Imports the given QName Namespace into the BuildPlan
-	 *
-	 * @param bpelPlanContext TODO
-	 * @param qname           a QName to import
-	 * @return the QName with set prefix
-	 */
-	public QName importNamespace(final QName qname, final BPELPlan plan) {
-		String prefix = qname.getPrefix();
-		final String namespace = qname.getNamespaceURI();
-		boolean prefixInUse = false;
-		boolean namespaceInUse = false;
-
-		// check if prefix is in use
-		if (prefix != null && !prefix.isEmpty()) {
-			prefixInUse = plan.namespaceMap.containsKey(prefix);
-		}
-
-		// check if namespace is in use
-		if (namespace != null && !namespace.isEmpty()) {
-			namespaceInUse = plan.namespaceMap.containsValue(namespace);
-		}
-
-		// TODO refactor this whole thing
-		if (prefixInUse & namespaceInUse) {
-			// both is already registered, this means we set the prefix of the
-			// given qname to the prefix used in the system
-			for (final String key : plan.namespaceMap.keySet()) {
-				if (plan.namespaceMap.get(key).equals(namespace)) {
-					prefix = key;
-				}
-			}
-		} else if (!prefixInUse & namespaceInUse) {
-			// the prefix isn't in use, but the namespace is, re-set the prefix
-			for (final String key : plan.namespaceMap.keySet()) {
-				if (plan.namespaceMap.get(key).equals(namespace)) {
-					prefix = key;
-				}
-			}
-		} else if (!prefixInUse & !namespaceInUse) {
-			// just add the namespace and prefix to the system
-			if (prefix == null || prefix.isEmpty()) {
-				// generate new prefix
-				prefix = "ns" + plan.namespaceMap.keySet().size();
-			}
-			plan.namespaceMap.put(prefix, namespace);
-
-			addNamespaceToBPELDoc(prefix, namespace, plan);
-
-		} else {
-			if (prefix == null || prefix.isEmpty()) {
-				// generate new prefix
-				prefix = "ns" + plan.namespaceMap.keySet().size();
-			}
-			plan.namespaceMap.put(prefix, namespace);
-			addNamespaceToBPELDoc(prefix, namespace, plan);
-		}
-		return new QName(namespace, qname.getLocalPart(), prefix);
 	}
 
 }
