@@ -138,33 +138,7 @@ public class BPELDefreezeProcessBuilder extends AbstractTerminationPlanBuilder  
 		return null;
 	}
 
-	private boolean isDockerContainer(final AbstractNodeTemplate nodeTemplate) {
-		if (nodeTemplate.getProperties() == null) {
-			return false;
-		}
-		final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-		final NodeList childNodeList = propertyElement.getChildNodes();
 
-		int check = 0;
-		boolean foundDockerImageProp = false;
-		for (int index = 0; index < childNodeList.getLength(); index++) {
-			if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			}
-			if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
-				check++;
-			} else if (childNodeList.item(index).getLocalName().equals("Port")) {
-				check++;
-			} else if (childNodeList.item(index).getLocalName().equals("ContainerImage")) {
-				foundDockerImageProp = true;
-			}
-		}
-
-		if (check != 2) {
-			return false;
-		}
-		return true;
-	}
 
 	/**
 	 * This Methods Finds out if a Service Template Container a freeze method and

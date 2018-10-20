@@ -148,7 +148,7 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 		}
 
 		BPELFreezeProcessBuilder.LOG.warn(
-				"Couldn't create BackupPlan for ServiceTemplate {} in Definitions {} of CSAR {}",
+				"Couldn't create FreezePlan for ServiceTemplate {} in Definitions {} of CSAR {}",
 				serviceTemplateId.toString(), definitions.getId(), csarName);
 		return null;
 	}
@@ -180,33 +180,6 @@ public class BPELFreezeProcessBuilder extends AbstractTerminationPlanBuilder {
 		return plans;
 	}
 
-	private boolean isDockerContainer(final AbstractNodeTemplate nodeTemplate) {
-		if (nodeTemplate.getProperties() == null) {
-			return false;
-		}
-		final Element propertyElement = nodeTemplate.getProperties().getDOMElement();
-		final NodeList childNodeList = propertyElement.getChildNodes();
-
-		int check = 0;
-		boolean foundDockerImageProp = false;
-		for (int index = 0; index < childNodeList.getLength(); index++) {
-			if (childNodeList.item(index).getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			}
-			if (childNodeList.item(index).getLocalName().equals("ContainerPort")) {
-				check++;
-			} else if (childNodeList.item(index).getLocalName().equals("Port")) {
-				check++;
-			} else if (childNodeList.item(index).getLocalName().equals("ContainerImage")) {
-				foundDockerImageProp = true;
-			}
-		}
-
-		if (check != 2) {
-			return false;
-		}
-		return true;
-	}
 
 	/**
 	 * This Methods Finds out if a Service Template Container a freeze method and
