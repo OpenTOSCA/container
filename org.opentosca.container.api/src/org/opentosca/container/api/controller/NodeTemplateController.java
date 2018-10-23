@@ -16,6 +16,8 @@ import javax.xml.namespace.QName;
 
 import org.opentosca.container.api.dto.NodeTemplateDTO;
 import org.opentosca.container.api.dto.NodeTemplateListDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.api.service.InstanceService;
 import org.opentosca.container.api.service.NodeTemplateService;
 import org.opentosca.container.api.util.UriUtil;
@@ -59,6 +61,15 @@ public class NodeTemplateController {
 
         for (final NodeTemplateDTO nodeTemplate : nodeTemplateIds) {
             nodeTemplate.add(UriUtil.generateSubResourceLink(this.uriInfo, nodeTemplate.getId(), true, "self"));
+
+            nodeTemplate.getInterfaces().add(UriUtil.generateSelfLink(this.uriInfo));
+
+            for (final InterfaceDTO dto : nodeTemplate.getInterfaces().getInterfaces()) {
+                dto.add(UriUtil.generateSelfLink(this.uriInfo));
+                for (final OperationDTO op : dto.getOperations().values()) {
+                    op.add(UriUtil.generateSelfLink(this.uriInfo));
+                }
+            }
 
             list.add(nodeTemplate);
         }

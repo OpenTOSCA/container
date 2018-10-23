@@ -293,6 +293,22 @@ public interface IToscaEngineService {
     public Node getInputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
                                                        String operationName);
 
+
+    /**
+     * This method returns a node containing the InputParameter of Elements of the specified operation
+     * of the specified interface of the specified nodeType within the specified scarID.
+     *
+     * @param csarID of the CSAR.
+     * @param nodeTypeID of the operation.
+     * @param interfaceName of the operation.
+     * @param operationName of which the parameters should be returned.
+     * @return A List of String containing the InputParameters.
+     */
+    public List<String> getInputParametersOfNodeTypeOperation(CSARID csarID, QName nodeTypeId, String interfaceName,
+                                                              String operationName);
+
+
+
     /**
      * This method returns a node containing the OutputParameter of Elements of the specified operation
      * of the specified interface of the specified nodeType within the specified scarID.
@@ -305,6 +321,19 @@ public interface IToscaEngineService {
      */
     public Node getOutputParametersOfANodeTypeOperation(CSARID csarID, QName nodeTypeID, String interfaceName,
                                                         String operationName);
+
+    /**
+     * This method returns a node containing the OutputParameter of Elements of the specified operation
+     * of the specified interface of the specified nodeType within the specified scarID.
+     *
+     * @param csarID of the CSAR.
+     * @param nodeTypeID of the operation.
+     * @param interfaceName of the operation.
+     * @param operation name of which the parameters should be returned.
+     * @return A List of Strings containing the OutputParameters.
+     */
+    public List<String> getOutputParametersOfNodeTypeOperation(CSARID csarID, QName nodeTypeId, String interfaceName,
+                                                               String operationName);
 
     /**
      * This method returns a node containing the InputParameter of Elements of the specified operation
@@ -786,4 +815,22 @@ public interface IToscaEngineService {
      */
     public QName getRelationshipTemplateSource(CSARID csarId, QName serviceTemplateId, String relationshipTemplateId);
 
+    /**
+     * Returns a list of operation names of the referenced Node Type's interface
+     *
+     * @param csarId the CSAR to look in
+     * @param nodeTypeId the id of the Node Type to look in
+     * @param interfaceName the name of the interface to look in
+     * @return a List of Strings representing the operation names of the referenced Node Type interface
+     */
+    public List<String> getOperationNamesOfNodeTypeInterface(CSARID csarId, QName nodeTypeId, String interfaceName);
+
+    /**
+     * Returns a list of interface names of the referenced Node Type
+     *
+     * @param csarId the CSAR to look in
+     * @param nodeTypeId the id of the Node Type to look in
+     * @return a List of String representing the interface names of the referenced Node Type
+     */
+    public List<String> getInterfaceNamesOfNodeType(CSARID csarId, QName nodeTypeId);
 }

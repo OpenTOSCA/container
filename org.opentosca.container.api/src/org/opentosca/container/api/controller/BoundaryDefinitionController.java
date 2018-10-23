@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
@@ -177,7 +178,7 @@ public class BoundaryDefinitionController {
             final OperationDTO op = new OperationDTO();
 
             op.setName(o.getName());
-            op.setNodeOperation(o.getNodeOperation());
+            op.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
             op.setRelationshipOperation(o.getRelationshipOperation());
 
             if (o.getPlan() != null) {
