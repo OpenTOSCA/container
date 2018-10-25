@@ -307,20 +307,19 @@ public class OpenToscaControlServiceImpl implements IOpenToscaControlService {
     private boolean undeployPlans(final CSARID csarID) {
         final List<TPlan> listOfUndeployedPlans = new ArrayList<>();
         // invoke PlanEngine
-        if (this.toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
+        if (toscaEngine.getServiceTemplatesInCSAR(csarID) == null) {
             // nothing to delete
             return true;
         }
 
-        for (final QName serviceTemplateID : this.toscaEngine.getServiceTemplatesInCSAR(csarID)) {
+        for (final QName serviceTemplateID : toscaEngine.getServiceTemplatesInCSAR(csarID)) {
 
             this.LOG.info("Invoke the PlanEngine for processing the Plans.");
             if (OpenToscaControlServiceImpl.planEngine != null) {
 
                 final TServiceTemplate mainServiceTemplate =
-                    (TServiceTemplate) OpenToscaControlServiceImpl.toscaEngine.getToscaReferenceMapper()
-                                                                              .getJAXBReference(csarID,
-                                                                                                serviceTemplateID);
+                    (TServiceTemplate) toscaEngine.getToscaReferenceMapper()
+                                                  .getJAXBReference(csarID, serviceTemplateID);
 
                 if (mainServiceTemplate == null) {
                     this.LOG.error("Did not found the main ServiceTemplate \"" + serviceTemplateID + "\".");

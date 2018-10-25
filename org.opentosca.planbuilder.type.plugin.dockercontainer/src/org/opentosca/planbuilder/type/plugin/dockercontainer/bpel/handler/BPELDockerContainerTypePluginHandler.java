@@ -269,7 +269,7 @@ public class BPELDockerContainerTypePluginHandler implements DockerContainerType
             if (propName.startsWith("ENV_")) {
                 final Variable propVar = context.getPropertyVariable(nodeTemplate, propName);
 
-                String varContent = context.getVariableContent(propVar, context);
+                String varContent = BPELPlanContext.getVariableContent(propVar, context);
 
                 // FIXME brutal hack right now
                 if (varContent.contains("get_property")) {

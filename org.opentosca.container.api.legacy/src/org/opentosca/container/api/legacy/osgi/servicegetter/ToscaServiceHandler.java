@@ -3,8 +3,6 @@ package org.opentosca.container.api.legacy.osgi.servicegetter;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.engine.xml.IXMLSerializer;
 import org.opentosca.container.core.engine.xml.IXMLSerializerService;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

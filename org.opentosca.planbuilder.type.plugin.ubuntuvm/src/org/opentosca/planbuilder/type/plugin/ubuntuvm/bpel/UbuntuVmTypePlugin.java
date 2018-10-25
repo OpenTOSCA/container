@@ -101,13 +101,13 @@ public abstract class UbuntuVmTypePlugin<T extends PlanContext>
         boolean canHandle = this.canHandle(nodeTemplate);
 
         for (final AbstractPolicy policy : nodeTemplate.getPolicies()) {
-            if (policy.getType().getId().equals(this.noPublicAccessPolicyType)
-                | policy.getType().getId().equals(this.publicAccessPolicyType)) {
+            if (policy.getType().getId().equals(noPublicAccessPolicyType)
+                | policy.getType().getId().equals(publicAccessPolicyType)) {
                 if (policy.getProperties() != null
                     && policy.getProperties().getDOMElement().getLocalName().equals("SecurityGroup")) {
                     canHandle &= true;
                 }
-            } else if (policy.getType().getId().equals(this.onlyModeledPortsPolicyType)) {
+            } else if (policy.getType().getId().equals(onlyModeledPortsPolicyType)) {
                 canHandle &= true;
             } else {
                 // ALL policies must be supported
