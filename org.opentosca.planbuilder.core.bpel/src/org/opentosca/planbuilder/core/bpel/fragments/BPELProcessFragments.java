@@ -46,6 +46,26 @@ public class BPELProcessFragments {
         this.docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
+    public String createAssignVarWithLiteral(final String literal, final String varName,
+                                             final String intent) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignVarWithLiteral.xml");
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        template = template.replaceAll("\\$literal", literal);
+        template = template.replaceAll("\\$VarName", varName);
+        template = template.replaceAll("\\$intent", intent);
+        return template;
+    }
+
+    public Node createAssignVarWithLiteralAsNode(final String literal, final String varName,
+                                                 final String intent) throws IOException, SAXException {
+        final String templateString = createAssignVarWithLiteral(literal, varName, intent);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
+    }
+
     /**
      * Create a BPEL assign that copies the NodeInstanceURL from a NodeInstances Query (See
      * {@link #createRESTExtensionGETForNodeInstanceDataAsNode(String, String, String, String, boolean)}
@@ -93,6 +113,55 @@ public class BPELProcessFragments {
         template = template.replaceAll("\\$toVarName", toVarName);
         template = template.replaceAll("\\$xpath2query", xpathQuery);
         return template;
+    }
+
+    public String createAssignVarToVarWithXpathQueries(final String assignName, final String fromVarName,
+                                                       final String part1, final String toVarName, final String part2,
+                                                       final String xpathQuery1, final String xpathQuery2,
+                                                       final String intent, final QName extension) throws IOException {
+        final URL url = FrameworkUtil.getBundle(this.getClass()).getResource("assignVarFromVarWithXpath2Queries.xml");
+        final File bpelfragmentfile = new File(FileLocator.toFileURL(url).getPath());
+        String template = FileUtils.readFileToString(bpelfragmentfile);
+        template = template.replaceAll("\\$assignName", assignName);
+        template = template.replaceAll("\\$fromVarName", fromVarName);
+        template = template.replaceAll("\\$toVarName", toVarName);
+        template = template.replaceAll("\\$xpath2query1", xpathQuery1);
+        if (part1 != null) {
+            template = template.replaceAll("\\$part1", "part=\"" + part1 + "\"");
+        } else {
+            template = template.replaceAll("\\$part1", "");
+        }
+        template = template.replaceAll("\\$xpath2query2", xpathQuery2);
+
+        if (part2 != null) {
+            template = template.replaceAll("\\$part2", "part=\"" + part2 + "\"");
+        } else {
+            template = template.replaceAll("\\$part2", "");
+        }
+        template = template.replaceAll("\\$intent", intent);
+
+        if (extension != null) {
+            template =
+                template.replaceAll("\\$extension",
+                                    "xmlns:" + extension.getPrefix() + "=\"" + extension.getNamespaceURI() + "\"");
+        } else {
+            template = template.replaceAll("\\$extension", "");
+        }
+        return template;
+    }
+
+    public Node createAssignVarToVarWithXpathQueriesAsNode(final String assignName, final String fromVarName,
+                                                           final String part1, final String toVarName,
+                                                           final String part2, final String xpathQuery1,
+                                                           final String xpathQuery2, final String intent,
+                                                           final QName extension) throws IOException, SAXException {
+        final String templateString =
+            createAssignVarToVarWithXpathQueries(assignName, fromVarName, part1, toVarName, part2, xpathQuery1,
+                                                 xpathQuery2, intent, extension);
+        final InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(templateString));
+        final Document doc = this.docBuilder.parse(is);
+        return doc.getFirstChild();
     }
 
     /**

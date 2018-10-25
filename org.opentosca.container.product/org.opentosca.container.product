@@ -81,6 +81,36 @@
       <plugin id="org.opentosca.container.engine.plan" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.deployment.checks" autoStart="true" startLevel="5" />
       <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="6" />
+      <plugin id="org.opentosca.container.engine.plan.plugin.bpel" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.engine.plan.plugin.camunda" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.container.portability" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder" autoStart="true" startLevel="5" />
+      <plugin id="org.opentosca.planbuilder.csarhandler" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.export" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.importer" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.integration" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.model" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.postphase.plugin.instancedata" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.postphase.plugin.monitoring" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.postphase.plugin.vinothek" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.prephase.plugin.fileupload" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.provphase.plugin.ansibleoperation" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.provphase.plugin.invoker" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.selection.plugin.firstavailable" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.selection.plugin.input" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.selection.plugin.mosquitto.workload" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.service" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.connectsto" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.dockercontainer" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.mosquittoconnectsto" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.patternbased" autoStart="true" startLevel="0" />
+      <plugin id="org.opentosca.planbuilder.type.plugin.ubuntuvm" autoStart="true" startLevel="0" />
+      <plugin id="org.restlet.jee.org.restlet" autoStart="true" startLevel="0" />
+      <plugin id="org.restlet.jee.org.restlet.ext.httpclient" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.api" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.apis.jcl" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.apis.log4j" autoStart="true" startLevel="0" />
+      <plugin id="org.slf4j.bridge.jul" autoStart="true" startLevel="0" />
       <plugin id="osgi.enterprise" autoStart="true" startLevel="2" />
       <property name="org.opentosca.container.connector.winery.url" value="http://localhost:8080/winery" />
       <property name="org.opentosca.container.engine.ia.hostname" value="localhost" />

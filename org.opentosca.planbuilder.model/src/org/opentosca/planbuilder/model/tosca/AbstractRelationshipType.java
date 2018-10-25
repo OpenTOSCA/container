@@ -22,6 +22,13 @@ public abstract class AbstractRelationshipType extends AbstractEntityType {
     public abstract AbstractRelationshipType getReferencedType();
 
     /**
+     * Returns all Interfaces of this RelationshipType
+     *
+     * @return a List of AbstractInterfaces
+     */
+    public abstract List<AbstractInterface> getInterfaces();
+
+    /**
      * Returns all Interfaces on the Source of this RelationshipType
      *
      * @return a List of AbstractInterfaces

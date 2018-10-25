@@ -1,7 +1,7 @@
 <persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
   xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
-
+  
   <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
 
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
@@ -21,6 +21,12 @@
     
     <class>org.opentosca.container.core.next.model.DeploymentTest</class>
     <class>org.opentosca.container.core.next.model.DeploymentTestResult</class>
+    
+    <class>org.opentosca.container.core.next.model.Situation</class>
+    <class>org.opentosca.container.core.next.model.SituationTrigger</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerProperty</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerInstance</class>
+    <class>org.opentosca.container.core.next.model.SituationTriggerInstanceProperty</class>    
 
     <class>org.opentosca.container.core.model.credentials.Credentials</class>
     <class>org.opentosca.container.core.model.csar.CSARContent</class>
@@ -29,6 +35,9 @@
     <class>org.opentosca.container.core.model.deployment.process.DeploymentProcessInfo</class>
     <class>org.opentosca.container.core.model.endpoint.wsdl.WSDLEndpoint</class>
     <class>org.opentosca.container.core.model.endpoint.rest.RESTEndpoint</class>
+    
+    
+     
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

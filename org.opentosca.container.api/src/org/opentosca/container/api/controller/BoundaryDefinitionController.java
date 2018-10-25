@@ -19,6 +19,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
 import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
@@ -43,8 +44,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+@Api
 @Path("/csars/{csar}/servicetemplates/{servicetemplate}/boundarydefinitions")
-@Api("/")
 public class BoundaryDefinitionController {
 
     private final Logger logger = LoggerFactory.getLogger(BoundaryDefinitionController.class);
@@ -59,9 +60,8 @@ public class BoundaryDefinitionController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets boundary definitions for a given service template", response = ResourceSupport.class,
-                  responseContainer = "List")
-    public Response getBoundaryDefinitions(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
+    @ApiOperation(hidden = true, value = "")
+    public Response getBoundaryDefinitions(@PathParam("csar") final String csarId,
                                            @PathParam("servicetemplate") final String servicetemplate) {
 
         final Csar csar = this.storage.findById(new CsarId(csarId));
@@ -93,15 +93,14 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/properties")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets properties of a service tempate", response = PropertiesDTO.class,
-                  responseContainer = "List")
-    public Response getProperties(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
-        final Csar csar = this.storage.findById(new CsarId(csarId));
-        final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
-            .filter(template -> template.getId().equals(servicetemplate))
-            .findFirst().orElse(null);
-        if (serviceTemplate == null) {
+    @ApiOperation(value = "Get properties of a service tempate", response = PropertiesDTO.class)
+    public Response getBoundaryDefinitionProperties(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+            final Csar csar = this.storage.findById(new CsarId(csarId));
+            final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
+                .filter(template -> template.getId().equals(servicetemplate))
+                .findFirst().orElse(null);
+            if (serviceTemplate == null) {
             this.logger.info("Service template \"" + servicetemplate + "\" could not be found");
             throw new NotFoundException("Service template \"" + servicetemplate + "\" could not be found");
         }
@@ -126,10 +125,10 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/interfaces")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets interfaces of a service tempate", response = InterfaceDTO.class,
-                  responseContainer = "List")
-    public Response getInterfaces(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                                  @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    @ApiOperation(value = "Get interfaces of a service tempate", response = InterfaceListDTO.class)
+    public Response getBoundaryDefinitionInterfaces(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+                                                    @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+
         final Csar csar = this.storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
             .filter(template -> template.getId().equals(servicetemplate))
@@ -164,11 +163,11 @@ public class BoundaryDefinitionController {
     @GET
     @Path("/interfaces/{name}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets an interface of a service template specified by its name",
-                  response = InterfaceDTO.class)
-    public Response getInterface(@ApiParam("Name of the interface") @PathParam("name") final String name,
-                                 @ApiParam("CSAR id") @PathParam("csar") final String csarId,
-                                 @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+    @ApiOperation(value = "Get an interface of a service template", response = InterfaceDTO.class)
+    public Response getBoundaryDefinitionInterface(@ApiParam("interface name") @PathParam("name") final String name,
+                                                   @ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
+                                                   @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String servicetemplate) {
+
         final Csar csar = this.storage.findById(new CsarId(csarId));
         final TServiceTemplate serviceTemplate = csar.serviceTemplates().stream()
             .filter(template -> template.getId().equals(servicetemplate))
@@ -196,7 +195,7 @@ public class BoundaryDefinitionController {
             final OperationDTO op = new OperationDTO();
 
             op.setName(o.getName());
-            op.setNodeOperation(o.getNodeOperation());
+            op.setNodeOperation(NodeOperationDTO.Converter.convert(o.getNodeOperation()));
             op.setRelationshipOperation(o.getRelationshipOperation());
 
             if (o.getPlan() != null) {

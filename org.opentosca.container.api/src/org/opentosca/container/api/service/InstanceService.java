@@ -2,6 +2,7 @@ package org.opentosca.container.api.service;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
@@ -26,14 +27,23 @@ import org.opentosca.container.core.next.model.RelationshipTemplateInstanceState
 import org.opentosca.container.core.next.model.ServiceTemplateInstance;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceProperty;
 import org.opentosca.container.core.next.model.ServiceTemplateInstanceState;
+import org.opentosca.container.core.next.model.Situation;
+import org.opentosca.container.core.next.model.SituationTrigger;
+import org.opentosca.container.core.next.model.SituationTriggerInstance;
+import org.opentosca.container.core.next.model.SituationTriggerProperty;
 import org.opentosca.container.core.next.repository.NodeTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.PlanInstanceRepository;
 import org.opentosca.container.core.next.repository.RelationshipTemplateInstanceRepository;
 import org.opentosca.container.core.next.repository.ServiceTemplateInstanceRepository;
+import org.opentosca.container.core.next.repository.SituationRepository;
+import org.opentosca.container.core.next.repository.SituationTriggerInstanceRepository;
+import org.opentosca.container.core.next.repository.SituationTriggerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.google.common.collect.Lists;
 
 /**
  * Allows access to instance information for service templates and node templates.
@@ -47,6 +57,11 @@ public class InstanceService {
     private final NodeTemplateInstanceRepository nodeTemplateInstanceRepository = new NodeTemplateInstanceRepository();
     private final RelationshipTemplateInstanceRepository relationshipTemplateInstanceRepository =
         new RelationshipTemplateInstanceRepository();
+
+    // situations
+    private final SituationRepository sitRepo = new SituationRepository();
+    private final SituationTriggerRepository sitTrig = new SituationTriggerRepository();
+    private final SituationTriggerInstanceRepository sitTrigInst = new SituationTriggerInstanceRepository();
 
     private RelationshipTemplateService relationshipTemplateService;
     private NodeTemplateService nodeTemplateService;
@@ -112,7 +127,7 @@ public class InstanceService {
     }
 
     public ServiceTemplateInstanceState getServiceTemplateInstanceState(final Long id) {
-        final ServiceTemplateInstance service = this.getServiceTemplateInstance(id);
+        final ServiceTemplateInstance service = getServiceTemplateInstance(id);
 
         return service.getState();
     }
@@ -131,17 +146,17 @@ public class InstanceService {
             throw new IllegalArgumentException(msg, e);
         }
 
-        final ServiceTemplateInstance service = this.getServiceTemplateInstance(id);
+        final ServiceTemplateInstance service = getServiceTemplateInstance(id);
         service.setState(newState);
         this.serviceTemplateInstanceRepository.update(service);
     }
 
     public Document getServiceTemplateInstanceProperties(final Long id) throws NotFoundException {
-        final ServiceTemplateInstance service = this.getServiceTemplateInstance(id);
+        final ServiceTemplateInstance service = getServiceTemplateInstance(id);
         final Optional<ServiceTemplateInstanceProperty> firstProp = service.getProperties().stream().findFirst();
 
         if (firstProp.isPresent()) {
-            return this.convertPropertyToDocument(firstProp.get());
+            return convertPropertyToDocument(firstProp.get());
         }
 
         final String msg = String.format("No properties are found for the service template instance <%s>", id);
@@ -152,7 +167,7 @@ public class InstanceService {
 
     public void setServiceTemplateInstanceProperties(final Long id,
                                                      final Document properties) throws ReflectiveOperationException {
-        final ServiceTemplateInstance service = this.getServiceTemplateInstance(id);
+        final ServiceTemplateInstance service = getServiceTemplateInstance(id);
 
         try {
             final ServiceTemplateInstanceProperty property =
@@ -170,8 +185,8 @@ public class InstanceService {
     }
 
     public void deleteServiceTemplateInstance(final Long instanceId) {
-        final ServiceTemplateInstance instance = this.getServiceTemplateInstance(instanceId); // throws exception if not
-                                                                                              // found
+        final ServiceTemplateInstance instance = getServiceTemplateInstance(instanceId); // throws exception if not
+                                                                                         // found
         this.serviceTemplateInstanceRepository.remove(instance);
     }
 
@@ -212,7 +227,7 @@ public class InstanceService {
                                                                                                         IllegalAccessException,
                                                                                                         IllegalArgumentException {
         final Document propertiesAsDoc =
-            this.createServiceInstanceInitialPropertiesFromServiceTemplate(csarId, serviceTemplateQName);
+            createServiceInstanceInitialPropertiesFromServiceTemplate(csarId, serviceTemplateQName);
         final ServiceTemplateInstanceProperty property =
             convertDocumentToProperty(propertiesAsDoc, ServiceTemplateInstanceProperty.class);
 
@@ -285,7 +300,7 @@ public class InstanceService {
         return instance;
     }
 
-    private NodeTemplateInstance getNodeTemplateInstance(final Long id) {
+    public NodeTemplateInstance getNodeTemplateInstance(final Long id) {
         logger.debug("Requesting node template instance <{}>...", id);
         final Optional<NodeTemplateInstance> instance = this.nodeTemplateInstanceRepository.find(id);
 
@@ -299,7 +314,7 @@ public class InstanceService {
 
     public NodeTemplateInstanceState getNodeTemplateInstanceState(final String serviceTemplateQName,
                                                                   final String nodeTemplateId, final Long id) {
-        final NodeTemplateInstance node = this.resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
 
         return node.getState();
     }
@@ -318,18 +333,18 @@ public class InstanceService {
             throw new IllegalArgumentException(msg, e);
         }
 
-        final NodeTemplateInstance node = this.resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
         node.setState(newState);
         this.nodeTemplateInstanceRepository.update(node);
     }
 
     public Document getNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
                                                       final Long id) throws NotFoundException {
-        final NodeTemplateInstance node = this.resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
         final Optional<NodeTemplateInstanceProperty> firstProp = node.getProperties().stream().findFirst();
 
         if (firstProp.isPresent()) {
-            return this.convertPropertyToDocument(firstProp.get());
+            return convertPropertyToDocument(firstProp.get());
         }
 
         final String msg = String.format("No properties are found for the node template instance <%s>", id);
@@ -340,7 +355,7 @@ public class InstanceService {
     public void setNodeTemplateInstanceProperties(final String serviceTemplateQName, final String nodeTemplateId,
                                                   final Long id,
                                                   final Document properties) throws ReflectiveOperationException {
-        final NodeTemplateInstance node = this.resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
+        final NodeTemplateInstance node = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id);
 
         try {
             final NodeTemplateInstanceProperty property =
@@ -385,8 +400,7 @@ public class InstanceService {
         // Type
         newInstance.setTemplateType(QName.valueOf(dto.getNodeType()));
         // ServiceTemplateInstance
-        final ServiceTemplateInstance serviceTemplateInstance =
-            this.getServiceTemplateInstance(serviceTemplateInstanceId);
+        final ServiceTemplateInstance serviceTemplateInstance = getServiceTemplateInstance(serviceTemplateInstanceId);
 
         if (!serviceTemplateInstance.getTemplateId().equals(serviceTemplateQName)) {
             final String msg =
@@ -404,8 +418,11 @@ public class InstanceService {
 
     public void deleteNodeTemplateInstance(final String serviceTemplateQName, final String nodeTemplateId,
                                            final Long id) {
-        final NodeTemplateInstance instance =
-            this.resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id); // throws exception if not found
+        final NodeTemplateInstance instance = resolveNodeTemplateInstance(serviceTemplateQName, nodeTemplateId, id); // throws
+                                                                                                                     // exception
+                                                                                                                     // if
+                                                                                                                     // not
+                                                                                                                     // found
         this.nodeTemplateInstanceRepository.remove(instance);
     }
 
@@ -458,7 +475,7 @@ public class InstanceService {
                                                                                   final String relationshipTemplateId,
                                                                                   final Long id) {
         final RelationshipTemplateInstance relationship =
-            this.resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
+            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
 
         return relationship.getState();
     }
@@ -480,7 +497,7 @@ public class InstanceService {
         }
 
         final RelationshipTemplateInstance relationship =
-            this.resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
+            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
         relationship.setState(newState);
         this.relationshipTemplateInstanceRepository.update(relationship);
     }
@@ -489,12 +506,12 @@ public class InstanceService {
                                                               final String relationshipTemplateId,
                                                               final Long id) throws NotFoundException {
         final RelationshipTemplateInstance relationship =
-            this.resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
+            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
         final Optional<RelationshipTemplateInstanceProperty> firstProp =
             relationship.getProperties().stream().findFirst();
 
         if (firstProp.isPresent()) {
-            return this.convertPropertyToDocument(firstProp.get());
+            return convertPropertyToDocument(firstProp.get());
         }
 
         final String msg = String.format("No properties are found for the relationship template instance <%s>", id);
@@ -507,7 +524,7 @@ public class InstanceService {
                                                           final String relationshipTemplateId, final Long id,
                                                           final Document properties) throws ReflectiveOperationException {
         final RelationshipTemplateInstance relationship =
-            this.resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
+            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, id);
 
         try {
             final RelationshipTemplateInstanceProperty property =
@@ -563,9 +580,9 @@ public class InstanceService {
         // Type
         newInstance.setTemplateType(QName.valueOf(dto.getRelationshipType()));
         // Source node instance
-        newInstance.setSource(this.getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
+        newInstance.setSource(getNodeTemplateInstance(request.getSourceNodeTemplateInstanceId()));
         // Target node instance
-        newInstance.setTarget(this.getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
+        newInstance.setTarget(getNodeTemplateInstance(request.getTargetNodeTemplateInstanceId()));
 
         this.relationshipTemplateInstanceRepository.add(newInstance);
 
@@ -575,12 +592,106 @@ public class InstanceService {
     public void deleteRelationshipTemplateInstance(final String serviceTemplateQName,
                                                    final String relationshipTemplateId, final Long instanceId) {
         final RelationshipTemplateInstance instance =
-            this.resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId); // throws
-                                                                                                                // exception
-                                                                                                                // if
-                                                                                                                // not
-                                                                                                                // found
+            resolveRelationshipTemplateInstance(serviceTemplateQName, relationshipTemplateId, instanceId); // throws
+                                                                                                           // exception
+                                                                                                           // if
+                                                                                                           // not
+                                                                                                           // found
         this.relationshipTemplateInstanceRepository.remove(instance);
+    }
+
+    /* Situations */
+    public Situation createNewSituation(final String thingId, final String situationTemplateId) {
+        final Situation newInstance = new Situation();
+
+        newInstance.setSituationTemplateId(situationTemplateId);
+        newInstance.setThingId(thingId);
+        newInstance.setActive(false);
+
+        this.sitRepo.add(newInstance);
+
+        return newInstance;
+
+    }
+
+    public Situation getSituation(final Long id) {
+        final Optional<Situation> instance = this.sitRepo.find(id);
+        if (instance.isPresent()) {
+            return instance.get();
+        }
+        throw new NotFoundException("Situation <" + id + "> not found.");
+    }
+
+    public Collection<Situation> getSituations() {
+        return this.sitRepo.findAll();
+    }
+
+    public Collection<SituationTrigger> getSituationTriggers() {
+        return this.sitTrig.findAll();
+    }
+
+    public Collection<SituationTrigger> getSituationTriggers(final Situation situation) {
+        return this.sitTrig.findSituationTriggersBySituationId(situation.getId());
+    }
+
+    public SituationTrigger createNewSituationTrigger(final Collection<Situation> situations,
+                                                      final boolean triggerOnActivation, final boolean isSingleInstance,
+                                                      final ServiceTemplateInstance serviceInstance,
+                                                      final NodeTemplateInstance nodeInstance,
+                                                      final String interfaceName, final String operationName,
+                                                      final Set<SituationTriggerProperty> inputs) {
+        final SituationTrigger newInstance = new SituationTrigger();
+
+        newInstance.setSituations(situations);
+        newInstance.setTriggerOnActivation(triggerOnActivation);
+        newInstance.setSingleInstance(isSingleInstance);
+        newInstance.setServiceInstance(serviceInstance);
+        newInstance.setInterfaceName(interfaceName);
+        newInstance.setOperationName(operationName);
+        if (nodeInstance != null) {
+            newInstance.setNodeInstance(nodeInstance);
+        }
+        newInstance.setInputs(inputs);
+
+        this.sitTrig.add(newInstance);
+
+        return newInstance;
+    }
+
+    public SituationTrigger getSituationTrigger(final Long id) {
+        final Optional<SituationTrigger> opt = this.sitTrig.find(id);
+
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+
+        throw new NotFoundException("SituationTrigger <" + id + "> not found.");
+    }
+
+    public Collection<SituationTriggerInstance> geSituationTriggerInstances(final SituationTrigger trigger) {
+        final Collection<SituationTriggerInstance> triggerInstances = Lists.newArrayList();
+        for (final SituationTriggerInstance triggerInstance : this.sitTrigInst.findAll()) {
+            if (triggerInstance.getSituationTrigger().equals(trigger)) {
+                triggerInstances.add(triggerInstance);
+            }
+        }
+        return triggerInstances;
+    }
+
+
+    public void updateSituation(final Situation situation) {
+        this.sitRepo.update(situation);
+    }
+
+    public SituationTriggerInstance getSituationTriggerInstance(final Long id) {
+
+        final Optional<SituationTriggerInstance> opt = this.sitTrigInst.find(id);
+
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+
+        throw new RuntimeException("SituationTriggerInstance <" + id + "> not found.");
     }
 
     /* Service Injection */

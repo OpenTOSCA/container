@@ -6,12 +6,17 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import io.swagger.annotations.ApiModelProperty;
 
 @XmlRootElement(name = "NodeTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NodeTemplateDTO extends ResourceSupport {
+
     @XmlAttribute(name = "id")
     private String id;
 
@@ -20,6 +25,9 @@ public class NodeTemplateDTO extends ResourceSupport {
 
     @XmlElement(name = "NodeType")
     private String nodeType;
+
+    @XmlElement(name = "Interfaces")
+    private InterfaceListDTO interfaces;
 
     public String getId() {
         return this.id;
@@ -37,6 +45,7 @@ public class NodeTemplateDTO extends ResourceSupport {
         this.name = name;
     }
 
+    @ApiModelProperty(name = "node_type")
     public String getNodeType() {
         return this.nodeType;
     }
@@ -45,5 +54,12 @@ public class NodeTemplateDTO extends ResourceSupport {
         this.nodeType = nodeType;
     }
 
+    public InterfaceListDTO getInterfaces() {
+        return this.interfaces;
+    }
+
+    public void setInterfaces(final InterfaceListDTO interfaces) {
+        this.interfaces = interfaces;
+    }
 
 }

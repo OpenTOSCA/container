@@ -2,6 +2,7 @@ package org.opentosca.bus.management.api.soaphttp.processor;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,8 +46,8 @@ import com.google.gson.Gson;
  * <br>
  *
  * This processor processes the incoming requests of the Management Bus-SOAP/HTTP-API. It transforms
- * the incoming unmarshalled SOAP message into a from the Management Bus understandable camel exchange
- * message. The MBHeader-Enum is used here to define the headers of the exchange message.
+ * the incoming unmarshalled SOAP message into a from the Management Bus understandable camel
+ * exchange message. The MBHeader-Enum is used here to define the headers of the exchange message.
  *
  * @see MBHeader
  *
@@ -119,10 +120,15 @@ public class RequestProcessor implements Processor {
                 Activator.bundleContext.getServiceReference(IToscaEngineService.class.getName());
             final IToscaEngineService toscaEngineService =
                 (IToscaEngineService) Activator.bundleContext.getService(servRef);
-            final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
-            final ResolvedArtifacts resolvedArtifacts =
-                toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
-            final List<ResolvedDeploymentArtifact> resolvedDAs = resolvedArtifacts.getDeploymentArtifacts();
+
+            final List<ResolvedDeploymentArtifact> resolvedDAs = new ArrayList<>();
+            if (nodeTemplateID != null) {
+                final QName nodeTemplateQName = new QName(serviceTemplateIDNamespaceURI, nodeTemplateID);
+                final ResolvedArtifacts resolvedArtifacts =
+                    toscaEngineService.getResolvedArtifactsOfNodeTemplate(new CSARID(csarIDString), nodeTemplateQName);
+                resolvedDAs.addAll(resolvedArtifacts.getDeploymentArtifacts());
+            }
+
             final URL serviceInstanceIDUrl = new URL(serviceInstanceID);
             final HashMap<QName, HashMap<String, String>> DAs = new HashMap<>();
             for (final ResolvedDeploymentArtifact resolvedDeploymentArtifact : resolvedDAs) {
@@ -138,7 +144,6 @@ public class RequestProcessor implements Processor {
 
                     LOG.info(urlWithDa);
                     DAfiles.put(FilenameUtils.getName(urlWithDa), urlWithDa);
-
                 }
             }
             final Gson gson = new Gson();

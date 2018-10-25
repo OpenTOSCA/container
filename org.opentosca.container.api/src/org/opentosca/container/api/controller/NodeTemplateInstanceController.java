@@ -36,16 +36,15 @@ import org.w3c.dom.Element;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
-@Api()
+@Api
 public class NodeTemplateInstanceController {
-    @ApiParam("id of the node template")
+
+    @ApiParam("ID of node template")
     @PathParam("nodetemplate")
     String nodetemplate;
 
-    @ApiParam("CSAR id")
+    @ApiParam("ID of CSAR")
     @PathParam("csar")
     String csar;
 
@@ -56,7 +55,7 @@ public class NodeTemplateInstanceController {
     @Context
     UriInfo uriInfo;
 
-    private static Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NodeTemplateInstanceController.class);
 
     private final InstanceService instanceService;
 
@@ -66,8 +65,7 @@ public class NodeTemplateInstanceController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get all instances of a node template", response = NodeTemplateInstanceListDTO.class)
     public Response getNodeTemplateInstances(@QueryParam(value = "state") final List<NodeTemplateInstanceState> states,
                                              @QueryParam(value = "source") final List<Long> relationIds) {
         final QName nodeTemplateQName =
@@ -107,20 +105,9 @@ public class NodeTemplateInstanceController {
     @POST
     @Consumes({MediaType.TEXT_PLAIN})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Creates a new node template instance that belongs to a specific service template instance",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400,
-                                message = "Bad Request - The format of the service template instance id is invalid"),
-                   @ApiResponse(code = 404,
-                                message = "Not Found - The service template instance and/or the node template cannot be found"),
-                   @ApiResponse(code = 200,
-                                message = "Successful Operation - A URL to the created node template instance",
-                                response = URI.class)})
-    public Response createNodeTemplateInstance(@Context final UriInfo uriInfo,
-                                               @ApiParam(required = true,
-                                                         value = "the id of the service template instance that the created node template instance will belong to") final String serviceTemplateInstanceId) {
+    @ApiOperation(hidden = true, value = "")
+    public Response createNodeTemplateInstance(@Context final UriInfo uriInfo, final String serviceTemplateInstanceId) {
         try {
-
             final NodeTemplateInstance createdInstance =
                 this.instanceService.createNewNodeTemplateInstance(this.csar, this.servicetemplate, this.nodetemplate,
                                                                    Long.parseLong(serviceTemplateInstanceId));
@@ -133,14 +120,13 @@ public class NodeTemplateInstanceController {
         catch (InstantiationException | IllegalAccessException e) {
             return Response.serverError().build();
         }
-
     }
 
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets a node template instance by id", response = NodeTemplateInstanceDTO.class)
-    public Response getNodeTemplateInstance(@ApiParam("id of the node template instance") @PathParam("id") final Long id) {
+    @ApiOperation(value = "Get a node template instance", response = NodeTemplateInstanceDTO.class)
+    public Response getNodeTemplateInstance(@ApiParam("ID of node template instance") @PathParam("id") final Long id) {
 
         final NodeTemplateInstance instance =
             this.instanceService.resolveNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
@@ -156,9 +142,8 @@ public class NodeTemplateInstanceController {
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Deletes a node template instance by id", response = Response.class)
-    public Response deleteNodeTemplateInstance(@ApiParam("id of the node template instance") @PathParam("id") final Long id) {
-
+    @ApiOperation(hidden = true, value = "")
+    public Response deleteNodeTemplateInstance(@PathParam("id") final Long id) {
         this.instanceService.deleteNodeTemplateInstance(this.servicetemplate, this.nodetemplate, id);
         return Response.noContent().build();
     }
@@ -166,42 +151,32 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/state")
     @Produces({MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Gets the state of a node template instance identified by its id.", response = String.class)
-    public Response getNodeTemplateInstanceState(@ApiParam("id of the node template instance") @PathParam("id") final Long id) {
+    @ApiOperation(value = "Get state of a node template instance", response = String.class)
+    public Response getNodeTemplateInstanceState(@ApiParam("ID node template instance") @PathParam("id") final Long id) {
         final NodeTemplateInstanceState state =
             this.instanceService.getNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id);
-
         return Response.ok(state.toString()).build();
     }
 
     @PUT
     @Path("/{id}/state")
     @Consumes({MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Changes the state of a node template instance identified by its id.",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The state is invalid"),
-                   @ApiResponse(code = 404, message = "Not Found - The node template instance cannot be found"),
-                   @ApiResponse(code = 200, message = "successful operation")})
-    public Response updateNodeTemplateInstanceState(@ApiParam("id of the node template instance") @PathParam("id") final Long id,
-                                                    @ApiParam(required = true,
-                                                              value = "the new state of the node template instance, possible values are (INITIAL, CREATING, CREATED, CONFIGURING, CONFIGURED, STARTING, STARTED, STOPPING, STOPPED, DELETING, DELETED, ERROR)") final String request) {
-
+    @ApiOperation(hidden = true, value = "")
+    public Response updateNodeTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         try {
             this.instanceService.setNodeTemplateInstanceState(this.servicetemplate, this.nodetemplate, id, request);
         }
         catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
-
         return Response.ok().build();
     }
 
     @GET
     @Path("/{id}/properties")
     @Produces({MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get the set of properties of a node template instance identified by its id.",
-                  response = Document.class)
-    public Response getNodeTemplateInstanceProperties(@ApiParam("id of the node template instance") @PathParam("id") final Long id) {
+    @ApiOperation(hidden = true, value = "")
+    public Response getNodeTemplateInstanceProperties(@PathParam("id") final Long id) {
         final Document properties =
             this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
 
@@ -215,10 +190,9 @@ public class NodeTemplateInstanceController {
     @GET
     @Path("/{id}/properties/{propname}")
     @Produces({MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a single property of a node template instance identified by its id and the name of the property.",
-                  response = Document.class)
-    public Response getNodeTemplateInstanceProperty(@ApiParam("id of the node template instance") @PathParam("id") final Long id,
-                                                    @ApiParam("name of the node template instance property") @PathParam("propname") final String propertyName) {
+    @ApiOperation(hidden = true, value = "")
+    public Response getNodeTemplateInstanceProperty(@PathParam("id") final Long id,
+                                                    @PathParam("propname") final String propertyName) {
         final Document properties =
             this.instanceService.getNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id);
 
@@ -235,14 +209,8 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/properties")
     @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),
-                   @ApiResponse(code = 404, message = "Not Found - The node template instance cannot be found"),
-                   @ApiResponse(code = 200, message = "Successful Operation - A URI to the properties resource")})
-    public Response updateNodeTemplateInstanceProperties(@ApiParam("id of the node template instance") @PathParam("id") final Long id,
-                                                         @ApiParam(required = true,
-                                                                   value = "an xml representation of the set of properties") final Document request) {
+    @ApiOperation(hidden = true, value = "")
+    public Response updateNodeTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
 
         try {
             this.instanceService.setNodeTemplateInstanceProperties(this.servicetemplate, this.nodetemplate, id,
@@ -262,15 +230,10 @@ public class NodeTemplateInstanceController {
     @Path("/{id}/properties/{propname}")
     @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Changes the set of properties of a node template instance identified by its id.",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),
-                   @ApiResponse(code = 404, message = "Not Found - The node template instance cannot be found"),
-                   @ApiResponse(code = 200, message = "Successful Operation - A URI to the properties resource")})
-    public Response updateNodeTemplateInstanceProperty(@ApiParam("id of the node template instance") @PathParam("id") final Long id,
-                                                       @ApiParam("name of the node template instance property") @PathParam("propname") final String propertyName,
-                                                       @ApiParam(required = true,
-                                                                 value = "an xml representation of the set of properties") final Document request) {
+    @ApiOperation(hidden = true, value = "")
+    public Response updateNodeTemplateInstanceProperty(@PathParam("id") final Long id,
+                                                       @PathParam("propname") final String propertyName,
+                                                       final Document request) {
 
         try {
             final Document properties =
@@ -292,5 +255,4 @@ public class NodeTemplateInstanceController {
 
         return Response.ok(UriUtil.generateSelfURI(this.uriInfo)).build();
     }
-
 }

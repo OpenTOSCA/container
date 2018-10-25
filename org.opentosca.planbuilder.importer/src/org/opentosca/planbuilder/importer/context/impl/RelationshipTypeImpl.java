@@ -24,6 +24,7 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
 
     private final TRelationshipType relationshipType;
     private final DefinitionsImpl definitions;
+    private final List<AbstractInterface> interfaces;
     private final List<AbstractInterface> sourceInterfaces;
     private final List<AbstractInterface> targetInterfaces;
 
@@ -37,15 +38,21 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
     public RelationshipTypeImpl(final TRelationshipType relationshipType, final DefinitionsImpl definitionsImpl) {
         this.relationshipType = relationshipType;
         this.definitions = definitionsImpl;
+        this.interfaces = new ArrayList<>();
         this.sourceInterfaces = new ArrayList<>();
         this.targetInterfaces = new ArrayList<>();
-        this.setUp();
+        setUp();
     }
 
     /**
      * Initializes the internal Interfaces of this RelationshipType
      */
     private void setUp() {
+        if (this.relationshipType.getInterfaces() != null) {
+            for (final TInterface i : this.relationshipType.getInterfaces().getInterface()) {
+                this.interfaces.add(new InterfaceImpl(this.definitions, i));
+            }
+        }
         if (this.relationshipType.getSourceInterfaces() != null) {
             for (final TInterface i : this.relationshipType.getSourceInterfaces().getInterface()) {
                 this.sourceInterfaces.add(new InterfaceImpl(this.definitions, i));
@@ -84,8 +91,8 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
     @Override
     public QName getId() {
         String namespace;
-        if (this.getTargetNamespace() != null && !this.getTargetNamespace().equals("")) {
-            namespace = this.getTargetNamespace();
+        if (getTargetNamespace() != null && !getTargetNamespace().equals("")) {
+            namespace = getTargetNamespace();
         } else {
             namespace = this.definitions.getTargetNamespace();
         }
@@ -106,15 +113,23 @@ public class RelationshipTypeImpl extends AbstractRelationshipType {
      */
     @Override
     public AbstractRelationshipType getReferencedType() {
-        if (this.getTypeRef() != null) {
+        if (getTypeRef() != null) {
             for (final AbstractRelationshipType relation : this.definitions.getAllRelationshipTypes()) {
-                if (relation.getId().equals(this.getTypeRef())) {
+                if (relation.getId().equals(getTypeRef())) {
                     return relation;
                 }
             }
         }
         return null;
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AbstractInterface> getInterfaces() {
+        return this.interfaces;
     }
 
     /**

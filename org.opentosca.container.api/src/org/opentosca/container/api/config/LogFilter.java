@@ -14,14 +14,19 @@
 package org.opentosca.container.api.config;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.io.IOUtils;
+import org.opentosca.container.api.util.UriUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 @Provider
 public class LogFilter implements ContainerRequestFilter {
@@ -30,22 +35,24 @@ public class LogFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(final ContainerRequestContext request) throws IOException {
-        logger.debug("LogFilter.filter()");
-
-        for (final String key : request.getHeaders().keySet()) {
-            logger.debug(key + " : " + request.getHeaders().get(key));
-        }
-        if (request.getMethod().equalsIgnoreCase("POST")) {
-            logger.debug("POST method");
-        }
-
-        if (request.getMediaType() != null) {
-            logger.debug("MediaType: " + request.getMediaType());
-            if (request.getMediaType().toString().contains("xml")) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("=== LogFilter BEGIN ===");
+            logger.debug("Method: {}", request.getMethod());
+            logger.debug("URL: {}", UriUtil.encode(request.getUriInfo().getAbsolutePath()));
+            for (final String key : request.getHeaders().keySet()) {
+                logger.debug(key + " : " + request.getHeaders().get(key));
+            }
+            final List<MediaType> mediaTypes =
+                Lists.newArrayList(MediaType.APPLICATION_JSON_TYPE, MediaType.APPLICATION_XML_TYPE,
+                                   MediaType.TEXT_PLAIN_TYPE, MediaType.TEXT_XML_TYPE, MediaType.TEXT_HTML_TYPE);
+            if (request.getMediaType() != null && mediaTypes.contains(request.getMediaType())) {
                 if (request.hasEntity()) {
-                    logger.debug(IOUtils.toString(request.getEntityStream()));
+                    final String body = IOUtils.toString(request.getEntityStream());
+                    request.setEntityStream(IOUtils.toInputStream(body));
+                    logger.debug("Body: {}", body);
                 }
             }
+            logger.debug("=== LogFilter END ===");
         }
     }
 }

@@ -28,7 +28,7 @@ import io.swagger.annotations.ApiParam;
 
 @Api
 public class RelationshipTemplateController {
-    private static Logger logger = LoggerFactory.getLogger(RelationshipTemplateController.class);
+    private static final Logger logger = LoggerFactory.getLogger(RelationshipTemplateController.class);
 
     @Context
     UriInfo uriInfo;
@@ -37,6 +37,7 @@ public class RelationshipTemplateController {
     ResourceContext resourceContext;
 
     private RelationshipTemplateService relationshipTemplateService;
+
     private InstanceService instanceService;
 
     public RelationshipTemplateController(final RelationshipTemplateService relationshipTemplateService,
@@ -47,9 +48,9 @@ public class RelationshipTemplateController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets all relationship templates of a specific service template",
-                  response = RelationshipTemplateDTO.class, responseContainer = "List")
-    public Response getRelationshipTemplates(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
+    @ApiOperation(value = "Get all relationship templates of a service template",
+                  response = RelationshipTemplateListDTO.class)
+    public Response getRelationshipTemplates(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                              @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId) throws NotFoundException {
 
         // this validates that the CSAR contains the service template
@@ -72,10 +73,10 @@ public class RelationshipTemplateController {
     @GET
     @Path("/{relationshiptemplate}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Gets a specific relationship template by its id", response = RelationshipTemplateDTO.class)
-    public Response getRelationshipTemplate(@ApiParam("CSAR id") @PathParam("csar") final String csarId,
+    @ApiOperation(value = "Get a relationship template", response = RelationshipTemplateDTO.class)
+    public Response getRelationshipTemplate(@ApiParam("ID of CSAR") @PathParam("csar") final String csarId,
                                             @ApiParam("qualified name of the service template") @PathParam("servicetemplate") final String serviceTemplateId,
-                                            @ApiParam("relationship template id") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
+                                            @ApiParam("ID of relationship template") @PathParam("relationshiptemplate") final String relationshipTemplateId) throws NotFoundException {
 
         final RelationshipTemplateDTO result =
             this.relationshipTemplateService.getRelationshipTemplateById(csarId, QName.valueOf(serviceTemplateId),
@@ -91,6 +92,7 @@ public class RelationshipTemplateController {
     public RelationshipTemplateInstanceController getInstances(@ApiParam(hidden = true) @PathParam("csar") final String csarId,
                                                                @ApiParam(hidden = true) @PathParam("servicetemplate") final String serviceTemplateId,
                                                                @ApiParam(hidden = true) @PathParam("relationshiptemplate") final String relationshipTemplateId) {
+
         if (!this.relationshipTemplateService.hasRelationshipTemplate(csarId, QName.valueOf(serviceTemplateId),
                                                                       relationshipTemplateId)) {
             logger.info("Relationship template \"" + relationshipTemplateId + "\" could not be found");
@@ -104,8 +106,6 @@ public class RelationshipTemplateController {
         return child;
     }
 
-    /* Service Injection */
-    /*********************/
     public void setRelationshipTemplateService(final RelationshipTemplateService relationshipTemplateService) {
         this.relationshipTemplateService = relationshipTemplateService;
     }
@@ -113,5 +113,4 @@ public class RelationshipTemplateController {
     public void setInstanceService(final InstanceService instanceService) {
         this.instanceService = instanceService;
     }
-
 }

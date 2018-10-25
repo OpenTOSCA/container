@@ -15,10 +15,8 @@ import org.opentosca.container.core.model.AbstractFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.google.common.collect.Maps;
 
-@Api
 public class FileController {
 
     private static Logger logger = LoggerFactory.getLogger(FileController.class);
@@ -44,7 +42,6 @@ public class FileController {
 
     @GET
     @Produces({MediaType.APPLICATION_OCTET_STREAM, "image/*"})
-    @ApiOperation(value = "Tries to get the file")
     public Response getFile() {
         logger.info("Attempt to get file: \"{}\"", this.file.getPath());
         try {

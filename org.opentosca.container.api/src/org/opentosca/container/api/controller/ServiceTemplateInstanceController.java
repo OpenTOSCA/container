@@ -47,10 +47,8 @@ import org.w3c.dom.Document;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
-@Api()
+@Api
 public class ServiceTemplateInstanceController {
     private final Csar csar;
     private final TServiceTemplate serviceTemplate;
@@ -78,8 +76,7 @@ public class ServiceTemplateInstanceController {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceDTO.class,
-                  responseContainer = "List")
+    @ApiOperation(value = "Get all instances of a service template", response = ServiceTemplateInstanceListDTO.class)
     public Response getServiceTemplateInstances() {
         final Collection<ServiceTemplateInstance> serviceInstances =
             this.instanceService.getServiceTemplateInstances(serviceTemplate.getId());
@@ -102,16 +99,8 @@ public class ServiceTemplateInstanceController {
     @POST
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Creates a new service template instance that corresponds to an existing build plan instance identified with a correlation id. The instance will be in the INITIAL state and will contain initial set of properties retrieved from the boundary definitions of the corresponding service template.",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400,
-                                message = "Bad Request - The format of the request is invalid, or the plan instance with the given correlation id is already associated with an existing service template instance"),
-                   @ApiResponse(code = 404,
-                                message = "Not Found - The service template and/or the build plan instances cannot be found"),
-                   @ApiResponse(code = 200,
-                                message = "Successful Operation - A URL to the created service template instance",
-                                response = URI.class)})
-    public Response createServiceTemplateInstance(@ApiParam("The correlation id that corresponds to the build plan instance that created this service template instance") final CreateServiceTemplateInstanceRequest request) {
+    @ApiOperation(hidden = true, value = "")
+    public Response createServiceTemplateInstance(final CreateServiceTemplateInstanceRequest request) {
 
         if (request == null || request.getCorrelationId() == null || request.getCorrelationId().trim().length() == 0) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -143,8 +132,8 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get a service template instance by id", response = ServiceTemplateInstanceDTO.class)
-    public Response getServiceTemplateInstance(@ApiParam("service template instance id") @PathParam("id") final Long id) {
+    @ApiOperation(value = "Get a service template instance", response = ServiceTemplateInstanceDTO.class)
+    public Response getServiceTemplateInstance(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
 
         final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
 
@@ -172,14 +161,14 @@ public class ServiceTemplateInstanceController {
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Deletes a service template instance by id", response = Response.class)
-    public Response deleteServiceTemplateInstance(@ApiParam("service template instance id") @PathParam("id") final Long id) {
+    @ApiOperation(hidden = true, value = "")
+    public Response deleteServiceTemplateInstance(@PathParam("id") final Long id) {
         this.instanceService.deleteServiceTemplateInstance(id);
         return Response.noContent().build();
     }
 
     @Path("/{id}/managementplans")
-    public ManagementPlanController getManagementPlans(@ApiParam("service template instance id") @PathParam("id") final Long id) {
+    public ManagementPlanController getManagementPlans(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         final ServiceTemplateInstance instance = resolveInstance(id, serviceTemplate.getId());
         return new ManagementPlanController(csar, serviceTemplate, id, this.planService, PlanTypes.TERMINATION, PlanTypes.OTHERMANAGEMENT);
     }
@@ -187,8 +176,8 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/state")
     @Produces({MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Get the state of a service template instance identified by its id.", response = String.class)
-    public Response getServiceTemplateInstanceState(@ApiParam("service template instance id") @PathParam("id") final Long id) {
+    @ApiOperation(value = "Get state of a service template instance", response = String.class)
+    public Response getServiceTemplateInstanceState(@ApiParam("ID of service template instance") @PathParam("id") final Long id) {
         final ServiceTemplateInstanceState state = this.instanceService.getServiceTemplateInstanceState(id);
         return Response.ok(state.toString()).build();
     }
@@ -196,33 +185,23 @@ public class ServiceTemplateInstanceController {
     @PUT
     @Path("/{id}/state")
     @Consumes({MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Changes the state of a service template instance identified by its id.",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The state is invalid"),
-                   @ApiResponse(code = 404, message = "Not Found - The service template instance cannot be found"),
-                   @ApiResponse(code = 200, message = "successful operation")})
-    public Response updateServiceTemplateInstanceState(@ApiParam("service template instance id") @PathParam("id") final Long id,
-                                                       @ApiParam(required = true,
-                                                                 value = "the new state of the node template instance, possible values are (INITIAL, CREATING, CREATED, DELETING, DELETED, ERROR)") final String request) {
-
+    @ApiOperation(hidden = true, value = "")
+    public Response updateServiceTemplateInstanceState(@PathParam("id") final Long id, final String request) {
         try {
             this.instanceService.setServiceTemplateInstanceState(id, request);
         }
         catch (final IllegalArgumentException e) { // this handles a null request too
             return Response.status(Status.BAD_REQUEST).build();
         }
-
         return Response.ok().build();
     }
 
     @GET
     @Path("/{id}/properties")
     @Produces({MediaType.APPLICATION_XML})
-    @ApiOperation(value = "Get the set of properties of a service template instance identified by its id.",
-                  response = Document.class)
-    public Response getServiceTemplateInstanceProperties(@ApiParam("service template instance id") @PathParam("id") final Long id) {
+    @ApiOperation(hidden = true, value = "")
+    public Response getServiceTemplateInstanceProperties(@PathParam("id") final Long id) {
         final Document properties = this.instanceService.getServiceTemplateInstanceProperties(id);
-
         if (properties == null) {
             return Response.noContent().build();
         } else {
@@ -234,14 +213,8 @@ public class ServiceTemplateInstanceController {
     @Path("/{id}/properties")
     @Consumes({MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    @ApiOperation(value = "Changes the set of properties of a service template instance identified by its id.",
-                  response = Response.class)
-    @ApiResponses({@ApiResponse(code = 400, message = "Bad Request - The set of properties is malformed"),
-                   @ApiResponse(code = 404, message = "Not Found - The service template instance cannot be found"),
-                   @ApiResponse(code = 200, message = "Successful Operation - A URI to the properties resource")})
-    public Response updateServiceTemplateInstanceProperties(@ApiParam("service template instance id") @PathParam("id") final Long id,
-                                                            @ApiParam(required = true,
-                                                                      value = "an xml representation of the set of properties") final Document request) {
+    @ApiOperation(hidden = true, value = "")
+    public Response updateServiceTemplateInstanceProperties(@PathParam("id") final Long id, final Document request) {
 
         try {
             this.instanceService.setServiceTemplateInstanceProperties(id, request);
@@ -281,6 +254,7 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(hidden = true, value = "")
     public Response getDeploymentTests(@PathParam("id") final Integer id) {
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);
@@ -310,6 +284,7 @@ public class ServiceTemplateInstanceController {
     @GET
     @Path("/{id}/deploymenttests/{deploymenttest}")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(hidden = true, value = "")
     public Response getDeploymentTest(@PathParam("id") final Integer id,
                                       @PathParam("deploymenttest") final Integer deploymenttest) {
         // TODO: Check if instance belongs to CSAR and Service Template
@@ -338,6 +313,7 @@ public class ServiceTemplateInstanceController {
     @POST
     @Path("/{id}/deploymenttests")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(hidden = true, value = "")
     public Response createDeploymentTest(@PathParam("id") final Integer id) {
         // TODO: Check if instance belongs to CSAR and Service Template
         final ServiceTemplateInstance sti = new ServiceTemplateInstanceRepository().find(Long.valueOf(id)).orElse(null);

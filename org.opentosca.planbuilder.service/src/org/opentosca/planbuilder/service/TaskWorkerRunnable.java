@@ -215,10 +215,6 @@ public class TaskWorkerRunnable implements Runnable {
             outputParams.put("outputParameter", createParameters(outputParameters));
             obj.put("outputParameters", outputParams);
 
-            // BUILD("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/BuildPlan"),
-            // OTHERMANAGEMENT("undefined or custom management plan"), APPLICATION("http://www.opentosca.org"),
-            // TERMINATION("http://docs.oasis-open.org/tosca/ns/2011/12/PlanTypes/TerminationPlan");
-
             final HttpEntity ent =
                 EntityBuilder.create().setText(obj.toJSONString()).setContentType(ContentType.APPLICATION_JSON).build();
 

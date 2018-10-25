@@ -1,18 +1,28 @@
 package org.opentosca.container.api.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.NotFoundException;
 import javax.xml.namespace.QName;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.NodeTemplateDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
+import org.opentosca.container.api.dto.boundarydefinitions.OperationDTO;
 import org.opentosca.container.core.engine.IToscaEngineService;
 import org.opentosca.container.core.model.csar.CSARContent;
 import org.opentosca.container.core.model.csar.id.CSARID;
+import org.opentosca.container.core.tosca.extension.TParameter;
+import org.eclipse.winery.model.tosca.TBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+
+import com.google.common.collect.Lists;
 
 // TODO it is assumed that the name of the node template is the same as its id.
 /**
@@ -87,8 +97,7 @@ public class NodeTemplateService {
      *         contains the node template, otherwise <code>false</code>
      */
     public boolean hasNodeTemplate(final String csarId, final QName serviceTemplateQName, final String nodeTemplateId) {
-        return this.getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString())
-                   .contains(nodeTemplateId);
+        return getNodeTemplateIdsOfServiceTemplate(csarId, serviceTemplateQName.toString()).contains(nodeTemplateId);
     }
 
 
@@ -130,14 +139,74 @@ public class NodeTemplateService {
      */
     private NodeTemplateDTO createNodeTemplate(final CSARID csarId, final QName serviceTemplateQName,
                                                final String nodeTemplateId) {
+        final QName nodeTypeId =
+            this.toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateQName, nodeTemplateId);
+
         final NodeTemplateDTO currentNodeTemplate = new NodeTemplateDTO();
         currentNodeTemplate.setId(nodeTemplateId);
         currentNodeTemplate.setName(nodeTemplateId);
-        currentNodeTemplate.setNodeType(this.toscaEngineService.getNodeTypeOfNodeTemplate(csarId, serviceTemplateQName,
-                                                                                          nodeTemplateId)
-                                                               .toString());
+        currentNodeTemplate.setNodeType(nodeTypeId.toString());
+
+        final InterfaceListDTO interfaces = new InterfaceListDTO();
+
+        final List<String> interfaceNames = this.toscaEngineService.getInterfaceNamesOfNodeType(csarId, nodeTypeId);
+
+        for (final String interfaceName : interfaceNames) {
+            final InterfaceDTO interfaceDto = new InterfaceDTO();
+
+            interfaceDto.setName(interfaceName);
+
+            final Map<String, OperationDTO> opMap = new HashMap<>();
+
+            final List<String> operationNames =
+                this.toscaEngineService.getOperationNamesOfNodeTypeInterface(csarId, nodeTypeId, interfaceName);
+
+            for (final String operationName : operationNames) {
+                final List<String> inputParamNames =
+                    this.toscaEngineService.getInputParametersOfNodeTypeOperation(csarId, nodeTypeId, interfaceName,
+                                                                                  operationName);
+                final List<String> outputParamNames =
+                    this.toscaEngineService.getOutputParametersOfNodeTypeOperation(csarId, nodeTypeId, interfaceName,
+                                                                                   operationName);
+                final OperationDTO operationDto = new OperationDTO();
+
+                operationDto.setName(operationName);
+
+                final NodeOperationDTO nodeOperationDTO = new NodeOperationDTO();
+
+                nodeOperationDTO.setName(operationName);
+
+                nodeOperationDTO.setInputParameters(transform(inputParamNames));
+                nodeOperationDTO.setOutputParameters(transform(outputParamNames));
+
+
+                operationDto.setNodeOperation(nodeOperationDTO);
+
+                opMap.put(operationName, operationDto);
+            }
+
+            interfaceDto.setOperations(opMap);
+
+            interfaces.add(interfaceDto);
+        }
+
+        currentNodeTemplate.setInterfaces(interfaces);
 
         return currentNodeTemplate;
+    }
+
+    private List<TParameter> transform(final List<String> params) {
+        final List<TParameter> tParams = Lists.newArrayList();
+
+        for (final String param : params) {
+            final TParameter tParam = new TParameter();
+            tParam.setName(param);
+            // TODO currently hard to get
+            tParam.setRequired(TBoolean.YES);
+            tParams.add(tParam);
+        }
+
+        return tParams;
     }
 
     /**

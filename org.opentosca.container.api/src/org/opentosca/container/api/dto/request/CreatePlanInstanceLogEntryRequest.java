@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlValue;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 @XmlRootElement(name = "log")
 @XmlAccessorType(XmlAccessType.FIELD)
 @JsonIgnoreProperties(ignoreUnknown = true)

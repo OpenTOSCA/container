@@ -79,18 +79,6 @@ public class BPELPlanContext implements PlanContext {
     public static final String ServiceTemplateURLVarKeyword = "OpenTOSCAContainerAPIServiceTemplateURL";
     public static final String InstanceDataAPIUrlKeyword = "instanceDataAPIUrl";
 
-    public List<String> getPropertyNames(final AbstractNodeTemplate nodeTemplate) {
-        final List<String> propertyNames = new ArrayList<>();
-        final NodeList propertyNodes = nodeTemplate.getProperties().getDOMElement().getChildNodes();
-        for (int index = 0; index < propertyNodes.getLength(); index++) {
-            final Node propertyNode = propertyNodes.item(index);
-            if (propertyNode.getNodeType() == Node.ELEMENT_NODE) {
-                propertyNames.add(propertyNode.getLocalName());
-            }
-        }
-        return propertyNames;
-    }
-
     public static String getVariableContent(final Variable variable, final BPELPlanContext context) {
         // check whether the property is empty --> external parameter
         for (final AbstractNodeTemplate node : context.getNodeTemplates()) {
@@ -947,6 +935,43 @@ public class BPELPlanContext implements PlanContext {
     public String getNCNameFromString(final String string) {
         // TODO check if this enough
         return string.replace(" ", "_");
+    }
+
+    public boolean executeOperation(final AbstractRelationshipTemplate relationshipTemplate, final String interfaceName,
+                                    final String operationName, Map<AbstractParameter, Variable> inputPropertyMapping,
+                                    Map<AbstractParameter, Variable> outputPropertyMapping) {
+
+        if (inputPropertyMapping == null) {
+            inputPropertyMapping = new HashMap<>();
+        }
+        if (outputPropertyMapping == null) {
+            outputPropertyMapping = new HashMap<>();
+        }
+
+        final OperationChain chain =
+            BPELScopeBuilder.createOperationCall(relationshipTemplate, interfaceName, operationName);
+        if (chain == null) {
+            return false;
+        }
+
+        final List<String> opNames = new ArrayList<>();
+        opNames.add(operationName);
+
+        final AbstractRelationshipTemplate relationBackup = this.templateBuildPlan.getRelationshipTemplate();
+        final AbstractNodeTemplate nodeBackup = this.templateBuildPlan.getNodeTemplate();
+
+        final BPELPlanContext context =
+            new BPELPlanContext(this.templateBuildPlan, this.propertyMap, this.serviceTemplate);
+
+        context.templateBuildPlan.setNodeTemplate(null);
+        context.templateBuildPlan.setRelationshipTemplate(relationshipTemplate);
+
+        chain.executeOperationProvisioning(context, opNames, inputPropertyMapping, outputPropertyMapping);
+
+        this.templateBuildPlan.setNodeTemplate(nodeBackup);
+        this.templateBuildPlan.setRelationshipTemplate(relationBackup);
+
+        return true;
     }
 
     public boolean executeOperation(final AbstractNodeTemplate nodeTemplate, final String interfaceName,

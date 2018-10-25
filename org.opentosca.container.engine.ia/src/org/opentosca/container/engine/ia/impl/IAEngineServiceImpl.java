@@ -68,7 +68,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
     public List<String> deployImplementationArtifacts(final CSARID csarID, final QName serviceTemplateID) {
 
         this.failedIAList.clear();
-        this.deployServiceTemplate(csarID, serviceTemplateID);
+        deployServiceTemplate(csarID, serviceTemplateID);
         return this.failedIAList;
     }
 
@@ -83,13 +83,26 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
         final List<QName> nodeTypeIDs =
             this.toscaEngineService.getReferencedNodeTypesOfAServiceTemplate(csarID, serviceTemplateID);
-
         for (final QName nodeTypeID : nodeTypeIDs) {
-
-            this.deployNodeType(csarID, nodeTypeID);
-
+            deployNodeType(csarID, nodeTypeID);
         }
 
+        final List<String> relationshipTemplateIds =
+            this.toscaEngineService.getRelationshipTemplatesOfServiceTemplate(csarID, serviceTemplateID);
+        for (final String id : relationshipTemplateIds) {
+            final QName type =
+                this.toscaEngineService.getRelationshipTypeOfRelationshipTemplate(csarID, serviceTemplateID, id);
+            final List<QName> impls =
+                this.toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(csarID, type);
+            for (final QName impl : impls) {
+                final List<String> artifacts =
+                    this.toscaEngineService.getImplementationArtifactNamesOfRelationshipTypeImplementation(csarID,
+                                                                                                           impl);
+                for (final String artifact : artifacts) {
+                    deployImplementationArtifact(csarID, impl, artifact, new ArrayList<>());
+                }
+            }
+        }
     }
 
     /**
@@ -105,10 +118,12 @@ public class IAEngineServiceImpl implements IIAEngineService {
             final List<QName> nodeTypeImplementationIDs =
                 this.toscaEngineService.getNodeTypeImplementationsOfNodeType(csarID, nodeTypeHierarchyMember);
 
+            final List<QName> temp =
+                this.toscaEngineService.getRelationshipTypeImplementationsOfRelationshipType(csarID,
+                                                                                             nodeTypeHierarchyMember);
+            nodeTypeImplementationIDs.addAll(temp);
             for (final QName nodeTypeImplementationID : nodeTypeImplementationIDs) {
-
-                this.deployNodeTypeImplementation(csarID, nodeTypeImplementationID);
-
+                deployNodeTypeImplementation(csarID, nodeTypeImplementationID);
             }
         }
 
@@ -137,8 +152,8 @@ public class IAEngineServiceImpl implements IIAEngineService {
                                                                                                nodeTypeImplHierarchyMember);
 
             for (final String implementationArtifactName : implementationArtifactNames) {
-                this.deployImplementationArtifact(csarID, nodeTypeImplHierarchyMember, implementationArtifactName,
-                                                  requiredFeatures);
+                deployImplementationArtifact(csarID, nodeTypeImplHierarchyMember, implementationArtifactName,
+                                             requiredFeatures);
             }
         }
 
@@ -198,9 +213,8 @@ public class IAEngineServiceImpl implements IIAEngineService {
             serviceURI = endpoints.get(0).getURI();
 
         } else {
-            serviceURI =
-                this.deployThroughPlugin(csarID, nodeTypeImplementationID, artifactType, artifactSpecificContent,
-                                         properties, propertyConstraints, artifacts, requiredFeatures);
+            serviceURI = deployThroughPlugin(csarID, nodeTypeImplementationID, artifactType, artifactSpecificContent,
+                                             properties, propertyConstraints, artifacts, requiredFeatures);
         }
 
         if (serviceURI != null) {
@@ -220,7 +234,6 @@ public class IAEngineServiceImpl implements IIAEngineService {
             this.failedIAList.add(implementationArtifactName);
             IAEngineServiceImpl.LOG.warn("Deployment of ImplementationArtifact {} failed!", implementationArtifactName);
         }
-
     }
 
     /**
@@ -364,7 +377,7 @@ public class IAEngineServiceImpl implements IIAEngineService {
 
                 final Node propNode = list.item(i);
 
-                if (this.containsPortType(propNode)) {
+                if (containsPortType(propNode)) {
                     final QName portType = this.getPortType(propNode);
                     IAEngineServiceImpl.LOG.info("PortType found: {}", portType.toString());
                     return portType;

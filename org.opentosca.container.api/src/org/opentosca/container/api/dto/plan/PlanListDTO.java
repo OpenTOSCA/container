@@ -22,6 +22,10 @@ public class PlanListDTO extends ResourceSupport {
     private final List<PlanDTO> plans = new ArrayList<>();
 
 
+    public List<PlanDTO> getPlans() {
+        return this.plans;
+    }
+
     public void add(final PlanDTO... plans) {
         this.plans.addAll(Arrays.asList(plans));
     }

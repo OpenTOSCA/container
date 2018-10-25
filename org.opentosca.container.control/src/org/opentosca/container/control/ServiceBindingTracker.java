@@ -79,7 +79,7 @@ public class ServiceBindingTracker {
 
         // put status log
         if (boolAllServicesBound) {
-            this.logContainerIsAvailable();
+            logContainerIsAvailable();
         }
     }
 
@@ -119,15 +119,15 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IIAEngineService.");
             this.iaEngineService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
     protected void unbindIIAEngineService(final IIAEngineService service) {
         this.LOG.debug("Unbind of the IIAEngineService.");
         this.iaEngineService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -141,8 +141,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the ICoreCapabilityService.");
             this.coreCapabilityService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -154,7 +154,7 @@ public class ServiceBindingTracker {
     protected void unbindICoreCapabilityService(final ICoreCapabilityService service) {
         this.LOG.debug("Unbind of the ICoreCapabilityService.");
         this.coreCapabilityService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -168,8 +168,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the ICoreDeploymentTrackerService.");
             this.coreDeploymentTrackerService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -181,7 +181,7 @@ public class ServiceBindingTracker {
     protected void unbindICoreDeploymentTrackerService(final ICoreDeploymentTrackerService service) {
         this.LOG.debug("Unbind of the ICoreDeploymentTrackerService.");
         this.coreDeploymentTrackerService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -195,8 +195,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the ICoreEndpointService.");
             this.coreEndpointService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -208,7 +208,7 @@ public class ServiceBindingTracker {
     protected void unbindICoreEndpointService(final ICoreEndpointService service) {
         this.LOG.debug("Unbind of the ICoreEndpointService.");
         this.coreEndpointService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -222,8 +222,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the ICoreFileService.");
             this.coreFileService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -235,7 +235,7 @@ public class ServiceBindingTracker {
     protected void unbindICoreFileService(final ICoreFileService service) {
         this.LOG.debug("Unbind of the ICoreFileService.");
         this.coreFileService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -249,8 +249,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the ICoreModelRepositoryService.");
             this.coreModelRepositoryService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -262,7 +262,7 @@ public class ServiceBindingTracker {
     protected void unbindICoreModelRepositoryService(final ICoreModelRepositoryService service) {
         this.LOG.debug("Unbind of the ICoreModelRepositoryService.");
         this.coreModelRepositoryService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -276,8 +276,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IFileAccessService.");
             this.fileAccessService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -289,7 +289,7 @@ public class ServiceBindingTracker {
     protected void unbindIFileAccessService(final IFileAccessService service) {
         this.LOG.debug("Unbind of the IFileAccessService.");
         this.fileAccessService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -303,8 +303,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IHTTPService.");
             this.httpService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -316,7 +316,7 @@ public class ServiceBindingTracker {
     protected void unbindIHTTPService(final IHTTPService service) {
         this.LOG.debug("Unbind of the IHTTPService.");
         this.httpService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -330,8 +330,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IOpenToscaControlService.");
             this.openToscaControlService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -343,7 +343,7 @@ public class ServiceBindingTracker {
     protected void unbindIOpenToscaControlService(final IOpenToscaControlService service) {
         this.LOG.debug("Unbind of the IOpenToscaControlService.");
         this.openToscaControlService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -357,8 +357,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IPlanEngineService.");
             this.planEngineService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -370,7 +370,7 @@ public class ServiceBindingTracker {
     protected void unbindIPlanEngineService(final IPlanEngineService service) {
         this.LOG.debug("Unbind of the IPlanEngineService.");
         this.planEngineService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -384,8 +384,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IToscaEngineService.");
             this.toscaEngineService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -397,7 +397,7 @@ public class ServiceBindingTracker {
     protected void unbindIToscaEngineService(final IToscaEngineService service) {
         this.LOG.debug("Unbind of the IToscaEngineService.");
         this.toscaEngineService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -411,8 +411,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IXMLSerializerService.");
             this.xmlSerializerService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -424,7 +424,7 @@ public class ServiceBindingTracker {
     protected void unbindIXMLSerializerService(final IXMLSerializerService service) {
         this.LOG.debug("Unbind of the IXMLSerializerService.");
         this.xmlSerializerService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -438,8 +438,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the planInvocationEngine.");
             this.planInvocationEngine = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -451,7 +451,7 @@ public class ServiceBindingTracker {
     protected void unbindIPlanInvocationEngine(final IPlanInvocationEngine service) {
         this.LOG.debug("Unbind of the planInvocationEngine.");
         this.planInvocationEngine = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     /**
@@ -465,8 +465,8 @@ public class ServiceBindingTracker {
         } else {
             this.LOG.debug("Bind of the IManagementBusService.");
             this.managementBusService = service;
-            this.log_online(service.getClass().getSimpleName());
-            this.checkAvailability();
+            log_online(service.getClass().getSimpleName());
+            checkAvailability();
         }
     }
 
@@ -478,7 +478,7 @@ public class ServiceBindingTracker {
     protected void unbindIManagementBusService(final IManagementBusService service) {
         this.LOG.debug("Unbind of the IManagementBusService.");
         this.managementBusService = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     protected void bindEventAdmin(final EventAdmin service) {
@@ -494,9 +494,9 @@ public class ServiceBindingTracker {
 
             this.LOG.debug("Send callback address request.");
             this.eventAdmin.postEvent(event);
-            this.log_online(service.getClass().getSimpleName());
+            log_online(service.getClass().getSimpleName());
 
-            this.checkAvailability();
+            checkAvailability();
         }
     }
 
@@ -530,7 +530,7 @@ public class ServiceBindingTracker {
     protected void unbindEventAdmin(final EventAdmin service) {
         this.LOG.debug("Unbind of the EventAdmin.");
         this.eventAdmin = null;
-        this.log_offline(service.getClass().getSimpleName());
+        log_offline(service.getClass().getSimpleName());
     }
 
     private void log_online(final String servicename) {

@@ -7,6 +7,8 @@ package org.opentosca.container.core;
 import java.io.File;
 
 import org.opentosca.container.core.common.Settings;
+import org.opentosca.container.core.impl.plan.RulesChecker;
+import org.opentosca.container.core.service.ICoreFileService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -19,7 +21,7 @@ public class Activator implements BundleActivator {
     private static BundleContext context;
 
 
-    static BundleContext getContext() {
+    public static BundleContext getContext() {
         return context;
     }
 

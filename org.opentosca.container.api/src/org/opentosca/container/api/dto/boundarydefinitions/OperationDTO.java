@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.eclipse.winery.model.tosca.TExportedOperation;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dk.nykredit.jackson.dataformat.hal.annotation.EmbeddedResource;
 import dk.nykredit.jackson.dataformat.hal.annotation.Resource;
+import io.swagger.annotations.ApiModelProperty;
 
 @Resource
 @XmlRootElement(name = "Operation")
@@ -24,7 +26,7 @@ public class OperationDTO extends ResourceSupport {
 
     @XmlElement
     @EmbeddedResource
-    private TExportedOperation.NodeOperation nodeOperation;
+    private NodeOperationDTO nodeOperation;
 
     @XmlElement
     @EmbeddedResource
@@ -43,14 +45,16 @@ public class OperationDTO extends ResourceSupport {
         this.name = name;
     }
 
-    public TExportedOperation.NodeOperation getNodeOperation() {
+    @ApiModelProperty(name = "node_operation")
+    public NodeOperationDTO getNodeOperation() {
         return this.nodeOperation;
     }
 
-    public void setNodeOperation(final TExportedOperation.NodeOperation nodeOperation) {
+    public void setNodeOperation(final NodeOperationDTO nodeOperation) {
         this.nodeOperation = nodeOperation;
     }
 
+    @ApiModelProperty(name = "relationship_operation")
     public TExportedOperation.RelationshipOperation getRelationshipOperation() {
         return this.relationshipOperation;
     }
