@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.NodeOperationDTO;
 import org.opentosca.container.api.dto.ResourceSupport;
 import org.opentosca.container.api.dto.plan.PlanDTO;
 import org.opentosca.container.core.tosca.model.TExportedOperation;
@@ -25,7 +26,7 @@ public class OperationDTO extends ResourceSupport {
 
     @XmlElement
     @EmbeddedResource
-    private TExportedOperation.NodeOperation nodeOperation;
+    private NodeOperationDTO nodeOperation;
 
     @XmlElement
     @EmbeddedResource
@@ -45,11 +46,11 @@ public class OperationDTO extends ResourceSupport {
     }
 
     @ApiModelProperty(name = "node_operation")
-    public TExportedOperation.NodeOperation getNodeOperation() {
+    public NodeOperationDTO getNodeOperation() {
         return this.nodeOperation;
     }
 
-    public void setNodeOperation(final TExportedOperation.NodeOperation nodeOperation) {
+    public void setNodeOperation(final NodeOperationDTO nodeOperation) {
         this.nodeOperation = nodeOperation;
     }
 

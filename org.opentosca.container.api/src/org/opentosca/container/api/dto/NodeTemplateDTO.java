@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.opentosca.container.api.dto.boundarydefinitions.InterfaceListDTO;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -23,6 +25,9 @@ public class NodeTemplateDTO extends ResourceSupport {
 
     @XmlElement(name = "NodeType")
     private String nodeType;
+
+    @XmlElement(name = "Interfaces")
+    private InterfaceListDTO interfaces;
 
     public String getId() {
         return this.id;
@@ -48,4 +53,13 @@ public class NodeTemplateDTO extends ResourceSupport {
     public void setNodeType(final String nodeType) {
         this.nodeType = nodeType;
     }
+
+    public InterfaceListDTO getInterfaces() {
+        return this.interfaces;
+    }
+
+    public void setInterfaces(final InterfaceListDTO interfaces) {
+        this.interfaces = interfaces;
+    }
+
 }

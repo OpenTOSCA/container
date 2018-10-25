@@ -59,6 +59,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.common.collect.Lists;
+
 /**
  * This is the implementation of the interface
  * org.opentosca.toscaengine.service.IToscaEngineService.
@@ -2765,7 +2767,97 @@ public class ToscaEngineServiceImpl implements IToscaEngineService {
             }
         }
 
+
         return null;
+    }
+
+    @Override
+    public List<String> getInterfaceNamesOfNodeType(final CSARID csarID, final QName nodeTypeID) {
+
+        final Set<String> interfaceNames = new HashSet<>();
+
+        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarID, nodeTypeID)) {
+
+            final TNodeType nodeType =
+                (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarID,
+                                                                                         nodeTypeHierarchyMember);
+
+            if (nodeType.getInterfaces() != null) {
+
+                for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
+                    interfaceNames.add(iface.getName());
+                }
+            }
+        }
+
+        return Lists.newArrayList(interfaceNames);
+    }
+
+    @Override
+    public List<String> getOperationNamesOfNodeTypeInterface(final CSARID csarId, final QName nodeTypeId,
+                                                             final String interfaceName) {
+        final Set<String> operationNames = new HashSet<>();
+
+        for (final QName nodeTypeHierarchyMember : getNodeTypeHierachy(csarId, nodeTypeId)) {
+
+            final TNodeType nodeType =
+                (TNodeType) ToscaEngineServiceImpl.toscaReferenceMapper.getJAXBReference(csarId,
+                                                                                         nodeTypeHierarchyMember);
+
+            if (nodeType.getInterfaces() != null) {
+
+                for (final TInterface iface : nodeType.getInterfaces().getInterface()) {
+
+                    if (iface.getName().equals(interfaceName)) {
+                        for (final TOperation op : iface.getOperation()) {
+                            operationNames.add(op.getName());
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+        return Lists.newArrayList(operationNames);
+    }
+
+    @Override
+    public List<String> getInputParametersOfNodeTypeOperation(final CSARID csarID, final QName nodeTypeId,
+                                                              final String interfaceName, final String operationName) {
+        return parseParameters(getInputParametersOfANodeTypeOperation(csarID, nodeTypeId, interfaceName,
+                                                                      operationName));
+    }
+
+    @Override
+    public List<String> getOutputParametersOfNodeTypeOperation(final CSARID csarID, final QName nodeTypeId,
+                                                               final String interfaceName, final String operationName) {
+        return parseParameters(getOutputParametersOfANodeTypeOperation(csarID, nodeTypeId, interfaceName,
+                                                                       operationName));
+    }
+
+    private List<String> parseParameters(final Node node) {
+
+        final List<String> params = new ArrayList<>();
+        if (node != null) {
+
+            final NodeList definedInputParameterList = node.getChildNodes();
+
+            for (int i = 0; i < definedInputParameterList.getLength(); i++) {
+
+                final Node currentNode = definedInputParameterList.item(i);
+
+                if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                    final String name = ((Element) currentNode).getAttribute("name");
+
+                    params.add(name);
+
+                }
+            }
+        }
+
+        return params;
     }
 
 }
